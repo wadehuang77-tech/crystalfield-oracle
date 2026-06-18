@@ -1,0 +1,55 @@
+# Cloudflare Worker 設定
+#
+# 兩個 D1 完全分離:
+#   DB         — 客戶資料 (profiles / emails / leads / events / unlocks / admins)
+#   DB_CARDS   — 塔羅牌內容 (decks / cards 含 gated_payload)
+#
+# 客戶資料只 Worker 寫入,塔羅牌內容只 admin 手動 import,降低洩漏面。
+#
+# 使用前:
+#   1. npx wrangler login
+#   2. 兩個 D1 都建立並把 database_id 貼下來:
+#      npx wrangler d1 create bolt-tarot-customer
+#      npx wrangler d1 create bolt-tarot-cards
+#   3. npx wrangler secret put JWT_SECRET   (隨便給一串 32+ 字元的亂數)
+#   4. npx wrangler secret put ECPAY_HASH_KEY   (綠界提供,可選)
+#   5. npx wrangler secret put ECPAY_HASH_IV    (綠界提供,可選)
+#   6. wrangler deploy
+
+name = "bolt-tarot-api"
+main = "src/index.ts"
+compatibility_date = "2026-04-24"
+compatibility_flags = ["nodejs_compat"]
+account_id = "9c7e7a59a9512d771d6e322c6927859b"
+workers_dev = false
+
+# Worker 走 api.crystalfield101.com (Custom Domain — 會自動建 DNS 紀錄)
+routes = [
+  { pattern = "api.crystalfield101.com", custom_domain = true }
+]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bolt-tarot-customer"
+database_id = "64583df1-9f69-4164-8a89-c6dec6b4ac61"
+
+[[d1_databases]]
+binding = "DB_CARDS"
+database_name = "bolt-tarot-cards"
+database_id = "7e74927a-0213-4ad5-bd4a-87cf4ea5c1a7"
+
+# 寄信改走 Resend(https://resend.com)
+# Cloudflare Send Email binding 有「收件人必須驗證」的限制,生產環境不能用,改 Resend
+# RESEND_API_KEY 用 wrangler secret put 設定,不寫進 toml
+
+# 環境變數(非敏感)
+[vars]
+# 允許的前端 origin。可填多個用逗號分隔。
+ALLOWED_ORIGINS = "https://crystalfield101.com,https://www.crystalfield101.com"
+
+# 寄信(MailChannels)
+# From 必須是 crystalfield101.com 域下的 email,gmail.com 不能當寄件人(SPF/DKIM 不會通過)
+MAIL_FROM_ADDRESS = "crystalfield101@crystalfield101.com"
+MAIL_FROM_NAME    = "晶域心語"
+# Reply-To 是用戶按「回覆」會去到的信箱
+MAIL_REPLY_TO     = "wadehuang77@gmail.com"
