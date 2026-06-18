@@ -1,0 +1,39 @@
+name: Apply D1 Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type APPLY to run remote production D1 migrations
+        required: true
+      database:
+        description: D1 database binding or name
+        required: true
+        default: DB
+
+jobs:
+  migrate:
+    name: Apply remote migrations
+    if: inputs.confirm == 'APPLY'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+      - name: Stage migrations for Wrangler
+        run: |
+          rm -rf migrations
+          mkdir -p migrations
+          cp ../d1/migrations/*.sql migrations/
+          ls -la migrations
+      - name: Apply migrations
+        run: npx wrangler d1 migrations apply "${{ inputs.database }}" --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

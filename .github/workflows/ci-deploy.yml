@@ -1,0 +1,116 @@
+name: CI and Deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck frontend (non-blocking until existing TS debt is cleared)
+        run: npm run typecheck
+        continue-on-error: true
+      - name: Lint frontend (non-blocking until existing lint debt is cleared)
+        run: npm run lint
+        continue-on-error: true
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_API_BASE: ${{ vars.VITE_API_BASE || 'https://api.crystalfield101.com' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist
+
+  worker:
+    name: Worker check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+
+  deploy-worker:
+    name: Deploy Worker
+    needs: [frontend, worker]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+      - name: Deploy Worker to Cloudflare
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  deploy-pages:
+    name: Deploy Pages
+    needs: [frontend]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.CLOUDFLARE_PAGES_PROJECT_NAME != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist
+      - name: Deploy frontend to Cloudflare Pages
+        run: npx wrangler pages deploy dist --project-name "$CLOUDFLARE_PAGES_PROJECT_NAME" --branch main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+
+  smoke:
+    name: Smoke test production
+    needs: [deploy-worker, deploy-pages]
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.deploy-worker.result == 'success' && (needs.deploy-pages.result == 'success' || needs.deploy-pages.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Run smoke tests
+        run: npm run smoke
+        env:
+          SMOKE_API_BASE: ${{ vars.SMOKE_API_BASE || vars.VITE_API_BASE || 'https://api.crystalfield101.com' }}
+          SMOKE_FRONTEND_URL: ${{ vars.SMOKE_FRONTEND_URL || 'https://crystalfield101.com' }}
+          SMOKE_ORIGIN: ${{ vars.SMOKE_ORIGIN || vars.SMOKE_FRONTEND_URL || 'https://crystalfield101.com' }}

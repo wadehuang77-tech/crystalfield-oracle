@@ -228,6 +228,66 @@ Worker API 主要集中在 `worker/src/index.ts`:
 
 4. 確認 `worker/wrangler.toml` 的 `ALLOWED_ORIGINS` 包含正式前端網域。
 
+## 自動化部署
+
+專案已加入 GitHub Actions:
+
+- `.github/workflows/ci-deploy.yml`
+  - PR: 安裝依賴、建置前端、檢查 Worker typecheck
+  - push 到 `main`: 自動部署 Worker,可選擇自動部署 Cloudflare Pages,最後跑 smoke test
+- `.github/workflows/d1-migrations.yml`
+  - 手動觸發 production D1 migrations,需要輸入 `APPLY` 才會執行
+
+### GitHub Secrets
+
+在 GitHub repo → Settings → Secrets and variables → Actions → Secrets 設定:
+
+```text
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+```
+
+`CLOUDFLARE_API_TOKEN` 建議權限:
+
+- Workers Scripts: Edit
+- D1: Edit
+- Pages: Edit (如果要由 GitHub Actions 部署前端)
+- Account Settings: Read
+
+Worker runtime secrets 仍在 Cloudflare Workers 裡設定,不要放進 git:
+
+```bash
+cd worker
+npx wrangler secret put JWT_SECRET
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put ECPAY_MERCHANT_ID
+npx wrangler secret put ECPAY_HASH_KEY
+npx wrangler secret put ECPAY_HASH_IV
+```
+
+### GitHub Variables
+
+在 GitHub repo → Settings → Secrets and variables → Actions → Variables 可設定:
+
+```text
+VITE_API_BASE=https://api.crystalfield101.com
+SMOKE_API_BASE=https://api.crystalfield101.com
+SMOKE_FRONTEND_URL=https://crystalfield101.com
+SMOKE_ORIGIN=https://crystalfield101.com
+CLOUDFLARE_PAGES_PROJECT_NAME=你的 Pages project name
+```
+
+若 `CLOUDFLARE_PAGES_PROJECT_NAME` 留空,workflow 只會自動部署 Worker。前端可繼續使用 Cloudflare Pages 連 GitHub 的內建自動部署。
+
+### D1 migrations
+
+Production migrations 不會在每次 push 自動執行,避免資料庫變更失手。需要時到 GitHub Actions → `Apply D1 Migrations` → Run workflow:
+
+- `confirm`: `APPLY`
+- `database`: `DB`
+
+目前 migrations 來源在 `d1/migrations/*.sql`,workflow 會複製到 `worker/migrations/` 後用 Wrangler 套用。
+
 ## 開發注意事項
 
 - 前端 API client 位於 `src/lib/api.ts`。

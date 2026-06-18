@@ -140,13 +140,20 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     });
   }
 
+  const merchantId = env.ECPAY_MERCHANT_ID;
+  const hashKey = env.ECPAY_HASH_KEY;
+  const hashIV = env.ECPAY_HASH_IV;
+  if (!merchantId || !hashKey || !hashIV) {
+    return serverError(req, env, new Error('ECPay 未設定'));
+  }
+
   const apiOrigin = new URL(req.url).origin;
   const frontendOrigin = inferFrontendOrigin(env);
 
   const form = await buildAioCheckOutForm({
-    merchantId:      env.ECPAY_MERCHANT_ID,
-    hashKey:         env.ECPAY_HASH_KEY,
-    hashIV:          env.ECPAY_HASH_IV,
+    merchantId,
+    hashKey,
+    hashIV,
     merchantTradeNo,
     amount:          item.amount,
     itemName:        item.name,
