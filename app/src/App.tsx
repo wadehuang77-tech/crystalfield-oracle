@@ -23,6 +23,7 @@ import { AdminPage } from './pages/AdminPage';
 import { AdminSettingsPage } from './pages/AdminSettingsPage';
 import { AdminKpiPage } from './pages/AdminKpiPage';
 import CheckoutReturnPage from './pages/CheckoutReturnPage';
+import LandingPage from './pages/LandingPage';
 import NumerologyPage from './pages/NumerologyPage';
 
 function RouterBody() {
@@ -32,7 +33,8 @@ function RouterBody() {
       <ScrollToTop />
       <div className="flex-1">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute><AdminSettingsPage /></ProtectedRoute>} />
@@ -52,6 +54,7 @@ function RouterBody() {
           <Route path="/osho/three" element={<OshoThreePage />} />
           <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturnPage /></ProtectedRoute>} />
           <Route path="/numerology" element={<NumerologyPage />} />
+          <Route path="/human-design" element={<div className="min-h-screen bg-[#060310] flex items-center justify-center text-white/40 text-lg">人類圖 — 即將推出</div>} />
         </Routes>
       </div>
       <SiteFooter />
