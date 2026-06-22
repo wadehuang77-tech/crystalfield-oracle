@@ -23,6 +23,7 @@ import { AdminPage } from './pages/AdminPage';
 import { AdminSettingsPage } from './pages/AdminSettingsPage';
 import { AdminKpiPage } from './pages/AdminKpiPage';
 import CheckoutReturnPage from './pages/CheckoutReturnPage';
+import NumerologyPage from './pages/NumerologyPage';
 
 function RouterBody() {
   usePageViewTracking();
@@ -50,6 +51,7 @@ function RouterBody() {
           <Route path="/osho/single" element={<OshoSinglePage />} />
           <Route path="/osho/three" element={<OshoThreePage />} />
           <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturnPage /></ProtectedRoute>} />
+          <Route path="/numerology" element={<NumerologyPage />} />
         </Routes>
       </div>
       <SiteFooter />

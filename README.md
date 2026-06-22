@@ -1,122 +1,138 @@
-# 晶域心語 Tarot Cards
+# 晶域心語 Crystalfield Oracle
 
-以 React + Vite 建立的線上抽牌與牌陣解讀網站，後端使用 Cloudflare Workers + D1。專案包含多個牌組、會員登入、Email 解鎖、付費牌陣、綠界付款回傳、管理後台與 KPI 追蹤。
+React + Vite 前端搭配 Cloudflare Workers + D1 後端的靈性占卜平台，涵蓋塔羅牌占卜、生命靈數水晶分析、會員制度、綠界付款與管理後台。
 
 ## 技術棧
 
-- Frontend: React 18, Vite, TypeScript, React Router, Tailwind CSS
-- Icons: lucide-react
-- Backend: Cloudflare Workers, Wrangler
-- Database: Cloudflare D1
-- Payment: ECPay 綠界
-- Email: Resend / MailChannels 設定欄位
+| 層級 | 技術 |
+|------|------|
+| 前端 | React 18、Vite、TypeScript、React Router、Tailwind CSS |
+| 後端 | Cloudflare Workers、Wrangler |
+| 資料庫 | Cloudflare D1（兩個獨立 binding） |
+| 付款 | 綠界 ECPay |
+| 寄信 | Resend |
 
 ## 專案結構
 
 ```text
-.
-├── src/                 # 前端 React App
-│   ├── pages/           # 頁面與路由
-│   ├── components/      # 共用 UI 元件
-│   ├── hooks/           # 前端 hooks
-│   ├── lib/             # API、付款導轉、追蹤工具
-│   ├── contexts/        # Auth context
-│   └── utils/           # 牌陣解讀工具
-├── worker/              # Cloudflare Worker API
+crystalfield-oracle/
+├── app/                    # 前端 React App
+│   ├── src/
+│   │   ├── pages/          # 頁面與路由
+│   │   ├── components/     # UI 元件
+│   │   │   └── numerology/ # 生命靈數水晶分析元件
+│   │   ├── hooks/          # React hooks（含 usePremium）
+│   │   ├── lib/            # API client、付款導轉、靈數計算、追蹤
+│   │   ├── contexts/       # AuthContext
+│   │   └── utils/          # 牌陣解讀工具
+│   ├── public/             # 靜態資源
+│   ├── scripts/            # Smoke test
+│   └── package.json
+├── worker/                 # Cloudflare Worker API
 │   ├── src/
 │   ├── wrangler.toml
 │   └── package.json
-├── d1/                  # D1 schema、seed、migration
-├── public/              # 靜態資源
-└── dist/                # 前端 build 輸出
+└── d1/                     # D1 schema、seed、migration
+    ├── migrations/         # 版本化 migration 檔（001、002…）
+    ├── customer-schema.sql
+    ├── cards-schema.sql
+    └── *.sql
 ```
 
 ## 主要功能
 
-- 多牌組抽牌: Tarot、Osho、Lightworker、Unicorns、Dragons、Egyptian Gods、Work Your Light
-- 單張牌與多張牌陣解讀
-- Email gate 免費解鎖
-- 會員註冊、登入、登出、忘記密碼
-- 付費牌陣訂單建立與綠界付款回傳
-- 管理後台: 使用者、訪客 email、訂單、管理員、KPI
+**塔羅占卜**
+- 七個牌組：Tarot、Osho、Lightworker、Unicorns、Dragons、Egyptian Gods、Work Your Light
+- 單張牌與多張牌陣（含 Celtic Cross、Cosmic Cross）
+- Email gate 免費解鎖、付費牌陣訂單與綠界付款回傳
+
+**生命靈數水晶分析**（`/numerology`）
+- 依生日計算生命靈數、缺失數字、水晶能量
+- 每日能量指引、AI 顧問、升級解鎖
+
+**後台與追蹤**
+- 會員註冊、登入、忘記密碼
+- 管理後台：使用者、訪客 email、訂單、管理員、KPI 儀表板
 - 轉換事件與頁面瀏覽追蹤
 
 ## 前置需求
 
 - Node.js 18+
-- npm
-- Cloudflare 帳號與 Wrangler 登入權限
-- 兩個 Cloudflare D1 database:
-  - `DB`: 客戶、會員、訂單、事件資料
-  - `DB_CARDS`: 牌組與牌義內容
+- Cloudflare 帳號並已執行 `wrangler login`
+- 兩個 Cloudflare D1 database（見下方 D1 章節）
 
 ## 安裝
 
 ```bash
+# 前端
+cd app
 npm install
-cd worker
+
+# Worker
+cd ../worker
 npm install
-cd ..
 ```
 
 ## 環境變數
 
-前端使用 `.env` 或部署平台環境變數:
+### 前端（`app/`）
+
+複製範例：
 
 ```bash
-VITE_API_BASE=
+cp app/.env.example app/.env.local
 ```
 
-開發時可留空，`vite.config.ts` 會將 `/api/*` proxy 到本機 Worker:
+| 變數 | 說明 |
+|------|------|
+| `VITE_API_BASE` | Worker API 網址（開發時留空，Vite 會自動 proxy） |
 
-```text
-http://127.0.0.1:8787
-```
+開發時留空即可，`vite.config.ts` 已設定將 `/api/*` proxy 到 `http://127.0.0.1:8787`。
 
-生產環境請設定為 Worker API 網址，例如:
+生產環境範例：
 
 ```bash
-VITE_API_BASE=https://api.example.com
+VITE_API_BASE=https://api.crystalfield101.com
 ```
 
-Worker secrets 使用 Wrangler 設定，不要寫進 git:
+### Worker secrets
+
+透過 Wrangler 設定，不要寫進 git：
 
 ```bash
 cd worker
-npx wrangler secret put JWT_SECRET
-npx wrangler secret put RESEND_API_KEY
-npx wrangler secret put ECPAY_HASH_KEY
-npx wrangler secret put ECPAY_HASH_IV
+npx wrangler secret put JWT_SECRET          # 32+ 字元隨機字串
+npx wrangler secret put RESEND_API_KEY      # Resend API Key
+npx wrangler secret put ECPAY_MERCHANT_ID   # 綠界商店代號
+npx wrangler secret put ECPAY_HASH_KEY      # 綠界提供
+npx wrangler secret put ECPAY_HASH_IV       # 綠界提供
 ```
 
-`ECPAY_HASH_KEY` 與 `ECPAY_HASH_IV` 若尚未啟用正式付款可先不設定，但正式環境需要填入綠界提供的值。
+> `ECPAY_*` 若尚未啟用正式付款可先略過，但正式環境必填。
 
 ## 本機開發
 
-開兩個 terminal。
+開兩個 terminal：
 
-Terminal 1: 啟動 Worker API
+**Terminal 1 — Worker API**
 
 ```bash
 cd worker
 npm run dev
+# → http://127.0.0.1:8787
 ```
 
-Terminal 2: 啟動前端
+**Terminal 2 — 前端**
 
 ```bash
+cd app
 npm run dev
-```
-
-預設前端網址:
-
-```text
-http://localhost:5173
+# → http://localhost:5173
 ```
 
 ## D1 資料庫
 
-建立 D1 database:
+### 初始建立（第一次）
 
 ```bash
 cd worker
@@ -124,175 +140,150 @@ npx wrangler d1 create bolt-tarot-customer
 npx wrangler d1 create bolt-tarot-cards
 ```
 
-將產生的 `database_id` 填入 `worker/wrangler.toml`:
+將產生的 `database_id` 填入 `worker/wrangler.toml`：
 
 ```toml
 [[d1_databases]]
 binding = "DB"
 database_name = "bolt-tarot-customer"
-database_id = "..."
+database_id = "<YOUR_ID>"
 
 [[d1_databases]]
 binding = "DB_CARDS"
 database_name = "bolt-tarot-cards"
-database_id = "..."
+database_id = "<YOUR_ID>"
 ```
 
-套用 schema 與 seed:
+### 套用 schema 與 seed
+
+> **注意：** schema 檔含有 `DROP TABLE IF EXISTS`，正式環境執行前請確認已備份資料。
 
 ```bash
-cd ..
+# 客戶資料庫
 npx wrangler d1 execute bolt-tarot-customer --remote --file=./d1/customer-schema.sql
 npx wrangler d1 execute bolt-tarot-customer --remote --file=./d1/customer-seed.sql
+
+# 牌組內容資料庫
 npx wrangler d1 execute bolt-tarot-cards --remote --file=./d1/cards-schema.sql
 npx wrangler d1 execute bolt-tarot-cards --remote --file=./d1/cards-seed.sql
 ```
 
-> 注意: schema 檔案含有 `DROP TABLE IF EXISTS`，執行前請確認目標環境與資料備份。
+### Migration（版本化變更）
+
+Production migrations 不會自動執行，需手動到 GitHub Actions → **Apply D1 Migrations** → Run workflow：
+
+- `confirm`: `APPLY`
+- `database`: `DB`（或 `DB_CARDS`）
+
+Migration 檔案位於 `d1/migrations/*.sql`，workflow 會複製到 `worker/migrations/` 後以 Wrangler 套用。
 
 ## 常用指令
 
-前端:
+**前端（在 `app/` 執行）**
 
 ```bash
-npm run dev        # 啟動 Vite dev server
-npm run build      # 建置前端
+npm run dev        # Vite dev server
+npm run build      # 建置
 npm run preview    # 預覽 dist
 npm run lint       # ESLint
-npm run typecheck  # TypeScript type check
+npm run typecheck  # TypeScript 型別檢查
+npm run smoke      # Smoke test（需設定環境變數）
 ```
 
-Worker:
+**Worker（在 `worker/` 執行）**
 
 ```bash
-cd worker
-npm run dev        # 啟動 wrangler dev，預設 port 8787
+npm run dev        # wrangler dev，port 8787
 npm run deploy     # 部署 Worker
-npm run types      # 產生 Worker 型別
+npm run typecheck  # TypeScript 型別檢查
+npm run types      # 重新產生 Worker 型別定義
 ```
 
-## 主要頁面
+## 頁面路由
 
-- `/`: 首頁
-- `/auth`: 登入 / 註冊
-- `/tarot`: Tarot 牌陣
-- `/tarot-single`: Tarot 單張牌
-- `/lightworker`: Lightworker
-- `/lightworker/celtic-cross`: Lightworker Celtic Cross
-- `/unicorns`: Unicorns
-- `/dragons`: Dragons
-- `/egyptian-gods`: Egyptian Gods
-- `/work-your-light`: Work Your Light
-- `/work-your-light-single`: Work Your Light 單張牌
-- `/cosmic-cross`: Cosmic Cross
-- `/osho`: Osho
-- `/osho/single`: Osho 單張牌
-- `/osho/three`: Osho 三張牌
-- `/checkout/return`: 付款回到站內頁
-- `/admin`: 管理後台
-- `/admin/settings`: 管理員設定
-- `/admin/kpi`: KPI 儀表板
+| 路由 | 說明 |
+|------|------|
+| `/` | 首頁 |
+| `/auth` | 登入 / 註冊 / 忘記密碼 |
+| `/numerology` | 生命靈數水晶分析 |
+| `/tarot` | Tarot 牌陣 |
+| `/tarot-single` | Tarot 單張牌 |
+| `/lightworker` | Lightworker |
+| `/lightworker/celtic-cross` | Lightworker Celtic Cross |
+| `/unicorns` | Unicorns |
+| `/dragons` | Dragons |
+| `/egyptian-gods` | Egyptian Gods |
+| `/work-your-light` | Work Your Light |
+| `/work-your-light-single` | Work Your Light 單張牌 |
+| `/cosmic-cross` | Cosmic Cross |
+| `/osho` | Osho |
+| `/osho/single` | Osho 單張牌 |
+| `/osho/three` | Osho 三張牌 |
+| `/checkout/return` | 付款完成回傳頁（需登入） |
+| `/admin` | 管理後台（需管理員） |
+| `/admin/settings` | 管理員帳號設定 |
+| `/admin/kpi` | KPI 儀表板 |
 
-## API 概覽
+## Worker API 概覽
 
-Worker API 主要集中在 `worker/src/index.ts`:
-
-- Auth: `/api/auth/signup`, `/api/auth/signin`, `/api/auth/signout`, `/api/auth/me`
-- Password reset: `/api/auth/request-password-reset`, `/api/auth/verify-reset-code`, `/api/auth/reset-password`
-- Cards: `/api/decks`, `/api/decks/:deckId/preview`, `/api/cards/single-unlock`, `/api/cards/spread-unlock`
-- Leads and tracking: `/api/save-email`, `/api/track`, `/api/conversion-events`
-- Checkout: `/api/checkout/create-order`, `/api/checkout/result`, `/api/checkout/catalog`, `/api/orders/:id`
-- Admin: `/api/admin/*`, `/api/metrics/daily`
-- ECPay webhook: `/api/ecpay-webhook`
+| 群組 | 端點 |
+|------|------|
+| Auth | `POST /api/auth/signup` `signin` `signout` `GET /api/auth/me` |
+| 密碼重設 | `POST /api/auth/request-password-reset` `verify-reset-code` `reset-password` |
+| 牌組 | `GET /api/decks` `/api/decks/:id/preview` |
+| 解鎖 | `POST /api/cards/single-unlock` `spread-unlock` |
+| 付款 | `POST /api/checkout/create-order` `GET /api/checkout/catalog` `GET /api/orders/:id` |
+| ECPay webhook | `POST /api/ecpay-webhook` |
+| Leads / 追蹤 | `POST /api/save-email` `track` `conversion-events` |
+| Admin | `GET/POST/DELETE /api/admin/*` `GET /api/metrics/daily` |
 
 ## 部署
 
-1. 建置前端:
+### 手動部署
 
-   ```bash
-   npm run build
-   ```
+```bash
+# 1. 建置前端
+cd app
+npm run build
 
-2. 部署 Worker:
+# 2. 部署 Worker
+cd ../worker
+npm run deploy
+```
 
-   ```bash
-   cd worker
-   npm run deploy
-   ```
+### 自動部署（GitHub Actions）
 
-3. 確認部署平台或靜態站台已設定:
+| Workflow | 觸發 | 內容 |
+|----------|------|------|
+| `ci-deploy.yml` | PR / push `main` | 安裝、建置、typecheck；push main 時自動部署 Worker，可選 Cloudflare Pages，最後跑 smoke test |
+| `d1-migrations.yml` | 手動 | 輸入 `APPLY` 確認後套用 production D1 migrations |
 
-   ```bash
-   VITE_API_BASE=https://你的-worker-api-domain
-   ```
+#### GitHub Secrets
 
-4. 確認 `worker/wrangler.toml` 的 `ALLOWED_ORIGINS` 包含正式前端網域。
-
-## 自動化部署
-
-專案已加入 GitHub Actions:
-
-- `.github/workflows/ci-deploy.yml`
-  - PR: 安裝依賴、建置前端、檢查 Worker typecheck
-  - push 到 `main`: 自動部署 Worker,可選擇自動部署 Cloudflare Pages,最後跑 smoke test
-- `.github/workflows/d1-migrations.yml`
-  - 手動觸發 production D1 migrations,需要輸入 `APPLY` 才會執行
-
-### GitHub Secrets
-
-在 GitHub repo → Settings → Secrets and variables → Actions → Secrets 設定:
+在 **Settings → Secrets and variables → Actions → Secrets** 設定：
 
 ```text
-CLOUDFLARE_API_TOKEN
+CLOUDFLARE_API_TOKEN    # 需要 Workers、D1、Pages 編輯權限
 CLOUDFLARE_ACCOUNT_ID
 ```
 
-`CLOUDFLARE_API_TOKEN` 建議權限:
+#### GitHub Variables
 
-- Workers Scripts: Edit
-- D1: Edit
-- Pages: Edit (如果要由 GitHub Actions 部署前端)
-- Account Settings: Read
-
-Worker runtime secrets 仍在 Cloudflare Workers 裡設定,不要放進 git:
-
-```bash
-cd worker
-npx wrangler secret put JWT_SECRET
-npx wrangler secret put RESEND_API_KEY
-npx wrangler secret put ECPAY_MERCHANT_ID
-npx wrangler secret put ECPAY_HASH_KEY
-npx wrangler secret put ECPAY_HASH_IV
-```
-
-### GitHub Variables
-
-在 GitHub repo → Settings → Secrets and variables → Actions → Variables 可設定:
+在 **Settings → Secrets and variables → Actions → Variables** 設定：
 
 ```text
 VITE_API_BASE=https://api.crystalfield101.com
 SMOKE_API_BASE=https://api.crystalfield101.com
 SMOKE_FRONTEND_URL=https://crystalfield101.com
 SMOKE_ORIGIN=https://crystalfield101.com
-CLOUDFLARE_PAGES_PROJECT_NAME=你的 Pages project name
+CLOUDFLARE_PAGES_PROJECT_NAME=   # 留空則僅自動部署 Worker
 ```
-
-若 `CLOUDFLARE_PAGES_PROJECT_NAME` 留空,workflow 只會自動部署 Worker。前端可繼續使用 Cloudflare Pages 連 GitHub 的內建自動部署。
-
-### D1 migrations
-
-Production migrations 不會在每次 push 自動執行,避免資料庫變更失手。需要時到 GitHub Actions → `Apply D1 Migrations` → Run workflow:
-
-- `confirm`: `APPLY`
-- `database`: `DB`
-
-目前 migrations 來源在 `d1/migrations/*.sql`,workflow 會複製到 `worker/migrations/` 後用 Wrangler 套用。
 
 ## 開發注意事項
 
-- 前端 API client 位於 `src/lib/api.ts`。
-- Dev 模式下前端的 `/api` 會由 Vite proxy 到 `http://127.0.0.1:8787`。
-- Worker 的 mutating request 會檢查 Origin，正式部署時務必更新 `ALLOWED_ORIGINS`。
-- D1 分成客戶資料庫與牌組內容資料庫，避免把敏感客戶資料與牌義內容混在同一個 binding。
-- 管理後台路由由 `ProtectedRoute` 保護，實際管理員權限仍由 Worker admin API 檢查。
-- 付款相關流程請先在測試環境驗證綠界 hash key、hash IV、回傳 URL 與 webhook。
+- **API client** 位於 `app/src/lib/api.ts`，所有 fetch 走 `credentials: 'include'`（cookie-based auth）。
+- **CORS**：Worker 會檢查 `Origin`，正式部署前務必更新 `worker/wrangler.toml` 的 `ALLOWED_ORIGINS`。
+- **D1 分離**：客戶資料（`DB`）與牌組內容（`DB_CARDS`）使用不同 binding，降低洩漏風險。
+- **管理員保護**：前端路由由 `ProtectedRoute` 把關，Worker admin API 另有管理員權限驗證。
+- **付款**：正式啟用綠界前，請在測試環境驗證 hash key、hash IV、回傳 URL 與 webhook。
+- **Numerology 升級流程**：`usePremium` 目前以 localStorage 模擬付費解鎖，正式串接時應接到 Worker 付款 API。
