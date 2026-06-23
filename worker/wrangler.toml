@@ -45,7 +45,7 @@ database_id = "7e74927a-0213-4ad5-bd4a-87cf4ea5c1a7"
 # 環境變數(非敏感)
 [vars]
 # 允許的前端 origin。可填多個用逗號分隔。
-ALLOWED_ORIGINS = "https://crystalfield101.com,https://www.crystalfield101.com"
+ALLOWED_ORIGINS = "https://crystalfield101.com,https://www.crystalfield101.com,http://localhost:5173,http://127.0.0.1:5173"
 
 # 寄信(MailChannels)
 # From 必須是 crystalfield101.com 域下的 email,gmail.com 不能當寄件人(SPF/DKIM 不會通過)
