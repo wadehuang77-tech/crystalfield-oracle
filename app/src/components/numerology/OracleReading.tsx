@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Sparkles, Gem, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Gem, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport, OracleCard, MissingNumberData, CrystalInfo } from '../../lib/numerology';
 import { missingNumberData, ALL_GRID_LINES } from '../../lib/numerology';
-import ContentGate from './ContentGate';
 import type { PlanTier } from '../../hooks/usePremium';
 
 interface Props {
@@ -10,6 +9,8 @@ interface Props {
   card: OracleCard;
   tier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
+  oracleUnlocked: boolean;
+  onOracleUnlock: () => void;
 }
 
 function generateCrossAnalysis(report: NumerologyReport, card: OracleCard): {
@@ -144,15 +145,71 @@ function buildRitual(
 儀式結束：感謝神諭的降臨，吹熄蠟燭，緩緩回到當下。建議將此次冥想中浮現的任何畫面、感受或洞見記錄在日記中。`;
 }
 
-export default function OracleReading({ report, card, tier, onUpgrade }: Props) {
+export default function OracleReading({ report, card, tier, onUpgrade: _onUpgrade, oracleUnlocked, onOracleUnlock }: Props) {
   const [expanded, setExpanded] = useState<'blockpoint' | 'crystalGrid' | 'ritual' | null>(null);
   const analysis = generateCrossAnalysis(report, card);
-
   const accentColor = card.elementColor;
+  const showFull = oracleUnlocked || tier >= 2;
+  const lp = report.lifePathNumber;
+  const topMissing = report.missingNumbers[0];
 
   const toggle = (key: typeof expanded) => {
     setExpanded(prev => prev === key ? null : key);
   };
+
+  const ORACLE_UNLOCK_FEATURES = [
+    '完整靈魂藍圖解析',
+    '今生課題與靈魂使命',
+    '當下能量交叉指引',
+    '宇宙訊息與行動方向',
+    '能量平衡與顯化建議',
+    '靈性成長路徑指引',
+  ];
+
+  // ── Soul Blueprint structured fields ──
+  const soulMission = card.message;
+  const lifeLesson = topMissing
+    ? `透過數字 ${topMissing} 的缺失，你的今生學習課題是正視「${missingNumberData[topMissing]?.challenge ?? '內在力量'}」，在反覆的挑戰中淬鍊靈魂的韌性，並最終將這份功課轉化為你最獨特的生命禮物。`
+    : `生命靈數 ${lp} 的你被召喚去完整體現屬於這個數字的靈魂使命，在人際、創造與靈性的交融中，找到最符合你靈魂藍圖的成長方向。`;
+  const soulGifts = [
+    `${card.archetype}的天賦：能在關鍵時刻以${card.element}能量為自己與他人帶來指引`,
+    `生命靈數 ${lp} 賦予的直覺力：在混沌中感應到清晰的靈性訊號`,
+    `將${card.element}元素轉化為療癒工具的靈性能力`,
+    topMissing ? `透過缺失數字 ${topMissing} 的課題，發展出獨特的共情與理解深度` : `在多重面向中保持能量平衡的整合能力`,
+  ];
+  const soulPotential = `當${card.name}的能量與生命靈數 ${lp} 的藍圖完全整合，你將展現出一種罕見的能力：以${card.archetype}的洞察力，在${card.element}能量的引領下，協助自己與他人找到靈魂層次的突破口。你的最高潛能在於成為那個「看見深層真相並以愛傳遞」的靈魂存在。`;
+  const lifeDirection = `你的人生方向指向與${card.element}元素高度共鳴的領域——那些需要${card.archetype}特質的場域將會是你能量最流暢、使命感最強烈的地方。當你在這些領域中行動，你將感受到宇宙能量的完全支持。`;
+  const spiritualGrowth = `靈性成長的下一步，是讓${card.name}所揭示的課題從「知道」走向「體現」。每次你在日常中選擇以${card.element}能量的品質（${card.archetype}的本質）行動，你就在強化靈魂藍圖的最高頻率，為自己在物質界和靈性界同步顯化本命的豐盛。`;
+  const blueprintAnalysis = `你的靈魂藍圖顯示：生命靈數 ${lp} 的核心使命與「${card.name}」神諭卡高度共鳴，兩者共同指向一個主題——${card.archetype}。這不是偶然，這是你此生靈魂契約的精確映照。你所有反覆出現的課題、強烈的天賦，以及那些難以解釋的直覺感召，都是這張藍圖在不同層次的表達。`;
+  const growthSuggestion = `每天花5分鐘與${card.element}元素進行有意識的連結（如觀察自然、冥想此元素的品質），同時每週記錄一次「我今天以${card.archetype}的品質行動了」的具體時刻。這兩個小習慣，將以驚人的速度加速你靈魂藍圖的落地顯化。`;
+
+  // ── Cross Analysis structured fields ──
+  const currentEnergyState = `「${card.name}」的出現標誌著你當下能量場中${card.element}元素的強烈活躍。這個頻率正在呼喚你以${card.archetype}的方式回應此刻的一切——包括你正在面對的挑戰、機會與人際動態。`;
+  const cosmicMessage = analysis.blockpoint.split('【靈性提醒】')[1]?.split('【')[0]?.trim() ?? card.message.slice(0, 120);
+  const currentLesson = topMissing
+    ? `此刻最迫切的能量課題：正視數字 ${topMissing} 所代表的「${missingNumberData[topMissing]?.challenge ?? ''}」。宇宙正在透過當下的情境，給你一個最直接的練習機會。`
+    : `此刻最迫切的能量課題：完整展現生命靈數 ${lp} 的核心本質，不再以任何形式縮小或妥協你最真實的靈魂聲音。`;
+  const actionDirection = analysis.blockpoint.split('【突破方向】')[1]?.trim() ?? `以${card.element}能量引領，採取一個具體行動突破當前卡點。`;
+  const energyBalance = `能量平衡建議：加強${card.element}元素的攝入，同時關注你能量消耗最大的關係或情境，設立清晰的邊界。每天以一個小「自我補充」的行動為你的能量場充電。`;
+  const emotionalAwareness = card.shadow ? `情緒覺察提醒：${card.shadow.replace('。', '')}。每當這個模式出現，試著暫停一秒，問自己「這個反應背後有什麼更深的需求？」那個需求，往往才是真正需要被照顧的地方。` : `覺察並允許你此刻真實的情緒狀態，不加評判地與它同在。`;
+  const manifestationFocus = `當下最強的顯化能量點在於：將${card.name}帶來的覺察，轉化為一個具體的、可在7天內完成的「靈魂對齊行動」。意圖加上行動，才是宇宙顯化的完整公式。`;
+  const spiritualReminder = `靈性成長提醒：你此刻所面對的，不是障礙，而是靈魂升級前的「校準考驗」。${card.archetype}的能量提醒你：你早已具備通過這個考驗所需的一切，唯一需要的，是對自己的完全信任。`;
+
+  const progressBar = (label: string, color: string) => (
+    <div style={{ marginBottom: 4 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+        <p style={{ margin: 0, fontSize: 11, color: `${color}cc`, fontWeight: 500 }}>{label}</p>
+        <span style={{ fontSize: 11, fontWeight: 700, color }}>25%</span>
+      </div>
+      <div style={{ height: 4, borderRadius: 999, background: `${color}14`, overflow: 'hidden' }}>
+        <div style={{
+          height: '100%', width: '25%', borderRadius: 999,
+          background: `linear-gradient(90deg, ${color}cc, ${color})`,
+          boxShadow: `0 0 8px ${color}55`,
+        }} />
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -165,20 +222,26 @@ export default function OracleReading({ report, card, tier, onUpgrade }: Props) 
         boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
       }}
     >
-      {/* Header */}
+      {/* ── SECTION 1: Header + Card ── */}
       <div className="p-6 space-y-4" style={{ borderBottom: `1px solid ${accentColor}18` }}>
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4" style={{ color: accentColor }} />
           <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>靈魂藍圖 × 當下能量交叉指引</h3>
+          {!showFull && (
+            <span style={{
+              marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+              borderRadius: 999, background: `${accentColor}12`,
+              border: `1px solid ${accentColor}25`, color: accentColor,
+            }}>25% 免費</span>
+          )}
         </div>
 
-        {/* Card reveal */}
+        {/* Card reveal — always free */}
         <div
           className="rounded-2xl p-5 space-y-4"
           style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}
         >
           <div className="flex items-start gap-4">
-            {/* Card icon */}
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 relative overflow-hidden"
               style={{
@@ -193,7 +256,6 @@ export default function OracleReading({ report, card, tier, onUpgrade }: Props) 
                 style={{ background: `radial-gradient(circle at 70% 70%, ${accentColor}15, transparent)` }}
               />
             </div>
-
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
                 <span
@@ -204,173 +266,437 @@ export default function OracleReading({ report, card, tier, onUpgrade }: Props) 
                 </span>
                 <span className="text-[10px] uppercase tracking-wider" style={{ color: 'rgba(196,181,253,0.4)' }}>已抽出</span>
               </div>
-              <h4 className="text-lg font-serif font-semibold" style={{ color: accentColor }}>
-                {card.name}
-              </h4>
+              <h4 className="text-lg font-serif font-semibold" style={{ color: accentColor }}>{card.name}</h4>
               <p className="text-xs italic" style={{ color: 'rgba(196,181,253,0.45)' }}>{card.nameEn}</p>
             </div>
           </div>
 
           {/* Card meta row */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
-              style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}18` }}
-            >
+            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
+              style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}18` }}>
               <span className="text-[10px]" style={{ color: 'rgba(196,181,253,0.45)' }}>原型</span>
               <span className="text-[10px] font-medium" style={{ color: accentColor }}>{card.archetype}</span>
             </div>
-            <div
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
-              style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}18` }}
-            >
+            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
+              style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}18` }}>
               <span className="text-[10px]" style={{ color: 'rgba(196,181,253,0.45)' }}>元素</span>
               <span className="text-[10px] font-medium" style={{ color: accentColor }}>{card.element}</span>
             </div>
           </div>
-
-          {/* Card message */}
-          <div className="space-y-1.5">
-            <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(196,181,253,0.4)' }}>牌卡指引</p>
-            <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{card.message}</p>
-          </div>
-
-          {/* Shadow */}
-          <div
-            className="rounded-xl p-3 flex items-start gap-2"
-            style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' }}
-          >
-            <span className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.4)' }}>陰影提示</span>
-            <p className="text-xs leading-relaxed italic" style={{ color: 'rgba(196,181,253,0.55)' }}>{card.shadow}</p>
-          </div>
         </div>
       </div>
 
-      {/* Analysis sections */}
-      <div className="divide-y" style={{ borderColor: `${accentColor}10` }}>
-
-        {/* Section 1: Blockpoint */}
-        <div>
-          <button
-            onClick={() => toggle('blockpoint')}
-            className="w-full flex items-center gap-3 p-5 text-left hover:bg-white/2 transition-colors"
-          >
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}20` }}
-            >
-              <Zap className="w-4 h-4" style={{ color: accentColor }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>當下靈數卡關點揭示</p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>這張牌如何點出你靈數課題的關鍵卡關處</p>
-            </div>
-            {expanded === 'blockpoint'
-              ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
-              : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
-          </button>
-          {expanded === 'blockpoint' && (
-            <div className="px-5 pb-5 pt-1">
-              <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={accentColor} previewHeight={140}>
-                <p className="text-sm leading-[1.95] pl-4 border-l" style={{ color: '#e9d5ff', borderColor: `${accentColor}25` }}>
-                  {analysis.blockpoint}
-                </p>
-              </ContentGate>
-            </div>
-          )}
+      {/* ── SECTION 2: 靈魂藍圖 ── */}
+      <div className="p-6 space-y-4" style={{ borderBottom: `1px solid ${accentColor}12` }}>
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5" style={{ color: accentColor }} />
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: accentColor }}>靈魂藍圖</p>
         </div>
 
-        {/* Section 2: Crystal Grid */}
-        <div>
-          <button
-            onClick={() => toggle('crystalGrid')}
-            className="w-full flex items-center gap-3 p-5 text-left hover:bg-white/2 transition-colors"
-          >
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}20` }}
-            >
-              <Gem className="w-4 h-4" style={{ color: accentColor }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>神聖水晶陣排列指引</p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>結合牌卡能量的專屬水晶陣配置方案</p>
-            </div>
-            {expanded === 'crystalGrid'
-              ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
-              : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
-          </button>
-          {expanded === 'crystalGrid' && (
-            <div className="px-5 pb-5 pt-1">
-              <ContentGate currentTier={tier} requiredTier={3} onUpgrade={onUpgrade} accentColor={accentColor} previewHeight={130}>
-                <div
-                  className="rounded-2xl p-4"
-                  style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}15` }}
-                >
-                  <p className="text-sm leading-[1.95]" style={{ color: '#e9d5ff' }}>{analysis.crystalGrid}</p>
-                </div>
-              </ContentGate>
-            </div>
-          )}
-        </div>
+        {showFull ? (
+          /* Full soul blueprint */
+          <div className="space-y-5">
+            {/* Soul Mission */}
+            <FieldBlock label="靈魂使命" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{soulMission}</p>
+            </FieldBlock>
 
-        {/* Section 3: Ritual */}
-        <div>
-          <button
-            onClick={() => toggle('ritual')}
-            className="w-full flex items-center gap-3 p-5 text-left hover:bg-white/2 transition-colors"
-          >
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}20` }}
-            >
-              <Sparkles className="w-4 h-4" style={{ color: accentColor }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>靜心冥想儀式指引</p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>薩滿神諭 × 靈數藍圖的深度冥想步驟</p>
-            </div>
-            {expanded === 'ritual'
-              ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
-              : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
-          </button>
-          {expanded === 'ritual' && (
-            <div className="px-5 pb-5 pt-1">
-              <ContentGate currentTier={tier} requiredTier={3} onUpgrade={onUpgrade} accentColor={accentColor} previewHeight={150}>
-                <div className="space-y-3">
-                  {analysis.ritual.split('\n\n').map((section, i) => {
-                  const isHeader = section.startsWith('【');
-                  if (isHeader) {
-                    return (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: accentColor }} />
-                        <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: accentColor }}>
-                          {section.replace(/【|】/g, '')}
-                        </p>
-                      </div>
-                    );
-                  }
-                  const [label, ...rest] = section.split('：');
-                  const hasLabel = rest.length > 0 && label.length < 20;
-                  return (
-                    <div key={i} className="pl-3 border-l space-y-1" style={{ borderColor: `${accentColor}20` }}>
-                      {hasLabel && (
-                        <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: `${accentColor}cc` }}>
-                          {label}
-                        </p>
-                      )}
-                      <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
-                        {hasLabel ? rest.join('：') : section}
-                      </p>
+            {/* Life Lessons */}
+            <FieldBlock label="今生學習課題" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{lifeLesson}</p>
+            </FieldBlock>
+
+            {/* Soul Gifts */}
+            <FieldBlock label="靈魂天賦" color={accentColor}>
+              <div className="space-y-2">
+                {soulGifts.map((g, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5"
+                      style={{ background: `${accentColor}18`, border: `1px solid ${accentColor}30` }}>
+                      <Check style={{ width: 9, height: 9, color: accentColor }} />
                     </div>
-                  );
-                })}
-                </div>
-              </ContentGate>
+                    <p className="text-sm leading-relaxed" style={{ color: 'rgba(233,213,255,0.78)' }}>{g}</p>
+                  </div>
+                ))}
+              </div>
+            </FieldBlock>
+
+            {/* Soul Potential */}
+            <FieldBlock label="靈魂潛能" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{soulPotential}</p>
+            </FieldBlock>
+
+            {/* Life Direction */}
+            <FieldBlock label="人生方向建議" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{lifeDirection}</p>
+            </FieldBlock>
+
+            {/* Spiritual Growth */}
+            <FieldBlock label="靈性成長方向" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{spiritualGrowth}</p>
+            </FieldBlock>
+
+            {/* Blueprint Analysis */}
+            <FieldBlock label="生命藍圖解析" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{blueprintAnalysis}</p>
+            </FieldBlock>
+
+            {/* Growth Suggestion */}
+            <div className="rounded-xl p-4" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)' }}>
+              <p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'rgba(251,191,36,0.6)' }}>靈魂成長建議</p>
+              <p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>「{growthSuggestion}」</p>
             </div>
-          )}
+          </div>
+        ) : (
+          /* 25% free preview for 靈魂藍圖 */
+          <div>
+            {progressBar('靈魂藍圖已解鎖 25%', accentColor)}
+            <div className="space-y-3 mt-4">
+              {/* Soul mission summary — free */}
+              <FieldBlock label="靈魂使命摘要" color={accentColor}>
+                <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
+                  {soulMission.slice(0, 100)}...
+                </p>
+              </FieldBlock>
+              {/* Partial life lesson — free hint */}
+              <FieldBlock label="今生課題提示" color={accentColor}>
+                <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
+                  {lifeLesson.slice(0, 60)}...
+                </p>
+              </FieldBlock>
+              {/* Partial talent — free hint */}
+              <FieldBlock label="天賦方向提示" color={accentColor}>
+                <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
+                  {soulGifts[0].slice(0, 55)}...
+                </p>
+              </FieldBlock>
+            </div>
+            {/* Blurred locked remainder */}
+            <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', marginTop: 12, minHeight: 100 }}>
+              <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
+                <div className="space-y-3 pt-1">
+                  {['靈魂潛能', '人生方向建議', '靈性成長方向', '生命藍圖解析', '靈魂成長建議'].map(label => (
+                    <div key={label} className="rounded-xl p-3" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}12` }}>
+                      <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: `${accentColor}80` }}>{label}</p>
+                      <div className="h-3 rounded" style={{ background: `${accentColor}15`, width: '80%' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to bottom, rgba(9,5,20,0.15) 0%, rgba(9,5,20,0.78) 55%, rgba(9,5,20,0.98) 100%)',
+              }} />
+              <div style={{
+                position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)',
+                display: 'flex', alignItems: 'center', gap: 5,
+                fontSize: 10, color: `${accentColor}95`, fontWeight: 600, whiteSpace: 'nowrap',
+              }}>
+                <Lock style={{ width: 10, height: 10 }} />
+                靈魂使命完整解析已鎖定
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── SECTION 3: 當下能量交叉指引 ── */}
+      <div className="p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Zap className="w-3.5 h-3.5" style={{ color: accentColor }} />
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: accentColor }}>當下能量交叉指引</p>
         </div>
+
+        {showFull ? (
+          /* Full cross analysis */
+          <div className="space-y-5">
+            <FieldBlock label="當前能量狀態" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{currentEnergyState}</p>
+            </FieldBlock>
+
+            <FieldBlock label="宇宙訊息解析" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{cosmicMessage}</p>
+            </FieldBlock>
+
+            <FieldBlock label="當下課題" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{currentLesson}</p>
+            </FieldBlock>
+
+            <FieldBlock label="行動方向建議" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{actionDirection}</p>
+            </FieldBlock>
+
+            <FieldBlock label="能量平衡建議" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{energyBalance}</p>
+            </FieldBlock>
+
+            <FieldBlock label="情緒覺察建議" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{emotionalAwareness}</p>
+            </FieldBlock>
+
+            <FieldBlock label="顯化重點提醒" color={accentColor}>
+              <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{manifestationFocus}</p>
+            </FieldBlock>
+
+            {/* Deep analysis accordion sections */}
+            <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${accentColor}15` }}>
+              <button onClick={() => toggle('blockpoint')}
+                className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/2 transition-colors">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}20` }}>
+                  <Zap className="w-4 h-4" style={{ color: accentColor }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>當下靈數卡關點揭示</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>這張牌如何點出你靈數課題的關鍵卡關處</p>
+                </div>
+                {expanded === 'blockpoint'
+                  ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
+                  : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
+              </button>
+              {expanded === 'blockpoint' && (
+                <div className="px-4 pb-4 pt-1" style={{ borderTop: `1px solid ${accentColor}10` }}>
+                  <p className="text-sm leading-[1.95] pl-4 border-l" style={{ color: '#e9d5ff', borderColor: `${accentColor}25` }}>
+                    {analysis.blockpoint}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${accentColor}15` }}>
+              <button onClick={() => toggle('crystalGrid')}
+                className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/2 transition-colors">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}20` }}>
+                  <Gem className="w-4 h-4" style={{ color: accentColor }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>神聖水晶陣排列指引</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>結合牌卡能量的專屬水晶陣配置方案</p>
+                </div>
+                {expanded === 'crystalGrid'
+                  ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
+                  : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
+              </button>
+              {expanded === 'crystalGrid' && (
+                <div className="px-4 pb-4 pt-1" style={{ borderTop: `1px solid ${accentColor}10` }}>
+                  <div className="rounded-2xl p-4" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}15` }}>
+                    <p className="text-sm leading-[1.95]" style={{ color: '#e9d5ff' }}>{analysis.crystalGrid}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${accentColor}15` }}>
+              <button onClick={() => toggle('ritual')}
+                className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/2 transition-colors">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}20` }}>
+                  <Sparkles className="w-4 h-4" style={{ color: accentColor }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>靜心冥想儀式指引</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>薩滿神諭 × 靈數藍圖的深度冥想步驟</p>
+                </div>
+                {expanded === 'ritual'
+                  ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
+                  : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
+              </button>
+              {expanded === 'ritual' && (
+                <div className="px-4 pb-4 pt-1" style={{ borderTop: `1px solid ${accentColor}10` }}>
+                  <div className="space-y-3">
+                    {analysis.ritual.split('\n\n').map((section, i) => {
+                      const isHeader = section.startsWith('【');
+                      if (isHeader) {
+                        return (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: accentColor }} />
+                            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: accentColor }}>
+                              {section.replace(/【|】/g, '')}
+                            </p>
+                          </div>
+                        );
+                      }
+                      const [label, ...rest] = section.split('：');
+                      const hasLabel = rest.length > 0 && label.length < 20;
+                      return (
+                        <div key={i} className="pl-3 border-l space-y-1" style={{ borderColor: `${accentColor}20` }}>
+                          {hasLabel && (
+                            <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: `${accentColor}cc` }}>
+                              {label}
+                            </p>
+                          )}
+                          <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
+                            {hasLabel ? rest.join('：') : section}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Spiritual reminder */}
+            <div className="rounded-xl p-4" style={{ background: `${accentColor}07`, border: `1px solid ${accentColor}18` }}>
+              <p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: `${accentColor}80` }}>靈性成長提醒</p>
+              <p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>「{spiritualReminder}」</p>
+            </div>
+          </div>
+        ) : (
+          /* 25% free preview for 當下能量 */
+          <div>
+            {progressBar('當下能量交叉指引已解鎖 25%', accentColor)}
+
+            <div className="space-y-3 mt-4">
+              {/* Current energy theme — free */}
+              <FieldBlock label="當前能量主題" color={accentColor}>
+                <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
+                  {currentEnergyState.slice(0, 90)}...
+                </p>
+              </FieldBlock>
+              {/* Partial energy reminder — free */}
+              <FieldBlock label="能量提醒" color={accentColor}>
+                <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
+                  {energyBalance.slice(0, 55)}...
+                </p>
+              </FieldBlock>
+              {/* Partial action suggestion — free */}
+              <FieldBlock label="行動建議提示" color={accentColor}>
+                <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>
+                  {actionDirection.slice(0, 55)}...
+                </p>
+              </FieldBlock>
+            </div>
+
+            {/* Locked teaser grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 }}>
+              {['完整靈魂藍圖', '完整當下能量交叉指引', '靈魂使命解析', '宇宙訊息與行動建議'].map(item => (
+                <div key={item} style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '9px 12px', borderRadius: 10,
+                  background: `${accentColor}07`, border: `1px solid ${accentColor}18`,
+                }}>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: `${accentColor}12`, border: `1px solid ${accentColor}25`, color: accentColor,
+                  }}>
+                    <Lock style={{ width: 10, height: 10 }} />
+                  </div>
+                  <span style={{ fontSize: 11, color: `${accentColor}90`, fontWeight: 500, lineHeight: 1.3 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Blurred sections preview */}
+            <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', marginTop: 12, minHeight: 110 }}>
+              <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
+                <div className="space-y-2 pt-1">
+                  {[
+                    { icon: <Zap className="w-4 h-4" />, label: '當下靈數卡關點揭示', sub: '這張牌如何點出你靈數課題的關鍵卡關處' },
+                    { icon: <Gem className="w-4 h-4" />, label: '神聖水晶陣排列指引', sub: '結合牌卡能量的專屬水晶陣配置方案' },
+                    { icon: <Sparkles className="w-4 h-4" />, label: '靜心冥想儀式指引', sub: '薩滿神諭 × 靈數藍圖的深度冥想步驟' },
+                  ].map(s => (
+                    <div key={s.label} className="flex items-center gap-3 p-3 rounded-xl"
+                      style={{ background: `${accentColor}07`, border: `1px solid ${accentColor}12` }}>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ background: `${accentColor}12`, color: accentColor }}>
+                        {s.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{s.label}</p>
+                        <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>{s.sub}</p>
+                      </div>
+                      <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.4)' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to bottom, rgba(9,5,20,0.20) 0%, rgba(9,5,20,0.70) 50%, rgba(9,5,20,0.97) 100%)',
+              }} />
+              <div style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%, -56%)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
+              }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: `${accentColor}18`, border: `1px solid ${accentColor}38`,
+                  boxShadow: `0 0 20px ${accentColor}25`,
+                }}>
+                  <Lock style={{ width: 18, height: 18, color: accentColor }} />
+                </div>
+                <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: `${accentColor}cc` }}>
+                  完整分析已鎖定
+                </p>
+              </div>
+            </div>
+
+            {/* Conversion gate */}
+            <div style={{
+              borderRadius: 16, padding: '18px', marginTop: 16,
+              background: `linear-gradient(135deg, ${accentColor}08, ${accentColor}03)`,
+              border: `1px solid ${accentColor}22`,
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: 14 }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: accentColor }}>
+                  解鎖完整靈魂藍圖與當下能量交叉指引
+                </p>
+                <p style={{ margin: '4px 0 0', fontSize: 11, color: `${accentColor}70` }}>
+                  一次付費 NT$499 永久查看
+                </p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px 10px', marginBottom: 16 }}>
+                {ORACLE_UNLOCK_FEATURES.map(f => (
+                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Check style={{ width: 11, height: 11, color: accentColor, flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: 'rgba(196,181,253,0.68)' }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={onOracleUnlock}
+                style={{
+                  width: '100%', padding: '12px',
+                  borderRadius: 11, border: 'none',
+                  background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`,
+                  color: '#07040f', fontSize: 13, fontWeight: 800,
+                  fontFamily: 'Inter, sans-serif',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  boxShadow: `0 4px 20px ${accentColor}38`,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                  letterSpacing: '0.01em',
+                } as React.CSSProperties}
+              >
+                <Lock style={{ width: 13, height: 13 }} />
+                立即解鎖完整報告 NT$499
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+function FieldBlock({ label, color, children }: { label: string; color: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-1.5">
+        <div className="w-1 h-3.5 rounded-full flex-shrink-0" style={{ background: `${color}70` }} />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: `${color}cc` }}>{label}</p>
+      </div>
+      <div className="pl-3 border-l" style={{ borderColor: `${color}20` }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+

@@ -19,12 +19,14 @@ export default function ContentGate({
 }: ContentGateProps) {
   if (currentTier >= requiredTier) return <>{children}</>;
 
-  const planLabels: Record<PlanTier, string> = {
-    0: '免費版',
-    1: '基礎版 NT$250',
-    2: '進階版 NT$399',
-    3: '完整靈魂版 NT$599',
-  };
+  const isEmailTier = requiredTier === 1;
+  const gateColor = isEmailTier ? '#2dd4bf' : accentColor;
+  const label = isEmailTier
+    ? '輸入信箱，免費解鎖此分析'
+    : requiredTier === 2
+    ? '升級 NT$350 方案以解鎖完整內容'
+    : '升級 NT$499 方案以解鎖完整內容';
+  const btnLabel = isEmailTier ? '輸入email免費解鎖' : '立即升級解鎖';
 
   return (
     <div style={{ position: 'relative' }}>
@@ -44,47 +46,47 @@ export default function ContentGate({
       <div
         style={{
           marginTop: 6,
-          padding: '16px',
+          padding: '14px 16px',
           borderRadius: 14,
           textAlign: 'center',
-          background: 'rgba(7,4,15,0.85)',
-          border: `1px solid ${accentColor}20`,
+          background: 'rgba(7,4,15,0.88)',
+          border: `1px solid ${gateColor}22`,
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 10,
+          gap: 9,
         }}
       >
         <div style={{
-          width: 36, height: 36, borderRadius: '50%',
+          width: 32, height: 32, borderRadius: '50%',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: `radial-gradient(circle at 35% 30%, ${accentColor}20, ${accentColor}06)`,
-          border: `1px solid ${accentColor}25`,
-          fontSize: 15, flexShrink: 0,
-          color: accentColor,
+          background: `radial-gradient(circle at 35% 30%, ${gateColor}20, ${gateColor}06)`,
+          border: `1px solid ${gateColor}28`,
+          fontSize: 13, flexShrink: 0,
+          color: gateColor,
         }}>
-          ✦
+          {isEmailTier ? '✉' : '✦'}
         </div>
 
         <p style={{
-          margin: 0, fontSize: 13, lineHeight: 1.65,
-          color: 'rgba(196,181,253,0.6)',
+          margin: 0, fontSize: 12, lineHeight: 1.6,
+          color: 'rgba(196,181,253,0.55)',
           fontFamily: 'Inter, sans-serif',
         }}>
-          需要 <span style={{ color: accentColor, fontWeight: 600 }}>{planLabels[requiredTier]}</span> 才能解鎖此內容
+          {label}
         </p>
 
         <button
           onClick={() => onUpgrade(requiredTier)}
           style={{
-            padding: '10px 28px',
+            padding: '9px 22px',
             borderRadius: 10,
-            border: `1px solid ${accentColor}45`,
-            background: `linear-gradient(135deg, ${accentColor}18, ${accentColor}06)`,
-            color: accentColor,
-            fontSize: 14,
+            border: `1px solid ${gateColor}45`,
+            background: `linear-gradient(135deg, ${gateColor}18, ${gateColor}06)`,
+            color: gateColor,
+            fontSize: 13,
             fontWeight: 600,
             fontFamily: 'Inter, sans-serif',
             cursor: 'pointer',
@@ -93,7 +95,7 @@ export default function ContentGate({
             letterSpacing: '0.02em',
           } as React.CSSProperties}
         >
-          解鎖完整解析
+          {btnLabel}
         </button>
       </div>
     </div>

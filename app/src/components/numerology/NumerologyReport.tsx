@@ -1,12 +1,19 @@
 import { useState } from 'react';
-import { Gem, Heart, DollarSign, Star, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { Gem, Heart, DollarSign, Star, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport as Report, OracleCard } from '../../lib/numerology';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
 import CrystalBracelet from './CrystalBracelet';
 import GridLines from './GridLines';
 import OracleReading from './OracleReading';
-import ContentGate from './ContentGate';
+import PersonalYearForecast from './PersonalYearForecast';
 import type { PlanTier } from '../../hooks/usePremium';
+
+const CRYSTAL_UNLOCK_FEATURES = [
+  '完整缺失數字分析',
+  '專屬水晶療癒方案',
+  '能量平衡建議',
+  '靈性成長方向',
+];
 
 interface Props {
   report: Report;
@@ -14,6 +21,12 @@ interface Props {
   onReset: () => void;
   tier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
+  crystalUnlocked: boolean;
+  onCrystalUnlock: () => void;
+  forecastUnlocked: boolean;
+  onForecastUnlock: () => void;
+  oracleUnlocked: boolean;
+  onOracleUnlock: () => void;
 }
 
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: string }) {
@@ -54,7 +67,7 @@ function CrystalChip({ name, nameZh, hex }: { name: string; nameZh: string; hex:
   );
 }
 
-export default function NumerologyReport({ report, oracleCard, onReset, tier, onUpgrade }: Props) {
+export default function NumerologyReport({ report, oracleCard, onReset, tier, onUpgrade, crystalUnlocked, onCrystalUnlock, forecastUnlocked, onForecastUnlock, oracleUnlocked, onOracleUnlock }: Props) {
   const [expandedMissing, setExpandedMissing] = useState<number | null>(null);
 
   const lpCrystals = lifePathCrystals[report.lifePathNumber] || [];
@@ -178,15 +191,48 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
             boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
           }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <Gem className="w-4 h-4" style={{ color: '#5eead4' }} />
+          {/* Section header */}
+          <div className="flex items-center gap-2 mb-1">
+            <Gem className="w-4 h-4 flex-shrink-0" style={{ color: '#5eead4' }} />
             <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>缺失數字 × 水晶療癒方案</h3>
+            {!crystalUnlocked && (
+              <span style={{
+                marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                borderRadius: 999, background: 'rgba(94,234,212,0.12)',
+                border: '1px solid rgba(94,234,212,0.25)', color: '#5eead4',
+              }}>25% 免費</span>
+            )}
           </div>
+
+          {/* Progress bar (shown when locked) */}
+          {!crystalUnlocked && (
+            <div style={{ marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <p style={{ margin: 0, fontSize: 11, color: 'rgba(94,234,212,0.7)', fontWeight: 500 }}>
+                  您已查看 25% 專屬解析內容
+                </p>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#5eead4' }}>25%</span>
+              </div>
+              <div style={{ height: 5, borderRadius: 999, background: 'rgba(94,234,212,0.10)', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', width: '25%', borderRadius: 999,
+                  background: 'linear-gradient(90deg, #2dd4bf, #5eead4)',
+                  boxShadow: '0 0 10px rgba(45,212,191,0.55)',
+                }} />
+              </div>
+              <p style={{ margin: '5px 0 0', fontSize: 10, color: 'rgba(94,234,212,0.4)' }}>
+                解鎖完整分析，查看專屬水晶療癒方案與靈性成長方向
+              </p>
+            </div>
+          )}
+
+          {/* Accordion items */}
           <div className="space-y-3">
-            {report.missingNumbers.map(n => {
+            {report.missingNumbers.map((n) => {
               const data = missingNumberData[n];
               if (!data) return null;
               const isOpen = expandedMissing === n;
+              const showFull = crystalUnlocked || tier >= 2;
               return (
                 <div
                   key={n}
@@ -211,6 +257,9 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                       <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>缺失數字 {n}・{data.challenge}</p>
                       <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>{data.traits.slice(0, 2).join('・')}</p>
                     </div>
+                    {!showFull && !isOpen && (
+                      <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(94,234,212,0.4)' }} />
+                    )}
                     {isOpen
                       ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
                       : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
@@ -218,7 +267,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
 
                   {isOpen && (
                     <div className="px-4 pb-5 space-y-5 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      {/* Trait tags */}
+                      {/* Trait tags — always free */}
                       <div className="flex flex-wrap gap-2">
                         {data.traits.map(t => (
                           <span
@@ -233,7 +282,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                         ))}
                       </div>
 
-                      {/* Blind Spot */}
+                      {/* Blind Spot — always free */}
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <div className="w-1 h-3.5 rounded-full flex-shrink-0" style={{ background: 'rgba(251,191,36,0.6)' }} />
@@ -246,8 +295,8 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
 
                       <div className="divider-gold" />
 
-                      {/* Crystal Fix + Affirmation — gated */}
-                      <ContentGate currentTier={tier} requiredTier={1} onUpgrade={onUpgrade} accentColor="#5eead4" previewHeight={140}>
+                      {/* Crystal section — locked or unlocked */}
+                      {showFull ? (
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
@@ -298,19 +347,124 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                               </div>
                             ))}
                           </div>
+                          <div
+                            className="rounded-xl p-4 mt-4"
+                            style={{
+                              background: 'rgba(251,191,36,0.05)',
+                              border: '1px solid rgba(251,191,36,0.18)',
+                            }}
+                          >
+                            <p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'rgba(251,191,36,0.6)' }}>能量宣言</p>
+                            <p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>「{data.affirmation}」</p>
+                          </div>
                         </div>
+                      ) : (
+                        /* Blurred lock gate */
+                        <div>
+                          {/* Blurred preview with gradient + lock overlay */}
+                          <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', minHeight: 130 }}>
+                            {/* Blurred content */}
+                            <div style={{ filter: 'blur(6px)', pointerEvents: 'none', userSelect: 'none', maxHeight: 160, overflow: 'hidden' }}>
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                  <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: '#5eead4' }}>高頻水晶修復方案</p>
+                                </div>
+                                <p className="text-sm leading-[1.9] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: 'rgba(94,234,212,0.2)' }}>
+                                  {data.crystalFix}
+                                </p>
+                                <div className="space-y-2 pl-3">
+                                  {data.crystals.slice(0, 2).map(c => (
+                                    <div key={c.nameZh} className="flex items-center gap-3 rounded-xl p-3"
+                                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                      <div className="w-8 h-8 rounded-lg flex-shrink-0"
+                                        style={{ background: `radial-gradient(circle at 30% 30%, ${c.hex}cc, ${c.hex}44)` }} />
+                                      <div>
+                                        <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{c.nameZh}</p>
+                                        <p className="text-xs" style={{ color: 'rgba(233,213,255,0.6)' }}>{c.energy}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="rounded-xl p-4" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)' }}>
+                                  <p className="text-sm italic" style={{ color: '#e9d5ff' }}>「{data.affirmation}」</p>
+                                </div>
+                              </div>
+                            </div>
+                            {/* Gradient overlay */}
+                            <div style={{
+                              position: 'absolute', inset: 0,
+                              background: 'linear-gradient(to bottom, rgba(9,5,20,0.25) 0%, rgba(9,5,20,0.72) 45%, rgba(9,5,20,0.97) 100%)',
+                            }} />
+                            {/* Lock icon */}
+                            <div style={{
+                              position: 'absolute', top: '50%', left: '50%',
+                              transform: 'translate(-50%, -56%)',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
+                            }}>
+                              <div style={{
+                                width: 40, height: 40, borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                background: 'rgba(94,234,212,0.14)',
+                                border: '1px solid rgba(94,234,212,0.32)',
+                                boxShadow: '0 0 20px rgba(45,212,191,0.2)',
+                              }}>
+                                <Lock style={{ width: 18, height: 18, color: '#5eead4' }} />
+                              </div>
+                              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: 'rgba(94,234,212,0.75)' }}>
+                                水晶療癒方案已鎖定
+                              </p>
+                            </div>
+                          </div>
 
-                        <div
-                          className="rounded-xl p-4 mt-4"
-                          style={{
-                            background: 'rgba(251,191,36,0.05)',
-                            border: '1px solid rgba(251,191,36,0.18)',
-                          }}
-                        >
-                          <p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'rgba(251,191,36,0.6)' }}>能量宣言</p>
-                          <p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>「{data.affirmation}」</p>
+                          {/* Conversion card below blurred block */}
+                          <div style={{
+                            marginTop: 12,
+                            borderRadius: 14, padding: '16px',
+                            background: 'linear-gradient(135deg, rgba(94,234,212,0.07), rgba(45,212,191,0.03))',
+                            border: '1px solid rgba(94,234,212,0.20)',
+                          }}>
+                            <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#5eead4' }}>
+                                解鎖完整缺失數字 × 水晶療癒方案
+                              </p>
+                              <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(94,234,212,0.55)' }}>
+                                一次付費 NT$199 永久查看
+                              </p>
+                            </div>
+                            <div style={{
+                              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px 10px',
+                              marginBottom: 14,
+                            }}>
+                              {CRYSTAL_UNLOCK_FEATURES.map(f => (
+                                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <Check style={{ width: 11, height: 11, color: '#5eead4', flexShrink: 0 }} />
+                                  <span style={{ fontSize: 11, color: 'rgba(196,181,253,0.68)' }}>{f}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <button
+                              onClick={onCrystalUnlock}
+                              style={{
+                                width: '100%', padding: '11px',
+                                borderRadius: 10, border: 'none',
+                                background: 'linear-gradient(135deg, rgba(94,234,212,0.7), rgba(45,212,191,0.5))',
+                                color: '#07040f', fontSize: 13, fontWeight: 800,
+                                fontFamily: 'Inter, sans-serif',
+                                cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                                boxShadow: '0 4px 18px rgba(45,212,191,0.30)',
+                                touchAction: 'manipulation',
+                                WebkitTapHighlightColor: 'transparent',
+                                letterSpacing: '0.01em',
+                              } as React.CSSProperties}
+                            >
+                              <Lock style={{ width: 13, height: 13 }} />
+                              立即解鎖完整報告 NT$199
+                            </button>
+                          </div>
                         </div>
-                      </ContentGate>
+                      )}
                     </div>
                   )}
                 </div>
@@ -320,13 +474,29 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
         </div>
       )}
 
+      {/* Personal Year Forecast */}
+      <PersonalYearForecast
+        report={report}
+        tier={tier}
+        onUpgrade={onUpgrade}
+        forecastUnlocked={forecastUnlocked}
+        onForecastUnlock={onForecastUnlock}
+      />
+
       {/* Oracle Cross Analysis */}
       {oracleCard && (
-        <OracleReading report={report} card={oracleCard} tier={tier} onUpgrade={onUpgrade} />
+        <OracleReading
+          report={report}
+          card={oracleCard}
+          tier={tier}
+          onUpgrade={onUpgrade}
+          oracleUnlocked={oracleUnlocked}
+          onOracleUnlock={onOracleUnlock}
+        />
       )}
 
       {/* Crystal Bracelet Recommendation */}
-      <CrystalBracelet report={report} />
+      <CrystalBracelet report={report} tier={tier} onUpgrade={onUpgrade} />
 
       {/* Reset */}
       <button

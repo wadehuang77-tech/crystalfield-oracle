@@ -171,20 +171,22 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
       {isExpanded && (
         <div className="px-4 pb-6 space-y-5 border-t" style={{ borderColor: `${color}15` }}>
 
-          {/* Soul Blueprint — always visible (free preview) */}
+          {/* Soul Blueprint — gated at tier 2 */}
           <div className="pt-5 space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: color }} />
             <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(196,181,253,0.45)' }}>靈魂藍圖與脈輪狀態</p>
             </div>
-            <p className="text-sm leading-[1.95] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: `${color}25` }}>
-              {line.soulBlueprint}
-            </p>
+            <ContentGate currentTier={tier} requiredTier={1} onUpgrade={onUpgrade} accentColor={color} previewHeight={100}>
+              <p className="text-sm leading-[1.95] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: `${color}25` }}>
+                {line.soulBlueprint}
+              </p>
+            </ContentGate>
           </div>
 
           <div className="h-px" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
 
-          {/* Crystal Prescription + Ritual — gated (tier 1) */}
+          {/* Crystal Prescription — tier 1 */}
           <ContentGate currentTier={tier} requiredTier={1} onUpgrade={onUpgrade} accentColor={color} previewHeight={150}>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -209,9 +211,11 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
                 </span>
               </div>
             </div>
+          </ContentGate>
 
-            <div className="h-px my-5" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
-
+          {/* Meditation & Ritual — tier 1 email */}
+          <ContentGate currentTier={tier} requiredTier={1} onUpgrade={onUpgrade} accentColor={color} previewHeight={100}>
+            <div className="h-px mb-5" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
             <div className="rounded-2xl p-5 space-y-3" style={{ background: `${color}06`, border: `1px solid ${color}18` }}>
               <div className="flex items-center gap-2">
                 <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />

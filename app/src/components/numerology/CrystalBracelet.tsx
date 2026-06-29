@@ -1,9 +1,12 @@
 import { ShoppingBag, Sparkles } from 'lucide-react';
 import type { NumerologyReport } from '../../lib/numerology';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
+import type { PlanTier } from '../../hooks/usePremium';
 
 interface Props {
   report: NumerologyReport;
+  tier: PlanTier;
+  onUpgrade: (required: PlanTier) => void;
 }
 
 interface BraceletTheme {
@@ -145,43 +148,113 @@ function CrystalBead({ hex, size = 'md' }: { hex: string; size?: 'sm' | 'md' }) 
   );
 }
 
+const CRYSTAL_GLOW_COLORS = [
+  '#f8d56b', // gold
+  '#67e8f9', // aqua
+  '#c084fc', // amethyst purple
+  '#6ee7b7', // emerald
+  '#f9a8d4', // rose
+  '#93c5fd', // sky blue
+  '#fca5a5', // coral
+  '#a3e635', // lime
+];
+
+function getCrystalGlowColor(name: string, hex?: string): string {
+  if (hex) return hex;
+  const idx = name.charCodeAt(0) % CRYSTAL_GLOW_COLORS.length;
+  return CRYSTAL_GLOW_COLORS[idx];
+}
+
+function CrystalNameBadge({ name, hex }: { name: string; hex?: string }) {
+  const color = getCrystalGlowColor(name, hex);
+  return (
+    <span
+      className="text-xs font-semibold px-2.5 py-1 rounded-full"
+      style={{
+        color,
+        background: `${color}15`,
+        border: `1px solid ${color}35`,
+        textShadow: `0 0 8px ${color}90, 0 0 16px ${color}50`,
+        boxShadow: `0 0 6px ${color}25`,
+      }}
+    >
+      {name}
+    </span>
+  );
+}
+
 function BraceletCard({ theme, featured = false }: { theme: BraceletTheme; featured?: boolean }) {
   return (
     <div
-      className="flex items-center gap-3 rounded-xl p-3 transition-all duration-200 cursor-pointer"
+      className="rounded-xl p-4 transition-all duration-200"
       style={{
-        background: featured ? 'rgba(251,191,36,0.05)' : 'rgba(255,255,255,0.03)',
-        border: featured ? '1px solid rgba(251,191,36,0.15)' : '1px solid rgba(255,255,255,0.07)',
+        background: featured
+          ? 'linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.03) 100%)'
+          : 'rgba(255,255,255,0.04)',
+        border: featured ? '1px solid rgba(251,191,36,0.25)' : '1px solid rgba(255,255,255,0.09)',
       }}
     >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
+      {/* Header row */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 flex-wrap flex-1">
           <span
-            className="text-[10px] rounded-full px-2 py-0.5 font-medium"
-            style={{ background: `${theme.tagColor}18`, color: theme.tagColor }}
+            className="text-[10px] rounded-full px-2 py-0.5 font-semibold tracking-wide"
+            style={{
+              background: `${theme.tagColor}20`,
+              color: theme.tagColor,
+              border: `1px solid ${theme.tagColor}40`,
+              textShadow: `0 0 6px ${theme.tagColor}80`,
+            }}
           >
             {theme.tag}
           </span>
           {featured && (
-            <span className="text-[10px] rounded-full px-2 py-0.5 font-medium" style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24' }}>
+            <span
+              className="text-[10px] rounded-full px-2 py-0.5 font-semibold"
+              style={{
+                background: 'rgba(251,191,36,0.15)',
+                color: '#fde68a',
+                border: '1px solid rgba(251,191,36,0.35)',
+                textShadow: '0 0 6px rgba(251,191,36,0.7)',
+              }}
+            >
               專屬推薦
             </span>
           )}
-          <span className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{theme.name}</span>
         </div>
-        <div className="flex items-center gap-1.5 mt-1.5">
-          <span className="text-[11px] rounded px-2 py-0.5 tracking-wide" style={{ color: 'rgba(196,181,253,0.45)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            {theme.crystalNames.join(' ‧ ')}
-          </span>
-        </div>
-        <p className="text-xs mt-1 line-clamp-2" style={{ color: 'rgba(196,181,253,0.45)' }}>{theme.description}</p>
+        <ShoppingBag className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: `${theme.tagColor}80` }} />
       </div>
-      <ShoppingBag className="w-4 h-4 flex-shrink-0 transition-colors" style={{ color: 'rgba(167,139,250,0.35)' }} />
+
+      {/* Bracelet name */}
+      <p
+        className="text-sm font-semibold mt-2 leading-snug"
+        style={{
+          color: '#f3e8ff',
+          textShadow: '0 0 12px rgba(196,181,253,0.4)',
+        }}
+      >
+        {theme.name}
+      </p>
+
+      {/* Crystal name pills */}
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        {theme.crystalNames.map((n, i) => (
+          <CrystalNameBadge key={i} name={n} />
+        ))}
+      </div>
+
+      {/* Description */}
+      <p
+        className="text-xs mt-2.5 leading-relaxed"
+        style={{ color: 'rgba(233,213,255,0.75)' }}
+      >
+        {theme.description}
+      </p>
     </div>
   );
 }
 
-export default function CrystalBracelet({ report }: Props) {
+export default function CrystalBracelet({ report, tier: _tier, onUpgrade: _onUpgrade }: Props) {
   const missingCrystals = report.missingNumbers
     .flatMap(n => missingNumberData[n]?.crystals || [])
     .slice(0, 4);
@@ -216,42 +289,55 @@ export default function CrystalBracelet({ report }: Props) {
       </div>
 
       {/* Custom bracelet visual */}
-      <div
-        className="rounded-2xl p-5 space-y-4"
-        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-      >
-        <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(196,181,253,0.4)' }}>你的專屬能量配方</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          {uniqueCrystals.map((c, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <CrystalBead hex={c.hex} />
-              {i < uniqueCrystals.length - 1 && (
-                <div className="w-4 h-px bg-gold-400/20" />
-              )}
-            </div>
-          ))}
-          {uniqueCrystals.length > 0 && (
-            <div className="flex items-center gap-1.5">
-              <div className="w-4 h-px bg-gold-400/20" />
-              <CrystalBead hex={uniqueCrystals[0]?.hex || '#fbbf24'} />
-            </div>
-          )}
+        <div
+          className="rounded-2xl p-5 space-y-4"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+            border: '1px solid rgba(255,255,255,0.09)',
+          }}
+        >
+          <p
+            className="text-[11px] uppercase tracking-widest font-medium"
+            style={{ color: 'rgba(196,181,253,0.6)', textShadow: '0 0 8px rgba(196,181,253,0.3)' }}
+          >
+            你的專屬能量配方
+          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            {uniqueCrystals.map((c, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <CrystalBead hex={c.hex} />
+                {i < uniqueCrystals.length - 1 && (
+                  <div className="w-4 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
+                )}
+              </div>
+            ))}
+            {uniqueCrystals.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
+                <CrystalBead hex={uniqueCrystals[0]?.hex || '#fbbf24'} />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {uniqueCrystals.map((c, i) => (
+              <CrystalNameBadge key={c.nameZh} name={c.nameZh} hex={CRYSTAL_GLOW_COLORS[i % CRYSTAL_GLOW_COLORS.length]} />
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {uniqueCrystals.map(c => (
-            <span key={c.nameZh} className="text-xs" style={{ color: 'rgba(196,181,253,0.5)' }}>{c.nameZh}</span>
-          ))}
-        </div>
-      </div>
 
-      {/* Theme bracelets */}
-      <div className="space-y-3">
-        <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(196,181,253,0.35)' }}>能量主題手串</p>
-        <BraceletCard theme={featuredBracelet} featured />
-        {generalTwo.map(theme => (
-          <BraceletCard key={theme.id} theme={theme} />
-        ))}
-      </div>
+        {/* Theme bracelets */}
+        <div className="space-y-3">
+          <p
+            className="text-[11px] uppercase tracking-widest font-medium"
+            style={{ color: 'rgba(196,181,253,0.6)', textShadow: '0 0 8px rgba(196,181,253,0.3)' }}
+          >
+            能量主題手串
+          </p>
+          <BraceletCard theme={featuredBracelet} featured />
+          {generalTwo.map(theme => (
+            <BraceletCard key={theme.id} theme={theme} />
+          ))}
+        </div>
     </div>
   );
 }
