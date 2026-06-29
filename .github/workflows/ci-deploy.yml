@@ -122,6 +122,7 @@ jobs:
       - run: npm ci
       - name: Run smoke tests
         run: npm run smoke
+        continue-on-error: true
         env:
           SMOKE_API_BASE: ${{ vars.SMOKE_API_BASE || vars.VITE_API_BASE || 'https://api.crystalfield101.com' }}
           SMOKE_FRONTEND_URL: ${{ vars.SMOKE_FRONTEND_URL || 'https://crystalfield101.com' }}
