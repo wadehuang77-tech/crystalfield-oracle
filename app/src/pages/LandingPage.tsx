@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import type { MouseEvent } from 'react';
 
 // ─── Card definitions ────────────────────────────────────────────────────────
 const CARDS = [
@@ -97,6 +98,7 @@ const STARS = Array.from({ length: 80 }, (_, i) => ({
 export default function LandingPage() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [hdOpen, setHdOpen] = useState(false);
 
   const scrollToCard = useCallback((index: number) => {
     const carousel = carouselRef.current;
@@ -166,7 +168,12 @@ export default function LandingPage() {
           <div className="hidden md:block max-w-6xl mx-auto px-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
               {CARDS.map((card, i) => (
-                <PortalCard key={card.id} card={card} index={i} />
+                <PortalCard
+                  key={card.id}
+                  card={card}
+                  index={i}
+                  onClick={card.id === 'humandesign' ? () => setHdOpen(true) : undefined}
+                />
               ))}
             </div>
           </div>
@@ -189,7 +196,11 @@ export default function LandingPage() {
                     opacity: activeIndex === i ? 1 : 0.5,
                     transform: activeIndex === i ? 'scale(1)' : 'scale(0.92)',
                   }}>
-                  <PortalCard card={card} index={i} />
+                  <PortalCard
+                    card={card}
+                    index={i}
+                    onClick={card.id === 'humandesign' ? () => setHdOpen(true) : undefined}
+                  />
                 </div>
               ))}
             </div>
@@ -220,42 +231,99 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
+
+      {hdOpen && <HumanDesignModal onClose={() => setHdOpen(false)} />}
+    </div>
+  );
+}
+
+// ─── Human Design "coming soon" modal ────────────────────────────────────────
+function HumanDesignModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 2000,
+        background: 'rgba(4,0,18,0.82)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 24,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: 380, width: '100%',
+          background: 'linear-gradient(160deg, rgba(6,80,90,0.92), rgba(4,0,18,0.98))',
+          border: '1px solid rgba(20,184,166,0.30)',
+          borderRadius: 24,
+          padding: '40px 32px 32px',
+          textAlign: 'center',
+          boxShadow: '0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(20,184,166,0.08)',
+        }}
+      >
+        <div style={{ fontSize: 52, marginBottom: 16, lineHeight: 1 }}>🧬</div>
+        <h2 style={{
+          fontSize: 22, fontWeight: 700, color: '#fff',
+          marginBottom: 6, fontFamily: 'serif', letterSpacing: '0.04em',
+        }}>
+          人類圖
+        </h2>
+        <p style={{ fontSize: 13, color: 'rgba(94,234,212,0.85)', fontWeight: 600, marginBottom: 18, letterSpacing: '0.12em' }}>
+          即將推出
+        </p>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.52)', lineHeight: 1.75, marginBottom: 28 }}>
+          人類圖功能正在全力開發中。<br />
+          即將為你揭開能量類型、決策方式<br />
+          與最佳人生道路的奧秘。
+        </p>
+        <button
+          onClick={onClose}
+          style={{
+            width: '100%', padding: '13px', borderRadius: 14, border: 'none',
+            background: 'linear-gradient(135deg, rgba(20,184,166,0.65), rgba(6,148,162,0.45))',
+            color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: 600,
+            cursor: 'pointer', letterSpacing: '0.04em',
+          }}
+        >
+          我知道了
+        </button>
+      </div>
     </div>
   );
 }
 
 // ─── Portal Card ──────────────────────────────────────────────────────────────
-function PortalCard({ card, index }: { card: Card; index: number }) {
-  return (
-    <Link to={card.href}
-      className="group relative block rounded-3xl overflow-hidden cursor-pointer no-underline"
-      style={{
-        minHeight: '520px',
-        border: `1px solid ${card.borderGlow}`,
-        boxShadow: `0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)`,
-        transition: 'transform 0.5s cubic-bezier(.22,.68,0,1.2), box-shadow 0.4s ease',
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.transform = 'translateY(-8px) scale(1.015)';
-        el.style.boxShadow = `0 32px 80px ${card.glow}, 0 0 0 1px ${card.borderGlow}, inset 0 1px 0 rgba(255,255,255,0.1)`;
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.transform = '';
-        el.style.boxShadow = `0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)`;
-      }}>
-      {/* Artwork */}
+function PortalCard({ card, index, onClick }: { card: Card; index: number; onClick?: () => void }) {
+  const sharedClass = "group relative block rounded-3xl overflow-hidden cursor-pointer no-underline";
+  const sharedStyle: React.CSSProperties = {
+    minHeight: '520px',
+    border: `1px solid ${card.borderGlow}`,
+    boxShadow: `0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)`,
+    transition: 'transform 0.5s cubic-bezier(.22,.68,0,1.2), box-shadow 0.4s ease',
+  };
+  const onEnter = (e: MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    el.style.transform = 'translateY(-8px) scale(1.015)';
+    el.style.boxShadow = `0 32px 80px ${card.glow}, 0 0 0 1px ${card.borderGlow}, inset 0 1px 0 rgba(255,255,255,0.1)`;
+  };
+  const onLeave = (e: MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    el.style.transform = '';
+    el.style.boxShadow = `0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)`;
+  };
+
+  const inner = (
+    <>
       {index === 0 && <TarotArtwork />}
       {index === 1 && <NumerologyArtwork />}
       {index === 2 && <HumanDesignArtwork />}
 
-      {/* Bottom gradient fade */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'linear-gradient(to top, rgba(4,0,18,0.97) 0%, rgba(4,0,18,0.75) 35%, rgba(4,0,18,0.15) 65%, transparent 100%)',
       }} />
 
-      {/* Shimmer sweep on hover */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '40%', height: '100%',
@@ -264,9 +332,7 @@ function PortalCard({ card, index }: { card: Card; index: number }) {
         }} />
       </div>
 
-      {/* Content glass panel */}
       <div className="absolute bottom-0 left-0 right-0 p-7">
-        {/* Icon badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4"
           style={{
             background: 'rgba(255,255,255,0.07)',
@@ -279,21 +345,15 @@ function PortalCard({ card, index }: { card: Card; index: number }) {
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: card.glowSolid }} />
         </div>
 
-        {/* Title */}
-        <h3 className="text-2xl font-bold text-white tracking-tight mb-1.5 drop-shadow-lg">
-          {card.title}
-        </h3>
+        <h3 className="text-2xl font-bold text-white tracking-tight mb-1.5 drop-shadow-lg">{card.title}</h3>
 
-        {/* Tagline */}
         <p className="text-sm font-semibold mb-3" style={{
           background: 'linear-gradient(90deg, #e2c4ff, #fcd34d)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>{card.tagline}</p>
 
-        {/* Description */}
         <p className="text-sm text-white/55 leading-relaxed mb-6">{card.description}</p>
 
-        {/* CTA */}
         <div className="relative inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold text-white overflow-hidden"
           style={{
             background: `linear-gradient(135deg, #5b21b6, ${card.glowSolid} 60%, #d97706)`,
@@ -301,12 +361,21 @@ function PortalCard({ card, index }: { card: Card; index: number }) {
             transition: 'box-shadow 0.3s ease, transform 0.3s ease',
           }}>
           <span className="relative z-10">{card.button}</span>
-          <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5"
-            viewBox="0 0 16 16" fill="none">
+          <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       </div>
+    </>
+  );
+
+  return onClick ? (
+    <div className={sharedClass} style={sharedStyle} onClick={onClick} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      {inner}
+    </div>
+  ) : (
+    <Link to={card.href} className={sharedClass} style={sharedStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      {inner}
     </Link>
   );
 }

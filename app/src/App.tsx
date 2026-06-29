@@ -1,5 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import SiteFooter from './components/SiteFooter';
 import ScrollToTop from './components/ScrollToTop';
@@ -26,11 +27,103 @@ import CheckoutReturnPage from './pages/CheckoutReturnPage';
 import LandingPage from './pages/LandingPage';
 import NumerologyPage from './pages/NumerologyPage';
 
+// ── Global floating nav (back button + auth status) ─────────────────────────
+// Excluded from /auth (has its own) and /numerology (has integrated header nav)
+function GlobalNav() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut, loading } = useAuth();
+
+  if (location.pathname === '/auth' || location.pathname === '/numerology') return null;
+
+  const isRoot = location.pathname === '/';
+
+  const pill: React.CSSProperties = {
+    position: 'fixed',
+    zIndex: 1000,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 5,
+    padding: '6px 13px',
+    borderRadius: 999,
+    background: 'rgba(5, 2, 18, 0.72)',
+    backdropFilter: 'blur(14px)',
+    WebkitBackdropFilter: 'blur(14px)',
+    border: '1px solid rgba(167,139,250,0.20)',
+    color: 'rgba(196,181,253,0.65)',
+    fontSize: 12,
+    fontWeight: 500,
+    cursor: 'pointer',
+    boxShadow: '0 2px 16px rgba(0,0,0,0.4)',
+    letterSpacing: '0.02em',
+  };
+
+  return (
+    <>
+      {!isRoot && (
+        <button onClick={() => navigate('/')} style={{ ...pill, top: 14, left: 14 }}>
+          ‹&nbsp;首頁
+        </button>
+      )}
+      {!loading && (
+        user ? (
+          <div style={{
+            position: 'fixed', top: 14, right: 14, zIndex: 1000,
+            display: 'flex', alignItems: 'center',
+            background: 'rgba(5, 2, 18, 0.72)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
+            border: '1px solid rgba(167,139,250,0.20)',
+            borderRadius: 999,
+            boxShadow: '0 2px 16px rgba(0,0,0,0.4)',
+            overflow: 'hidden',
+          }}>
+            <span style={{
+              padding: '6px 8px 6px 14px',
+              color: 'rgba(196,181,253,0.55)',
+              fontSize: 11,
+              maxWidth: 96,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+              {user.email?.split('@')[0]}
+            </span>
+            <button
+              onClick={signOut}
+              style={{
+                padding: '6px 13px 6px 8px',
+                background: 'none',
+                border: 'none',
+                borderLeft: '1px solid rgba(167,139,250,0.14)',
+                color: 'rgba(196,181,253,0.38)',
+                fontSize: 11,
+                cursor: 'pointer',
+                letterSpacing: '0.02em',
+              }}
+            >
+              登出
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => navigate(`/auth?redirect=${encodeURIComponent(location.pathname)}`)}
+            style={{ ...pill, top: 14, right: 14 }}
+          >
+            登入
+          </button>
+        )
+      )}
+    </>
+  );
+}
+
 function RouterBody() {
   usePageViewTracking();
   return (
     <div className="flex flex-col min-h-screen bg-ink-950">
       <ScrollToTop />
+      <GlobalNav />
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -54,7 +147,7 @@ function RouterBody() {
           <Route path="/osho/three" element={<OshoThreePage />} />
           <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturnPage /></ProtectedRoute>} />
           <Route path="/numerology" element={<NumerologyPage />} />
-          <Route path="/human-design" element={<div className="min-h-screen bg-[#060310] flex items-center justify-center text-white/40 text-lg">人類圖 — 即將推出</div>} />
+          <Route path="/human-design" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
       <SiteFooter />
