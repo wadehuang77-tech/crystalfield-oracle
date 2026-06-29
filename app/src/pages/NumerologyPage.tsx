@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gem, Star, Sparkles, ChevronRight, ArrowLeft, Crown, LogIn, LogOut, User, X, Mail, Check, AlertCircle } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
@@ -6,15 +6,12 @@ import NumerologyReport from '../components/numerology/NumerologyReport';
 import DailyEnergy from '../components/numerology/DailyEnergy';
 import AIChatAdvisor from '../components/numerology/AIChatAdvisor';
 import UpgradeModal from '../components/numerology/UpgradeModal';
-import CrystalUnlockModal from '../components/numerology/CrystalUnlockModal';
-import ForecastUnlockModal from '../components/numerology/ForecastUnlockModal';
-import OracleUnlockModal from '../components/numerology/OracleUnlockModal';
 import AuthModal from '../components/numerology/AuthModal';
-import { usePremium } from '../hooks/usePremium';
-import type { PlanTier } from '../hooks/usePremium';
 import { useAuth } from '../contexts/AuthContext';
 import { calculateNumerology, drawOracleCard } from '../lib/numerology';
 import type { NumerologyReport as Report, OracleCard } from '../lib/numerology';
+import type { PlanTier } from '../hooks/usePremium';
+import { profileApi, checkoutApi, type EcpayForm } from '../lib/api';
 
 type Tab = 'report' | 'daily' | 'ai';
 
@@ -31,16 +28,33 @@ const features = [
   { icon: '⬡', title: '每日能量訊息', desc: '個人化每日水晶與幸運能量指引', color: '#60a5fa' },
 ];
 
-const TIER_KEY = 'lcc_tier_v1';
-const CRYSTAL_KEY = 'lcc_crystal_unlocked';
-const FORECAST_KEY = 'lcc_forecast_unlocked';
-const ORACLE_KEY = 'lcc_oracle_unlocked';
+const SKU_MAP: Record<number, string> = {
+  1: 'numerology_basic',
+  2: 'numerology_advanced',
+  3: 'numerology_full',
+};
 
-function readLS(key: string) {
-  try { return localStorage.getItem(key); } catch { return null; }
+function getTierFromSpreads(purchased: string[]): PlanTier {
+  if (purchased.includes('numerology_full')) return 3;
+  if (purchased.includes('numerology_advanced')) return 2;
+  if (purchased.includes('numerology_basic')) return 1;
+  return 0;
 }
-function writeLS(key: string, val: string) {
-  try { localStorage.setItem(key, val); } catch {}
+
+function submitEcpayForm({ endpoint, fields }: EcpayForm) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = endpoint;
+  form.style.display = 'none';
+  Object.entries(fields).forEach(([k, v]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v;
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  form.submit();
 }
 
 export default function NumerologyPage() {
@@ -53,45 +67,24 @@ export default function NumerologyPage() {
   const [activeTab, setActiveTab] = useState<Tab>('report');
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [upgradeDefaultTier, setUpgradeDefaultTier] = useState<PlanTier>(2);
-  const [showEmailUnlock, setShowEmailUnlock] = useState(false);
+  const [upgradeDefaultTier, setUpgradeDefaultTier] = useState<PlanTier>(3);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // ── Tier (localStorage) ─────────────────────────────────────────
-  const [localTier, setLocalTier] = useState<PlanTier>(() => {
-    const v = parseInt(readLS(TIER_KEY) ?? '0', 10);
-    return (v >= 0 && v <= 3 ? v : 0) as PlanTier;
-  });
-  const updateTier = async (t: PlanTier) => {
-    writeLS(TIER_KEY, String(t));
-    setLocalTier(t);
-  };
-  const { isPremium, upgradeTo, resetToFree } = usePremium(localTier, updateTier);
-  const tier = localTier;
+  // ── Tier from profile ────────────────────────────────────────────
+  const [tier, setTier] = useState<PlanTier>(0);
+  const isPremium = tier > 0;
 
-  // ── Feature unlocks (localStorage) ─────────────────────────────
-  const [crystalUnlocked, setCrystalUnlocked] = useState(() => readLS(CRYSTAL_KEY) === '1');
-  const [showCrystalUnlock, setShowCrystalUnlock] = useState(false);
-  const handleCrystalUnlock = () => {
-    writeLS(CRYSTAL_KEY, '1');
-    setCrystalUnlocked(true);
-    setShowCrystalUnlock(false);
-  };
+  useEffect(() => {
+    if (!user) { setTier(0); return; }
+    profileApi.me().then(({ profile }) => {
+      if (profile) setTier(getTierFromSpreads(profile.purchased_spreads));
+    }).catch(() => {});
+  }, [user]);
 
-  const [forecastUnlocked, setForecastUnlocked] = useState(() => readLS(FORECAST_KEY) === '1');
-  const [showForecastUnlock, setShowForecastUnlock] = useState(false);
-  const handleForecastUnlock = () => {
-    writeLS(FORECAST_KEY, '1');
-    setForecastUnlocked(true);
-    setShowForecastUnlock(false);
-  };
-
-  const [oracleUnlocked, setOracleUnlocked] = useState(() => readLS(ORACLE_KEY) === '1');
-  const [showOracleUnlock, setShowOracleUnlock] = useState(false);
-  const handleOracleUnlock = () => {
-    writeLS(ORACLE_KEY, '1');
-    setOracleUnlocked(true);
-    setShowOracleUnlock(false);
-  };
+  // ── Derive unlock flags from tier ───────────────────────────────
+  const crystalUnlocked = tier >= 1;
+  const oracleUnlocked = tier >= 2;
+  const forecastUnlocked = tier >= 3;
 
   // ── Actions ─────────────────────────────────────────────────────
   const handleSubmit = async (date: string, useOracle: boolean) => {
@@ -110,23 +103,28 @@ export default function NumerologyPage() {
     setActiveTab('report');
   };
 
-  const handleEmailUnlock = async (email: string) => {
-    await fetch('/api/save-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, source: 'numerology' }),
-    });
-    await updateTier(Math.max(tier, 1) as PlanTier);
-  };
-
-  const handleUpgrade = (required: PlanTier = 2) => {
-    if (required === 1) { setShowEmailUnlock(true); return; }
+  const handleUpgrade = (required: PlanTier = 3) => {
     setUpgradeDefaultTier(required);
     setShowUpgrade(true);
   };
 
-  // ── AuthModal adapters (our auth returns { error }, modal expects throw) ──
+  const handleUpgradeConfirm = async (t: PlanTier) => {
+    setShowUpgrade(false);
+    if (!user) { setShowAuth(true); return; }
+    const sku = SKU_MAP[t];
+    if (!sku) return;
+    setCheckoutLoading(true);
+    try {
+      const { ecpay } = await checkoutApi.createOrder(sku);
+      if (ecpay) submitEcpayForm(ecpay);
+    } catch (err) {
+      console.error('checkout failed', err);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  // ── AuthModal adapters ───────────────────────────────────────────
   const authSignIn = async (email: string, password: string) => {
     const { error } = await signIn(email, password);
     if (error) throw error;
@@ -175,9 +173,7 @@ export default function NumerologyPage() {
 
           <div className="flex items-center gap-2">
             {isPremium ? (
-              <button
-                onClick={resetToFree}
-                title="點擊切換回免費模式（示範）"
+              <div
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
                   padding: '5px 12px', borderRadius: 999,
@@ -185,16 +181,15 @@ export default function NumerologyPage() {
                   border: '1px solid rgba(251,191,36,0.28)',
                   color: '#fbbf24',
                   fontSize: 11, fontWeight: 600, letterSpacing: '0.04em',
-                  cursor: 'pointer', touchAction: 'manipulation',
                   boxShadow: '0 0 12px rgba(251,191,36,0.12)',
                 } as React.CSSProperties}
               >
                 <Crown style={{ width: 11, height: 11 }} />
-                {tier === 1 ? 'Email 解鎖' : tier === 2 ? '進階方案' : '完整靈魂版'}
-              </button>
+                {tier === 1 ? '基礎版' : tier === 2 ? '進階版' : '完整靈魂版'}
+              </div>
             ) : (
               <button
-                onClick={() => handleUpgrade(2)}
+                onClick={() => handleUpgrade(3)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
                   padding: '5px 12px', borderRadius: 999,
@@ -402,11 +397,11 @@ export default function NumerologyPage() {
               tier={tier}
               onUpgrade={handleUpgrade}
               crystalUnlocked={crystalUnlocked}
-              onCrystalUnlock={() => setShowCrystalUnlock(true)}
+              onCrystalUnlock={() => handleUpgrade(1)}
               forecastUnlocked={forecastUnlocked}
-              onForecastUnlock={() => setShowForecastUnlock(true)}
+              onForecastUnlock={() => handleUpgrade(3)}
               oracleUnlocked={oracleUnlocked}
-              onOracleUnlock={() => setShowOracleUnlock(true)}
+              onOracleUnlock={() => handleUpgrade(2)}
             />
           )}
           {activeTab === 'daily' && (
@@ -459,47 +454,22 @@ export default function NumerologyPage() {
         </div>
       </footer>
 
-      {showEmailUnlock && (
-        <EmailUnlockModal
-          onClose={() => setShowEmailUnlock(false)}
-          onConfirm={async (email) => {
-            await handleEmailUnlock(email);
-            setShowEmailUnlock(false);
-          }}
-        />
+      {checkoutLoading && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 60,
+          background: 'rgba(7,4,15,0.7)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ color: '#a78bfa', fontSize: 14, fontWeight: 600 }}>前往付款頁面中...</div>
+        </div>
       )}
 
       {showUpgrade && (
         <UpgradeModal
           onClose={() => setShowUpgrade(false)}
-          onConfirm={(t) => { upgradeTo(t); setShowUpgrade(false); }}
-          onEmailUnlock={handleEmailUnlock}
+          onConfirm={handleUpgradeConfirm}
           defaultTier={upgradeDefaultTier}
           currentTier={tier}
-        />
-      )}
-
-      {showCrystalUnlock && (
-        <CrystalUnlockModal
-          onClose={() => setShowCrystalUnlock(false)}
-          onConfirm={handleCrystalUnlock}
-        />
-      )}
-
-      {showForecastUnlock && report && (
-        <ForecastUnlockModal
-          onClose={() => setShowForecastUnlock(false)}
-          onConfirm={handleForecastUnlock}
-          personalYear={report.personalYearNumber}
-          currentYear={new Date().getFullYear()}
-        />
-      )}
-
-      {showOracleUnlock && (
-        <OracleUnlockModal
-          onClose={() => setShowOracleUnlock(false)}
-          onConfirm={handleOracleUnlock}
-          accentColor={oracleCard?.elementColor ?? '#60a5fa'}
         />
       )}
 
@@ -514,8 +484,8 @@ export default function NumerologyPage() {
   );
 }
 
-// ── Email unlock modal ────────────────────────────────────────────────────────
-function EmailUnlockModal({ onClose, onConfirm }: {
+// ── Email unlock modal (kept for backwards compatibility, unused in new flow) ──
+function _EmailUnlockModal({ onClose, onConfirm }: {
   onClose: () => void;
   onConfirm: (email: string) => Promise<void>;
 }) {
@@ -558,115 +528,43 @@ function EmailUnlockModal({ onClose, onConfirm }: {
           width: '100%', maxWidth: 400,
           background: 'linear-gradient(160deg, rgba(18,9,38,0.99), rgba(8,4,20,0.99))',
           border: '1px solid rgba(45,212,191,0.28)',
-          borderRadius: 20,
-          overflow: 'hidden',
-          boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(45,212,191,0.08)',
+          borderRadius: 20, overflow: 'hidden',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.7)',
         }}
       >
         <div style={{ height: 3, background: 'linear-gradient(90deg, transparent, #2dd4bf, #5eead4, #2dd4bf, transparent)' }} />
         <div style={{ padding: '22px 22px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{
-                width: 38, height: 38, borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'radial-gradient(circle at 35% 30%, rgba(45,212,191,0.22), rgba(45,212,191,0.06))',
-                border: '1px solid rgba(45,212,191,0.32)',
-                boxShadow: '0 0 18px rgba(45,212,191,0.15)',
-              }}>
-                <Mail style={{ width: 16, height: 16, color: '#2dd4bf' }} />
-              </div>
-              <div>
-                <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#e9d5ff', fontFamily: 'Playfair Display, serif' }}>免費解鎖內容</p>
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'rgba(45,212,191,0.85)' }}>輸入 email，立即解鎖三個分析區塊</p>
-              </div>
+              <Mail style={{ width: 16, height: 16, color: '#2dd4bf' }} />
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#e9d5ff' }}>免費解鎖內容</p>
             </div>
-            <button
-              onClick={onClose}
-              style={{
-                width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
-                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: 'rgba(196,181,253,0.5)',
-              } as React.CSSProperties}
-            >
-              <X style={{ width: 12, height: 12 }} />
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(196,181,253,0.5)' }}>
+              <X style={{ width: 16, height: 16 }} />
             </button>
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px 0', marginBottom: 18 }}>
-            {['連線詳細解析', '高頻水晶處方', '專屬光體能量修復儀式'].map(f => (
-              <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <Check style={{ width: 11, height: 11, color: '#2dd4bf', flexShrink: 0 }} />
-                <span style={{ fontSize: 12, color: 'rgba(196,181,253,0.68)' }}>{f}</span>
-              </div>
-            ))}
-          </div>
-
           {done ? (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 9,
-              padding: '12px 16px', borderRadius: 12,
-              background: 'rgba(45,212,191,0.10)', border: '1px solid rgba(45,212,191,0.28)',
-              color: '#2dd4bf', fontSize: 14, fontWeight: 600,
-            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '12px 16px', borderRadius: 12, background: 'rgba(45,212,191,0.10)', border: '1px solid rgba(45,212,191,0.28)', color: '#2dd4bf', fontSize: 14, fontWeight: 600 }}>
               <Check style={{ width: 16, height: 16, flexShrink: 0 }} />
-              已解鎖！內容已為你展開 ✨
+              已解鎖！
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ position: 'relative' }}>
-                <Mail style={{
-                  position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)',
-                  width: 14, height: 14, color: 'rgba(45,212,191,0.45)', pointerEvents: 'none',
-                }} />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="你的 email"
-                  required
-                  autoComplete="email"
-                  style={{
-                    width: '100%', boxSizing: 'border-box',
-                    padding: '11px 12px 11px 34px',
-                    fontSize: 14, fontFamily: 'Inter, sans-serif',
-                    color: '#e9d5ff', background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(45,212,191,0.28)',
-                    borderRadius: 11, outline: 'none', caretColor: '#2dd4bf',
-                  }}
-                />
-              </div>
+              <input
+                type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="你的 email" required autoComplete="email"
+                style={{ width: '100%', boxSizing: 'border-box', padding: '11px 12px', fontSize: 14, color: '#e9d5ff', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(45,212,191,0.28)', borderRadius: 11, outline: 'none' }}
+              />
               {error && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#fca5a5' }}>
-                  <AlertCircle style={{ width: 11, height: 11, flexShrink: 0 }} />
-                  {error}
+                  <AlertCircle style={{ width: 11, height: 11 }} />{error}
                 </div>
               )}
-              <button
-                type="submit"
-                disabled={loadingState}
-                style={{
-                  padding: '12px',
-                  borderRadius: 11, border: 'none',
-                  background: loadingState
-                    ? 'rgba(45,212,191,0.18)'
-                    : 'linear-gradient(135deg, rgba(45,212,191,0.85), rgba(45,212,191,0.55))',
-                  color: '#07040f', fontSize: 14, fontWeight: 700,
-                  fontFamily: 'Inter, sans-serif',
-                  cursor: loadingState ? 'not-allowed' : 'pointer',
-                  touchAction: 'manipulation',
-                  boxShadow: loadingState ? 'none' : '0 4px 16px rgba(45,212,191,0.28)',
-                } as React.CSSProperties}
-              >
+              <button type="submit" disabled={loadingState} style={{ padding: '12px', borderRadius: 11, border: 'none', background: 'linear-gradient(135deg, rgba(45,212,191,0.85), rgba(45,212,191,0.55))', color: '#07040f', fontSize: 14, fontWeight: 700, cursor: loadingState ? 'not-allowed' : 'pointer' }}>
                 {loadingState ? '解鎖中...' : '免費解鎖'}
               </button>
             </form>
           )}
-
-          <p style={{ margin: '12px 0 0', fontSize: 10, color: 'rgba(167,139,250,0.28)', textAlign: 'center' }}>
-            不會發送垃圾郵件，你的信箱安全受到保護
-          </p>
         </div>
       </div>
     </div>

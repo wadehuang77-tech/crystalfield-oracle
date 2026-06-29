@@ -19,14 +19,13 @@ export default function ContentGate({
 }: ContentGateProps) {
   if (currentTier >= requiredTier) return <>{children}</>;
 
-  const isEmailTier = requiredTier === 1;
-  const gateColor = isEmailTier ? '#2dd4bf' : accentColor;
-  const label = isEmailTier
-    ? '輸入信箱，免費解鎖此分析'
+  const gateColor = accentColor;
+  const label = requiredTier === 1
+    ? '解鎖基礎版 NT$250，查看完整內容'
     : requiredTier === 2
-    ? '升級 NT$350 方案以解鎖完整內容'
-    : '升級 NT$499 方案以解鎖完整內容';
-  const btnLabel = isEmailTier ? '輸入email免費解鎖' : '立即升級解鎖';
+    ? '解鎖進階版 NT$399，查看完整內容'
+    : '解鎖完整靈魂版 NT$599，查看完整內容';
+  const btnLabel = '解鎖完整解析';
 
   return (
     <div style={{ position: 'relative' }}>
@@ -67,7 +66,7 @@ export default function ContentGate({
           fontSize: 13, flexShrink: 0,
           color: gateColor,
         }}>
-          {isEmailTier ? '✉' : '✦'}
+          ✦
         </div>
 
         <p style={{

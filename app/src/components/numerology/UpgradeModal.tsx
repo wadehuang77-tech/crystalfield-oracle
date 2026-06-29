@@ -10,7 +10,7 @@ interface Props {
   currentTier: PlanTier;
 }
 
-type PlanKey = 'healing' | 'forecast' | 'full';
+type PlanKey = 'basic' | 'advanced' | 'full';
 
 const PLANS: Record<PlanKey, {
   tier: PlanTier;
@@ -25,55 +25,44 @@ const PLANS: Record<PlanKey, {
   excludes: string[];
   buttonLabel: string;
 }> = {
-  healing: {
-    tier: 2,
-    name: '缺失數字療癒版',
-    price: 'NT$199',
-    priceNum: '199',
+  basic: {
+    tier: 1,
+    name: '基礎版',
+    price: 'NT$250',
+    priceNum: '250',
     color: '#5eead4',
     includes: [
-      '缺失數字完整分析（100%）',
-      '缺失能量解析',
-      '性格盲點分析',
-      '人生課題分析',
-      '水晶療癒方案（100%）',
-      '專屬推薦水晶',
-      '水晶配戴建議',
-      '能量平衡建議',
-    ],
-    excludes: [
-      '流年完整報告',
-      '靈魂藍圖',
-      '當下能量交叉指引',
-      '神聖水晶陣指引',
-      '靜心冥想儀式指引',
-    ],
-    buttonLabel: '立即解鎖 NT$199',
-  },
-  forecast: {
-    tier: 2,
-    name: '流年完整報告',
-    price: 'NT$499',
-    priceNum: '499',
-    color: '#fbbf24',
-    includes: [
-      '流年運勢完整報告',
-      '流年守護水晶',
-      '流年財運分析',
-      '流年事業分析',
-      '流年感情分析',
-      '流年挑戰與機會',
-      '流年能量提升建議',
-    ],
-    excludes: [
+      '完整生命靈數解析',
       '缺失數字完整分析',
-      '水晶療癒方案',
-      '靈魂藍圖',
-      '當下能量交叉指引',
+      '高頻水晶療癒方案',
+      '能量盲點與課題解析',
+    ],
+    excludes: [
+      '靈魂藍圖 × 當下能量交叉指引',
+      '當下靈數卡關點揭示',
       '神聖水晶陣指引',
       '靜心冥想儀式指引',
     ],
-    buttonLabel: '立即解鎖流年報告 NT$499',
+    buttonLabel: '立即解鎖 基礎版 NT$250',
+  },
+  advanced: {
+    tier: 2,
+    name: '進階版',
+    price: 'NT$399',
+    priceNum: '399',
+    color: '#a78bfa',
+    includes: [
+      '完整生命靈數解析',
+      '缺失數字完整分析',
+      '高頻水晶療癒方案',
+      '靈魂藍圖 × 當下能量交叉指引',
+      '當下靈數卡關點揭示',
+    ],
+    excludes: [
+      '神聖水晶陣指引',
+      '靜心冥想儀式指引',
+    ],
+    buttonLabel: '立即解鎖 進階版 NT$399',
   },
   full: {
     tier: 3,
@@ -81,42 +70,45 @@ const PLANS: Record<PlanKey, {
     price: 'NT$599',
     priceNum: '599',
     color: '#fbbf24',
-    badge: '最多人選擇',
-    badgeIcon: '🔥',
+    badge: '最完整',
+    badgeIcon: '✦',
     featured: true,
     includes: [
-      '缺失數字完整分析（100%）',
-      '水晶療癒方案（100%）',
-      '靈魂藍圖',
-      '當下能量交叉指引',
+      '完整生命靈數解析',
+      '缺失數字完整分析',
+      '高頻水晶療癒方案',
+      '靈魂藍圖 × 當下能量交叉指引',
+      '當下靈數卡關點揭示',
       '神聖水晶陣指引',
       '靜心冥想儀式指引',
     ],
-    excludes: [
-      '流年完整報告（獨立商品 NT$499）',
-    ],
-    buttonLabel: '立即解鎖完整靈魂版 NT$599',
+    excludes: [],
+    buttonLabel: '立即解鎖 完整靈魂版 NT$599',
   },
 };
 
 const COMPARE_ROWS = [
-  { label: '缺失數字完整分析', healing: true,  forecast: false, full: true  },
-  { label: '水晶療癒方案',      healing: true,  forecast: false, full: true  },
-  { label: '流年完整報告',      healing: false, forecast: true,  full: false },
-  { label: '流年守護水晶',      healing: false, forecast: true,  full: false },
-  { label: '靈魂藍圖',          healing: false, forecast: false, full: true  },
-  { label: '當下能量交叉指引',  healing: false, forecast: false, full: true  },
-  { label: '神聖水晶陣指引',    healing: false, forecast: false, full: true  },
-  { label: '靜心冥想儀式指引',  healing: false, forecast: false, full: true  },
+  { label: '完整生命靈數解析',          basic: true,  advanced: true,  full: true  },
+  { label: '缺失數字 × 水晶療癒方案',   basic: true,  advanced: true,  full: true  },
+  { label: '靈魂藍圖 × 當下能量交叉指引', basic: false, advanced: true, full: true  },
+  { label: '當下靈數卡關點揭示',         basic: false, advanced: true,  full: true  },
+  { label: '神聖水晶陣指引',             basic: false, advanced: false, full: true  },
+  { label: '靜心冥想儀式指引',           basic: false, advanced: false, full: true  },
 ];
 
-export default function UpgradeModal({ onClose, onConfirm, currentTier: _currentTier }: Props) {
-  const [selected, setSelected] = useState<PlanKey>('full');
+function tierToKey(t: PlanTier): PlanKey {
+  if (t === 1) return 'basic';
+  if (t === 2) return 'advanced';
+  return 'full';
+}
+
+export default function UpgradeModal({ onClose, onConfirm, defaultTier, currentTier: _currentTier }: Props) {
+  const [selected, setSelected] = useState<PlanKey>(tierToKey(defaultTier ?? 3));
   const activePlan = PLANS[selected];
 
   const colColors: Record<PlanKey, string> = {
-    healing: '#5eead4',
-    forecast: '#fbbf24',
+    basic: '#5eead4',
+    advanced: '#a78bfa',
     full: '#fbbf24',
   };
 
@@ -201,17 +193,17 @@ export default function UpgradeModal({ onClose, onConfirm, currentTier: _current
           {/* Two smaller plans side by side */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <PlanCard
-              planKey="healing"
-              plan={PLANS.healing}
-              selected={selected === 'healing'}
-              onSelect={() => setSelected('healing')}
+              planKey="basic"
+              plan={PLANS.basic}
+              selected={selected === 'basic'}
+              onSelect={() => setSelected('basic')}
               compact
             />
             <PlanCard
-              planKey="forecast"
-              plan={PLANS.forecast}
-              selected={selected === 'forecast'}
-              onSelect={() => setSelected('forecast')}
+              planKey="advanced"
+              plan={PLANS.advanced}
+              selected={selected === 'advanced'}
+              onSelect={() => setSelected('advanced')}
               compact
             />
           </div>
@@ -263,8 +255,8 @@ export default function UpgradeModal({ onClose, onConfirm, currentTier: _current
               borderBottom: '1px solid rgba(255,255,255,0.06)',
             }}>
               <span style={{ color: 'rgba(196,181,253,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: 10 }}>功能</span>
-              <span style={{ textAlign: 'center', color: '#5eead4', fontWeight: 700, fontSize: 10 }}>199</span>
-              <span style={{ textAlign: 'center', color: '#fbbf24', fontWeight: 700, fontSize: 10 }}>499</span>
+              <span style={{ textAlign: 'center', color: '#5eead4', fontWeight: 700, fontSize: 10 }}>250</span>
+              <span style={{ textAlign: 'center', color: '#a78bfa', fontWeight: 700, fontSize: 10 }}>399</span>
               <span style={{ textAlign: 'center', color: '#fbbf24', fontWeight: 700, fontSize: 10 }}>599</span>
             </div>
             {COMPARE_ROWS.map((row, i) => (
@@ -279,13 +271,13 @@ export default function UpgradeModal({ onClose, onConfirm, currentTier: _current
               >
                 <span style={{ color: 'rgba(196,181,253,0.65)', fontSize: 11 }}>{row.label}</span>
                 <span style={{ textAlign: 'center' }}>
-                  {row.healing
-                    ? <Check style={{ width: 12, height: 12, color: colColors.healing, display: 'inline' }} />
+                  {row.basic
+                    ? <Check style={{ width: 12, height: 12, color: colColors.basic, display: 'inline' }} />
                     : <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: 13 }}>—</span>}
                 </span>
                 <span style={{ textAlign: 'center' }}>
-                  {row.forecast
-                    ? <Check style={{ width: 12, height: 12, color: colColors.forecast, display: 'inline' }} />
+                  {row.advanced
+                    ? <Check style={{ width: 12, height: 12, color: colColors.advanced, display: 'inline' }} />
                     : <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: 13 }}>—</span>}
                 </span>
                 <span style={{ textAlign: 'center' }}>
@@ -336,10 +328,6 @@ export default function UpgradeModal({ onClose, onConfirm, currentTier: _current
           >
             稍後再說
           </button>
-
-          <p style={{ margin: 0, fontSize: 10, color: 'rgba(167,139,250,0.22)', textAlign: 'center', lineHeight: 1.5 }}>
-            示範模式：點擊解鎖即可體驗對應方案內容
-          </p>
         </div>
       </div>
     </div>

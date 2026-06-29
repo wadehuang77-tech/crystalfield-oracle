@@ -62,13 +62,13 @@ function QuarterCard({ quarter, color }: { quarter: { label: string; energy: str
   );
 }
 
-export default function PersonalYearForecast({ report, tier, onUpgrade: _onUpgrade, forecastUnlocked, onForecastUnlock }: Props) {
+export default function PersonalYearForecast({ report, tier, onUpgrade, forecastUnlocked: _forecastUnlocked, onForecastUnlock: _onForecastUnlock }: Props) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const data = getPersonalYearData(report.personalYearNumber);
   const color = data.color;
   const CURRENT_YEAR = 2026;
   const sections = ['career', 'love', 'spiritual', 'warning'] as const;
-  const showFull = forecastUnlocked || tier >= 3;
+  const showFull = tier >= 3;
 
   return (
     <div
@@ -401,7 +401,7 @@ export default function PersonalYearForecast({ report, tier, onUpgrade: _onUpgra
                 ))}
               </div>
               <button
-                onClick={onForecastUnlock}
+                onClick={() => onUpgrade(3)}
                 style={{
                   width: '100%', padding: '12px',
                   borderRadius: 11, border: 'none',
@@ -418,7 +418,7 @@ export default function PersonalYearForecast({ report, tier, onUpgrade: _onUpgra
                 } as React.CSSProperties}
               >
                 <Lock style={{ width: 13, height: 13 }} />
-                立即解鎖完整流年報告 NT$499
+                解鎖完整靈魂版 NT$599
               </button>
             </div>
           </div>

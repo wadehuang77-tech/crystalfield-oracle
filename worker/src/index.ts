@@ -977,11 +977,22 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
       }
     }
 
-    // Grant bundle credits after successful payment
+    // Grant bundle credits or numerology access after successful payment
     if (order.user_id) {
       const catalogItem = SPREAD_CATALOG[order.item_id];
       if (catalogItem?.bundle) {
         await grantBundleCredits(env, order.user_id, catalogItem.bundle).catch(() => {});
+      } else if (order.item_id.startsWith('numerology_')) {
+        await env.DB.prepare(`
+          UPDATE profiles
+          SET purchased_spreads = (
+            SELECT json_group_array(value) FROM (
+              SELECT value FROM json_each(COALESCE(NULLIF(purchased_spreads, ''), '[]'))
+              UNION SELECT ?
+            )
+          ), updated_at = ?
+          WHERE id = ?
+        `).bind(order.item_id, now, order.user_id).run().catch(() => {});
       }
     }
   } else {

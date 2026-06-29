@@ -50,6 +50,10 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
     id: 'bundle_1999_30d', name: '深度靈魂套餐 (30日)', amount: 1999,
     bundle: { three_card: 6, ten_card: 3, pastlife: 3, days: 30 },
   },
+  // ── 生命靈數方案 ────────────────────────────────────────────────
+  numerology_basic:    { id: 'numerology_basic',    name: '生命靈數 基礎版',     amount: 250 },
+  numerology_advanced: { id: 'numerology_advanced', name: '生命靈數 進階版',     amount: 399 },
+  numerology_full:     { id: 'numerology_full',     name: '生命靈數 完整靈魂版', amount: 599 },
 };
 
 function phpStyleUrlEncode(s: string): string {
