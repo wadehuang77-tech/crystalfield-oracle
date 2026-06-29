@@ -9,24 +9,9 @@ const STARS_BG_URL =
   "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ic3RhcnMiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI4MCIgcj0iMC41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMikiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSI0MCIgcj0iMS41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz48Y2lyY2xlIGN4PSIxODAiIGN5PSIxNjAiIHI9IjAuOCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXJzKSIvPjwvc3ZnPg==')";
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<Mode>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
-  const [resetToken, setResetToken] = useState('');
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('');
-  const [occupation, setOccupation] = useState('');
-  const [healingInterest, setHealingInterest] = useState('');
-  const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [resetDoneModal, setResetDoneModal] = useState(false);
-  const [resendCountdown, setResendCountdown] = useState(0);
-
   const {
     user,
+    loading: authLoading,
     signUp, signIn,
     requestPasswordReset, verifyResetCode, resetPassword,
   } = useAuth();
@@ -41,6 +26,24 @@ export default function AuthPage() {
     if (rawRedirect === '/auth' || rawRedirect.startsWith('/auth?')) return null;
     return rawRedirect;
   })();
+
+  const [mode, setMode] = useState<Mode>(
+    searchParams.get('mode') === 'signup' ? 'signup' : 'login'
+  );
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [healingInterest, setHealingInterest] = useState('');
+  const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [resetDoneModal, setResetDoneModal] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
 
   useEffect(() => {
     if (resendCountdown <= 0) return;
@@ -205,6 +208,14 @@ export default function AuthPage() {
       case 'forgot-password': return '為這個帳號設定新密碼';
     }
   })();
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center">
+        <Sparkles className="w-8 h-8 text-blue-300 opacity-40 animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div

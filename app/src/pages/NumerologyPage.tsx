@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Gem, Star, Sparkles, ChevronRight, ArrowLeft, Crown, LogIn, LogOut, User, X, Mail, Check, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Gem, Star, Sparkles, ChevronRight, ArrowLeft, Crown, LogIn, LogOut, User } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
 import DailyEnergy from '../components/numerology/DailyEnergy';
 import AIChatAdvisor from '../components/numerology/AIChatAdvisor';
 import UpgradeModal from '../components/numerology/UpgradeModal';
-import AuthModal from '../components/numerology/AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import { calculateNumerology, drawOracleCard } from '../lib/numerology';
 import type { NumerologyReport as Report, OracleCard } from '../lib/numerology';
@@ -59,26 +58,51 @@ function submitEcpayForm({ endpoint, fields }: EcpayForm) {
 
 export default function NumerologyPage() {
   const navigate = useNavigate();
-  const { user, signIn, signUp, signOut } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user, signOut } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
   const [oracleCard, setOracleCard] = useState<OracleCard | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('report');
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
   const [upgradeDefaultTier, setUpgradeDefaultTier] = useState<PlanTier>(3);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // ── Tier from profile ────────────────────────────────────────────
   const [tier, setTier] = useState<PlanTier>(0);
   const isPremium = tier > 0;
+  const pendingUpgradeRef = useRef<PlanTier | null>(null);
+
+  // Capture upgrade intent from URL after auth redirect, then clean it
+  useEffect(() => {
+    const t = parseInt(searchParams.get('upgrade') ?? '') as PlanTier;
+    if (t >= 1 && t <= 3) {
+      pendingUpgradeRef.current = t;
+      const next = new URLSearchParams(searchParams);
+      next.delete('upgrade');
+      setSearchParams(next, { replace: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!user) { setTier(0); return; }
     profileApi.me().then(({ profile }) => {
       if (profile) setTier(getTierFromSpreads(profile.purchased_spreads));
     }).catch(() => {});
+    if (pendingUpgradeRef.current !== null) {
+      const t = pendingUpgradeRef.current;
+      pendingUpgradeRef.current = null;
+      const sku = SKU_MAP[t];
+      if (sku) {
+        setCheckoutLoading(true);
+        checkoutApi.createOrder(sku)
+          .then(({ ecpay }) => { if (ecpay) submitEcpayForm(ecpay); })
+          .catch(err => console.error('checkout failed', err))
+          .finally(() => setCheckoutLoading(false));
+      }
+    }
   }, [user]);
 
   // ── Derive unlock flags from tier ───────────────────────────────
@@ -110,7 +134,10 @@ export default function NumerologyPage() {
 
   const handleUpgradeConfirm = async (t: PlanTier) => {
     setShowUpgrade(false);
-    if (!user) { setShowAuth(true); return; }
+    if (!user) {
+      navigate(`/auth?redirect=${encodeURIComponent('/numerology?upgrade=' + t)}`);
+      return;
+    }
     const sku = SKU_MAP[t];
     if (!sku) return;
     setCheckoutLoading(true);
@@ -122,16 +149,6 @@ export default function NumerologyPage() {
     } finally {
       setCheckoutLoading(false);
     }
-  };
-
-  // ── AuthModal adapters ───────────────────────────────────────────
-  const authSignIn = async (email: string, password: string) => {
-    const { error } = await signIn(email, password);
-    if (error) throw error;
-  };
-  const authSignUp = async (email: string, password: string) => {
-    const { error } = await signUp(email, password);
-    if (error) throw error;
   };
 
   return (
@@ -227,7 +244,7 @@ export default function NumerologyPage() {
               </button>
             ) : (
               <button
-                onClick={() => setShowAuth(true)}
+                onClick={() => navigate('/auth?redirect=/numerology')}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
                   padding: '5px 10px', borderRadius: 999,
@@ -267,7 +284,7 @@ export default function NumerologyPage() {
             </p>
             {!user && (
               <button
-                onClick={() => setShowAuth(true)}
+                onClick={() => navigate('/auth?redirect=/numerology')}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   padding: '7px 16px', borderRadius: 999,
@@ -473,100 +490,6 @@ export default function NumerologyPage() {
         />
       )}
 
-      {showAuth && (
-        <AuthModal
-          onClose={() => setShowAuth(false)}
-          onSignIn={authSignIn}
-          onSignUp={authSignUp}
-        />
-      )}
-    </div>
-  );
-}
-
-// ── Email unlock modal (kept for backwards compatibility, unused in new flow) ──
-function _EmailUnlockModal({ onClose, onConfirm }: {
-  onClose: () => void;
-  onConfirm: (email: string) => Promise<void>;
-}) {
-  const [email, setEmail] = useState('');
-  const [loadingState, setLoadingState] = useState(false);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setLoadingState(true);
-    setError('');
-    try {
-      await onConfirm(email.trim());
-      setDone(true);
-      setTimeout(onClose, 1400);
-    } catch {
-      setError('請輸入有效的電子郵件地址');
-    } finally {
-      setLoadingState(false);
-    }
-  };
-
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 50,
-        background: 'rgba(7,4,15,0.88)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px',
-      } as React.CSSProperties}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          width: '100%', maxWidth: 400,
-          background: 'linear-gradient(160deg, rgba(18,9,38,0.99), rgba(8,4,20,0.99))',
-          border: '1px solid rgba(45,212,191,0.28)',
-          borderRadius: 20, overflow: 'hidden',
-          boxShadow: '0 32px 80px rgba(0,0,0,0.7)',
-        }}
-      >
-        <div style={{ height: 3, background: 'linear-gradient(90deg, transparent, #2dd4bf, #5eead4, #2dd4bf, transparent)' }} />
-        <div style={{ padding: '22px 22px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Mail style={{ width: 16, height: 16, color: '#2dd4bf' }} />
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#e9d5ff' }}>免費解鎖內容</p>
-            </div>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(196,181,253,0.5)' }}>
-              <X style={{ width: 16, height: 16 }} />
-            </button>
-          </div>
-          {done ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '12px 16px', borderRadius: 12, background: 'rgba(45,212,191,0.10)', border: '1px solid rgba(45,212,191,0.28)', color: '#2dd4bf', fontSize: 14, fontWeight: 600 }}>
-              <Check style={{ width: 16, height: 16, flexShrink: 0 }} />
-              已解鎖！
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <input
-                type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="你的 email" required autoComplete="email"
-                style={{ width: '100%', boxSizing: 'border-box', padding: '11px 12px', fontSize: 14, color: '#e9d5ff', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(45,212,191,0.28)', borderRadius: 11, outline: 'none' }}
-              />
-              {error && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#fca5a5' }}>
-                  <AlertCircle style={{ width: 11, height: 11 }} />{error}
-                </div>
-              )}
-              <button type="submit" disabled={loadingState} style={{ padding: '12px', borderRadius: 11, border: 'none', background: 'linear-gradient(135deg, rgba(45,212,191,0.85), rgba(45,212,191,0.55))', color: '#07040f', fontSize: 14, fontWeight: 700, cursor: loadingState ? 'not-allowed' : 'pointer' }}>
-                {loadingState ? '解鎖中...' : '免費解鎖'}
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
