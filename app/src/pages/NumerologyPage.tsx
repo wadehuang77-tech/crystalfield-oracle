@@ -143,10 +143,16 @@ export default function NumerologyPage() {
     setCheckoutLoading(true);
     try {
       const { ecpay } = await checkoutApi.createOrder(sku);
-      if (ecpay) submitEcpayForm(ecpay);
+      if (ecpay) {
+        submitEcpayForm(ecpay);
+      } else {
+        // Admin instant-unlock path — re-fetch tier so UI updates without page reload
+        const { profile } = await profileApi.me();
+        if (profile) setTier(getTierFromSpreads(profile.purchased_spreads));
+        setCheckoutLoading(false);
+      }
     } catch (err) {
       console.error('checkout failed', err);
-    } finally {
       setCheckoutLoading(false);
     }
   };

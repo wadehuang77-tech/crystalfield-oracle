@@ -124,6 +124,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   }
 
   if (isAdmin) {
+    const now = new Date().toISOString();
     await env.DB.prepare(
       `UPDATE orders
           SET status = 'paid',
@@ -132,6 +133,21 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
               updated_at = datetime('now')
         WHERE id = ? AND status = 'pending'`
     ).bind(orderId).run();
+
+    // Grant access immediately (mirrors webhook logic) so admins can test unlock flow
+    if (item.id.startsWith('numerology_')) {
+      await env.DB.prepare(`
+        UPDATE profiles
+        SET purchased_spreads = (
+          SELECT json_group_array(value) FROM (
+            SELECT value FROM json_each(COALESCE(NULLIF(purchased_spreads, ''), '[]'))
+            UNION SELECT ?
+          )
+        ), updated_at = ?
+        WHERE id = ?
+      `).bind(item.id, now, user.id).run().catch(() => {});
+    }
+
     return json(req, env, {
       order_id: orderId,
       merchant_trade_no: merchantTradeNo,
