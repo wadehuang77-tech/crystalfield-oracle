@@ -153,6 +153,23 @@ export const checkoutApi = {
     ),
 };
 
+export interface BundleCredits {
+  three_card: number;
+  ten_card:   number;
+  pastlife:   number;
+}
+
+export const bundleApi = {
+  getCredits: () =>
+    req<{ credits: BundleCredits | null }>('/api/bundle-credits'),
+
+  consume: (category: 'three_card' | 'ten_card' | 'pastlife') =>
+    req<{ ok: boolean; remaining: number; error?: string }>(
+      '/api/bundle-credits/consume',
+      { method: 'POST', body: { category } },
+    ),
+};
+
 export const publicApi = {
   saveEmail: (email: string, source: string) =>
     req<{ success: boolean; message?: string }>('/api/save-email', {

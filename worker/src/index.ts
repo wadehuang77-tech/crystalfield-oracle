@@ -151,6 +151,10 @@ export default {
 
       if (path === '/api/ecpay-webhook' && req.method === 'POST') return await ecpayWebhook(req, env);
 
+      // ── Bundle credits ────────────────────────────────────────────
+      if (path === '/api/bundle-credits' && req.method === 'GET') return await getBundleCredits(req, env);
+      if (path === '/api/bundle-credits/consume' && req.method === 'POST') return await consumeBundleCredit(req, env);
+
       return await json(req, env, { error: 'not found', path }, { status: 404 });
     } catch (err) {
       if (err instanceof PayloadTooLargeError) {
@@ -972,6 +976,14 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
         return new Response('0|DB write failed', { status: 500, headers: { 'Content-Type': 'text/plain' } });
       }
     }
+
+    // Grant bundle credits after successful payment
+    if (order.user_id) {
+      const catalogItem = SPREAD_CATALOG[order.item_id];
+      if (catalogItem?.bundle) {
+        await grantBundleCredits(env, order.user_id, catalogItem.bundle).catch(() => {});
+      }
+    }
   } else {
     if (order.status === 'pending') {
       try {
@@ -992,6 +1004,96 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
     status: 200,
     headers: { 'Content-Type': 'text/plain' },
   });
+}
+
+// ── Bundle credit helpers ─────────────────────────────────────────────────────
+
+interface BundleGrant { three_card: number; ten_card: number; pastlife: number; days: number }
+
+async function grantBundleCredits(env: Env, userId: string, grant: BundleGrant): Promise<void> {
+  const expiresThreeCard = grant.three_card > 0
+    ? new Date(Date.now() + grant.days * 86400_000).toISOString() : null;
+  const expiresTenCard = grant.ten_card > 0
+    ? new Date(Date.now() + grant.days * 86400_000).toISOString() : null;
+  const expiresPastlife = grant.pastlife > 0
+    ? new Date(Date.now() + grant.days * 86400_000).toISOString() : null;
+
+  await env.DB.prepare(`
+    INSERT INTO bundle_credits
+      (user_id, three_card_remaining, three_card_expires,
+                ten_card_remaining,   ten_card_expires,
+                pastlife_remaining,   pastlife_expires, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    ON CONFLICT(user_id) DO UPDATE SET
+      three_card_remaining = three_card_remaining + excluded.three_card_remaining,
+      three_card_expires   = CASE WHEN excluded.three_card_remaining > 0 THEN excluded.three_card_expires ELSE three_card_expires END,
+      ten_card_remaining   = ten_card_remaining + excluded.ten_card_remaining,
+      ten_card_expires     = CASE WHEN excluded.ten_card_remaining > 0 THEN excluded.ten_card_expires ELSE ten_card_expires END,
+      pastlife_remaining   = pastlife_remaining + excluded.pastlife_remaining,
+      pastlife_expires     = CASE WHEN excluded.pastlife_remaining > 0 THEN excluded.pastlife_expires ELSE pastlife_expires END,
+      updated_at           = datetime('now')
+  `).bind(
+    userId,
+    grant.three_card, expiresThreeCard,
+    grant.ten_card,   expiresTenCard,
+    grant.pastlife,   expiresPastlife,
+  ).run();
+}
+
+async function getBundleCredits(req: Request, env: Env): Promise<Response> {
+  const user = await readSession(req, env);
+  if (!user) return json(req, env, { credits: null });
+
+  const row = await env.DB.prepare(
+    `SELECT three_card_remaining, three_card_expires,
+            ten_card_remaining,   ten_card_expires,
+            pastlife_remaining,   pastlife_expires
+       FROM bundle_credits WHERE user_id = ?`
+  ).bind(user.id).first<{
+    three_card_remaining: number; three_card_expires: string | null;
+    ten_card_remaining:   number; ten_card_expires:   string | null;
+    pastlife_remaining:   number; pastlife_expires:   string | null;
+  }>();
+
+  if (!row) return json(req, env, { credits: { three_card: 0, ten_card: 0, pastlife: 0 } });
+
+  const now = new Date().toISOString();
+  return json(req, env, {
+    credits: {
+      three_card: (row.three_card_expires && row.three_card_expires < now) ? 0 : row.three_card_remaining,
+      ten_card:   (row.ten_card_expires   && row.ten_card_expires   < now) ? 0 : row.ten_card_remaining,
+      pastlife:   (row.pastlife_expires   && row.pastlife_expires   < now) ? 0 : row.pastlife_remaining,
+    },
+  });
+}
+
+async function consumeBundleCredit(req: Request, env: Env): Promise<Response> {
+  const user = await readSession(req, env);
+  if (!user) return unauthorized(req, env, '請先登入');
+
+  const body = await readBody<{ category: string }>(req);
+  const cat = body.category;
+  if (cat !== 'three_card' && cat !== 'ten_card' && cat !== 'pastlife') {
+    return badRequest(req, env, '無效的類別');
+  }
+
+  const col = `${cat}_remaining` as const;
+  const expCol = `${cat}_expires` as const;
+  const now = new Date().toISOString();
+
+  const row = await env.DB.prepare(
+    `SELECT ${col}, ${expCol} FROM bundle_credits WHERE user_id = ?`
+  ).bind(user.id).first<Record<string, number | string | null>>();
+
+  if (!row || (row[expCol] && String(row[expCol]) < now) || Number(row[col] ?? 0) <= 0) {
+    return json(req, env, { ok: false, error: '無可用套票' }, { status: 402 });
+  }
+
+  await env.DB.prepare(
+    `UPDATE bundle_credits SET ${col} = ${col} - 1, updated_at = ? WHERE user_id = ?`
+  ).bind(now, user.id).run();
+
+  return json(req, env, { ok: true, remaining: Number(row[col]) - 1 });
 }
 
 function parseJsonArray(s: string | null | undefined): string[] {
