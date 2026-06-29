@@ -14,12 +14,16 @@ jobs:
   frontend:
     name: Frontend build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: app/package-lock.json
       - run: npm ci
       - name: Typecheck frontend (non-blocking until existing TS debt is cleared)
         run: npm run typecheck
@@ -34,7 +38,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: dist
+          path: app/dist
 
   worker:
     name: Worker check
@@ -78,17 +82,21 @@ jobs:
     needs: [frontend]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.CLOUDFLARE_PAGES_PROJECT_NAME != ''
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: app/package-lock.json
       - run: npm ci
       - uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: dist
+          path: app/dist
       - name: Deploy frontend to Cloudflare Pages
         run: npx wrangler pages deploy dist --project-name "$CLOUDFLARE_PAGES_PROJECT_NAME" --branch main
         env:
@@ -101,12 +109,16 @@ jobs:
     needs: [deploy-worker, deploy-pages]
     if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.deploy-worker.result == 'success' && (needs.deploy-pages.result == 'success' || needs.deploy-pages.result == 'skipped')
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: app/package-lock.json
       - run: npm ci
       - name: Run smoke tests
         run: npm run smoke
