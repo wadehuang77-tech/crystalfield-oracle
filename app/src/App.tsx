@@ -36,7 +36,8 @@ function RouterBody() {
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/oracle" element={<HomePage />} />
+          <Route path="/home" element={<Navigate to="/oracle" replace />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute><AdminSettingsPage /></ProtectedRoute>} />

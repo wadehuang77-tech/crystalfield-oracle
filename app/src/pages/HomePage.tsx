@@ -1,45 +1,10 @@
-import { Sparkles, Shield, Settings } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useState, useEffect } from 'react';
-import { adminApi } from '../lib/api';
 
 function HomePage() {
-  const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    if (!user) { setIsAdmin(false); return; }
-    adminApi.check()
-      .then(({ isAdmin }) => setIsAdmin(isAdmin))
-      .catch(() => setIsAdmin(false));
-  }, [user]);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ic3RhcnMiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI4MCIgcj0iMC41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMikiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSI0MCIgcj0iMS41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz48Y2lyY2xlIGN4PSIxODAiIGN5PSIxNjAiIHI9IjAuOCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXJzKSIvPjwvc3ZnPg==')] opacity-40"></div>
-
-      {/* Auth handled by GlobalNav — only admin links remain here */}
-      <header className="relative z-10 px-4 sm:px-6 pt-4 sm:pt-6 flex items-center justify-end gap-2 sm:gap-4 min-h-[3.5rem] pr-32">
-        {user && isAdmin && (
-          <>
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-sm border-2 border-blue-400/40 rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all shadow-lg text-sm"
-            >
-              <Shield className="w-4 h-4" />
-              <span className="hidden xs:inline">管理後台</span>
-            </Link>
-            <Link
-              to="/admin/settings"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 backdrop-blur-sm border-2 border-cyan-400/40 rounded-lg hover:from-cyan-500 hover:to-cyan-600 transition-all shadow-lg text-sm"
-            >
-              <Settings className="w-4 h-4" />
-              管理員設定
-            </Link>
-          </>
-        )}
-      </header>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-12 pb-12 sm:pb-16 flex flex-col items-center">
         <header className="text-center mb-10 sm:mb-16">

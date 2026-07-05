@@ -1,6 +1,8 @@
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Shield } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { adminApi } from '../lib/api';
 
 const ACCENTS = {
   orange:  { border: 'rgba(249,115,22,0.30)',  text: '#fb923c' },
@@ -18,7 +20,8 @@ const ACCENTS = {
 type Accent = keyof typeof ACCENTS;
 
 const ROUTES: Record<string, { title: string; accent: Accent }> = {
-  '/home':                       { title: '水晶場',              accent: 'slate'   },
+  '/':                           { title: '水晶場',              accent: 'slate'   },
+  '/oracle':                     { title: '塔羅神諭',            accent: 'slate'   },
   '/tarot':                      { title: '偉特塔羅',            accent: 'orange'  },
   '/tarot-single':               { title: '偉特塔羅 · 單張',     accent: 'orange'  },
   '/lightworker':                { title: '光行者神諭',           accent: 'cyan'    },
@@ -35,20 +38,26 @@ const ROUTES: Record<string, { title: string; accent: Accent }> = {
   '/numerology':                 { title: '生命靈數',             accent: 'purple'  },
   '/checkout/return':            { title: '付款結果',             accent: 'blue'    },
   '/admin':                      { title: '管理後台',             accent: 'slate'   },
-  '/admin/settings':             { title: '設定',                accent: 'slate'   },
-  '/admin/kpi':                  { title: 'KPI',                 accent: 'slate'   },
+  '/admin/settings':             { title: '設定',                 accent: 'slate'   },
+  '/admin/kpi':                  { title: 'KPI',                  accent: 'slate'   },
 };
 
-// Pages where the header should not appear
-const HIDDEN_ON = new Set(['/', '/auth']);
+const HIDDEN_ON = new Set(['/auth']);
 
 export default function PageHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    adminApi.check().then(({ isAdmin }) => setIsAdmin(isAdmin)).catch(() => {});
+  }, [user]);
 
   if (HIDDEN_ON.has(location.pathname)) return null;
 
+  const isHome = location.pathname === '/';
   const route = ROUTES[location.pathname] ?? { title: '', accent: 'slate' as Accent };
   const { border, text } = ACCENTS[route.accent];
 
@@ -67,30 +76,45 @@ export default function PageHeader() {
         margin: '0 auto',
         padding: '0 20px',
         height: 52,
-        display: 'flex',
+        display: 'grid',
+        gridTemplateColumns: '1fr auto 1fr',
         alignItems: 'center',
-        justifyContent: 'space-between',
         gap: 12,
       }}>
 
-        {/* Back to home */}
-        <button
-          onClick={() => navigate('/')}
-          style={{ color: text, display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 500, flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
-        >
-          <ArrowLeft style={{ width: 14, height: 14 }} strokeWidth={2.2} />
-          首頁
-        </button>
+        {/* Left: back button (empty on home) */}
+        <div>
+          {!isHome && (
+            <button
+              onClick={() => navigate('/')}
+              style={{ color: text, display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
+            >
+              <ArrowLeft style={{ width: 14, height: 14 }} strokeWidth={2.2} />
+              首頁
+            </button>
+          )}
+        </div>
 
-        {/* Page title */}
-        {route.title && (
-          <span style={{ fontFamily: 'serif', fontSize: 13, letterSpacing: '0.28em', color: `${text}bb`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 1 }}>
-            {route.title}
-          </span>
-        )}
+        {/* Center: page title — always truly centered */}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {route.title && (
+            <span style={{ fontFamily: 'serif', fontSize: 13, letterSpacing: '0.28em', color: `${text}bb`, whiteSpace: 'nowrap' }}>
+              {route.title}
+            </span>
+          )}
+        </div>
 
-        {/* Auth */}
-        <div style={{ flexShrink: 0 }}>
+        {/* Right: admin link + auth */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              title="管理後台"
+              style={{ color: text, opacity: 0.6, display: 'flex', alignItems: 'center', flexShrink: 0 }}
+            >
+              <Shield style={{ width: 14, height: 14 }} />
+            </Link>
+          )}
           {!loading && (
             user ? (
               <div style={{
@@ -99,6 +123,7 @@ export default function PageHeader() {
                 border: '1px solid rgba(255,255,255,0.12)',
                 borderRadius: 999,
                 overflow: 'hidden',
+                flexShrink: 0,
               }}>
                 <span style={{ padding: '4px 8px 4px 12px', color: 'rgba(226,232,240,0.70)', fontSize: 11, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {user.email?.split('@')[0]}
@@ -110,13 +135,14 @@ export default function PageHeader() {
             ) : (
               <button
                 onClick={() => navigate('/auth?redirect=' + encodeURIComponent(location.pathname))}
-                style={{ padding: '4px 14px', background: `${text}1a`, border: `1px solid ${border}`, borderRadius: 999, color: text, fontSize: 12, fontWeight: 500, cursor: 'pointer' }}
+                style={{ padding: '4px 14px', background: `${text}1a`, border: `1px solid ${border}`, borderRadius: 999, color: text, fontSize: 12, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}
               >
                 登入
               </button>
             )
           )}
         </div>
+
       </div>
     </header>
   );

@@ -11,7 +11,7 @@ const CARDS = [
     tagline: '探索宇宙此刻想告訴你的訊息',
     description: '透過塔羅牌解讀感情、事業、財運與人生方向。',
     button: '開始占卜',
-    href: '/home',
+    href: '/oracle',
     glow: 'rgba(168,85,247,0.55)',
     glowSolid: '#a855f7',
     borderGlow: 'rgba(168,85,247,0.4)',
