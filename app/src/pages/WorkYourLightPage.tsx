@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
@@ -28,15 +29,7 @@ function WorkYourLightPage() {
         redirectTo="/cosmic-cross"
       />
 
-      <header className="relative z-10 border-b border-violet-500/20">
-        <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-violet-300 hover:text-violet-200 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-            返　回
-          </button>
-          <span className="font-serif text-base text-violet-100 tracking-[0.3em]">光之訊息</span>
-        </div>
-      </header>
+      <PageHeader title="光之訊息" accent="violet" />
 
       <section className="max-w-[1100px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-10 text-center">
         <div className="flex justify-center text-violet-500 mb-8">

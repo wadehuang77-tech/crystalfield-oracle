@@ -1,21 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import SocialLinksFooter from '../components/SocialLinksFooter';
 
 export default function OshoPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white p-8">
-      <div className="max-w-6xl mx-auto">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-teal-300 hover:text-teal-200 mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          返回主頁
-        </button>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
+      <PageHeader title="奧修禪卡" accent="teal" />
+      <div className="max-w-6xl mx-auto p-8">
         <div className="flex items-center gap-6 mb-12">
           <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
             <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">

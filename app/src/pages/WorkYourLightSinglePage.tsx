@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, RotateCcw, Sparkles } from 'lucide-react';
+import { RotateCcw, Sparkles } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -122,15 +123,8 @@ function WorkYourLightSinglePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-violet-950 to-slate-900 text-white relative overflow-hidden">
-      
-
+      <PageHeader title="光之訊息 · 深度解說" accent="violet" />
       <div className="relative max-w-6xl mx-auto px-6 py-12 min-h-screen">
-        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-violet-300 hover:text-violet-200 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-            返　回
-          </button>
-        </div>
 
         <header className="text-center mb-16">
           <div className="flex justify-center mb-6">

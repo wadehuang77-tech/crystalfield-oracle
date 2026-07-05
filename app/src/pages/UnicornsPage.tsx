@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, BookOpen, Lock, RotateCcw, Search, X, Loader2 } from 'lucide-react';
+import { ArrowRight, BookOpen, Lock, RotateCcw, Search, X, Loader2 } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -226,15 +227,7 @@ export default function UnicornsPage() {
   if (showDrawPage) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-pink-950 to-slate-900 text-white">
-        <header className="relative z-10 border-b border-pink-500/20">
-          <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-            <button onClick={handleDrawHeaderBack} className="inline-flex items-center gap-2 text-pink-300 hover:text-pink-200 transition-colors text-sm">
-              <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-              返　回
-            </button>
-            <span className="font-serif text-base text-pink-100 tracking-[0.3em]">獨角獸塔羅</span>
-          </div>
-        </header>
+        <PageHeader title="獨角獸塔羅" accent="pink" onBack={handleDrawHeaderBack} />
 
         <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
           <section className="text-center pb-12">
@@ -550,15 +543,7 @@ export default function UnicornsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-pink-950 to-slate-900 text-white">
-      <header className="relative z-10 border-b border-pink-500/20">
-        <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-pink-300 hover:text-pink-200 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-            返　回
-          </button>
-          <span className="font-serif text-base text-pink-100 tracking-[0.3em]">獨角獸塔羅</span>
-        </div>
-      </header>
+      <PageHeader title="獨角獸塔羅" accent="pink" />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         <section className="text-center pb-10">

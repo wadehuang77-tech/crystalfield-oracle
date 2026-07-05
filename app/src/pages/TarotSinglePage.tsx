@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RotateCcw, Sparkles } from 'lucide-react';
+import { RotateCcw, Sparkles } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -142,15 +143,7 @@ function TarotSinglePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-900 text-white">
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
 
-      <header className="relative z-10 border-b border-orange-500/20">
-        <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-orange-300 hover:text-orange-200 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-            返　回
-          </button>
-          <span className="font-serif text-base text-orange-100 tracking-[0.3em]">偉特塔羅 · 單張</span>
-        </div>
-      </header>
+      <PageHeader title="偉特塔羅 · 單張" accent="orange" />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         {hasDrawn && (

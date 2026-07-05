@@ -161,20 +161,21 @@ export default function NumerologyPage() {
     <div className="min-h-screen">
 
       {/* Header */}
-      <header className="py-5 px-4 max-w-2xl mx-auto">
+      <header style={{ background: 'rgba(5,2,18,0.90)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(168,85,247,0.28)', position: 'sticky', top: 0, zIndex: 50 }}>
+      <div className="py-3 px-4 max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 group"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.10)',
-                color: 'rgba(196,181,253,0.6)',
+                background: 'rgba(168,85,247,0.12)',
+                border: '1px solid rgba(168,85,247,0.30)',
+                color: '#c084fc',
               }}
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-              <span className="text-xs hidden sm:inline">回主頁</span>
+              <span className="text-xs hidden sm:inline">首頁</span>
             </button>
             <div className="flex items-center gap-2.5">
               <div
@@ -229,35 +230,28 @@ export default function NumerologyPage() {
             )}
 
             {user ? (
-              <button
-                onClick={signOut}
-                title={`登出 ${user.email}`}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 10px', borderRadius: 999,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  color: 'rgba(196,181,253,0.55)',
-                  fontSize: 11, cursor: 'pointer',
-                  touchAction: 'manipulation',
-                } as React.CSSProperties}
-              >
-                <User style={{ width: 11, height: 11 }} />
-                <span className="hidden sm:inline" style={{ maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 999, overflow: 'hidden' }}>
+                <span style={{ padding: '4px 8px 4px 12px', color: 'rgba(226,232,240,0.70)', fontSize: 11, maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {user.email?.split('@')[0]}
                 </span>
-                <LogOut style={{ width: 11, height: 11 }} />
-              </button>
+                <button
+                  onClick={signOut}
+                  title={`登出 ${user.email}`}
+                  style={{ padding: '4px 10px 4px 6px', background: 'none', border: 'none', borderLeft: '1px solid rgba(255,255,255,0.10)', color: 'rgba(226,232,240,0.50)', fontSize: 11, cursor: 'pointer' }}
+                >
+                  登出
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => navigate('/auth?redirect=/numerology')}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 10px', borderRadius: 999,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  color: 'rgba(196,181,253,0.55)',
-                  fontSize: 11, cursor: 'pointer',
+                  padding: '4px 12px', borderRadius: 999,
+                  background: 'rgba(168,85,247,0.12)',
+                  border: '1px solid rgba(168,85,247,0.30)',
+                  color: '#c084fc',
+                  fontSize: 12, fontWeight: 500, cursor: 'pointer',
                   touchAction: 'manipulation',
                 } as React.CSSProperties}
               >
@@ -267,6 +261,7 @@ export default function NumerologyPage() {
             )}
           </div>
         </div>
+      </div>
       </header>
 
       {!report ? (

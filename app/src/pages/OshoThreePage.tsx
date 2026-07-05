@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Sparkles, RefreshCw, Lock, Loader2 } from 'lucide-react';
+import { Sparkles, RefreshCw, Lock, Loader2 } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { generateThreeCardInterpretation } from '../utils/oshoThreeCardInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -185,16 +186,9 @@ export default function OshoThreePage() {
 
   if (!reading && !isRevealing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white p-8">
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-teal-300 hover:text-teal-200 mb-8 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            返回
-          </button>
-
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
+        <PageHeader title="奧修禪卡 · 三張" accent="teal" />
+        <div className="max-w-4xl mx-auto p-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-serif mb-4 bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
               三張牌陣
@@ -343,16 +337,9 @@ export default function OshoThreePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white p-8">
-      <div className="max-w-7xl mx-auto">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-teal-300 hover:text-teal-200 mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          返回
-        </button>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
+      <PageHeader title="奧修禪卡 · 三張" accent="teal" />
+      <div className="max-w-7xl mx-auto p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif mb-2 text-teal-100">你的三張牌陣</h1>
           <p className="text-teal-300/70">內在與外在的整合之旅</p>

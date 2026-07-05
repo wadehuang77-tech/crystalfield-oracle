@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, XCircle, Clock, ArrowRight } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { checkoutApi, type Order } from '../lib/api';
 import { formatPrice } from '../lib/spread-prices';
 
@@ -100,7 +101,9 @@ export default function CheckoutReturnPage() {
   }, [order, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
+      <PageHeader title="付款結果" accent="blue" />
+      <div className="flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg">
         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-blue-500/30 rounded-2xl p-6 shadow-xl">
           {!orderId || error ? (
@@ -173,6 +176,7 @@ export default function CheckoutReturnPage() {
             </Center>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

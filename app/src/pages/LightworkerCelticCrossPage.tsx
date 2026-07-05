@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Sparkles, ArrowLeft, RotateCcw, Lock } from 'lucide-react';
+import { Sparkles, RotateCcw, Lock } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import {
   generateConciseCardInterpretation,
   generateOverallSpiritualGrowthSummary,
@@ -230,15 +231,7 @@ function LightworkerCelticCrossPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-900 text-white relative overflow-hidden">
-      <header className="relative z-10 border-b border-cyan-500/20">
-        <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-cyan-300 hover:text-cyan-200 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-            返　回
-          </button>
-          <span className="font-serif text-base text-cyan-100 tracking-[0.3em]">十字交叉使命陣</span>
-        </div>
-      </header>
+      <PageHeader title="十字交叉使命陣" accent="cyan" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 min-h-screen">
 

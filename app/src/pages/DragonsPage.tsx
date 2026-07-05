@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Lock, RotateCcw } from 'lucide-react';
+import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -251,15 +252,7 @@ function DragonsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 text-white">
-      <header className="relative z-10 border-b border-emerald-500/20">
-        <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          <button onClick={handleBack} className="inline-flex items-center gap-2 text-emerald-300 hover:text-emerald-200 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-            返　回
-          </button>
-          <span className="font-serif text-base text-emerald-100 tracking-[0.3em]">龍族塔羅</span>
-        </div>
-      </header>
+      <PageHeader title="龍族塔羅" accent="emerald" onBack={handleBack} />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         {deckError && <p className="text-center text-red-500 mb-6 text-sm tracking-wide">{deckError}</p>}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
+import { ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import TarotCourseCTA from '../components/TarotCourseCTA';
@@ -99,18 +100,7 @@ function LightworkerPage() {
         redirectTo="/lightworker/celtic-cross"
       />
 
-      <header className="relative z-10 border-b border-cyan-500/20">
-        <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-cyan-300 hover:text-cyan-200 transition-colors text-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            返回
-          </button>
-          <span className="text-base text-cyan-100 tracking-[0.3em] font-serif">光行者神諭</span>
-        </div>
-      </header>
+      <PageHeader title="光行者神諭" accent="cyan" onBack={handleBack} />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         {deckError && (

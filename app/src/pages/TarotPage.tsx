@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
+import { Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
@@ -367,15 +368,7 @@ function TarotPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-900 text-white">
-      <header className="relative z-10 border-b border-orange-500/20">
-        <div className="max-w-[1100px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          <button onClick={handleBack} className="inline-flex items-center gap-2 text-orange-300 hover:text-orange-200 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-            返　回
-          </button>
-          <span className="font-serif text-base text-orange-100 tracking-[0.3em]">偉特塔羅</span>
-        </div>
-      </header>
+      <PageHeader title="偉特塔羅" accent="orange" onBack={handleBack} />
 
       <div className="relative max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         <section className="text-center pb-12">
