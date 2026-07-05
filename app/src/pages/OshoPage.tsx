@@ -1,14 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 
 export default function OshoPage() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
-      <PageHeader title="奧修禪卡" accent="teal" />
       <div className="max-w-6xl mx-auto p-8">
         <div className="flex items-center gap-6 mb-12">
           <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
@@ -59,7 +56,6 @@ export default function OshoPage() {
           />
         </div>
 
-        <SocialLinksFooter />
       </div>
     </div>
   );

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate } from 'react-router-dom';
 import { RotateCcw, Sparkles } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -143,7 +142,6 @@ function TarotSinglePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-900 text-white">
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
 
-      <PageHeader title="偉特塔羅 · 單張" accent="orange" />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         {hasDrawn && (

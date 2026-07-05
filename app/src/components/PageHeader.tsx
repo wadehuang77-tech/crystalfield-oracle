@@ -17,20 +17,40 @@ const ACCENTS = {
 
 type Accent = keyof typeof ACCENTS;
 
-interface PageHeaderProps {
-  title?: string;
-  accent?: Accent;
-  onBack?: () => void;
-  extraRight?: React.ReactNode;
-}
+const ROUTES: Record<string, { title: string; accent: Accent }> = {
+  '/home':                       { title: '水晶場',              accent: 'slate'   },
+  '/tarot':                      { title: '偉特塔羅',            accent: 'orange'  },
+  '/tarot-single':               { title: '偉特塔羅 · 單張',     accent: 'orange'  },
+  '/lightworker':                { title: '光行者神諭',           accent: 'cyan'    },
+  '/lightworker/celtic-cross':   { title: '十字交叉使命陣',       accent: 'cyan'    },
+  '/unicorns':                   { title: '獨角獸塔羅',           accent: 'pink'    },
+  '/dragons':                    { title: '龍族塔羅',             accent: 'emerald' },
+  '/egyptian-gods':              { title: '埃及神諭',             accent: 'yellow'  },
+  '/work-your-light':            { title: '光之訊息',             accent: 'violet'  },
+  '/work-your-light-single':     { title: '光之訊息 · 深度解說',  accent: 'violet'  },
+  '/cosmic-cross':               { title: '宇宙十字陣',           accent: 'orange'  },
+  '/osho':                       { title: '奧修禪卡',             accent: 'teal'    },
+  '/osho/single':                { title: '奧修禪卡 · 單張',      accent: 'teal'    },
+  '/osho/three':                 { title: '奧修禪卡 · 三張',      accent: 'teal'    },
+  '/numerology':                 { title: '生命靈數',             accent: 'purple'  },
+  '/checkout/return':            { title: '付款結果',             accent: 'blue'    },
+  '/admin':                      { title: '管理後台',             accent: 'slate'   },
+  '/admin/settings':             { title: '設定',                accent: 'slate'   },
+  '/admin/kpi':                  { title: 'KPI',                 accent: 'slate'   },
+};
 
-export default function PageHeader({ title, accent = 'slate', onBack, extraRight }: PageHeaderProps) {
+// Pages where the header should not appear
+const HIDDEN_ON = new Set(['/', '/auth']);
+
+export default function PageHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut, loading } = useAuth();
-  const { border, text } = ACCENTS[accent];
 
-  const handleBack = onBack ?? (() => navigate('/'));
+  if (HIDDEN_ON.has(location.pathname)) return null;
+
+  const route = ROUTES[location.pathname] ?? { title: '', accent: 'slate' as Accent };
+  const { border, text } = ACCENTS[route.accent];
 
   return (
     <header style={{
@@ -53,25 +73,24 @@ export default function PageHeader({ title, accent = 'slate', onBack, extraRight
         gap: 12,
       }}>
 
-        {/* Back */}
+        {/* Back to home */}
         <button
-          onClick={handleBack}
+          onClick={() => navigate('/')}
           style={{ color: text, display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 500, flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
         >
           <ArrowLeft style={{ width: 14, height: 14 }} strokeWidth={2.2} />
           首頁
         </button>
 
-        {/* Title */}
-        {title && (
+        {/* Page title */}
+        {route.title && (
           <span style={{ fontFamily: 'serif', fontSize: 13, letterSpacing: '0.28em', color: `${text}bb`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 1 }}>
-            {title}
+            {route.title}
           </span>
         )}
 
-        {/* Right: extras + auth */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          {extraRight}
+        {/* Auth */}
+        <div style={{ flexShrink: 0 }}>
           {!loading && (
             user ? (
               <div style={{

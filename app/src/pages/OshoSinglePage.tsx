@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Sparkles } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -10,7 +9,6 @@ import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 
 interface OshoGated {
   meanings: {
@@ -89,7 +87,6 @@ export default function OshoSinglePage() {
   if (!drawnPreview && !isRevealing) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
-        <PageHeader title="奧修禪卡 · 單張" accent="teal" />
         <div className="max-w-4xl mx-auto p-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-serif mb-4 bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
@@ -127,7 +124,6 @@ export default function OshoSinglePage() {
             </button>
           </div>
 
-          <SocialLinksFooter />
         </div>
       </div>
     );
@@ -145,7 +141,6 @@ export default function OshoSinglePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
-      <PageHeader title="奧修禪卡 · 單張" accent="teal" />
       <div className="max-w-6xl mx-auto p-8">
 
         <div className="text-center mb-8">
@@ -217,7 +212,6 @@ export default function OshoSinglePage() {
           </button>
         </div>
 
-        <SocialLinksFooter />
       </div>
 
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />

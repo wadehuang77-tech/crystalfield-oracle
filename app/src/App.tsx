@@ -25,12 +25,14 @@ import { AdminKpiPage } from './pages/AdminKpiPage';
 import CheckoutReturnPage from './pages/CheckoutReturnPage';
 import LandingPage from './pages/LandingPage';
 import NumerologyPage from './pages/NumerologyPage';
+import PageHeader from './components/PageHeader';
 
 function RouterBody() {
   usePageViewTracking();
   return (
     <div className="flex flex-col min-h-screen bg-ink-950">
       <ScrollToTop />
+      <PageHeader />
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<LandingPage />} />

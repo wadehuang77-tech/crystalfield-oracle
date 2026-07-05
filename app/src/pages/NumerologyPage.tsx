@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Gem, Star, Sparkles, ChevronRight, ArrowLeft, Crown, LogIn, LogOut, User } from 'lucide-react';
+import { Gem, Star, Sparkles, ChevronRight, Crown, LogIn } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
 import DailyEnergy from '../components/numerology/DailyEnergy';
@@ -59,7 +59,7 @@ function submitEcpayForm({ endpoint, fields }: EcpayForm) {
 export default function NumerologyPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
   const [oracleCard, setOracleCard] = useState<OracleCard | null>(null);
@@ -160,112 +160,21 @@ export default function NumerologyPage() {
   return (
     <div className="min-h-screen">
 
-      {/* Header */}
-      <header style={{ background: 'rgba(5,2,18,0.90)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(168,85,247,0.28)', position: 'sticky', top: 0, zIndex: 50 }}>
-      <div className="py-3 px-4 max-w-2xl mx-auto">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 group"
-              style={{
-                background: 'rgba(168,85,247,0.12)',
-                border: '1px solid rgba(168,85,247,0.30)',
-                color: '#c084fc',
-              }}
-            >
-              <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-              <span className="text-xs hidden sm:inline">首頁</span>
-            </button>
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{
-                  background: 'radial-gradient(circle at 35% 30%, rgba(167,139,250,0.25), rgba(96,165,250,0.08))',
-                  border: '1px solid rgba(167,139,250,0.25)',
-                  boxShadow: '0 0 20px rgba(167,139,250,0.15)',
-                }}
-              >
-                <Gem className="w-4 h-4" style={{ color: '#a78bfa' }} />
-              </div>
-              <div>
-                <span className="font-serif text-sm font-semibold text-gradient-cosmic">Life Crystal</span>
-                <span className="text-xs ml-1 hidden sm:inline" style={{ color: 'rgba(167,139,250,0.3)' }}>Code</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
+      {!report ? (
+        <section className="px-4 pt-4 pb-16 max-w-2xl mx-auto">
+          {/* Premium tier badge */}
+          <div className="flex justify-end mb-2">
             {isPremium ? (
-              <div
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 12px', borderRadius: 999,
-                  background: 'rgba(251,191,36,0.10)',
-                  border: '1px solid rgba(251,191,36,0.28)',
-                  color: '#fbbf24',
-                  fontSize: 11, fontWeight: 600, letterSpacing: '0.04em',
-                  boxShadow: '0 0 12px rgba(251,191,36,0.12)',
-                } as React.CSSProperties}
-              >
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.28)', color: '#fbbf24', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em' }}>
                 <Crown style={{ width: 11, height: 11 }} />
                 {tier === 1 ? '基礎版' : tier === 2 ? '進階版' : '完整靈魂版'}
               </div>
             ) : (
-              <button
-                onClick={() => handleUpgrade(3)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 12px', borderRadius: 999,
-                  background: 'rgba(167,139,250,0.08)',
-                  border: '1px solid rgba(167,139,250,0.22)',
-                  color: '#a78bfa',
-                  fontSize: 11, fontWeight: 500,
-                  cursor: 'pointer', touchAction: 'manipulation',
-                  transition: 'all 0.2s',
-                } as React.CSSProperties}
-              >
+              <button onClick={() => handleUpgrade(3)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.22)', color: '#a78bfa', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}>
                 升級解鎖
               </button>
             )}
-
-            {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 999, overflow: 'hidden' }}>
-                <span style={{ padding: '4px 8px 4px 12px', color: 'rgba(226,232,240,0.70)', fontSize: 11, maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.email?.split('@')[0]}
-                </span>
-                <button
-                  onClick={signOut}
-                  title={`登出 ${user.email}`}
-                  style={{ padding: '4px 10px 4px 6px', background: 'none', border: 'none', borderLeft: '1px solid rgba(255,255,255,0.10)', color: 'rgba(226,232,240,0.50)', fontSize: 11, cursor: 'pointer' }}
-                >
-                  登出
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => navigate('/auth?redirect=/numerology')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '4px 12px', borderRadius: 999,
-                  background: 'rgba(168,85,247,0.12)',
-                  border: '1px solid rgba(168,85,247,0.30)',
-                  color: '#c084fc',
-                  fontSize: 12, fontWeight: 500, cursor: 'pointer',
-                  touchAction: 'manipulation',
-                } as React.CSSProperties}
-              >
-                <LogIn style={{ width: 11, height: 11 }} />
-                <span className="hidden sm:inline">登入</span>
-              </button>
-            )}
           </div>
-        </div>
-      </div>
-      </header>
-
-      {!report ? (
-        <section className="px-4 pt-4 pb-16 max-w-2xl mx-auto">
           <div className="text-center mb-12 space-y-4">
             <h1
               className="font-serif text-4xl md:text-5xl leading-tight"

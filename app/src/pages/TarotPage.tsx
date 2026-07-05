@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
@@ -16,7 +15,6 @@ import { useSpreadAccess } from '../hooks/useSpreadAccess';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import TarotResonanceCTA from '../components/TarotResonanceCTA';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 import { useConversionTracking } from '../hooks/useConversionTracking';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { checkoutApi, type CardPreview, type UnlockedCard } from '../lib/api';
@@ -368,7 +366,6 @@ function TarotPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-900 text-white">
-      <PageHeader title="偉特塔羅" accent="orange" onBack={handleBack} />
 
       <div className="relative max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         <section className="text-center pb-12">
@@ -1187,7 +1184,6 @@ function TarotPage() {
           )}
         </div>
 
-        <SocialLinksFooter />
       </div>
 
       <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} redirectTo="/tarot" />

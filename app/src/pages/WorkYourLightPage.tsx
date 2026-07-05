@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 
 function WorkYourLightPage() {
   const navigate = useNavigate();
@@ -29,7 +27,6 @@ function WorkYourLightPage() {
         redirectTo="/cosmic-cross"
       />
 
-      <PageHeader title="光之訊息" accent="violet" />
 
       <section className="max-w-[1100px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-10 text-center">
         <div className="flex justify-center text-violet-500 mb-8">
@@ -101,7 +98,6 @@ function WorkYourLightPage() {
           </div>
         </div>
 
-        <SocialLinksFooter />
       </section>
     </div>
   );

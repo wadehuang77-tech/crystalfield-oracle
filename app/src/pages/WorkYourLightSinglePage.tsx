@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RotateCcw, Sparkles } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -123,7 +122,6 @@ function WorkYourLightSinglePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-violet-950 to-slate-900 text-white relative overflow-hidden">
-      <PageHeader title="光之訊息 · 深度解說" accent="violet" />
       <div className="relative max-w-6xl mx-auto px-6 py-12 min-h-screen">
 
         <header className="text-center mb-16">

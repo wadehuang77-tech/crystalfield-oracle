@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RotateCcw, Lock } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -197,7 +196,6 @@ function CosmicCrossPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-900 text-white relative overflow-hidden">
-      <PageHeader title="宇宙十字陣" accent="orange" />
       <div className="relative max-w-6xl mx-auto px-6 py-12 min-h-screen">
 
         <header className="text-center mb-12">

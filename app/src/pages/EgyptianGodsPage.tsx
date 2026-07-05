@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
@@ -19,7 +18,6 @@ import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { savePendingDraw, consumePendingDraw } from '../lib/pendingDraw';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -265,7 +263,6 @@ function EgyptianGodsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-yellow-950 to-slate-900 text-white">
-      <PageHeader title="埃及神諭" accent="yellow" onBack={handleBack} />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         {deckError && <p className="text-center text-red-500 mb-6 text-sm tracking-wide">{deckError}</p>}
@@ -550,7 +547,6 @@ function EgyptianGodsPage() {
           </section>
         )}
 
-        <SocialLinksFooter />
       </div>
 
       <LoginPromptModal

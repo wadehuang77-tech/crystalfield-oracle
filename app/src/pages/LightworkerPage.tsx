@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import TarotCourseCTA from '../components/TarotCourseCTA';
@@ -11,7 +10,6 @@ import { useConversionTracking, usePageView } from '../hooks/useConversionTracki
 import { useDeck, pickRandomCards } from '../hooks/useDeck';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 
 interface LightworkerGated {
@@ -100,7 +98,6 @@ function LightworkerPage() {
         redirectTo="/lightworker/celtic-cross"
       />
 
-      <PageHeader title="光行者神諭" accent="cyan" onBack={handleBack} />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         {deckError && (
@@ -294,7 +291,6 @@ function LightworkerPage() {
           </section>
         )}
 
-        <SocialLinksFooter />
       </div>
     </div>
   );

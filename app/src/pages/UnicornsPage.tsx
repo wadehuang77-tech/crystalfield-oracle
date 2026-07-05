@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, BookOpen, Lock, RotateCcw, Search, X, Loader2 } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -18,7 +17,6 @@ import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { consumePendingDraw } from '../lib/pendingDraw';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -227,7 +225,6 @@ export default function UnicornsPage() {
   if (showDrawPage) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-pink-950 to-slate-900 text-white">
-        <PageHeader title="獨角獸塔羅" accent="pink" onBack={handleDrawHeaderBack} />
 
         <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
           <section className="text-center pb-12">
@@ -521,7 +518,6 @@ export default function UnicornsPage() {
             </section>
           )}
 
-          <SocialLinksFooter />
         </div>
 
         <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} redirectTo="/unicorns" />
@@ -543,7 +539,6 @@ export default function UnicornsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-pink-950 to-slate-900 text-white">
-      <PageHeader title="獨角獸塔羅" accent="pink" />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         <section className="text-center pb-10">
@@ -665,7 +660,6 @@ export default function UnicornsPage() {
           </div>
         )}
 
-        <SocialLinksFooter />
       </div>
 
       <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />

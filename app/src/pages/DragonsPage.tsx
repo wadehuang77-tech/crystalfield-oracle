@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -18,7 +17,6 @@ import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { savePendingDraw, consumePendingDraw } from '../lib/pendingDraw';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 
 interface DragonGated {
   message: string;
@@ -252,7 +250,6 @@ function DragonsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 text-white">
-      <PageHeader title="龍族塔羅" accent="emerald" onBack={handleBack} />
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
         {deckError && <p className="text-center text-red-500 mb-6 text-sm tracking-wide">{deckError}</p>}
@@ -515,7 +512,6 @@ function DragonsPage() {
           </section>
         )}
 
-        <SocialLinksFooter />
       </div>
 
       <LoginPromptModal

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Sparkles, RefreshCw, Lock, Loader2 } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
 import { generateThreeCardInterpretation } from '../utils/oshoThreeCardInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -15,7 +14,6 @@ import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { type CardPreview, checkoutApi } from '../lib/api';
 import { consumePendingDraw } from '../lib/pendingDraw';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import SocialLinksFooter from '../components/SocialLinksFooter';
 
 const SPREAD_ID = 'osho_three';
 
@@ -187,7 +185,6 @@ export default function OshoThreePage() {
   if (!reading && !isRevealing) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
-        <PageHeader title="奧修禪卡 · 三張" accent="teal" />
         <div className="max-w-4xl mx-auto p-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-serif mb-4 bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
@@ -248,7 +245,6 @@ export default function OshoThreePage() {
             </button>
           </div>
 
-          <SocialLinksFooter />
         </div>
       </div>
     );
@@ -338,7 +334,6 @@ export default function OshoThreePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
-      <PageHeader title="奧修禪卡 · 三張" accent="teal" />
       <div className="max-w-7xl mx-auto p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif mb-2 text-teal-100">你的三張牌陣</h1>
@@ -433,7 +428,6 @@ export default function OshoThreePage() {
           </button>
         </div>
 
-        <SocialLinksFooter />
       </div>
 
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
