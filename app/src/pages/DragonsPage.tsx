@@ -2,20 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
-import { useSpreadAccess } from '../hooks/useSpreadAccess';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
+import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { savePendingDraw, consumePendingDraw } from '../lib/pendingDraw';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 interface DragonGated {
@@ -31,7 +30,6 @@ interface ThreeSlot {
 
 function DragonsPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('dragons');
   const [singlePreview, setSinglePreview] = useState<CardPreview | null>(null);
   const [singleUnlocked, setSingleUnlocked] = useState<UnlockedCard | null>(null);
@@ -43,14 +41,12 @@ function DragonsPage() {
     searchParams.get('spread') === 'three' ? 'three' :
     searchParams.get('spread') === 'single' ? 'single' : null;
   const [spreadType, setSpreadType] = useState<'single' | 'three' | null>(initialSpread);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showCardLayout, setShowCardLayout] = useState(initialSpread !== null);
   const [isThreeUnlocked, setIsThreeUnlocked] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { showModal, showReminder, handleClose, handleReminderClose } = useCrystalPromo(hasDrawn && !isShuffling);
   const { trackEvent } = useConversionTracking();
-  useSpreadAccess('dragons_three');
 
   usePageView('dragons_single');
 
@@ -76,13 +72,8 @@ function DragonsPage() {
   };
 
   const handleSingleEmailSubmitted = (email: string, card?: UnlockedCard) => {
-    if (!card) return;
-    setSingleUnlocked(card);
-    trackEvent('unlocked', {
-      readingType: 'dragons_single',
-      cardName: card.name,
-      email,
-    });
+    singleGate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', { readingType: 'dragons_single', cardName: card.name, email });
   };
 
   const drawThreeCards = () => {
@@ -107,15 +98,6 @@ function DragonsPage() {
   };
 
   const handleUnlockThree = async () => {
-    if (!user) {
-      const pendingPicks = threeSlots.map((s, i) => ({
-        card_key: s.preview.card_key,
-        position: i + 1,
-      }));
-      savePendingDraw('dragons_three', pendingPicks);
-      setShowLoginPrompt(true);
-      return;
-    }
     if (isCheckingOut) return;
     setUnlockError(null);
     setIsCheckingOut(true);
@@ -169,23 +151,6 @@ function DragonsPage() {
       window.scrollTo(0, 0);
     }
   }, [hasDrawn]);
-
-  useEffect(() => {
-    if (!deck || deck.length === 0) return;
-    if (threeSlots.length > 0) return;
-    if (searchParams.get('order_id')) return;
-    const pending = consumePendingDraw('dragons_three');
-    if (!pending) return;
-    const slots = pending.picks
-      .map((p) => deck.find((c) => c.card_key === p.card_key))
-      .filter((c): c is CardPreview => !!c)
-      .map((preview) => ({ preview, full: null as ThreeSlot['full'] }));
-    if (slots.length !== pending.picks.length) return;
-    setSpreadType('three');
-    setShowCardLayout(true);
-    setThreeSlots(slots);
-    setHasDrawn(true);
-  }, [deck, threeSlots.length]);
 
   const restoreStartedRef = useRef(false);
   useEffect(() => {
@@ -241,6 +206,38 @@ function DragonsPage() {
       }
     })();
   }, [searchParams, deck]);
+
+  const singleGate = useSingleCardGate({
+    spreadId: 'dragons_single',
+    cardKey: singlePreview?.card_key ?? null,
+    enabled: !!(singlePreview && hasDrawn && !singleUnlocked),
+  });
+
+  useEffect(() => {
+    if (singleGate.unlockedCard && !singleUnlocked) setSingleUnlocked(singleGate.unlockedCard);
+  }, [singleGate.unlockedCard]);
+
+  const threePicks = hasDrawn && threeSlots.length > 0
+    ? threeSlots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }))
+    : null;
+
+  const threeGate = useMultiSpreadGate({
+    spreadId: 'dragons_three',
+    picks: threePicks,
+    enabled: hasDrawn && threeSlots.length > 0 && !isThreeUnlocked,
+  });
+
+  useEffect(() => {
+    if (!threeGate.unlockedCards || isThreeUnlocked) return;
+    const byKey = new Map(threeGate.unlockedCards.map((u) => [u.card_key, u]));
+    setThreeSlots((prev) => prev.map((s) => {
+      const u = byKey.get(s.preview.card_key);
+      if (!u) return s;
+      const previewKw = (s.preview.preview as { keywords?: string[] }).keywords ?? [];
+      return { ...s, full: { ...(u.gated as DragonGated), name: u.name, nameEn: u.name_secondary ?? '', keywords: previewKw } };
+    }));
+    setIsThreeUnlocked(true);
+  }, [threeGate.unlockedCards]);
 
   const singleGated = singleUnlocked?.gated as DragonGated | undefined;
   const isSingleUnlocked = !!singleGated;
@@ -388,18 +385,23 @@ function DragonsPage() {
                   })}
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
-                  <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
-                  <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.3em]">解鎖完整龍族訊息</h3>
-                  <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
-                    展開三張牌的完整解讀,揭示過去、現在、未來的能量脈絡。
-                  </p>
-                  <p className="font-serif text-2xl text-emerald-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('dragons_three') ?? 0)}</p>
-                  {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
-                  <button onClick={handleUnlockThree} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isCheckingOut ? '跳　轉　至　綠　界…' : '立　即　解　鎖'}
-                  </button>
-                </div>
+                {threeGate.phase === 'loading' && (
+                  <div className="text-center text-emerald-300/70 py-6 tracking-wider">解鎖中…</div>
+                )}
+                {threeGate.phase === 'paywall' && (
+                  <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
+                    <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.3em]">解鎖完整龍族訊息</h3>
+                    <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
+                      展開三張牌的完整解讀,揭示過去、現在、未來的能量脈絡。
+                    </p>
+                    <p className="font-serif text-2xl text-emerald-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('dragons_three') ?? 0)}</p>
+                    {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
+                    <button onClick={handleUnlockThree} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                      {isCheckingOut ? '跳　轉　至　綠　界…' : '立　即　解　鎖'}
+                    </button>
+                  </div>
+                )}
               </>
             )}
 
@@ -479,12 +481,18 @@ function DragonsPage() {
                         前 30% 預覽 — 留下 Email 解鎖完整解析
                       </p>
                     </div>
-                    <InlineEmailUnlock
-                      onUnlocked={handleSingleEmailSubmitted}
-                      readingType="dragons_single"
-                      theme="dark"
-                      cardUnlock={{ spread_id: 'dragons_single', card_key: singlePreview.card_key }}
-                    />
+                    {singleGate.phase === 'loading' && (
+                      <div className="text-center text-emerald-300/70 py-4 tracking-wider">解鎖中…</div>
+                    )}
+                    {singleGate.phase === 'email_gate' && (
+                      <InlineEmailUnlock
+                        onUnlocked={handleSingleEmailSubmitted}
+                        readingType="dragons_single"
+                        theme="dark"
+                        cardUnlock={{ spread_id: 'dragons_single', card_key: singlePreview.card_key }}
+                      />
+                    )}
+                    <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
                   </>
                 )}
 
@@ -514,11 +522,6 @@ function DragonsPage() {
 
       </div>
 
-      <LoginPromptModal
-        isOpen={showLoginPrompt}
-        onClose={() => setShowLoginPrompt(false)}
-        redirectTo={`/dragons?spread=${spreadType ?? 'three'}`}
-      />
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
       <CrystalReminderBar isVisible={showReminder} onClose={handleReminderClose} />
     </div>

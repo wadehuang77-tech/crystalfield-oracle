@@ -2,17 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RotateCcw, Lock } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
-import { PaywallModal } from '../components/PaywallModal';
-import { useSpreadAccess } from '../hooks/useSpreadAccess';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
-import { type CardPreview, checkoutApi } from '../lib/api';
+import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
+import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { savePendingDraw, consumePendingDraw } from '../lib/pendingDraw';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 const SPREAD_ID = 'cosmic_cross';
@@ -48,18 +44,14 @@ const positions = [
 function CosmicCrossPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('work_your_light');
   const [selectedCards, setSelectedCards] = useState<DrawnSlot[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [isLocallyUnlocked, setIsLocallyUnlocked] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { showModal, handleClose } = useCrystalPromo(hasDrawn && selectedCards.length === CARD_COUNT);
-  const { userState } = useSpreadAccess(SPREAD_ID);
 
   const drawCards = () => {
     if (!deck || deck.length < CARD_COUNT) return;
@@ -89,21 +81,6 @@ function CosmicCrossPage() {
       window.scrollTo(0, 0);
     }
   }, [hasDrawn]);
-
-  useEffect(() => {
-    if (!deck || deck.length === 0) return;
-    if (selectedCards.length > 0) return;
-    if (searchParams.get('order_id')) return;
-    const pending = consumePendingDraw(SPREAD_ID);
-    if (!pending) return;
-    const slots = pending.picks
-      .map((p) => deck.find((c) => c.card_key === p.card_key))
-      .filter((c): c is CardPreview => !!c)
-      .map((preview) => ({ preview, full: null as DrawnSlot['full'] }));
-    if (slots.length !== pending.picks.length) return;
-    setSelectedCards(slots);
-    setHasDrawn(true);
-  }, [deck, selectedCards.length]);
 
   const restoreStartedRef = useRef(false);
   useEffect(() => {
@@ -154,43 +131,40 @@ function CosmicCrossPage() {
     })();
   }, [searchParams, deck]);
 
-  const handleMockUnlock = async () => {
-    if (!user) {
-      const pendingPicks = selectedCards.map((s, i) => ({
-        card_key: s.preview.card_key,
-        position: i + 1,
-      }));
-      savePendingDraw(SPREAD_ID, pendingPicks);
-      setShowLoginPrompt(true);
-      return;
-    }
+  const handleCheckout = async () => {
     if (isCheckingOut) return;
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
-      const checkoutPicks = selectedCards.map((s, i) => ({
-        card_key: s.preview.card_key,
-        position: i + 1,
-      }));
+      const checkoutPicks = selectedCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, checkoutPicks);
-      if (admin_unlocked) {
-        navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
-        return;
-      }
-      if (!ecpay) {
-        setUnlockError('結帳資料缺失,請重試');
-        setIsCheckingOut(false);
-        return;
-      }
-      submitToEcpay(ecpay, () => {
-        setUnlockError('跳轉至綠界失敗 — 請確認瀏覽器未阻擋自動表單送出後重試');
-        setIsCheckingOut(false);
-      });
+      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
     } catch (err) {
       setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
       setIsCheckingOut(false);
     }
   };
+
+  const gatePicks = hasDrawn && selectedCards.length === CARD_COUNT
+    ? selectedCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }))
+    : null;
+
+  const gate = useMultiSpreadGate({ spreadId: SPREAD_ID, picks: gatePicks, enabled: hasDrawn && !isLocallyUnlocked });
+
+  useEffect(() => {
+    if (!gate.unlockedCards || isLocallyUnlocked) return;
+    const byKey = new Map(gate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
+    setSelectedCards((prev) => prev.map((s) => {
+      const u = byKey.get(s.preview.card_key);
+      if (!u) return s;
+      const g = u.gated as CosmicGated;
+      const previewSuit = (s.preview.preview as { suit?: string }).suit;
+      return { ...s, full: { ...g, titleChinese: u.name, title: u.name_secondary ?? '', suit: previewSuit } };
+    }));
+    setIsLocallyUnlocked(true);
+  }, [gate.unlockedCards]);
 
   const showFullContent = isLocallyUnlocked && selectedCards.every((s) => s.full !== null);
 
@@ -299,26 +273,31 @@ function CosmicCrossPage() {
                     ))}
                   </div>
 
-                  <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
-                    <div className="flex justify-center mb-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
-                        <Lock className="w-7 h-7 text-orange-300" />
+                  {gate.phase === 'loading' && (
+                    <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                  )}
+                  {gate.phase === 'paywall' && (
+                    <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
+                      <div className="flex justify-center mb-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
+                          <Lock className="w-7 h-7 text-orange-300" />
+                        </div>
                       </div>
+                      <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">解鎖完整宇宙訊息</h3>
+                      <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
+                        更深層的指引與靈魂訊息在後面。解鎖十一張牌的完整宇宙解讀。
+                      </p>
+                      <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
+                      {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
+                      <button
+                        onClick={handleCheckout}
+                        disabled={isCheckingOut}
+                        className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
+                      </button>
                     </div>
-                    <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">解鎖完整宇宙訊息</h3>
-                    <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
-                      更深層的指引與靈魂訊息在後面。解鎖十一張牌的完整宇宙解讀。
-                    </p>
-                    <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
-                    {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
-                    <button
-                      onClick={handleMockUnlock}
-                      disabled={isCheckingOut}
-                      className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {isCheckingOut ? '跳轉至綠界…' : userState === 'guest' ? '登入後解鎖' : '立即解鎖'}
-                    </button>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -427,14 +406,7 @@ function CosmicCrossPage() {
         </div>
       </div>
 
-      <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} redirectTo="/cosmic-cross" />
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
-      <PaywallModal
-        isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        spreadName="宇宙十字牌陣"
-        spreadType={SPREAD_ID}
-      />
     </div>
   );
 }

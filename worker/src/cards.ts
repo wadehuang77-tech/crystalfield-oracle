@@ -315,3 +315,36 @@ function parseJsonArray(s: string | null | undefined): string[] {
 export function getSpreadDef(spreadId: string): SpreadDef | undefined {
   return SPREADS[spreadId];
 }
+
+interface FreeUnlockSingleBody { spread_id: string; card_key: string; reversed?: boolean; }
+
+export async function freeUnlockSingle(req: Request, env: Env): Promise<Response> {
+  const body = await readBody<FreeUnlockSingleBody>(req);
+  if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
+  const spread = SPREADS[body.spread_id];
+  if (!spread.free) return badRequest(req, env, 'not a single-card spread');
+  if (!body.card_key) return badRequest(req, env, 'card_key required');
+  const card = await loadFullCard(env, spread.deck_id, body.card_key);
+  if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
+  return json(req, env, { card: { ...card, reversed: !!body.reversed } });
+}
+
+interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
+interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; }
+
+export async function freeUnlockSpread(req: Request, env: Env): Promise<Response> {
+  const body = await readBody<FreeUnlockSpreadBody>(req);
+  if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
+  const spread = SPREADS[body.spread_id];
+  if (spread.free) return badRequest(req, env, 'use free-unlock-single for single cards');
+  if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
+    return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
+  }
+  const cards: Array<Record<string, unknown>> = [];
+  for (const pick of body.picks) {
+    const card = await loadFullCard(env, spread.deck_id, pick.card_key);
+    if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
+    cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
+  }
+  return json(req, env, { spread_id: body.spread_id, cards });
+}

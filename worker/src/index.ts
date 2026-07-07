@@ -1,6 +1,8 @@
 import { hashPassword, needsRehash, signJwt, verifyPassword } from './auth';
 import {
   getDeckPreview,
+  freeUnlockSingle,
+  freeUnlockSpread,
   getSpreadDef,
   listDecks,
   unlockSingleCard,
@@ -84,6 +86,16 @@ export default {
       if (path.startsWith('/api/decks/') && path.endsWith('/preview') && req.method === 'GET') {
         const deckId = decodeURIComponent(path.slice('/api/decks/'.length, -('/preview'.length)));
         return await getDeckPreview(req, env, deckId);
+      }
+      if (path === '/api/cards/free-unlock-single' && req.method === 'POST') {
+        const rl = await rateLimit(env, 'free-unlock', clientIp(req), 20, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await freeUnlockSingle(req, env);
+      }
+      if (path === '/api/cards/free-unlock-spread' && req.method === 'POST') {
+        const rl = await rateLimit(env, 'free-unlock', clientIp(req), 20, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await freeUnlockSpread(req, env);
       }
       if (path === '/api/cards/single-unlock' && req.method === 'POST') {
         const rl = await rateLimit(env, 'cards-unlock', clientIp(req), 30, 3600);
@@ -982,7 +994,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
       const catalogItem = SPREAD_CATALOG[order.item_id];
       if (catalogItem?.bundle) {
         await grantBundleCredits(env, order.user_id, catalogItem.bundle).catch(() => {});
-      } else if (order.item_id.startsWith('numerology_')) {
+      } else if (order.item_id.startsWith('numerology_') || order.item_id === 'membership_monthly') {
         await env.DB.prepare(`
           UPDATE profiles
           SET purchased_spreads = (

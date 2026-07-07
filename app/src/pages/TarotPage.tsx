@@ -3,22 +3,21 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
-import { PaywallModal } from '../components/PaywallModal';
-import { PaywallGate } from '../components/PaywallGate';
-import { useSpreadAccess } from '../hooks/useSpreadAccess';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import TarotResonanceCTA from '../components/TarotResonanceCTA';
 import { useConversionTracking } from '../hooks/useConversionTracking';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { checkoutApi, type CardPreview, type UnlockedCard } from '../lib/api';
-import { consumePendingDraw } from '../lib/pendingDraw';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
+import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
+import { submitToEcpay } from '../lib/ecpayRedirect';
+import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 interface TarotCard {
   id: string;
@@ -82,7 +81,6 @@ interface DrawnCard {
 }
 
 function TarotPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { cards: deck, error: deckError } = useDeck('tarot');
@@ -94,27 +92,78 @@ function TarotPage() {
   const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showCardLayout, setShowCardLayout] = useState(initialSpread !== 'single' || searchParams.get('spread') === 'single');
-  const [showPaywall, setShowPaywall] = useState(false);
   const [isLocallyUnlocked, setIsLocallyUnlocked] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const [isUnlocked, setIsUnlocked] = useState(false);
   const allCardsRevealed = hasDrawn && drawnCards.every(card => card.revealed);
   const { showModal, showReminder, handleClose, handleReminderClose } = useCrystalPromo(allCardsRevealed);
-  const { userState } = useSpreadAccess(SPREAD_IDS[spreadType]);
   const { trackEvent } = useConversionTracking();
 
   const isMultiCardSpread = spreadType !== 'single';
 
-  const handleEmailSubmitted = (_email: string, card?: UnlockedCard) => {
-    if (!card) return;
-    setDrawnCards((prev) => prev.map((d, i) => (
-      i === 0 ? { ...d, card: buildShim(d.preview, card.gated as TarotGated) } : d
-    )));
+  const singleGate = useSingleCardGate({
+    spreadId: 'tarot_single',
+    cardKey: spreadType === 'single' && drawnCards.length === 1 ? drawnCards[0].preview.card_key : null,
+    reversed: drawnCards.length === 1 ? drawnCards[0].isReversed : false,
+    enabled: spreadType === 'single' && hasDrawn && drawnCards.length === 1 && !isUnlocked,
+  });
+
+  useEffect(() => {
+    if (!singleGate.unlockedCard || isUnlocked) return;
+    setDrawnCards((prev) => prev.map((d, i) =>
+      i === 0 ? { ...d, card: buildShim(d.preview, singleGate.unlockedCard!.gated as TarotGated) } : d
+    ));
     setIsUnlocked(true);
-    trackEvent('unlocked', { readingType: 'tarot_single', email: _email });
+  }, [singleGate.unlockedCard]);
+
+  const multiPicks = isMultiCardSpread && hasDrawn && drawnCards.length > 0 && !isLocallyUnlocked
+    ? drawnCards.map((d, i) => ({ card_key: d.preview.card_key, position: i + 1, reversed: d.isReversed }))
+    : null;
+  const multiGate = useMultiSpreadGate({
+    spreadId: SPREAD_IDS[spreadType],
+    picks: multiPicks,
+    enabled: isMultiCardSpread && hasDrawn && drawnCards.length > 0 && !isLocallyUnlocked,
+  });
+
+  useEffect(() => {
+    if (!multiGate.unlockedCards || isLocallyUnlocked) return;
+    const byKey = new Map(multiGate.unlockedCards.map((u) => [u.card_key, u]));
+    setDrawnCards((prev) => prev.map((d) => {
+      const u = byKey.get(d.preview.card_key);
+      return u ? { ...d, card: buildShim(d.preview, u.gated as TarotGated) } : d;
+    }));
+    setIsLocallyUnlocked(true);
+  }, [multiGate.unlockedCards]);
+
+  const handleEmailSubmitted = (email: string, card?: UnlockedCard) => {
+    singleGate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', { readingType: 'tarot_single', email });
+  };
+
+  const handleCheckout = async () => {
+    if (isCheckingOut) return;
+    setIsCheckingOut(true);
+    try {
+      const picks = drawnCards.map((d, i) => ({
+        card_key: d.preview.card_key,
+        position: i + 1,
+        reversed: d.isReversed,
+      }));
+      const price = getSpreadPrice(SPREAD_IDS[spreadType]) ?? 0;
+      const { form: ecpay } = await checkoutApi.createOrder({
+        item_id: SPREAD_IDS[spreadType],
+        item_name: getSpreadName(spreadType),
+        amount: price,
+        picks,
+      });
+      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
+    } catch (err) {
+      setUnlockError(err instanceof Error ? err.message : '付款失敗');
+      setIsCheckingOut(false);
+    }
   };
 
   const drawSingleCard = () => {
@@ -160,40 +209,6 @@ function TarotPage() {
     }
   }, [hasDrawn]);
 
-  useEffect(() => {
-    if (!deck || deck.length === 0) return;
-    if (drawnCards.length > 0) return;
-    if (searchParams.get('order_id')) return;
-    const itemToSpread: Record<string, SpreadType> = {
-      tarot_three: 'three', tarot_celtic: 'celtic', tarot_pastlife: 'pastlife',
-    };
-    for (const [item_id, sType] of Object.entries(itemToSpread)) {
-      const pending = consumePendingDraw(item_id);
-      if (!pending) continue;
-      const pastLifePositions = [
-        '前世身份能量', '前世關鍵事件', '帶來的影響', '今生呈現的問題',
-        '重複的模式', '靈魂要釋放的', '解鎖與療癒方式',
-      ];
-      const restored: DrawnCard[] = [];
-      for (let i = 0; i < pending.picks.length; i++) {
-        const pick = pending.picks[i];
-        const preview = deck.find((c) => c.card_key === pick.card_key);
-        if (!preview) return;
-        restored.push({
-          preview,
-          card: buildShim(preview),
-          isReversed: pick.reversed ?? false,
-          revealed: true,
-          position: sType === 'pastlife' ? pastLifePositions[i] : undefined,
-        });
-      }
-      setSpreadType(sType);
-      setShowCardLayout(true);
-      setDrawnCards(restored);
-      setHasDrawn(true);
-      break;
-    }
-  }, [deck, drawnCards.length, searchParams]);
 
   const restoreStartedRef = useRef(false);
   useEffect(() => {
@@ -329,19 +344,6 @@ function TarotPage() {
     setSpreadType(newSpreadType);
     setIsLocallyUnlocked(false);
     setShowCardLayout(true);
-  };
-
-  const handleUnlockClick = () => {
-    if (userState === 'guest') {
-      setShowLoginPrompt(true);
-    } else if (!showFullContent && userState !== 'guest') {
-      setShowPaywall(true);
-    }
-  };
-
-  const handleMockUnlock = async () => {
-    if (!user) { setShowLoginPrompt(true); return; }
-    setUnlockError(null);
   };
 
   const showFullContent = isLocallyUnlocked;
@@ -634,7 +636,10 @@ function TarotPage() {
                           <p className="text-orange-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
                         </div>}
 
-                        {!isUnlocked && (
+                        {!isUnlocked && singleGate.phase === 'loading' && (
+                          <div className="text-center text-orange-300/70 py-4 tracking-wider">解鎖中…</div>
+                        )}
+                        {!isUnlocked && singleGate.phase === 'email_gate' && (
                           <InlineEmailUnlock
                             onUnlocked={handleEmailSubmitted}
                             readingType="tarot_single"
@@ -651,6 +656,7 @@ function TarotPage() {
                             }}
                           />
                         )}
+                        <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
 
                         {isUnlocked && (
                           <>
@@ -800,7 +806,10 @@ function TarotPage() {
                             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none rounded-b-lg"></div>
                           )}
                         </div>
-                        {!isUnlocked && (
+                        {!isUnlocked && singleGate.phase === 'loading' && (
+                          <div className="text-center text-orange-300/70 py-4 tracking-wider">解鎖中…</div>
+                        )}
+                        {!isUnlocked && singleGate.phase === 'email_gate' && (
                           <InlineEmailUnlock
                             onUnlocked={handleEmailSubmitted}
                             readingType="tarot_single"
@@ -839,70 +848,84 @@ function TarotPage() {
                         {unlockError}
                       </div>
                     )}
-                    <PaywallGate
-                      spreadName="塔羅三張牌陣"
-                      spreadId="tarot_three"
-                      onUnlock={handleMockUnlock}
-                      isPaid={isLocallyUnlocked}
-                      picks={drawnCards.map((d, i) => ({
-                        card_key: d.preview.card_key,
-                        position: i + 1,
-                        reversed: d.isReversed,
-                      }))}
-                      previewContent={
+                    {!isLocallyUnlocked && (
+                      <div className="grid md:grid-cols-3 gap-6">
+                        {drawnCards.map((drawn, index) => (
+                          <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl">
+                            <h3 className="text-center text-xl font-serif text-orange-200 mb-4">{index === 0 ? '過去' : index === 1 ? '現在' : '未來'}</h3>
+                            {drawn.isReversed && <div className="text-center mb-3"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
+                            <h4 className="text-lg font-serif text-orange-100 text-center mb-2">{drawn.card.nameChinese}</h4>
+                            <p className="text-sm text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
+                            <div className="bg-slate-900/30 rounded-lg p-4 border border-orange-500/20">
+                              <p className="text-sm leading-relaxed">
+                                {drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'loading' && (
+                      <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
+                      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
+                        <div className="flex justify-center mb-4">
+                          <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
+                            <Lock className="w-7 h-7 text-orange-300" />
+                          </div>
+                        </div>
+                        <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">解鎖完整三張牌陣解讀</h3>
+                        <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
+                          過去、現在、未來三張牌的深度靈魂訊息，幫助你看見完整的能量流動。
+                        </p>
+                        <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice('tarot_three') ?? 0)}</p>
+                        {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
+                        <button
+                          onClick={handleCheckout}
+                          disabled={isCheckingOut}
+                          className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        >
+                          {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
+                        </button>
+                      </div>
+                    )}
+                    {isLocallyUnlocked && (
+                      <div className="space-y-8">
                         <div className="grid md:grid-cols-3 gap-6">
                           {drawnCards.map((drawn, index) => (
-                            <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl">
+                            <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                               <h3 className="text-center text-xl font-serif text-orange-200 mb-4">{index === 0 ? '過去' : index === 1 ? '現在' : '未來'}</h3>
                               {drawn.isReversed && <div className="text-center mb-3"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
                               <h4 className="text-lg font-serif text-orange-100 text-center mb-2">{drawn.card.nameChinese}</h4>
                               <p className="text-sm text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
                               <div className="bg-slate-900/30 rounded-lg p-4 border border-orange-500/20">
-                                <p className="text-sm leading-relaxed">
-                                  {drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}
-                                </p>
+                                <p className="text-sm leading-relaxed">{drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}</p>
                               </div>
                             </div>
                           ))}
                         </div>
-                      }
-                      fullContent={
-                        <div className="space-y-8">
-                          <div className="grid md:grid-cols-3 gap-6">
-                            {drawnCards.map((drawn, index) => (
-                              <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                                <h3 className="text-center text-xl font-serif text-orange-200 mb-4">{index === 0 ? '過去' : index === 1 ? '現在' : '未來'}</h3>
-                                {drawn.isReversed && <div className="text-center mb-3"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
-                                <h4 className="text-lg font-serif text-orange-100 text-center mb-2">{drawn.card.nameChinese}</h4>
-                                <p className="text-sm text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
-                                <div className="bg-slate-900/30 rounded-lg p-4 border border-orange-500/20">
-                                  <p className="text-sm leading-relaxed">{drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
 
-                          {allCardsRevealed && (
-                            <div className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-8 shadow-2xl">
-                              <h3 className="text-2xl font-serif text-orange-100 mb-6 text-center">整體解讀</h3>
-                              <div className="space-y-6">
-                                <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20">
-                                  <h4 className="text-orange-200 font-semibold mb-3">時間軸能量流動</h4>
-                                  <p className="text-orange-100/90 leading-relaxed mb-4">
-                                    從過去到未來的能量流動顯示了你生命的重要轉折。過去的{drawnCards[0].card.nameChinese}帶來的經驗與學習，正在現在的{drawnCards[1].card.nameChinese}中展現，而未來的{drawnCards[2].card.nameChinese}則指引著你前進的方向。
-                                  </p>
-                                  <p className="text-orange-100/90 leading-relaxed">這三張牌共同訴說著一個完整的故事，提醒你如何從過去的經驗中學習，在當下做出最佳選擇，並為未來創造你想要的可能性。</p>
-                                </div>
-                                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
-                                  <h4 className="text-orange-200 font-semibold mb-3">行動建議</h4>
-                                  <p className="text-orange-100/90 leading-relaxed">接納過去的自己，活在當下的覺知中，同時保持對未來的開放態度。讓這三個時間點的智慧在你心中整合，引導你走向更完整的自己。</p>
-                                </div>
+                        {allCardsRevealed && (
+                          <div className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-8 shadow-2xl">
+                            <h3 className="text-2xl font-serif text-orange-100 mb-6 text-center">整體解讀</h3>
+                            <div className="space-y-6">
+                              <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20">
+                                <h4 className="text-orange-200 font-semibold mb-3">時間軸能量流動</h4>
+                                <p className="text-orange-100/90 leading-relaxed mb-4">
+                                  從過去到未來的能量流動顯示了你生命的重要轉折。過去的{drawnCards[0].card.nameChinese}帶來的經驗與學習，正在現在的{drawnCards[1].card.nameChinese}中展現，而未來的{drawnCards[2].card.nameChinese}則指引著你前進的方向。
+                                </p>
+                                <p className="text-orange-100/90 leading-relaxed">這三張牌共同訴說著一個完整的故事，提醒你如何從過去的經驗中學習，在當下做出最佳選擇，並為未來創造你想要的可能性。</p>
+                              </div>
+                              <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
+                                <h4 className="text-orange-200 font-semibold mb-3">行動建議</h4>
+                                <p className="text-orange-100/90 leading-relaxed">接納過去的自己，活在當下的覺知中，同時保持對未來的開放態度。讓這三個時間點的智慧在你心中整合，引導你走向更完整的自己。</p>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      }
-                    />
+                          </div>
+                        )}
+                      </div>
+                    )}
                     </>
                 </div>
               )}
@@ -920,88 +943,102 @@ function TarotPage() {
                         {unlockError}
                       </div>
                     )}
-                    <PaywallGate
-                      spreadName="塔羅前世因果解鎖陣"
-                      spreadId="tarot_pastlife"
-                      onUnlock={handleMockUnlock}
-                      isPaid={isLocallyUnlocked}
-                      picks={drawnCards.map((d, i) => ({
-                        card_key: d.preview.card_key,
-                        position: i + 1,
-                        reversed: d.isReversed,
-                      }))}
-                      previewContent={
-                        <div className="space-y-6">
-                          {drawnCards.slice(0, 2).map((drawn, index) => {
-                            const positionGuide = getPastLifePositionGuide(index);
-                            const cardMeaning = drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning;
-                            const interpretationText = positionGuide.guideText(cardMeaning, undefined);
-                            return (
-                              <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-6 md:p-8 shadow-2xl">
-                                <div className="flex flex-col md:flex-row gap-6">
-                                  <div className="md:w-1/3">
-                                    <div className="flex items-center gap-3 mb-4">
-                                      <span className="flex items-center justify-center w-12 h-12 bg-orange-600/50 rounded-full text-xl font-bold border-2 border-orange-400/50">{index + 1}</span>
-                                      <div><h3 className="text-xl font-serif text-orange-100">{positionGuide.sectionTitle}</h3><p className="text-sm text-orange-200/60">{drawn.position}</p></div>
-                                    </div>
-                                    <div className="bg-slate-900/40 rounded-xl p-4 border border-orange-500/30">
-                                      {drawn.isReversed && <div className="text-center mb-2"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
-                                      <h4 className="text-lg font-serif text-orange-100 mb-1 text-center">{drawn.card.nameChinese}</h4>
-                                      <p className="text-xs text-orange-200/60 text-center">{drawn.card.name}</p>
-                                    </div>
+                    {!isLocallyUnlocked && (
+                      <div className="space-y-6">
+                        {drawnCards.slice(0, 2).map((drawn, index) => {
+                          const positionGuide = getPastLifePositionGuide(index);
+                          const cardMeaning = drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning;
+                          const interpretationText = positionGuide.guideText(cardMeaning, undefined);
+                          return (
+                            <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-6 md:p-8 shadow-2xl">
+                              <div className="flex flex-col md:flex-row gap-6">
+                                <div className="md:w-1/3">
+                                  <div className="flex items-center gap-3 mb-4">
+                                    <span className="flex items-center justify-center w-12 h-12 bg-orange-600/50 rounded-full text-xl font-bold border-2 border-orange-400/50">{index + 1}</span>
+                                    <div><h3 className="text-xl font-serif text-orange-100">{positionGuide.sectionTitle}</h3><p className="text-sm text-orange-200/60">{drawn.position}</p></div>
                                   </div>
-                                  <div className="md:w-2/3">
-                                    <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
-                                      <h4 className="text-orange-200 text-lg font-medium mb-4">靈魂訊息（預覽）</h4>
-                                      <p className="text-orange-100/90 leading-relaxed">{interpretationText.slice(0, Math.floor(interpretationText.length * 0.3)) + '...'}</p>
-                                    </div>
+                                  <div className="bg-slate-900/40 rounded-xl p-4 border border-orange-500/30">
+                                    {drawn.isReversed && <div className="text-center mb-2"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
+                                    <h4 className="text-lg font-serif text-orange-100 mb-1 text-center">{drawn.card.nameChinese}</h4>
+                                    <p className="text-xs text-orange-200/60 text-center">{drawn.card.name}</p>
+                                  </div>
+                                </div>
+                                <div className="md:w-2/3">
+                                  <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
+                                    <h4 className="text-orange-200 text-lg font-medium mb-4">靈魂訊息（預覽）</h4>
+                                    <p className="text-orange-100/90 leading-relaxed">{interpretationText.slice(0, Math.floor(interpretationText.length * 0.3)) + '...'}</p>
                                   </div>
                                 </div>
                               </div>
-                            );
-                          })}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'loading' && (
+                      <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
+                      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
+                        <div className="flex justify-center mb-4">
+                          <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
+                            <Lock className="w-7 h-7 text-orange-300" />
+                          </div>
                         </div>
-                      }
-                      fullContent={
-                        <div className="space-y-6">
-                          {drawnCards.map((drawn, index) => {
-                            const positionGuide = getPastLifePositionGuide(index);
-                            const cardMeaning = drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning;
-                            const interpretationText = positionGuide.guideText(cardMeaning, undefined);
-                            const hasHook = positionGuide.emotionalHook;
-                            return (
-                              <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-6 md:p-8 shadow-2xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                                <div className="flex flex-col md:flex-row gap-6">
-                                  <div className="md:w-1/3">
-                                    <div className="flex items-center gap-3 mb-4">
-                                      <span className="flex items-center justify-center w-12 h-12 bg-orange-600/50 rounded-full text-xl font-bold border-2 border-orange-400/50">{index + 1}</span>
-                                      <div><h3 className="text-xl font-serif text-orange-100">{positionGuide.sectionTitle}</h3><p className="text-sm text-orange-200/60">{drawn.position}</p></div>
-                                    </div>
-                                    <div className="bg-slate-900/40 rounded-xl p-4 border border-orange-500/30">
-                                      {drawn.isReversed && <div className="text-center mb-2"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
-                                      <h4 className="text-lg font-serif text-orange-100 mb-1 text-center">{drawn.card.nameChinese}</h4>
-                                      <p className="text-xs text-orange-200/60 text-center">{drawn.card.name}</p>
-                                    </div>
+                        <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">解鎖完整前世因果解讀</h3>
+                        <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
+                          七張牌揭開前世今生的因果連結，帶你走向真正的釋放與療癒。
+                        </p>
+                        <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice('tarot_pastlife') ?? 0)}</p>
+                        {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
+                        <button
+                          onClick={handleCheckout}
+                          disabled={isCheckingOut}
+                          className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        >
+                          {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
+                        </button>
+                      </div>
+                    )}
+                    {isLocallyUnlocked && (
+                      <div className="space-y-6">
+                        {drawnCards.map((drawn, index) => {
+                          const positionGuide = getPastLifePositionGuide(index);
+                          const cardMeaning = drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning;
+                          const interpretationText = positionGuide.guideText(cardMeaning, undefined);
+                          const hasHook = positionGuide.emotionalHook;
+                          return (
+                            <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-6 md:p-8 shadow-2xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                              <div className="flex flex-col md:flex-row gap-6">
+                                <div className="md:w-1/3">
+                                  <div className="flex items-center gap-3 mb-4">
+                                    <span className="flex items-center justify-center w-12 h-12 bg-orange-600/50 rounded-full text-xl font-bold border-2 border-orange-400/50">{index + 1}</span>
+                                    <div><h3 className="text-xl font-serif text-orange-100">{positionGuide.sectionTitle}</h3><p className="text-sm text-orange-200/60">{drawn.position}</p></div>
                                   </div>
-                                  <div className="md:w-2/3">
-                                    {hasHook && <div className="mb-4 bg-slate-800 rounded-xl p-4 border-2 border-orange-400/50"><p className="text-orange-100 font-medium leading-relaxed">{positionGuide.emotionalHook}</p></div>}
-                                    <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
-                                      <h4 className="text-orange-200 text-lg font-medium mb-4 flex items-center gap-2"><span className="text-2xl">{positionGuide.sectionTitle.split(' ')[0]}</span><span>靈魂訊息</span></h4>
-                                      <div className="prose prose-invert max-w-none">
-                                        {interpretationText.split('\n\n').map((paragraph, pIndex) => (
-                                          <p key={pIndex} className="text-orange-100/90 leading-relaxed mb-4 last:mb-0">{paragraph}</p>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    {index === 6 && <div className="mt-4 bg-slate-800/60 rounded-xl p-5 border-2 border-orange-400/40"><p className="text-orange-100 leading-relaxed text-sm"><span className="font-semibold text-orange-200">💫 療癒提醒：</span>如果這段解讀讓你深有感觸，代表這股能量確實影響著你。我可以幫你進一步做能量調整，加速這段因果的釋放。當能量被釋放，你的人生會開始出現不同的選擇。</p></div>}
+                                  <div className="bg-slate-900/40 rounded-xl p-4 border border-orange-500/30">
+                                    {drawn.isReversed && <div className="text-center mb-2"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
+                                    <h4 className="text-lg font-serif text-orange-100 mb-1 text-center">{drawn.card.nameChinese}</h4>
+                                    <p className="text-xs text-orange-200/60 text-center">{drawn.card.name}</p>
                                   </div>
                                 </div>
+                                <div className="md:w-2/3">
+                                  {hasHook && <div className="mb-4 bg-slate-800 rounded-xl p-4 border-2 border-orange-400/50"><p className="text-orange-100 font-medium leading-relaxed">{positionGuide.emotionalHook}</p></div>}
+                                  <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
+                                    <h4 className="text-orange-200 text-lg font-medium mb-4 flex items-center gap-2"><span className="text-2xl">{positionGuide.sectionTitle.split(' ')[0]}</span><span>靈魂訊息</span></h4>
+                                    <div className="prose prose-invert max-w-none">
+                                      {interpretationText.split('\n\n').map((paragraph, pIndex) => (
+                                        <p key={pIndex} className="text-orange-100/90 leading-relaxed mb-4 last:mb-0">{paragraph}</p>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  {index === 6 && <div className="mt-4 bg-slate-800/60 rounded-xl p-5 border-2 border-orange-400/40"><p className="text-orange-100 leading-relaxed text-sm"><span className="font-semibold text-orange-200">💫 療癒提醒：</span>如果這段解讀讓你深有感觸，代表這股能量確實影響著你。我可以幫你進一步做能量調整，加速這段因果的釋放。當能量被釋放，你的人生會開始出現不同的選擇。</p></div>}
+                                </div>
                               </div>
-                            );
-                          })}
-                        </div>
-                      }
-                    />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                     </>
                 </div>
               )}
@@ -1019,148 +1056,162 @@ function TarotPage() {
                         {unlockError}
                       </div>
                     )}
-                    <PaywallGate
-                      spreadName="塔羅凱爾特十字牌陣"
-                      spreadId="tarot_celtic"
-                      onUnlock={handleMockUnlock}
-                      isPaid={isLocallyUnlocked}
-                      picks={drawnCards.map((d, i) => ({
-                        card_key: d.preview.card_key,
-                        position: i + 1,
-                        reversed: d.isReversed,
-                      }))}
-                      previewContent={
-                        <div className="space-y-6">
-                          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
-                            <h3 className="text-orange-200 text-lg font-medium mb-4 flex items-center gap-2">
-                              <Sparkles className="w-5 h-5" />
-                              解牌閱讀小提醒
-                            </h3>
-                            <div className="space-y-3 text-orange-100/90 text-sm leading-relaxed">
-                              <p className="flex items-start gap-2">
-                                <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
-                                <span><strong className="text-orange-200">第 1、5、10 張牌</strong> 是這次占卜的三個主軸，它們幫助你看清現在的位置、內在期待，以及整體走向。</span>
-                              </p>
-                              <p className="flex items-start gap-2">
-                                <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
-                                <span><strong className="text-orange-200">第 2 張牌</strong> 顯示影響你最深的能量干擾點，可能是阻礙，也可能是你尚未意識到的關鍵推力。</span>
-                              </p>
-                              <p className="flex items-start gap-2">
-                                <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
-                                <span><strong className="text-orange-200">第 3 張牌</strong> 往往是最容易被忽略，卻最接近事情真正原因的一張牌。</span>
-                              </p>
-                            </div>
-                          </div>
-                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {drawnCards.slice(0, 3).map((drawn, index) => {
-                              const positions = ['當前狀況', '挑戰/障礙', '根源/過去'];
-                              return (
-                                <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl">
-                                  <div className="flex items-center gap-2 mb-4">
-                                    <span className="flex items-center justify-center w-8 h-8 bg-orange-600/50 rounded-full text-sm font-bold border border-orange-400/50">{index + 1}</span>
-                                    <h3 className="text-lg font-serif text-orange-200">{positions[index]}</h3>
-                                  </div>
-                                  {drawn.isReversed && (
-                                    <div className="text-center mb-3">
-                                      <span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span>
-                                    </div>
-                                  )}
-                                  <h4 className="text-base font-serif text-orange-100 text-center mb-1">{drawn.card.nameChinese}</h4>
-                                  <p className="text-xs text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
-                                  <div className="bg-slate-900/30 rounded-lg p-3 border border-orange-500/20">
-                                    <p className="text-xs leading-relaxed">
-                                      {drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}
-                                    </p>
-                                  </div>
-                                </div>
-                              );
-                            })}
+                    {!isLocallyUnlocked && (
+                      <div className="space-y-6">
+                        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
+                          <h3 className="text-orange-200 text-lg font-medium mb-4 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5" />
+                            解牌閱讀小提醒
+                          </h3>
+                          <div className="space-y-3 text-orange-100/90 text-sm leading-relaxed">
+                            <p className="flex items-start gap-2">
+                              <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
+                              <span><strong className="text-orange-200">第 1、5、10 張牌</strong> 是這次占卜的三個主軸，它們幫助你看清現在的位置、內在期待，以及整體走向。</span>
+                            </p>
+                            <p className="flex items-start gap-2">
+                              <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
+                              <span><strong className="text-orange-200">第 2 張牌</strong> 顯示影響你最深的能量干擾點，可能是阻礙，也可能是你尚未意識到的關鍵推力。</span>
+                            </p>
+                            <p className="flex items-start gap-2">
+                              <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
+                              <span><strong className="text-orange-200">第 3 張牌</strong> 往往是最容易被忽略，卻最接近事情真正原因的一張牌。</span>
+                            </p>
                           </div>
                         </div>
-                      }
-                      fullContent={
-                        <div className="space-y-6">
-                          <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
-                            <h3 className="text-orange-200 text-lg font-medium mb-4 flex items-center gap-2">
-                              <Sparkles className="w-5 h-5" />
-                              解牌閱讀小提醒
-                            </h3>
-                            <div className="space-y-3 text-orange-100/90 text-sm leading-relaxed">
-                              <p className="flex items-start gap-2">
-                                <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
-                                <span><strong className="text-orange-200">第 1、5、10 張牌</strong> 是這次占卜的三個主軸，它們幫助你看清現在的位置、內在期待，以及整體走向。</span>
-                              </p>
-                              <p className="flex items-start gap-2">
-                                <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
-                                <span><strong className="text-orange-200">第 2 張牌</strong> 顯示影響你最深的能量干擾點，可能是阻礙，也可能是你尚未意識到的關鍵推力。</span>
-                              </p>
-                              <p className="flex items-start gap-2">
-                                <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
-                                <span><strong className="text-orange-200">第 3 張牌</strong> 往往是最容易被忽略，卻最接近事情真正原因的一張牌。</span>
-                              </p>
-                              <p className="flex items-start gap-2">
-                                <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
-                                <span><strong className="text-orange-200">第 10 張牌</strong> 顯示的是目前狀態下的發展趨勢，並不是固定不變的命運結果。</span>
-                              </p>
-                            </div>
-                          </div>
-                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {drawnCards.map((drawn, index) => {
-                              const positions = [
-                                '當前狀況', '挑戰/障礙', '根源/過去', '近期過去', '可能未來',
-                                '近期未來', '內在態度', '外在影響', '希望/恐懼', '最終結果'
-                              ];
-                              return (
-                                <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                                  <div className="flex items-center gap-2 mb-4">
-                                    <span className="flex items-center justify-center w-8 h-8 bg-orange-600/50 rounded-full text-sm font-bold border border-orange-400/50">{index + 1}</span>
-                                    <h3 className="text-lg font-serif text-orange-200">{positions[index]}</h3>
-                                  </div>
-                                  {drawn.isReversed && (
-                                    <div className="text-center mb-3">
-                                      <span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span>
-                                    </div>
-                                  )}
-                                  <h4 className="text-base font-serif text-orange-100 text-center mb-1">{drawn.card.nameChinese}</h4>
-                                  <p className="text-xs text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
-                                  <div className="bg-slate-900/30 rounded-lg p-3 border border-orange-500/20">
-                                    <p className="text-xs leading-relaxed">
-                                      {drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}
-                                    </p>
-                                  </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {drawnCards.slice(0, 3).map((drawn, index) => {
+                            const positions = ['當前狀況', '挑戰/障礙', '根源/過去'];
+                            return (
+                              <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl">
+                                <div className="flex items-center gap-2 mb-4">
+                                  <span className="flex items-center justify-center w-8 h-8 bg-orange-600/50 rounded-full text-sm font-bold border border-orange-400/50">{index + 1}</span>
+                                  <h3 className="text-lg font-serif text-orange-200">{positions[index]}</h3>
                                 </div>
-                              );
-                            })}
-                          </div>
-                          {allCardsRevealed && (
-                            <div className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-8 shadow-2xl mt-4">
-                              <h3 className="text-2xl font-serif text-orange-100 mb-6 text-center">整體解讀總結</h3>
-                              <div className="space-y-6">
-                                <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20">
-                                  <h4 className="text-orange-200 font-semibold mb-3">生命全貌解析</h4>
-                                  <p className="text-orange-100/90 leading-relaxed mb-4">
-                                    十張牌共同編織出你生命狀態的完整圖像。當前的{drawnCards[0].card.nameChinese}顯示你所處的位置，
-                                    而{drawnCards[1].card.nameChinese}揭示了你面臨的挑戰。根源的{drawnCards[2].card.nameChinese}
-                                    指出了一切的起點，而最終的{drawnCards[9].card.nameChinese}則預示著可能的結果。
-                                  </p>
-                                  <p className="text-orange-100/90 leading-relaxed">
-                                    這個牌陣不僅回答你的問題，更展現了問題背後的深層結構。它提醒你，每個當下都是過去累積與未來創造的交會點，
-                                    而你永遠擁有選擇的力量。
-                                  </p>
-                                </div>
-                                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
-                                  <h4 className="text-orange-200 font-semibold mb-3">行動建議</h4>
-                                  <p className="text-orange-100/90 leading-relaxed">
-                                    重視第1、5、10張牌的訊息，它們是你的三個主軸。同時深入理解第2張牌揭示的挑戰，
-                                    以及第3張牌指出的根源。當你整合這些智慧，你將看見更清晰的道路。
+                                {drawn.isReversed && (
+                                  <div className="text-center mb-3">
+                                    <span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span>
+                                  </div>
+                                )}
+                                <h4 className="text-base font-serif text-orange-100 text-center mb-1">{drawn.card.nameChinese}</h4>
+                                <p className="text-xs text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
+                                <div className="bg-slate-900/30 rounded-lg p-3 border border-orange-500/20">
+                                  <p className="text-xs leading-relaxed">
+                                    {drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}
                                   </p>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            );
+                          })}
                         </div>
-                      }
-                    />
+                      </div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'loading' && (
+                      <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
+                      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
+                        <div className="flex justify-center mb-4">
+                          <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
+                            <Lock className="w-7 h-7 text-orange-300" />
+                          </div>
+                        </div>
+                        <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">解鎖凱爾特十字完整解讀</h3>
+                        <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
+                          十張牌的深度生命解析，帶你看見全面的能量格局與行動方向。
+                        </p>
+                        <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice('tarot_celtic') ?? 0)}</p>
+                        {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
+                        <button
+                          onClick={handleCheckout}
+                          disabled={isCheckingOut}
+                          className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        >
+                          {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
+                        </button>
+                      </div>
+                    )}
+                    {isLocallyUnlocked && (
+                      <div className="space-y-6">
+                        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
+                          <h3 className="text-orange-200 text-lg font-medium mb-4 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5" />
+                            解牌閱讀小提醒
+                          </h3>
+                          <div className="space-y-3 text-orange-100/90 text-sm leading-relaxed">
+                            <p className="flex items-start gap-2">
+                              <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
+                              <span><strong className="text-orange-200">第 1、5、10 張牌</strong> 是這次占卜的三個主軸，它們幫助你看清現在的位置、內在期待，以及整體走向。</span>
+                            </p>
+                            <p className="flex items-start gap-2">
+                              <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
+                              <span><strong className="text-orange-200">第 2 張牌</strong> 顯示影響你最深的能量干擾點，可能是阻礙，也可能是你尚未意識到的關鍵推力。</span>
+                            </p>
+                            <p className="flex items-start gap-2">
+                              <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
+                              <span><strong className="text-orange-200">第 3 張牌</strong> 往往是最容易被忽略，卻最接近事情真正原因的一張牌。</span>
+                            </p>
+                            <p className="flex items-start gap-2">
+                              <span className="text-orange-400 mt-1 flex-shrink-0">•</span>
+                              <span><strong className="text-orange-200">第 10 張牌</strong> 顯示的是目前狀態下的發展趨勢，並不是固定不變的命運結果。</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {drawnCards.map((drawn, index) => {
+                            const positions = [
+                              '當前狀況', '挑戰/障礙', '根源/過去', '近期過去', '可能未來',
+                              '近期未來', '內在態度', '外在影響', '希望/恐懼', '最終結果'
+                            ];
+                            return (
+                              <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                <div className="flex items-center gap-2 mb-4">
+                                  <span className="flex items-center justify-center w-8 h-8 bg-orange-600/50 rounded-full text-sm font-bold border border-orange-400/50">{index + 1}</span>
+                                  <h3 className="text-lg font-serif text-orange-200">{positions[index]}</h3>
+                                </div>
+                                {drawn.isReversed && (
+                                  <div className="text-center mb-3">
+                                    <span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span>
+                                  </div>
+                                )}
+                                <h4 className="text-base font-serif text-orange-100 text-center mb-1">{drawn.card.nameChinese}</h4>
+                                <p className="text-xs text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
+                                <div className="bg-slate-900/30 rounded-lg p-3 border border-orange-500/20">
+                                  <p className="text-xs leading-relaxed">
+                                    {drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {allCardsRevealed && (
+                          <div className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-8 shadow-2xl mt-4">
+                            <h3 className="text-2xl font-serif text-orange-100 mb-6 text-center">整體解讀總結</h3>
+                            <div className="space-y-6">
+                              <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20">
+                                <h4 className="text-orange-200 font-semibold mb-3">生命全貌解析</h4>
+                                <p className="text-orange-100/90 leading-relaxed mb-4">
+                                  十張牌共同編織出你生命狀態的完整圖像。當前的{drawnCards[0].card.nameChinese}顯示你所處的位置，
+                                  而{drawnCards[1].card.nameChinese}揭示了你面臨的挑戰。根源的{drawnCards[2].card.nameChinese}
+                                  指出了一切的起點，而最終的{drawnCards[9].card.nameChinese}則預示著可能的結果。
+                                </p>
+                                <p className="text-orange-100/90 leading-relaxed">
+                                  這個牌陣不僅回答你的問題，更展現了問題背後的深層結構。它提醒你，每個當下都是過去累積與未來創造的交會點，
+                                  而你永遠擁有選擇的力量。
+                                </p>
+                              </div>
+                              <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
+                                <h4 className="text-orange-200 font-semibold mb-3">行動建議</h4>
+                                <p className="text-orange-100/90 leading-relaxed">
+                                  重視第1、5、10張牌的訊息，它們是你的三個主軸。同時深入理解第2張牌揭示的挑戰，
+                                  以及第3張牌指出的根源。當你整合這些智慧，你將看見更清晰的道路。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     </>
                 </div>
               )}
@@ -1186,13 +1237,6 @@ function TarotPage() {
 
       </div>
 
-      <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} redirectTo="/tarot" />
-      <PaywallModal
-        isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        spreadName={getSpreadName(spreadType)}
-        spreadType={SPREAD_IDS[spreadType]}
-      />
       <CrystalGridPromoModal show={showModal} onClose={handleClose} />
       <CrystalReminderBar isVisible={showReminder} onClose={handleReminderClose} />
     </div>

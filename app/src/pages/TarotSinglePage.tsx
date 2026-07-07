@@ -7,8 +7,10 @@ import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
 
 interface TarotPreview {
   keywords: string[];
@@ -109,10 +111,22 @@ function TarotSinglePage() {
     setRevealed(false);
   };
 
+  const gate = useSingleCardGate({
+    spreadId: 'tarot_single',
+    cardKey: drawnCard?.preview.card_key ?? null,
+    reversed: drawnCard?.isReversed,
+    enabled: !!(hasDrawn && revealed && drawnCard && !drawnCard.unlocked),
+  });
+
+  useEffect(() => {
+    if (gate.unlockedCard && drawnCard && !drawnCard.unlocked) {
+      setDrawnCard(prev => prev ? { ...prev, unlocked: gate.unlockedCard } : null);
+    }
+  }, [gate.unlockedCard]);
+
   const handleUnlocked = (email: string, card?: UnlockedCard) => {
-    if (!card || !drawnCard) return;
-    setDrawnCard({ ...drawnCard, unlocked: card });
-    trackEvent('unlocked', { readingType: 'tarot_single', email });
+    gate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', { readingType: 'tarot_single', email });
   };
 
   const formatInterpretation = (text: string) => {
@@ -232,37 +246,46 @@ function TarotSinglePage() {
 
                     {!isUnlocked && (
                       <>
-                        {(() => {
-                          const excerpt = drawnCard.isReversed
-                            ? drawnCard.preview.reversed_excerpt
-                            : drawnCard.preview.upright_excerpt;
-                          if (!excerpt) return null;
-                          return (
-                            <div className="mb-4">
-                              <div className="relative bg-slate-800 border border-orange-300 rounded-xl p-6 overflow-hidden">
-                                <p className="text-slate-950 leading-relaxed">
-                                  {excerpt}
-                                </p>
-                                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-transparent to-orange-500/10 pointer-events-none"></div>
-                              </div>
-                              <p className="text-slate-500 text-xs mt-2">前30%預覽，輸入 Email 解鎖完整解析</p>
-                            </div>
-                          );
-                        })()}
-                        <InlineEmailUnlock
-                          onUnlocked={handleUnlocked}
-                          readingType="tarot_single"
-                          theme="light"
-                          cardUnlock={{
-                            spread_id: 'tarot_single',
-                            card_key: drawnCard.preview.card_key,
-                            reversed: drawnCard.isReversed,
-                          }}
-                          cardData={{
-                            cardName: drawnCard.preview.name_secondary,
-                            cardNameChinese: drawnCard.preview.name,
-                            isReversed: drawnCard.isReversed,
-                          }}
+                        {gate.phase === 'loading' && (
+                          <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                        )}
+                        {gate.phase === 'email_gate' && (
+                          <>
+                            {(() => {
+                              const excerpt = drawnCard.isReversed
+                                ? drawnCard.preview.reversed_excerpt
+                                : drawnCard.preview.upright_excerpt;
+                              if (!excerpt) return null;
+                              return (
+                                <div className="mb-4">
+                                  <div className="relative bg-slate-800 border border-orange-300 rounded-xl p-6 overflow-hidden">
+                                    <p className="text-slate-950 leading-relaxed">{excerpt}</p>
+                                    <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-transparent to-orange-500/10 pointer-events-none"></div>
+                                  </div>
+                                  <p className="text-slate-500 text-xs mt-2">前30%預覽，輸入 Email 解鎖完整解析</p>
+                                </div>
+                              );
+                            })()}
+                            <InlineEmailUnlock
+                              onUnlocked={handleUnlocked}
+                              readingType="tarot_single"
+                              theme="light"
+                              cardUnlock={{
+                                spread_id: 'tarot_single',
+                                card_key: drawnCard.preview.card_key,
+                                reversed: drawnCard.isReversed,
+                              }}
+                              cardData={{
+                                cardName: drawnCard.preview.name_secondary,
+                                cardNameChinese: drawnCard.preview.name,
+                                isReversed: drawnCard.isReversed,
+                              }}
+                            />
+                          </>
+                        )}
+                        <MembershipGate
+                          isOpen={gate.showMembership}
+                          onClose={() => gate.setShowMembership(false)}
                         />
                       </>
                     )}

@@ -2,20 +2,18 @@ import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, BookOpen, Lock, RotateCcw, Search, X, Loader2 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
-import { PaywallModal } from '../components/PaywallModal';
-import { PaywallGate } from '../components/PaywallGate';
-import { useSpreadAccess } from '../hooks/useSpreadAccess';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
+import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
-import { consumePendingDraw } from '../lib/pendingDraw';
+import { submitToEcpay } from '../lib/ecpayRedirect';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 const SPREAD_ID = 'unicorns_three';
@@ -42,7 +40,6 @@ const POINTS_LABELS: [keyof UnicornGated, string][] = [
 
 export default function UnicornsPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('unicorns');
   const [searchParams] = useSearchParams();
   const initialSpread: 'single' | 'three' = searchParams.get('spread') === 'three' ? 'three' : 'single';
@@ -52,17 +49,15 @@ export default function UnicornsPage() {
   const [drawnCards, setDrawnCards] = useState<DrawnSlot[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [spreadType, setSpreadType] = useState<'single' | 'three'>(initialSpread);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showCardLayout, setShowCardLayout] = useState(autoLayout);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [isLocallyUnlocked, setIsLocallyUnlocked] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [librarySelectedCard, setLibrarySelectedCard] = useState<CardPreview | null>(null);
   const [libraryUnlocked, setLibraryUnlocked] = useState<UnlockedCard | null>(null);
   const hasDrawn = drawnCards.length > 0;
   const { showModal, handleClose } = useCrystalPromo(hasDrawn && !isDrawing);
   const { trackEvent } = useConversionTracking();
-  useSpreadAccess(SPREAD_ID);
 
   usePageView('unicorns_single');
 
@@ -80,9 +75,20 @@ export default function UnicornsPage() {
     setShowCardLayout(true);
   };
 
-  const handleMockUnlock = async () => {
-    if (!user) { setShowLoginPrompt(true); return; }
+  const handleCheckoutThree = async () => {
+    if (isCheckingOut) return;
     setUnlockError(null);
+    setIsCheckingOut(true);
+    try {
+      const checkoutPicks = drawnCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, checkoutPicks);
+      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
+    } catch (err) {
+      setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
+      setIsCheckingOut(false);
+    }
   };
 
   const drawSingleCard = () => {
@@ -131,23 +137,6 @@ export default function UnicornsPage() {
       window.scrollTo(0, 0);
     }
   }, [hasDrawn]);
-
-  useEffect(() => {
-    if (!deck || deck.length === 0) return;
-    if (drawnCards.length > 0) return;
-    if (searchParams.get('order_id')) return;
-    const pending = consumePendingDraw(SPREAD_ID);
-    if (!pending) return;
-    const slots: DrawnSlot[] = pending.picks
-      .map((p) => deck.find((c) => c.card_key === p.card_key))
-      .filter((c): c is CardPreview => !!c)
-      .map((preview) => ({ preview, unlocked: null }));
-    if (slots.length !== pending.picks.length) return;
-    setSpreadType('three');
-    setShowDrawPage(true);
-    setShowCardLayout(true);
-    setDrawnCards(slots);
-  }, [deck, drawnCards.length]);
 
   const [restoreState, setRestoreState] = useState<'idle' | 'pending' | 'done' | 'error'>('idle');
   const [restoreReason, setRestoreReason] = useState<string | null>(null);
@@ -211,10 +200,38 @@ export default function UnicornsPage() {
     })();
   }, [searchParams, deck]);
 
+  const singleGate = useSingleCardGate({
+    spreadId: 'unicorns_single',
+    cardKey: spreadType === 'single' && drawnCards.length === 1 ? drawnCards[0].preview.card_key : null,
+    enabled: !!(spreadType === 'single' && drawnCards.length === 1 && !drawnCards[0]?.unlocked),
+  });
+
+  useEffect(() => {
+    if (singleGate.unlockedCard && drawnCards[0] && !drawnCards[0].unlocked) {
+      setDrawnCards([{ preview: drawnCards[0].preview, unlocked: singleGate.unlockedCard }]);
+    }
+  }, [singleGate.unlockedCard]);
+
+  const threePicks = spreadType === 'three' && drawnCards.length === 3 && !isLocallyUnlocked
+    ? drawnCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }))
+    : null;
+
+  const threeGate = useMultiSpreadGate({
+    spreadId: SPREAD_ID,
+    picks: threePicks,
+    enabled: spreadType === 'three' && drawnCards.length === 3 && !isLocallyUnlocked,
+  });
+
+  useEffect(() => {
+    if (!threeGate.unlockedCards || isLocallyUnlocked) return;
+    const byKey = new Map(threeGate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
+    setDrawnCards((prev) => prev.map((s) => ({ ...s, unlocked: byKey.get(s.preview.card_key) ?? null })));
+    setIsLocallyUnlocked(true);
+  }, [threeGate.unlockedCards]);
+
   const handleSingleEmailSubmitted = (email: string, card?: UnlockedCard) => {
-    if (!card) return;
-    setDrawnCards([{ preview: drawnCards[0].preview, unlocked: card }]);
-    trackEvent('unlocked', { email, cardName: card.name, readingType: 'unicorns_single' });
+    singleGate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', { email, cardName: card.name, readingType: 'unicorns_single' });
   };
 
   const handleLibraryEmailSubmitted = (_email: string, card?: UnlockedCard) => {
@@ -352,101 +369,83 @@ export default function UnicornsPage() {
                       {unlockError}
                     </div>
                   )}
-                  <PaywallGate
-                    spreadName="獨角獸三張牌陣"
-                    spreadId="unicorns_three"
-                    onUnlock={handleMockUnlock}
-                    isPaid={isLocallyUnlocked}
-                    picks={drawnCards.map((s, i) => ({
-                      card_key: s.preview.card_key,
-                      position: i + 1,
-                    }))}
-                    previewContent={
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                          {drawnCards.map((slot, index) => {
-                            const positions = ['過去', '現在', '未來'];
-                            const previewKw = (slot.preview.preview as { keywords?: string[] }).keywords ?? [];
-                            return (
-                              <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl !p-5">
-                                <p className="text-pink-200 text-sm tracking-[0.4em] uppercase text-center mb-3">{positions[index]}</p>
-                                <h3 className="deck-name text-xl text-pink-100 text-center mb-1">{slot.preview.name}</h3>
-                                <p className="text-xs text-pink-400/80 text-center tracking-wider mb-3">{slot.preview.name_secondary}</p>
-                                {previewKw.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 justify-center mb-3">
-                                    {previewKw.slice(0, 3).map((keyword, idx) => (
-                                      <span key={idx} className="px-2 py-0.5 border border-pink-500/40 text-[0.65rem] tracking-wider text-pink-200">
-                                        {keyword}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                                {slot.preview.preview_excerpt && (
-                                  <div className="relative mt-2 pt-3 border-t border-pink-500/15">
-                                    <p className="text-pink-100/85 text-xs leading-loose whitespace-pre-line">
-                                      {slot.preview.preview_excerpt}
-                                    </p>
-                                    <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
-                                  </div>
-                                )}
-                                <p className="mt-2 text-[0.65rem] text-pink-400/70 tracking-wide text-center">
-                                  前 30% 預覽
-                                </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        {unlockError && <p className="text-center text-red-500 text-sm">{unlockError}</p>}
-                      </div>
-                    }
-                    fullContent={
-                      isLocallyUnlocked && drawnCards.every((s) => s.unlocked) ? (
-                        <div className="space-y-6">
-                          {drawnCards.map((slot, index) => {
-                            const labels = ['過去的能量根源', '當下的能量焦點', '未來的能量趨勢'];
-                            const sym = ['過', '現', '未'][index];
-                            const g = (slot.unlocked!.gated as UnicornGated);
-                            return (
-                              <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl">
-                                <div className="flex items-center gap-4 mb-5 pb-4 border-b border-pink-500/15">
-                                  <div className="chapter-glyph text-3xl">{sym}</div>
-                                  <h3 className="deck-name text-xl text-pink-100">{labels[index]} — {slot.preview.name}</h3>
-                                </div>
-                                <div className="space-y-4">
-                                  {POINTS_LABELS.slice(0, 5).map(([k, label]) => (
-                                    <div key={k}>
-                                      <h4 className="text-pink-200 text-sm tracking-[0.4em] uppercase mb-2">{label}</h4>
-                                      <p className="text-sm text-pink-200/85 leading-loose">{g[k]}</p>
-                                    </div>
+                  {!isLocallyUnlocked ? (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                        {drawnCards.map((slot, index) => {
+                          const positions = ['過去', '現在', '未來'];
+                          const previewKw = (slot.preview.preview as { keywords?: string[] }).keywords ?? [];
+                          return (
+                            <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl !p-5">
+                              <p className="text-pink-200 text-sm tracking-[0.4em] uppercase text-center mb-3">{positions[index]}</p>
+                              <h3 className="deck-name text-xl text-pink-100 text-center mb-1">{slot.preview.name}</h3>
+                              <p className="text-xs text-pink-400/80 text-center tracking-wider mb-3">{slot.preview.name_secondary}</p>
+                              {previewKw.length > 0 && (
+                                <div className="flex flex-wrap gap-1 justify-center mb-3">
+                                  {previewKw.slice(0, 3).map((keyword, idx) => (
+                                    <span key={idx} className="px-2 py-0.5 border border-pink-500/40 text-[0.65rem] tracking-wider text-pink-200">
+                                      {keyword}
+                                    </span>
                                   ))}
                                 </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="space-y-6">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                            {drawnCards.map((slot, index) => {
-                              const positions = ['過去', '現在', '未來'];
-                              return (
-                                <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl !p-5">
-                                  <p className="text-pink-200 text-sm tracking-[0.4em] uppercase text-center mb-3">{positions[index]}</p>
-                                  <h3 className="deck-name text-xl text-pink-100 text-center mb-1">{slot.preview.name}</h3>
-                                  <p className="text-xs text-pink-400/80 text-center tracking-wider mb-4">{slot.preview.name_secondary}</p>
+                              )}
+                              {slot.preview.preview_excerpt && (
+                                <div className="relative mt-2 pt-3 border-t border-pink-500/15">
+                                  <p className="text-pink-100/85 text-xs leading-loose whitespace-pre-line">
+                                    {slot.preview.preview_excerpt}
+                                  </p>
+                                  <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
                                 </div>
-                              );
-                            })}
-                          </div>
-                          <div className="flex items-center justify-center gap-3 py-6 text-pink-300 text-sm tracking-wide">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            正在為你載入完整解讀…
-                          </div>
+                              )}
+                              <p className="mt-2 text-[0.65rem] text-pink-400/70 tracking-wide text-center">前 30% 預覽</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {threeGate.phase === 'loading' && (
+                        <div className="flex items-center justify-center gap-3 py-6 text-pink-300 text-sm tracking-wide">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          解鎖中…
                         </div>
-                      )
-                    }
-                  />
-                  </>
+                      )}
+                      {threeGate.phase === 'paywall' && (
+                        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 text-center space-y-5">
+                          <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
+                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.3em]">解鎖完整獨角獸訊息</h3>
+                          <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">展開三張牌的完整解讀，揭示過去、現在、未來的能量脈絡。</p>
+                          <p className="font-serif text-2xl text-pink-200 tracking-[0.3em]">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
+                          <button onClick={handleCheckoutThree} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-fuchsia-600 to-rose-600 hover:from-fuchsia-500 hover:to-rose-500 text-white font-medium rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {drawnCards.map((slot, index) => {
+                        const labels = ['過去的能量根源', '當下的能量焦點', '未來的能量趨勢'];
+                        const sym = ['過', '現', '未'][index];
+                        const g = (slot.unlocked!.gated as UnicornGated);
+                        return (
+                          <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl">
+                            <div className="flex items-center gap-4 mb-5 pb-4 border-b border-pink-500/15">
+                              <div className="chapter-glyph text-3xl">{sym}</div>
+                              <h3 className="deck-name text-xl text-pink-100">{labels[index]} — {slot.preview.name}</h3>
+                            </div>
+                            <div className="space-y-4">
+                              {POINTS_LABELS.slice(0, 5).map(([k, label]) => (
+                                <div key={k}>
+                                  <h4 className="text-pink-200 text-sm tracking-[0.4em] uppercase mb-2">{label}</h4>
+                                  <p className="text-sm text-pink-200/85 leading-loose">{g[k]}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               )}
 
               {spreadType === 'single' && drawnCards.map((slot) => {
@@ -493,12 +492,18 @@ export default function UnicornsPage() {
                               前 30% 預覽 — 留下 Email 解鎖完整解析
                             </p>
                           </div>
-                          <InlineEmailUnlock
-                            onUnlocked={handleSingleEmailSubmitted}
-                            readingType="unicorns_single"
-                            theme="dark"
-                            cardUnlock={{ spread_id: 'unicorns_single', card_key: slot.preview.card_key }}
-                          />
+                          {singleGate.phase === 'loading' && (
+                            <div className="text-center text-pink-300/70 py-4 tracking-wider">解鎖中…</div>
+                          )}
+                          {singleGate.phase === 'email_gate' && (
+                            <InlineEmailUnlock
+                              onUnlocked={handleSingleEmailSubmitted}
+                              readingType="unicorns_single"
+                              theme="dark"
+                              cardUnlock={{ spread_id: 'unicorns_single', card_key: slot.preview.card_key }}
+                            />
+                          )}
+                          <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
                         </>
                       )}
 
@@ -520,14 +525,7 @@ export default function UnicornsPage() {
 
         </div>
 
-        <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} redirectTo="/unicorns" />
         <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
-        <PaywallModal
-          isOpen={showPaywall}
-          onClose={() => setShowPaywall(false)}
-          spreadName="獨角獸三張牌陣"
-          spreadType={SPREAD_ID}
-        />
       </div>
     );
   }
@@ -662,14 +660,7 @@ export default function UnicornsPage() {
 
       </div>
 
-      <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
-      <PaywallModal
-        isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        spreadName="獨角獸三張牌陣"
-        spreadType={SPREAD_ID}
-      />
     </div>
   );
 }

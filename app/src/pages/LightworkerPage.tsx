@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import { useDeck, pickRandomCards } from '../hooks/useDeck';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
@@ -23,13 +23,11 @@ interface LightworkerGated {
 
 function LightworkerPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('lightworker');
   const [drawnPreview, setDrawnPreview] = useState<CardPreview | null>(null);
   const [unlocked, setUnlocked] = useState<UnlockedCard | null>(null);
   const [isShuffling, setIsShuffling] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showDrawPage, setShowDrawPage] = useState(false);
   const { trackEvent } = useConversionTracking();
 
@@ -80,10 +78,19 @@ function LightworkerPage() {
     }
   }, [hasDrawn]);
 
+  const gate = useSingleCardGate({
+    spreadId: 'work_your_light_single',
+    cardKey: drawnPreview?.card_key ?? null,
+    enabled: !!(drawnPreview && hasDrawn && !unlocked),
+  });
+
+  useEffect(() => {
+    if (gate.unlockedCard && !unlocked) setUnlocked(gate.unlockedCard);
+  }, [gate.unlockedCard]);
+
   const handleUnlocked = (email: string, card?: UnlockedCard) => {
-    if (!card) return;
-    setUnlocked(card);
-    trackEvent('unlocked', { readingType: 'lightworker_single', email });
+    gate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', { readingType: 'lightworker_single', email });
   };
 
   const previewKeywords = (drawnPreview?.preview as { keywords?: string[] })?.keywords ?? [];
@@ -92,11 +99,6 @@ function LightworkerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-cyan-950 to-blue-950 text-white relative overflow-hidden">
-      <LoginPromptModal
-        isOpen={showLoginPrompt}
-        onClose={() => setShowLoginPrompt(false)}
-        redirectTo="/lightworker/celtic-cross"
-      />
 
 
       <div className="max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
@@ -246,16 +248,18 @@ function LightworkerPage() {
                         前 30% 預覽 — 留下 Email 解鎖完整解析
                       </p>
                     </div>
-
-                    <InlineEmailUnlock
-                      onUnlocked={handleUnlocked}
-                      readingType="lightworker_single"
-                      theme="dark"
-                      cardUnlock={{
-                        spread_id: 'lightworker_single',
-                        card_key: drawnPreview.card_key,
-                      }}
-                    />
+                    {gate.phase === 'loading' && (
+                      <div className="text-center text-cyan-300/70 py-4 tracking-wider">解鎖中…</div>
+                    )}
+                    {gate.phase === 'email_gate' && (
+                      <InlineEmailUnlock
+                        onUnlocked={handleUnlocked}
+                        readingType="lightworker_single"
+                        theme="dark"
+                        cardUnlock={{ spread_id: 'work_your_light_single', card_key: drawnPreview.card_key }}
+                      />
+                    )}
+                    <MembershipGate isOpen={gate.showMembership} onClose={() => gate.setShowMembership(false)} />
                   </>
                 )}
 

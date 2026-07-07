@@ -7,6 +7,8 @@ import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 
@@ -109,10 +111,19 @@ function WorkYourLightSinglePage() {
     navigate('/work-your-light-single');
   };
 
+  const gate = useSingleCardGate({
+    spreadId: 'work_your_light_single',
+    cardKey: drawnPreview?.card_key ?? null,
+    enabled: !!(hasDrawn && revealed && drawnPreview && !unlocked),
+  });
+
+  useEffect(() => {
+    if (gate.unlockedCard && !unlocked) setUnlocked(gate.unlockedCard);
+  }, [gate.unlockedCard]);
+
   const handleUnlocked = (email: string, card?: UnlockedCard) => {
-    if (!card) return;
-    setUnlocked(card);
-    trackEvent('unlocked', { readingType: 'work_your_light_single', email });
+    gate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', { readingType: 'work_your_light_single', email });
   };
 
   const isUnlocked = !!unlocked;
@@ -202,33 +213,33 @@ function WorkYourLightSinglePage() {
 
                 {!isUnlocked && (
                   <>
-                    <div className="bg-gradient-to-r from-violet-600/25 to-violet-600/25 rounded-xl p-6 border-2 border-violet-400/50">
-                      <h3 className="text-violet-100 text-xl font-medium mb-4 tracking-wide flex items-center gap-2">
-                        <span className="font-serif text-xl text-violet-400 mr-1 tracking-[0.1em]">一</span>
-                        牌面核心訊息
-                      </h3>
-
-                      {drawnPreview.preview_excerpt && (
-                        <div className="bg-slate-900/50 rounded-lg p-4 border border-violet-400/30 relative">
-                          <p className="text-violet-100/90 leading-relaxed">
-                            {drawnPreview.preview_excerpt}
-                          </p>
-                          <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-950/95 pointer-events-none rounded-b-lg"></div>
+                    {gate.phase === 'loading' && (
+                      <div className="text-center text-violet-300/70 py-6 tracking-wider">解鎖中…</div>
+                    )}
+                    {gate.phase === 'email_gate' && (
+                      <>
+                        <div className="bg-gradient-to-r from-violet-600/25 to-violet-600/25 rounded-xl p-6 border-2 border-violet-400/50">
+                          <h3 className="text-violet-100 text-xl font-medium mb-4 tracking-wide flex items-center gap-2">
+                            <span className="font-serif text-xl text-violet-400 mr-1 tracking-[0.1em]">一</span>
+                            牌面核心訊息
+                          </h3>
+                          {drawnPreview.preview_excerpt && (
+                            <div className="bg-slate-900/50 rounded-lg p-4 border border-violet-400/30 relative">
+                              <p className="text-violet-100/90 leading-relaxed">{drawnPreview.preview_excerpt}</p>
+                              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-950/95 pointer-events-none rounded-b-lg"></div>
+                            </div>
+                          )}
+                          <p className="text-violet-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
                         </div>
-                      )}
-
-                      <p className="text-violet-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
-                    </div>
-
-                    <InlineEmailUnlock
-                      onUnlocked={handleUnlocked}
-                      readingType="work_your_light_single"
-                      theme="dark"
-                      cardUnlock={{
-                        spread_id: 'work_your_light_single',
-                        card_key: drawnPreview.card_key,
-                      }}
-                    />
+                        <InlineEmailUnlock
+                          onUnlocked={handleUnlocked}
+                          readingType="work_your_light_single"
+                          theme="dark"
+                          cardUnlock={{ spread_id: 'work_your_light_single', card_key: drawnPreview.card_key }}
+                        />
+                      </>
+                    )}
+                    <MembershipGate isOpen={gate.showMembership} onClose={() => gate.setShowMembership(false)} />
                   </>
                 )}
 

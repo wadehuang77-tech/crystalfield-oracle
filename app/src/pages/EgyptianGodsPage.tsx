@@ -3,20 +3,19 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
-import { useSpreadAccess } from '../hooks/useSpreadAccess';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
+import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { savePendingDraw, consumePendingDraw } from '../lib/pendingDraw';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 type SpreadType = 'single' | 'pastlife';
@@ -49,7 +48,6 @@ const PASTLIFE_POSITIONS = [
 
 function EgyptianGodsPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('egyptian_gods');
   const [searchParams] = useSearchParams();
   const initialSpread: SpreadType = searchParams.get('spread') === 'pastlife' ? 'pastlife' : 'single';
@@ -61,20 +59,17 @@ function EgyptianGodsPage() {
   const [isPastlifeUnlocked, setIsPastlifeUnlocked] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showCardLayout, setShowCardLayout] = useState(autoLayout);
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { showModal, showReminder, handleClose, handleReminderClose } = useCrystalPromo(hasDrawn && !isDrawing);
   const { trackEvent } = useConversionTracking();
-  useSpreadAccess('egyptian_pastlife');
 
   usePageView('egyptian_gods_single');
 
   const handleEmailSubmitted = (email: string, card?: UnlockedCard) => {
-    if (!card) return;
-    setSingleUnlocked(card);
-    trackEvent('unlocked', {
+    singleGate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', {
       readingType: 'egyptian_gods_single',
       cardName: card.name,
       email,
@@ -133,26 +128,6 @@ function EgyptianGodsPage() {
       window.scrollTo(0, 0);
     }
   }, [hasDrawn]);
-
-  useEffect(() => {
-    if (!deck || deck.length === 0) return;
-    if (pastlifeSlots.length > 0) return;
-    if (searchParams.get('order_id')) return;
-    const pending = consumePendingDraw('egyptian_pastlife');
-    if (!pending) return;
-    const slots = pending.picks
-      .map((p, i) => {
-        const preview = deck.find((c) => c.card_key === p.card_key);
-        if (!preview) return null;
-        return { preview, position: PASTLIFE_POSITIONS[i], full: null };
-      })
-      .filter((s): s is PastlifeSlot => !!s);
-    if (slots.length !== pending.picks.length) return;
-    setSpreadType('pastlife');
-    setShowCardLayout(true);
-    setPastlifeSlots(slots);
-    setHasDrawn(true);
-  }, [deck, pastlifeSlots.length]);
 
   const restoreStartedRef = useRef(false);
   useEffect(() => {
@@ -217,43 +192,56 @@ function EgyptianGodsPage() {
     setShowCardLayout(true);
   };
 
-  const handleUnlockPastlife = async () => {
-    if (!user) {
-      const pendingPicks = pastlifeSlots.map((s, i) => ({
-        card_key: s.preview.card_key,
-        position: i + 1,
-      }));
-      savePendingDraw('egyptian_pastlife', pendingPicks);
-      setShowLoginPrompt(true);
-      return;
-    }
+  const handleCheckoutPastlife = async () => {
     if (isCheckingOut) return;
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
-      const checkoutPicks = pastlifeSlots.map((s, i) => ({
-        card_key: s.preview.card_key,
-        position: i + 1,
-      }));
+      const checkoutPicks = pastlifeSlots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder('egyptian_pastlife', checkoutPicks);
-      if (admin_unlocked) {
-        navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
-        return;
-      }
-      if (!ecpay) {
-        setUnlockError('結帳資料缺失,請重試');
-        setIsCheckingOut(false);
-        return;
-      }
-      submitToEcpay(ecpay, () => {
-        setUnlockError('跳轉至綠界失敗 — 請確認瀏覽器未阻擋自動表單送出後重試');
-        setIsCheckingOut(false);
-      });
+      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
     } catch (err) {
       setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
       setIsCheckingOut(false);
     }
   };
+
+  const singleGate = useSingleCardGate({
+    spreadId: 'egyptian_single',
+    cardKey: singlePreview?.card_key ?? null,
+    enabled: !!(singlePreview && hasDrawn && spreadType === 'single' && !singleUnlocked),
+  });
+
+  useEffect(() => {
+    if (singleGate.unlockedCard && !singleUnlocked) setSingleUnlocked(singleGate.unlockedCard);
+  }, [singleGate.unlockedCard]);
+
+  const pastlifePicks = hasDrawn && pastlifeSlots.length === 7 && spreadType === 'pastlife'
+    ? pastlifeSlots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }))
+    : null;
+
+  const pastlifeGate = useMultiSpreadGate({
+    spreadId: 'egyptian_pastlife',
+    picks: pastlifePicks,
+    enabled: hasDrawn && pastlifeSlots.length === 7 && !isPastlifeUnlocked,
+  });
+
+  useEffect(() => {
+    if (!pastlifeGate.unlockedCards || isPastlifeUnlocked) return;
+    const byKey = new Map(pastlifeGate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
+    setPastlifeSlots((prev) => prev.map((s) => {
+      const u = byKey.get(s.preview.card_key);
+      if (!u) return s;
+      const previewSymbol = (s.preview.preview as { symbol?: string }).symbol ?? '';
+      return {
+        ...s,
+        full: { ...(u.gated as EgyptianGated), titleChinese: u.name, title: u.name_secondary ?? '', symbol: previewSymbol },
+      };
+    }));
+    setIsPastlifeUnlocked(true);
+  }, [pastlifeGate.unlockedCards]);
 
   const singleGated = singleUnlocked?.gated as EgyptianGated | undefined;
   const isSingleUnlocked = !!singleGated;
@@ -372,12 +360,18 @@ function EgyptianGodsPage() {
                         前 30% 預覽 — 留下 Email 解鎖完整解析
                       </p>
                     </div>
-                    <InlineEmailUnlock
-                      onUnlocked={handleEmailSubmitted}
-                      readingType="egyptian_gods_single"
-                      theme="dark"
-                      cardUnlock={{ spread_id: 'egyptian_single', card_key: singlePreview.card_key }}
-                    />
+                    {singleGate.phase === 'loading' && (
+                      <div className="text-center text-yellow-300/70 py-4 tracking-wider">解鎖中…</div>
+                    )}
+                    {singleGate.phase === 'email_gate' && (
+                      <InlineEmailUnlock
+                        onUnlocked={handleEmailSubmitted}
+                        readingType="egyptian_gods_single"
+                        theme="dark"
+                        cardUnlock={{ spread_id: 'egyptian_single', card_key: singlePreview.card_key }}
+                      />
+                    )}
+                    <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
                   </>
                 )}
 
@@ -453,18 +447,23 @@ function EgyptianGodsPage() {
                   })}
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
-                  <Lock className="w-10 h-10 text-yellow-500 mx-auto" strokeWidth={1.2} />
-                  <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.3em]">解鎖完整前世因果訊息</h3>
-                  <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
-                    解鎖七張牌的完整靈魂解讀,揭開你前世與今生的連結。
-                  </p>
-                  <p className="font-serif text-2xl text-yellow-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('egyptian_pastlife') ?? 0)}</p>
-                  {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
-                  <button onClick={handleUnlockPastlife} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-medium rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isCheckingOut ? '跳　轉　至　綠　界…' : '立　即　解　鎖'}
-                  </button>
-                </div>
+                {pastlifeGate.phase === 'loading' && (
+                  <div className="text-center text-yellow-300/70 py-6 tracking-wider">解鎖中…</div>
+                )}
+                {pastlifeGate.phase === 'paywall' && (
+                  <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
+                    <Lock className="w-10 h-10 text-yellow-500 mx-auto" strokeWidth={1.2} />
+                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.3em]">解鎖完整前世因果訊息</h3>
+                    <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
+                      解鎖七張牌的完整靈魂解讀,揭開你前世與今生的連結。
+                    </p>
+                    <p className="font-serif text-2xl text-yellow-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('egyptian_pastlife') ?? 0)}</p>
+                    {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
+                    <button onClick={handleCheckoutPastlife} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-medium rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                      {isCheckingOut ? '跳　轉　至　綠　界…' : '立　即　解　鎖'}
+                    </button>
+                  </div>
+                )}
               </>
             )}
 
@@ -549,11 +548,6 @@ function EgyptianGodsPage() {
 
       </div>
 
-      <LoginPromptModal
-        isOpen={showLoginPrompt}
-        onClose={() => setShowLoginPrompt(false)}
-        redirectTo={`/egyptian-gods?spread=${spreadType ?? 'pastlife'}`}
-      />
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
       <CrystalReminderBar isVisible={showReminder} onClose={handleReminderClose} />
     </div>

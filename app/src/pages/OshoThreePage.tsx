@@ -5,14 +5,11 @@ import { generateThreeCardInterpretation } from '../utils/oshoThreeCardInterpret
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
-import { PaywallModal } from '../components/PaywallModal';
-import { PaywallGate } from '../components/PaywallGate';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
-import { useSpreadAccess } from '../hooks/useSpreadAccess';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
-import { type CardPreview, checkoutApi } from '../lib/api';
-import { consumePendingDraw } from '../lib/pendingDraw';
+import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
+import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
+import { submitToEcpay } from '../lib/ecpayRedirect';
+import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 
 const SPREAD_ID = 'osho_three';
@@ -41,16 +38,13 @@ interface ThreeCardReading {
 export default function OshoThreePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('osho');
   const [reading, setReading] = useState<ThreeCardReading | null>(null);
   const [isRevealing, setIsRevealing] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [isLocallyUnlocked, setIsLocallyUnlocked] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { showModal, handleClose } = useCrystalPromo(!!reading && !isRevealing);
-  const { userState } = useSpreadAccess(SPREAD_ID);
 
   const drawCards = () => {
     if (!deck || deck.length === 0) return;
@@ -78,41 +72,11 @@ export default function OshoThreePage() {
     setUnlockError(null);
   };
 
-  const handleUnlockClick = () => {
-    if (userState === 'guest') {
-      setShowLoginPrompt(true);
-    } else if (userState === 'user_free') {
-      setShowPaywall(true);
-    }
-  };
-
   useEffect(() => {
     if (reading && !isRevealing) {
       window.scrollTo(0, 0);
     }
   }, [reading, isRevealing]);
-
-  useEffect(() => {
-    if (!deck || deck.length === 0) return;
-    if (reading) return;
-    if (searchParams.get('order_id')) return;
-    const pending = consumePendingDraw(SPREAD_ID);
-    if (!pending) return;
-    const find = (pos: number): CardPreview | undefined => {
-      const pick = pending.picks.find((p) => p.position === pos);
-      if (!pick) return undefined;
-      return deck.find((c) => c.card_key === pick.card_key);
-    };
-    const inner = find(1);
-    const outer = find(2);
-    const integration = find(3);
-    if (!inner || !outer || !integration) return;
-    setReading({
-      inner:       { preview: inner,       full: null },
-      outer:       { preview: outer,       full: null },
-      integration: { preview: integration, full: null },
-    });
-  }, [deck, reading]);
 
   const restoreStartedRef = useRef(false);
   useEffect(() => {
@@ -177,10 +141,51 @@ export default function OshoThreePage() {
     })();
   }, [searchParams, deck]);
 
-  const handleMockUnlock = async () => {
-    if (!user) { setShowLoginPrompt(true); return; }
-    setShowPaywall(true);
+  const handleCheckout = async () => {
+    if (!reading || isCheckingOut) return;
+    setUnlockError(null);
+    setIsCheckingOut(true);
+    try {
+      const picks = [
+        { card_key: reading.inner.preview.card_key,       position: 1 },
+        { card_key: reading.outer.preview.card_key,       position: 2 },
+        { card_key: reading.integration.preview.card_key, position: 3 },
+      ];
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, picks);
+      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
+    } catch (err) {
+      setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
+      setIsCheckingOut(false);
+    }
   };
+
+  const picks = reading ? [
+    { card_key: reading.inner.preview.card_key,       position: 1 },
+    { card_key: reading.outer.preview.card_key,       position: 2 },
+    { card_key: reading.integration.preview.card_key, position: 3 },
+  ] : null;
+
+  const gate = useMultiSpreadGate({ spreadId: SPREAD_ID, picks, enabled: !!reading && !isLocallyUnlocked });
+
+  useEffect(() => {
+    if (!gate.unlockedCards || isLocallyUnlocked || !reading) return;
+    const byKey = new Map(gate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
+    const synth = (slot: { preview: CardPreview }): FullCard | null => {
+      const u = byKey.get(slot.preview.card_key);
+      if (!u) return null;
+      const m = (u.gated as { meanings?: OshoMeanings }).meanings;
+      if (!m) return null;
+      return { card_key: slot.preview.card_key, name: u.name, subtitle: u.name_secondary ?? '', meanings: m };
+    };
+    setReading({
+      inner:       { ...reading.inner,       full: synth(reading.inner) },
+      outer:       { ...reading.outer,       full: synth(reading.outer) },
+      integration: { ...reading.integration, full: synth(reading.integration) },
+    });
+    setIsLocallyUnlocked(true);
+  }, [gate.unlockedCards]);
 
   if (!reading && !isRevealing) {
     return (
@@ -340,81 +345,85 @@ export default function OshoThreePage() {
           <p className="text-teal-300/70">內在與外在的整合之旅</p>
         </div>
 
-        <>
-          {unlockError && (
-            <div className="border border-red-500/45 bg-red-500/10 px-4 py-3 mb-5 text-sm text-red-200 tracking-wide text-center rounded-lg">
-              {unlockError}
+        {unlockError && (
+          <div className="border border-red-500/45 bg-red-500/10 px-4 py-3 mb-5 text-sm text-red-200 tracking-wide text-center rounded-lg">
+            {unlockError}
+          </div>
+        )}
+
+        {!isLocallyUnlocked ? (
+          <div className="space-y-6 mb-8">
+            <div className="grid lg:grid-cols-3 gap-8">
+              {previewSlot(reading.inner,       '內在感受', 'Inner',       'teal')}
+              {previewSlot(reading.outer,       '外在表現', 'Outer',       'cyan')}
+              {previewSlot(reading.integration, '整合建議', 'Integration', 'teal')}
             </div>
-          )}
-          <PaywallGate
-            spreadName="奧修三張牌陣"
-            spreadId="osho_three"
-            onUnlock={handleMockUnlock}
-            isPaid={isLocallyUnlocked}
-            picks={[
-              { card_key: reading.inner.preview.card_key,       position: 1 },
-              { card_key: reading.outer.preview.card_key,       position: 2 },
-              { card_key: reading.integration.preview.card_key, position: 3 },
-            ]}
-            previewContent={
-              <div className="space-y-6 mb-8">
-                <div className="grid lg:grid-cols-3 gap-8">
-                  {previewSlot(reading.inner,       '內在感受', 'Inner',       'teal')}
-                  {previewSlot(reading.outer,       '外在表現', 'Outer',       'cyan')}
-                  {previewSlot(reading.integration, '整合建議', 'Integration', 'teal')}
+            {gate.phase === 'loading' && (
+              <div className="flex items-center justify-center gap-3 py-6 text-teal-300 text-sm tracking-wide">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                解鎖中…
+              </div>
+            )}
+            {gate.phase === 'paywall' && (
+              <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8 text-center space-y-5">
+                <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
+                <h3 className="font-serif text-2xl text-teal-100">解鎖完整奧修三張牌陣</h3>
+                <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">展開三張牌的完整解讀，揭示內在、外在與整合的能量脈絡。</p>
+                <p className="font-serif text-2xl text-teal-200 tracking-[0.3em]">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
+                <button onClick={handleCheckout} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          showFullContent ? (
+            <div className="space-y-8 mb-8">
+              <div className="grid lg:grid-cols-3 gap-8">
+                {fullSlot(reading.inner.full!, '內在感受', 'Inner', 'teal', [
+                  { heading: '當下能量狀態', key: 'currentEnergy' },
+                  { heading: '情緒與潛意識', key: 'emotionalInsight' },
+                ])}
+                {fullSlot(reading.outer.full!, '外在表現', 'Outer', 'cyan', [
+                  { heading: '今日指引 / 靈性訊息', key: 'dailyGuidance' },
+                  { heading: '卡關點解析', key: 'blockageAnalysis' },
+                ])}
+                {fullSlot(reading.integration.full!, '整合建議', 'Integration', 'teal', [
+                  { heading: '冥想入口', key: 'meditationEntry' },
+                ])}
+              </div>
+              <div className="max-w-4xl mx-auto bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8">
+                <h3 className="text-2xl font-serif text-teal-200 mb-6 text-center">整體解讀</h3>
+                <div className="space-y-6 text-teal-100/90 leading-relaxed">
+                  <div className="bg-slate-900/40 border border-teal-500/20 rounded-lg p-6">
+                    <p className="text-base leading-loose whitespace-pre-line">
+                      {generateThreeCardInterpretation({
+                        inner:       { id: Number(reading.inner.preview.card_key)       || 0, name: reading.inner.full!.name,       subtitle: reading.inner.full!.subtitle,       meanings: reading.inner.full!.meanings },
+                        outer:       { id: Number(reading.outer.preview.card_key)       || 0, name: reading.outer.full!.name,       subtitle: reading.outer.full!.subtitle,       meanings: reading.outer.full!.meanings },
+                        integration: { id: Number(reading.integration.preview.card_key) || 0, name: reading.integration.full!.name, subtitle: reading.integration.full!.subtitle, meanings: reading.integration.full!.meanings },
+                      })}
+                    </p>
+                  </div>
+                  <div className="border-t border-teal-500/30 pt-6">
+                    <p className="text-center text-teal-200/70 italic text-sm">這三張牌共同指引你找到內在與外在的平衡點，達到中心的寧靜。讓這些訊息在你心中迴響，找到屬於你的整合之道。</p>
+                  </div>
                 </div>
               </div>
-            }
-            fullContent={
-              showFullContent ? (
-                <div className="space-y-8 mb-8">
-                  <div className="grid lg:grid-cols-3 gap-8">
-                    {fullSlot(reading.inner.full!, '內在感受', 'Inner', 'teal', [
-                      { heading: '當下能量狀態', key: 'currentEnergy' },
-                      { heading: '情緒與潛意識', key: 'emotionalInsight' },
-                    ])}
-                    {fullSlot(reading.outer.full!, '外在表現', 'Outer', 'cyan', [
-                      { heading: '今日指引 / 靈性訊息', key: 'dailyGuidance' },
-                      { heading: '卡關點解析', key: 'blockageAnalysis' },
-                    ])}
-                    {fullSlot(reading.integration.full!, '整合建議', 'Integration', 'teal', [
-                      { heading: '冥想入口', key: 'meditationEntry' },
-                    ])}
-                  </div>
-                  <div className="max-w-4xl mx-auto bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8">
-                    <h3 className="text-2xl font-serif text-teal-200 mb-6 text-center">整體解讀</h3>
-                    <div className="space-y-6 text-teal-100/90 leading-relaxed">
-                      <div className="bg-slate-900/40 border border-teal-500/20 rounded-lg p-6">
-                        <p className="text-base leading-loose whitespace-pre-line">
-                          {generateThreeCardInterpretation({
-                            inner:       { id: Number(reading.inner.preview.card_key)       || 0, name: reading.inner.full!.name,       subtitle: reading.inner.full!.subtitle,       meanings: reading.inner.full!.meanings },
-                            outer:       { id: Number(reading.outer.preview.card_key)       || 0, name: reading.outer.full!.name,       subtitle: reading.outer.full!.subtitle,       meanings: reading.outer.full!.meanings },
-                            integration: { id: Number(reading.integration.preview.card_key) || 0, name: reading.integration.full!.name, subtitle: reading.integration.full!.subtitle, meanings: reading.integration.full!.meanings },
-                          })}
-                        </p>
-                      </div>
-                      <div className="border-t border-teal-500/30 pt-6">
-                        <p className="text-center text-teal-200/70 italic text-sm">這三張牌共同指引你找到內在與外在的平衡點，達到中心的寧靜。讓這些訊息在你心中迴響，找到屬於你的整合之道。</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-6 mb-8">
-                  <div className="grid lg:grid-cols-3 gap-8">
-                    {previewSlot(reading.inner,       '內在感受', 'Inner',       'teal')}
-                    {previewSlot(reading.outer,       '外在表現', 'Outer',       'cyan')}
-                    {previewSlot(reading.integration, '整合建議', 'Integration', 'teal')}
-                  </div>
-                  <div className="flex items-center justify-center gap-3 py-6 text-teal-300 text-sm tracking-wide">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    正在為你載入完整解讀…
-                  </div>
-                </div>
-              )
-            }
-          />
-          </>
+            </div>
+          ) : (
+            <div className="space-y-6 mb-8">
+              <div className="grid lg:grid-cols-3 gap-8">
+                {previewSlot(reading.inner,       '內在感受', 'Inner',       'teal')}
+                {previewSlot(reading.outer,       '外在表現', 'Outer',       'cyan')}
+                {previewSlot(reading.integration, '整合建議', 'Integration', 'teal')}
+              </div>
+              <div className="flex items-center justify-center gap-3 py-6 text-teal-300 text-sm tracking-wide">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                正在為你載入完整解讀…
+              </div>
+            </div>
+          )
+        )}
 
         <TarotCourseCTA />
 
@@ -431,13 +440,6 @@ export default function OshoThreePage() {
       </div>
 
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
-      <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} redirectTo="/osho/three" />
-      <PaywallModal
-        isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        spreadName="奧修三張牌陣"
-        spreadType={SPREAD_ID}
-      />
     </div>
   );
 }

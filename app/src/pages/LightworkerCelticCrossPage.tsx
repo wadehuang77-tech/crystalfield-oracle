@@ -8,8 +8,6 @@ import {
   generateOverallLifePathSummary,
   type LightworkerCard,
 } from '../utils/celticCrossInterpretation';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginPromptModal } from '../components/LoginPromptModal';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
@@ -17,11 +15,9 @@ import { useConversionTracking, usePageView } from '../hooks/useConversionTracki
 import { checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import { PaywallModal } from '../components/PaywallModal';
-import { useSpreadAccess } from '../hooks/useSpreadAccess';
+import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
-import { type CardPreview } from '../lib/api';
-import { savePendingDraw, consumePendingDraw } from '../lib/pendingDraw';
+import { type CardPreview, type UnlockedCard } from '../lib/api';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 const SPREAD_ID = 'celtic_cross';
@@ -51,18 +47,14 @@ const POSITIONS: Omit<CardPosition, 'preview' | 'full'>[] = [
 function LightworkerCelticCrossPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('lightworker');
   const [isShuffling, setIsShuffling] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [isLocallyUnlocked, setIsLocallyUnlocked] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const { showModal, handleClose } = useCrystalPromo(hasDrawn && !isShuffling);
   const { trackEvent } = useConversionTracking();
-  const { userState } = useSpreadAccess(SPREAD_ID);
 
   usePageView('lightworker_celtic_cross');
 
@@ -107,23 +99,6 @@ function LightworkerCelticCrossPage() {
       window.scrollTo(0, 0);
     }
   }, [hasDrawn]);
-
-  useEffect(() => {
-    if (!deck || deck.length === 0) return;
-    if (selectedCards.some((c) => c.preview)) return;
-    if (searchParams.get('order_id')) return;
-    const pending = consumePendingDraw(SPREAD_ID);
-    if (!pending) return;
-    const next: CardPosition[] = POSITIONS.map((p) => {
-      const pick = pending.picks.find((q) => q.position === p.position);
-      if (!pick) return { ...p, preview: null, full: null };
-      const preview = deck.find((c) => c.card_key === pick.card_key);
-      return { ...p, preview: preview ?? null, full: null };
-    });
-    if (next.some((c) => !c.preview)) return;
-    setSelectedCards(next);
-    setHasDrawn(true);
-  }, [deck, selectedCards]);
 
   const restoreStartedRef = useRef(false);
   const [restoreState, setRestoreState] = useState<'idle' | 'pending' | 'done' | 'error'>('idle');
@@ -190,41 +165,54 @@ function LightworkerCelticCrossPage() {
   }, [searchParams, deck]);
 
 
-  const handleMockUnlock = async () => {
-    if (!user) {
-      const pendingPicks = selectedCards
-        .filter((c) => c.preview)
-        .map((c) => ({ card_key: c.preview!.card_key, position: c.position }));
-      savePendingDraw(SPREAD_ID, pendingPicks);
-      setShowLoginPrompt(true);
-      return;
-    }
+  const handleCheckout = async () => {
     if (isCheckingOut) return;
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
-      const checkoutPicks = selectedCards
-        .filter((c) => c.preview)
-        .map((c) => ({ card_key: c.preview!.card_key, position: c.position }));
+      const checkoutPicks = selectedCards.filter((c) => c.preview).map((c) => ({ card_key: c.preview!.card_key, position: c.position }));
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, checkoutPicks);
-      if (admin_unlocked) {
-        navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
-        return;
-      }
-      if (!ecpay) {
-        setUnlockError('結帳資料缺失,請重試');
-        setIsCheckingOut(false);
-        return;
-      }
-      submitToEcpay(ecpay, () => {
-        setUnlockError('跳轉至綠界失敗 — 請確認瀏覽器未阻擋自動表單送出後重試');
-        setIsCheckingOut(false);
-      });
+      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
     } catch (err) {
       setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
       setIsCheckingOut(false);
     }
   };
+
+  const gatePicks = hasDrawn && selectedCards.some((c) => c.preview)
+    ? selectedCards.filter((c) => c.preview).map((c) => ({ card_key: c.preview!.card_key, position: c.position }))
+    : null;
+
+  const gate = useMultiSpreadGate({ spreadId: SPREAD_ID, picks: gatePicks, enabled: hasDrawn && !isLocallyUnlocked });
+
+  useEffect(() => {
+    if (!gate.unlockedCards || isLocallyUnlocked) return;
+    const byKey = new Map(gate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
+    setSelectedCards((prev) => prev.map((c) => {
+      if (!c.preview) return c;
+      const u = byKey.get(c.preview.card_key);
+      if (!u) return c;
+      const previewKw = (c.preview.preview as { keywords?: string[] }).keywords ?? [];
+      const g = u.gated as Partial<LightworkerCard>;
+      return {
+        ...c,
+        full: {
+          name: u.name,
+          nameEn: u.name_secondary ?? undefined,
+          keywords: previewKw,
+          cosmicMessage: g.cosmicMessage ?? '',
+          currentSituation: g.currentSituation ?? '',
+          deeperMeaning: g.deeperMeaning ?? '',
+          actionGuidance: g.actionGuidance ?? '',
+          energyHealing: g.energyHealing ?? '',
+          soulQuestion: g.soulQuestion ?? '',
+        },
+      };
+    }));
+    setIsLocallyUnlocked(true);
+  }, [gate.unlockedCards]);
 
   const showFullContent = isLocallyUnlocked && selectedCards.every((c) => c.full !== null);
 
@@ -377,28 +365,31 @@ function LightworkerCelticCrossPage() {
                   </div>
                 ))}
 
-                <div className="bg-gradient-to-br from-slate-900/40 to-slate-900/40 border-2 border-cyan-400/50 rounded-2xl p-8 text-center shadow-2xl shadow-cyan-900/30">
-                  <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/30 to-cyan-500/30 rounded-full flex items-center justify-center border-2 border-cyan-400/40">
-                      <Lock className="w-7 h-7 text-cyan-300" />
+                {gate.phase === 'loading' && (
+                  <div className="text-center text-cyan-300/70 py-6 tracking-wider">解鎖中…</div>
+                )}
+                {gate.phase === 'paywall' && (
+                  <div className="bg-gradient-to-br from-slate-900/40 to-slate-900/40 border-2 border-cyan-400/50 rounded-2xl p-8 text-center shadow-2xl shadow-cyan-900/30">
+                    <div className="flex justify-center mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/30 to-cyan-500/30 rounded-full flex items-center justify-center border-2 border-cyan-400/40">
+                        <Lock className="w-7 h-7 text-cyan-300" />
+                      </div>
                     </div>
+                    <h3 className="text-2xl font-serif text-cyan-100 mb-3 tracking-wide">解鎖完整使命指引</h3>
+                    <p className="text-cyan-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
+                      更深層的指引與轉化在後面。解鎖十張牌的完整靈魂使命解讀，揭示你的靈性道路全貌。
+                    </p>
+                    <p className="font-serif text-2xl text-cyan-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
+                    {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
+                    <button
+                      onClick={handleCheckout}
+                      disabled={isCheckingOut}
+                      className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-cyan-500 hover:from-cyan-400 hover:to-cyan-400 text-cyan-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
+                    </button>
                   </div>
-                  <h3 className="text-2xl font-serif text-cyan-100 mb-3 tracking-wide">
-                    解鎖完整使命指引
-                  </h3>
-                  <p className="text-cyan-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
-                    更深層的指引與轉化在後面。解鎖十張牌的完整靈魂使命解讀，揭示你的靈性道路全貌。
-                  </p>
-                  <p className="font-serif text-2xl text-cyan-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
-                  {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
-                  <button
-                    onClick={handleMockUnlock}
-                    disabled={isCheckingOut}
-                    className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-cyan-500 hover:from-cyan-400 hover:to-cyan-400 text-cyan-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  >
-                    {isCheckingOut ? '跳轉至綠界…' : userState === 'guest' ? '登入後解鎖' : '立即解鎖'}
-                  </button>
-                </div>
+                )}
               </div>
             )}
 
@@ -529,14 +520,7 @@ function LightworkerCelticCrossPage() {
         .animate-fade-in { animation: fade-in 0.6s ease-out; }
       `}</style>
 
-      <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} redirectTo="/lightworker/celtic-cross" />
       <CrystalGridPromoModal isOpen={showModal} onClose={handleClose} />
-      <PaywallModal
-        isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        spreadName="光之工作者凱爾特十字牌陣"
-        spreadType={SPREAD_ID}
-      />
     </div>
   );
 }

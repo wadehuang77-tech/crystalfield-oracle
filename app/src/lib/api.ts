@@ -304,6 +304,21 @@ export const cardsApi = {
   deckPreview: (deckId: DeckId) =>
     req<{ deck_id: DeckId; cards: CardPreview[] }>(`/api/decks/${encodeURIComponent(deckId)}/preview`),
 
+  freeUnlockSingle: (spread_id: string, card_key: string, reversed = false) =>
+    req<{ card: UnlockedCard }>('/api/cards/free-unlock-single', {
+      method: 'POST',
+      body: { spread_id, card_key, reversed },
+    }),
+
+  freeUnlockSpread: (
+    spread_id: string,
+    picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
+  ) =>
+    req<{ spread_id: string; cards: UnlockedCard[] }>('/api/cards/free-unlock-spread', {
+      method: 'POST',
+      body: { spread_id, picks },
+    }),
+
   unlockSingle: (spread_id: string, card_key: string, email: string, reversed = false) =>
     req<{ card: UnlockedCard }>('/api/cards/single-unlock', {
       method: 'POST',

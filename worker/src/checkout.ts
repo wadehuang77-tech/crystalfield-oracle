@@ -135,7 +135,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     ).bind(orderId).run();
 
     // Grant access immediately (mirrors webhook logic) so admins can test unlock flow
-    if (item.id.startsWith('numerology_')) {
+    if (item.id.startsWith('numerology_') || item.id === 'membership_monthly') {
       await env.DB.prepare(`
         UPDATE profiles
         SET purchased_spreads = (

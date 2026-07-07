@@ -6,9 +6,11 @@ import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
+import { useSingleCardGate } from '../hooks/useSingleCardGate';
 
 interface OshoGated {
   meanings: {
@@ -75,10 +77,19 @@ export default function OshoSinglePage() {
     setIsRevealing(false);
   };
 
+  const gate = useSingleCardGate({
+    spreadId: 'osho_single',
+    cardKey: drawnPreview?.card_key ?? null,
+    enabled: !!(drawnPreview && !isRevealing && !unlocked),
+  });
+
+  useEffect(() => {
+    if (gate.unlockedCard && !unlocked) setUnlocked(gate.unlockedCard);
+  }, [gate.unlockedCard]);
+
   const handleUnlocked = (email: string, card?: UnlockedCard) => {
-    if (!card) return;
-    setUnlocked(card);
-    trackEvent('unlocked', { readingType: 'osho_single', email });
+    gate.onEmailUnlocked(email, card);
+    if (card) trackEvent('unlocked', { readingType: 'osho_single', email });
   };
 
   const isUnlocked = !!unlocked;
@@ -170,31 +181,33 @@ export default function OshoSinglePage() {
 
             {!isUnlocked && (
               <>
-                <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-6">
-                  <h3 className="text-xl font-semibold mb-3 text-teal-200 flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-teal-400/50 text-sm font-serif text-teal-200">1</span>
-                    當下能量狀態
-                  </h3>
-                  {drawnPreview.preview_excerpt && (
-                    <div className="bg-slate-900/50 rounded-lg p-4 border border-teal-400/30 relative">
-                      <p className="text-teal-100/90 leading-relaxed">
-                        {drawnPreview.preview_excerpt}
-                      </p>
-                      <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900/95 pointer-events-none rounded-b-lg" />
+                {gate.phase === 'loading' && (
+                  <div className="text-center text-teal-300/70 py-6 tracking-wider">解鎖中…</div>
+                )}
+                {gate.phase === 'email_gate' && (
+                  <>
+                    <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-6">
+                      <h3 className="text-xl font-semibold mb-3 text-teal-200 flex items-center gap-3">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-teal-400/50 text-sm font-serif text-teal-200">1</span>
+                        當下能量狀態
+                      </h3>
+                      {drawnPreview.preview_excerpt && (
+                        <div className="bg-slate-900/50 rounded-lg p-4 border border-teal-400/30 relative">
+                          <p className="text-teal-100/90 leading-relaxed">{drawnPreview.preview_excerpt}</p>
+                          <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900/95 pointer-events-none rounded-b-lg" />
+                        </div>
+                      )}
+                      <p className="text-teal-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
                     </div>
-                  )}
-                  <p className="text-teal-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
-                </div>
-
-                <InlineEmailUnlock
-                  onUnlocked={handleUnlocked}
-                  readingType="osho_single"
-                  theme="dark"
-                  cardUnlock={{
-                    spread_id: 'osho_single',
-                    card_key: drawnPreview.card_key,
-                  }}
-                />
+                    <InlineEmailUnlock
+                      onUnlocked={handleUnlocked}
+                      readingType="osho_single"
+                      theme="dark"
+                      cardUnlock={{ spread_id: 'osho_single', card_key: drawnPreview.card_key }}
+                    />
+                  </>
+                )}
+                <MembershipGate isOpen={gate.showMembership} onClose={() => gate.setShowMembership(false)} />
               </>
             )}
           </div>
