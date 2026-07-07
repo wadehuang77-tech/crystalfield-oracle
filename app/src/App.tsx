@@ -55,7 +55,7 @@ function RouterBody() {
           <Route path="/osho" element={<OshoPage />} />
           <Route path="/osho/single" element={<OshoSinglePage />} />
           <Route path="/osho/three" element={<OshoThreePage />} />
-          <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturnPage /></ProtectedRoute>} />
+          <Route path="/checkout/return" element={<CheckoutReturnPage />} />
           <Route path="/numerology" element={<NumerologyPage />} />
           <Route path="/human-design" element={<Navigate to="/" replace />} />
         </Routes>
