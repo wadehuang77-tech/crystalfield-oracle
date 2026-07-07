@@ -460,7 +460,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                               } as React.CSSProperties}
                             >
                               <Lock style={{ width: 13, height: 13 }} />
-                              解鎖基礎版 NT$250
+                              解鎖基礎版 NT$10
                             </button>
                           </div>
                         </div>
@@ -495,8 +495,8 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
         />
       )}
 
-      {/* Crystal Bracelet Recommendation — tier 3 only */}
-      {tier >= 3 ? (
+      {/* Crystal Bracelet Recommendation — tier 2+ */}
+      {tier >= 2 ? (
         <CrystalBracelet report={report} tier={tier} onUpgrade={onUpgrade} />
       ) : (
         <div
@@ -521,7 +521,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
             }}>
               <Lock className="w-5 h-5" style={{ color: '#a78bfa' }} />
               <button
-                onClick={() => onUpgrade(3)}
+                onClick={() => onUpgrade(2)}
                 style={{
                   padding: '9px 20px', borderRadius: 10,
                   border: '1px solid rgba(167,139,250,0.35)',
@@ -530,7 +530,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                   cursor: 'pointer', touchAction: 'manipulation',
                 } as React.CSSProperties}
               >
-                解鎖完整靈魂版 NT$599
+                解鎖進階版查看
               </button>
             </div>
           </div>

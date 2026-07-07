@@ -386,7 +386,7 @@ export default function PersonalYearForecast({ report, tier, onUpgrade, forecast
                   解鎖完整年度流年報告
                 </p>
                 <p style={{ margin: '4px 0 0', fontSize: 11, color: `${color}70` }}>
-                  一次付費 NT$499 永久查看
+                  NT$10 永久查看
                 </p>
               </div>
               <div style={{
@@ -418,7 +418,7 @@ export default function PersonalYearForecast({ report, tier, onUpgrade, forecast
                 } as React.CSSProperties}
               >
                 <Lock style={{ width: 13, height: 13 }} />
-                解鎖完整靈魂版 NT$599
+                解鎖完整流年報告 NT$10
               </button>
             </div>
           </div>

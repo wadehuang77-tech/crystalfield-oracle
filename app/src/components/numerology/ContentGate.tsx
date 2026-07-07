@@ -6,6 +6,7 @@ interface ContentGateProps {
   onUpgrade: (required: PlanTier) => void;
   accentColor?: string;
   previewHeight?: number;
+  emailUnlocked?: boolean;
   children: React.ReactNode;
 }
 
@@ -15,16 +16,17 @@ export default function ContentGate({
   onUpgrade,
   accentColor = '#a78bfa',
   previewHeight = 160,
+  emailUnlocked = false,
   children,
 }: ContentGateProps) {
-  if (currentTier >= requiredTier) return <>{children}</>;
+  if (currentTier >= requiredTier || emailUnlocked) return <>{children}</>;
 
   const gateColor = accentColor;
   const label = requiredTier === 1
-    ? '解鎖基礎版 NT$250，查看完整內容'
+    ? '解鎖基礎版 NT$10，查看完整內容'
     : requiredTier === 2
-    ? '解鎖進階版 NT$399，查看完整內容'
-    : '解鎖完整靈魂版 NT$599，查看完整內容';
+    ? '解鎖進階版 NT$10，查看完整內容'
+    : '解鎖完整靈魂版 NT$10，查看完整內容';
   const btnLabel = '解鎖完整解析';
 
   return (

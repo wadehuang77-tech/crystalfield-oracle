@@ -28,8 +28,8 @@ const PLANS: Record<PlanKey, {
   basic: {
     tier: 1,
     name: '基礎版',
-    price: 'NT$250',
-    priceNum: '250',
+    price: 'NT$10',
+    priceNum: '10',
     color: '#5eead4',
     includes: [
       '完整生命靈數解析',
@@ -43,13 +43,13 @@ const PLANS: Record<PlanKey, {
       '神聖水晶陣指引',
       '靜心冥想儀式指引',
     ],
-    buttonLabel: '立即解鎖 基礎版 NT$250',
+    buttonLabel: '立即解鎖 基礎版 NT$10',
   },
   advanced: {
     tier: 2,
     name: '進階版',
-    price: 'NT$399',
-    priceNum: '399',
+    price: 'NT$10',
+    priceNum: '10',
     color: '#a78bfa',
     includes: [
       '完整生命靈數解析',
@@ -57,18 +57,18 @@ const PLANS: Record<PlanKey, {
       '高頻水晶療癒方案',
       '靈魂藍圖 × 當下能量交叉指引',
       '當下靈數卡關點揭示',
+      '神聖水晶陣指引',
     ],
     excludes: [
-      '神聖水晶陣指引',
       '靜心冥想儀式指引',
     ],
-    buttonLabel: '立即解鎖 進階版 NT$399',
+    buttonLabel: '立即解鎖 進階版 NT$10',
   },
   full: {
     tier: 3,
     name: '完整靈魂版',
-    price: 'NT$599',
-    priceNum: '599',
+    price: 'NT$10',
+    priceNum: '10',
     color: '#fbbf24',
     badge: '最完整',
     badgeIcon: '✦',
@@ -83,7 +83,7 @@ const PLANS: Record<PlanKey, {
       '靜心冥想儀式指引',
     ],
     excludes: [],
-    buttonLabel: '立即解鎖 完整靈魂版 NT$599',
+    buttonLabel: '立即解鎖 完整靈魂版 NT$10',
   },
 };
 
@@ -92,7 +92,7 @@ const COMPARE_ROWS = [
   { label: '缺失數字 × 水晶療癒方案',   basic: true,  advanced: true,  full: true  },
   { label: '靈魂藍圖 × 當下能量交叉指引', basic: false, advanced: true, full: true  },
   { label: '當下靈數卡關點揭示',         basic: false, advanced: true,  full: true  },
-  { label: '神聖水晶陣指引',             basic: false, advanced: false, full: true  },
+  { label: '神聖水晶陣指引',             basic: false, advanced: true,  full: true  },
   { label: '靜心冥想儀式指引',           basic: false, advanced: false, full: true  },
 ];
 
@@ -255,9 +255,9 @@ export default function UpgradeModal({ onClose, onConfirm, defaultTier, currentT
               borderBottom: '1px solid rgba(255,255,255,0.06)',
             }}>
               <span style={{ color: 'rgba(196,181,253,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: 10 }}>功能</span>
-              <span style={{ textAlign: 'center', color: '#5eead4', fontWeight: 700, fontSize: 10 }}>250</span>
-              <span style={{ textAlign: 'center', color: '#a78bfa', fontWeight: 700, fontSize: 10 }}>399</span>
-              <span style={{ textAlign: 'center', color: '#fbbf24', fontWeight: 700, fontSize: 10 }}>599</span>
+              <span style={{ textAlign: 'center', color: '#5eead4', fontWeight: 700, fontSize: 10 }}>基礎</span>
+              <span style={{ textAlign: 'center', color: '#a78bfa', fontWeight: 700, fontSize: 10 }}>進階</span>
+              <span style={{ textAlign: 'center', color: '#fbbf24', fontWeight: 700, fontSize: 10 }}>完整</span>
             </div>
             {COMPARE_ROWS.map((row, i) => (
               <div
