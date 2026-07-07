@@ -15,6 +15,7 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -60,6 +61,18 @@ export default function UnicornsPage() {
   const { trackEvent } = useConversionTracking();
 
   usePageView('unicorns_single');
+
+  useEffect(() => {
+    if (!deck || drawnCards.length > 0) return;
+    const pending = consumePendingSingleDraw('unicorns_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setSpreadType('single');
+    setShowDrawPage(true);
+    setShowCardLayout(true);
+    setDrawnCards([{ preview, unlocked: null }]);
+  }, [deck, drawnCards.length]);
 
   const filteredCards = (deck ?? []).filter((card) => {
     const previewKw = (card.preview as { keywords?: string[] }).keywords ?? [];
@@ -504,7 +517,15 @@ export default function UnicornsPage() {
                               cardUnlock={{ spread_id: 'unicorns_single', card_key: slot.preview.card_key }}
                             />
                           )}
-                          <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
+                          <MembershipGate
+                            isOpen={singleGate.showMembership}
+                            onClose={() => singleGate.setShowMembership(false)}
+                            resumePath="/unicorns?spread=single"
+                            pendingSingleDraw={drawnCards[0] ? {
+                              spread_id: 'unicorns_single',
+                              card_key: drawnCards[0].preview.card_key,
+                            } : undefined}
+                          />
                         </>
                       )}
 

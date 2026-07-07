@@ -4,13 +4,20 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { checkoutApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { saveMembershipCheckoutRedirect, savePendingSingleDraw } from '../lib/pendingDraw';
 
 interface MembershipGateProps {
   isOpen: boolean;
   onClose: () => void;
+  resumePath?: string;
+  pendingSingleDraw?: {
+    spread_id: string;
+    card_key: string;
+    reversed?: boolean;
+  };
 }
 
-export function MembershipGate({ isOpen, onClose }: MembershipGateProps) {
+export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw }: MembershipGateProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,8 +27,16 @@ export function MembershipGate({ isOpen, onClose }: MembershipGateProps) {
   if (!isOpen) return null;
 
   const handleSubscribe = async () => {
+    const redirectPath = resumePath ?? (location.pathname + location.search);
+    saveMembershipCheckoutRedirect(redirectPath);
+    if (pendingSingleDraw) {
+      savePendingSingleDraw({
+        ...pendingSingleDraw,
+        route_path: redirectPath,
+      });
+    }
     if (!user) {
-      navigate('/auth?redirect=' + encodeURIComponent(location.pathname));
+      navigate('/auth?redirect=' + encodeURIComponent(redirectPath));
       return;
     }
     setError('');
@@ -29,8 +44,7 @@ export function MembershipGate({ isOpen, onClose }: MembershipGateProps) {
     try {
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder('membership_monthly');
       if (admin_unlocked) {
-        onClose();
-        window.location.reload();
+        window.location.assign(redirectPath);
         return;
       }
       if (!ecpay) { setError('結帳資料缺失，請重試'); setIsProcessing(false); return; }

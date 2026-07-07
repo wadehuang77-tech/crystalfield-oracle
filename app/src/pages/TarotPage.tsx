@@ -19,6 +19,7 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 interface TarotCard {
   id: string;
@@ -184,6 +185,24 @@ function TarotPage() {
   const { trackEvent } = useConversionTracking();
 
   const isMultiCardSpread = spreadType !== 'single';
+
+  useEffect(() => {
+    if (!deck || drawnCards.length > 0) return;
+    const pending = consumePendingSingleDraw('tarot_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setSpreadType('single');
+    setShowCardLayout(true);
+    setDrawnCards([{
+      preview,
+      card: buildShim(preview),
+      isReversed: !!pending.reversed,
+      revealed: true,
+    }]);
+    setHasDrawn(true);
+    setIsUnlocked(false);
+  }, [deck, drawnCards.length]);
 
   const singleGate = useSingleCardGate({
     spreadId: 'tarot_single',
@@ -745,7 +764,16 @@ function TarotPage() {
                             }}
                           />
                         )}
-                        <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
+                        <MembershipGate
+                          isOpen={singleGate.showMembership}
+                          onClose={() => singleGate.setShowMembership(false)}
+                          resumePath="/tarot?spread=single"
+                          pendingSingleDraw={drawnCards[0] ? {
+                            spread_id: 'tarot_single',
+                            card_key: drawnCards[0].preview.card_key,
+                            reversed: drawnCards[0].isReversed,
+                          } : undefined}
+                        />
 
                         {isUnlocked && (
                           <>

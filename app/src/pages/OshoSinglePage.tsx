@@ -11,6 +11,7 @@ import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 interface OshoGated {
   meanings: {
@@ -41,6 +42,17 @@ export default function OshoSinglePage() {
       .catch((err) => { if (!cancelled) setDeckError(err instanceof Error ? err.message : '無法載入牌組'); });
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (!deck || drawnPreview) return;
+    const pending = consumePendingSingleDraw('osho_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setDrawnPreview(preview);
+    setUnlocked(null);
+    setIsRevealing(false);
+  }, [deck, drawnPreview]);
 
   useEffect(() => {
     if (drawnPreview && !isRevealing) {
@@ -207,7 +219,15 @@ export default function OshoSinglePage() {
                     />
                   </>
                 )}
-                <MembershipGate isOpen={gate.showMembership} onClose={() => gate.setShowMembership(false)} />
+                <MembershipGate
+                  isOpen={gate.showMembership}
+                  onClose={() => gate.setShowMembership(false)}
+                  resumePath="/osho/single"
+                  pendingSingleDraw={drawnPreview ? {
+                    spread_id: 'osho_single',
+                    card_key: drawnPreview.card_key,
+                  } : undefined}
+                />
               </>
             )}
           </div>

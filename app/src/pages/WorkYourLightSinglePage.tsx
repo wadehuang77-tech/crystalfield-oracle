@@ -11,6 +11,7 @@ import { MembershipGate } from '../components/MembershipGate';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 interface DeepInterpretation {
   coreMeaning: string;
@@ -53,6 +54,18 @@ function WorkYourLightSinglePage() {
       .catch((err) => { if (!cancelled) setDeckError(err instanceof Error ? err.message : '無法載入牌組'); });
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (!deck || drawnPreview) return;
+    const pending = consumePendingSingleDraw('work_your_light_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setDrawnPreview(preview);
+    setUnlocked(null);
+    setHasDrawn(true);
+    setRevealed(true);
+  }, [deck, drawnPreview]);
 
   useEffect(() => {
     if (!deck) return;
@@ -239,7 +252,15 @@ function WorkYourLightSinglePage() {
                         />
                       </>
                     )}
-                    <MembershipGate isOpen={gate.showMembership} onClose={() => gate.setShowMembership(false)} />
+                    <MembershipGate
+                      isOpen={gate.showMembership}
+                      onClose={() => gate.setShowMembership(false)}
+                      resumePath="/work-your-light-single"
+                      pendingSingleDraw={drawnPreview ? {
+                        spread_id: 'work_your_light_single',
+                        card_key: drawnPreview.card_key,
+                      } : undefined}
+                    />
                   </>
                 )}
 

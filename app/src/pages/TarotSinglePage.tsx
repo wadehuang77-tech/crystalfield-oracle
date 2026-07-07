@@ -11,6 +11,7 @@ import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 interface TarotPreview {
   keywords: string[];
@@ -62,6 +63,17 @@ function TarotSinglePage() {
       .catch((err) => { if (!cancelled) setDeckError(err instanceof Error ? err.message : '無法載入牌組'); });
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (!deck || drawnCard) return;
+    const pending = consumePendingSingleDraw('tarot_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setDrawnCard({ preview, isReversed: !!pending.reversed, unlocked: null });
+    setHasDrawn(true);
+    setRevealed(true);
+  }, [deck, drawnCard]);
 
   const drawTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => {
@@ -286,6 +298,12 @@ function TarotSinglePage() {
                         <MembershipGate
                           isOpen={gate.showMembership}
                           onClose={() => gate.setShowMembership(false)}
+                          resumePath="/tarot-single"
+                          pendingSingleDraw={drawnCard ? {
+                            spread_id: 'tarot_single',
+                            card_key: drawnCard.preview.card_key,
+                            reversed: drawnCard.isReversed,
+                          } : undefined}
                         />
                       </>
                     )}

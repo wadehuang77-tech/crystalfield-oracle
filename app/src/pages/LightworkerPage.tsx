@@ -11,6 +11,7 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 interface LightworkerGated {
   cosmicMessage: string;
@@ -32,6 +33,18 @@ function LightworkerPage() {
   const { trackEvent } = useConversionTracking();
 
   usePageView('lightworker_single');
+
+  useEffect(() => {
+    if (!deck || drawnPreview) return;
+    const pending = consumePendingSingleDraw('work_your_light_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setShowDrawPage(true);
+    setDrawnPreview(preview);
+    setUnlocked(null);
+    setHasDrawn(true);
+  }, [deck, drawnPreview]);
 
   const drawCard = () => {
     if (!deck || deck.length === 0) return;
@@ -259,7 +272,15 @@ function LightworkerPage() {
                         cardUnlock={{ spread_id: 'work_your_light_single', card_key: drawnPreview.card_key }}
                       />
                     )}
-                    <MembershipGate isOpen={gate.showMembership} onClose={() => gate.setShowMembership(false)} />
+                    <MembershipGate
+                      isOpen={gate.showMembership}
+                      onClose={() => gate.setShowMembership(false)}
+                      resumePath="/lightworker"
+                      pendingSingleDraw={drawnPreview ? {
+                        spread_id: 'work_your_light_single',
+                        card_key: drawnPreview.card_key,
+                      } : undefined}
+                    />
                   </>
                 )}
 

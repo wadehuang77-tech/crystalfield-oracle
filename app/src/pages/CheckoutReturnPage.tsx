@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { XCircle, Clock, ArrowRight } from 'lucide-react';
 import { checkoutApi, type Order } from '../lib/api';
+import { consumeMembershipCheckoutRedirect } from '../lib/pendingDraw';
 import { formatPrice } from '../lib/spread-prices';
 
 const SPREAD_HOME: Record<string, string> = {
@@ -88,6 +89,11 @@ export default function CheckoutReturnPage() {
   const goHome = () => navigate('/');
   const goSpread = () => {
     if (!order) return;
+    if (order.item_id === 'membership_monthly') {
+      const redirect = consumeMembershipCheckoutRedirect() ?? '/oracle';
+      navigate(redirect);
+      return;
+    }
     const base = SPREAD_HOME[order.item_id] ?? '/';
     navigate(appendOrderId(base, order.id, orderToken));
   };
@@ -95,6 +101,11 @@ export default function CheckoutReturnPage() {
   useEffect(() => {
     if (order?.status !== 'paid') return;
     const t = setTimeout(() => {
+      if (order.item_id === 'membership_monthly') {
+        const redirect = consumeMembershipCheckoutRedirect() ?? '/oracle';
+        navigate(redirect, { replace: true });
+        return;
+      }
       const base = SPREAD_HOME[order.item_id] ?? '/';
       navigate(appendOrderId(base, order.id, orderToken), { replace: true });
     }, 3500);

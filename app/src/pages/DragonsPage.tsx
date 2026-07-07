@@ -16,6 +16,7 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 interface DragonGated {
   message: string;
@@ -49,6 +50,19 @@ function DragonsPage() {
   const { trackEvent } = useConversionTracking();
 
   usePageView('dragons_single');
+
+  useEffect(() => {
+    if (!deck || singlePreview) return;
+    const pending = consumePendingSingleDraw('dragons_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setSpreadType('single');
+    setShowCardLayout(true);
+    setSinglePreview(preview);
+    setSingleUnlocked(null);
+    setHasDrawn(true);
+  }, [deck, singlePreview]);
 
   const handleSingleCardClick = () => {
     setSpreadType('single');
@@ -493,7 +507,15 @@ function DragonsPage() {
                         cardUnlock={{ spread_id: 'dragons_single', card_key: singlePreview.card_key }}
                       />
                     )}
-                    <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
+                    <MembershipGate
+                      isOpen={singleGate.showMembership}
+                      onClose={() => singleGate.setShowMembership(false)}
+                      resumePath="/dragons?spread=single"
+                      pendingSingleDraw={singlePreview ? {
+                        spread_id: 'dragons_single',
+                        card_key: singlePreview.card_key,
+                      } : undefined}
+                    />
                   </>
                 )}
 

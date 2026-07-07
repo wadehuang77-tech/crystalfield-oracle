@@ -17,6 +17,7 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
+import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -66,6 +67,19 @@ function EgyptianGodsPage() {
   const { trackEvent } = useConversionTracking();
 
   usePageView('egyptian_gods_single');
+
+  useEffect(() => {
+    if (!deck || singlePreview) return;
+    const pending = consumePendingSingleDraw('egyptian_single');
+    if (!pending) return;
+    const preview = deck.find((c) => c.card_key === pending.card_key);
+    if (!preview) return;
+    setSpreadType('single');
+    setShowCardLayout(true);
+    setSinglePreview(preview);
+    setSingleUnlocked(null);
+    setHasDrawn(true);
+  }, [deck, singlePreview]);
 
   const handleEmailSubmitted = (email: string, card?: UnlockedCard) => {
     singleGate.onEmailUnlocked(email, card);
@@ -372,7 +386,15 @@ function EgyptianGodsPage() {
                         cardUnlock={{ spread_id: 'egyptian_single', card_key: singlePreview.card_key }}
                       />
                     )}
-                    <MembershipGate isOpen={singleGate.showMembership} onClose={() => singleGate.setShowMembership(false)} />
+                    <MembershipGate
+                      isOpen={singleGate.showMembership}
+                      onClose={() => singleGate.setShowMembership(false)}
+                      resumePath="/egyptian-gods?spread=single"
+                      pendingSingleDraw={singlePreview ? {
+                        spread_id: 'egyptian_single',
+                        card_key: singlePreview.card_key,
+                      } : undefined}
+                    />
                   </>
                 )}
 
