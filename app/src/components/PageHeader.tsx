@@ -98,7 +98,7 @@ export default function PageHeader() {
         {/* Center: page title — always truly centered */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           {route.title && (
-            <span style={{ fontFamily: 'serif', fontSize: 13, letterSpacing: '0.28em', color: `${text}bb`, whiteSpace: 'nowrap' }}>
+            <span style={{ fontFamily: 'serif', fontSize: 15, letterSpacing: '0.25em', color: text, whiteSpace: 'nowrap' }}>
               {route.title}
             </span>
           )}

@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --names \"worker,app\" -c \"cyan.bold,magenta.bold\" --kill-others-on-fail \"npm --prefix worker run dev\" \"npm --prefix app run dev\"",
+    "setup": "npm --prefix worker install && npm --prefix app install"
+  },
+  "devDependencies": {
+    "concurrently": "^9"
+  }
+}
