@@ -44,6 +44,22 @@ const ROUTES: Record<string, { title: string; accent: Accent }> = {
 
 const HIDDEN_ON = new Set(['/auth']);
 
+const ORACLE_BACK_ROUTES = new Set([
+  '/tarot',
+  '/tarot-single',
+  '/lightworker',
+  '/lightworker/celtic-cross',
+  '/unicorns',
+  '/dragons',
+  '/egyptian-gods',
+  '/work-your-light',
+  '/work-your-light-single',
+  '/cosmic-cross',
+  '/osho',
+  '/osho/single',
+  '/osho/three',
+]);
+
 export default function PageHeader() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,6 +76,8 @@ export default function PageHeader() {
   const isHome = location.pathname === '/';
   const route = ROUTES[location.pathname] ?? { title: '', accent: 'slate' as Accent };
   const { border, text } = ACCENTS[route.accent];
+  const backTarget = ORACLE_BACK_ROUTES.has(location.pathname) ? '/oracle' : '/';
+  const backLabel = ORACLE_BACK_ROUTES.has(location.pathname) ? '塔羅主頁' : '首頁';
 
   return (
     <header style={{
@@ -86,11 +104,11 @@ export default function PageHeader() {
         <div>
           {!isHome && (
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate(backTarget)}
               style={{ color: text, display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
             >
               <ArrowLeft style={{ width: 14, height: 14 }} strokeWidth={2.2} />
-              首頁
+              {backLabel}
             </button>
           )}
         </div>
