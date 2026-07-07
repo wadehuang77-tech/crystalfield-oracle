@@ -1,3 +1,4 @@
+import { verifyOrderToken } from './checkout';
 import {
   badRequest,
   Env,
@@ -187,6 +188,7 @@ interface SpreadUnlockBody {
   spread_id: string;
   picks: SpreadUnlockPick[];
   order_id?: string;
+  order_token?: string;
 }
 
 function picksMatch(a: SpreadUnlockPick[], b: SpreadUnlockPick[]): boolean {
@@ -199,7 +201,6 @@ function picksMatch(a: SpreadUnlockPick[], b: SpreadUnlockPick[]): boolean {
 
 export async function unlockSpread(req: Request, env: Env): Promise<Response> {
   const session = await readSession(req, env);
-  if (!session) return unauthorized(req, env, '請先登入');
 
   const body = await readBody<SpreadUnlockBody>(req);
   if (!body.spread_id || !SPREADS[body.spread_id]) {
@@ -217,16 +218,20 @@ export async function unlockSpread(req: Request, env: Env): Promise<Response> {
     return forbidden(req, env, '需要 order_id (請完成付款後從付款成功頁進入)');
   }
 
+  const guestAuthorized = await verifyOrderToken(body.order_token ?? null, env, body.order_id);
+  if (!session && !guestAuthorized) return unauthorized(req, env, '請先登入');
+
   const order = await env.DB.prepare(
-    `SELECT user_id, item_id, status, picks_payload FROM orders WHERE id = ?`,
+    `SELECT user_id, email, item_id, status, picks_payload FROM orders WHERE id = ?`,
   ).bind(body.order_id).first<{
     user_id: string | null;
+    email: string;
     item_id: string;
     status: string;
     picks_payload: string | null;
   }>();
   if (!order) return forbidden(req, env, '訂單不存在');
-  if (order.user_id !== session.id) return forbidden(req, env, '此訂單不屬於你');
+  if (!guestAuthorized && order.user_id !== session?.id) return forbidden(req, env, '此訂單不屬於你');
   if (order.status !== 'paid') return forbidden(req, env, '訂單尚未付款完成');
   if (order.item_id !== body.spread_id) return forbidden(req, env, '訂單對應的牌陣不符');
 
@@ -254,7 +259,7 @@ export async function unlockSpread(req: Request, env: Env): Promise<Response> {
      VALUES (?, ?, ?, ?, ?, ?)`,
   ).bind(
     crypto.randomUUID(),
-    session.email,
+    session?.email ?? order.email,
     body.spread_id,
     now,
     JSON.stringify(body.picks),

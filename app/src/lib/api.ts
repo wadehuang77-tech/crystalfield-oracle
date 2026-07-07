@@ -117,6 +117,11 @@ export interface EcpayForm {
   fields: Record<string, string>;
 }
 
+export interface GuestOrderAccess {
+  guest_email?: string;
+  order_token?: string;
+}
+
 export interface OrderPick {
   card_key: string;
   position: number;
@@ -138,14 +143,16 @@ export interface Order {
 }
 
 export const checkoutApi = {
-  createOrder: (spread_id: string, picks?: OrderPick[]) =>
-    req<{ order_id: string; merchant_trade_no: string; ecpay: EcpayForm | null; admin_unlocked?: boolean }>(
+  createOrder: (spread_id: string, picks?: OrderPick[], guest?: GuestOrderAccess) =>
+    req<{ order_id: string; merchant_trade_no: string; ecpay: EcpayForm | null; admin_unlocked?: boolean; order_token?: string | null }>(
       '/api/checkout/create-order',
-      { method: 'POST', body: { spread_id, picks } },
+      { method: 'POST', body: { spread_id, picks, ...guest } },
     ),
 
-  getOrder: (orderId: string) =>
-    req<{ order: Order }>(`/api/orders/${encodeURIComponent(orderId)}`),
+  getOrder: (orderId: string, orderToken?: string | null) =>
+    req<{ order: Order }>(`/api/orders/${encodeURIComponent(orderId)}`, {
+      query: orderToken ? { order_token: orderToken } : {},
+    }),
 
   catalog: () =>
     req<{ catalog: Record<string, { id: string; name: string; amount: number }> }>(
@@ -329,10 +336,11 @@ export const cardsApi = {
     spread_id: string,
     picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
     order_id: string,
+    order_token?: string | null,
   ) =>
     req<{ spread_id: string; cards: UnlockedCard[] }>('/api/cards/spread-unlock', {
       method: 'POST',
-      body: { spread_id, picks, order_id },
+      body: { spread_id, picks, order_id, order_token: order_token ?? undefined },
     }),
 };
 

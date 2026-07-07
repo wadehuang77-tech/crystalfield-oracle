@@ -105,13 +105,14 @@ function LightworkerCelticCrossPage() {
   useEffect(() => {
     if (restoreStartedRef.current) return;
     const orderId = searchParams.get('order_id');
+    const orderToken = searchParams.get('order_token');
     if (!orderId || !deck || deck.length === 0) return;
     restoreStartedRef.current = true;
     setRestoreState('pending');
 
     (async () => {
       try {
-        const { order } = await checkoutApi.getOrder(orderId);
+        const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== SPREAD_ID || order.status !== 'paid' || !order.picks) {
           setRestoreState('error');
           return;
@@ -130,7 +131,7 @@ function LightworkerCelticCrossPage() {
           const picks = next
             .filter((c) => c.preview)
             .map((c) => ({ card_key: c.preview!.card_key, position: c.position }));
-          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id);
+          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id, orderToken);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setSelectedCards((prev) => prev.map((c) => {
             if (!c.preview) return c;

@@ -82,12 +82,13 @@ export default function OshoThreePage() {
   useEffect(() => {
     if (restoreStartedRef.current) return;
     const orderId = searchParams.get('order_id');
+    const orderToken = searchParams.get('order_token');
     if (!orderId || !deck || deck.length === 0) return;
     restoreStartedRef.current = true;
 
     (async () => {
       try {
-        const { order } = await checkoutApi.getOrder(orderId);
+        const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== SPREAD_ID || order.status !== 'paid' || !order.picks) {
           setUnlockError('無法還原此訂單(item_id/status/picks 不符)');
           return;
@@ -117,7 +118,7 @@ export default function OshoThreePage() {
             { card_key: outer.card_key,       position: 2 },
             { card_key: integration.card_key, position: 3 },
           ];
-          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id);
+          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id, orderToken);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           const synth = (slot: { preview: CardPreview }): FullCard | null => {
             const u = byKey.get(slot.preview.card_key);

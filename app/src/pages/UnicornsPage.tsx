@@ -144,13 +144,14 @@ export default function UnicornsPage() {
   useEffect(() => {
     if (restoreStartedRef.current) return;
     const orderId = searchParams.get('order_id');
+    const orderToken = searchParams.get('order_token');
     if (!orderId || !deck || deck.length === 0) return;
     restoreStartedRef.current = true;
     setRestoreState('pending');
 
     (async () => {
       try {
-        const { order } = await checkoutApi.getOrder(orderId);
+        const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== SPREAD_ID) {
           setRestoreReason(`此訂單是 ${order.item_id},不是 ${SPREAD_ID}`);
           setRestoreState('error');
@@ -182,7 +183,7 @@ export default function UnicornsPage() {
 
         try {
           const picks = slots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
-          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id);
+          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id, orderToken);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setDrawnCards((prev) => prev.map((s) => ({
             ...s,

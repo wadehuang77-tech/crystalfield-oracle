@@ -156,12 +156,13 @@ function DragonsPage() {
   useEffect(() => {
     if (restoreStartedRef.current) return;
     const orderId = searchParams.get('order_id');
+    const orderToken = searchParams.get('order_token');
     if (!orderId || !deck || deck.length === 0) return;
     restoreStartedRef.current = true;
 
     (async () => {
       try {
-        const { order } = await checkoutApi.getOrder(orderId);
+        const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== 'dragons_three' || order.status !== 'paid' || !order.picks) {
           setUnlockError('無法還原此訂單(item_id/status/picks 不符)');
           return;
@@ -181,7 +182,7 @@ function DragonsPage() {
 
         try {
           const picks = slots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
-          const unlocked = await unlockSpreadCards('dragons_three', picks, order.id);
+          const unlocked = await unlockSpreadCards('dragons_three', picks, order.id, orderToken);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setThreeSlots((prev) => prev.map((s) => {
             const u = byKey.get(s.preview.card_key);

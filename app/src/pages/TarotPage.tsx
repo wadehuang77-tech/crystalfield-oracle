@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -12,6 +12,7 @@ import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import TarotResonanceCTA from '../components/TarotResonanceCTA';
 import { useConversionTracking } from '../hooks/useConversionTracking';
+import { useAuth } from '../contexts/AuthContext';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { checkoutApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
@@ -72,6 +73,8 @@ const SPREAD_IDS: Record<SpreadType, string> = {
   pastlife: 'tarot_pastlife'
 };
 
+const MULTI_SPREAD_EMAIL_KEY = 'cf_tarot_multi_email';
+
 interface DrawnCard {
   preview: CardPreview;
   card: TarotCard;
@@ -80,10 +83,88 @@ interface DrawnCard {
   position?: string;
 }
 
+function readSavedMultiSpreadEmail(): string {
+  try {
+    return localStorage.getItem(MULTI_SPREAD_EMAIL_KEY)?.trim().toLowerCase() ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function saveMultiSpreadEmail(email: string) {
+  try {
+    localStorage.setItem(MULTI_SPREAD_EMAIL_KEY, email.trim().toLowerCase());
+  } catch {}
+}
+
+function TarotMultiEmailGate({
+  onUnlock,
+}: {
+  onUnlock: (email: string) => Promise<void>;
+}) {
+  const [email, setEmail] = useState(() => readSavedMultiSpreadEmail());
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const normalized = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+      setError('請輸入有效的 Email');
+      return;
+    }
+    if (submitting) return;
+
+    setSubmitting(true);
+    setError('');
+    try {
+      await onUnlock(normalized);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '解鎖失敗，請稍後再試');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
+      <div className="flex justify-center mb-4">
+        <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
+          <Lock className="w-7 h-7 text-orange-300" />
+        </div>
+      </div>
+      <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">還有兩次免費完整解讀</h3>
+      <p className="text-orange-200/80 text-base leading-relaxed mb-6 max-w-md mx-auto">
+        輸入 Email 後，這次立即免費解鎖，接下來你還可以再免費看 1 次完整牌陣。
+      </p>
+      <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-3">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="your@email.com"
+          className="w-full rounded-xl border border-orange-300/30 bg-slate-900/60 px-4 py-3 text-orange-50 placeholder:text-orange-200/35 focus:outline-none focus:border-orange-300/60"
+          disabled={submitting}
+          required
+        />
+        {error && <p className="text-sm text-red-400">{error}</p>}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          {submitting ? '解鎖中…' : 'Email 免費解鎖'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function TarotPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { cards: deck, error: deckError } = useDeck('tarot');
+  const { user } = useAuth();
+  const { cards: deck } = useDeck('tarot');
   const initialSpread = ((): SpreadType => {
     const q = searchParams.get('spread');
     return q === 'three' || q === 'celtic' || q === 'pastlife' || q === 'single' ? q : 'single';
@@ -126,6 +207,8 @@ function TarotPage() {
     spreadId: SPREAD_IDS[spreadType],
     picks: multiPicks,
     enabled: isMultiCardSpread && hasDrawn && drawnCards.length > 0 && !isLocallyUnlocked,
+    emailGateAtCount: user ? null : 1,
+    emailSource: SPREAD_IDS[spreadType],
   });
 
   useEffect(() => {
@@ -143,8 +226,20 @@ function TarotPage() {
     if (card) trackEvent('unlocked', { readingType: 'tarot_single', email });
   };
 
+  const handleMultiEmailUnlock = async (email: string) => {
+    await multiGate.onEmailUnlocked(email);
+    saveMultiSpreadEmail(email);
+    trackEvent('unlocked', { readingType: SPREAD_IDS[spreadType], email });
+  };
+
   const handleCheckout = async () => {
     if (isCheckingOut) return;
+    const guestEmail = !user ? readSavedMultiSpreadEmail() : '';
+    if (!user && !guestEmail) {
+      setUnlockError('請先完成 Email 解鎖，再進行付款');
+      return;
+    }
+    setUnlockError(null);
     setIsCheckingOut(true);
     try {
       const picks = drawnCards.map((d, i) => ({
@@ -152,13 +247,20 @@ function TarotPage() {
         position: i + 1,
         reversed: d.isReversed,
       }));
-      const price = getSpreadPrice(SPREAD_IDS[spreadType]) ?? 0;
-      const { form: ecpay } = await checkoutApi.createOrder({
-        item_id: SPREAD_IDS[spreadType],
-        item_name: getSpreadName(spreadType),
-        amount: price,
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
+        SPREAD_IDS[spreadType],
         picks,
-      });
+        !user ? { guest_email: guestEmail } : undefined,
+      );
+      if (admin_unlocked) {
+        navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
+        return;
+      }
+      if (!ecpay) {
+        setUnlockError('結帳資料缺失,請重試');
+        setIsCheckingOut(false);
+        return;
+      }
       submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
     } catch (err) {
       setUnlockError(err instanceof Error ? err.message : '付款失敗');
@@ -214,12 +316,13 @@ function TarotPage() {
   useEffect(() => {
     if (restoreStartedRef.current) return;
     const orderId = searchParams.get('order_id');
+    const orderToken = searchParams.get('order_token');
     if (!orderId || !deck || deck.length === 0) return;
     restoreStartedRef.current = true;
 
     (async () => {
       try {
-        const { order } = await checkoutApi.getOrder(orderId);
+        const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (!order.picks || order.status !== 'paid') {
           setUnlockError('無法還原此訂單(status/picks 不符)');
           return;
@@ -269,7 +372,7 @@ function TarotPage() {
             position: i + 1,
             reversed: d.isReversed,
           }));
-          const unlocked = await unlockSpreadCards(SPREAD_IDS[restoredSpread], picks, order.id);
+          const unlocked = await unlockSpreadCards(SPREAD_IDS[restoredSpread], picks, order.id, orderToken);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setDrawnCards((prev) => prev.map((d) => {
             const u = byKey.get(d.preview.card_key);
@@ -347,20 +450,6 @@ function TarotPage() {
   };
 
   const showFullContent = isLocallyUnlocked;
-
-  const getSpreadName = (type: SpreadType): string => {
-    switch (type) {
-      case 'three': return '偉特塔羅三張牌陣';
-      case 'celtic': return '偉特塔羅凱爾特十字牌陣';
-      case 'pastlife': return '偉特塔羅前世今生牌陣';
-      default: return '偉特塔羅單張牌';
-    }
-  };
-
-  const shouldShowContent = (type: SpreadType): boolean => {
-    if (type === 'single') return true;
-    return showFullContent;
-  };
 
   const getPreviewText = (text: string): string => {
     return text.slice(0, Math.floor(text.length * 0.5)) + '...';
@@ -868,6 +957,9 @@ function TarotPage() {
                     {!isLocallyUnlocked && multiGate.phase === 'loading' && (
                       <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
                     )}
+                    {!isLocallyUnlocked && multiGate.phase === 'email_gate' && (
+                      <TarotMultiEmailGate onUnlock={handleMultiEmailUnlock} />
+                    )}
                     {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
                       <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
                         <div className="flex justify-center mb-4">
@@ -977,6 +1069,9 @@ function TarotPage() {
                     )}
                     {!isLocallyUnlocked && multiGate.phase === 'loading' && (
                       <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'email_gate' && (
+                      <TarotMultiEmailGate onUnlock={handleMultiEmailUnlock} />
                     )}
                     {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
                       <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
@@ -1107,6 +1202,9 @@ function TarotPage() {
                     )}
                     {!isLocallyUnlocked && multiGate.phase === 'loading' && (
                       <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                    )}
+                    {!isLocallyUnlocked && multiGate.phase === 'email_gate' && (
+                      <TarotMultiEmailGate onUnlock={handleMultiEmailUnlock} />
                     )}
                     {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
                       <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">

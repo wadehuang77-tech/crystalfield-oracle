@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle, XCircle, Clock, ArrowRight } from 'lucide-react';
+import { XCircle, Clock, ArrowRight } from 'lucide-react';
 import { checkoutApi, type Order } from '../lib/api';
 import { formatPrice } from '../lib/spread-prices';
 
@@ -16,9 +16,10 @@ const SPREAD_HOME: Record<string, string> = {
   osho_three:         '/osho/three',
 };
 
-function appendOrderId(url: string, orderId: string): string {
+function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {
   const sep = url.includes('?') ? '&' : '?';
-  return `${url}${sep}order_id=${encodeURIComponent(orderId)}`;
+  const tokenPart = orderToken ? `&order_token=${encodeURIComponent(orderToken)}` : '';
+  return `${url}${sep}order_id=${encodeURIComponent(orderId)}${tokenPart}`;
 }
 
 const POLL_INTERVAL_MS  = 2000;
@@ -28,6 +29,7 @@ export default function CheckoutReturnPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const orderId = params.get('order_id') ?? '';
+  const orderToken = params.get('order_token');
 
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState('');
@@ -46,7 +48,7 @@ export default function CheckoutReturnPage() {
     const poll = async () => {
       if (stopped) return;
       try {
-        const { order: o } = await checkoutApi.getOrder(orderId);
+        const { order: o } = await checkoutApi.getOrder(orderId, orderToken);
         if (stopped) return;
         setOrder(o);
         if (o.status === 'paid' || o.status === 'failed' || o.status === 'cancelled') {
@@ -81,23 +83,23 @@ export default function CheckoutReturnPage() {
       stopped = true;
       if (timer) clearTimeout(timer);
     };
-  }, [orderId]);
+  }, [orderId, orderToken]);
 
   const goHome = () => navigate('/');
   const goSpread = () => {
     if (!order) return;
     const base = SPREAD_HOME[order.item_id] ?? '/';
-    navigate(appendOrderId(base, order.id));
+    navigate(appendOrderId(base, order.id, orderToken));
   };
 
   useEffect(() => {
     if (order?.status !== 'paid') return;
     const t = setTimeout(() => {
       const base = SPREAD_HOME[order.item_id] ?? '/';
-      navigate(appendOrderId(base, order.id), { replace: true });
+      navigate(appendOrderId(base, order.id, orderToken), { replace: true });
     }, 3500);
     return () => clearTimeout(t);
-  }, [order, navigate]);
+  }, [order, navigate, orderToken]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">

@@ -44,7 +44,8 @@ export async function unlockSpreadCards(
   spread_id: string,
   picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
   order_id: string,
+  order_token?: string | null,
 ): Promise<UnlockedCard[]> {
-  const res = await cardsApi.unlockSpread(spread_id, picks, order_id);
+  const res = await cardsApi.unlockSpread(spread_id, picks, order_id, order_token);
   return res.cards;
 }
