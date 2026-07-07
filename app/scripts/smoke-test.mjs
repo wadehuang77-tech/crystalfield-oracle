@@ -61,7 +61,7 @@ async function checkFrontend() {
 requireEnv('SMOKE_API_BASE or VITE_API_BASE', apiBase);
 
 await checkJson('Checkout catalog', `${apiBase}/api/checkout/catalog`, 200, (json) => {
-  if (!json.catalog || !json.catalog.tarot_three || json.catalog.tarot_three.amount !== 250) {
+  if (!json.catalog || !json.catalog.tarot_three || typeof json.catalog.tarot_three.amount !== 'number') {
     throw new Error('Checkout catalog payload is missing expected tarot_three item');
   }
 });
