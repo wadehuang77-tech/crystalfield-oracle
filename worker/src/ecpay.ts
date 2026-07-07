@@ -55,7 +55,7 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   numerology_advanced: { id: 'numerology_advanced', name: '生命靈數 進階版',     amount: 10 },
   numerology_full:     { id: 'numerology_full',     name: '生命靈數 完整靈魂版', amount: 10 },
   // ── 月費會員 ─────────────────────────────────────────────────
-  membership_monthly: { id: 'membership_monthly', name: '月費會員 (30天單張無限)', amount: 10 },
+  membership_monthly: { id: 'membership_monthly', name: '月費會員 (所有塔羅單張不限次數)', amount: 99 },
 };
 
 function phpStyleUrlEncode(s: string): string {

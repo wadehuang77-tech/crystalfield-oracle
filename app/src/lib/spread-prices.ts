@@ -10,7 +10,7 @@ export const SPREAD_PRICES: Record<string, number> = {
   egyptian_pastlife:  10,
   cosmic_cross:       10,
   osho_three:         10,
-  membership_monthly: 10,
+  membership_monthly: 99,
 };
 
 export const SPREAD_CATEGORIES: Record<string, SpreadCategory> = {

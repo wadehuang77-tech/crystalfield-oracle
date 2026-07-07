@@ -42,11 +42,7 @@ export function useSingleCardGate({
     firedRef.current = true;
 
     const count = getSingleUnlockCount();
-    // Free threshold: 2 auto-free for guests, 3 for logged-in users
-    const freeLimit = user ? 3 : 2;
-
-    if (count < freeLimit) {
-      // Auto-unlock free
+    const autoUnlock = () => {
       setPhase('loading');
       cardsApi.freeUnlockSingle(spreadId, cardKey, reversed)
         .then(({ card }) => {
@@ -56,33 +52,47 @@ export function useSingleCardGate({
         })
         .catch((err) => {
           setError(err instanceof Error ? err.message : '解鎖失敗');
-          setPhase('email_gate'); // fallback to email gate
+          setPhase('email_gate');
         });
-    } else if (count === 2 && !user) {
-      // Guest 3rd use — require email
-      setPhase('email_gate');
-    } else {
-      // 4th+ use — check membership
-      setPhase('loading');
-      if (user) {
-        profileApi.me()
-          .then(({ profile }) => {
-            if (profile?.purchased_spreads?.includes('membership_monthly')) {
-              return cardsApi.freeUnlockSingle(spreadId, cardKey, reversed)
-                .then(({ card }) => {
-                  setUnlockedCard(card);
-                  setPhase('unlocked');
-                });
-            }
-            setPhase('membership_gate');
-            setShowMembership(true);
-          })
-          .catch(() => { setPhase('membership_gate'); setShowMembership(true); });
-      } else {
-        setPhase('membership_gate');
-        setShowMembership(true);
+    };
+
+    const showMembershipGate = () => {
+      setPhase('membership_gate');
+      setShowMembership(true);
+    };
+
+    const continueForNonMember = () => {
+      if (count === 0 || count === 2) {
+        autoUnlock();
+        return;
       }
+      if (count === 1) {
+        setPhase('email_gate');
+        return;
+      }
+      showMembershipGate();
+    };
+
+    if (user) {
+      setPhase('loading');
+      profileApi.me()
+        .then(({ profile }) => {
+          if (profile?.purchased_spreads?.includes('membership_monthly')) {
+            return cardsApi.freeUnlockSingle(spreadId, cardKey, reversed)
+              .then(({ card }) => {
+                setUnlockedCard(card);
+                setPhase('unlocked');
+              });
+          }
+          continueForNonMember();
+        })
+        .catch(() => {
+          continueForNonMember();
+        });
+      return;
     }
+
+    continueForNonMember();
   }, [enabled, cardKey, user?.id]);
 
   const onEmailUnlocked = (_email: string, card?: UnlockedCard) => {

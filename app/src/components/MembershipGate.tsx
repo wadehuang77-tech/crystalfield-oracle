@@ -61,13 +61,13 @@ export function MembershipGate({ isOpen, onClose }: MembershipGateProps) {
             加入月費會員
           </h2>
           <p className="text-3xl font-serif text-amber-400 mt-4 tracking-[0.15em]">NT$ 99 / 月</p>
-          <p className="text-xs text-amber-400/50 mt-1">（測試期間 NT$10）</p>
+          <p className="text-xs text-amber-400/60 mt-2">解鎖所有塔羅單張牌陣，不限次數完整查看</p>
         </div>
 
         <div className="border-t border-b border-amber-500/15 py-5 mb-6 space-y-3">
-          <Perk>所有單張牌陣 — 無限次完整解鎖</Perk>
-          <Perk>7 副牌組任意抽取，不限次數</Perk>
-          <Perk>隨時取消，無違約金</Perk>
+          <Perk>所有塔羅單張牌陣免費，不限次數</Perk>
+          <Perk>7 副牌組單張皆可完整解鎖查看</Perk>
+          <Perk>第 4 次起不用再逐次付費解鎖</Perk>
         </div>
 
         {error && (
@@ -82,7 +82,7 @@ export function MembershipGate({ isOpen, onClose }: MembershipGateProps) {
             {isProcessing ? (
               <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>跳轉至綠界…</>
             ) : (
-              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />{user ? '立即訂閱 NT$10（測試）' : '登入並訂閱'}</>
+              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />{user ? '立即加入 NT$99 / 月' : '登入並加入會員'}</>
             )}
           </button>
           <button onClick={onClose} disabled={isProcessing}
