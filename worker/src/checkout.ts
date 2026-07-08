@@ -91,9 +91,13 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     if (reason) return badRequest(req, env, reason);
   }
 
-  const guestEmail = typeof body.guest_email === 'string' ? body.guest_email.toLowerCase().trim() : '';
-  if (isGuestSpreadCheckout && !validEmail(guestEmail)) {
-    return badRequest(req, env, 'guest_email required');
+  let guestEmail = typeof body.guest_email === 'string' ? body.guest_email.toLowerCase().trim() : '';
+  if (isGuestSpreadCheckout) {
+    if (!guestEmail) {
+      guestEmail = 'guest-order@crystalfield.local';
+    } else if (!validEmail(guestEmail)) {
+      return badRequest(req, env, 'guest_email invalid');
+    }
   }
 
   if (user) {

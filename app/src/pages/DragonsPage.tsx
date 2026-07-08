@@ -15,7 +15,7 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
+import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
@@ -116,11 +116,7 @@ function DragonsPage() {
 
   const handleUnlockThree = async () => {
     if (isCheckingOut) return;
-    const guestEmail = readSavedMultiSpreadEmail();
-    if (!user && !guestEmail) {
-      setUnlockError('請先完成 Email 解鎖，再進行付款');
-      return;
-    }
+    const guestEmail = getMultiSpreadCheckoutGuestEmail();
     setUnlockError(null);
     setIsCheckingOut(true);
     try {

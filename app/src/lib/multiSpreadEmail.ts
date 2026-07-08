@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'cf_multi_spread_email';
+const GUEST_CHECKOUT_EMAIL = 'guest-order@crystalfield.local';
 
 export function readSavedMultiSpreadEmail(): string {
   if (typeof window === 'undefined') return '';
@@ -7,6 +8,10 @@ export function readSavedMultiSpreadEmail(): string {
   } catch {
     return '';
   }
+}
+
+export function getMultiSpreadCheckoutGuestEmail(): string {
+  return readSavedMultiSpreadEmail() || GUEST_CHECKOUT_EMAIL;
 }
 
 export function saveMultiSpreadEmail(email: string): void {

@@ -18,7 +18,7 @@ import { checkoutApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
+import { getMultiSpreadCheckoutGuestEmail, readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 
@@ -238,11 +238,7 @@ function TarotPage() {
 
   const handleCheckout = async () => {
     if (isCheckingOut) return;
-    const guestEmail = !user ? readSavedMultiSpreadEmail() : '';
-    if (!user && !guestEmail) {
-      setUnlockError('請先完成 Email 解鎖，再進行付款');
-      return;
-    }
+    const guestEmail = !user ? getMultiSpreadCheckoutGuestEmail() : '';
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
