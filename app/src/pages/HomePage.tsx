@@ -153,7 +153,7 @@ function HomePage() {
                 </div>
                 <div className="text-left">
                   <h2 className="text-2xl font-serif bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent leading-tight">
-                    奧修禪卡 Osho Zen Tarot
+                    奧修禪卡
                   </h2>
                   <p className="text-teal-200/60 text-sm mt-0.5 tracking-wide">不是預測未來，而是照見此刻的真相</p>
                 </div>
