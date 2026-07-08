@@ -2,12 +2,9 @@ import { useState } from 'react';
 import { Sun, Briefcase, Heart, Sparkles, AlertTriangle, Gem, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport } from '../../lib/numerology';
 import { getPersonalYearData } from '../../lib/numerology';
-import type { PlanTier } from '../../hooks/usePremium';
 
 interface Props {
   report: NumerologyReport;
-  tier: PlanTier;
-  onUpgrade: (required: PlanTier) => void;
   forecastUnlocked: boolean;
   onForecastUnlock: () => void;
 }
@@ -62,16 +59,17 @@ function QuarterCard({ quarter, color }: { quarter: { label: string; energy: str
   );
 }
 
-export default function PersonalYearForecast({ report, tier, onUpgrade, forecastUnlocked: _forecastUnlocked, onForecastUnlock: _onForecastUnlock }: Props) {
+export default function PersonalYearForecast({ report, forecastUnlocked, onForecastUnlock }: Props) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const data = getPersonalYearData(report.personalYearNumber);
   const color = data.color;
   const CURRENT_YEAR = 2026;
   const sections = ['career', 'love', 'spiritual', 'warning'] as const;
-  const showFull = tier >= 3;
+  const showFull = forecastUnlocked;
 
   return (
     <div
+      id="numerology-forecast"
       className="rounded-3xl overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
@@ -401,7 +399,7 @@ export default function PersonalYearForecast({ report, tier, onUpgrade, forecast
                 ))}
               </div>
               <button
-                onClick={() => onUpgrade(3)}
+                onClick={onForecastUnlock}
                 style={{
                   width: '100%', padding: '12px',
                   borderRadius: 11, border: 'none',

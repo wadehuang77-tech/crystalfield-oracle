@@ -477,8 +477,6 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
       {/* Personal Year Forecast */}
       <PersonalYearForecast
         report={report}
-        tier={tier}
-        onUpgrade={onUpgrade}
         forecastUnlocked={forecastUnlocked}
         onForecastUnlock={onForecastUnlock}
       />

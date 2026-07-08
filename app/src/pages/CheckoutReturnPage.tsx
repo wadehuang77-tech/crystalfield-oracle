@@ -18,6 +18,7 @@ const SPREAD_HOME: Record<string, string> = {
   numerology_basic:    '/numerology',
   numerology_advanced: '/numerology',
   numerology_full:     '/numerology',
+  numerology_forecast: '/numerology?section=forecast',
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {
