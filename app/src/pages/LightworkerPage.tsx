@@ -36,7 +36,7 @@ function LightworkerPage() {
 
   useEffect(() => {
     if (!deck || drawnPreview) return;
-    const pending = consumePendingSingleDraw('work_your_light_single');
+    const pending = consumePendingSingleDraw('lightworker_single');
     if (!pending) return;
     const preview = deck.find((c) => c.card_key === pending.card_key);
     if (!preview) return;
@@ -92,7 +92,7 @@ function LightworkerPage() {
   }, [hasDrawn]);
 
   const gate = useSingleCardGate({
-    spreadId: 'work_your_light_single',
+    spreadId: 'lightworker_single',
     cardKey: drawnPreview?.card_key ?? null,
     enabled: !!(drawnPreview && hasDrawn && !unlocked),
   });
@@ -269,7 +269,7 @@ function LightworkerPage() {
                         onUnlocked={handleUnlocked}
                         readingType="lightworker_single"
                         theme="dark"
-                        cardUnlock={{ spread_id: 'work_your_light_single', card_key: drawnPreview.card_key }}
+                        cardUnlock={{ spread_id: 'lightworker_single', card_key: drawnPreview.card_key }}
                       />
                     )}
                     <MembershipGate
@@ -277,7 +277,7 @@ function LightworkerPage() {
                       onClose={() => gate.setShowMembership(false)}
                       resumePath="/lightworker"
                       pendingSingleDraw={drawnPreview ? {
-                        spread_id: 'work_your_light_single',
+                        spread_id: 'lightworker_single',
                         card_key: drawnPreview.card_key,
                       } : undefined}
                     />
