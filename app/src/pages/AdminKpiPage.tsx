@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, ArrowLeft, DollarSign, Mail, TrendingUp, Users } from 'lucide-react';
-import { adminApi, MetricsResponse, DailyRow } from '../lib/api';
+import { adminApi, type MetricsResponse, type DailyRow, type PaymentDetail } from '../lib/api';
 
 function formatPct(v: number): string {
   return `${(v * 100).toFixed(1)}%`;
@@ -94,6 +94,43 @@ function LegendDot({ color, label }: { color: string; label: string }) {
       <span className={`w-2.5 h-2.5 rounded-full ${color}`} />
       {label}
     </span>
+  );
+}
+
+function formatTime(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value.slice(11, 16) || '--:--';
+  }
+  return date.toLocaleTimeString('zh-TW', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+function PaymentDetails({ payments }: { payments: PaymentDetail[] }) {
+  if (payments.length === 0) {
+    return <span className="text-blue-100/35">無</span>;
+  }
+
+  return (
+    <div className="space-y-2 min-w-[20rem]">
+      {payments.map((payment, index) => (
+        <div
+          key={`${payment.item_id}-${payment.paid_at}-${index}`}
+          className="rounded-lg border border-blue-500/15 bg-slate-950/35 px-3 py-2 text-left"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-blue-100/90 font-medium">{payment.email}</span>
+            <span className="text-blue-200 tabular-nums">{formatCurrency(payment.amount)}</span>
+          </div>
+          <div className="mt-1 text-xs text-blue-100/55">
+            {formatTime(payment.paid_at)}・{payment.deck_name}・{payment.spread_name}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -282,7 +319,9 @@ export function AdminKpiPage() {
                           <td className="px-4 py-3 text-blue-100/80">{d.date}</td>
                           <td className="px-4 py-3 text-right tabular-nums">{d.page_view}</td>
                           <td className="px-4 py-3 text-right tabular-nums">{d.email_submit}</td>
-                          <td className="px-4 py-3 text-right tabular-nums">{d.pay_success}</td>
+                          <td className="px-4 py-3 align-top">
+                            <PaymentDetails payments={d.payments ?? []} />
+                          </td>
                           <td className="px-4 py-3 text-right tabular-nums">
                             {formatCurrency(d.revenue)}
                           </td>

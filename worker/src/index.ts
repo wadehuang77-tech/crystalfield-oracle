@@ -796,6 +796,33 @@ interface DailyBucket {
   email_submit: number;
   pay_success: number;
   revenue: number;
+  payments: PaymentDetail[];
+}
+
+interface PaymentDetail {
+  paid_at: string;
+  email: string;
+  item_id: string;
+  item_name: string;
+  deck_name: string;
+  spread_name: string;
+  amount: number;
+}
+
+const KPI_SPREAD_LABELS: Record<string, { deck_name: string; spread_name: string }> = {
+  tarot_three:        { deck_name: '偉特塔羅',     spread_name: '三張牌陣' },
+  tarot_celtic:       { deck_name: '偉特塔羅',     spread_name: '凱爾特十字牌陣' },
+  tarot_pastlife:     { deck_name: '偉特塔羅',     spread_name: '前世因果陣' },
+  unicorns_three:     { deck_name: '獨角獸神諭卡', spread_name: '三張牌陣' },
+  dragons_three:      { deck_name: '龍族神諭卡',   spread_name: '三張牌陣' },
+  osho_three:         { deck_name: '奧修禪卡',     spread_name: '三張牌陣' },
+  celtic_cross:       { deck_name: '光行者神諭',   spread_name: '十字交叉使命陣' },
+  cosmic_cross:       { deck_name: '光之訊息',     spread_name: '宇宙十字牌陣' },
+  egyptian_pastlife:  { deck_name: '埃及神諭',     spread_name: '前世因果陣' },
+};
+
+function emptyDailyBucket(): DailyBucket {
+  return { page_view: 0, email_submit: 0, pay_success: 0, revenue: 0, payments: [] };
 }
 
 async function adminMetricsDaily(req: Request, env: Env, url: URL): Promise<Response> {
@@ -809,28 +836,60 @@ async function adminMetricsDaily(req: Request, env: Env, url: URL): Promise<Resp
     `SELECT
         substr(created_at, 1, 10) AS day,
         event_type,
-        COUNT(*) AS cnt,
-        COALESCE(SUM(
-          CASE WHEN event_type = 'pay_success'
-            THEN CAST(json_extract(meta, '$.amount') AS REAL)
-            ELSE 0
-          END
-        ), 0) AS revenue
+        COUNT(*) AS cnt
        FROM events
       WHERE created_at >= ?
+        AND event_type IN ('page_view', 'email_submit')
       GROUP BY day, event_type`
-  ).bind(since).all<{ day: string; event_type: string; cnt: number; revenue: number }>();
+  ).bind(since).all<{ day: string; event_type: string; cnt: number }>();
 
   const byDay: Record<string, DailyBucket> = {};
   for (const row of result.results || []) {
     const k = row.day;
-    if (!byDay[k]) byDay[k] = { page_view: 0, email_submit: 0, pay_success: 0, revenue: 0 };
+    if (!byDay[k]) byDay[k] = emptyDailyBucket();
     if (row.event_type === 'page_view') byDay[k].page_view = row.cnt;
     else if (row.event_type === 'email_submit') byDay[k].email_submit = row.cnt;
-    else if (row.event_type === 'pay_success') {
-      byDay[k].pay_success = row.cnt;
-      byDay[k].revenue = Number(row.revenue) || 0;
-    }
+  }
+
+  const paidOrders = await env.DB.prepare(
+    `SELECT
+        substr(COALESCE(paid_at, updated_at, created_at), 1, 10) AS day,
+        COALESCE(paid_at, updated_at, created_at) AS paid_at,
+        email,
+        item_id,
+        item_name,
+        amount
+       FROM orders
+      WHERE status = 'paid'
+        AND COALESCE(paid_at, updated_at, created_at) >= ?
+      ORDER BY COALESCE(paid_at, updated_at, created_at) DESC`
+  ).bind(since).all<{
+    day: string;
+    paid_at: string;
+    email: string;
+    item_id: string;
+    item_name: string;
+    amount: number;
+  }>();
+
+  for (const order of paidOrders.results || []) {
+    const k = order.day;
+    if (!byDay[k]) byDay[k] = emptyDailyBucket();
+    const label = KPI_SPREAD_LABELS[order.item_id] ?? {
+      deck_name: order.item_name,
+      spread_name: order.item_name,
+    };
+    byDay[k].pay_success += 1;
+    byDay[k].revenue += Number(order.amount) || 0;
+    byDay[k].payments.push({
+      paid_at: order.paid_at,
+      email: order.email,
+      item_id: order.item_id,
+      item_name: order.item_name,
+      deck_name: label.deck_name,
+      spread_name: label.spread_name,
+      amount: Number(order.amount) || 0,
+    });
   }
 
   const daily = Object.entries(byDay)
@@ -843,7 +902,7 @@ async function adminMetricsDaily(req: Request, env: Env, url: URL): Promise<Resp
     .sort((a, b) => a.date.localeCompare(b.date));
 
   const todayKey = new Date().toISOString().slice(0, 10);
-  const today = byDay[todayKey] ?? { page_view: 0, email_submit: 0, pay_success: 0, revenue: 0 };
+  const today = byDay[todayKey] ?? emptyDailyBucket();
 
   const totals = daily.reduce(
     (acc, d) => ({
@@ -851,8 +910,9 @@ async function adminMetricsDaily(req: Request, env: Env, url: URL): Promise<Resp
       email_submit:  acc.email_submit + d.email_submit,
       pay_success:   acc.pay_success + d.pay_success,
       revenue:       acc.revenue + d.revenue,
+      payments:      acc.payments.concat(d.payments),
     }),
-    { page_view: 0, email_submit: 0, pay_success: 0, revenue: 0 },
+    { page_view: 0, email_submit: 0, pay_success: 0, revenue: 0, payments: [] as PaymentDetail[] },
   );
 
   return await json(req, env, {

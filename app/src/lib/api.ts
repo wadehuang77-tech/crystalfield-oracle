@@ -386,6 +386,16 @@ export interface DailyRow {
   revenue: number;
   email_conversion_rate: number;
   pay_conversion_rate: number;
+  payments: PaymentDetail[];
+}
+export interface PaymentDetail {
+  paid_at: string;
+  email: string;
+  item_id: string;
+  item_name: string;
+  deck_name: string;
+  spread_name: string;
+  amount: number;
 }
 export interface MetricsResponse {
   today: DailyRow;
