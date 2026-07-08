@@ -1,4 +1,4 @@
-const SINGLE_KEY = 'cf_single_unlocks';
+const SINGLE_KEY = 'cf_single_unlocks_v2';
 const MULTI_KEY  = 'cf_multi_unlocks';
 
 function safeGet(key: string): number {
