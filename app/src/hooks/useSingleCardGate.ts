@@ -57,11 +57,11 @@ export function useSingleCardGate({
     };
 
     const continueForNonMember = () => {
-      if (count < 2) {
-        autoUnlock();
+      if (count === 2) {
+        setPhase('email_gate');
         return;
       }
-      setPhase('email_gate');
+      autoUnlock();
     };
 
     if (user) {
