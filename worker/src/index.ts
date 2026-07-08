@@ -11,6 +11,14 @@ import {
 import { computeEcpayCheckMac, SPREAD_CATALOG } from './ecpay';
 import { checkoutResult, createOrder, getOrder } from './checkout';
 import {
+  cancelMyMembership,
+  getMembershipSummary,
+  getMyMembership,
+  handleMembershipRecurringCallback,
+  markMembershipFirstPaymentPaid,
+  refreshMyMembership,
+} from './subscriptions';
+import {
   requestPasswordReset,
   resetPassword,
   verifyResetCode,
@@ -81,6 +89,9 @@ export default {
       }
 
       if (path === '/api/profile/me'               && req.method === 'GET')  return await getMyProfile(req, env);
+      if (path === '/api/membership/me'            && req.method === 'GET')  return await getMyMembership(req, env);
+      if (path === '/api/membership/refresh'       && req.method === 'POST') return await refreshMyMembership(req, env);
+      if (path === '/api/membership/cancel'        && req.method === 'POST') return await cancelMyMembership(req, env);
 
       if (path === '/api/decks' && req.method === 'GET') return await listDecks(req, env);
       if (path.startsWith('/api/decks/') && path.endsWith('/preview') && req.method === 'GET') {
@@ -324,11 +335,13 @@ async function getMyProfile(req: Request, env: Env): Promise<Response> {
     purchased_spreads: string; created_at: string; updated_at: string;
   }>();
   if (!row) return await json(req, env, { profile: null }, { status: 404 });
+  const membership = await getMembershipSummary(env, user.id);
 
   return await json(req, env, {
     profile: {
       ...row,
       purchased_spreads: parseJsonArray(row.purchased_spreads),
+      membership,
     },
   });
 }
@@ -909,10 +922,10 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
   }
 
   const order = await env.DB.prepare(
-    `SELECT id, user_id, item_id, item_type, amount, status
+    `SELECT id, user_id, merchant_trade_no, item_id, item_type, amount, status
        FROM orders WHERE merchant_trade_no = ?`
   ).bind(merchantTradeNo).first<{
-    id: string; user_id: string | null; item_id: string;
+    id: string; user_id: string | null; merchant_trade_no: string; item_id: string;
     item_type: string; amount: number; status: string;
   }>();
   const now = new Date().toISOString();
@@ -935,6 +948,14 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
       ).run();
     } catch {}
     return new Response('1|OK', { status: 200, headers: { 'Content-Type': 'text/plain' } });
+  }
+
+  if (order.item_id === 'membership_monthly' && params.TotalSuccessTimes) {
+    await handleMembershipRecurringCallback(env, params).catch(() => {});
+    return new Response('1|OK', {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
   if (params.RtnCode === '1') {
@@ -994,7 +1015,9 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
       const catalogItem = SPREAD_CATALOG[order.item_id];
       if (catalogItem?.bundle) {
         await grantBundleCredits(env, order.user_id, catalogItem.bundle).catch(() => {});
-      } else if (order.item_id.startsWith('numerology_') || order.item_id === 'membership_monthly') {
+      } else if (order.item_id === 'membership_monthly') {
+        await markMembershipFirstPaymentPaid(env, order, params).catch(() => {});
+      } else if (order.item_id.startsWith('numerology_')) {
         await env.DB.prepare(`
           UPDATE profiles
           SET purchased_spreads = (
@@ -1017,6 +1040,20 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
              updated_at = ?
            WHERE id = ?`
         ).bind(rawCallback, now, order.id).run();
+        if (order.item_id === 'membership_monthly') {
+          await env.DB.prepare(
+            `UPDATE subscriptions
+                SET status = 'failed',
+                    last_charge_status = ?,
+                    last_error_message = ?,
+                    updated_at = datetime('now')
+              WHERE merchant_trade_no = ?`
+          ).bind(
+            String(params.RtnCode ?? ''),
+            params.RtnMsg ?? null,
+            merchantTradeNo,
+          ).run().catch(() => {});
+        }
       } catch {
         return new Response('0|DB write failed', { status: 500, headers: { 'Content-Type': 'text/plain' } });
       }

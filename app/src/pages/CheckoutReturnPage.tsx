@@ -90,7 +90,7 @@ export default function CheckoutReturnPage() {
   const goSpread = () => {
     if (!order) return;
     if (order.item_id === 'membership_monthly') {
-      const redirect = consumeMembershipCheckoutRedirect() ?? '/oracle';
+      const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
       navigate(redirect);
       return;
     }
@@ -102,7 +102,7 @@ export default function CheckoutReturnPage() {
     if (order?.status !== 'paid') return;
     const t = setTimeout(() => {
       if (order.item_id === 'membership_monthly') {
-        const redirect = consumeMembershipCheckoutRedirect() ?? '/oracle';
+        const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
         navigate(redirect, { replace: true });
         return;
       }

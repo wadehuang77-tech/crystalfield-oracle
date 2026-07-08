@@ -77,7 +77,7 @@ export function useSingleCardGate({
       setPhase('loading');
       profileApi.me()
         .then(({ profile }) => {
-          if (profile?.purchased_spreads?.includes('membership_monthly')) {
+          if (profile?.membership?.is_active || profile?.purchased_spreads?.includes('membership_monthly')) {
             return cardsApi.freeUnlockSingle(spreadId, cardKey, reversed)
               .then(({ card }) => {
                 setUnlockedCard(card);

@@ -25,6 +25,7 @@ import { AdminKpiPage } from './pages/AdminKpiPage';
 import CheckoutReturnPage from './pages/CheckoutReturnPage';
 import LandingPage from './pages/LandingPage';
 import NumerologyPage from './pages/NumerologyPage';
+import MembershipPage from './pages/MembershipPage';
 import PageHeader from './components/PageHeader';
 
 function RouterBody() {
@@ -56,6 +57,7 @@ function RouterBody() {
           <Route path="/osho/single" element={<OshoSinglePage />} />
           <Route path="/osho/three" element={<OshoThreePage />} />
           <Route path="/checkout/return" element={<CheckoutReturnPage />} />
+          <Route path="/membership" element={<ProtectedRoute><MembershipPage /></ProtectedRoute>} />
           <Route path="/numerology" element={<NumerologyPage />} />
           <Route path="/human-design" element={<Navigate to="/" replace />} />
         </Routes>

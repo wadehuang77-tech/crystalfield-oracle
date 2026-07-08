@@ -54,8 +54,36 @@ export interface Profile {
   occupation: string | null;
   healing_interest: string | null;
   purchased_spreads: string[];
+  membership?: MembershipSubscription | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface MembershipSubscription {
+  id: string;
+  item_id: string;
+  amount: number;
+  period_type: string;
+  frequency: number;
+  exec_times: number;
+  status: 'pending' | 'active' | 'cancelling' | 'cancelled' | 'completed' | 'past_due' | 'expired';
+  is_active: boolean;
+  cancel_at_period_end: boolean;
+  total_success_times: number;
+  total_success_amount: number;
+  current_period_started_at: string | null;
+  current_period_ends_at: string | null;
+  first_paid_at: string | null;
+  last_paid_at: string | null;
+  cancel_requested_at: string | null;
+  cancelled_at: string | null;
+  completed_at: string | null;
+  last_charge_status: string | null;
+  last_error_message: string | null;
+  card_last4: string | null;
+  card_first6: string | null;
+  merchant_trade_no: string;
+  last_synced_at: string | null;
 }
 
 export interface AdminRow {
@@ -110,6 +138,12 @@ export const authApi = {
 
 export const profileApi = {
   me: () => req<{ profile: Profile | null }>('/api/profile/me'),
+};
+
+export const membershipApi = {
+  me: () => req<{ membership: MembershipSubscription | null }>('/api/membership/me'),
+  refresh: () => req<{ membership: MembershipSubscription | null }>('/api/membership/refresh', { method: 'POST' }),
+  cancel: () => req<{ membership: MembershipSubscription | null }>('/api/membership/cancel', { method: 'POST' }),
 };
 
 export interface EcpayForm {

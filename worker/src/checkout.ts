@@ -5,6 +5,12 @@ import {
   SPREAD_CATALOG,
 } from './ecpay';
 import {
+  clearStalePendingMemberships,
+  createPendingMembershipSubscription,
+  markMembershipFirstPaymentPaid,
+  rejectDuplicateActiveMembership,
+} from './subscriptions';
+import {
   badRequest,
   Env,
   json,
@@ -79,6 +85,11 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   if (!user && !isGuestSpreadCheckout) {
     return unauthorized(req, env, '請先登入');
   }
+  if (user && item.id === 'membership_monthly') {
+    await clearStalePendingMemberships(env, user.id);
+    const reason = await rejectDuplicateActiveMembership(env, user.id);
+    if (reason) return badRequest(req, env, reason);
+  }
 
   const guestEmail = typeof body.guest_email === 'string' ? body.guest_email.toLowerCase().trim() : '';
   if (isGuestSpreadCheckout && !validEmail(guestEmail)) {
@@ -127,17 +138,27 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     await env.DB.prepare(
       `INSERT INTO orders
          (id, merchant_trade_no, user_id, email, item_type, item_id, item_name, amount, status, picks_payload)
-       VALUES (?, ?, ?, ?, 'spread', ?, ?, ?, 'pending', ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`
     ).bind(
       orderId,
       merchantTradeNo,
       user?.id ?? null,
       user?.email ?? guestEmail,
+      item.id === 'membership_monthly' ? 'subscription' : 'spread',
       item.id,
       item.name,
       item.amount,
       picksPayload,
     ).run();
+
+    if (user && item.id === 'membership_monthly') {
+      await createPendingMembershipSubscription(env, {
+        userId: user.id,
+        orderId,
+        merchantTradeNo,
+        amount: item.amount,
+      });
+    }
   }
 
   const orderEmail = user?.email ?? guestEmail ?? 'guest-order@crystalfield.local';
@@ -162,7 +183,18 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     ).bind(orderId).run();
 
     // Grant access immediately (mirrors webhook logic) so admins can test unlock flow
-    if (item.id.startsWith('numerology_') || item.id === 'membership_monthly') {
+    if (item.id === 'membership_monthly') {
+      await markMembershipFirstPaymentPaid(env, {
+        id: orderId,
+        user_id: user.id,
+        merchant_trade_no: merchantTradeNo,
+        amount: item.amount,
+      }, {
+        RtnCode: '1',
+        TradeNo: `ADMIN${merchantTradeNo.slice(-14)}`,
+        PaymentDate: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      }).catch(() => {});
+    } else if (item.id.startsWith('numerology_')) {
       await env.DB.prepare(`
         UPDATE profiles
         SET purchased_spreads = (
@@ -205,6 +237,14 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     returnURL:       `${apiOrigin}/api/ecpay-webhook`,
     clientBackURL:   `${frontendOrigin}/checkout/return?order_id=${orderId}&order_token=${encodeURIComponent(orderToken)}`,
     orderResultURL:  `${apiOrigin}/api/checkout/result`,
+    choosePayment:   item.id === 'membership_monthly' ? 'Credit' : undefined,
+    periodAmount:    item.id === 'membership_monthly' ? item.amount : undefined,
+    periodType:      item.id === 'membership_monthly' ? 'M' : undefined,
+    frequency:       item.id === 'membership_monthly' ? 1 : undefined,
+    execTimes:       item.id === 'membership_monthly' ? 99 : undefined,
+    periodReturnURL: item.id === 'membership_monthly' ? `${apiOrigin}/api/ecpay-webhook` : undefined,
+    customField1:    item.id === 'membership_monthly' ? orderId : undefined,
+    customField2:    item.id === 'membership_monthly' ? (user?.id ?? '') : undefined,
   }, env.ECPAY_ENV);
 
   return json(req, env, {

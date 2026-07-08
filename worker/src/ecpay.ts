@@ -117,6 +117,15 @@ export interface AioCheckOutInput {
   orderResultURL?: string;
   paymentType?: string;
   choosePayment?: string;
+  periodAmount?: number;
+  periodType?: 'D' | 'M' | 'Y';
+  frequency?: number;
+  execTimes?: number;
+  periodReturnURL?: string;
+  customField1?: string;
+  customField2?: string;
+  customField3?: string;
+  customField4?: string;
 }
 
 export interface AioCheckOutForm {
@@ -163,6 +172,15 @@ export async function buildAioCheckOutForm(
     EncryptType:       '1',
   };
   if (input.orderResultURL) fields.OrderResultURL = input.orderResultURL;
+  if (input.periodAmount !== undefined) fields.PeriodAmount = String(input.periodAmount);
+  if (input.periodType) fields.PeriodType = input.periodType;
+  if (input.frequency !== undefined) fields.Frequency = String(input.frequency);
+  if (input.execTimes !== undefined) fields.ExecTimes = String(input.execTimes);
+  if (input.periodReturnURL) fields.PeriodReturnURL = input.periodReturnURL;
+  if (input.customField1) fields.CustomField1 = input.customField1;
+  if (input.customField2) fields.CustomField2 = input.customField2;
+  if (input.customField3) fields.CustomField3 = input.customField3;
+  if (input.customField4) fields.CustomField4 = input.customField4;
 
   fields.CheckMacValue = await computeEcpayCheckMac(fields, input.hashKey, input.hashIV);
 
@@ -184,4 +202,112 @@ export function makeMerchantTradeNo(): string {
   crypto.getRandomValues(buf);
   const rand = Array.from(buf, (b) => ALPHA[b % 32]).join('');
   return ymd + hms + rand;
+}
+
+export function ecpayServerApiBase(envName: string | undefined): string {
+  return envName === 'stage'
+    ? 'https://payment-stage.ecpay.com.tw'
+    : 'https://payment.ecpay.com.tw';
+}
+
+export interface CreditPeriodQueryResult {
+  MerchantID: string;
+  MerchantTradeNo: string;
+  TradeNo?: string;
+  RtnCode: number | string;
+  PeriodType?: 'D' | 'M' | 'Y';
+  Frequency?: number | string;
+  ExecTimes?: number | string;
+  PeriodAmount?: number | string;
+  amount?: number | string;
+  gwsr?: number | string;
+  process_date?: string;
+  auth_code?: string;
+  card4no?: string;
+  card6no?: string;
+  TotalSuccessTimes?: number | string;
+  TotalSuccessAmount?: number | string;
+  ExecStatus?: string;
+  ExecLog?: Array<{
+    RtnCode?: number | string;
+    amount?: number | string;
+    gwsr?: number | string;
+    process_date?: string;
+    auth_code?: string;
+    TradeNo?: string;
+  }>;
+}
+
+export interface CreditPeriodActionResult {
+  RtnCode: number | string;
+  RtnMsg?: string;
+  MerchantID?: string;
+  MerchantTradeNo?: string;
+  CheckMacValue?: string;
+}
+
+function encodeFormBody(params: Record<string, string>): string {
+  return new URLSearchParams(params).toString();
+}
+
+async function parseEcpayApiResponse<T>(res: Response): Promise<T> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    const parsed = Object.fromEntries(new URLSearchParams(text).entries());
+    return parsed as T;
+  }
+}
+
+export async function queryCreditPeriodInfo(input: {
+  merchantId: string;
+  hashKey: string;
+  hashIV: string;
+  merchantTradeNo: string;
+  envName?: string;
+}): Promise<CreditPeriodQueryResult> {
+  const endpoint = `${ecpayServerApiBase(input.envName)}/Cashier/QueryCreditCardPeriodInfo`;
+  const params: Record<string, string> = {
+    MerchantID: input.merchantId,
+    MerchantTradeNo: input.merchantTradeNo,
+    TimeStamp: String(Math.floor(Date.now() / 1000)),
+  };
+  params.CheckMacValue = await computeEcpayCheckMac(params, input.hashKey, input.hashIV);
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: encodeFormBody(params),
+  });
+  if (!res.ok) {
+    throw new Error(`ECPay query failed: HTTP ${res.status}`);
+  }
+  return parseEcpayApiResponse<CreditPeriodQueryResult>(res);
+}
+
+export async function creditPeriodAction(input: {
+  merchantId: string;
+  hashKey: string;
+  hashIV: string;
+  merchantTradeNo: string;
+  action: 'Cancel' | 'ReAuth';
+  envName?: string;
+}): Promise<CreditPeriodActionResult> {
+  const endpoint = `${ecpayServerApiBase(input.envName)}/Cashier/CreditCardPeriodAction`;
+  const params: Record<string, string> = {
+    MerchantID: input.merchantId,
+    MerchantTradeNo: input.merchantTradeNo,
+    Action: input.action,
+    TimeStamp: String(Math.floor(Date.now() / 1000)),
+  };
+  params.CheckMacValue = await computeEcpayCheckMac(params, input.hashKey, input.hashIV);
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: encodeFormBody(params),
+  });
+  if (!res.ok) {
+    throw new Error(`ECPay action failed: HTTP ${res.status}`);
+  }
+  return parseEcpayApiResponse<CreditPeriodActionResult>(res);
 }

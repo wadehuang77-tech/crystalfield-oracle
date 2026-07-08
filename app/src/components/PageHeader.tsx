@@ -37,6 +37,7 @@ const ROUTES: Record<string, { title: string; accent: Accent }> = {
   '/osho/three':                 { title: '奧修禪卡 · 三張',      accent: 'teal'    },
   '/numerology':                 { title: '生命靈數',             accent: 'purple'  },
   '/checkout/return':            { title: '付款結果',             accent: 'blue'    },
+  '/membership':                 { title: '月費會員',             accent: 'slate'   },
   '/admin':                      { title: '管理後台',             accent: 'slate'   },
   '/admin/settings':             { title: '設定',                 accent: 'slate'   },
   '/admin/kpi':                  { title: 'KPI',                  accent: 'slate'   },
@@ -131,6 +132,15 @@ export default function PageHeader() {
               style={{ color: text, opacity: 0.6, display: 'flex', alignItems: 'center', flexShrink: 0 }}
             >
               <Shield style={{ width: 14, height: 14 }} />
+            </Link>
+          )}
+          {user && (
+            <Link
+              to="/membership"
+              title="月費會員"
+              style={{ color: text, opacity: 0.75, fontSize: 11, textDecoration: 'none', flexShrink: 0 }}
+            >
+              會員
             </Link>
           )}
           {!loading && (
