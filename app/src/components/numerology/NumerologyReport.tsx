@@ -233,7 +233,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
               const data = missingNumberData[n];
               if (!data) return null;
               const isOpen = expandedMissing === n;
-              const showFull = tier >= 1;
+              const showFull = crystalUnlocked;
               return (
                 <div
                   key={n}

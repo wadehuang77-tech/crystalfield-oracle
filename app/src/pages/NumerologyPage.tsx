@@ -62,6 +62,7 @@ export default function NumerologyPage() {
   const [oracleCard, setOracleCard] = useState<OracleCard | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('report');
+  const [pendingScrollTarget, setPendingScrollTarget] = useState<string | null>(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [upgradeDefaultTier, setUpgradeDefaultTier] = useState<PlanTier>(3);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -76,8 +77,9 @@ export default function NumerologyPage() {
   const [forecastCheckoutUnlocked, setForecastCheckoutUnlocked] = useState(() =>
     localStorage.getItem(FORECAST_UNLOCK_KEY) === '1',
   );
-  const effectiveTier = Math.max(tier, localTier) as PlanTier;
-  const isPremium = effectiveTier > 0;
+  const displayTier = Math.max(tier, localTier) as PlanTier;
+  const paidContentTier = Math.max(tier >= 2 ? tier : 0, localTier >= 2 ? localTier : 0) as PlanTier;
+  const isPremium = displayTier > 0;
   const pendingUpgradeRef = useRef<PlanTier | null>(null);
 
   // Capture upgrade intent from URL after auth redirect, then clean it
@@ -120,12 +122,21 @@ export default function NumerologyPage() {
   }, [user]);
 
   // ── Derive unlock flags from tier ───────────────────────────────
-  const crystalUnlocked = effectiveTier >= 1;
-  const oracleUnlocked = effectiveTier >= 2;
+  const crystalUnlocked = tier >= 1 || localTier >= 1;
+  const oracleUnlocked = paidContentTier >= 2;
   const forecastUnlocked =
-    effectiveTier >= 3 ||
+    paidContentTier >= 3 ||
     purchasedSpreads.includes(NUMEROLOGY_FORECAST_SKU) ||
     forecastCheckoutUnlocked;
+
+  useEffect(() => {
+    if (!pendingScrollTarget || !report || activeTab !== 'report') return;
+    const timer = window.setTimeout(() => {
+      document.getElementById(pendingScrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setPendingScrollTarget(null);
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [activeTab, pendingScrollTarget, report]);
 
   useEffect(() => {
     const orderId = searchParams.get('order_id');
@@ -164,14 +175,12 @@ export default function NumerologyPage() {
         }
 
         setActiveTab('report');
-        window.requestAnimationFrame(() => {
-          const id = returnSection === 'crystal'
-            ? 'numerology-crystal-healing'
-            : returnSection === 'forecast'
-            ? 'numerology-forecast'
-            : null;
-          if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+        const id = returnSection === 'crystal'
+          ? 'numerology-crystal-healing'
+          : returnSection === 'forecast'
+          ? 'numerology-forecast'
+          : null;
+        setPendingScrollTarget(id);
 
         const next = new URLSearchParams(searchParams);
         next.delete('order_id');
@@ -288,7 +297,7 @@ export default function NumerologyPage() {
             {isPremium ? (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.28)', color: '#fbbf24', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em' }}>
                 <Crown style={{ width: 11, height: 11 }} />
-                {effectiveTier === 1 ? '基礎版' : effectiveTier === 2 ? '進階版' : '完整靈魂版'}
+                {displayTier === 1 ? '基礎版' : displayTier === 2 ? '進階版' : '完整靈魂版'}
               </div>
             ) : (
               <button onClick={() => handleUpgrade(3)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.22)', color: '#a78bfa', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}>
@@ -442,7 +451,7 @@ export default function NumerologyPage() {
               report={report}
               oracleCard={oracleCard}
               onReset={handleReset}
-              tier={effectiveTier}
+              tier={paidContentTier}
               onUpgrade={handleUpgrade}
               crystalUnlocked={crystalUnlocked}
               onCrystalUnlock={() => handleTierCheckout(1, 'crystal')}
@@ -517,7 +526,7 @@ export default function NumerologyPage() {
           onClose={() => setShowUpgrade(false)}
           onConfirm={handleUpgradeConfirm}
           defaultTier={upgradeDefaultTier}
-          currentTier={effectiveTier}
+          currentTier={displayTier}
         />
       )}
 
