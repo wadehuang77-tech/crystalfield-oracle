@@ -124,10 +124,6 @@ export default function NumerologyPage() {
 
   const handleUpgradeConfirm = async (t: PlanTier) => {
     setShowUpgrade(false);
-    if (!user) {
-      navigate(`/auth?redirect=${encodeURIComponent('/numerology?upgrade=' + t)}`);
-      return;
-    }
     const sku = SKU_MAP[t];
     if (!sku) return;
     setCheckoutLoading(true);
