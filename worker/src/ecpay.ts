@@ -22,9 +22,9 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   dragons_three:     { id: 'dragons_three',     name: '龍族塔羅 三張牌陣',         amount: 250, category: 'three_card' },
   osho_three:        { id: 'osho_three',        name: '奧修禪卡 三張牌陣',         amount: 250, category: 'three_card' },
   // ── 十張牌陣 ────────────────────────────────────────────────────
-  tarot_celtic:      { id: 'tarot_celtic',      name: '偉特塔羅 凱爾特十字陣',     amount: 10, category: 'ten_card'   },
-  celtic_cross:      { id: 'celtic_cross',      name: '光行者神諭 十字交叉使命陣', amount: 10, category: 'ten_card'   },
-  cosmic_cross:      { id: 'cosmic_cross',      name: '光之訊息 宇宙十字牌陣',     amount: 10, category: 'ten_card'   },
+  tarot_celtic:      { id: 'tarot_celtic',      name: '偉特塔羅 凱爾特十字陣',     amount: 599, category: 'ten_card'   },
+  celtic_cross:      { id: 'celtic_cross',      name: '光行者神諭 十字交叉使命陣', amount: 599, category: 'ten_card'   },
+  cosmic_cross:      { id: 'cosmic_cross',      name: '光之訊息 宇宙十字牌陣',     amount: 599, category: 'ten_card'   },
   // ── 前世因果陣 ─────────────────────────────────────────────────
   tarot_pastlife:    { id: 'tarot_pastlife',    name: '偉特塔羅 前世因果解鎖陣',   amount: 499, category: 'pastlife'   },
   egyptian_pastlife: { id: 'egyptian_pastlife', name: '埃及神諭 前世因果解鎖陣',   amount: 499, category: 'pastlife'   },
