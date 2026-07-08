@@ -215,8 +215,8 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
             </div>
           </ContentGate>
 
-          {/* Meditation & Ritual — email unlock */}
-          <ContentGate currentTier={tier} requiredTier={3} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked}>
+          {/* Meditation & Ritual — unlocked by advanced tier */}
+          <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked}>
             <div className="h-px mb-5" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
             <div className="rounded-2xl p-5 space-y-3" style={{ background: `${color}06`, border: `1px solid ${color}18` }}>
               <div className="flex items-center gap-2">

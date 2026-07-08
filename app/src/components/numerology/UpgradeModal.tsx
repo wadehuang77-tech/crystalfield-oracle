@@ -58,9 +58,10 @@ const PLANS: Record<PlanKey, {
       '靈魂藍圖 × 當下能量交叉指引',
       '當下靈數卡關點揭示',
       '神聖水晶陣指引',
+      '靜心冥想儀式指引',
     ],
     excludes: [
-      '靜心冥想儀式指引',
+      '完整流年報告',
     ],
     buttonLabel: '立即解鎖 進階版 NT$10',
   },
@@ -81,6 +82,7 @@ const PLANS: Record<PlanKey, {
       '當下靈數卡關點揭示',
       '神聖水晶陣指引',
       '靜心冥想儀式指引',
+      '完整流年報告',
     ],
     excludes: [],
     buttonLabel: '立即解鎖 完整靈魂版 NT$10',
@@ -93,7 +95,8 @@ const COMPARE_ROWS = [
   { label: '靈魂藍圖 × 當下能量交叉指引', basic: false, advanced: true, full: true  },
   { label: '當下靈數卡關點揭示',         basic: false, advanced: true,  full: true  },
   { label: '神聖水晶陣指引',             basic: false, advanced: true,  full: true  },
-  { label: '靜心冥想儀式指引',           basic: false, advanced: false, full: true  },
+  { label: '靜心冥想儀式指引',           basic: false, advanced: true,  full: true  },
+  { label: '完整流年報告',                 basic: false, advanced: false, full: true  },
 ];
 
 function tierToKey(t: PlanTier): PlanKey {

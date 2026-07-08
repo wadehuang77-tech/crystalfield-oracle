@@ -145,11 +145,11 @@ function buildRitual(
 儀式結束：感謝神諭的降臨，吹熄蠟燭，緩緩回到當下。建議將此次冥想中浮現的任何畫面、感受或洞見記錄在日記中。`;
 }
 
-export default function OracleReading({ report, card, tier, onUpgrade, oracleUnlocked: _oracleUnlocked, onOracleUnlock: _onOracleUnlock }: Props) {
+export default function OracleReading({ report, card, tier, onUpgrade, oracleUnlocked, onOracleUnlock }: Props) {
   const [expanded, setExpanded] = useState<'blockpoint' | 'crystalGrid' | 'ritual' | null>(null);
   const analysis = generateCrossAnalysis(report, card);
   const accentColor = card.elementColor;
-  const showFull = tier >= 2;
+  const showFull = oracleUnlocked;
   const lp = report.lifePathNumber;
   const topMissing = report.missingNumbers[0];
 
@@ -481,21 +481,21 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
               </button>
               {expanded === 'crystalGrid' && (
                 <div className="px-4 pb-4 pt-1" style={{ borderTop: `1px solid ${accentColor}10` }}>
-                  {tier >= 3 ? (
+                  {tier >= 2 ? (
                     <div className="rounded-2xl p-4" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}15` }}>
                       <p className="text-sm leading-[1.95]" style={{ color: '#e9d5ff' }}>{analysis.crystalGrid}</p>
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', padding: '16px 0' }}>
                       <Lock style={{ width: 16, height: 16, color: accentColor, margin: '0 auto 8px', opacity: 0.7 }} />
-                      <p style={{ margin: '0 0 10px', fontSize: 11, color: `${accentColor}80` }}>完整靈魂版方可查看</p>
-                      <button onClick={() => onUpgrade(3)} style={{
+                      <p style={{ margin: '0 0 10px', fontSize: 11, color: `${accentColor}80` }}>進階版方可查看</p>
+                      <button onClick={onOracleUnlock} style={{
                         padding: '8px 18px', borderRadius: 9,
                         border: `1px solid ${accentColor}35`,
                         background: `linear-gradient(135deg, ${accentColor}14, ${accentColor}05)`,
                         color: accentColor, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         touchAction: 'manipulation',
-                      } as React.CSSProperties}>解鎖完整靈魂版 NT$599</button>
+                      } as React.CSSProperties}>解鎖進階版 NT$10</button>
                     </div>
                   )}
                 </div>
@@ -519,17 +519,17 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
               </button>
               {expanded === 'ritual' && (
                 <div className="px-4 pb-4 pt-1" style={{ borderTop: `1px solid ${accentColor}10` }}>
-                  {tier < 3 ? (
+                  {tier < 2 ? (
                     <div style={{ textAlign: 'center', padding: '16px 0' }}>
                       <Lock style={{ width: 16, height: 16, color: accentColor, margin: '0 auto 8px', opacity: 0.7 }} />
-                      <p style={{ margin: '0 0 10px', fontSize: 11, color: `${accentColor}80` }}>完整靈魂版方可查看</p>
-                      <button onClick={() => onUpgrade(3)} style={{
+                      <p style={{ margin: '0 0 10px', fontSize: 11, color: `${accentColor}80` }}>進階版方可查看</p>
+                      <button onClick={onOracleUnlock} style={{
                         padding: '8px 18px', borderRadius: 9,
                         border: `1px solid ${accentColor}35`,
                         background: `linear-gradient(135deg, ${accentColor}14, ${accentColor}05)`,
                         color: accentColor, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         touchAction: 'manipulation',
-                      } as React.CSSProperties}>解鎖完整靈魂版 NT$599</button>
+                      } as React.CSSProperties}>解鎖進階版 NT$10</button>
                     </div>
                   ) : (
                   <div className="space-y-3">
@@ -676,7 +676,7 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
                   解鎖完整靈魂藍圖與當下能量交叉指引
                 </p>
                 <p style={{ margin: '4px 0 0', fontSize: 11, color: `${accentColor}70` }}>
-                  進階版 NT$399 · 永久查看
+                  進階版 NT$10 · 永久查看
                 </p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px 10px', marginBottom: 16 }}>
@@ -704,7 +704,7 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
                 } as React.CSSProperties}
               >
                 <Lock style={{ width: 13, height: 13 }} />
-                解鎖進階版 NT$399
+                解鎖進階版 NT$10
               </button>
             </div>
           </div>
