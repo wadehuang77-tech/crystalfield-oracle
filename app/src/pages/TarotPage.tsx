@@ -483,7 +483,7 @@ function TarotPage() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 max-w-5xl mx-auto">
                   {([
-                    { key: 'single',   Icon: Layers,    name: '單張牌',         desc: '第 1 次免費，第 4 次起加入會員', price: undefined },
+                    { key: 'single',   Icon: Layers,    name: '單張牌',         desc: '免費', price: undefined },
                     { key: 'three',    Icon: Columns3,  name: '三張牌陣',       desc: '過去 · 現在 · 未來',     price: 250 },
                     { key: 'celtic',   Icon: Compass,   name: '凱爾特十字',     desc: '深度全面解讀',           price: 599 },
                     { key: 'pastlife', Icon: Hourglass, name: '前世因果解鎖陣', desc: '揭開前世今生的因果',     price: 499 },
@@ -499,7 +499,7 @@ function TarotPage() {
                       {s.price !== undefined ? (
                         <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">NT$ {s.price}</p>
                       ) : (
-                        <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">第 1 次免費</p>
+                        <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">免費</p>
                       )}
                     </button>
                   ))}

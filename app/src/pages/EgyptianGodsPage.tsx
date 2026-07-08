@@ -637,7 +637,7 @@ function SpreadChoice({
         {price !== undefined ? (
           <p className="font-serif text-sm sm:text-base text-yellow-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">NT$ {price}</p>
         ) : (
-          <p className="font-serif text-sm sm:text-base text-yellow-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">第 1 次免費</p>
+          <p className="font-serif text-sm sm:text-base text-yellow-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">免費</p>
         )}
         <span className="mt-auto inline-flex items-center gap-2 px-5 py-2 border border-yellow-500/50 bg-yellow-500/10 rounded-lg text-xs tracking-[0.35em] sm:tracking-[0.4em] text-yellow-200 transition-all duration-300 group-hover:bg-yellow-500/25 group-hover:border-yellow-400/70 group-hover:translate-x-1">
           {cta}

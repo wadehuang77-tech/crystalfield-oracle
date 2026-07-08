@@ -312,7 +312,7 @@ function DragonsPage() {
                       <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                         <span>單張神諭</span>
                         <span className="text-sm sm:text-base opacity-90">召喚龍族訊息</span>
-                        <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.2em]">第 1 次免費</span>
+                        <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.2em]">免費</span>
                       </h3>
                     </div>
                   </button>
