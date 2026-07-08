@@ -54,6 +54,13 @@ crystalfield-oracle/
 - 會員註冊、登入、忘記密碼
 - 管理後台：使用者、訪客 email、訂單、管理員、KPI 儀表板
 - 轉換事件與頁面瀏覽追蹤
+- 月費會員定期定額管理（綠界信用卡 recurring）
+
+## 訂閱上線文件
+
+月費會員定期定額的 migration、測試流程與已知限制請看：
+
+- [docs/subscription-rollout.md](/Users/mac/Projects/crystalfield-oracle/docs/subscription-rollout.md)
 
 ## 前置需求
 
@@ -219,7 +226,8 @@ npm run types      # 重新產生 Worker 型別定義
 | `/osho` | Osho |
 | `/osho/single` | Osho 單張牌 |
 | `/osho/three` | Osho 三張牌 |
-| `/checkout/return` | 付款完成回傳頁（需登入） |
+| `/checkout/return` | 付款完成回傳頁 |
+| `/membership` | 月費會員管理（需登入） |
 | `/admin` | 管理後台（需管理員） |
 | `/admin/settings` | 管理員帳號設定 |
 | `/admin/kpi` | KPI 儀表板 |
