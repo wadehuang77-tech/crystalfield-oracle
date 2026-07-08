@@ -36,12 +36,20 @@ const SKU_MAP: Record<number, string> = {
 
 const NUMEROLOGY_FORECAST_SKU = 'numerology_forecast';
 const FORECAST_UNLOCK_KEY = 'cf_numerology_forecast_unlocked';
+const LOCAL_TIER_KEY = 'cf_numerology_local_tier';
 const RETURN_STATE_KEY = 'cf_numerology_return_state';
 
 function getTierFromSpreads(purchased: string[]): PlanTier {
   if (purchased.includes('numerology_full')) return 3;
   if (purchased.includes('numerology_advanced')) return 2;
   if (purchased.includes('numerology_basic')) return 1;
+  return 0;
+}
+
+function getTierFromSku(sku: string): PlanTier {
+  if (sku === 'numerology_full') return 3;
+  if (sku === 'numerology_advanced') return 2;
+  if (sku === 'numerology_basic') return 1;
   return 0;
 }
 
@@ -61,10 +69,15 @@ export default function NumerologyPage() {
   // ── Tier from profile ────────────────────────────────────────────
   const [tier, setTier] = useState<PlanTier>(0);
   const [purchasedSpreads, setPurchasedSpreads] = useState<string[]>([]);
+  const [localTier, setLocalTier] = useState<PlanTier>(() => {
+    const n = Number(localStorage.getItem(LOCAL_TIER_KEY));
+    return n >= 1 && n <= 3 ? n as PlanTier : 0;
+  });
   const [forecastCheckoutUnlocked, setForecastCheckoutUnlocked] = useState(() =>
     localStorage.getItem(FORECAST_UNLOCK_KEY) === '1',
   );
-  const isPremium = tier > 0;
+  const effectiveTier = Math.max(tier, localTier) as PlanTier;
+  const isPremium = effectiveTier > 0;
   const pendingUpgradeRef = useRef<PlanTier | null>(null);
 
   // Capture upgrade intent from URL after auth redirect, then clean it
@@ -107,10 +120,10 @@ export default function NumerologyPage() {
   }, [user]);
 
   // ── Derive unlock flags from tier ───────────────────────────────
-  const crystalUnlocked = tier >= 1;
-  const oracleUnlocked = tier >= 2;
+  const crystalUnlocked = effectiveTier >= 1;
+  const oracleUnlocked = effectiveTier >= 2;
   const forecastUnlocked =
-    tier >= 3 ||
+    effectiveTier >= 3 ||
     purchasedSpreads.includes(NUMEROLOGY_FORECAST_SKU) ||
     forecastCheckoutUnlocked;
 
@@ -123,25 +136,41 @@ export default function NumerologyPage() {
 
     checkoutApi.getOrder(orderId, orderToken)
       .then(({ order }) => {
-        if (cancelled || order.status !== 'paid' || order.item_id !== NUMEROLOGY_FORECAST_SKU) return;
-
-        localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
-        setForecastCheckoutUnlocked(true);
+        if (cancelled || order.status !== 'paid') return;
 
         const rawState = localStorage.getItem(RETURN_STATE_KEY);
+        let returnSection = searchParams.get('section') ?? '';
         if (rawState) {
           try {
-            const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null };
+            const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null; section?: string };
             if (state.report) setReport(state.report);
             setOracleCard(state.oracleCard ?? null);
+            returnSection = state.section ?? returnSection;
           } catch {
             localStorage.removeItem(RETURN_STATE_KEY);
           }
         }
 
+        const paidTier = getTierFromSku(order.item_id);
+        if (paidTier > 0) {
+          const nextTier = Math.max(localTier, paidTier) as PlanTier;
+          localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
+          setLocalTier(nextTier);
+        } else if (order.item_id === NUMEROLOGY_FORECAST_SKU) {
+          localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
+          setForecastCheckoutUnlocked(true);
+        } else {
+          return;
+        }
+
         setActiveTab('report');
         window.requestAnimationFrame(() => {
-          document.getElementById('numerology-forecast')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const id = returnSection === 'crystal'
+            ? 'numerology-crystal-healing'
+            : returnSection === 'forecast'
+            ? 'numerology-forecast'
+            : null;
+          if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
         const next = new URLSearchParams(searchParams);
@@ -180,14 +209,17 @@ export default function NumerologyPage() {
     setShowUpgrade(true);
   };
 
-  const handleForecastUnlock = async () => {
+  const saveReturnState = (section: string) => {
     if (report) {
-      localStorage.setItem(RETURN_STATE_KEY, JSON.stringify({ report, oracleCard }));
+      localStorage.setItem(RETURN_STATE_KEY, JSON.stringify({ report, oracleCard, section }));
     }
+  };
 
+  const startNumerologyCheckout = async (sku: string, section: string, paidTier?: PlanTier) => {
+    saveReturnState(section);
     setCheckoutLoading(true);
     try {
-      const { ecpay } = await checkoutApi.createOrder(NUMEROLOGY_FORECAST_SKU);
+      const { ecpay } = await checkoutApi.createOrder(sku);
       if (ecpay) {
         submitToEcpay(ecpay, () => setCheckoutLoading(false));
       } else {
@@ -196,14 +228,30 @@ export default function NumerologyPage() {
           setPurchasedSpreads(profile.purchased_spreads);
           setTier(getTierFromSpreads(profile.purchased_spreads));
         }
-        setForecastCheckoutUnlocked(true);
-        localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
+        if (paidTier) {
+          const nextTier = Math.max(localTier, paidTier) as PlanTier;
+          localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
+          setLocalTier(nextTier);
+        } else if (sku === NUMEROLOGY_FORECAST_SKU) {
+          localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
+          setForecastCheckoutUnlocked(true);
+        }
         setCheckoutLoading(false);
       }
     } catch (err) {
-      console.error('forecast checkout failed', err);
+      console.error('numerology checkout failed', err);
       setCheckoutLoading(false);
     }
+  };
+
+  const handleTierCheckout = (required: PlanTier, section = 'report') => {
+    const sku = SKU_MAP[required];
+    if (!sku) return;
+    void startNumerologyCheckout(sku, section, required);
+  };
+
+  const handleForecastUnlock = async () => {
+    await startNumerologyCheckout(NUMEROLOGY_FORECAST_SKU, 'forecast');
   };
 
   const handleUpgradeConfirm = async (t: PlanTier) => {
@@ -240,7 +288,7 @@ export default function NumerologyPage() {
             {isPremium ? (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.28)', color: '#fbbf24', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em' }}>
                 <Crown style={{ width: 11, height: 11 }} />
-                {tier === 1 ? '基礎版' : tier === 2 ? '進階版' : '完整靈魂版'}
+                {effectiveTier === 1 ? '基礎版' : effectiveTier === 2 ? '進階版' : '完整靈魂版'}
               </div>
             ) : (
               <button onClick={() => handleUpgrade(3)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.22)', color: '#a78bfa', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}>
@@ -394,14 +442,14 @@ export default function NumerologyPage() {
               report={report}
               oracleCard={oracleCard}
               onReset={handleReset}
-              tier={tier}
+              tier={effectiveTier}
               onUpgrade={handleUpgrade}
               crystalUnlocked={crystalUnlocked}
-              onCrystalUnlock={() => handleUpgrade(1)}
+              onCrystalUnlock={() => handleTierCheckout(1, 'crystal')}
               forecastUnlocked={forecastUnlocked}
               onForecastUnlock={handleForecastUnlock}
               oracleUnlocked={oracleUnlocked}
-              onOracleUnlock={() => handleUpgrade(2)}
+              onOracleUnlock={() => handleTierCheckout(2, 'report')}
             />
           )}
           {activeTab === 'daily' && (
@@ -469,7 +517,7 @@ export default function NumerologyPage() {
           onClose={() => setShowUpgrade(false)}
           onConfirm={handleUpgradeConfirm}
           defaultTier={upgradeDefaultTier}
-          currentTier={tier}
+          currentTier={effectiveTier}
         />
       )}
 

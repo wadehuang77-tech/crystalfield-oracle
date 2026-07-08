@@ -182,6 +182,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
       {/* Missing Numbers */}
       {report.missingNumbers.length > 0 && (
         <div
+          id="numerology-crystal-healing"
           className="rounded-3xl p-6 space-y-4"
           style={{
             background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
@@ -444,7 +445,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                               ))}
                             </div>
                             <button
-                              onClick={() => onUpgrade(1)}
+                              onClick={onCrystalUnlock}
                               style={{
                                 width: '100%', padding: '11px',
                                 borderRadius: 10, border: 'none',
