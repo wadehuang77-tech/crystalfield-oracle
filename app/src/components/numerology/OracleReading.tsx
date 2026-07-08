@@ -481,23 +481,9 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
               </button>
               {expanded === 'crystalGrid' && (
                 <div className="px-4 pb-4 pt-1" style={{ borderTop: `1px solid ${accentColor}10` }}>
-                  {tier >= 2 ? (
-                    <div className="rounded-2xl p-4" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}15` }}>
-                      <p className="text-sm leading-[1.95]" style={{ color: '#e9d5ff' }}>{analysis.crystalGrid}</p>
-                    </div>
-                  ) : (
-                    <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                      <Lock style={{ width: 16, height: 16, color: accentColor, margin: '0 auto 8px', opacity: 0.7 }} />
-                      <p style={{ margin: '0 0 10px', fontSize: 11, color: `${accentColor}80` }}>進階版方可查看</p>
-                      <button onClick={onOracleUnlock} style={{
-                        padding: '8px 18px', borderRadius: 9,
-                        border: `1px solid ${accentColor}35`,
-                        background: `linear-gradient(135deg, ${accentColor}14, ${accentColor}05)`,
-                        color: accentColor, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                        touchAction: 'manipulation',
-                      } as React.CSSProperties}>解鎖進階版 NT$10</button>
-                    </div>
-                  )}
+                  <div className="rounded-2xl p-4" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}15` }}>
+                    <p className="text-sm leading-[1.95]" style={{ color: '#e9d5ff' }}>{analysis.crystalGrid}</p>
+                  </div>
                 </div>
               )}
             </div>

@@ -40,7 +40,6 @@ const PLANS: Record<PlanKey, {
     excludes: [
       '靈魂藍圖 × 當下能量交叉指引',
       '當下靈數卡關點揭示',
-      '神聖水晶陣指引',
       '靜心冥想儀式指引',
     ],
     buttonLabel: '立即解鎖 基礎版 NT$10',
@@ -57,7 +56,6 @@ const PLANS: Record<PlanKey, {
       '高頻水晶療癒方案',
       '靈魂藍圖 × 當下能量交叉指引',
       '當下靈數卡關點揭示',
-      '神聖水晶陣指引',
       '靜心冥想儀式指引',
     ],
     excludes: [
@@ -80,7 +78,6 @@ const PLANS: Record<PlanKey, {
       '高頻水晶療癒方案',
       '靈魂藍圖 × 當下能量交叉指引',
       '當下靈數卡關點揭示',
-      '神聖水晶陣指引',
       '靜心冥想儀式指引',
       '完整流年報告',
     ],
@@ -94,7 +91,6 @@ const COMPARE_ROWS = [
   { label: '缺失數字 × 水晶療癒方案',   basic: true,  advanced: true,  full: true  },
   { label: '靈魂藍圖 × 當下能量交叉指引', basic: false, advanced: true, full: true  },
   { label: '當下靈數卡關點揭示',         basic: false, advanced: true,  full: true  },
-  { label: '神聖水晶陣指引',             basic: false, advanced: true,  full: true  },
   { label: '靜心冥想儀式指引',           basic: false, advanced: true,  full: true  },
   { label: '完整流年報告',                 basic: false, advanced: false, full: true  },
 ];

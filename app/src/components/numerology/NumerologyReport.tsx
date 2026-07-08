@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Gem, Heart, DollarSign, Star, Zap, ChevronDown, ChevronUp, Lock, Check, ShoppingBag } from 'lucide-react';
+import { Gem, Heart, DollarSign, Star, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport as Report, OracleCard } from '../../lib/numerology';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
 import CrystalBracelet from './CrystalBracelet';
@@ -494,47 +494,8 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
         />
       )}
 
-      {/* Crystal Bracelet Recommendation — tier 2+ */}
-      {tier >= 2 ? (
-        <CrystalBracelet report={report} tier={tier} onUpgrade={onUpgrade} />
-      ) : (
-        <div
-          className="rounded-3xl p-6"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-            border: '1px solid rgba(255,255,255,0.09)',
-          }}
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <ShoppingBag className="w-4 h-4" style={{ color: '#a78bfa' }} />
-            <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>神聖水晶陣指引</h3>
-          </div>
-          <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', minHeight: 80 }}>
-            <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none', padding: '8px 0' }}>
-              <p className="text-sm" style={{ color: 'rgba(196,181,253,0.6)' }}>專屬水晶手串搭配建議 · 神聖水晶陣排列配方 · 能量場加持指引</p>
-            </div>
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(to bottom, rgba(9,5,20,0.2) 0%, rgba(9,5,20,0.85) 100%)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10,
-            }}>
-              <Lock className="w-5 h-5" style={{ color: '#a78bfa' }} />
-              <button
-                onClick={() => onUpgrade(2)}
-                style={{
-                  padding: '9px 20px', borderRadius: 10,
-                  border: '1px solid rgba(167,139,250,0.35)',
-                  background: 'linear-gradient(135deg, rgba(167,139,250,0.18), rgba(167,139,250,0.06))',
-                  color: '#c4b5fd', fontSize: 12, fontWeight: 600,
-                  cursor: 'pointer', touchAction: 'manipulation',
-                } as React.CSSProperties}
-              >
-                解鎖進階版查看
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Crystal Bracelet Recommendation */}
+      <CrystalBracelet report={report} tier={tier} onUpgrade={onUpgrade} />
 
       {/* Reset */}
       <button
