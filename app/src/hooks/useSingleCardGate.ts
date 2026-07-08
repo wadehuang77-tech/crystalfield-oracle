@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { cardsApi, profileApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
-import { getSingleUnlockCount, incrementSingleUnlock } from './useDrawCounter';
+import {
+  getSingleUnlockCount,
+  hasSeenSingleEmailGate,
+  incrementSingleUnlock,
+  markSingleEmailGateSeen,
+} from './useDrawCounter';
 
 export type SingleGatePhase = 'idle' | 'loading' | 'unlocked' | 'email_gate' | 'membership_gate';
 
@@ -42,6 +47,7 @@ export function useSingleCardGate({
     firedRef.current = true;
 
     const count = getSingleUnlockCount();
+    const hasSeenEmailGate = hasSeenSingleEmailGate();
     const autoUnlock = () => {
       setPhase('loading');
       cardsApi.freeUnlockSingle(spreadId, cardKey, reversed)
@@ -57,7 +63,8 @@ export function useSingleCardGate({
     };
 
     const continueForNonMember = () => {
-      if (count === 2) {
+      if (count === 2 && !hasSeenEmailGate) {
+        markSingleEmailGateSeen();
         setPhase('email_gate');
         return;
       }
