@@ -43,7 +43,7 @@ export default function OshoPage() {
             onClick={() => navigate('/osho/three')}
             title="三張牌陣"
             body="過去・現在・未來，或身・心・靈。深度冥想之選。"
-            price={10}
+            price={250}
             icon={
               <div className="w-20 h-20 bg-gradient-to-br from-teal-500/20 to-cyan-500/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                 <div className="flex gap-1">
