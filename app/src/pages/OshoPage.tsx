@@ -22,7 +22,7 @@ export default function OshoPage() {
           </div>
           <div className="text-left">
             <h1 className="text-3xl font-serif bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent leading-tight">
-              Osho Zen Tarot 奧修禪卡
+              奧修禪卡
             </h1>
             <p className="text-teal-200/70 text-sm mt-1 tracking-wide">不是預測未來，而是照見此刻的真相</p>
           </div>
@@ -43,7 +43,7 @@ export default function OshoPage() {
             onClick={() => navigate('/osho/three')}
             title="三張牌陣"
             body="過去・現在・未來，或身・心・靈。深度冥想之選。"
-            price={250}
+            price={10}
             icon={
               <div className="w-20 h-20 bg-gradient-to-br from-teal-500/20 to-cyan-500/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                 <div className="flex gap-1">
