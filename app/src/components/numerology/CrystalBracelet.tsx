@@ -1,4 +1,4 @@
-import { ShoppingBag, Sparkles } from 'lucide-react';
+import { Gem, ShoppingBag, Sparkles } from 'lucide-react';
 import type { NumerologyReport } from '../../lib/numerology';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
 import type { PlanTier } from '../../hooks/usePremium';
@@ -132,6 +132,18 @@ const generalBracelets: BraceletTheme[] = [
     crystalNames: ['紫水晶', '白水晶'],
   },
 ];
+
+const lifePathCrystalGrids: Record<number, string> = {
+  1: '生命靈數 1 適合使用「意志錨定水晶陣」。以黑曜石置於中央穩住自我核心，四方放置黃水晶、紅瑪瑙、白水晶與茶晶，形成十字支撐。這個陣形能協助你把強烈的開創力落地，減少急躁與孤軍奮戰感，讓行動更穩、更清楚。',
+  2: '生命靈數 2 適合使用「心輪柔光水晶陣」。以粉晶放在中央，周圍用月光石、祖母綠、白水晶與海藍寶圍成柔和圓形。此陣能安撫敏感情緒，修復關係中的不安與依附感，幫助你在付出與接收之間取得平衡，建立溫柔但清楚的界線。',
+  3: '生命靈數 3 適合使用「創造表達水晶陣」。以海藍寶置中打開喉輪，外圈搭配紫水晶、黃水晶、白水晶與太陽石。這個陣形能清理腦中雜訊，把靈感轉化為能被看見的作品與語言，也能平衡情緒起伏，讓你的表達更自信、更有光。',
+  4: '生命靈數 4 適合使用「大地穩定水晶陣」。以茶晶或黑碧璽置於中央，四角放東菱玉、白水晶、黑曜石與綠幽靈，形成方形守護結構。此陣能舒緩過度責任感與緊繃，幫助你穩住身心節奏，把努力轉成可持續的安全感與現實成果。',
+  5: '生命靈數 5 適合使用「自由流動水晶陣」。以螢石放在中央整理混亂思緒，外圍搭配藍紋瑪瑙、白水晶、黃水晶與黑碧璽。此陣能讓快速變動的能量有清楚方向，降低衝動與分心，協助你在探索自由時仍保持內在穩定與選擇智慧。',
+  6: '生命靈數 6 適合使用「愛與滋養水晶陣」。以綠色電氣石或祖母綠置中，周圍放粉晶、月光石、白水晶與橄欖石。這個陣形能修復過度照顧他人造成的能量耗損，提醒你先回到自愛與身體滋養，再把溫暖穩定地分享給家人與關係。',
+  7: '生命靈數 7 適合使用「靈性接地水晶陣」。以青金石置中連結高我，底部放黑碧璽作為接地，左右搭配紫水晶、白水晶與拉長石。此陣能平衡過度思考與孤立感，讓直覺不只停在腦中，而是能落回身體，成為清楚、可信任的內在指引。',
+  8: '生命靈數 8 適合使用「豐盛顯化水晶陣」。以鈦晶或黃水晶放在中央，四方配置虎眼石、綠幽靈、白水晶與黑曜石。這個陣形能強化財富意識與執行力，同時平衡控制欲與壓力，協助你把權力感轉化為穩定、正向且可長久的豐盛流動。',
+  9: '生命靈數 9 適合使用「靈魂整合水晶陣」。以拉長石置中清理舊有能量，外圍搭配紫水晶、粉晶、白水晶與黑曜石。此陣能幫助你釋放過度承擔與舊情緒，整合慈悲、智慧與界線，讓你的療癒力先回到自己，再自然地服務他人。',
+};
 
 function CrystalBead({ hex, size = 'md' }: { hex: string; size?: 'sm' | 'md' }) {
   const s = size === 'sm' ? 'w-5 h-5' : 'w-7 h-7';
@@ -267,6 +279,7 @@ export default function CrystalBracelet({ report, tier: _tier, onUpgrade: _onUpg
 
   const lifeNum = report.lifePathNumber > 9 ? 9 : report.lifePathNumber;
   const featuredBracelet = lifePathBracelets[lifeNum] ?? lifePathBracelets[1];
+  const crystalGridGuidance = lifePathCrystalGrids[lifeNum] ?? lifePathCrystalGrids[1];
 
   const generalTwo = generalBracelets
     .filter(b => b.id !== featuredBracelet.id)
@@ -283,6 +296,22 @@ export default function CrystalBracelet({ report, tier: _tier, onUpgrade: _onUpg
         boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
       }}
     >
+      <div
+        className="rounded-2xl p-5 space-y-3"
+        style={{
+          background: 'linear-gradient(135deg, rgba(94,234,212,0.08) 0%, rgba(167,139,250,0.035) 100%)',
+          border: '1px solid rgba(94,234,212,0.18)',
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <Gem className="w-4 h-4" style={{ color: '#5eead4' }} />
+          <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>神聖水晶陣指引</h3>
+        </div>
+        <p className="text-sm leading-[1.9]" style={{ color: 'rgba(233,213,255,0.78)' }}>
+          {crystalGridGuidance}
+        </p>
+      </div>
+
       <div className="flex items-center gap-2">
         <Sparkles className="w-4 h-4" style={{ color: '#fbbf24' }} />
         <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>專屬水晶手串推薦</h3>
