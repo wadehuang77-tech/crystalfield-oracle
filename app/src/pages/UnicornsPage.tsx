@@ -14,8 +14,10 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import { useAuth } from '../contexts/AuthContext';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -41,6 +43,7 @@ const POINTS_LABELS: [keyof UnicornGated, string][] = [
 
 export default function UnicornsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('unicorns');
   const [searchParams] = useSearchParams();
   const initialSpread: 'single' | 'three' = searchParams.get('spread') === 'three' ? 'three' : 'single';
@@ -90,11 +93,20 @@ export default function UnicornsPage() {
 
   const handleCheckoutThree = async () => {
     if (isCheckingOut) return;
+    const guestEmail = readSavedMultiSpreadEmail();
+    if (!user && !guestEmail) {
+      setUnlockError('請先完成 Email 解鎖，再進行付款');
+      return;
+    }
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
       const checkoutPicks = drawnCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, checkoutPicks);
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
+        SPREAD_ID,
+        checkoutPicks,
+        !user ? { guest_email: guestEmail } : undefined,
+      );
       if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
       if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
       submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
@@ -234,6 +246,8 @@ export default function UnicornsPage() {
     spreadId: SPREAD_ID,
     picks: threePicks,
     enabled: spreadType === 'three' && drawnCards.length === 3 && !isLocallyUnlocked,
+    emailGateAtCount: 1,
+    emailSource: SPREAD_ID,
   });
 
   useEffect(() => {
@@ -251,6 +265,11 @@ export default function UnicornsPage() {
   const handleLibraryEmailSubmitted = (_email: string, card?: UnlockedCard) => {
     if (!card) return;
     setLibraryUnlocked(card);
+  };
+
+  const handleThreeEmailSubmitted = async (email: string) => {
+    await threeGate.onEmailUnlocked(email);
+    saveMultiSpreadEmail(email);
   };
 
   if (showDrawPage) {
@@ -308,7 +327,7 @@ export default function UnicornsPage() {
                       <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                         <span>單張神諭</span>
                         <span className="text-sm sm:text-base opacity-90">今日的靈性指引</span>
-                        <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.3em]">免　費</span>
+                        <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.2em]">第 1 次免費</span>
                       </h3>
                     </div>
                   </button>
@@ -420,6 +439,20 @@ export default function UnicornsPage() {
                         <div className="flex items-center justify-center gap-3 py-6 text-pink-300 text-sm tracking-wide">
                           <Loader2 className="w-4 h-4 animate-spin" />
                           解鎖中…
+                        </div>
+                      )}
+                      {threeGate.phase === 'email_gate' && (
+                        <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 text-center space-y-5">
+                          <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
+                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">第 2 次需輸入 Email 解鎖</h3>
+                          <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">
+                            這次輸入 Email 後可免費查看完整三張牌陣，第 3 次仍可免費解鎖。
+                          </p>
+                          <InlineEmailUnlock
+                            onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
+                            readingType={SPREAD_ID}
+                            theme="dark"
+                          />
                         </div>
                       )}
                       {threeGate.phase === 'paywall' && (

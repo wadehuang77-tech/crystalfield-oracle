@@ -3,13 +3,16 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RotateCcw, Lock } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
+import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
+import { useAuth } from '../contexts/AuthContext';
 
 const SPREAD_ID = 'cosmic_cross';
 const CARD_COUNT = 11;
@@ -43,6 +46,7 @@ const positions = [
 
 function CosmicCrossPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const { cards: deck, error: deckError } = useDeck('work_your_light');
   const [selectedCards, setSelectedCards] = useState<DrawnSlot[]>([]);
@@ -134,11 +138,20 @@ function CosmicCrossPage() {
 
   const handleCheckout = async () => {
     if (isCheckingOut) return;
+    const guestEmail = readSavedMultiSpreadEmail();
+    if (!user && !guestEmail) {
+      setUnlockError('請先完成 Email 解鎖，再進行付款');
+      return;
+    }
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
       const checkoutPicks = selectedCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, checkoutPicks);
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
+        SPREAD_ID,
+        checkoutPicks,
+        !user ? { guest_email: guestEmail } : undefined,
+      );
       if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
       if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
       submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
@@ -152,7 +165,18 @@ function CosmicCrossPage() {
     ? selectedCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }))
     : null;
 
-  const gate = useMultiSpreadGate({ spreadId: SPREAD_ID, picks: gatePicks, enabled: hasDrawn && !isLocallyUnlocked });
+  const gate = useMultiSpreadGate({
+    spreadId: SPREAD_ID,
+    picks: gatePicks,
+    enabled: hasDrawn && !isLocallyUnlocked,
+    emailGateAtCount: 1,
+    emailSource: SPREAD_ID,
+  });
+
+  const handleEmailUnlock = async (email: string) => {
+    await gate.onEmailUnlocked(email);
+    saveMultiSpreadEmail(email);
+  };
 
   useEffect(() => {
     if (!gate.unlockedCards || isLocallyUnlocked) return;
@@ -276,6 +300,24 @@ function CosmicCrossPage() {
 
                   {gate.phase === 'loading' && (
                     <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
+                  )}
+                  {gate.phase === 'email_gate' && (
+                    <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl space-y-5">
+                      <div className="flex justify-center">
+                        <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
+                          <Lock className="w-7 h-7 text-orange-300" />
+                        </div>
+                      </div>
+                      <h3 className="text-2xl font-serif text-orange-100 tracking-wide">第 2 次需輸入 Email 解鎖</h3>
+                      <p className="text-orange-200/80 text-base leading-relaxed max-w-md mx-auto">
+                        這次輸入 Email 後可免費查看完整宇宙十字牌陣，第 3 次仍可免費解鎖。
+                      </p>
+                      <InlineEmailUnlock
+                        onUnlocked={(email) => { void handleEmailUnlock(email); }}
+                        readingType={SPREAD_ID}
+                        theme="dark"
+                      />
+                    </div>
                   )}
                   {gate.phase === 'paywall' && (
                     <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">

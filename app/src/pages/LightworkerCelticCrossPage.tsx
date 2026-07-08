@@ -12,13 +12,16 @@ import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
+import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
+import { readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
+import { useAuth } from '../contexts/AuthContext';
 
 const SPREAD_ID = 'celtic_cross';
 
@@ -46,6 +49,7 @@ const POSITIONS: Omit<CardPosition, 'preview' | 'full'>[] = [
 
 function LightworkerCelticCrossPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const { cards: deck, error: deckError } = useDeck('lightworker');
   const [isShuffling, setIsShuffling] = useState(false);
@@ -168,11 +172,20 @@ function LightworkerCelticCrossPage() {
 
   const handleCheckout = async () => {
     if (isCheckingOut) return;
+    const guestEmail = readSavedMultiSpreadEmail();
+    if (!user && !guestEmail) {
+      setUnlockError('請先完成 Email 解鎖，再進行付款');
+      return;
+    }
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
       const checkoutPicks = selectedCards.filter((c) => c.preview).map((c) => ({ card_key: c.preview!.card_key, position: c.position }));
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, checkoutPicks);
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
+        SPREAD_ID,
+        checkoutPicks,
+        !user ? { guest_email: guestEmail } : undefined,
+      );
       if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
       if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
       submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
@@ -186,7 +199,18 @@ function LightworkerCelticCrossPage() {
     ? selectedCards.filter((c) => c.preview).map((c) => ({ card_key: c.preview!.card_key, position: c.position }))
     : null;
 
-  const gate = useMultiSpreadGate({ spreadId: SPREAD_ID, picks: gatePicks, enabled: hasDrawn && !isLocallyUnlocked });
+  const gate = useMultiSpreadGate({
+    spreadId: SPREAD_ID,
+    picks: gatePicks,
+    enabled: hasDrawn && !isLocallyUnlocked,
+    emailGateAtCount: 1,
+    emailSource: SPREAD_ID,
+  });
+
+  const handleEmailUnlock = async (email: string) => {
+    await gate.onEmailUnlocked(email);
+    saveMultiSpreadEmail(email);
+  };
 
   useEffect(() => {
     if (!gate.unlockedCards || isLocallyUnlocked) return;
@@ -368,6 +392,24 @@ function LightworkerCelticCrossPage() {
 
                 {gate.phase === 'loading' && (
                   <div className="text-center text-cyan-300/70 py-6 tracking-wider">解鎖中…</div>
+                )}
+                {gate.phase === 'email_gate' && (
+                  <div className="bg-gradient-to-br from-slate-900/40 to-slate-900/40 border-2 border-cyan-400/50 rounded-2xl p-8 text-center shadow-2xl shadow-cyan-900/30 space-y-5">
+                    <div className="flex justify-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/30 to-cyan-500/30 rounded-full flex items-center justify-center border-2 border-cyan-400/40">
+                        <Lock className="w-7 h-7 text-cyan-300" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">第 2 次需輸入 Email 解鎖</h3>
+                    <p className="text-cyan-200/80 text-base leading-relaxed max-w-md mx-auto">
+                      這次輸入 Email 後可免費查看完整十字陣，第 3 次仍可免費解鎖。
+                    </p>
+                    <InlineEmailUnlock
+                      onUnlocked={(email) => { void handleEmailUnlock(email); }}
+                      readingType={SPREAD_ID}
+                      theme="dark"
+                    />
+                  </div>
                 )}
                 {gate.phase === 'paywall' && (
                   <div className="bg-gradient-to-br from-slate-900/40 to-slate-900/40 border-2 border-cyan-400/50 rounded-2xl p-8 text-center shadow-2xl shadow-cyan-900/30">

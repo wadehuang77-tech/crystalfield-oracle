@@ -53,7 +53,7 @@ function WorkYourLightPage() {
                   <span>{deckReady ? '單張牌' : '卡片資料準備中'}</span>
                   <span className="text-sm sm:text-base opacity-90">接收宇宙訊息</span>
                   {deckReady && (
-                    <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.3em]">免　費</span>
+                    <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.2em]">第 1 次免費</span>
                   )}
                 </h3>
               </div>

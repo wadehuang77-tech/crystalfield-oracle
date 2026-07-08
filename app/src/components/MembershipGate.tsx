@@ -42,7 +42,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
     setError('');
     setIsProcessing(true);
     try {
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder('membership_monthly');
+      const { ecpay, admin_unlocked } = await checkoutApi.createOrder('membership_monthly');
       if (admin_unlocked) {
         window.location.assign(redirectPath);
         return;
@@ -75,13 +75,13 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
             加入月費會員
           </h2>
           <p className="text-3xl font-serif text-amber-400 mt-4 tracking-[0.15em]">NT$ 99 / 月</p>
-          <p className="text-xs text-amber-400/60 mt-2">解鎖所有塔羅單張牌陣，不限次數完整查看</p>
+          <p className="text-xs text-amber-400/60 mt-2">月費會員 NT$99，解鎖所有塔羅單張牌陣不限次數</p>
         </div>
 
         <div className="border-t border-b border-amber-500/15 py-5 mb-6 space-y-3">
           <Perk>所有塔羅單張牌陣免費，不限次數</Perk>
           <Perk>7 副牌組單張皆可完整解鎖查看</Perk>
-          <Perk>第 4 次起不用再逐次付費解鎖</Perk>
+          <Perk>第 4 次起加入會員後，不用再逐次解鎖</Perk>
         </div>
 
         {error && (
@@ -96,7 +96,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
             {isProcessing ? (
               <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>跳轉至綠界…</>
             ) : (
-              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />{user ? '立即加入 NT$99 / 月' : '登入並加入會員'}</>
+              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />{user ? '立即加入 NT$99 / 月' : '登入後加入會員'}</>
             )}
           </button>
           <button onClick={onClose} disabled={isProcessing}

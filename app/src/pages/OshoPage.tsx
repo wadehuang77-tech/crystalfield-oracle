@@ -82,7 +82,7 @@ function SpreadCard({
         {price !== undefined ? (
           <p className="text-base font-medium text-teal-300 tracking-[0.25em]">NT$ {price}</p>
         ) : (
-          <p className="text-base font-medium text-teal-300 tracking-[0.35em]">免　費</p>
+          <p className="text-base font-medium text-teal-300 tracking-[0.2em]">第 1 次免費</p>
         )}
       </div>
     </button>

@@ -17,17 +17,17 @@ export interface SpreadCatalogItem {
 
 export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   // ── 三張牌陣 ────────────────────────────────────────────────────
-  tarot_three:       { id: 'tarot_three',       name: '偉特塔羅 三張牌陣',         amount: 10,  category: 'three_card' },
-  unicorns_three:    { id: 'unicorns_three',    name: '獨角獸塔羅 三張牌陣',       amount: 10,  category: 'three_card' },
-  dragons_three:     { id: 'dragons_three',     name: '龍族塔羅 三張牌陣',         amount: 10,  category: 'three_card' },
-  osho_three:        { id: 'osho_three',        name: '奧修禪卡 三張牌陣',         amount: 10,  category: 'three_card' },
+  tarot_three:       { id: 'tarot_three',       name: '偉特塔羅 三張牌陣',         amount: 250, category: 'three_card' },
+  unicorns_three:    { id: 'unicorns_three',    name: '獨角獸塔羅 三張牌陣',       amount: 250, category: 'three_card' },
+  dragons_three:     { id: 'dragons_three',     name: '龍族塔羅 三張牌陣',         amount: 250, category: 'three_card' },
+  osho_three:        { id: 'osho_three',        name: '奧修禪卡 三張牌陣',         amount: 250, category: 'three_card' },
   // ── 十張牌陣 ────────────────────────────────────────────────────
-  tarot_celtic:      { id: 'tarot_celtic',      name: '偉特塔羅 凱爾特十字陣',     amount: 10,  category: 'ten_card'   },
-  celtic_cross:      { id: 'celtic_cross',      name: '光行者神諭 十字交叉使命陣', amount: 10,  category: 'ten_card'   },
-  cosmic_cross:      { id: 'cosmic_cross',      name: '光之訊息 宇宙十字牌陣',     amount: 10,  category: 'ten_card'   },
+  tarot_celtic:      { id: 'tarot_celtic',      name: '偉特塔羅 凱爾特十字陣',     amount: 599, category: 'ten_card'   },
+  celtic_cross:      { id: 'celtic_cross',      name: '光行者神諭 十字交叉使命陣', amount: 599, category: 'ten_card'   },
+  cosmic_cross:      { id: 'cosmic_cross',      name: '光之訊息 宇宙十字牌陣',     amount: 599, category: 'ten_card'   },
   // ── 前世因果陣 ─────────────────────────────────────────────────
-  tarot_pastlife:    { id: 'tarot_pastlife',    name: '偉特塔羅 前世因果解鎖陣',   amount: 10,  category: 'pastlife'   },
-  egyptian_pastlife: { id: 'egyptian_pastlife', name: '埃及神諭 前世因果解鎖陣',   amount: 10,  category: 'pastlife'   },
+  tarot_pastlife:    { id: 'tarot_pastlife',    name: '偉特塔羅 前世因果解鎖陣',   amount: 499, category: 'pastlife'   },
+  egyptian_pastlife: { id: 'egyptian_pastlife', name: '埃及神諭 前世因果解鎖陣',   amount: 499, category: 'pastlife'   },
   // ── 套票 ─────────────────────────────────────────────────────
   three_card_3pack_7d: {
     id: 'three_card_3pack_7d', name: '三張牌陣 3次套票 (7日)',  amount: 10,
@@ -43,11 +43,11 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   },
   // ── 綜合套餐 ─────────────────────────────────────────────────
   bundle_1499_30d: {
-    id: 'bundle_1499_30d', name: '靈魂探索套餐 (30日)', amount: 10,
+    id: 'bundle_1499_30d', name: '靈魂探索套餐 (30日)', amount: 1499,
     bundle: { three_card: 5, ten_card: 1, pastlife: 2, days: 30 },
   },
   bundle_1999_30d: {
-    id: 'bundle_1999_30d', name: '深度靈魂套餐 (30日)', amount: 10,
+    id: 'bundle_1999_30d', name: '深度靈魂套餐 (30日)', amount: 1999,
     bundle: { three_card: 6, ten_card: 3, pastlife: 3, days: 30 },
   },
   // ── 生命靈數方案 ────────────────────────────────────────────────

@@ -15,8 +15,10 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import { useAuth } from '../contexts/AuthContext';
 
 interface DragonGated {
   message: string;
@@ -31,6 +33,7 @@ interface ThreeSlot {
 
 function DragonsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('dragons');
   const [singlePreview, setSinglePreview] = useState<CardPreview | null>(null);
   const [singleUnlocked, setSingleUnlocked] = useState<UnlockedCard | null>(null);
@@ -113,6 +116,11 @@ function DragonsPage() {
 
   const handleUnlockThree = async () => {
     if (isCheckingOut) return;
+    const guestEmail = readSavedMultiSpreadEmail();
+    if (!user && !guestEmail) {
+      setUnlockError('請先完成 Email 解鎖，再進行付款');
+      return;
+    }
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
@@ -120,7 +128,11 @@ function DragonsPage() {
         card_key: s.preview.card_key,
         position: i + 1,
       }));
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder('dragons_three', checkoutPicks);
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
+        'dragons_three',
+        checkoutPicks,
+        !user ? { guest_email: guestEmail } : undefined,
+      );
       if (admin_unlocked) {
         navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
         return;
@@ -240,6 +252,8 @@ function DragonsPage() {
     spreadId: 'dragons_three',
     picks: threePicks,
     enabled: hasDrawn && threeSlots.length > 0 && !isThreeUnlocked,
+    emailGateAtCount: 1,
+    emailSource: 'dragons_three',
   });
 
   useEffect(() => {
@@ -257,6 +271,10 @@ function DragonsPage() {
   const singleGated = singleUnlocked?.gated as DragonGated | undefined;
   const isSingleUnlocked = !!singleGated;
   const singlePreviewKw = (singlePreview?.preview as { keywords?: string[] })?.keywords ?? [];
+  const handleThreeEmailSubmitted = async (email: string) => {
+    await threeGate.onEmailUnlocked(email);
+    saveMultiSpreadEmail(email);
+  };
 
   const showIndex = !singlePreview && !isShuffling && threeSlots.length === 0 && !showCardLayout;
 
@@ -298,7 +316,7 @@ function DragonsPage() {
                       <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                         <span>單張神諭</span>
                         <span className="text-sm sm:text-base opacity-90">召喚龍族訊息</span>
-                        <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.3em]">免　費</span>
+                        <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.2em]">第 1 次免費</span>
                       </h3>
                     </div>
                   </button>
@@ -402,6 +420,20 @@ function DragonsPage() {
 
                 {threeGate.phase === 'loading' && (
                   <div className="text-center text-emerald-300/70 py-6 tracking-wider">解鎖中…</div>
+                )}
+                {threeGate.phase === 'email_gate' && (
+                  <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
+                    <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">第 2 次需輸入 Email 解鎖</h3>
+                    <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
+                      這次輸入 Email 後可免費查看完整三張牌陣，第 3 次仍可免費解鎖。
+                    </p>
+                    <InlineEmailUnlock
+                      onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
+                      readingType="dragons_three"
+                      theme="dark"
+                    />
+                  </div>
                 )}
                 {threeGate.phase === 'paywall' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">

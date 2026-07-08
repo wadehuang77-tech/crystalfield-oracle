@@ -5,12 +5,15 @@ import { generateThreeCardInterpretation } from '../utils/oshoThreeCardInterpret
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
+import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
+import { useAuth } from '../contexts/AuthContext';
 
 const SPREAD_ID = 'osho_three';
 
@@ -37,6 +40,7 @@ interface ThreeCardReading {
 
 export default function OshoThreePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const { cards: deck, error: deckError } = useDeck('osho');
   const [reading, setReading] = useState<ThreeCardReading | null>(null);
@@ -144,6 +148,11 @@ export default function OshoThreePage() {
 
   const handleCheckout = async () => {
     if (!reading || isCheckingOut) return;
+    const guestEmail = readSavedMultiSpreadEmail();
+    if (!user && !guestEmail) {
+      setUnlockError('請先完成 Email 解鎖，再進行付款');
+      return;
+    }
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
@@ -152,7 +161,11 @@ export default function OshoThreePage() {
         { card_key: reading.outer.preview.card_key,       position: 2 },
         { card_key: reading.integration.preview.card_key, position: 3 },
       ];
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(SPREAD_ID, picks);
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
+        SPREAD_ID,
+        picks,
+        !user ? { guest_email: guestEmail } : undefined,
+      );
       if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
       if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
       submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
@@ -168,7 +181,18 @@ export default function OshoThreePage() {
     { card_key: reading.integration.preview.card_key, position: 3 },
   ] : null;
 
-  const gate = useMultiSpreadGate({ spreadId: SPREAD_ID, picks, enabled: !!reading && !isLocallyUnlocked });
+  const gate = useMultiSpreadGate({
+    spreadId: SPREAD_ID,
+    picks,
+    enabled: !!reading && !isLocallyUnlocked,
+    emailGateAtCount: 1,
+    emailSource: SPREAD_ID,
+  });
+
+  const handleEmailUnlock = async (email: string) => {
+    await gate.onEmailUnlocked(email);
+    saveMultiSpreadEmail(email);
+  };
 
   useEffect(() => {
     if (!gate.unlockedCards || isLocallyUnlocked || !reading) return;
@@ -363,6 +387,20 @@ export default function OshoThreePage() {
               <div className="flex items-center justify-center gap-3 py-6 text-teal-300 text-sm tracking-wide">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 解鎖中…
+              </div>
+            )}
+            {gate.phase === 'email_gate' && (
+              <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8 text-center space-y-5">
+                <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
+                <h3 className="font-serif text-2xl text-teal-100">第 2 次需輸入 Email 解鎖</h3>
+                <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">
+                  這次輸入 Email 後可免費查看完整三張牌陣，第 3 次仍可免費解鎖。
+                </p>
+                <InlineEmailUnlock
+                  onUnlocked={(email) => { void handleEmailUnlock(email); }}
+                  readingType={SPREAD_ID}
+                  theme="dark"
+                />
               </div>
             )}
             {gate.phase === 'paywall' && (
