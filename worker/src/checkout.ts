@@ -79,6 +79,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const body = await readBody<CreateOrderBody>(req);
   const item = SPREAD_CATALOG[body.spread_id];
   if (!item) return badRequest(req, env, '商品代號錯誤');
+  const isNumerologyCheckout = item.id.startsWith('numerology_');
+  const shouldAdminInstantUnlock = isAdmin && !isNumerologyCheckout;
 
   const expectedCount = SPREAD_CARD_COUNT[item.id] ?? 0;
   const isGuestSpreadCheckout = !user && expectedCount > 0;
@@ -108,7 +110,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     ).bind(user.id).run().catch(() => {});
   }
 
-  if (!isAdmin && (!env.ECPAY_MERCHANT_ID || !env.ECPAY_HASH_KEY || !env.ECPAY_HASH_IV)) {
+  if (!shouldAdminInstantUnlock && (!env.ECPAY_MERCHANT_ID || !env.ECPAY_HASH_KEY || !env.ECPAY_HASH_IV)) {
     return serverError(req, env, new Error('ECPay 未設定'));
   }
 
@@ -172,7 +174,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     ORDER_TOKEN_SEC,
   );
 
-  if (isAdmin) {
+  if (shouldAdminInstantUnlock) {
     if (!user) {
       return unauthorized(req, env, '請先登入');
     }

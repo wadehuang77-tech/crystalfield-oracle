@@ -10,7 +10,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { calculateNumerology, drawOracleCard } from '../lib/numerology';
 import type { NumerologyReport as Report, OracleCard } from '../lib/numerology';
 import type { PlanTier } from '../hooks/usePremium';
-import { profileApi, checkoutApi, type EcpayForm } from '../lib/api';
+import { profileApi, checkoutApi } from '../lib/api';
+import { submitToEcpay } from '../lib/ecpayRedirect';
 
 type Tab = 'report' | 'daily' | 'ai';
 
@@ -38,22 +39,6 @@ function getTierFromSpreads(purchased: string[]): PlanTier {
   if (purchased.includes('numerology_advanced')) return 2;
   if (purchased.includes('numerology_basic')) return 1;
   return 0;
-}
-
-function submitEcpayForm({ endpoint, fields }: EcpayForm) {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = endpoint;
-  form.style.display = 'none';
-  Object.entries(fields).forEach(([k, v]) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = k;
-    input.value = v;
-    form.appendChild(input);
-  });
-  document.body.appendChild(form);
-  form.submit();
 }
 
 export default function NumerologyPage() {
@@ -98,9 +83,14 @@ export default function NumerologyPage() {
       if (sku) {
         setCheckoutLoading(true);
         checkoutApi.createOrder(sku)
-          .then(({ ecpay }) => { if (ecpay) submitEcpayForm(ecpay); })
-          .catch(err => console.error('checkout failed', err))
-          .finally(() => setCheckoutLoading(false));
+          .then(({ ecpay }) => {
+            if (ecpay) submitToEcpay(ecpay, () => setCheckoutLoading(false));
+            else setCheckoutLoading(false);
+          })
+          .catch(err => {
+            console.error('checkout failed', err);
+            setCheckoutLoading(false);
+          });
       }
     }
   }, [user]);
@@ -144,7 +134,7 @@ export default function NumerologyPage() {
     try {
       const { ecpay } = await checkoutApi.createOrder(sku);
       if (ecpay) {
-        submitEcpayForm(ecpay);
+        submitToEcpay(ecpay, () => setCheckoutLoading(false));
       } else {
         // Admin instant-unlock path — re-fetch tier so UI updates without page reload
         const { profile } = await profileApi.me();

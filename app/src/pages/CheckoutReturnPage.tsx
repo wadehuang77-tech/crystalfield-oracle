@@ -15,6 +15,9 @@ const SPREAD_HOME: Record<string, string> = {
   egyptian_pastlife:  '/egyptian-gods?spread=pastlife',
   cosmic_cross:       '/cosmic-cross',
   osho_three:         '/osho/three',
+  numerology_basic:    '/numerology',
+  numerology_advanced: '/numerology',
+  numerology_full:     '/numerology',
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {
