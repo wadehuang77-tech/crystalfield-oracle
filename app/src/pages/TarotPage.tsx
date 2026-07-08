@@ -499,7 +499,7 @@ function TarotPage() {
                       {s.price !== undefined ? (
                         <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">NT$ {s.price}</p>
                       ) : (
-                        <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">免費</p>
+                        <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">快速指引</p>
                       )}
                     </button>
                   ))}
