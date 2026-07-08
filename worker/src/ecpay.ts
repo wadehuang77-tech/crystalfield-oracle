@@ -26,8 +26,8 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   celtic_cross:      { id: 'celtic_cross',      name: '光行者神諭 十字交叉使命陣', amount: 10, category: 'ten_card'   },
   cosmic_cross:      { id: 'cosmic_cross',      name: '光之訊息 宇宙十字牌陣',     amount: 10, category: 'ten_card'   },
   // ── 前世因果陣 ─────────────────────────────────────────────────
-  tarot_pastlife:    { id: 'tarot_pastlife',    name: '偉特塔羅 前世因果解鎖陣',   amount: 10, category: 'pastlife'   },
-  egyptian_pastlife: { id: 'egyptian_pastlife', name: '埃及神諭 前世因果解鎖陣',   amount: 10, category: 'pastlife'   },
+  tarot_pastlife:    { id: 'tarot_pastlife',    name: '偉特塔羅 前世因果解鎖陣',   amount: 499, category: 'pastlife'   },
+  egyptian_pastlife: { id: 'egyptian_pastlife', name: '埃及神諭 前世因果解鎖陣',   amount: 499, category: 'pastlife'   },
   // ── 套票 ─────────────────────────────────────────────────────
   three_card_3pack_7d: {
     id: 'three_card_3pack_7d', name: '三張牌陣 3次套票 (7日)',  amount: 10,
