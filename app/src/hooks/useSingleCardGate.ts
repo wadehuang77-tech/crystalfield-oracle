@@ -56,21 +56,12 @@ export function useSingleCardGate({
         });
     };
 
-    const showMembershipGate = () => {
-      setPhase('membership_gate');
-      setShowMembership(true);
-    };
-
     const continueForNonMember = () => {
-      if (count === 0 || count === 2) {
+      if (count < 2) {
         autoUnlock();
         return;
       }
-      if (count === 1) {
-        setPhase('email_gate');
-        return;
-      }
-      showMembershipGate();
+      setPhase('email_gate');
     };
 
     if (user) {
