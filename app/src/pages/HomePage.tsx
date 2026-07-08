@@ -33,7 +33,7 @@ function HomePage() {
                   </div>
                 </div>
                 <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-orange-100 tracking-wide mb-1">偉特塔羅 - 多種牌陣</h2>
+                  <h2 className="text-xl font-serif text-orange-100 tracking-wide mb-1">偉特塔羅</h2>
                   <p className="text-orange-200/70 text-xs tracking-wide">單張・三張牌陣・凱爾特十字・前世因果</p>
                 </div>
               </div>
