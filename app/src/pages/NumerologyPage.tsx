@@ -202,6 +202,7 @@ export default function NumerologyPage() {
         const paidTier = getTierFromSku(order.item_id);
         if (paidTier > 0) {
           if (order.item_id === 'numerology_basic') returnSection = 'crystal';
+          if (order.item_id === 'numerology_advanced') returnSection = 'advanced';
           const nextTier = Math.max(localTier, paidTier) as PlanTier;
           localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
           setLocalTier(nextTier);

@@ -16,7 +16,7 @@ const SPREAD_HOME: Record<string, string> = {
   cosmic_cross:       '/cosmic-cross',
   osho_three:         '/osho/three',
   numerology_basic:    '/numerology?section=crystal',
-  numerology_advanced: '/numerology',
+  numerology_advanced: '/numerology?section=advanced',
   numerology_full:     '/numerology',
   numerology_forecast: '/numerology?section=forecast',
 };
