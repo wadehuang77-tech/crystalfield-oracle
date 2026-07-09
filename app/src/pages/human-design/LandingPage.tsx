@@ -8,7 +8,10 @@ interface LandingPageProps {
 export default function LandingPage({ onCalculate }: LandingPageProps) {
   const [visible, setVisible] = useState(false);
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthCity: '' });
+  const [timeParts, setTimeParts] = useState({ hour: '', minute: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const hourOptions = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const minuteOptions = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
@@ -18,7 +21,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.birthDate) e.birthDate = '請選擇出生日期';
-    if (!form.birthTime) e.birthTime = '請輸入出生時間';
+    if (!timeParts.hour || !timeParts.minute) e.birthTime = '請輸入出生時間';
     if (!form.birthCity.trim()) e.birthCity = '請輸入出生城市';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -27,8 +30,14 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      onCalculate(form.birthDate, form.birthTime, form.birthCity.trim());
+      onCalculate(form.birthDate, `${timeParts.hour}:${timeParts.minute}`, form.birthCity.trim());
     }
+  };
+
+  const updateBirthTime = (part: 'hour' | 'minute', value: string) => {
+    const next = { ...timeParts, [part]: value };
+    setTimeParts(next);
+    setForm({ ...form, birthTime: next.hour && next.minute ? `${next.hour}:${next.minute}` : '' });
   };
 
   const inputBase =
@@ -103,17 +112,33 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
                   <Clock className="w-3.5 h-3.5" />
                   出生時間
                 </label>
-                <input
-                  type="time"
-                  value={form.birthTime}
-                  onChange={e => setForm({ ...form, birthTime: e.target.value })}
-                  className={`${inputBase} ${errors.birthTime ? 'border-rose-400/50' : ''}`}
-                />
+                <div className="grid grid-cols-2 gap-3">
+                  <select
+                    value={timeParts.hour}
+                    onChange={e => updateBirthTime('hour', e.target.value)}
+                    className={`${inputBase} ${errors.birthTime ? 'border-rose-400/50' : ''}`}
+                  >
+                    <option value="">時</option>
+                    {hourOptions.map(hour => (
+                      <option key={hour} value={hour}>{hour}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={timeParts.minute}
+                    onChange={e => updateBirthTime('minute', e.target.value)}
+                    className={`${inputBase} ${errors.birthTime ? 'border-rose-400/50' : ''}`}
+                  >
+                    <option value="">分</option>
+                    {minuteOptions.map(minute => (
+                      <option key={minute} value={minute}>{minute}</option>
+                    ))}
+                  </select>
+                </div>
                 {errors.birthTime && (
                   <p className="text-rose-400/80 text-xs mt-1.5">{errors.birthTime}</p>
                 )}
                 <p className="text-white/20 text-xs mt-1.5">
-                  出生時間影響你的人生角色計算，請盡量精確
+                  請使用 24 小時制，例：上午 8 點為 08:00，晚上 8 點為 20:00
                 </p>
               </div>
 
