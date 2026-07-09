@@ -193,14 +193,7 @@ export default function NumerologyPage() {
         }
 
         setActiveTab('report');
-        const id = returnSection === 'crystal'
-          ? 'numerology-crystal-healing'
-          : returnSection === 'advanced'
-          ? 'numerology-advanced-crystal'
-          : returnSection === 'forecast'
-          ? 'numerology-forecast'
-          : null;
-        setPendingScrollTarget(id);
+        setPendingScrollTarget(getScrollTargetForSection(returnSection));
 
         const next = new URLSearchParams(searchParams);
         next.delete('order_id');
@@ -241,11 +234,36 @@ export default function NumerologyPage() {
     setShowUpgrade(true);
   };
 
+  const getScrollTargetForSection = (section: string) => {
+    if (section === 'crystal') return 'numerology-crystal-healing';
+    if (section === 'advanced') return 'numerology-advanced-crystal';
+    if (section === 'forecast') return 'numerology-forecast';
+    return null;
+  };
+
   const saveReturnState = (section: string) => {
     if (report) {
       const state = JSON.stringify({ report, oracleCard, section });
       localStorage.setItem(RETURN_STATE_KEY, state);
       localStorage.setItem(LAST_REPORT_STATE_KEY, state);
+      return;
+    }
+
+    const rawLastState = localStorage.getItem(LAST_REPORT_STATE_KEY);
+    if (!rawLastState) return;
+
+    try {
+      const lastState = JSON.parse(rawLastState) as { report?: Report; oracleCard?: OracleCard | null };
+      if (!lastState.report) return;
+      const state = JSON.stringify({
+        report: lastState.report,
+        oracleCard: lastState.oracleCard ?? null,
+        section,
+      });
+      localStorage.setItem(RETURN_STATE_KEY, state);
+      localStorage.setItem(LAST_REPORT_STATE_KEY, state);
+    } catch {
+      localStorage.removeItem(LAST_REPORT_STATE_KEY);
     }
   };
 
@@ -270,6 +288,8 @@ export default function NumerologyPage() {
           localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
           setForecastCheckoutUnlocked(true);
         }
+        setActiveTab('report');
+        setPendingScrollTarget(getScrollTargetForSection(section));
         setCheckoutLoading(false);
       }
     } catch (err) {
