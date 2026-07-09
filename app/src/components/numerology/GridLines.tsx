@@ -9,6 +9,7 @@ interface Props {
   report: NumerologyReport;
   tier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
+  onAdvancedUnlock: () => void;
 }
 
 const GRID_LAYOUT = [
@@ -123,7 +124,7 @@ function GridVisual({ report, hoveredLine }: { report: NumerologyReport; hovered
   );
 }
 
-function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrade, emailUnlocked }: {
+function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrade, onAdvancedUnlock, emailUnlocked }: {
   line: GridLine;
   isExpanded: boolean;
   onToggle: () => void;
@@ -131,9 +132,17 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
   onLeave: () => void;
   tier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
+  onAdvancedUnlock: () => void;
   emailUnlocked: boolean;
 }) {
   const color = LINE_COLORS[line.id] || '#fbbf24';
+  const handleGateUpgrade = (required: PlanTier) => {
+    if (required === 2) {
+      onAdvancedUnlock();
+      return;
+    }
+    onUpgrade(required);
+  };
 
   return (
     <div
@@ -179,7 +188,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
               <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: color }} />
             <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(196,181,253,0.45)' }}>靈魂藍圖與脈輪狀態</p>
             </div>
-            <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
+            <ContentGate currentTier={tier} requiredTier={2} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
               <p className="text-sm leading-[1.95] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: `${color}25` }}>
                 {line.soulBlueprint}
               </p>
@@ -189,7 +198,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
           <div className="h-px" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
 
           {/* Crystal Prescription — email unlock */}
-          <ContentGate currentTier={tier} requiredTier={1} onUpgrade={onUpgrade} accentColor={color} previewHeight={150} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
+          <ContentGate currentTier={tier} requiredTier={1} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={150} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />
@@ -216,7 +225,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
           </ContentGate>
 
           {/* Meditation & Ritual — unlocked by advanced tier */}
-          <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
+          <ContentGate currentTier={tier} requiredTier={2} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
             <div className="h-px mb-5" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
             <div className="rounded-2xl p-5 space-y-3" style={{ background: `${color}06`, border: `1px solid ${color}18` }}>
               <div className="flex items-center gap-2">
@@ -234,7 +243,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
   );
 }
 
-export default function GridLines({ report, tier, onUpgrade }: Props) {
+export default function GridLines({ report, tier, onUpgrade, onAdvancedUnlock }: Props) {
   const [expanded, setExpanded] = useState<string | null>(report.activeGridLines[0]?.id ?? null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [emailUnlocked, setEmailUnlocked] = useState(() => localStorage.getItem('cf_numerology_grid_unlocked') === '1');
@@ -388,6 +397,7 @@ export default function GridLines({ report, tier, onUpgrade }: Props) {
               onLeave={() => setHovered(null)}
               tier={tier}
               onUpgrade={onUpgrade}
+              onAdvancedUnlock={onAdvancedUnlock}
               emailUnlocked={emailUnlocked}
             />
           ))}

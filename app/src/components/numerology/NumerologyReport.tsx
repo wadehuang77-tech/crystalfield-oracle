@@ -177,7 +177,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
       </div>
 
       {/* Grid Lines */}
-      <GridLines report={report} tier={tier} onUpgrade={onUpgrade} />
+      <GridLines report={report} tier={tier} onUpgrade={onUpgrade} onAdvancedUnlock={onOracleUnlock} />
 
       {/* Missing Numbers */}
       {report.missingNumbers.length > 0 && (
