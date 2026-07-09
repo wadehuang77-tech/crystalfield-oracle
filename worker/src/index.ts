@@ -361,13 +361,18 @@ async function saveEmail(req: Request, env: Env): Promise<Response> {
       env.DB.prepare(
         `INSERT INTO emails (id, email, source, created_at)
          VALUES (?, ?, ?, ?)
-         ON CONFLICT(email) DO UPDATE SET source = excluded.source`
+         ON CONFLICT(email) DO UPDATE SET
+           source = excluded.source,
+           created_at = excluded.created_at`
       ).bind(crypto.randomUUID(), email, source, now),
 
       env.DB.prepare(
         `INSERT INTO leads (id, email, source, created_at, status)
          VALUES (?, ?, ?, ?, 'success')
-         ON CONFLICT(email) DO NOTHING`
+         ON CONFLICT(email) DO UPDATE SET
+           source = excluded.source,
+           created_at = excluded.created_at,
+           status = 'success'`
       ).bind(crypto.randomUUID(), email, source, now),
     ]);
     return await json(req, env, { success: true });
