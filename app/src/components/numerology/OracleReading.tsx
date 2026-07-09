@@ -8,7 +8,6 @@ interface Props {
   report: NumerologyReport;
   card: OracleCard;
   tier: PlanTier;
-  onUpgrade: (required: PlanTier) => void;
   oracleUnlocked: boolean;
   onOracleUnlock: () => void;
 }
@@ -145,7 +144,7 @@ function buildRitual(
 儀式結束：感謝神諭的降臨，吹熄蠟燭，緩緩回到當下。建議將此次冥想中浮現的任何畫面、感受或洞見記錄在日記中。`;
 }
 
-export default function OracleReading({ report, card, tier, onUpgrade, oracleUnlocked, onOracleUnlock }: Props) {
+export default function OracleReading({ report, card, tier, oracleUnlocked, onOracleUnlock }: Props) {
   const [expanded, setExpanded] = useState<'blockpoint' | 'crystalGrid' | 'ritual' | null>(null);
   const analysis = generateCrossAnalysis(report, card);
   const accentColor = card.elementColor;
@@ -688,7 +687,7 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
                 ))}
               </div>
               <button
-                onClick={() => onUpgrade(2)}
+                onClick={onOracleUnlock}
                 style={{
                   width: '100%', padding: '12px',
                   borderRadius: 11, border: 'none',

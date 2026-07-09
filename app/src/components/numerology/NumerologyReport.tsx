@@ -488,7 +488,6 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
           report={report}
           card={oracleCard}
           tier={tier}
-          onUpgrade={onUpgrade}
           oracleUnlocked={oracleUnlocked}
           onOracleUnlock={onOracleUnlock}
         />
