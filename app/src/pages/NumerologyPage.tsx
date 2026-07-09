@@ -28,6 +28,15 @@ const features = [
   { icon: '⬡', title: '每日能量訊息', desc: '個人化每日水晶與幸運能量指引', color: '#60a5fa' },
 ];
 
+interface UnlockShortcut {
+  key: string;
+  title: string;
+  desc: string;
+  color: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}
+
 const SKU_MAP: Record<number, string> = {
   1: 'numerology_basic',
   2: 'numerology_advanced',
@@ -272,6 +281,33 @@ export default function NumerologyPage() {
     await startNumerologyCheckout(NUMEROLOGY_FORECAST_SKU, 'forecast');
   };
 
+  const unlockShortcuts: UnlockShortcut[] = [
+    ...(!crystalUnlocked ? [{
+      key: 'basic',
+      title: '解鎖基礎版',
+      desc: '缺失數字 × 水晶療癒方案',
+      color: '#5eead4',
+      icon: <Gem className="w-3.5 h-3.5" />,
+      onClick: () => handleTierCheckout(1, 'crystal'),
+    }] : []),
+    ...(!forecastUnlocked ? [{
+      key: 'forecast',
+      title: '解鎖完整流年報告',
+      desc: '年度流年解析與守護水晶',
+      color: '#f97316',
+      icon: <Star className="w-3.5 h-3.5" />,
+      onClick: handleForecastUnlock,
+    }] : []),
+    ...(!oracleUnlocked ? [{
+      key: 'advanced',
+      title: '解鎖進階版',
+      desc: '靈魂藍圖與水晶陣手串',
+      color: '#a78bfa',
+      icon: <Sparkles className="w-3.5 h-3.5" />,
+      onClick: () => handleTierCheckout(2, 'advanced'),
+    }] : []),
+  ];
+
   const handleUpgradeConfirm = async (t: PlanTier) => {
     setShowUpgrade(false);
     const sku = SKU_MAP[t];
@@ -456,19 +492,67 @@ export default function NumerologyPage() {
           </div>
 
           {activeTab === 'report' && (
-            <NumerologyReport
-              report={report}
-              oracleCard={oracleCard}
-              onReset={handleReset}
-              tier={paidContentTier}
-              onUpgrade={handleUpgrade}
-              crystalUnlocked={crystalUnlocked}
-              onCrystalUnlock={() => handleTierCheckout(1, 'crystal')}
-              forecastUnlocked={forecastUnlocked}
-              onForecastUnlock={handleForecastUnlock}
-              oracleUnlocked={oracleUnlocked}
-              onOracleUnlock={() => handleTierCheckout(2, 'advanced')}
-            />
+            <>
+              {unlockShortcuts.length > 0 && (
+                <div
+                  className="mb-6 rounded-2xl p-4"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025))',
+                    border: '1px solid rgba(255,255,255,0.10)',
+                    boxShadow: '0 10px 32px rgba(0,0,0,0.28)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                  }}
+                >
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em]" style={{ color: 'rgba(233,213,255,0.72)' }}>
+                      解鎖捷徑
+                    </p>
+                    <span className="text-[10px]" style={{ color: 'rgba(196,181,253,0.42)' }}>
+                      一鍵前往完整內容
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {unlockShortcuts.map(item => (
+                      <button
+                        key={item.key}
+                        onClick={item.onClick}
+                        className="min-h-[72px] rounded-xl px-3.5 py-3 text-left transition-transform duration-200 hover:scale-[1.015]"
+                        style={{
+                          background: `linear-gradient(135deg, ${item.color}1f, ${item.color}08)`,
+                          border: `1px solid ${item.color}40`,
+                          color: '#f5f3ff',
+                          cursor: 'pointer',
+                          boxShadow: `0 0 18px ${item.color}16`,
+                          touchAction: 'manipulation',
+                        } as React.CSSProperties}
+                      >
+                        <span className="flex items-center gap-2 text-sm font-extrabold" style={{ color: item.color }}>
+                          {item.icon}
+                          {item.title}
+                        </span>
+                        <span className="block mt-1.5 text-[11px] leading-snug" style={{ color: 'rgba(233,213,255,0.62)' }}>
+                          {item.desc}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <NumerologyReport
+                report={report}
+                oracleCard={oracleCard}
+                onReset={handleReset}
+                tier={paidContentTier}
+                onUpgrade={handleUpgrade}
+                crystalUnlocked={crystalUnlocked}
+                onCrystalUnlock={() => handleTierCheckout(1, 'crystal')}
+                forecastUnlocked={forecastUnlocked}
+                onForecastUnlock={handleForecastUnlock}
+                oracleUnlocked={oracleUnlocked}
+                onOracleUnlock={() => handleTierCheckout(2, 'advanced')}
+              />
+            </>
           )}
           {activeTab === 'daily' && (
             <div className="space-y-4">
