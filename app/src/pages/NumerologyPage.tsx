@@ -37,6 +37,13 @@ interface UnlockShortcut {
   onClick: () => void;
 }
 
+interface UnlockPlan extends UnlockShortcut {
+  priceLabel: string;
+  features: string[];
+  lockedFeatures?: string[];
+  buttonLabel: string;
+}
+
 const SKU_MAP: Record<number, string> = {
   1: 'numerology_basic',
   2: 'numerology_advanced',
@@ -76,6 +83,7 @@ export default function NumerologyPage() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [upgradeDefaultTier, setUpgradeDefaultTier] = useState<PlanTier>(3);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [expandedUnlockKey, setExpandedUnlockKey] = useState<string | null>(null);
 
   // ── Tier from profile ────────────────────────────────────────────
   const [tier, setTier] = useState<PlanTier>(0);
@@ -280,51 +288,6 @@ export default function NumerologyPage() {
     await startNumerologyCheckout(NUMEROLOGY_FORECAST_SKU, 'forecast');
   };
 
-  const unlockShortcuts: UnlockShortcut[] = [
-    ...(!forecastUnlocked ? [{
-      key: 'forecast',
-      title: '解鎖完整流年報告',
-      desc: '年度流年解析與守護水晶',
-      color: '#f97316',
-      icon: <Star className="w-3.5 h-3.5" />,
-      onClick: handleForecastUnlock,
-    }] : []),
-    ...(!oracleUnlocked ? [{
-      key: 'advanced',
-      title: '解鎖進階版',
-      desc: '靈魂藍圖與水晶陣手串',
-      color: '#a78bfa',
-      icon: <Sparkles className="w-3.5 h-3.5" />,
-      onClick: () => handleTierCheckout(2, 'advanced'),
-    }] : []),
-  ];
-  const heroUnlockShortcuts: UnlockShortcut[] = [
-    ...(!crystalUnlocked ? [{
-      key: 'basic',
-      title: '基礎版 NT$10',
-      desc: '缺失數字 × 水晶療癒方案',
-      color: '#5eead4',
-      icon: <Sparkles className="w-3 h-3" />,
-      onClick: () => handleTierCheckout(1, 'crystal'),
-    }] : []),
-    ...(!forecastUnlocked ? [{
-      key: 'forecast',
-      title: '完整流年',
-      desc: '年度流年解析與守護水晶',
-      color: '#f97316',
-      icon: <Star className="w-3 h-3" />,
-      onClick: handleForecastUnlock,
-    }] : []),
-    ...(!oracleUnlocked ? [{
-      key: 'advanced',
-      title: '進階版',
-      desc: '靈魂藍圖與水晶陣手串',
-      color: '#a78bfa',
-      icon: <Sparkles className="w-3 h-3" />,
-      onClick: () => handleTierCheckout(2, 'advanced'),
-    }] : []),
-  ];
-  const showUnlockPanel = !crystalUnlocked || unlockShortcuts.length > 0;
   const basicFeatures = [
     '完整生命靈數解析',
     '缺失數字完整分析',
@@ -337,6 +300,64 @@ export default function NumerologyPage() {
     '完整流年報告',
     '專屬水晶手串推薦',
   ];
+  const unlockPlans: UnlockPlan[] = [
+    ...(!crystalUnlocked ? [{
+      key: 'basic',
+      title: '基礎版 NT$10',
+      desc: '缺失數字 × 水晶療癒方案',
+      color: '#5eead4',
+      icon: <Sparkles className="w-3 h-3" />,
+      priceLabel: 'NT$10',
+      features: basicFeatures,
+      lockedFeatures: basicLockedFeatures,
+      buttonLabel: '立即解鎖 基礎版 NT$10',
+      onClick: () => handleTierCheckout(1, 'crystal'),
+    }] : []),
+    ...(!forecastUnlocked ? [{
+      key: 'forecast',
+      title: '完整流年',
+      desc: '年度流年解析與守護水晶',
+      color: '#f97316',
+      icon: <Star className="w-3 h-3" />,
+      priceLabel: 'NT$10',
+      features: [
+        '完整流年主題與年度能量解析',
+        '每月轉折提醒與行動建議',
+        '年度守護水晶與配戴方向',
+        '流年課題、機會與關係提醒',
+      ],
+      lockedFeatures: [
+        '缺失數字水晶療癒方案',
+        '靈魂藍圖 × 當下能量交叉指引',
+        '神聖水晶陣與水晶手串推薦',
+      ],
+      buttonLabel: '立即解鎖 完整流年報告 NT$10',
+      onClick: handleForecastUnlock,
+    }] : []),
+    ...(!oracleUnlocked ? [{
+      key: 'advanced',
+      title: '進階版',
+      desc: '靈魂藍圖與水晶陣手串',
+      color: '#a78bfa',
+      icon: <Sparkles className="w-3 h-3" />,
+      priceLabel: 'NT$10',
+      features: [
+        '靈魂藍圖 × 當下能量交叉指引',
+        '神聖水晶陣指引',
+        '當下靈數卡牌點提示',
+        '專屬水晶手串推薦',
+        '靜心冥想儀式指引',
+      ],
+      lockedFeatures: [
+        '完整流年報告',
+      ],
+      buttonLabel: '立即解鎖 進階版 NT$10',
+      onClick: () => handleTierCheckout(2, 'advanced'),
+    }] : []),
+  ];
+  const heroUnlockShortcuts: UnlockShortcut[] = unlockPlans;
+  const showUnlockPanel = unlockPlans.length > 0;
+  const expandedUnlockPlan = unlockPlans.find(plan => plan.key === expandedUnlockKey) ?? null;
 
   const renderUnlockShortcutPanel = (panelId?: string, className = 'mb-6') => (
     <div
@@ -361,96 +382,98 @@ export default function NumerologyPage() {
         </span>
       </div>
       <div className="space-y-3">
-        {!crystalUnlocked && (
+        <div className="flex flex-wrap gap-2">
+          {unlockPlans.map(plan => {
+            const active = expandedUnlockPlan?.key === plan.key;
+            return (
+              <button
+                key={plan.key}
+                onClick={() => setExpandedUnlockKey(active ? null : plan.key)}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-extrabold transition-transform duration-200 hover:scale-[1.03]"
+                style={{
+                  background: active ? `${plan.color}26` : `${plan.color}12`,
+                  border: `1px solid ${active ? plan.color : `${plan.color}35`}`,
+                  color: plan.color,
+                  boxShadow: active ? `0 0 16px ${plan.color}24` : 'none',
+                  cursor: 'pointer',
+                  touchAction: 'manipulation',
+                } as React.CSSProperties}
+              >
+                {plan.icon}
+                {plan.title}
+              </button>
+            );
+          })}
+        </div>
+
+        {expandedUnlockPlan && (
           <div
             className="rounded-2xl p-4"
             style={{
-              background: 'linear-gradient(135deg, rgba(94,234,212,0.10), rgba(94,234,212,0.025))',
-              border: '1px solid rgba(94,234,212,0.34)',
-              boxShadow: '0 0 22px rgba(94,234,212,0.10)',
+              background: `linear-gradient(135deg, ${expandedUnlockPlan.color}1f, ${expandedUnlockPlan.color}08)`,
+              border: `1px solid ${expandedUnlockPlan.color}45`,
+              boxShadow: `0 0 22px ${expandedUnlockPlan.color}12`,
             }}
           >
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#5eead4', boxShadow: '0 0 10px rgba(94,234,212,0.7)' }} />
-                  <p className="text-sm font-extrabold" style={{ color: '#5eead4' }}>基礎版</p>
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: expandedUnlockPlan.color, boxShadow: `0 0 10px ${expandedUnlockPlan.color}aa` }} />
+                  <p className="text-sm font-extrabold" style={{ color: expandedUnlockPlan.color }}>{expandedUnlockPlan.title}</p>
                 </div>
-                <p className="mt-1 text-xs" style={{ color: 'rgba(233,213,255,0.58)' }}>缺失數字 × 水晶療癒方案</p>
+                <p className="mt-1 text-xs" style={{ color: 'rgba(233,213,255,0.58)' }}>{expandedUnlockPlan.desc}</p>
               </div>
-              <span className="text-lg font-black" style={{ color: '#5eead4' }}>NT$10</span>
+              <span className="text-lg font-black" style={{ color: expandedUnlockPlan.color }}>{expandedUnlockPlan.priceLabel}</span>
             </div>
 
             <div
               className="rounded-xl p-4 mb-4"
               style={{
                 background: 'rgba(7,4,15,0.28)',
-                border: '1px solid rgba(94,234,212,0.18)',
+                border: `1px solid ${expandedUnlockPlan.color}28`,
               }}
             >
-              <p className="mb-3 text-xs font-bold" style={{ color: '#5eead4' }}>基礎版 · 解鎖內容</p>
+              <p className="mb-3 text-xs font-bold" style={{ color: expandedUnlockPlan.color }}>
+                {expandedUnlockPlan.title} · 功能內容
+              </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {basicFeatures.map(feature => (
+                {expandedUnlockPlan.features.map(feature => (
                   <div key={feature} className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
+                    <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: expandedUnlockPlan.color }} />
                     <span className="text-xs" style={{ color: 'rgba(233,213,255,0.78)' }}>{feature}</span>
                   </div>
                 ))}
               </div>
-              <div className="my-3 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {basicLockedFeatures.map(feature => (
-                  <div key={feature} className="flex items-center gap-2">
-                    <Minus className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(196,181,253,0.22)' }} />
-                    <span className="text-xs" style={{ color: 'rgba(196,181,253,0.30)' }}>{feature}</span>
+              {expandedUnlockPlan.lockedFeatures && expandedUnlockPlan.lockedFeatures.length > 0 && (
+                <>
+                  <div className="my-3 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {expandedUnlockPlan.lockedFeatures.map(feature => (
+                      <div key={feature} className="flex items-center gap-2">
+                        <Minus className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(196,181,253,0.22)' }} />
+                        <span className="text-xs" style={{ color: 'rgba(196,181,253,0.30)' }}>{feature}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
 
             <button
-              onClick={() => handleTierCheckout(1, 'crystal')}
+              onClick={expandedUnlockPlan.onClick}
               className="w-full rounded-xl py-3.5 text-sm font-black transition-transform duration-200 hover:scale-[1.01]"
               style={{
-                background: 'linear-gradient(135deg, #5eead4, #2dd4bf)',
+                background: `linear-gradient(135deg, ${expandedUnlockPlan.color}, ${expandedUnlockPlan.color}cc)`,
                 color: '#071013',
-                boxShadow: '0 10px 30px rgba(45,212,191,0.26)',
+                boxShadow: `0 10px 30px ${expandedUnlockPlan.color}32`,
                 touchAction: 'manipulation',
               } as React.CSSProperties}
             >
               <span className="inline-flex items-center justify-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                立即解鎖 基礎版 NT$10
+                {expandedUnlockPlan.buttonLabel}
               </span>
             </button>
-          </div>
-        )}
-
-        {unlockShortcuts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {unlockShortcuts.map(item => (
-              <button
-                key={item.key}
-                onClick={item.onClick}
-                className="min-h-[72px] rounded-xl px-3.5 py-3 text-left transition-transform duration-200 hover:scale-[1.015]"
-                style={{
-                  background: `linear-gradient(135deg, ${item.color}1f, ${item.color}08)`,
-                  border: `1px solid ${item.color}40`,
-                  color: '#f5f3ff',
-                  cursor: 'pointer',
-                  boxShadow: `0 0 18px ${item.color}16`,
-                  touchAction: 'manipulation',
-                } as React.CSSProperties}
-              >
-                <span className="flex items-center gap-2 text-sm font-extrabold" style={{ color: item.color }}>
-                  {item.icon}
-                  {item.title}
-                </span>
-                <span className="block mt-1.5 text-[11px] leading-snug" style={{ color: 'rgba(233,213,255,0.62)' }}>
-                  {item.desc}
-                </span>
-              </button>
-            ))}
           </div>
         )}
       </div>
