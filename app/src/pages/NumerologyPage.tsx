@@ -38,6 +38,7 @@ const NUMEROLOGY_FORECAST_SKU = 'numerology_forecast';
 const FORECAST_UNLOCK_KEY = 'cf_numerology_forecast_unlocked';
 const LOCAL_TIER_KEY = 'cf_numerology_local_tier';
 const RETURN_STATE_KEY = 'cf_numerology_return_state';
+const LAST_REPORT_STATE_KEY = 'cf_numerology_last_report_state';
 
 function getTierFromSpreads(purchased: string[]): PlanTier {
   if (purchased.includes('numerology_full')) return 3;
@@ -149,7 +150,7 @@ export default function NumerologyPage() {
       .then(({ order }) => {
         if (cancelled || order.status !== 'paid') return;
 
-        const rawState = localStorage.getItem(RETURN_STATE_KEY);
+        const rawState = localStorage.getItem(RETURN_STATE_KEY) ?? localStorage.getItem(LAST_REPORT_STATE_KEY);
         let returnSection = searchParams.get('section') ?? '';
         if (rawState) {
           try {
@@ -164,6 +165,7 @@ export default function NumerologyPage() {
 
         const paidTier = getTierFromSku(order.item_id);
         if (paidTier > 0) {
+          if (order.item_id === 'numerology_basic') returnSection = 'crystal';
           const nextTier = Math.max(localTier, paidTier) as PlanTier;
           localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
           setLocalTier(nextTier);
@@ -206,6 +208,7 @@ export default function NumerologyPage() {
     const card = useOracle ? drawOracleCard() : null;
     setReport(result);
     setOracleCard(card);
+    localStorage.setItem(LAST_REPORT_STATE_KEY, JSON.stringify({ report: result, oracleCard: card }));
     setLoading(false);
   };
 
@@ -213,6 +216,8 @@ export default function NumerologyPage() {
     setReport(null);
     setOracleCard(null);
     setActiveTab('report');
+    localStorage.removeItem(RETURN_STATE_KEY);
+    localStorage.removeItem(LAST_REPORT_STATE_KEY);
   };
 
   const handleUpgrade = (required: PlanTier = 3) => {
@@ -222,7 +227,9 @@ export default function NumerologyPage() {
 
   const saveReturnState = (section: string) => {
     if (report) {
-      localStorage.setItem(RETURN_STATE_KEY, JSON.stringify({ report, oracleCard, section }));
+      const state = JSON.stringify({ report, oracleCard, section });
+      localStorage.setItem(RETURN_STATE_KEY, state);
+      localStorage.setItem(LAST_REPORT_STATE_KEY, state);
     }
   };
 
