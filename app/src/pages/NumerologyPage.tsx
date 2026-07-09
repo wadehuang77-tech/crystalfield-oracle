@@ -313,6 +313,132 @@ export default function NumerologyPage() {
     '專屬水晶手串推薦',
   ];
 
+  const scrollToHomeUnlockShortcuts = () => {
+    document.getElementById('numerology-home-unlock-shortcuts')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
+  const renderUnlockShortcutPanel = (panelId?: string, className = 'mb-6') => (
+    <div
+      id={panelId}
+      className={`rounded-2xl p-4 ${className}`}
+      style={{
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025))',
+        border: '1px solid rgba(255,255,255,0.10)',
+        boxShadow: '0 10px 32px rgba(0,0,0,0.28)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        scrollMarginTop: 20,
+      }}
+    >
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em]" style={{ color: 'rgba(233,213,255,0.72)' }}>
+          <Sparkles className="w-3.5 h-3.5" style={{ color: '#5eead4' }} />
+          解鎖捷徑
+        </p>
+        <span className="text-[10px]" style={{ color: 'rgba(196,181,253,0.42)' }}>
+          一鍵前往完整內容
+        </span>
+      </div>
+      <div className="space-y-3">
+        {!crystalUnlocked && (
+          <div
+            className="rounded-2xl p-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(94,234,212,0.10), rgba(94,234,212,0.025))',
+              border: '1px solid rgba(94,234,212,0.34)',
+              boxShadow: '0 0 22px rgba(94,234,212,0.10)',
+            }}
+          >
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#5eead4', boxShadow: '0 0 10px rgba(94,234,212,0.7)' }} />
+                  <p className="text-sm font-extrabold" style={{ color: '#5eead4' }}>基礎版</p>
+                </div>
+                <p className="mt-1 text-xs" style={{ color: 'rgba(233,213,255,0.58)' }}>缺失數字 × 水晶療癒方案</p>
+              </div>
+              <span className="text-lg font-black" style={{ color: '#5eead4' }}>NT$10</span>
+            </div>
+
+            <div
+              className="rounded-xl p-4 mb-4"
+              style={{
+                background: 'rgba(7,4,15,0.28)',
+                border: '1px solid rgba(94,234,212,0.18)',
+              }}
+            >
+              <p className="mb-3 text-xs font-bold" style={{ color: '#5eead4' }}>基礎版 · 解鎖內容</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {basicFeatures.map(feature => (
+                  <div key={feature} className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
+                    <span className="text-xs" style={{ color: 'rgba(233,213,255,0.78)' }}>{feature}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="my-3 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {basicLockedFeatures.map(feature => (
+                  <div key={feature} className="flex items-center gap-2">
+                    <Minus className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(196,181,253,0.22)' }} />
+                    <span className="text-xs" style={{ color: 'rgba(196,181,253,0.30)' }}>{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleTierCheckout(1, 'crystal')}
+              className="w-full rounded-xl py-3.5 text-sm font-black transition-transform duration-200 hover:scale-[1.01]"
+              style={{
+                background: 'linear-gradient(135deg, #5eead4, #2dd4bf)',
+                color: '#071013',
+                boxShadow: '0 10px 30px rgba(45,212,191,0.26)',
+                touchAction: 'manipulation',
+              } as React.CSSProperties}
+            >
+              <span className="inline-flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                立即解鎖 基礎版 NT$10
+              </span>
+            </button>
+          </div>
+        )}
+
+        {unlockShortcuts.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {unlockShortcuts.map(item => (
+              <button
+                key={item.key}
+                onClick={item.onClick}
+                className="min-h-[72px] rounded-xl px-3.5 py-3 text-left transition-transform duration-200 hover:scale-[1.015]"
+                style={{
+                  background: `linear-gradient(135deg, ${item.color}1f, ${item.color}08)`,
+                  border: `1px solid ${item.color}40`,
+                  color: '#f5f3ff',
+                  cursor: 'pointer',
+                  boxShadow: `0 0 18px ${item.color}16`,
+                  touchAction: 'manipulation',
+                } as React.CSSProperties}
+              >
+                <span className="flex items-center gap-2 text-sm font-extrabold" style={{ color: item.color }}>
+                  {item.icon}
+                  {item.title}
+                </span>
+                <span className="block mt-1.5 text-[11px] leading-snug" style={{ color: 'rgba(233,213,255,0.62)' }}>
+                  {item.desc}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   const handleUpgradeConfirm = async (t: PlanTier) => {
     setShowUpgrade(false);
     const sku = SKU_MAP[t];
@@ -350,8 +476,9 @@ export default function NumerologyPage() {
                 {displayTier === 1 ? '基礎版' : displayTier === 2 ? '進階版' : '完整靈魂版'}
               </div>
             ) : (
-              <button onClick={() => handleUpgrade(3)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.22)', color: '#a78bfa', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}>
-                升級解鎖
+              <button onClick={scrollToHomeUnlockShortcuts} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(94,234,212,0.10)', border: '1px solid rgba(94,234,212,0.26)', color: '#5eead4', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                <Sparkles style={{ width: 11, height: 11 }} />
+                解鎖捷徑
               </button>
             )}
           </div>
@@ -390,6 +517,8 @@ export default function NumerologyPage() {
               </button>
             )}
           </div>
+
+          {showUnlockPanel && renderUnlockShortcutPanel('numerology-home-unlock-shortcuts', 'mb-10')}
 
           <div
             className="rounded-3xl p-6 md:p-8 mb-10"
@@ -498,121 +627,7 @@ export default function NumerologyPage() {
 
           {activeTab === 'report' && (
             <>
-              {showUnlockPanel && (
-                <div
-                  className="mb-6 rounded-2xl p-4"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025))',
-                    border: '1px solid rgba(255,255,255,0.10)',
-                    boxShadow: '0 10px 32px rgba(0,0,0,0.28)',
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em]" style={{ color: 'rgba(233,213,255,0.72)' }}>
-                      解鎖捷徑
-                    </p>
-                    <span className="text-[10px]" style={{ color: 'rgba(196,181,253,0.42)' }}>
-                      一鍵前往完整內容
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    {!crystalUnlocked && (
-                      <div
-                        className="rounded-2xl p-4"
-                        style={{
-                          background: 'linear-gradient(135deg, rgba(94,234,212,0.10), rgba(94,234,212,0.025))',
-                          border: '1px solid rgba(94,234,212,0.34)',
-                          boxShadow: '0 0 22px rgba(94,234,212,0.10)',
-                        }}
-                      >
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#5eead4', boxShadow: '0 0 10px rgba(94,234,212,0.7)' }} />
-                              <p className="text-sm font-extrabold" style={{ color: '#5eead4' }}>基礎版</p>
-                            </div>
-                            <p className="mt-1 text-xs" style={{ color: 'rgba(233,213,255,0.58)' }}>缺失數字 × 水晶療癒方案</p>
-                          </div>
-                          <span className="text-lg font-black" style={{ color: '#5eead4' }}>NT$10</span>
-                        </div>
-
-                        <div
-                          className="rounded-xl p-4 mb-4"
-                          style={{
-                            background: 'rgba(7,4,15,0.28)',
-                            border: '1px solid rgba(94,234,212,0.18)',
-                          }}
-                        >
-                          <p className="mb-3 text-xs font-bold" style={{ color: '#5eead4' }}>基礎版 · 解鎖內容</p>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            {basicFeatures.map(feature => (
-                              <div key={feature} className="flex items-center gap-2">
-                                <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
-                                <span className="text-xs" style={{ color: 'rgba(233,213,255,0.78)' }}>{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="my-3 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {basicLockedFeatures.map(feature => (
-                              <div key={feature} className="flex items-center gap-2">
-                                <Minus className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(196,181,253,0.22)' }} />
-                                <span className="text-xs" style={{ color: 'rgba(196,181,253,0.30)' }}>{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => handleTierCheckout(1, 'crystal')}
-                          className="w-full rounded-xl py-3.5 text-sm font-black transition-transform duration-200 hover:scale-[1.01]"
-                          style={{
-                            background: 'linear-gradient(135deg, #5eead4, #2dd4bf)',
-                            color: '#071013',
-                            boxShadow: '0 10px 30px rgba(45,212,191,0.26)',
-                            touchAction: 'manipulation',
-                          } as React.CSSProperties}
-                        >
-                          <span className="inline-flex items-center justify-center gap-2">
-                            <Sparkles className="w-4 h-4" />
-                            立即解鎖 基礎版 NT$10
-                          </span>
-                        </button>
-                      </div>
-                    )}
-
-                    {unlockShortcuts.length > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        {unlockShortcuts.map(item => (
-                          <button
-                            key={item.key}
-                            onClick={item.onClick}
-                            className="min-h-[72px] rounded-xl px-3.5 py-3 text-left transition-transform duration-200 hover:scale-[1.015]"
-                            style={{
-                              background: `linear-gradient(135deg, ${item.color}1f, ${item.color}08)`,
-                              border: `1px solid ${item.color}40`,
-                              color: '#f5f3ff',
-                              cursor: 'pointer',
-                              boxShadow: `0 0 18px ${item.color}16`,
-                              touchAction: 'manipulation',
-                            } as React.CSSProperties}
-                          >
-                            <span className="flex items-center gap-2 text-sm font-extrabold" style={{ color: item.color }}>
-                              {item.icon}
-                              {item.title}
-                            </span>
-                            <span className="block mt-1.5 text-[11px] leading-snug" style={{ color: 'rgba(233,213,255,0.62)' }}>
-                              {item.desc}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              {showUnlockPanel && renderUnlockShortcutPanel()}
               <NumerologyReport
                 report={report}
                 oracleCard={oracleCard}
