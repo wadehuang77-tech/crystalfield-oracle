@@ -494,8 +494,68 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
         />
       )}
 
-      {/* Crystal Bracelet Recommendation */}
-      <CrystalBracelet report={report} tier={tier} onUpgrade={onUpgrade} />
+      {/* Crystal Grid + Bracelet Recommendation — advanced tier */}
+      {oracleUnlocked ? (
+        <div id="numerology-advanced-crystal">
+          <CrystalBracelet report={report} tier={tier} onUpgrade={onUpgrade} />
+        </div>
+      ) : (
+        <div
+          id="numerology-advanced-crystal"
+          className="rounded-3xl p-6 space-y-4"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+            border: '1px solid rgba(255,255,255,0.09)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <Gem className="w-4 h-4" style={{ color: '#5eead4' }} />
+            <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>神聖水晶陣指引</h3>
+          </div>
+          <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden' }}>
+            <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
+              <div className="rounded-2xl p-5 space-y-3" style={{ background: 'rgba(94,234,212,0.06)', border: '1px solid rgba(94,234,212,0.14)' }}>
+                <p className="text-sm leading-[1.9]" style={{ color: 'rgba(233,213,255,0.72)' }}>
+                  依照你的生命靈數配置專屬水晶陣，包含陣法、陣型、擺放位置、啟動方式與能量平衡功能。
+                </p>
+              </div>
+              <div className="flex items-center gap-2 mt-5 mb-3">
+                <Star className="w-4 h-4" style={{ color: '#fbbf24' }} />
+                <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>專屬水晶手串推薦</h3>
+              </div>
+              <div className="rounded-2xl p-5 space-y-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
+                <p className="text-sm" style={{ color: 'rgba(196,181,253,0.62)' }}>你的專屬能量配方 · 能量主題手串 · 水晶搭配建議</p>
+              </div>
+            </div>
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(to bottom, rgba(9,5,20,0.24) 0%, rgba(9,5,20,0.78) 55%, rgba(9,5,20,0.96) 100%)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12,
+              padding: 18,
+            }}>
+              <Lock className="w-6 h-6" style={{ color: '#a78bfa' }} />
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#c4b5fd', textAlign: 'center' }}>
+                解鎖進階版後，神聖水晶陣指引與專屬水晶手串推薦將一起開啟
+              </p>
+              <button
+                onClick={onOracleUnlock}
+                style={{
+                  padding: '10px 22px', borderRadius: 11,
+                  border: '1px solid rgba(167,139,250,0.38)',
+                  background: 'linear-gradient(135deg, rgba(167,139,250,0.22), rgba(167,139,250,0.08))',
+                  color: '#c4b5fd', fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', touchAction: 'manipulation',
+                } as React.CSSProperties}
+              >
+                解鎖進階版 NT$10
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reset */}
       <button

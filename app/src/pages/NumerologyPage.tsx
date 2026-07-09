@@ -177,6 +177,8 @@ export default function NumerologyPage() {
         setActiveTab('report');
         const id = returnSection === 'crystal'
           ? 'numerology-crystal-healing'
+          : returnSection === 'advanced'
+          ? 'numerology-advanced-crystal'
           : returnSection === 'forecast'
           ? 'numerology-forecast'
           : null;
@@ -458,7 +460,7 @@ export default function NumerologyPage() {
               forecastUnlocked={forecastUnlocked}
               onForecastUnlock={handleForecastUnlock}
               oracleUnlocked={oracleUnlocked}
-              onOracleUnlock={() => handleTierCheckout(2, 'report')}
+              onOracleUnlock={() => handleTierCheckout(2, 'advanced')}
             />
           )}
           {activeTab === 'daily' && (
