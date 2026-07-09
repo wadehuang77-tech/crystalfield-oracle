@@ -116,7 +116,7 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
               你現在看到的只是表層訊息<br />
               <span className="text-blue-300">真正的轉化，在後面</span>
             </h3>
-            <p className="text-blue-100/50 text-sm leading-relaxed">
+            <p className="inline-flex items-center justify-center rounded-full border border-blue-200/35 bg-blue-100/15 px-4 py-2 text-sm font-bold leading-relaxed text-blue-50 shadow-[0_0_22px_rgba(96,165,250,0.28)]">
               輸入 Email，解鎖完整指引與能量提醒
             </p>
           </div>
@@ -177,7 +177,7 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
             你現在看到的只是表層訊息<br />
             <span className="text-slate-700">真正的轉化，在後面</span>
           </h3>
-          <p className="text-slate-600 text-sm leading-relaxed">
+          <p className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-sm font-bold leading-relaxed text-white shadow-md">
             輸入 Email，解鎖完整指引與能量提醒
           </p>
         </div>
