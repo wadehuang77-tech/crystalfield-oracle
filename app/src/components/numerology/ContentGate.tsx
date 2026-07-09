@@ -26,13 +26,13 @@ export default function ContentGate({
   const gateColor = accentColor;
   const usesEmailUnlock = Boolean(emailUnlockTargetId);
   const label = usesEmailUnlock
-    ? '輸入 Email 免費解鎖，查看完整內容'
+    ? '輸入Email免費解鎖，查看完整內容'
     : requiredTier === 1
     ? '解鎖基礎版 NT$10，查看完整內容'
     : requiredTier === 2
     ? '解鎖進階版 NT$10，查看完整內容'
     : '解鎖完整靈魂版 NT$10，查看完整內容';
-  const btnLabel = usesEmailUnlock ? '輸入 Email 免費解鎖' : '解鎖完整解析';
+  const btnLabel = usesEmailUnlock ? '輸入Email免費解鎖' : '解鎖完整解析';
   const handleUnlockClick = () => {
     if (emailUnlockTargetId) {
       document.getElementById(emailUnlockTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });

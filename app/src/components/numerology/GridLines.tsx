@@ -345,17 +345,18 @@ export default function GridLines({ report, tier, onUpgrade }: Props) {
               <p style={{
                 display: 'inline-flex',
                 margin: '0 0 10px',
-                padding: '5px 12px',
+                padding: '6px 14px',
                 borderRadius: 999,
-                border: '1px solid rgba(196,181,253,0.38)',
-                background: 'rgba(196,181,253,0.16)',
-                color: '#f5f3ff',
-                fontSize: 13,
-                fontWeight: 800,
-                letterSpacing: '0.04em',
-                boxShadow: '0 0 18px rgba(167,139,250,0.25)',
+                border: '1px solid rgba(245,243,255,0.55)',
+                background: 'rgba(245,243,255,0.20)',
+                color: '#ffffff',
+                fontSize: 14,
+                fontWeight: 900,
+                letterSpacing: '0.03em',
+                textShadow: '0 0 10px rgba(255,255,255,0.42)',
+                boxShadow: '0 0 22px rgba(167,139,250,0.34)',
               }}>
-                輸入 Email 免費解鎖
+                輸入Email免費解鎖
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
                 {['連線詳細解析', '高頻水晶處方', '專屬光體能量修復儀式'].map(f => (
