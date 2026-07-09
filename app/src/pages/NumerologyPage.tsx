@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Gem, Star, Sparkles, ChevronRight, Crown, LogIn, Check, Minus } from 'lucide-react';
+import { Gem, Star, Sparkles, ChevronRight, LogIn, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
 import DailyEnergy from '../components/numerology/DailyEnergy';
@@ -355,7 +355,6 @@ export default function NumerologyPage() {
       onClick: () => handleTierCheckout(2, 'advanced'),
     }] : []),
   ];
-  const heroUnlockShortcuts: UnlockShortcut[] = unlockPlans;
   const showUnlockPanel = unlockPlans.length > 0;
   const expandedUnlockPlan = unlockPlans.find(plan => plan.key === expandedUnlockKey) ?? null;
 
@@ -509,43 +508,6 @@ export default function NumerologyPage() {
 
       {!report ? (
         <section className="px-4 pt-4 pb-16 max-w-2xl mx-auto">
-          {/* Unlock shortcuts / premium tier badge */}
-          <div className="flex justify-end mb-2">
-            {heroUnlockShortcuts.length > 0 ? (
-              <div className="flex flex-wrap justify-end gap-1.5">
-                {heroUnlockShortcuts.map(item => (
-                  <button
-                    key={item.key}
-                    onClick={item.onClick}
-                    title={item.desc}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 5,
-                      padding: '4px 9px',
-                      borderRadius: 999,
-                      background: `${item.color}14`,
-                      border: `1px solid ${item.color}38`,
-                      color: item.color,
-                      fontSize: 11,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: `0 0 12px ${item.color}14`,
-                      touchAction: 'manipulation',
-                    } as React.CSSProperties}
-                  >
-                    {item.icon}
-                    {item.title}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.28)', color: '#fbbf24', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em' }}>
-                <Crown style={{ width: 11, height: 11 }} />
-                {displayTier === 1 ? '基礎版' : displayTier === 2 ? '進階版' : '完整靈魂版'}
-              </div>
-            )}
-          </div>
           <div className="text-center mb-12 space-y-4">
             <h1
               className="font-serif text-4xl md:text-5xl leading-tight"
