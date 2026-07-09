@@ -89,7 +89,6 @@ export default function NumerologyPage() {
   );
   const displayTier = Math.max(tier, localTier) as PlanTier;
   const paidContentTier = Math.max(tier >= 2 ? tier : 0, localTier >= 2 ? localTier : 0) as PlanTier;
-  const isPremium = displayTier > 0;
   const pendingUpgradeRef = useRef<PlanTier | null>(null);
 
   // Capture upgrade intent from URL after auth redirect, then clean it
@@ -299,6 +298,32 @@ export default function NumerologyPage() {
       onClick: () => handleTierCheckout(2, 'advanced'),
     }] : []),
   ];
+  const heroUnlockShortcuts: UnlockShortcut[] = [
+    ...(!crystalUnlocked ? [{
+      key: 'basic',
+      title: '基礎版 NT$10',
+      desc: '缺失數字 × 水晶療癒方案',
+      color: '#5eead4',
+      icon: <Sparkles className="w-3 h-3" />,
+      onClick: () => handleTierCheckout(1, 'crystal'),
+    }] : []),
+    ...(!forecastUnlocked ? [{
+      key: 'forecast',
+      title: '完整流年',
+      desc: '年度流年解析與守護水晶',
+      color: '#f97316',
+      icon: <Star className="w-3 h-3" />,
+      onClick: handleForecastUnlock,
+    }] : []),
+    ...(!oracleUnlocked ? [{
+      key: 'advanced',
+      title: '進階版',
+      desc: '靈魂藍圖與水晶陣手串',
+      color: '#a78bfa',
+      icon: <Sparkles className="w-3 h-3" />,
+      onClick: () => handleTierCheckout(2, 'advanced'),
+    }] : []),
+  ];
   const showUnlockPanel = !crystalUnlocked || unlockShortcuts.length > 0;
   const basicFeatures = [
     '完整生命靈數解析',
@@ -312,13 +337,6 @@ export default function NumerologyPage() {
     '完整流年報告',
     '專屬水晶手串推薦',
   ];
-
-  const scrollToHomeUnlockShortcuts = () => {
-    document.getElementById('numerology-home-unlock-shortcuts')?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  };
 
   const renderUnlockShortcutPanel = (panelId?: string, className = 'mb-6') => (
     <div
@@ -468,18 +486,41 @@ export default function NumerologyPage() {
 
       {!report ? (
         <section className="px-4 pt-4 pb-16 max-w-2xl mx-auto">
-          {/* Premium tier badge */}
+          {/* Unlock shortcuts / premium tier badge */}
           <div className="flex justify-end mb-2">
-            {isPremium ? (
+            {heroUnlockShortcuts.length > 0 ? (
+              <div className="flex flex-wrap justify-end gap-1.5">
+                {heroUnlockShortcuts.map(item => (
+                  <button
+                    key={item.key}
+                    onClick={item.onClick}
+                    title={item.desc}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '4px 9px',
+                      borderRadius: 999,
+                      background: `${item.color}14`,
+                      border: `1px solid ${item.color}38`,
+                      color: item.color,
+                      fontSize: 11,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: `0 0 12px ${item.color}14`,
+                      touchAction: 'manipulation',
+                    } as React.CSSProperties}
+                  >
+                    {item.icon}
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+            ) : (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.28)', color: '#fbbf24', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em' }}>
                 <Crown style={{ width: 11, height: 11 }} />
                 {displayTier === 1 ? '基礎版' : displayTier === 2 ? '進階版' : '完整靈魂版'}
               </div>
-            ) : (
-              <button onClick={scrollToHomeUnlockShortcuts} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(94,234,212,0.10)', border: '1px solid rgba(94,234,212,0.26)', color: '#5eead4', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                <Sparkles style={{ width: 11, height: 11 }} />
-                解鎖捷徑
-              </button>
             )}
           </div>
           <div className="text-center mb-12 space-y-4">
@@ -517,8 +558,6 @@ export default function NumerologyPage() {
               </button>
             )}
           </div>
-
-          {showUnlockPanel && renderUnlockShortcutPanel('numerology-home-unlock-shortcuts', 'mb-10')}
 
           <div
             className="rounded-3xl p-6 md:p-8 mb-10"
