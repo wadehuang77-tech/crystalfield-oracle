@@ -139,7 +139,7 @@ function TarotMultiEmailGate({
           disabled={submitting}
           className="w-full px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
-          {submitting ? '解鎖中…' : 'Email 免費解鎖'}
+          {submitting ? '解鎖中…' : '輸入 Email 免費解鎖'}
         </button>
       </form>
     </div>
