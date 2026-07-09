@@ -12,7 +12,6 @@ export function generateChatQuestions(chart: HDChart): ChatQuestion[] {
   const hasEmotional = chart.definedCenters.includes('solar-plexus');
   const hasThroat = chart.definedCenters.includes('throat');
   const hasG = chart.definedCenters.includes('g');
-  const hasHeart = chart.definedCenters.includes('heart');
 
   const questions: ChatQuestion[] = [
     // Q1 — Type / Strategy
@@ -75,7 +74,7 @@ export function generateChatQuestions(chart: HDChart): ChatQuestion[] {
     // Q2 — Sacral / Emotional center
     {
       id: 'q2-center',
-      text: (c) => hasSacral
+      text: () => hasSacral
         ? `你的薦骨中心已定義。\n\n請問你在做的工作和事情，是否讓你感覺充滿活力？`
         : hasEmotional
           ? `你的情緒中心（太陽神經叢）已定義。\n\n請問你通常如何做重要的決定？`
@@ -85,7 +84,7 @@ export function generateChatQuestions(chart: HDChart): ChatQuestion[] {
         : hasEmotional
           ? ['通常等待情緒穩定後再決定', '情緒高點時很衝動，常後悔', '試著理性分析，但情緒干擾很大', '我習慣快速決定，不喜歡拖']
           : ['非常容易，他人的能量很快影響我', '偶爾會，但我通常能分辨', '很少，我感覺情緒比較穩定', '我反而常被說情緒化'],
-      insight: (idx, c) => {
+      insight: (idx) => {
         if (hasSacral) {
           return [
             '薦骨的「是」通常是一種在身體裡感受到的暖流或擴展感，這是你最可靠的指引。',
@@ -114,13 +113,13 @@ export function generateChatQuestions(chart: HDChart): ChatQuestion[] {
     // Q3 — Throat / Expression
     {
       id: 'q3-throat',
-      text: (c) => hasThroat
+      text: () => hasThroat
         ? `你的喉嚨中心已定義，這讓你具有穩定的表達能量。\n\n請問你在表達自己時：`
         : `你的喉嚨中心是開放的。\n\n請問你在表達自己的想法或感受時：`,
       options: hasThroat
         ? ['說話有份量，常常能影響他人', '有很多想說的，但說出來容易被誤解', '傾向說話直接，有時覺得太衝動', '說話前會多想，不是特別喜歡表達']
         : ['常常話到嘴邊又說不出口', '說了很多，但感覺說的不是真正想說的', '喜歡在對的時機、對的人面前說話', '常常在說話後懷疑自己說得對不對'],
-      insight: (idx, c) => hasThroat
+      insight: (idx) => hasThroat
         ? [
           '喉嚨中心已定義的人說話具有自然的影響力，這是你的天賦。',
           '這可能來自你的表達方式與他人接收方式之間的落差，而非你表達有問題。',
@@ -138,13 +137,13 @@ export function generateChatQuestions(chart: HDChart): ChatQuestion[] {
     // Q4 — G Center / Direction
     {
       id: 'q4-direction',
-      text: (c) => hasG
+      text: () => hasG
         ? `你的 G 中心（自我認同中心）已定義。\n\n關於你的人生方向：`
         : `你的 G 中心（自我認同中心）是開放的。\n\n關於你的人生方向：`,
       options: hasG
         ? ['我有清晰的方向感，知道自己走在對的路上', '我有目標，但達到後感覺空洞，不知道下一步', '我的方向感很強，但很難讓別人理解我', '我在尋找真正屬於自己的方向']
         : ['我很容易受到環境和他人影響而改變方向', '我常常感覺「我是誰」這個問題很困擾我', '我的方向感來自於我所在的環境和人', '我不確定自己真正想要的是什麼'],
-      insight: (idx, c) => hasG
+      insight: (idx) => hasG
         ? [
           'G 中心定義者通常擁有穩定的自我認同感和方向感，這是你的天然優勢。',
           '這可能說明你的方向設定是正確的，但執行方式需要與你的策略和權威對齊。',
@@ -169,7 +168,7 @@ export function generateChatQuestions(chart: HDChart): ChatQuestion[] {
         '我的能量容易被特定類型的人消耗殆盡',
         '我在關係中大致能保持自己的狀態',
       ],
-      insight: (idx, c) => [
+      insight: (idx) => [
         '在人類圖中，這通常與你開放中心的制約有關。你可能在關係中無意識地放大他人的能量。',
         '這可能與你的權威類型有關。學習按照你的策略和權威做決定，能讓你在關係中更真實。',
         '每個開放的中心都是你容易被特定能量影響的入口。了解哪些中心是開放的，有助於你設立能量界線。',
@@ -182,7 +181,7 @@ export function generateChatQuestions(chart: HDChart): ChatQuestion[] {
       id: 'q6-focus',
       text: () => `目前，生活中哪個領域讓你感覺最需要被理解和改變？`,
       options: ['工作與事業方向', '感情與親密關係', '內在狀態與自我認知', '財務與物質豐盛'],
-      insight: (idx, c) => {
+      insight: (idx) => {
         const areas = [
           `你的人類圖在事業方向上有很多重要的資訊。你的類型和策略直接影響你應該如何接近工作機會。`,
           `你的人類圖在感情模式上揭示了很多你的制約傾向。了解你的開放中心是理解感情困境的關鍵。`,
@@ -453,8 +452,17 @@ function getDailyTip(chart: HDChart): string {
     ],
   };
   const arr = tips[chart.type];
-  const idx = Math.abs(fnv1a(new Date().toDateString() + chart.type)) % arr.length;
+  const idx = stableHash(new Date().toDateString() + chart.type) % arr.length;
   return arr[idx];
+}
+
+function stableHash(value: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
 }
 
 function getPersonalityDeep(chart: HDChart): string {

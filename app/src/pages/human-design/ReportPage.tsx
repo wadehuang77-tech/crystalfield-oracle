@@ -301,7 +301,7 @@ export default function ReportPage({
                     </div>
                     {!isFullUnlocked && <Lock className="w-3.5 h-3.5 text-white/20 flex-shrink-0" />}
                   </div>
-                  {'body' in s && (
+                  {'body' in s && typeof s.body === 'string' && (
                     <p className="mt-3 pl-7 text-white/65 text-sm leading-[1.85]">{s.body}</p>
                   )}
                 </div>
