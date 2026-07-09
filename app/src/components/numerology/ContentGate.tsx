@@ -28,7 +28,7 @@ export default function ContentGate({
   const label = usesEmailUnlock
     ? '輸入Email免費解鎖，查看完整內容'
     : requiredTier === 1
-    ? '解鎖基礎版 NT$10，查看完整內容'
+    ? '解鎖基礎版 NT$199，查看完整內容'
     : requiredTier === 2
     ? '解鎖進階版 NT$10，查看完整內容'
     : '解鎖完整靈魂版 NT$10，查看完整內容';

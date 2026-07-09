@@ -346,10 +346,10 @@ export default function NumerologyPage() {
       desc: '缺失數字 × 水晶療癒方案',
       color: '#5eead4',
       icon: <Sparkles className="w-3 h-3" />,
-      priceLabel: 'NT$10',
+      priceLabel: 'NT$199',
       features: basicFeatures,
       lockedFeatures: basicLockedFeatures,
-      buttonLabel: '立即解鎖 基礎版 NT$10',
+      buttonLabel: '立即解鎖 基礎版 NT$199',
       onClick: () => handleTierCheckout(1, 'crystal'),
     }] : []),
     ...(!forecastUnlocked ? [{

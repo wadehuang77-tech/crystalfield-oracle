@@ -28,8 +28,8 @@ const PLANS: Record<PlanKey, {
   basic: {
     tier: 1,
     name: '基礎版',
-    price: 'NT$10',
-    priceNum: '10',
+    price: 'NT$199',
+    priceNum: '199',
     color: '#5eead4',
     includes: [
       '完整生命靈數解析',
@@ -44,7 +44,7 @@ const PLANS: Record<PlanKey, {
       '專屬水晶手串推薦',
       '靜心冥想儀式指引',
     ],
-    buttonLabel: '立即解鎖 基礎版 NT$10',
+    buttonLabel: '立即解鎖 基礎版 NT$199',
   },
   advanced: {
     tier: 2,

@@ -51,7 +51,7 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
     bundle: { three_card: 6, ten_card: 3, pastlife: 3, days: 30 },
   },
   // ── 生命靈數方案 ────────────────────────────────────────────────
-  numerology_basic:    { id: 'numerology_basic',    name: '生命靈數 基礎版',     amount: 10 },
+  numerology_basic:    { id: 'numerology_basic',    name: '生命靈數 基礎版',     amount: 199 },
   numerology_advanced: { id: 'numerology_advanced', name: '生命靈數 進階版',     amount: 10 },
   numerology_full:     { id: 'numerology_full',     name: '生命靈數 完整靈魂版', amount: 10 },
   numerology_forecast: { id: 'numerology_forecast', name: '生命靈數 完整流年報告', amount: 10 },

@@ -430,7 +430,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                                 解鎖完整缺失數字 × 水晶療癒方案
                               </p>
                               <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(94,234,212,0.55)' }}>
-                                基礎版 NT$250 · 永久查看
+                                基礎版 NT$199 · 永久查看
                               </p>
                             </div>
                             <div style={{
@@ -461,7 +461,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                               } as React.CSSProperties}
                             >
                               <Lock style={{ width: 13, height: 13 }} />
-                              解鎖基礎版 NT$10
+                              解鎖基礎版 NT$199
                             </button>
                           </div>
                         </div>
