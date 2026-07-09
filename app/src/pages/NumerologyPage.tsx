@@ -147,6 +147,26 @@ export default function NumerologyPage() {
     forecastCheckoutUnlocked;
 
   useEffect(() => {
+    const section = searchParams.get('section');
+    if (!section || report) return;
+
+    const rawState = localStorage.getItem(RETURN_STATE_KEY) ?? localStorage.getItem(LAST_REPORT_STATE_KEY);
+    if (!rawState) return;
+
+    try {
+      const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null };
+      if (!state.report) return;
+      setReport(state.report);
+      setOracleCard(state.oracleCard ?? null);
+      setActiveTab('report');
+      setPendingScrollTarget(getScrollTargetForSection(section));
+    } catch {
+      localStorage.removeItem(RETURN_STATE_KEY);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (!pendingScrollTarget || !report || activeTab !== 'report') return;
     const timer = window.setTimeout(() => {
       document.getElementById(pendingScrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -186,6 +206,7 @@ export default function NumerologyPage() {
           localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
           setLocalTier(nextTier);
         } else if (order.item_id === NUMEROLOGY_FORECAST_SKU) {
+          returnSection = 'forecast';
           localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
           setForecastCheckoutUnlocked(true);
         } else {
