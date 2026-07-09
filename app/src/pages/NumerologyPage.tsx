@@ -342,7 +342,7 @@ export default function NumerologyPage() {
   const unlockPlans: UnlockPlan[] = [
     ...(!crystalUnlocked ? [{
       key: 'basic',
-      title: '基礎版 NT$10',
+      title: '基礎版',
       desc: '缺失數字 × 水晶療癒方案',
       color: '#5eead4',
       icon: <Sparkles className="w-3 h-3" />,
