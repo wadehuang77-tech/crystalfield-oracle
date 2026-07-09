@@ -179,7 +179,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
               <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: color }} />
             <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(196,181,253,0.45)' }}>靈魂藍圖與脈輪狀態</p>
             </div>
-            <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked}>
+            <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
               <p className="text-sm leading-[1.95] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: `${color}25` }}>
                 {line.soulBlueprint}
               </p>
@@ -189,7 +189,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
           <div className="h-px" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
 
           {/* Crystal Prescription — email unlock */}
-          <ContentGate currentTier={tier} requiredTier={1} onUpgrade={onUpgrade} accentColor={color} previewHeight={150} emailUnlocked={emailUnlocked}>
+          <ContentGate currentTier={tier} requiredTier={1} onUpgrade={onUpgrade} accentColor={color} previewHeight={150} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />
@@ -216,7 +216,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
           </ContentGate>
 
           {/* Meditation & Ritual — unlocked by advanced tier */}
-          <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked}>
+          <ContentGate currentTier={tier} requiredTier={2} onUpgrade={onUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
             <div className="h-px mb-5" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
             <div className="rounded-2xl p-5 space-y-3" style={{ background: `${color}06`, border: `1px solid ${color}18` }}>
               <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ export default function GridLines({ report, tier, onUpgrade }: Props) {
           <p className="text-xs text-gray-500 uppercase tracking-widest pb-1">連線詳細解析</p>
 
           {!emailUnlocked && tier < 1 && (
-            <div style={{
+            <div id="numerology-grid-email-unlock" style={{
               borderRadius: 16,
               border: '1px solid rgba(167,139,250,0.25)',
               background: 'linear-gradient(135deg, rgba(167,139,250,0.07), rgba(167,139,250,0.02))',

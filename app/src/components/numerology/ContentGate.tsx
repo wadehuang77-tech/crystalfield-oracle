@@ -7,6 +7,7 @@ interface ContentGateProps {
   accentColor?: string;
   previewHeight?: number;
   emailUnlocked?: boolean;
+  emailUnlockTargetId?: string;
   children: React.ReactNode;
 }
 
@@ -17,17 +18,28 @@ export default function ContentGate({
   accentColor = '#a78bfa',
   previewHeight = 160,
   emailUnlocked = false,
+  emailUnlockTargetId,
   children,
 }: ContentGateProps) {
   if (currentTier >= requiredTier || emailUnlocked) return <>{children}</>;
 
   const gateColor = accentColor;
-  const label = requiredTier === 1
+  const usesEmailUnlock = Boolean(emailUnlockTargetId);
+  const label = usesEmailUnlock
+    ? '輸入 Email 免費解鎖，查看完整內容'
+    : requiredTier === 1
     ? '解鎖基礎版 NT$10，查看完整內容'
     : requiredTier === 2
     ? '解鎖進階版 NT$10，查看完整內容'
     : '解鎖完整靈魂版 NT$10，查看完整內容';
-  const btnLabel = '解鎖完整解析';
+  const btnLabel = usesEmailUnlock ? '輸入 Email 免費解鎖' : '解鎖完整解析';
+  const handleUnlockClick = () => {
+    if (emailUnlockTargetId) {
+      document.getElementById(emailUnlockTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    onUpgrade(requiredTier);
+  };
 
   return (
     <div style={{ position: 'relative' }}>
@@ -80,7 +92,7 @@ export default function ContentGate({
         </p>
 
         <button
-          onClick={() => onUpgrade(requiredTier)}
+          onClick={handleUnlockClick}
           style={{
             padding: '9px 22px',
             borderRadius: 10,
