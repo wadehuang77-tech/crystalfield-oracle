@@ -203,7 +203,9 @@ export default function NumerologyPage() {
         if (paidTier > 0) {
           if (order.item_id === 'numerology_basic') returnSection = 'crystal';
           if (order.item_id === 'numerology_advanced') returnSection = 'advanced';
-          const nextTier = Math.max(localTier, paidTier) as PlanTier;
+          const nextTier: PlanTier = order.item_id === 'numerology_basic'
+            ? 1
+            : (Math.max(localTier, paidTier) as PlanTier);
           localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
           setLocalTier(nextTier);
         } else if (order.item_id === NUMEROLOGY_FORECAST_SKU) {
@@ -303,7 +305,9 @@ export default function NumerologyPage() {
           setTier(getTierFromSpreads(profile.purchased_spreads));
         }
         if (paidTier) {
-          const nextTier = Math.max(localTier, paidTier) as PlanTier;
+          const nextTier: PlanTier = sku === 'numerology_basic'
+            ? 1
+            : (Math.max(localTier, paidTier) as PlanTier);
           localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
           setLocalTier(nextTier);
         } else if (sku === NUMEROLOGY_FORECAST_SKU) {
@@ -331,10 +335,10 @@ export default function NumerologyPage() {
   };
 
   const basicFeatures = [
-    '完整生命靈數解析',
     '缺失數字完整分析',
     '高頻水晶療癒方案',
-    '能量盲點與課題解析',
+    '缺失能量盲點解析',
+    '水晶配方與療癒建議',
   ];
   const basicLockedFeatures = [
     '靈魂藍圖 × 當下能量交叉指引',
