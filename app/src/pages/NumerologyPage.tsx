@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { calculateNumerology, drawOracleCard } from '../lib/numerology';
 import type { NumerologyReport as Report, OracleCard } from '../lib/numerology';
 import type { PlanTier } from '../hooks/usePremium';
-import { profileApi, checkoutApi } from '../lib/api';
+import { checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 
 type Tab = 'report' | 'daily' | 'ai';
@@ -56,13 +56,6 @@ const LOCAL_TIER_KEY = 'cf_numerology_local_tier';
 const RETURN_STATE_KEY = 'cf_numerology_return_state';
 const LAST_REPORT_STATE_KEY = 'cf_numerology_last_report_state';
 
-function getTierFromSpreads(purchased: string[]): PlanTier {
-  if (purchased.includes('numerology_full')) return 3;
-  if (purchased.includes('numerology_advanced')) return 2;
-  if (purchased.includes('numerology_basic')) return 1;
-  return 0;
-}
-
 function getTierFromSku(sku: string): PlanTier {
   if (sku === 'numerology_full') return 3;
   if (sku === 'numerology_advanced') return 2;
@@ -85,9 +78,6 @@ export default function NumerologyPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [expandedUnlockKey, setExpandedUnlockKey] = useState<string | null>(null);
 
-  // ── Tier from profile ────────────────────────────────────────────
-  const [tier, setTier] = useState<PlanTier>(0);
-  const [purchasedSpreads, setPurchasedSpreads] = useState<string[]>([]);
   const [localTier, setLocalTier] = useState<PlanTier>(() => {
     const n = Number(localStorage.getItem(LOCAL_TIER_KEY));
     return n >= 1 && n <= 3 ? n as PlanTier : 0;
@@ -95,8 +85,8 @@ export default function NumerologyPage() {
   const [forecastCheckoutUnlocked, setForecastCheckoutUnlocked] = useState(() =>
     localStorage.getItem(FORECAST_UNLOCK_KEY) === '1',
   );
-  const displayTier = Math.max(tier, localTier) as PlanTier;
-  const paidContentTier = Math.max(tier >= 2 ? tier : 0, localTier >= 2 ? localTier : 0) as PlanTier;
+  const displayTier: PlanTier = localTier;
+  const paidContentTier: PlanTier = localTier >= 2 ? localTier : 0;
   const pendingUpgradeRef = useRef<PlanTier | null>(null);
 
   // Capture upgrade intent from URL after auth redirect, then clean it
@@ -112,13 +102,6 @@ export default function NumerologyPage() {
   }, []);
 
   useEffect(() => {
-    if (!user) { setTier(0); setPurchasedSpreads([]); return; }
-    profileApi.me().then(({ profile }) => {
-      if (profile) {
-        setPurchasedSpreads(profile.purchased_spreads);
-        setTier(getTierFromSpreads(profile.purchased_spreads));
-      }
-    }).catch(() => {});
     if (pendingUpgradeRef.current !== null) {
       const t = pendingUpgradeRef.current;
       pendingUpgradeRef.current = null;
@@ -139,12 +122,9 @@ export default function NumerologyPage() {
   }, [user]);
 
   // ── Derive unlock flags from tier ───────────────────────────────
-  const crystalUnlocked = tier >= 1 || localTier >= 1;
+  const crystalUnlocked = localTier >= 1;
   const oracleUnlocked = paidContentTier >= 2;
-  const forecastUnlocked =
-    paidContentTier >= 3 ||
-    purchasedSpreads.includes(NUMEROLOGY_FORECAST_SKU) ||
-    forecastCheckoutUnlocked;
+  const forecastUnlocked = forecastCheckoutUnlocked;
 
   useEffect(() => {
     const section = searchParams.get('section');
@@ -241,6 +221,8 @@ export default function NumerologyPage() {
     await new Promise(r => setTimeout(r, 1200));
     const result = calculateNumerology(date);
     const card = useOracle ? drawOracleCard() : null;
+    clearLocalTierUnlock();
+    clearForecastUnlock();
     setReport(result);
     setOracleCard(card);
     localStorage.setItem(LAST_REPORT_STATE_KEY, JSON.stringify({ report: result, oracleCard: card }));
@@ -251,6 +233,8 @@ export default function NumerologyPage() {
     setReport(null);
     setOracleCard(null);
     setActiveTab('report');
+    clearLocalTierUnlock();
+    clearForecastUnlock();
     localStorage.removeItem(RETURN_STATE_KEY);
     localStorage.removeItem(LAST_REPORT_STATE_KEY);
   };
@@ -311,11 +295,6 @@ export default function NumerologyPage() {
       if (ecpay) {
         submitToEcpay(ecpay, () => setCheckoutLoading(false));
       } else {
-        const { profile } = await profileApi.me();
-        if (profile) {
-          setPurchasedSpreads(profile.purchased_spreads);
-          setTier(getTierFromSpreads(profile.purchased_spreads));
-        }
         if (paidTier) {
           if (sku === 'numerology_basic') clearForecastUnlock();
           const nextTier: PlanTier = sku === 'numerology_basic'
@@ -549,12 +528,6 @@ export default function NumerologyPage() {
       if (ecpay) {
         submitToEcpay(ecpay, () => setCheckoutLoading(false));
       } else {
-        // Admin instant-unlock path — re-fetch tier so UI updates without page reload
-        const { profile } = await profileApi.me();
-        if (profile) {
-          setPurchasedSpreads(profile.purchased_spreads);
-          setTier(getTierFromSpreads(profile.purchased_spreads));
-        }
         setCheckoutLoading(false);
       }
     } catch (err) {
