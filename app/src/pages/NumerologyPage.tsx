@@ -203,6 +203,7 @@ export default function NumerologyPage() {
         if (paidTier > 0) {
           if (order.item_id === 'numerology_basic') returnSection = 'crystal';
           if (order.item_id === 'numerology_advanced') returnSection = 'advanced';
+          if (order.item_id === 'numerology_basic') clearForecastUnlock();
           const nextTier: PlanTier = order.item_id === 'numerology_basic'
             ? 1
             : (Math.max(localTier, paidTier) as PlanTier);
@@ -271,6 +272,11 @@ export default function NumerologyPage() {
     setLocalTier(0);
   };
 
+  const clearForecastUnlock = () => {
+    localStorage.removeItem(FORECAST_UNLOCK_KEY);
+    setForecastCheckoutUnlocked(false);
+  };
+
   const saveReturnState = (section: string) => {
     if (report) {
       const state = JSON.stringify({ report, oracleCard, section });
@@ -311,6 +317,7 @@ export default function NumerologyPage() {
           setTier(getTierFromSpreads(profile.purchased_spreads));
         }
         if (paidTier) {
+          if (sku === 'numerology_basic') clearForecastUnlock();
           const nextTier: PlanTier = sku === 'numerology_basic'
             ? 1
             : (Math.max(localTier, paidTier) as PlanTier);
