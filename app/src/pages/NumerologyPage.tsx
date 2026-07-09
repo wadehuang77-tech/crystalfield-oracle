@@ -358,7 +358,7 @@ export default function NumerologyPage() {
       desc: '年度流年解析與守護水晶',
       color: '#f97316',
       icon: <Star className="w-3 h-3" />,
-      priceLabel: 'NT$10',
+      priceLabel: 'NT$499',
       features: [
         '完整流年主題與年度能量解析',
         '每月轉折提醒與行動建議',
@@ -370,7 +370,7 @@ export default function NumerologyPage() {
         '靈魂藍圖 × 當下能量交叉指引',
         '神聖水晶陣與水晶手串推薦',
       ],
-      buttonLabel: '立即解鎖 完整流年報告 NT$10',
+      buttonLabel: '立即解鎖 完整流年報告 NT$499',
       onClick: handleForecastUnlock,
     }] : []),
     ...(!oracleUnlocked ? [{
