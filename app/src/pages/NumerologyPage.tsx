@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Gem, Star, Sparkles, ChevronRight, Crown, LogIn } from 'lucide-react';
+import { Gem, Star, Sparkles, ChevronRight, Crown, LogIn, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
 import DailyEnergy from '../components/numerology/DailyEnergy';
@@ -282,14 +282,6 @@ export default function NumerologyPage() {
   };
 
   const unlockShortcuts: UnlockShortcut[] = [
-    ...(!crystalUnlocked ? [{
-      key: 'basic',
-      title: '解鎖基礎版',
-      desc: '缺失數字 × 水晶療癒方案',
-      color: '#5eead4',
-      icon: <Gem className="w-3.5 h-3.5" />,
-      onClick: () => handleTierCheckout(1, 'crystal'),
-    }] : []),
     ...(!forecastUnlocked ? [{
       key: 'forecast',
       title: '解鎖完整流年報告',
@@ -306,6 +298,19 @@ export default function NumerologyPage() {
       icon: <Sparkles className="w-3.5 h-3.5" />,
       onClick: () => handleTierCheckout(2, 'advanced'),
     }] : []),
+  ];
+  const showUnlockPanel = !crystalUnlocked || unlockShortcuts.length > 0;
+  const basicFeatures = [
+    '完整生命靈數解析',
+    '缺失數字完整分析',
+    '高頻水晶療癒方案',
+    '能量盲點與課題解析',
+  ];
+  const basicLockedFeatures = [
+    '靈魂藍圖 × 當下能量交叉指引',
+    '神聖水晶陣指引',
+    '完整流年報告',
+    '專屬水晶手串推薦',
   ];
 
   const handleUpgradeConfirm = async (t: PlanTier) => {
@@ -493,7 +498,7 @@ export default function NumerologyPage() {
 
           {activeTab === 'report' && (
             <>
-              {unlockShortcuts.length > 0 && (
+              {showUnlockPanel && (
                 <div
                   className="mb-6 rounded-2xl p-4"
                   style={{
@@ -512,30 +517,99 @@ export default function NumerologyPage() {
                       一鍵前往完整內容
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    {unlockShortcuts.map(item => (
-                      <button
-                        key={item.key}
-                        onClick={item.onClick}
-                        className="min-h-[72px] rounded-xl px-3.5 py-3 text-left transition-transform duration-200 hover:scale-[1.015]"
+                  <div className="space-y-3">
+                    {!crystalUnlocked && (
+                      <div
+                        className="rounded-2xl p-4"
                         style={{
-                          background: `linear-gradient(135deg, ${item.color}1f, ${item.color}08)`,
-                          border: `1px solid ${item.color}40`,
-                          color: '#f5f3ff',
-                          cursor: 'pointer',
-                          boxShadow: `0 0 18px ${item.color}16`,
-                          touchAction: 'manipulation',
-                        } as React.CSSProperties}
+                          background: 'linear-gradient(135deg, rgba(94,234,212,0.10), rgba(94,234,212,0.025))',
+                          border: '1px solid rgba(94,234,212,0.34)',
+                          boxShadow: '0 0 22px rgba(94,234,212,0.10)',
+                        }}
                       >
-                        <span className="flex items-center gap-2 text-sm font-extrabold" style={{ color: item.color }}>
-                          {item.icon}
-                          {item.title}
-                        </span>
-                        <span className="block mt-1.5 text-[11px] leading-snug" style={{ color: 'rgba(233,213,255,0.62)' }}>
-                          {item.desc}
-                        </span>
-                      </button>
-                    ))}
+                        <div className="flex items-start justify-between gap-3 mb-4">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#5eead4', boxShadow: '0 0 10px rgba(94,234,212,0.7)' }} />
+                              <p className="text-sm font-extrabold" style={{ color: '#5eead4' }}>基礎版</p>
+                            </div>
+                            <p className="mt-1 text-xs" style={{ color: 'rgba(233,213,255,0.58)' }}>缺失數字 × 水晶療癒方案</p>
+                          </div>
+                          <span className="text-lg font-black" style={{ color: '#5eead4' }}>NT$10</span>
+                        </div>
+
+                        <div
+                          className="rounded-xl p-4 mb-4"
+                          style={{
+                            background: 'rgba(7,4,15,0.28)',
+                            border: '1px solid rgba(94,234,212,0.18)',
+                          }}
+                        >
+                          <p className="mb-3 text-xs font-bold" style={{ color: '#5eead4' }}>基礎版 · 解鎖內容</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            {basicFeatures.map(feature => (
+                              <div key={feature} className="flex items-center gap-2">
+                                <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
+                                <span className="text-xs" style={{ color: 'rgba(233,213,255,0.78)' }}>{feature}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="my-3 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {basicLockedFeatures.map(feature => (
+                              <div key={feature} className="flex items-center gap-2">
+                                <Minus className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(196,181,253,0.22)' }} />
+                                <span className="text-xs" style={{ color: 'rgba(196,181,253,0.30)' }}>{feature}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleTierCheckout(1, 'crystal')}
+                          className="w-full rounded-xl py-3.5 text-sm font-black transition-transform duration-200 hover:scale-[1.01]"
+                          style={{
+                            background: 'linear-gradient(135deg, #5eead4, #2dd4bf)',
+                            color: '#071013',
+                            boxShadow: '0 10px 30px rgba(45,212,191,0.26)',
+                            touchAction: 'manipulation',
+                          } as React.CSSProperties}
+                        >
+                          <span className="inline-flex items-center justify-center gap-2">
+                            <Sparkles className="w-4 h-4" />
+                            立即解鎖 基礎版 NT$10
+                          </span>
+                        </button>
+                      </div>
+                    )}
+
+                    {unlockShortcuts.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {unlockShortcuts.map(item => (
+                          <button
+                            key={item.key}
+                            onClick={item.onClick}
+                            className="min-h-[72px] rounded-xl px-3.5 py-3 text-left transition-transform duration-200 hover:scale-[1.015]"
+                            style={{
+                              background: `linear-gradient(135deg, ${item.color}1f, ${item.color}08)`,
+                              border: `1px solid ${item.color}40`,
+                              color: '#f5f3ff',
+                              cursor: 'pointer',
+                              boxShadow: `0 0 18px ${item.color}16`,
+                              touchAction: 'manipulation',
+                            } as React.CSSProperties}
+                          >
+                            <span className="flex items-center gap-2 text-sm font-extrabold" style={{ color: item.color }}>
+                              {item.icon}
+                              {item.title}
+                            </span>
+                            <span className="block mt-1.5 text-[11px] leading-snug" style={{ color: 'rgba(233,213,255,0.62)' }}>
+                              {item.desc}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
