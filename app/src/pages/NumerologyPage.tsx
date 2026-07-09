@@ -210,6 +210,7 @@ export default function NumerologyPage() {
           setLocalTier(nextTier);
         } else if (order.item_id === NUMEROLOGY_FORECAST_SKU) {
           returnSection = 'forecast';
+          clearLocalTierUnlock();
           localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
           setForecastCheckoutUnlocked(true);
         } else {
@@ -265,6 +266,11 @@ export default function NumerologyPage() {
     return null;
   };
 
+  const clearLocalTierUnlock = () => {
+    localStorage.removeItem(LOCAL_TIER_KEY);
+    setLocalTier(0);
+  };
+
   const saveReturnState = (section: string) => {
     if (report) {
       const state = JSON.stringify({ report, oracleCard, section });
@@ -311,6 +317,7 @@ export default function NumerologyPage() {
           localStorage.setItem(LOCAL_TIER_KEY, String(nextTier));
           setLocalTier(nextTier);
         } else if (sku === NUMEROLOGY_FORECAST_SKU) {
+          clearLocalTierUnlock();
           localStorage.setItem(FORECAST_UNLOCK_KEY, '1');
           setForecastCheckoutUnlocked(true);
         }
