@@ -19,6 +19,7 @@ const SPREAD_HOME: Record<string, string> = {
   numerology_advanced: '/numerology?section=advanced',
   numerology_full:     '/numerology',
   numerology_forecast: '/numerology?section=forecast',
+  human_design_full:   '/human-design',
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {
@@ -245,7 +246,7 @@ function PaidSuccess({ order, onSpread }: { order: Order; onSpread: () => void }
           </div>
 
           <p className="text-sm text-blue-200/85 leading-loose tracking-wide">
-            你的牌陣已解鎖,<br className="sm:hidden"/>可以回去查看完整解析。
+            你的內容已解鎖,<br className="sm:hidden"/>可以回去查看完整解析。
           </p>
           <p className="text-xs text-blue-300/70 mt-3 tracking-wide">即將自動帶你回去⋯</p>
 

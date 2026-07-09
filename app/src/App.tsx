@@ -27,6 +27,7 @@ import LandingPage from './pages/LandingPage';
 import NumerologyPage from './pages/NumerologyPage';
 import MembershipPage from './pages/MembershipPage';
 import PageHeader from './components/PageHeader';
+import HumanDesignPage from './pages/HumanDesignPage';
 
 function RouterBody() {
   usePageViewTracking();
@@ -59,7 +60,7 @@ function RouterBody() {
           <Route path="/checkout/return" element={<CheckoutReturnPage />} />
           <Route path="/membership" element={<ProtectedRoute><MembershipPage /></ProtectedRoute>} />
           <Route path="/numerology" element={<NumerologyPage />} />
-          <Route path="/human-design" element={<Navigate to="/" replace />} />
+          <Route path="/human-design" element={<HumanDesignPage />} />
         </Routes>
       </div>
       <SiteFooter />

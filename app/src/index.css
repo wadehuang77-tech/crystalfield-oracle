@@ -19,6 +19,11 @@
   html, body { overflow-x: hidden; }
   body { padding-bottom: env(safe-area-inset-bottom); }
 
+  input[type="date"],
+  input[type="time"] {
+    color-scheme: dark;
+  }
+
   input, textarea, select {
     font-size: 16px;
   }
@@ -247,6 +252,10 @@
     border-radius: 1.25rem;
     padding: 1.5rem;
     box-shadow: 0 12px 40px -16px rgba(0, 0, 0, 0.4);
+  }
+
+  .page-enter {
+    animation: pageEnter 0.5s ease-out forwards;
   }
   @media (min-width: 640px) {
     .mystic-panel { padding: 2rem; }
@@ -690,6 +699,16 @@
 @keyframes aurora-flow {
   0%, 100% { background-position: 0% 50%; }
   50%       { background-position: 100% 50%; }
+}
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Landing page keyframes ───────────────────────────────────── */

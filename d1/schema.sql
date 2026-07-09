@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS reading_unlocks;
 DROP TABLE IF EXISTS advanced_reading_unlocks;
 DROP TABLE IF EXISTS conversion_events;
 DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS hd_charts;
 DROP TABLE IF EXISTS email_leads;
 DROP TABLE IF EXISTS emails;
 DROP TABLE IF EXISTS leads;
@@ -139,6 +140,30 @@ CREATE TABLE events (
 );
 CREATE INDEX events_type_created_idx ON events(event_type, created_at DESC);
 CREATE INDEX events_created_idx      ON events(created_at DESC);
+
+-- ---------------------------------------------------------------------------
+-- hd_charts: 人類圖計算結果與問答紀錄
+-- ---------------------------------------------------------------------------
+CREATE TABLE hd_charts (
+  id            TEXT PRIMARY KEY,
+  session_id    TEXT NOT NULL,
+  user_id       TEXT,
+  user_name     TEXT DEFAULT '',
+  user_email    TEXT DEFAULT '',
+  birth_date    TEXT NOT NULL,
+  birth_time    TEXT DEFAULT '',
+  birth_city    TEXT DEFAULT '',
+  hd_type       TEXT NOT NULL DEFAULT '',
+  hd_profile    TEXT NOT NULL DEFAULT '',
+  hd_authority  TEXT NOT NULL DEFAULT '',
+  chart_data    TEXT NOT NULL DEFAULT '{}',
+  chat_answers  TEXT NOT NULL DEFAULT '[]',
+  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX idx_hd_charts_session ON hd_charts(session_id);
+CREATE INDEX idx_hd_charts_user    ON hd_charts(user_id, created_at DESC);
+CREATE INDEX idx_hd_charts_email   ON hd_charts(user_email);
 
 -- ---------------------------------------------------------------------------
 -- subscriptions: 月費會員定期定額主表

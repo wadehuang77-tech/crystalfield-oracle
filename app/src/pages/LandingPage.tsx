@@ -98,7 +98,6 @@ const STARS = Array.from({ length: 80 }, (_, i) => ({
 export default function LandingPage() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [hdOpen, setHdOpen] = useState(false);
 
   const scrollToCard = useCallback((index: number) => {
     const carousel = carouselRef.current;
@@ -172,7 +171,6 @@ export default function LandingPage() {
                   key={card.id}
                   card={card}
                   index={i}
-                  onClick={card.id === 'humandesign' ? () => setHdOpen(true) : undefined}
                 />
               ))}
             </div>
@@ -199,7 +197,6 @@ export default function LandingPage() {
                   <PortalCard
                     card={card}
                     index={i}
-                    onClick={card.id === 'humandesign' ? () => setHdOpen(true) : undefined}
                   />
                 </div>
               ))}
@@ -232,64 +229,6 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {hdOpen && <HumanDesignModal onClose={() => setHdOpen(false)} />}
-    </div>
-  );
-}
-
-// ─── Human Design "coming soon" modal ────────────────────────────────────────
-function HumanDesignModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 2000,
-        background: 'rgba(4,0,18,0.82)',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 24,
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          maxWidth: 380, width: '100%',
-          background: 'linear-gradient(160deg, rgba(6,80,90,0.92), rgba(4,0,18,0.98))',
-          border: '1px solid rgba(20,184,166,0.30)',
-          borderRadius: 24,
-          padding: '40px 32px 32px',
-          textAlign: 'center',
-          boxShadow: '0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(20,184,166,0.08)',
-        }}
-      >
-        <div style={{ fontSize: 52, marginBottom: 16, lineHeight: 1 }}>🧬</div>
-        <h2 style={{
-          fontSize: 22, fontWeight: 700, color: '#fff',
-          marginBottom: 6, fontFamily: 'serif', letterSpacing: '0.04em',
-        }}>
-          人類圖
-        </h2>
-        <p style={{ fontSize: 13, color: 'rgba(94,234,212,0.85)', fontWeight: 600, marginBottom: 18, letterSpacing: '0.12em' }}>
-          即將推出
-        </p>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.52)', lineHeight: 1.75, marginBottom: 28 }}>
-          人類圖功能正在全力開發中。<br />
-          即將為你揭開能量類型、決策方式<br />
-          與最佳人生道路的奧秘。
-        </p>
-        <button
-          onClick={onClose}
-          style={{
-            width: '100%', padding: '13px', borderRadius: 14, border: 'none',
-            background: 'linear-gradient(135deg, rgba(20,184,166,0.65), rgba(6,148,162,0.45))',
-            color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: 600,
-            cursor: 'pointer', letterSpacing: '0.04em',
-          }}
-        >
-          我知道了
-        </button>
-      </div>
     </div>
   );
 }

@@ -24,6 +24,10 @@ import {
   verifyResetCode,
 } from './passwordReset';
 import {
+  saveHumanDesignChart,
+  updateHumanDesignAnswers,
+} from './humanDesign';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -134,6 +138,18 @@ export default {
         const rl = await rateLimit(env, 'conv-event-ip', clientIp(req), 100, 300);
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await saveConversionEvent(req, env);
+      }
+
+      if (path === '/api/human-design/charts' && req.method === 'POST') {
+        const rl = await rateLimit(env, 'hd-chart-ip', clientIp(req), 20, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await saveHumanDesignChart(req, env);
+      }
+      if (path.startsWith('/api/human-design/charts/') && path.endsWith('/answers') && req.method === 'POST') {
+        const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/answers'.length));
+        const rl = await rateLimit(env, 'hd-answers-ip', clientIp(req), 30, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await updateHumanDesignAnswers(req, env, id);
       }
 
       if (path === '/api/admin/check'          && req.method === 'GET')  return await adminCheck(req, env);

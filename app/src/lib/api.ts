@@ -229,6 +229,32 @@ export const publicApi = {
     }).catch(() => {}),
 };
 
+export interface HumanDesignChartInput {
+  birth_date: string;
+  birth_time: string;
+  birth_city: string;
+  hd_type: string;
+  hd_profile: string;
+  hd_authority: string;
+  chart_data: unknown;
+  user_name?: string;
+  user_email?: string;
+}
+
+export const humanDesignApi = {
+  saveChart: (body: HumanDesignChartInput) =>
+    req<{ chart_id: string; session_id: string }>('/api/human-design/charts', {
+      method: 'POST',
+      body,
+    }),
+
+  updateAnswers: (chart_id: string, chat_answers: number[]) =>
+    req<{ ok: true }>(`/api/human-design/charts/${encodeURIComponent(chart_id)}/answers`, {
+      method: 'POST',
+      body: { chat_answers },
+    }),
+};
+
 export interface ReadingPick {
   position: number;
   position_label: string;

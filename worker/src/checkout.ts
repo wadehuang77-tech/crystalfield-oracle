@@ -80,12 +80,14 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const item = SPREAD_CATALOG[body.spread_id];
   if (!item) return badRequest(req, env, '商品代號錯誤');
   const isNumerologyCheckout = item.id.startsWith('numerology_');
+  const isHumanDesignCheckout = item.id.startsWith('human_design_');
   const shouldAdminInstantUnlock = isAdmin && !isNumerologyCheckout;
 
   const expectedCount = SPREAD_CARD_COUNT[item.id] ?? 0;
   const isGuestSpreadCheckout = !user && expectedCount > 0;
   const isGuestNumerologyCheckout = !user && isNumerologyCheckout;
-  if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout) {
+  const isGuestHumanDesignCheckout = !user && isHumanDesignCheckout;
+  if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout && !isGuestHumanDesignCheckout) {
     return unauthorized(req, env, '請先登入');
   }
   if (user && item.id === 'membership_monthly') {
@@ -95,7 +97,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   }
 
   let guestEmail = typeof body.guest_email === 'string' ? body.guest_email.toLowerCase().trim() : '';
-  if (isGuestSpreadCheckout || isGuestNumerologyCheckout) {
+  if (isGuestSpreadCheckout || isGuestNumerologyCheckout || isGuestHumanDesignCheckout) {
     if (!guestEmail) {
       guestEmail = 'guest-order@crystalfield.local';
     } else if (!validEmail(guestEmail)) {
@@ -151,7 +153,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
       merchantTradeNo,
       user?.id ?? null,
       user?.email ?? guestEmail,
-      item.id === 'membership_monthly' ? 'subscription' : 'spread',
+      item.id === 'membership_monthly' ? 'subscription' : (isHumanDesignCheckout ? 'human_design' : 'spread'),
       item.id,
       item.name,
       item.amount,
