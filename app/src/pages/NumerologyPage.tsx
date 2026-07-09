@@ -379,7 +379,7 @@ export default function NumerologyPage() {
       desc: '靈魂藍圖與水晶陣手串',
       color: '#a78bfa',
       icon: <Sparkles className="w-3 h-3" />,
-      priceLabel: 'NT$10',
+      priceLabel: 'NT$499',
       features: [
         '靈魂藍圖 × 當下能量交叉指引',
         '神聖水晶陣指引',
@@ -390,7 +390,7 @@ export default function NumerologyPage() {
       lockedFeatures: [
         '完整流年報告',
       ],
-      buttonLabel: '立即解鎖 進階版 NT$10',
+      buttonLabel: '立即解鎖 進階版 NT$499',
       onClick: () => handleTierCheckout(2, 'advanced'),
     }] : []),
   ];

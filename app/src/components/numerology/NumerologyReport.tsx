@@ -550,7 +550,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                   cursor: 'pointer', touchAction: 'manipulation',
                 } as React.CSSProperties}
               >
-                解鎖進階版 NT$10
+                解鎖進階版 NT$499
               </button>
             </div>
           </div>

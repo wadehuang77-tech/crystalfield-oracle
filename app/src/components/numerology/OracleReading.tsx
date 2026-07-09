@@ -495,7 +495,7 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
                         background: `linear-gradient(135deg, ${accentColor}14, ${accentColor}05)`,
                         color: accentColor, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         touchAction: 'manipulation',
-                      } as React.CSSProperties}>解鎖進階版 NT$10</button>
+                      } as React.CSSProperties}>解鎖進階版 NT$499</button>
                     </div>
                   )}
                 </div>
@@ -529,7 +529,7 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
                         background: `linear-gradient(135deg, ${accentColor}14, ${accentColor}05)`,
                         color: accentColor, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         touchAction: 'manipulation',
-                      } as React.CSSProperties}>解鎖進階版 NT$10</button>
+                      } as React.CSSProperties}>解鎖進階版 NT$499</button>
                     </div>
                   ) : (
                   <div className="space-y-3">
@@ -676,7 +676,7 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
                   解鎖完整靈魂藍圖與當下能量交叉指引
                 </p>
                 <p style={{ margin: '4px 0 0', fontSize: 11, color: `${accentColor}70` }}>
-                  進階版 NT$10 · 永久查看
+                  進階版 NT$499 · 永久查看
                 </p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px 10px', marginBottom: 16 }}>
@@ -704,7 +704,7 @@ export default function OracleReading({ report, card, tier, onUpgrade, oracleUnl
                 } as React.CSSProperties}
               >
                 <Lock style={{ width: 13, height: 13 }} />
-                解鎖進階版 NT$10
+                解鎖進階版 NT$499
               </button>
             </div>
           </div>

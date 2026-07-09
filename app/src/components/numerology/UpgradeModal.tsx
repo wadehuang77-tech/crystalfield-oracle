@@ -49,8 +49,8 @@ const PLANS: Record<PlanKey, {
   advanced: {
     tier: 2,
     name: '進階版',
-    price: 'NT$10',
-    priceNum: '10',
+    price: 'NT$499',
+    priceNum: '499',
     color: '#a78bfa',
     includes: [
       '完整生命靈數解析',
@@ -65,7 +65,7 @@ const PLANS: Record<PlanKey, {
     excludes: [
       '完整流年報告',
     ],
-    buttonLabel: '立即解鎖 進階版 NT$10',
+    buttonLabel: '立即解鎖 進階版 NT$499',
   },
   full: {
     tier: 3,
