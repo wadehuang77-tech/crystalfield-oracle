@@ -55,7 +55,7 @@ import {
 } from './utils';
 
 const SESSION_SEC = 60 * 60 * 24 * 7;
-const WORKER_DIAGNOSTIC_VERSION = 'hd-diagnostics-2026-07-10';
+const WORKER_DIAGNOSTIC_VERSION = 'hd-diagnostics-2026-07-10-v2';
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
