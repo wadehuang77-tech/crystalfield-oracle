@@ -4,7 +4,7 @@ import {
 } from './utils';
 import { ensureHumanDesignSchema } from './humanDesignSchema';
 
-export const REPORT_VERSION = 'professional-v8';
+export const REPORT_VERSION = 'professional-v9';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 const MIN_AI_BODY_CHARS = 100;
 
@@ -129,6 +129,19 @@ function centerList(values: CenterName[] | undefined, fallback: string): string 
   return values.map((value) => CENTER_LABELS[value] ?? value).join('、');
 }
 
+function compactCenterList(values: CenterName[] | undefined, fallback: string): string {
+  if (!values || values.length === 0) return fallback;
+  const labels = values.map((value) => CENTER_LABELS[value] ?? value);
+  if (labels.length <= 3) return labels.join('、');
+  return `${labels.slice(0, 3).join('、')}等 ${labels.length} 個中心`;
+}
+
+function compactList(values: Array<string | number> | undefined, fallback: string): string {
+  if (!values || values.length === 0) return fallback;
+  if (values.length <= 4) return values.join('、');
+  return `${values.slice(0, 4).join('、')}等 ${values.length} 個`;
+}
+
 function definitionKey(chart: HDChart): string {
   const count = chart.definedCenters?.length ?? 0;
   if (count === 0) return 'none';
@@ -184,15 +197,15 @@ function buildFixedSectionBody(sectionId: string, chart: HDChart, row: ChartRow,
   const defInfo = getKnowledge(knowledge, 'definition', definitionKey(chart));
 
   if (sectionId === 'centers') {
-    return `九大中心可以先理解成你的能量開關：已定義中心比較像穩定電源，代表你比較容易信任、也比較常自然表現出來的部分；開放中心則像接收器，容易感受到環境和別人的情緒、壓力或期待。\n\n你的已定義中心是 ${centerList(defined, '無固定定義中心')}，這些是你比較穩的能量來源。開放中心是 ${centerList(open, '開放中心較少')}，提醒你不要把外界狀態都當成自己的責任。你的整體定義為 ${defInfo?.title ?? '定義狀態'}，重點不是把每個中心背起來，而是練習分辨：哪些感覺真正來自你，哪些只是經過你。`;
+    return `九大中心可以先理解成你的能量開關：已定義中心像穩定電源，代表你比較容易信任、也比較常自然表現出來的部分；開放中心像接收器，容易接到環境和別人的情緒、壓力或期待。\n\n你的已定義中心是 ${compactCenterList(defined, '無固定定義中心')}，這些是你較穩的能量來源。開放中心是 ${compactCenterList(open, '開放中心較少')}，提醒你不要把外界狀態都當成自己的責任。整體定義為 ${defInfo?.title ?? '定義狀態'}。重點不是背名詞，而是分辨：哪些感覺真正來自你，哪些只是經過你。`;
   }
 
   if (sectionId === 'gates') {
-    return `64 閘門不用當成艱深名詞來背，它比較像你生命裡常被啟動的主題按鈕。某些閘門會帶來天賦、興趣與吸引力；某些閘門在壓力下，也可能變成反覆卡住的模式。\n\n你的關鍵閘門是 ${list(gates, '尚未偵測到關鍵閘門')}。請把它們看成線索，而不是限制。真正重要的是：這些主題是否有接成通道、位在哪些中心，以及你做決定時有沒有回到 ${authority}。當你用對節奏行動，閘門會像資源；當你急著證明自己，同一股能量就容易變成壓力。`;
+    return `64 閘門不用當成艱深名詞來背，它比較像你生命裡常被啟動的主題按鈕。有些閘門會帶來天賦、興趣與吸引力；有些閘門在壓力下，也可能變成反覆卡住的模式。\n\n你的關鍵閘門是 ${compactList(gates, '尚未偵測到關鍵閘門')}。請把它們看成線索，而不是限制。真正重要的是：這些主題是否接成通道、位在哪些中心，以及你做決定時有沒有回到 ${authority}。用對節奏時，閘門會像資源；急著證明自己時，同一股能量就容易變成壓力。`;
   }
 
   if (sectionId === 'channels') {
-    return `通道可以想成兩個中心之間已經接好的能量線。當一條通道成立，代表這股特質在你身上比較固定，別人也比較容易感受到；它可能表現在說話方式、工作節奏、人際互動，或你自然處理事情的方法。\n\n你的主要通道是 ${list(channels, '尚未偵測到主要通道')}。如果目前通道較少，代表你更容易受環境和關係觸發，不是能力不足。通道的重點不是要你一直表現，而是提醒你：在正確的人、事、時機裡，你的能量會自然流動。請搭配 ${typeName} 的策略與 ${authority} 做選擇，會比硬推更準。`;
+    return `通道可以想成兩個中心之間接好的能量線。當通道成立，代表這股特質在你身上比較固定，別人也比較容易感受到；它可能表現在說話方式、工作節奏、人際互動，或你自然處理事情的方法。\n\n你的主要通道是 ${compactList(channels, '尚未偵測到主要通道')}。如果通道較少，代表你更容易受環境和關係觸發，不是能力不足。通道的重點不是一直表現，而是提醒你：在正確的人、事、時機裡，能量會自然流動。搭配 ${typeName} 的策略與 ${authority}，會比硬推更準。`;
   }
 
   return '';
