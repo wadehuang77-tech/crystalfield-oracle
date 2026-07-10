@@ -28,6 +28,9 @@ import {
   updateHumanDesignAnswers,
 } from './humanDesign';
 import {
+  getHumanDesignFullReport,
+} from './humanDesignReport';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -150,6 +153,12 @@ export default {
         const rl = await rateLimit(env, 'hd-answers-ip', clientIp(req), 30, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await updateHumanDesignAnswers(req, env, id);
+      }
+      if (path.startsWith('/api/human-design/charts/') && path.endsWith('/full-report') && req.method === 'GET') {
+        const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/full-report'.length));
+        const rl = await rateLimit(env, 'hd-full-report-ip', clientIp(req), 30, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await getHumanDesignFullReport(req, env, id);
       }
 
       if (path === '/api/admin/check'          && req.method === 'GET')  return await adminCheck(req, env);

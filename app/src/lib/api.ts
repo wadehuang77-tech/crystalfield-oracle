@@ -241,6 +241,13 @@ export interface HumanDesignChartInput {
   user_email?: string;
 }
 
+export interface HumanDesignFullReportSection {
+  id: string;
+  title: string;
+  icon: string;
+  body: string;
+}
+
 export const humanDesignApi = {
   saveChart: (body: HumanDesignChartInput) =>
     req<{ chart_id: string; session_id: string }>('/api/human-design/charts', {
@@ -253,6 +260,11 @@ export const humanDesignApi = {
       method: 'POST',
       body: { chat_answers },
     }),
+
+  getFullReport: (chart_id: string) =>
+    req<{ report_version: string; sections: HumanDesignFullReportSection[]; cached: boolean }>(
+      `/api/human-design/charts/${encodeURIComponent(chart_id)}/full-report`,
+    ),
 };
 
 export interface ReadingPick {

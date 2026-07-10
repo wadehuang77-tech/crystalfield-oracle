@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Lock, Sparkles, ChevronDown, ChevronUp, ArrowRight, Download } from 'lucide-react';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
+import { humanDesignApi, type HumanDesignFullReportSection } from '../../lib/api';
 import { generateFreeReport } from '../../data/human-design/humanDesignData';
 
 interface ReportPageProps {
   chart: HDChart;
+  chartId?: string;
   birthDate: string;
   isFullUnlocked?: boolean;
   unlocking?: boolean;
@@ -177,6 +179,7 @@ function FallbackReport({ onNavigate }: { onNavigate: (p: string) => void }) {
 
 export default function ReportPage({
   chart,
+  chartId = '',
   birthDate,
   isFullUnlocked = false,
   unlocking = false,
@@ -184,11 +187,42 @@ export default function ReportPage({
   onNavigate,
 }: ReportPageProps) {
   const [visible, setVisible] = useState(false);
+  const [fullReportSections, setFullReportSections] = useState<HumanDesignFullReportSection[] | null>(null);
+  const [fullReportLoading, setFullReportLoading] = useState(false);
+  const [fullReportError, setFullReportError] = useState('');
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    if (!isFullUnlocked || !chartId) {
+      setFullReportSections(null);
+      setFullReportError('');
+      return;
+    }
+
+    let cancelled = false;
+    setFullReportLoading(true);
+    setFullReportError('');
+
+    humanDesignApi.getFullReport(chartId)
+      .then(({ sections }) => {
+        if (cancelled) return;
+        setFullReportSections(sections);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('human design full report load failed:', err);
+        setFullReportError('完整版資料庫報告暫時無法載入，已先顯示備用內容。');
+      })
+      .finally(() => {
+        if (!cancelled) setFullReportLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [isFullUnlocked, chartId]);
 
   // Safety guard
   if (!chart || !chart.type || !chart.typeName) {
@@ -213,7 +247,7 @@ export default function ReportPage({
     chart.definedCenters.length <= 6 ? '雙重定義' : '多重定義';
 
   const handleDownload = () => window.print();
-  const paidContent = buildPaidContent(chart, birthDate);
+  const paidContent = fullReportSections ?? buildPaidContent(chart, birthDate);
 
   return (
     <div className="min-h-screen px-5 pt-24 pb-24">
@@ -287,6 +321,12 @@ export default function ReportPage({
           <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
             {isFullUnlocked ? '完整版 AI 深度解析' : '付費完整版 AI 深度解析'}
           </p>
+          {isFullUnlocked && fullReportLoading && (
+            <p className="text-cyan-300/60 text-xs text-center mb-3">正在讀取資料庫完整版報告...</p>
+          )}
+          {isFullUnlocked && fullReportError && (
+            <p className="text-amber-300/70 text-xs text-center mb-3">{fullReportError}</p>
+          )}
           <div className="relative rounded-2xl overflow-hidden border border-white/6">
             <div className="p-1 space-y-1">
               {(isFullUnlocked ? paidContent : PAID_SECTIONS).map(s => (

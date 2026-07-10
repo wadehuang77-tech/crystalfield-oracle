@@ -102,6 +102,7 @@ export default function HumanDesignPage() {
     const nextBirthData = { date: birthDate, time: birthTime, city: birthCity };
     setBirthData(nextBirthData);
     setChart(calculated);
+    setChartId('');
     setFullUnlocked(false);
     localStorage.removeItem(UNLOCK_KEY);
     goTo('hero');
@@ -128,9 +129,23 @@ export default function HumanDesignPage() {
 
   const handleUnlockFull = async () => {
     if (!chart) return;
-    persistState({ chart, chartId, birthData });
     setCheckoutLoading(true);
     try {
+      let currentChartId = chartId;
+      if (!currentChartId) {
+        const { chart_id } = await humanDesignApi.saveChart({
+          birth_date: birthData.date,
+          birth_time: birthData.time,
+          birth_city: birthData.city,
+          hd_type: chart.type,
+          hd_profile: chart.profile,
+          hd_authority: chart.authority,
+          chart_data: chart,
+        });
+        currentChartId = chart_id;
+        setChartId(chart_id);
+      }
+      persistState({ chart, chartId: currentChartId, birthData });
       const { ecpay, admin_unlocked } = await checkoutApi.createOrder(SKU);
       if (admin_unlocked || !ecpay) {
         localStorage.setItem(UNLOCK_KEY, '1');
@@ -207,6 +222,7 @@ export default function HumanDesignPage() {
         {page === 'report' && chart && (
           <ReportPage
             chart={chart}
+            chartId={chartId}
             birthDate={birthData.date}
             isFullUnlocked={fullUnlocked}
             unlocking={checkoutLoading}
