@@ -3,8 +3,9 @@ import {
   json,
 } from './utils';
 
-const REPORT_VERSION = 'professional-v4';
+const REPORT_VERSION = 'professional-v5';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
+const MIN_AI_BODY_CHARS = 200;
 
 type CenterName =
   | 'head' | 'ajna' | 'throat' | 'g' | 'heart'
@@ -218,6 +219,21 @@ function buildFallbackAiSectionBody(sectionId: string, chart: HDChart, row: Char
   }
 }
 
+function visibleCharCount(value: string): number {
+  return value.replace(/\s/g, '').length;
+}
+
+function normalizeAiBody(sectionId: string, raw: string | undefined, chart: HDChart, row: ChartRow): string {
+  const trimmed = (raw ?? '').trim();
+  const fallback = buildFallbackAiSectionBody(sectionId, chart, row);
+  if (!trimmed) return fallback;
+  if (visibleCharCount(trimmed) >= MIN_AI_BODY_CHARS) return trimmed;
+
+  const merged = `${trimmed}\n\n${fallback}`;
+  if (visibleCharCount(merged) >= MIN_AI_BODY_CHARS) return merged;
+  return `${merged}\n\n請溫柔地記得，這份分析不是要替你貼上標籤，而是幫你聽見自己更深處的節奏。當你開始尊重自己的身體感受、情緒速度與能量邊界，你會慢慢發現，真正適合你的路不需要一直用力證明；它會讓你更安定，也讓你更像自己。`;
+}
+
 function extractOpenAiText(data: unknown): string {
   const root = data as Record<string, unknown>;
   if (typeof root.output_text === 'string') return root.output_text;
@@ -280,7 +296,8 @@ async function generateOpenAiSections(
     })),
     writing_rules: [
       '使用繁體中文。',
-      '每個 section 至少 200 個中文字，建議 220 到 320 個中文字。',
+      '每個 section 的 value 必須至少 200 個中文字，少於 200 個中文字視為錯誤。',
+      '建議每個 section 220 到 320 個中文字。',
       '每個 section 產出 2 到 3 段，內容要具體、專業、可收費，但語氣要溫柔、療癒、有同理心。',
       '不要像 AI 機器人回答，不要使用制式條列或冷冰冰的診斷語氣。',
       '寫作感覺要像一位真正懂使用者的人類圖療癒顧問，讓使用者覺得自己被理解、被接住、被溫柔提醒。',
@@ -381,7 +398,7 @@ async function saveReport(env: Env, row: ChartRow, chart: HDChart, defs: Section
       title: def.title,
       icon: def.icon,
       body: isOpenAi
-        ? (aiBodies?.[def.id] || buildFallbackAiSectionBody(def.id, chart, row))
+        ? normalizeAiBody(def.id, aiBodies?.[def.id], chart, row)
         : buildFixedSectionBody(def.id, chart, row, knowledge),
     };
   });
