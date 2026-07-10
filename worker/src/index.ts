@@ -29,6 +29,7 @@ import {
 } from './humanDesign';
 import {
   getHumanDesignFullReport,
+  REPORT_VERSION,
 } from './humanDesignReport';
 import {
   badRequest,
@@ -54,6 +55,7 @@ import {
 } from './utils';
 
 const SESSION_SEC = 60 * 60 * 24 * 7;
+const WORKER_DIAGNOSTIC_VERSION = 'hd-diagnostics-2026-07-10';
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
@@ -162,6 +164,7 @@ export default {
       }
 
       if (path === '/api/admin/check'          && req.method === 'GET')  return await adminCheck(req, env);
+      if (path === '/api/admin/diagnostics'    && req.method === 'GET')  return await adminDiagnostics(req, env);
       if (path === '/api/admin/users'          && req.method === 'GET')  return await adminListUsers(req, env);
       if (path === '/api/admin/guest-emails'   && req.method === 'GET')  return await adminListGuestEmails(req, env);
       if (path === '/api/admin/orders'         && req.method === 'GET')  return await adminListOrders(req, env, url);
@@ -478,6 +481,36 @@ async function guardAdmin(req: Request, env: Env): Promise<SessionUser | Respons
   if (!user) return await unauthorized(req, env);
   if (!(await requireAdmin(req, env, user))) return await forbidden(req, env);
   return user;
+}
+
+async function tableExists(env: Env, tableName: string): Promise<boolean> {
+  try {
+    const row = await env.DB.prepare(
+      `SELECT name FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1`
+    ).bind(tableName).first<{ name: string }>();
+    return !!row;
+  } catch {
+    return false;
+  }
+}
+
+async function adminDiagnostics(req: Request, env: Env): Promise<Response> {
+  const r = await guardAdmin(req, env);
+  if (r instanceof Response) return r;
+
+  return await json(req, env, {
+    worker_version: WORKER_DIAGNOSTIC_VERSION,
+    human_design_report_version: REPORT_VERSION,
+    openai_api_key_configured: !!env.OPENAI_API_KEY,
+    openai_model: env.OPENAI_MODEL || 'gpt-5.4',
+    d1_tables: {
+      hd_charts: await tableExists(env, 'hd_charts'),
+      hd_report_section_defs: await tableExists(env, 'hd_report_section_defs'),
+      hd_fixed_knowledge: await tableExists(env, 'hd_fixed_knowledge'),
+      hd_full_reports: await tableExists(env, 'hd_full_reports'),
+      hd_full_report_sections: await tableExists(env, 'hd_full_report_sections'),
+    },
+  });
 }
 
 async function adminListUsers(req: Request, env: Env): Promise<Response> {

@@ -3,7 +3,7 @@ import {
   json,
 } from './utils';
 
-const REPORT_VERSION = 'professional-v5';
+export const REPORT_VERSION = 'professional-v5';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 const MIN_AI_BODY_CHARS = 200;
 
