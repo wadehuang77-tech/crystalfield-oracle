@@ -3,9 +3,9 @@ import {
   json,
 } from './utils';
 
-export const REPORT_VERSION = 'professional-v6';
+export const REPORT_VERSION = 'professional-v7';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
-const MIN_AI_BODY_CHARS = 200;
+const MIN_AI_BODY_CHARS = 100;
 
 type CenterName =
   | 'head' | 'ajna' | 'throat' | 'g' | 'heart'
@@ -296,9 +296,9 @@ async function generateOpenAiSections(
     })),
     writing_rules: [
       '使用繁體中文。',
-      '每個 section 的 value 必須至少 200 個中文字，少於 200 個中文字視為錯誤。',
-      '建議每個 section 220 到 320 個中文字。',
-      '每個 section 產出 2 到 3 段，內容要具體、專業、可收費，但語氣要溫柔、療癒、有同理心。',
+      '每個 section 的 value 必須至少 100 個中文字，少於 100 個中文字視為錯誤。',
+      '建議每個 section 120 到 180 個中文字。',
+      '每個 section 產出 1 到 2 段，內容要具體、專業、可收費，但語氣要溫柔、療癒、有同理心。',
       '不要像 AI 機器人回答，不要使用制式條列或冷冰冰的診斷語氣。',
       '寫作感覺要像一位真正懂使用者的人類圖療癒顧問，讓使用者覺得自己被理解、被接住、被溫柔提醒。',
       '可以使用「你可能曾經...」「請溫柔地記得...」「這不是你的錯...」「你的身體其實一直在提醒你...」這類有陪伴感的句子，但不要過度煽情。',
