@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS conversion_events;
 DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS hd_full_report_sections;
 DROP TABLE IF EXISTS hd_full_reports;
+DROP TABLE IF EXISTS hd_fixed_knowledge;
 DROP TABLE IF EXISTS hd_report_section_defs;
 DROP TABLE IF EXISTS hd_charts;
 DROP TABLE IF EXISTS email_leads;
@@ -177,23 +178,82 @@ CREATE TABLE hd_report_section_defs (
   icon        TEXT NOT NULL,
   title       TEXT NOT NULL,
   focus       TEXT NOT NULL,
+  generation_mode TEXT NOT NULL DEFAULT 'fixed',
   is_paid     INTEGER NOT NULL DEFAULT 1,
   active      INTEGER NOT NULL DEFAULT 1,
   created_at  TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-INSERT INTO hd_report_section_defs (id, sort_order, icon, title, focus, is_paid, active)
+INSERT INTO hd_report_section_defs (id, sort_order, icon, title, focus, generation_mode, is_paid, active)
 VALUES
-  ('centers', 1, '◉', '九大中心完整解析', '逐一分析頭頂、邏輯、喉嚨、G中心、心臟、薦骨、情緒、脾臟、根部中心的定義狀態、制約入口與能量校準方式。', 1, 1),
-  ('gates', 2, '✦', '64 閘門分析', '解析個案關鍵閘門的天賦語彙、陰影模式、成熟表達與日常練習。', 1, 1),
-  ('channels', 3, '◈', '通道分析', '說明主要通道如何形成穩定能量迴路，並連結到行動風格、關係互動與工作節奏。', 1, 1),
-  ('personality', 4, '◇', 'AI 深度人格分析', '整合類型、策略、權威、人生角色與本命十字，產出可閱讀的人格藍圖。', 1, 1),
-  ('prescription', 5, '★', 'AI 能量處方', '提供具體的能量管理、決策練習、環境調整與七日校準建議。', 1, 1),
-  ('career', 6, '◎', 'AI 職涯方向建議', '從天賦輸出方式、適合角色、合作條件與職涯風險點給出專業建議。', 1, 1),
-  ('love', 7, '◈', 'AI 愛情關係分析', '分析親密關係中的需求、界線、投射、溝通節奏與相處提醒。', 1, 1),
-  ('wealth', 8, '◇', 'AI 財富能量模式', '解析金錢決策、價值交換、接案/創業/收入模式與豐盛阻塞。', 1, 1),
-  ('mission', 9, '✦', 'AI 靈魂使命', '以本命十字、人生角色與主要通道總結靈魂任務、成熟方向與年度提醒。', 1, 1);
+  ('centers', 1, '◉', '九大中心完整解析', '逐一分析頭頂、邏輯、喉嚨、G中心、心臟、薦骨、情緒、脾臟、根部中心的定義狀態、制約入口與能量校準方式。', 'fixed', 1, 1),
+  ('gates', 2, '✦', '64 閘門分析', '解析個案關鍵閘門的天賦語彙、陰影模式、成熟表達與日常練習。', 'fixed', 1, 1),
+  ('channels', 3, '◈', '通道分析', '說明主要通道如何形成穩定能量迴路，並連結到行動風格、關係互動與工作節奏。', 'fixed', 1, 1),
+  ('personality', 4, '◇', 'AI 深度人格分析', '整合類型、策略、權威、人生角色與本命十字，產出可閱讀的人格藍圖。', 'openai', 1, 1),
+  ('prescription', 5, '★', 'AI 能量處方', '提供具體的能量管理、決策練習、環境調整與七日校準建議。', 'openai', 1, 1),
+  ('career', 6, '◎', 'AI 職涯方向建議', '從天賦輸出方式、適合角色、合作條件與職涯風險點給出專業建議。', 'openai', 1, 1),
+  ('love', 7, '◈', 'AI 愛情關係分析', '分析親密關係中的需求、界線、投射、溝通節奏與相處提醒。', 'openai', 1, 1),
+  ('wealth', 8, '◇', 'AI 財富能量模式', '解析金錢決策、價值交換、接案/創業/收入模式與豐盛阻塞。', 'openai', 1, 1),
+  ('mission', 9, '✦', 'AI 靈魂使命', '以本命十字、人生角色與主要通道總結靈魂任務、成熟方向與年度提醒。', 'openai', 1, 1);
+
+CREATE TABLE hd_fixed_knowledge (
+  id          TEXT PRIMARY KEY,
+  category    TEXT NOT NULL,
+  key         TEXT NOT NULL,
+  title       TEXT NOT NULL,
+  body        TEXT NOT NULL,
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  active      INTEGER NOT NULL DEFAULT 1,
+  created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(category, key)
+);
+CREATE INDEX idx_hd_fixed_knowledge_category
+  ON hd_fixed_knowledge(category, sort_order, key);
+
+INSERT INTO hd_fixed_knowledge (id, category, key, title, body, sort_order, active)
+VALUES
+  ('type-generator', 'type', 'generator', '生產者', '生產者擁有穩定的薦骨生命力，核心策略是等待回應。當身體對外界刺激產生清楚的「是」，能量會自然展開。', 1, 1),
+  ('type-manifesting-generator', 'type', 'manifesting-generator', '顯示生產者', '顯示生產者同時具備薦骨續航與快速轉向能力，策略是等待回應後告知。', 2, 1),
+  ('type-projector', 'type', 'projector', '投射者', '投射者適合洞察、引導與管理系統，等待正確邀請與認可是成功關鍵。', 3, 1),
+  ('type-manifestor', 'type', 'manifestor', '顯化者', '顯化者是啟動型能量，行動前告知能降低阻力並創造和平。', 4, 1),
+  ('type-reflector', 'type', 'reflector', '反映者', '反映者九大中心皆未定義，能敏銳映照環境狀態，重大決定需等待月亮週期。', 5, 1),
+  ('authority-sacral', 'authority', 'sacral', '薦骨權威', '薦骨權威透過身體即時反應做決定，是生命力對選項的直接回應。', 1, 1),
+  ('authority-emotional', 'authority', 'emotional', '情緒權威', '情緒權威需要等待情緒波浪走完整，清明來自時間沉澱後仍穩定的感受。', 2, 1),
+  ('authority-splenic', 'authority', 'splenic', '脾臟權威', '脾臟權威是安靜短暫的直覺訊號，關於當下是否健康安全。', 3, 1),
+  ('authority-ego', 'authority', 'ego', '自我權威', '自我權威透過真實意志與承諾感做決定，重點是辨識自己是否真的想要。', 4, 1),
+  ('authority-self-projected', 'authority', 'self-projected', '自我投射權威', '自我投射權威需要透過說出來聽見自己的方向。', 5, 1),
+  ('authority-lunar', 'authority', 'lunar', '月亮權威', '月亮權威屬於反映者，透過約 28 天的月亮週期取得清明。', 6, 1),
+  ('definition-none', 'definition', 'none', '無定義', '無定義代表沒有固定中心連接，是強大的環境感知能力。', 1, 1),
+  ('definition-single', 'definition', 'single', '單一定義', '單一定義表示已定義中心連成一組，內在運作較一致。', 2, 1),
+  ('definition-split', 'definition', 'split', '雙重定義', '雙重定義表示能量分成兩組，容易被能橋接兩組能量的人吸引。', 3, 1),
+  ('definition-multiple', 'definition', 'multiple', '多重定義', '多重定義表示能量組更複雜，需要時間與互動讓不同面向整合。', 4, 1),
+  ('center-head', 'center', 'head', '頭頂中心', '頭頂中心關於靈感、疑問與壓力來源。', 1, 1),
+  ('center-ajna', 'center', 'ajna', '邏輯中心', '邏輯中心關於概念、分析與理解方式。', 2, 1),
+  ('center-throat', 'center', 'throat', '喉嚨中心', '喉嚨中心關於表達、行動與被看見。', 3, 1),
+  ('center-g', 'center', 'g', 'G 中心', 'G 中心關於方向、身份與愛。', 4, 1),
+  ('center-heart', 'center', 'heart', '心臟中心', '心臟中心關於意志、價值與承諾。', 5, 1),
+  ('center-sacral', 'center', 'sacral', '薦骨中心', '薦骨中心關於生命力、工作能量與身體回應。', 6, 1),
+  ('center-solar-plexus', 'center', 'solar-plexus', '情緒中心', '情緒中心關於情緒波、感受與親密需求。', 7, 1),
+  ('center-spleen', 'center', 'spleen', '脾臟中心', '脾臟中心關於直覺、健康與生存感。', 8, 1),
+  ('center-root', 'center', 'root', '根部中心', '根部中心關於壓力、推進與腎上腺動能。', 9, 1);
+
+WITH RECURSIVE gates(n) AS (
+  VALUES(1)
+  UNION ALL
+  SELECT n + 1 FROM gates WHERE n < 64
+)
+INSERT INTO hd_fixed_knowledge (id, category, key, title, body, sort_order, active)
+SELECT
+  'gate-' || printf('%02d', n),
+  'gate',
+  CAST(n AS TEXT),
+  '閘門 ' || n,
+  '閘門 ' || n || ' 是人類圖 64 閘門中的固定知識單元，描述特定生命主題、天賦頻率與陰影學習。實際解讀需結合所在中心、通道、人生角色與內在權威。',
+  n,
+  1
+FROM gates;
 
 -- ---------------------------------------------------------------------------
 -- hd_full_reports / hd_full_report_sections: 付費後產生並保存的完整版報告內容

@@ -15,6 +15,8 @@ export interface Env {
   MAIL_FROM_ADDRESS?: string;
   MAIL_FROM_NAME?: string;
   MAIL_REPLY_TO?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_MODEL?: string;
 }
 
 export interface SessionUser {

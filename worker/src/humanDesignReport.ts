@@ -3,7 +3,8 @@ import {
   json,
 } from './utils';
 
-const REPORT_VERSION = 'professional-v1';
+const REPORT_VERSION = 'professional-v2';
+const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 
 type CenterName =
   | 'head' | 'ajna' | 'throat' | 'g' | 'heart'
@@ -47,6 +48,7 @@ interface SectionDef {
   icon: string;
   title: string;
   focus: string;
+  generation_mode?: 'fixed' | 'openai';
 }
 
 interface ReportSection {
@@ -56,16 +58,23 @@ interface ReportSection {
   body: string;
 }
 
+interface KnowledgeRow {
+  category: string;
+  key: string;
+  title: string;
+  body: string;
+}
+
 const DEFAULT_SECTIONS: SectionDef[] = [
-  { id: 'centers', sort_order: 1, icon: '◉', title: '九大中心完整解析', focus: '逐一分析九大中心的定義狀態、制約入口與能量校準方式。' },
-  { id: 'gates', sort_order: 2, icon: '✦', title: '64 閘門分析', focus: '解析關鍵閘門的天賦語彙、陰影模式與成熟表達。' },
-  { id: 'channels', sort_order: 3, icon: '◈', title: '通道分析', focus: '說明主要通道如何形成穩定能量迴路。' },
-  { id: 'personality', sort_order: 4, icon: '◇', title: 'AI 深度人格分析', focus: '整合類型、策略、權威、人生角色與本命十字。' },
-  { id: 'prescription', sort_order: 5, icon: '★', title: 'AI 能量處方', focus: '提供能量管理、決策練習與環境調整建議。' },
-  { id: 'career', sort_order: 6, icon: '◎', title: 'AI 職涯方向建議', focus: '從天賦輸出、適合角色與合作條件給出建議。' },
-  { id: 'love', sort_order: 7, icon: '◈', title: 'AI 愛情關係分析', focus: '分析親密關係中的需求、界線與溝通節奏。' },
-  { id: 'wealth', sort_order: 8, icon: '◇', title: 'AI 財富能量模式', focus: '解析金錢決策、價值交換與豐盛阻塞。' },
-  { id: 'mission', sort_order: 9, icon: '✦', title: 'AI 靈魂使命', focus: '總結靈魂任務、成熟方向與年度提醒。' },
+  { id: 'centers', sort_order: 1, icon: '◉', title: '九大中心完整解析', focus: '逐一分析九大中心的定義狀態、制約入口與能量校準方式。', generation_mode: 'fixed' },
+  { id: 'gates', sort_order: 2, icon: '✦', title: '64 閘門分析', focus: '解析關鍵閘門的天賦語彙、陰影模式與成熟表達。', generation_mode: 'fixed' },
+  { id: 'channels', sort_order: 3, icon: '◈', title: '通道分析', focus: '說明主要通道如何形成穩定能量迴路。', generation_mode: 'fixed' },
+  { id: 'personality', sort_order: 4, icon: '◇', title: 'AI 深度人格分析', focus: '整合類型、策略、權威、人生角色與本命十字。', generation_mode: 'openai' },
+  { id: 'prescription', sort_order: 5, icon: '★', title: 'AI 能量處方', focus: '提供能量管理、決策練習與環境調整建議。', generation_mode: 'openai' },
+  { id: 'career', sort_order: 6, icon: '◎', title: 'AI 職涯方向建議', focus: '從天賦輸出、適合角色與合作條件給出建議。', generation_mode: 'openai' },
+  { id: 'love', sort_order: 7, icon: '◈', title: 'AI 愛情關係分析', focus: '分析親密關係中的需求、界線與溝通節奏。', generation_mode: 'openai' },
+  { id: 'wealth', sort_order: 8, icon: '◇', title: 'AI 財富能量模式', focus: '解析金錢決策、價值交換與豐盛阻塞。', generation_mode: 'openai' },
+  { id: 'mission', sort_order: 9, icon: '✦', title: 'AI 靈魂使命', focus: '總結靈魂任務、成熟方向與年度提醒。', generation_mode: 'openai' },
 ];
 
 const CENTER_LABELS: Record<CenterName, string> = {
@@ -90,6 +99,18 @@ function centerList(values: CenterName[] | undefined, fallback: string): string 
   return values.map((value) => CENTER_LABELS[value] ?? value).join('、');
 }
 
+function definitionKey(chart: HDChart): string {
+  const count = chart.definedCenters?.length ?? 0;
+  if (count === 0) return 'none';
+  if (count <= 3) return 'single';
+  if (count <= 6) return 'split';
+  return 'multiple';
+}
+
+function channelKey(channel: string): string {
+  return channel.match(/^\d+-\d+/)?.[0] ?? channel;
+}
+
 function parseChart(row: ChartRow): HDChart {
   try {
     const parsed = JSON.parse(row.chart_data || '{}') as HDChart;
@@ -99,7 +120,74 @@ function parseChart(row: ChartRow): HDChart {
   }
 }
 
-function buildSectionBody(sectionId: string, chart: HDChart, row: ChartRow): string {
+function knowledgeLookup(rows: KnowledgeRow[]): Map<string, KnowledgeRow> {
+  const map = new Map<string, KnowledgeRow>();
+  for (const row of rows) map.set(`${row.category}:${row.key}`, row);
+  return map;
+}
+
+function getKnowledge(map: Map<string, KnowledgeRow>, category: string, key: string): KnowledgeRow | null {
+  return map.get(`${category}:${key}`) ?? null;
+}
+
+async function getKnowledgeRows(env: Env): Promise<KnowledgeRow[]> {
+  try {
+    const rows = await env.DB.prepare(
+      `SELECT category, key, title, body
+         FROM hd_fixed_knowledge
+        WHERE active = 1
+        ORDER BY category, sort_order, key`
+    ).all<KnowledgeRow>();
+    return rows.results;
+  } catch {
+    return [];
+  }
+}
+
+function buildFixedSectionBody(sectionId: string, chart: HDChart, row: ChartRow, knowledge: Map<string, KnowledgeRow>): string {
+  const typeName = chart.typeName || row.hd_type || '你的能量類型';
+  const authority = chart.authorityName || row.hd_authority || '內在權威';
+  const defined = chart.definedCenters ?? [];
+  const open = chart.undefinedCenters ?? [];
+  const gates = chart.keyGates ?? [];
+  const channels = chart.keyChannels ?? [];
+  const typeInfo = chart.type ? getKnowledge(knowledge, 'type', chart.type) : null;
+  const authorityInfo = chart.authority ? getKnowledge(knowledge, 'authority', chart.authority) : null;
+  const profileInfo = chart.profile ? getKnowledge(knowledge, 'profile', chart.profile) : null;
+  const defInfo = getKnowledge(knowledge, 'definition', definitionKey(chart));
+
+  if (sectionId === 'centers') {
+    const definedText = defined.map((center) => {
+      const item = getKnowledge(knowledge, 'center', center);
+      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：此中心為穩定定義來源。`;
+    });
+    const openText = open.map((center) => {
+      const item = getKnowledge(knowledge, 'center', center);
+      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：此中心是開放感知入口。`;
+    });
+    return `固定知識資料庫解析：你的類型是 ${typeName}，${typeInfo?.body ?? '類型描述將依資料庫持續補充。'}\n\n已定義中心：${centerList(defined, '無固定定義中心')}。\n${definedText.join('\n') || '你目前沒有固定定義中心，環境品質會直接影響能量狀態。'}\n\n開放中心：${centerList(open, '開放中心較少')}。\n${openText.join('\n') || '你的開放中心較少，主要練習是維持已定義中心的穩定使用。'}\n\n定義狀態：${defInfo?.title ?? '定義'}。${defInfo?.body ?? ''}`;
+  }
+
+  if (sectionId === 'gates') {
+    const gateText = gates.map((gate) => {
+      const item = getKnowledge(knowledge, 'gate', String(gate));
+      return item ? `${item.title}：${item.body}` : `閘門 ${gate}：此閘門資料將依固定知識庫補充。`;
+    });
+    return `固定知識資料庫解析：你的關鍵閘門為 ${list(gates, '尚未偵測到關鍵閘門')}。\n\n${gateText.join('\n\n')}\n\n解讀原則：64 閘門本身是固定知識，不需要呼叫 OpenAI；真正的個人化來自它們與你的中心、通道、${authority}、人生角色交叉後形成的表達方式。`;
+  }
+
+  if (sectionId === 'channels') {
+    const channelText = channels.map((channel) => {
+      const item = getKnowledge(knowledge, 'channel', channelKey(channel));
+      return item ? `${item.title}：${item.body}` : `${channel}：此通道代表兩個中心之間的穩定能量流，會形成可被他人辨識的固定特質。`;
+    });
+    return `固定知識資料庫解析：你的主要通道為 ${list(channels, '尚未偵測到主要通道')}。\n\n${channelText.join('\n\n')}\n\n補充固定資訊：${profileInfo?.title ?? chart.profile ?? '人生角色'} - ${profileInfo?.body ?? '人生角色資料將依固定知識庫補充。'}\n${authorityInfo?.title ?? authority} - ${authorityInfo?.body ?? '權威資料將依固定知識庫補充。'}`;
+  }
+
+  return '';
+}
+
+function buildFallbackAiSectionBody(sectionId: string, chart: HDChart, row: ChartRow): string {
   const typeName = chart.typeName || row.hd_type || '你的能量類型';
   const profile = chart.profile || row.hd_profile || '人生角色';
   const profileName = chart.profileName || '';
@@ -108,19 +196,11 @@ function buildSectionBody(sectionId: string, chart: HDChart, row: ChartRow): str
   const signature = chart.signature || '順流狀態';
   const notSelf = chart.notSelf || '失衡訊號';
   const cross = chart.incarnationCross || '本命十字';
-  const defined = centerList(chart.definedCenters, '目前未偵測到固定定義中心');
   const open = centerList(chart.undefinedCenters, '開放中心較少');
   const gates = list(chart.keyGates, '你的主要閘門');
   const channels = list(chart.keyChannels, '你的主要通道');
-  const birth = `${row.birth_date}${row.birth_time ? ` ${row.birth_time}` : ''}${row.birth_city ? ` · ${row.birth_city}` : ''}`;
 
   switch (sectionId) {
-    case 'centers':
-      return `這份九大中心解析以你的出生資料（${birth}）為基礎，先看哪些能量是穩定可依靠的，哪些能量是容易受環境放大的制約入口。你已定義的中心包含：${defined}。這些中心代表你較一致、較不需要向外尋找確認的生命功能，適合作為日常決策、工作節奏與人際互動的穩定支點。\n\n你的開放或未定義中心包含：${open}。開放中心不是缺陷，而是高度敏感的學習雷達；它們會讓你讀到別人的壓力、情緒、期待與思考模式。真正的練習不是把這些感受關掉，而是辨識「這是否屬於我」。當你用 ${strategy} 回到自己的節奏，並以 ${authority} 做最後確認，開放中心會從制約入口轉為智慧入口。`;
-    case 'gates':
-      return `你的關鍵閘門訊號集中在 ${gates}。閘門像是靈魂的語彙，描述你如何接收世界、如何產生衝動，以及哪些主題會反覆推動你成熟。成熟狀態下，這些閘門會成為可辨識的才華；失衡時，它們也可能變成過度證明、急著完成、害怕錯過，或一直想替他人承擔的模式。\n\n建議你把這些閘門當成觀察日誌：當你感到 ${signature} 時，記錄當下正在做什麼、和誰在一起、身體是否放鬆；當你落入 ${notSelf} 時，回看是否正在用頭腦強迫自己越過 ${authority}。這會讓閘門分析從抽象知識變成可執行的自我校準工具。`;
-    case 'channels':
-      return `你的主要通道為 ${channels}。通道代表兩個中心之間穩定連接的能量流，它比單一靈感更持久，也更容易在他人眼中形成「你一直都是這樣」的特質。當通道被正確使用時，你不需要過度說明自己，能量自然會形成影響力。\n\n通道分析的重點是辨識你的穩定輸出方式。若通道連到喉嚨中心，表達、行動或被看見會成為重要主題；若連到薦骨、情緒、根部等動力中心，則需要更細緻地管理承諾與壓力。你的練習是：不要把所有通道都當成隨時必須啟動的能力，而是在符合 ${strategy} 並通過 ${authority} 後，讓通道自然服務於對的人與對的場域。`;
     case 'personality':
       return `你是 ${typeName}，人生角色為 ${profile}${profileName ? ` ${profileName}` : ''}，內在權威是 ${authority}。這三個元素構成你的核心人格運作：類型說明你的能量場如何與世界互動，人生角色描述你學習與影響他人的方式，權威則是你做出正確選擇的內在機制。\n\n你的設計不適合用單純意志力推進人生。越是重要的決定，越需要回到 ${strategy}，再讓 ${authority} 完成最後篩選。當你走在對的位置，身體會更容易出現 ${signature}；當你長期偏離自己的設計，${notSelf} 會變成提醒。這不是批判，而是一套精準的導航系統，幫助你分辨哪些路是頭腦焦慮，哪些路才是真正屬於你的生命方向。`;
     case 'prescription':
@@ -138,10 +218,121 @@ function buildSectionBody(sectionId: string, chart: HDChart, row: ChartRow): str
   }
 }
 
+function extractOpenAiText(data: unknown): string {
+  const root = data as Record<string, unknown>;
+  if (typeof root.output_text === 'string') return root.output_text;
+  const output = Array.isArray(root.output) ? root.output : [];
+  const chunks: string[] = [];
+  for (const item of output) {
+    const content = (item as Record<string, unknown>).content;
+    if (!Array.isArray(content)) continue;
+    for (const part of content) {
+      const p = part as Record<string, unknown>;
+      if (typeof p.text === 'string') chunks.push(p.text);
+      if (typeof p.output_text === 'string') chunks.push(p.output_text);
+    }
+  }
+  return chunks.join('\n').trim();
+}
+
+function fixedContext(chart: HDChart, row: ChartRow, knowledge: Map<string, KnowledgeRow>): string {
+  const typeInfo = chart.type ? getKnowledge(knowledge, 'type', chart.type) : null;
+  const authorityInfo = chart.authority ? getKnowledge(knowledge, 'authority', chart.authority) : null;
+  const profileInfo = chart.profile ? getKnowledge(knowledge, 'profile', chart.profile) : null;
+  const defInfo = getKnowledge(knowledge, 'definition', definitionKey(chart));
+  const channelInfo = (chart.keyChannels ?? [])
+    .map((channel) => getKnowledge(knowledge, 'channel', channelKey(channel))?.body)
+    .filter(Boolean)
+    .join('\n');
+
+  return [
+    `出生資料：${row.birth_date} ${row.birth_time ?? ''} ${row.birth_city ?? ''}`.trim(),
+    `Type：${chart.typeName ?? row.hd_type}。${typeInfo?.body ?? ''}`,
+    `Authority：${chart.authorityName ?? row.hd_authority}。${authorityInfo?.body ?? ''}`,
+    `Profile：${chart.profile ?? row.hd_profile} ${chart.profileName ?? ''}。${profileInfo?.body ?? ''}`,
+    `Definition：${defInfo?.title ?? definitionKey(chart)}。${defInfo?.body ?? ''}`,
+    `已定義中心：${centerList(chart.definedCenters, '無')}`,
+    `開放中心：${centerList(chart.undefinedCenters, '無')}`,
+    `關鍵閘門：${list(chart.keyGates, '無')}`,
+    `主要通道：${list(chart.keyChannels, '無')}`,
+    channelInfo ? `通道固定知識：\n${channelInfo}` : '',
+  ].filter(Boolean).join('\n');
+}
+
+async function generateOpenAiSections(
+  env: Env,
+  row: ChartRow,
+  chart: HDChart,
+  defs: SectionDef[],
+  knowledge: Map<string, KnowledgeRow>,
+): Promise<Record<string, string> | null> {
+  if (!env.OPENAI_API_KEY) return null;
+
+  const aiDefs = defs.filter((def) => OPENAI_SECTION_IDS.has(def.id));
+  if (aiDefs.length === 0) return {};
+
+  const prompt = {
+    fixed_human_design_context: fixedContext(chart, row, knowledge),
+    required_sections: aiDefs.map((def) => ({
+      id: def.id,
+      title: def.title,
+      focus: def.focus,
+    })),
+    writing_rules: [
+      '使用繁體中文。',
+      '每個 section 產出 2 到 3 段，每段具體、專業、可收費。',
+      '不要重寫固定知識百科；固定知識只作為判讀基礎。',
+      '必須回傳 JSON object，key 為 section id，value 為該段落文字。',
+      '不要加入 Markdown 標題，不要加入價格或付款文字。',
+    ],
+  };
+
+  const res = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: env.OPENAI_MODEL || 'gpt-5.4',
+      input: [
+        {
+          role: 'system',
+          content: '你是專業 Human Design 人類圖報告撰寫顧問。你會根據固定知識資料庫和個案 chart，產生可收費的深度分析，但不杜撰固定資料。',
+        },
+        {
+          role: 'user',
+          content: JSON.stringify(prompt),
+        },
+      ],
+      text: {
+        format: { type: 'json_object' },
+      },
+      max_output_tokens: 5000,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`OpenAI report generation failed: ${res.status}`);
+  }
+
+  const data = await res.json();
+  const text = extractOpenAiText(data);
+  if (!text) return null;
+
+  const parsed = JSON.parse(text) as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const def of aiDefs) {
+    const value = parsed[def.id];
+    if (typeof value === 'string' && value.trim()) out[def.id] = value.trim();
+  }
+  return out;
+}
+
 async function getSectionDefs(env: Env): Promise<SectionDef[]> {
   try {
     const rows = await env.DB.prepare(
-      `SELECT id, sort_order, icon, title, focus
+      `SELECT id, sort_order, icon, title, focus, generation_mode
          FROM hd_report_section_defs
         WHERE active = 1
         ORDER BY sort_order ASC`
@@ -171,12 +362,24 @@ async function readSavedReport(env: Env, chartId: string): Promise<ReportSection
 async function saveReport(env: Env, row: ChartRow, chart: HDChart, defs: SectionDef[]): Promise<ReportSection[]> {
   const now = new Date().toISOString();
   const reportId = crypto.randomUUID();
-  const sections = defs.map((def) => ({
-    id: def.id,
-    title: def.title,
-    icon: def.icon,
-    body: buildSectionBody(def.id, chart, row),
-  }));
+  const knowledge = knowledgeLookup(await getKnowledgeRows(env));
+  let aiBodies: Record<string, string> | null = null;
+  try {
+    aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge);
+  } catch (err) {
+    console.error('human design OpenAI generation failed:', err);
+  }
+  const sections = defs.map((def) => {
+    const isOpenAi = (def.generation_mode === 'openai') || OPENAI_SECTION_IDS.has(def.id);
+    return {
+      id: def.id,
+      title: def.title,
+      icon: def.icon,
+      body: isOpenAi
+        ? (aiBodies?.[def.id] || buildFallbackAiSectionBody(def.id, chart, row))
+        : buildFixedSectionBody(def.id, chart, row, knowledge),
+    };
+  });
 
   await env.DB.prepare(
     `INSERT INTO hd_full_reports
