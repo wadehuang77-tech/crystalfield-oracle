@@ -309,30 +309,42 @@ async function generateOpenAiSections(
     ],
   };
 
-  const res = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: env.OPENAI_MODEL || 'gpt-5.4',
-      input: [
-        {
-          role: 'system',
-          content: '你是專業 Human Design 人類圖療癒報告撰寫顧問。你的文字有靈性、溫柔、同理心，像真正理解使用者的陪伴者；你會根據固定知識資料庫和個案 chart，產生可收費的深度分析，但不杜撰固定資料，也不使用冷冰冰的 AI 制式語氣。',
-        },
-        {
-          role: 'user',
-          content: JSON.stringify(prompt),
-        },
-      ],
-      text: {
-        format: { type: 'json_object' },
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  let res: Response | undefined;
+  try {
+    res = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
       },
-      max_output_tokens: 8000,
-    }),
-  });
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: env.OPENAI_MODEL || 'gpt-5.4',
+        input: [
+          {
+            role: 'system',
+            content: '你是專業 Human Design 人類圖療癒報告撰寫顧問。你的文字有靈性、溫柔、同理心，像真正理解使用者的陪伴者；你會根據固定知識資料庫和個案 chart，產生可收費的深度分析，但不杜撰固定資料，也不使用冷冰冰的 AI 制式語氣。',
+          },
+          {
+            role: 'user',
+            content: JSON.stringify(prompt),
+          },
+        ],
+        text: {
+          format: { type: 'json_object' },
+        },
+        max_output_tokens: 8000,
+      }),
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  if (!res) {
+    throw new Error('OpenAI report generation failed: no response');
+  }
 
   if (!res.ok) {
     throw new Error(`OpenAI report generation failed: ${res.status}`);

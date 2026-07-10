@@ -4,10 +4,11 @@ interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
   query?: Record<string, string | number | undefined>;
+  timeoutMs?: number;
 }
 
 async function req<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
-  const { method = 'GET', body, query } = opts;
+  const { method = 'GET', body, query, timeoutMs } = opts;
 
   let url = `${BASE}${path}`;
   if (query) {
@@ -18,12 +19,28 @@ async function req<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T>
     if (qs) url += `?${qs}`;
   }
 
-  const res = await fetch(url, {
-    method,
-    credentials: 'include',
-    headers: body ? { 'Content-Type': 'application/json' } : {},
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const controller = timeoutMs ? new AbortController() : null;
+  const timeoutId = controller
+    ? window.setTimeout(() => controller.abort(), timeoutMs)
+    : 0;
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method,
+      credentials: 'include',
+      headers: body ? { 'Content-Type': 'application/json' } : {},
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller?.signal,
+    });
+  } catch (err) {
+    if (controller?.signal.aborted) {
+      throw new Error('請求逾時，請稍後再試');
+    }
+    throw err;
+  } finally {
+    if (timeoutId) window.clearTimeout(timeoutId);
+  }
 
   const contentType = res.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await res.json() : await res.text();
@@ -253,6 +270,7 @@ export const humanDesignApi = {
     req<{ chart_id: string; session_id: string }>('/api/human-design/charts', {
       method: 'POST',
       body,
+      timeoutMs: 20000,
     }),
 
   updateAnswers: (chart_id: string, chat_answers: number[]) =>
@@ -264,6 +282,7 @@ export const humanDesignApi = {
   getFullReport: (chart_id: string) =>
     req<{ report_version: string; sections: HumanDesignFullReportSection[]; cached: boolean }>(
       `/api/human-design/charts/${encodeURIComponent(chart_id)}/full-report`,
+      { timeoutMs: 70000 },
     ),
 };
 

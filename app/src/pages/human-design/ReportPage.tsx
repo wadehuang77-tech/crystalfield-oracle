@@ -8,7 +8,7 @@ interface ReportPageProps {
   chart: HDChart;
   chartId?: string;
   isFullUnlocked?: boolean;
-  onEnsureChartSaved?: () => Promise<void>;
+  onEnsureChartSaved?: () => Promise<boolean>;
   onNavigate: (page: string) => void;
 }
 
@@ -139,8 +139,37 @@ export default function ReportPage({
     if (!chartId) {
       setFullReportLoading(true);
       setReportVersion('');
-      void onEnsureChartSaved?.();
-      return;
+      setFullReportError('');
+      let cancelled = false;
+      const timeoutId = window.setTimeout(() => {
+        if (cancelled) return;
+        setFullReportLoading(false);
+        setFullReportError('人類圖資料尚未成功建立，無法讀取完整版報告。請重新計算一次。');
+      }, 25000);
+
+      const savePromise = onEnsureChartSaved?.() ?? Promise.resolve(false);
+      void savePromise
+        .then((saved) => {
+          if (cancelled) return;
+          if (saved) {
+            return;
+          }
+          window.clearTimeout(timeoutId);
+          setFullReportLoading(false);
+          setFullReportError('人類圖資料尚未成功建立，無法讀取完整版報告。請重新計算一次。');
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          console.error('HD chart save before full report failed:', err);
+          window.clearTimeout(timeoutId);
+          setFullReportLoading(false);
+          setFullReportError('人類圖資料建立失敗，無法讀取完整版報告。請稍後再試。');
+        });
+
+      return () => {
+        cancelled = true;
+        window.clearTimeout(timeoutId);
+      };
     }
 
     let cancelled = false;

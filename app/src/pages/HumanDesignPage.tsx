@@ -121,10 +121,10 @@ export default function HumanDesignPage() {
   };
 
   const ensureChartSaved = useCallback(async () => {
-    if (!chart) return;
+    if (!chart) return false;
     if (chartId) {
       persistState({ chart, chartId, birthData });
-      return;
+      return true;
     }
     try {
       const { chart_id } = await humanDesignApi.saveChart({
@@ -138,9 +138,11 @@ export default function HumanDesignPage() {
       });
       setChartId(chart_id);
       persistState({ chart, chartId: chart_id, birthData });
+      return true;
     } catch (err) {
       console.error('HD chart save before free full report failed:', err);
       persistState({ chart, chartId: '', birthData });
+      return false;
     }
   }, [birthData, chart, chartId]);
 
