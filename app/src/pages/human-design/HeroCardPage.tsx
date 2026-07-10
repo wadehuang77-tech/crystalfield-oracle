@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Mail, Sparkles } from 'lucide-react';
+import { publicApi } from '../../lib/api';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
 
 interface HeroCardPageProps {
@@ -18,6 +19,10 @@ const TYPE_COLORS: Record<string, { badge: string; glow: string; text: string; b
   'reflector':            { badge: 'from-sky-400 to-indigo-400',      glow: 'bg-sky-500/15',     text: 'text-sky-300',      border: 'border-sky-400/25'     },
 };
 
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
 function CenterDot({ defined }: { defined: boolean }) {
   return (
     <div
@@ -33,6 +38,9 @@ function CenterDot({ defined }: { defined: boolean }) {
 export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, onViewReport }: HeroCardPageProps) {
   const [visible, setVisible] = useState(false);
   const [cardVisible, setCardVisible] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isUnlocking, setIsUnlocking] = useState(false);
   const colors = TYPE_COLORS[chart.type] ?? TYPE_COLORS['generator'];
 
   useEffect(() => {
@@ -61,6 +69,34 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
     { label: '最高狀態', value: chart.signature },
     { label: '非自我主題', value: chart.notSelf },
   ];
+
+  const handleEmailUnlock = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = email.trim().toLowerCase();
+
+    if (!isValidEmail(trimmed)) {
+      setEmailError('請先輸入有效的 Email');
+      return;
+    }
+
+    if (isUnlocking) return;
+
+    setIsUnlocking(true);
+    setEmailError('');
+
+    try {
+      const result = await publicApi.saveEmail(trimmed, 'human_design_free_report');
+      if (!result.success) {
+        setEmailError(result.message || 'Email 寫入失敗，請稍後再試');
+        return;
+      }
+      onViewReport();
+    } catch (err) {
+      setEmailError(err instanceof Error ? err.message : 'Email 寫入失敗，請稍後再試');
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-5 py-20">
@@ -150,18 +186,48 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
         <div
           className={`transition-all duration-700 delay-300 ease-out ${cardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         >
-          <button
-            onClick={onViewReport}
-            className="group relative w-full py-4 rounded-2xl text-sm font-semibold overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500" />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />
-            <div className="relative flex items-center justify-center gap-2 text-white">
-              <Sparkles className="w-4 h-4" />
-              輸入email 解鎖免費報告
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <form onSubmit={handleEmailUnlock} className="space-y-3">
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-200/55" />
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  if (emailError) setEmailError('');
+                }}
+                placeholder="輸入 Email"
+                className="w-full h-14 rounded-2xl border border-cyan-400/25 bg-slate-950/50 pl-11 pr-4 text-sm font-medium text-white placeholder:text-white/30 outline-none transition-all focus:border-cyan-300/70 focus:bg-slate-950/70"
+                disabled={isUnlocking}
+                required
+              />
             </div>
-          </button>
+            {emailError && (
+              <p className="text-center text-xs font-medium text-red-300">{emailError}</p>
+            )}
+            <button
+              type="submit"
+              disabled={isUnlocking}
+              className="group relative w-full py-4 rounded-2xl text-sm font-semibold overflow-hidden disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />
+              <div className="relative flex items-center justify-center gap-2 text-white">
+                {isUnlocking ? (
+                  <>
+                    <div className="w-4 h-4 rounded-full border-2 border-white/45 border-t-white animate-spin" />
+                    寫入中...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    輸入email 解鎖免費報告
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </>
+                )}
+              </div>
+            </button>
+          </form>
         </div>
 
         {/* Channels tag cloud */}
