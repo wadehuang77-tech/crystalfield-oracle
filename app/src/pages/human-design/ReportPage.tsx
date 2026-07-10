@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Sparkles, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import { Lock, Sparkles, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
 import { humanDesignApi, type HumanDesignFullReportSection } from '../../lib/api';
 import { generateFreeReport } from '../../data/human-design/humanDesignData';
@@ -7,7 +7,10 @@ import { generateFreeReport } from '../../data/human-design/humanDesignData';
 interface ReportPageProps {
   chart: HDChart;
   chartId?: string;
+  access?: 'locked' | 'email' | 'basic' | 'full';
+  checkoutLoading?: boolean;
   isFullUnlocked?: boolean;
+  onStartBasicCheckout?: () => void;
   onEnsureChartSaved?: () => Promise<boolean>;
   onNavigate: (page: string) => void;
 }
@@ -40,12 +43,18 @@ function FreeCard({
   section,
   chart,
   index,
+  locked = false,
+  onUnlock,
+  checkoutLoading = false,
 }: {
   section: ReturnType<typeof generateFreeReport>[number];
   chart: HDChart;
   index: number;
+  locked?: boolean;
+  onUnlock?: () => void;
+  checkoutLoading?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(index <= 1);
+  const [expanded, setExpanded] = useState(index <= 1 && !locked);
   const { ref, inView } = useInView();
   const colorClass = TYPE_COLORS[chart.type] ?? FALLBACK_COLOR;
 
@@ -57,7 +66,11 @@ function FreeCard({
     content = '內容載入中，請稍後再試。';
   }
 
-  const paragraphs = content.split('\n\n').map(p => p.trim()).filter(Boolean);
+  const previewLength = Math.max(42, Math.ceil(content.replace(/\s/g, '').length * 0.2));
+  const previewContent = locked
+    ? `${content.slice(0, previewLength).trim()}...`
+    : content;
+  const paragraphs = previewContent.split('\n\n').map(p => p.trim()).filter(Boolean);
   const displayParagraphs = paragraphs.length > 0 ? paragraphs : ['此區塊的詳細說明正在準備中。'];
 
   return (
@@ -68,25 +81,46 @@ function FreeCard({
     >
       <div className={`relative rounded-2xl border overflow-hidden bg-gradient-to-br ${colorClass}`}>
         <button
-          onClick={() => setExpanded(e => !e)}
+          onClick={() => { if (!locked) setExpanded(e => !e); }}
           className="w-full flex items-center justify-between px-6 py-5 text-left"
         >
           <div className="flex items-center gap-3">
             <span className="text-cyan-400/70 text-sm flex-shrink-0">{section.icon}</span>
             <span className="text-white font-semibold text-sm">{section.title}</span>
           </div>
-          {expanded
+          {locked
+            ? <Lock className="w-4 h-4 text-cyan-300/60 flex-shrink-0" />
+            : expanded
             ? <ChevronUp className="w-4 h-4 text-white/30 flex-shrink-0" />
             : <ChevronDown className="w-4 h-4 text-white/30 flex-shrink-0" />
           }
         </button>
-        {expanded && (
+        {(expanded || locked) && (
           <div className="px-6 pb-6 border-t border-white/5 pt-4">
-            <div className="space-y-3.5">
+            <div className={`space-y-3.5 ${locked ? 'relative max-h-24 overflow-hidden' : ''}`}>
               {displayParagraphs.map((p, i) => (
                 <p key={i} className="text-white/65 text-sm leading-[1.85]">{p}</p>
               ))}
+              {locked && (
+                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-slate-950/95 to-transparent" />
+              )}
             </div>
+            {locked && (
+              <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-300/5 px-4 py-4 text-center">
+                <p className="mb-3 text-xs leading-relaxed text-cyan-100/70">
+                  已顯示約 20% 內容。解鎖基礎完整報告後，可查看這一區與其他基礎段落。
+                </p>
+                <button
+                  type="button"
+                  onClick={onUnlock}
+                  disabled={checkoutLoading}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  <Lock className="h-4 w-4" />
+                  {checkoutLoading ? '前往付款中...' : '解鎖基礎完整報告 NT$199'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -113,7 +147,10 @@ function FallbackReport({ onNavigate }: { onNavigate: (p: string) => void }) {
 export default function ReportPage({
   chart,
   chartId = '',
+  access = 'email',
+  checkoutLoading = false,
   isFullUnlocked = false,
+  onStartBasicCheckout,
   onEnsureChartSaved,
   onNavigate,
 }: ReportPageProps) {
@@ -216,7 +253,7 @@ export default function ReportPage({
     console.error('generateFreeReport error:', err);
   }
 
-  // Show every free section (free: true) directly — no email gate
+  const basicUnlocked = access === 'basic' || access === 'full';
   const visibleSections = freeSections.filter(s => s.free);
 
   // Determine definition label from definedCenters count
@@ -244,19 +281,23 @@ export default function ReportPage({
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            {chart.typeName} · {chart.profile}
+            {basicUnlocked ? `${chart.typeName} · ${chart.profile}` : chart.typeName}
           </h1>
-          <p className="text-white/35 text-sm">{chart.authorityName}</p>
+          <p className="text-white/35 text-sm">
+            {basicUnlocked ? chart.authorityName : 'Email 免費解鎖：先查看你的類型'}
+          </p>
 
           {/* Quick-glance chips */}
           <div className="flex flex-wrap justify-center gap-2 mt-5">
-            {[
+            {(basicUnlocked ? [
               { label: '類型',     value: chart.typeName },
               { label: '策略',     value: chart.strategy },
               { label: '內在權威', value: chart.authorityName },
               { label: '定義',     value: definitionLabel },
               { label: '人生角色', value: `${chart.profile} ${chart.profileName}` },
-            ].map(chip => (
+            ] : [
+              { label: '類型', value: chart.typeName },
+            ]).map(chip => (
               <div
                 key={chip.label}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/8"
@@ -272,7 +313,15 @@ export default function ReportPage({
         {visibleSections.length > 0 ? (
           <div className="space-y-3 mb-8">
             {visibleSections.map((s, i) => (
-              <FreeCard key={s.id} section={s} chart={chart} index={i} />
+              <FreeCard
+                key={s.id}
+                section={s}
+                chart={chart}
+                index={i}
+                locked={!basicUnlocked && s.id !== 'type'}
+                checkoutLoading={checkoutLoading}
+                onUnlock={onStartBasicCheckout}
+              />
             ))}
           </div>
         ) : (
@@ -295,9 +344,10 @@ export default function ReportPage({
         )}
 
         {/* ── Full sections ── */}
-        <div
+        {isFullUnlocked ? (
+          <div
           className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        >
+          >
           <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
             完整版 AI 深度解析
           </p>
@@ -344,7 +394,18 @@ export default function ReportPage({
               </div>
             )}
           </div>
-        </div>
+          </div>
+        ) : (
+          <div className={`mb-8 rounded-2xl border border-white/8 bg-white/3 px-6 py-6 text-center transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/8">
+              <Lock className="h-4 w-4 text-white/45" />
+            </div>
+            <p className="mb-1 text-sm font-semibold text-white/60">完整版 AI 深度解析尚未解鎖</p>
+            <p className="text-xs leading-relaxed text-white/35">
+              基礎完整報告 NT$199 只解鎖上方基礎段落，不包含完整版 AI 深度解析。
+            </p>
+          </div>
+        )}
 
         {/* ── Footer actions ── */}
         <div className="flex justify-center gap-3 flex-wrap">

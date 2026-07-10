@@ -19,6 +19,7 @@ const SPREAD_HOME: Record<string, string> = {
   numerology_advanced: '/numerology?section=advanced',
   numerology_full:     '/numerology',
   numerology_forecast: '/numerology?section=forecast',
+  human_design_basic:  '/human-design',
   human_design_full:   '/human-design',
 };
 

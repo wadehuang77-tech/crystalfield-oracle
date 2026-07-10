@@ -8,7 +8,7 @@ interface HeroCardPageProps {
   birthDate: string;
   birthTime: string;
   birthCity: string;
-  onViewReport: () => void;
+  onEmailUnlocked: (email: string) => void;
 }
 
 const TYPE_COLORS: Record<string, { badge: string; glow: string; text: string; border: string }> = {
@@ -35,7 +35,7 @@ function CenterDot({ defined }: { defined: boolean }) {
   );
 }
 
-export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, onViewReport }: HeroCardPageProps) {
+export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, onEmailUnlocked }: HeroCardPageProps) {
   const [visible, setVisible] = useState(false);
   const [cardVisible, setCardVisible] = useState(false);
   const [email, setEmail] = useState('');
@@ -90,7 +90,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
         setEmailError(result.message || 'Email 寫入失敗，請稍後再試');
         return;
       }
-      onViewReport();
+      onEmailUnlocked(trimmed);
     } catch (err) {
       setEmailError(err instanceof Error ? err.message : 'Email 寫入失敗，請稍後再試');
     } finally {

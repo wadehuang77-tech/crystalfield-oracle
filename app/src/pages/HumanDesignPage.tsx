@@ -6,9 +6,11 @@ import LandingPage from './human-design/LandingPage';
 import HeroCardPage from './human-design/HeroCardPage';
 import ReportPage from './human-design/ReportPage';
 import { calculateHDChart, type HDChart } from '../lib/human-design/humanDesignCalc';
-import { humanDesignApi } from '../lib/api';
+import { checkoutApi, humanDesignApi } from '../lib/api';
+import { submitToEcpay } from '../lib/ecpayRedirect';
 
 type Page = 'landing' | 'hero' | 'loading' | 'report';
+type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full';
 
 const STATE_KEY = 'cf_human_design_state_v1';
 
@@ -16,6 +18,8 @@ interface StoredState {
   chart: HDChart;
   chartId: string;
   birthData: { date: string; time: string; city: string };
+  access?: HumanDesignAccess;
+  email?: string;
 }
 
 function readStoredState(): StoredState | null {
@@ -74,6 +78,9 @@ export default function HumanDesignPage() {
   const [chart, setChart] = useState<HDChart | null>(() => readStoredState()?.chart ?? null);
   const [birthData, setBirthData] = useState(() => readStoredState()?.birthData ?? { date: '', time: '', city: '' });
   const [chartId, setChartId] = useState(() => readStoredState()?.chartId ?? '');
+  const [access, setAccess] = useState<HumanDesignAccess>(() => readStoredState()?.access ?? 'locked');
+  const [email, setEmail] = useState(() => readStoredState()?.email ?? '');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const goTo = (next: Page) => {
     setPage(next);
@@ -98,7 +105,10 @@ export default function HumanDesignPage() {
     setBirthData(nextBirthData);
     setChart(calculated);
     setChartId('');
+    setAccess('locked');
+    setEmail('');
     goTo('hero');
+    persistState({ chart: calculated, chartId: '', birthData: nextBirthData, access: 'locked', email: '' });
 
     humanDesignApi
       .saveChart({
@@ -112,18 +122,25 @@ export default function HumanDesignPage() {
       })
       .then(({ chart_id }) => {
         setChartId(chart_id);
-        persistState({ chart: calculated, chartId: chart_id, birthData: nextBirthData });
+        const latest = readStoredState();
+        persistState({
+          chart: latest?.chart ?? calculated,
+          chartId: chart_id,
+          birthData: latest?.birthData ?? nextBirthData,
+          access: latest?.access ?? 'locked',
+          email: latest?.email ?? '',
+        });
       })
       .catch((err) => {
         console.error('HD chart save error:', err);
-        persistState({ chart: calculated, chartId: '', birthData: nextBirthData });
+        persistState({ chart: calculated, chartId: '', birthData: nextBirthData, access: 'locked', email: '' });
       });
   };
 
   const ensureChartSaved = useCallback(async () => {
     if (!chart) return false;
     if (chartId) {
-      persistState({ chart, chartId, birthData });
+      persistState({ chart, chartId, birthData, access, email });
       return true;
     }
     try {
@@ -137,14 +154,46 @@ export default function HumanDesignPage() {
         chart_data: chart,
       });
       setChartId(chart_id);
-      persistState({ chart, chartId: chart_id, birthData });
+      persistState({ chart, chartId: chart_id, birthData, access, email });
       return true;
     } catch (err) {
       console.error('HD chart save before free full report failed:', err);
-      persistState({ chart, chartId: '', birthData });
+      persistState({ chart, chartId: '', birthData, access, email });
       return false;
     }
-  }, [birthData, chart, chartId]);
+  }, [access, birthData, chart, chartId, email]);
+
+  const handleEmailUnlocked = (nextEmail: string) => {
+    if (!chart) return;
+    setEmail(nextEmail);
+    setAccess('email');
+    persistState({ chart, chartId, birthData, access: 'email', email: nextEmail });
+    goTo('report');
+  };
+
+  const startBasicCheckout = async () => {
+    if (!chart || checkoutLoading) return;
+    persistState({ chart, chartId, birthData, access, email });
+    setCheckoutLoading(true);
+    try {
+      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(
+        'human_design_basic',
+        undefined,
+        email ? { guest_email: email } : undefined,
+      );
+      if (admin_unlocked) {
+        setAccess('basic');
+        persistState({ chart, chartId, birthData, access: 'basic', email });
+        setCheckoutLoading(false);
+        return;
+      }
+      if (ecpay) submitToEcpay(ecpay, () => setCheckoutLoading(false));
+      else setCheckoutLoading(false);
+    } catch (err) {
+      console.error('human design basic checkout failed:', err);
+      setCheckoutLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (page !== 'loading') return;
@@ -161,7 +210,24 @@ export default function HumanDesignPage() {
       setChart(stored.chart);
       setBirthData(stored.birthData);
       setChartId(stored.chartId);
+      setEmail(stored.email ?? '');
       setPage('report');
+    }
+    if (orderId) {
+      checkoutApi.getOrder(orderId, orderToken)
+        .then(({ order }) => {
+          if (order.status !== 'paid') return;
+          const latest = readStoredState();
+          if (!latest?.chart) return;
+          const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full'
+            ? 'full'
+            : order.item_id === 'human_design_basic'
+              ? 'basic'
+              : latest.access ?? 'email';
+          setAccess(nextAccess);
+          persistState({ ...latest, access: nextAccess });
+        })
+        .catch((err) => console.error('human design checkout verification failed:', err));
     }
     const next = new URLSearchParams(params);
     next.delete('order_id');
@@ -190,7 +256,7 @@ export default function HumanDesignPage() {
             birthDate={birthData.date}
             birthTime={birthData.time}
             birthCity={birthData.city}
-            onViewReport={() => goTo('report')}
+            onEmailUnlocked={handleEmailUnlocked}
           />
         )}
         {page === 'loading' && <AnalysingScreen />}
@@ -198,7 +264,10 @@ export default function HumanDesignPage() {
           <ReportPage
             chart={chart}
             chartId={chartId}
-            isFullUnlocked
+            access={access}
+            checkoutLoading={checkoutLoading}
+            isFullUnlocked={access === 'full'}
+            onStartBasicCheckout={startBasicCheckout}
             onEnsureChartSaved={ensureChartSaved}
             onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}
           />
