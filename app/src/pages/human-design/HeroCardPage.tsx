@@ -158,7 +158,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />
             <div className="relative flex items-center justify-center gap-2 text-white">
               <Sparkles className="w-4 h-4" />
-              輸入email 解鎖免費報告
+              查看我的免費報告
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </button>
