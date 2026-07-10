@@ -131,7 +131,7 @@ function FreeCard({
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Lock className="h-4 w-4" />
-                  {checkoutLoading ? '前往付款中...' : '解鎖基礎完整報告 NT$199'}
+                  {checkoutLoading ? '前往付款中...' : '解鎖基礎完整報告 NT$10'}
                 </button>
               </div>
             )}
@@ -437,7 +437,7 @@ export default function ReportPage({
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Lock className="h-4 w-4" />
-              {checkoutLoading ? '前往付款中...' : '解鎖完整版 AI 深度解析 NT$499'}
+              {checkoutLoading ? '前往付款中...' : '解鎖完整版 AI 深度解析 NT$10'}
             </button>
             <button
               type="button"
@@ -445,8 +445,7 @@ export default function ReportPage({
               disabled={checkoutLoading}
               className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-300/15 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <span>{checkoutLoading ? '前往付款中...' : '解鎖基礎報告 + 完整版深度解析 NT$598'}</span>
-              <span className="mt-1 text-xs font-medium text-amber-100/70">省 NT$100</span>
+              <span>{checkoutLoading ? '前往付款中...' : '解鎖基礎報告 + 完整版深度解析 NT$10'}</span>
             </button>
           </div>
         )}
