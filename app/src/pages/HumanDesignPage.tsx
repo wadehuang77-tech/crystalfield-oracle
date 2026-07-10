@@ -297,6 +297,8 @@ export default function HumanDesignPage() {
     window.scrollTo(0, 0);
   }, [page]);
 
+  const isFullUnlocked = access === 'full' || access === 'bundle';
+
   return (
     <div className="relative min-h-screen bg-[#0A0E17] text-white overflow-x-hidden">
       <ParticleBackground />
@@ -324,7 +326,7 @@ export default function HumanDesignPage() {
             chartId={chartId}
             access={access}
             checkoutLoading={checkoutLoading}
-            isFullUnlocked={access === 'full' || access === 'bundle'}
+            isFullUnlocked={isFullUnlocked}
             onStartBasicCheckout={startBasicCheckout}
             onStartFullCheckout={startFullCheckout}
             onStartBundleCheckout={startBundleCheckout}
