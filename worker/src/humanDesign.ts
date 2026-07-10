@@ -6,6 +6,7 @@ import {
   readSession,
   validEmail,
 } from './utils';
+import { ensureHumanDesignSchema } from './humanDesignSchema';
 
 interface SaveChartBody {
   user_name?: string;
@@ -58,6 +59,7 @@ export async function saveHumanDesignChart(req: Request, env: Env): Promise<Resp
   const now = new Date().toISOString();
 
   try {
+    await ensureHumanDesignSchema(env);
     await env.DB.prepare(
       `INSERT INTO hd_charts
         (id, session_id, user_id, user_name, user_email, birth_date, birth_time, birth_city,
@@ -96,6 +98,7 @@ export async function updateHumanDesignAnswers(req: Request, env: Env, chartId: 
 
   let result: D1Result;
   try {
+    await ensureHumanDesignSchema(env);
     result = await env.DB.prepare(
       `UPDATE hd_charts
           SET chat_answers = ?, updated_at = ?

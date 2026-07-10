@@ -2,6 +2,7 @@ import {
   Env,
   json,
 } from './utils';
+import { ensureHumanDesignSchema } from './humanDesignSchema';
 
 export const REPORT_VERSION = 'professional-v7';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
@@ -511,6 +512,12 @@ async function saveReport(env: Env, row: ChartRow, chart: HDChart, defs: Section
 }
 
 export async function getHumanDesignFullReport(req: Request, env: Env, chartId: string): Promise<Response> {
+  try {
+    await ensureHumanDesignSchema(env);
+  } catch (err) {
+    return fullReportDbError(req, env, err, '人類圖資料庫初始化失敗');
+  }
+
   let row: ChartRow | null;
   try {
     row = await env.DB.prepare(
