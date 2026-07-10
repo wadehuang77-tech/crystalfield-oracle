@@ -75,7 +75,7 @@ export default function HumanDesignPage() {
   const [params, setParams] = useSearchParams();
   const initialStoredState = useMemo(() => readStoredState(), []);
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
-  const [page, setPage] = useState<Page>(() => (initialStoredState?.chart || hasCheckoutReturn ? 'report' : 'landing'));
+  const [page, setPage] = useState<Page>(() => (hasCheckoutReturn ? 'report' : 'landing'));
   const [pageKey, setPageKey] = useState(0);
   const [chart, setChart] = useState<HDChart | null>(() => initialStoredState?.chart ?? null);
   const [birthData, setBirthData] = useState(() => initialStoredState?.birthData ?? { date: '', time: '', city: '' });
