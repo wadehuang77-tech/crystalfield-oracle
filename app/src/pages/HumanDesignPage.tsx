@@ -72,7 +72,7 @@ function AnalysingScreen() {
 
 export default function HumanDesignPage() {
   const [params, setParams] = useSearchParams();
-  const [page, setPage] = useState<Page>(() => readStoredState() ? 'report' : 'landing');
+  const [page, setPage] = useState<Page>('landing');
   const [pageKey, setPageKey] = useState(0);
   const [chart, setChart] = useState<HDChart | null>(() => readStoredState()?.chart ?? null);
   const [birthData, setBirthData] = useState(() => readStoredState()?.birthData ?? { date: '', time: '', city: '' });
