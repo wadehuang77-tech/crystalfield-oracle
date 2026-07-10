@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import ParticleBackground from '../components/human-design/ParticleBackground';
@@ -6,14 +6,11 @@ import LandingPage from './human-design/LandingPage';
 import HeroCardPage from './human-design/HeroCardPage';
 import ReportPage from './human-design/ReportPage';
 import { calculateHDChart, type HDChart } from '../lib/human-design/humanDesignCalc';
-import { checkoutApi, humanDesignApi } from '../lib/api';
-import { submitToEcpay } from '../lib/ecpayRedirect';
+import { humanDesignApi } from '../lib/api';
 
 type Page = 'landing' | 'hero' | 'loading' | 'report';
 
 const STATE_KEY = 'cf_human_design_state_v1';
-const UNLOCK_KEY = 'cf_human_design_full_unlocked_v1';
-const SKU = 'human_design_full';
 
 interface StoredState {
   chart: HDChart;
@@ -77,8 +74,6 @@ export default function HumanDesignPage() {
   const [chart, setChart] = useState<HDChart | null>(() => readStoredState()?.chart ?? null);
   const [birthData, setBirthData] = useState(() => readStoredState()?.birthData ?? { date: '', time: '', city: '' });
   const [chartId, setChartId] = useState(() => readStoredState()?.chartId ?? '');
-  const [fullUnlocked, setFullUnlocked] = useState(() => localStorage.getItem(UNLOCK_KEY) === '1');
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const goTo = (next: Page) => {
     setPage(next);
@@ -103,8 +98,6 @@ export default function HumanDesignPage() {
     setBirthData(nextBirthData);
     setChart(calculated);
     setChartId('');
-    setFullUnlocked(false);
-    localStorage.removeItem(UNLOCK_KEY);
     goTo('hero');
 
     humanDesignApi
@@ -127,38 +120,29 @@ export default function HumanDesignPage() {
       });
   };
 
-  const handleUnlockFull = async () => {
+  const ensureChartSaved = useCallback(async () => {
     if (!chart) return;
-    setCheckoutLoading(true);
-    try {
-      let currentChartId = chartId;
-      if (!currentChartId) {
-        const { chart_id } = await humanDesignApi.saveChart({
-          birth_date: birthData.date,
-          birth_time: birthData.time,
-          birth_city: birthData.city,
-          hd_type: chart.type,
-          hd_profile: chart.profile,
-          hd_authority: chart.authority,
-          chart_data: chart,
-        });
-        currentChartId = chart_id;
-        setChartId(chart_id);
-      }
-      persistState({ chart, chartId: currentChartId, birthData });
-      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(SKU);
-      if (admin_unlocked || !ecpay) {
-        localStorage.setItem(UNLOCK_KEY, '1');
-        setFullUnlocked(true);
-        setCheckoutLoading(false);
-        return;
-      }
-      submitToEcpay(ecpay, () => setCheckoutLoading(false));
-    } catch (err) {
-      console.error('human design checkout failed:', err);
-      setCheckoutLoading(false);
+    if (chartId) {
+      persistState({ chart, chartId, birthData });
+      return;
     }
-  };
+    try {
+      const { chart_id } = await humanDesignApi.saveChart({
+        birth_date: birthData.date,
+        birth_time: birthData.time,
+        birth_city: birthData.city,
+        hd_type: chart.type,
+        hd_profile: chart.profile,
+        hd_authority: chart.authority,
+        chart_data: chart,
+      });
+      setChartId(chart_id);
+      persistState({ chart, chartId: chart_id, birthData });
+    } catch (err) {
+      console.error('HD chart save before free full report failed:', err);
+      persistState({ chart, chartId: '', birthData });
+    }
+  }, [birthData, chart, chartId]);
 
   useEffect(() => {
     if (page !== 'loading') return;
@@ -168,30 +152,19 @@ export default function HumanDesignPage() {
 
   useEffect(() => {
     const orderId = params.get('order_id');
-    if (!orderId) return;
     const orderToken = params.get('order_token');
-    let cancelled = false;
-
-    checkoutApi.getOrder(orderId, orderToken)
-      .then(({ order }) => {
-        if (cancelled || order.status !== 'paid' || order.item_id !== SKU) return;
-        localStorage.setItem(UNLOCK_KEY, '1');
-        setFullUnlocked(true);
-        const stored = readStoredState();
-        if (stored) {
-          setChart(stored.chart);
-          setBirthData(stored.birthData);
-          setChartId(stored.chartId);
-          setPage('report');
-        }
-        const next = new URLSearchParams(params);
-        next.delete('order_id');
-        next.delete('order_token');
-        setParams(next, { replace: true });
-      })
-      .catch((err) => console.error('human design order verification failed:', err));
-
-    return () => { cancelled = true; };
+    if (!orderId && !orderToken) return;
+    const stored = readStoredState();
+    if (stored) {
+      setChart(stored.chart);
+      setBirthData(stored.birthData);
+      setChartId(stored.chartId);
+      setPage('report');
+    }
+    const next = new URLSearchParams(params);
+    next.delete('order_id');
+    next.delete('order_token');
+    setParams(next, { replace: true });
   }, [params, setParams]);
 
   useEffect(() => {
@@ -224,9 +197,8 @@ export default function HumanDesignPage() {
             chart={chart}
             chartId={chartId}
             birthDate={birthData.date}
-            isFullUnlocked={fullUnlocked}
-            unlocking={checkoutLoading}
-            onUnlockFull={handleUnlockFull}
+            isFullUnlocked
+            onEnsureChartSaved={ensureChartSaved}
             onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}
           />
         )}

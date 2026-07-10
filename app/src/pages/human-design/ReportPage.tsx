@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lock, Sparkles, ChevronDown, ChevronUp, ArrowRight, Download } from 'lucide-react';
+import { Sparkles, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
 import { humanDesignApi, type HumanDesignFullReportSection } from '../../lib/api';
 import { generateFreeReport } from '../../data/human-design/humanDesignData';
@@ -9,8 +9,7 @@ interface ReportPageProps {
   chartId?: string;
   birthDate: string;
   isFullUnlocked?: boolean;
-  unlocking?: boolean;
-  onUnlockFull?: () => void;
+  onEnsureChartSaved?: () => Promise<void>;
   onNavigate: (page: string) => void;
 }
 
@@ -27,19 +26,6 @@ function useInView() {
   }, []);
   return { ref, inView };
 }
-
-// All paid content — requires OpenAI and payment
-const PAID_SECTIONS = [
-  { title: '九大中心完整解析', icon: '◉' },
-  { title: '64 閘門分析', icon: '✦' },
-  { title: '通道分析', icon: '◈' },
-  { title: 'AI 深度人格分析', icon: '◇' },
-  { title: 'AI 能量處方', icon: '★' },
-  { title: 'AI 職涯方向建議', icon: '◎' },
-  { title: 'AI 愛情關係分析', icon: '◈' },
-  { title: 'AI 財富能量模式', icon: '◇' },
-  { title: 'AI 靈魂使命', icon: '✦' },
-];
 
 function buildPaidContent(chart: HDChart, birthDate: string) {
   const defined = chart.definedCenters.join('、') || '無固定定義中心';
@@ -182,8 +168,7 @@ export default function ReportPage({
   chartId = '',
   birthDate,
   isFullUnlocked = false,
-  unlocking = false,
-  onUnlockFull,
+  onEnsureChartSaved,
   onNavigate,
 }: ReportPageProps) {
   const [visible, setVisible] = useState(false);
@@ -197,9 +182,13 @@ export default function ReportPage({
   }, []);
 
   useEffect(() => {
-    if (!isFullUnlocked || !chartId) {
+    if (!isFullUnlocked) {
       setFullReportSections(null);
       setFullReportError('');
+      return;
+    }
+    if (!chartId) {
+      void onEnsureChartSaved?.();
       return;
     }
 
@@ -222,7 +211,7 @@ export default function ReportPage({
       });
 
     return () => { cancelled = true; };
-  }, [isFullUnlocked, chartId]);
+  }, [isFullUnlocked, chartId, onEnsureChartSaved]);
 
   // Safety guard
   if (!chart || !chart.type || !chart.typeName) {
@@ -314,12 +303,12 @@ export default function ReportPage({
           </div>
         )}
 
-        {/* ── Paid / full sections ── */}
+        {/* ── Full sections ── */}
         <div
           className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
           <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
-            {isFullUnlocked ? '完整版 AI 深度解析' : '付費完整版 AI 深度解析'}
+            完整版 AI 深度解析
           </p>
           {isFullUnlocked && fullReportLoading && (
             <p className="text-cyan-300/60 text-xs text-center mb-3">正在讀取資料庫完整版報告...</p>
@@ -329,17 +318,16 @@ export default function ReportPage({
           )}
           <div className="relative rounded-2xl overflow-hidden border border-white/6">
             <div className="p-1 space-y-1">
-              {(isFullUnlocked ? paidContent : PAID_SECTIONS).map(s => (
+              {paidContent.map(s => (
                 <div
                   key={s.title}
                   className="px-5 py-3.5 rounded-xl bg-white/2"
                 >
-                  <div className={`flex items-center justify-between gap-3 ${isFullUnlocked ? '' : 'opacity-45'}`}>
+                  <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <span className="text-white/30 text-sm">{s.icon}</span>
                       <span className="text-white/50 text-sm font-medium">{s.title}</span>
                     </div>
-                    {!isFullUnlocked && <Lock className="w-3.5 h-3.5 text-white/20 flex-shrink-0" />}
                   </div>
                   {'body' in s && typeof s.body === 'string' && (
                     <p className="mt-3 pl-7 text-white/65 text-sm leading-[1.85]">{s.body}</p>
@@ -347,36 +335,8 @@ export default function ReportPage({
                 </div>
               ))}
             </div>
-            {!isFullUnlocked && <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0A0E17] to-transparent pointer-events-none" />}
           </div>
         </div>
-
-        {/* ── Paid CTA ── */}
-        {!isFullUnlocked && (
-          <div
-            className={`relative rounded-2xl overflow-hidden p-7 text-center mb-8 transition-all duration-600 delay-300 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/12 via-[#0A0E17]/80 to-cyan-600/12" />
-            <div className="absolute inset-0 border border-white/8 rounded-2xl" />
-            <div className="relative">
-              <p className="text-white/40 text-xs mb-2 tracking-wider">解鎖完整 AI 靈魂藍圖</p>
-              <h3 className="text-white font-bold text-lg mb-1">完整版 Human Design AI Report</h3>
-              <p className="text-white/30 text-xs mb-5">
-                64 閘門 · 通道解析 · 九大中心 · AI 行動建議 · 職涯 / 愛情 / 財富模式
-              </p>
-              <button
-                onClick={onUnlockFull}
-                disabled={unlocking}
-                className="group relative inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold overflow-hidden disabled:opacity-60"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500" />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-30 group-hover:opacity-50 transition-opacity" />
-                <span className="relative text-white">{unlocking ? '前往付款中...' : 'NT$10 解鎖完整報告'}</span>
-                <ArrowRight className="relative w-4 h-4 text-white" />
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* ── Footer actions ── */}
         <div className="flex justify-center gap-3 flex-wrap">
