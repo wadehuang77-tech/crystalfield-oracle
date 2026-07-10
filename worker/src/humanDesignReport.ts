@@ -66,6 +66,34 @@ interface KnowledgeRow {
   body: string;
 }
 
+function dbErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+function fullReportDbError(req: Request, env: Env, err: unknown, fallback: string): Response {
+  const message = dbErrorMessage(err);
+  console.error(fallback, err);
+  if (/no such table:?\s*hd_charts/i.test(message)) {
+    return json(req, env, { error: 'D1 migration missing: hd_charts，請先套用 009_human_design_charts.sql' }, { status: 500 });
+  }
+  if (/no such table:?\s*hd_report_section_defs/i.test(message)) {
+    return json(req, env, { error: 'D1 migration missing: hd_report_section_defs，請先套用 010_human_design_full_reports.sql' }, { status: 500 });
+  }
+  if (/no such table:?\s*hd_full_reports/i.test(message)) {
+    return json(req, env, { error: 'D1 migration missing: hd_full_reports，請先套用 010_human_design_full_reports.sql' }, { status: 500 });
+  }
+  if (/no such table:?\s*hd_full_report_sections/i.test(message)) {
+    return json(req, env, { error: 'D1 migration missing: hd_full_report_sections，請先套用 010_human_design_full_reports.sql' }, { status: 500 });
+  }
+  if (/no such table:?\s*hd_fixed_knowledge/i.test(message)) {
+    return json(req, env, { error: 'D1 migration missing: hd_fixed_knowledge，請先套用 011_human_design_fixed_knowledge.sql' }, { status: 500 });
+  }
+  if (/no such column:?\s*generation_mode/i.test(message)) {
+    return json(req, env, { error: 'D1 migration incomplete: hd_report_section_defs.generation_mode，請確認 011_human_design_fixed_knowledge.sql 已套用' }, { status: 500 });
+  }
+  return json(req, env, { error: fallback }, { status: 500 });
+}
+
 const DEFAULT_SECTIONS: SectionDef[] = [
   { id: 'centers', sort_order: 1, icon: '◉', title: '九大中心完整解析', focus: '逐一分析九大中心的定義狀態、制約入口與能量校準方式。', generation_mode: 'fixed' },
   { id: 'gates', sort_order: 2, icon: '✦', title: '64 閘門分析', focus: '解析關鍵閘門的天賦語彙、陰影模式與成熟表達。', generation_mode: 'fixed' },
@@ -483,24 +511,33 @@ async function saveReport(env: Env, row: ChartRow, chart: HDChart, defs: Section
 }
 
 export async function getHumanDesignFullReport(req: Request, env: Env, chartId: string): Promise<Response> {
-  const row = await env.DB.prepare(
-    `SELECT id, session_id, user_id, user_email, birth_date, birth_time, birth_city,
-            hd_type, hd_profile, hd_authority, chart_data
-       FROM hd_charts
-      WHERE id = ?
-      LIMIT 1`
-  ).bind(chartId).first<ChartRow>();
+  let row: ChartRow | null;
+  try {
+    row = await env.DB.prepare(
+      `SELECT id, session_id, user_id, user_email, birth_date, birth_time, birth_city,
+              hd_type, hd_profile, hd_authority, chart_data
+         FROM hd_charts
+        WHERE id = ?
+        LIMIT 1`
+    ).bind(chartId).first<ChartRow>();
+  } catch (err) {
+    return fullReportDbError(req, env, err, '人類圖資料讀取失敗');
+  }
 
   if (!row) {
     return json(req, env, { error: '找不到人類圖紀錄' }, { status: 404 });
   }
 
-  const saved = await readSavedReport(env, chartId);
-  if (saved) {
-    return json(req, env, { report_version: REPORT_VERSION, sections: saved, cached: true });
-  }
+  try {
+    const saved = await readSavedReport(env, chartId);
+    if (saved) {
+      return json(req, env, { report_version: REPORT_VERSION, sections: saved, cached: true });
+    }
 
-  const defs = await getSectionDefs(env);
-  const sections = await saveReport(env, row, parseChart(row), defs);
-  return json(req, env, { report_version: REPORT_VERSION, sections, cached: false });
+    const defs = await getSectionDefs(env);
+    const sections = await saveReport(env, row, parseChart(row), defs);
+    return json(req, env, { report_version: REPORT_VERSION, sections, cached: false });
+  } catch (err) {
+    return fullReportDbError(req, env, err, '人類圖完整版報告產生失敗');
+  }
 }

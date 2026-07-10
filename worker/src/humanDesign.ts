@@ -27,6 +27,22 @@ function validDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 }
 
+function dbErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+function humanDesignDbError(req: Request, env: Env, err: unknown, fallback: string): Response {
+  const message = dbErrorMessage(err);
+  console.error(fallback, err);
+  if (/no such table:?\s*hd_charts/i.test(message)) {
+    return json(req, env, { error: 'D1 migration missing: hd_charts，請先套用 009_human_design_charts.sql' }, { status: 500 });
+  }
+  if (/no such column/i.test(message)) {
+    return json(req, env, { error: 'D1 migration incomplete: hd_charts 欄位不完整，請確認 009_human_design_charts.sql 已完整套用' }, { status: 500 });
+  }
+  return json(req, env, { error: fallback }, { status: 500 });
+}
+
 export async function saveHumanDesignChart(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
   const body = await readBody<SaveChartBody>(req, 96 * 1024);
@@ -41,27 +57,31 @@ export async function saveHumanDesignChart(req: Request, env: Env): Promise<Resp
   const sessionId = `hd_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
   const now = new Date().toISOString();
 
-  await env.DB.prepare(
-    `INSERT INTO hd_charts
-      (id, session_id, user_id, user_name, user_email, birth_date, birth_time, birth_city,
-       hd_type, hd_profile, hd_authority, chart_data, chat_answers, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '[]', ?, ?)`
-  ).bind(
-    id,
-    sessionId,
-    user?.id ?? null,
-    cleanString(body.user_name, 120),
-    email,
-    birthDate,
-    cleanString(body.birth_time, 20),
-    cleanString(body.birth_city, 160),
-    cleanString(body.hd_type, 80),
-    cleanString(body.hd_profile, 80),
-    cleanString(body.hd_authority, 80),
-    JSON.stringify(body.chart_data ?? {}),
-    now,
-    now,
-  ).run();
+  try {
+    await env.DB.prepare(
+      `INSERT INTO hd_charts
+        (id, session_id, user_id, user_name, user_email, birth_date, birth_time, birth_city,
+         hd_type, hd_profile, hd_authority, chart_data, chat_answers, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '[]', ?, ?)`
+    ).bind(
+      id,
+      sessionId,
+      user?.id ?? null,
+      cleanString(body.user_name, 120),
+      email,
+      birthDate,
+      cleanString(body.birth_time, 20),
+      cleanString(body.birth_city, 160),
+      cleanString(body.hd_type, 80),
+      cleanString(body.hd_profile, 80),
+      cleanString(body.hd_authority, 80),
+      JSON.stringify(body.chart_data ?? {}),
+      now,
+      now,
+    ).run();
+  } catch (err) {
+    return humanDesignDbError(req, env, err, '人類圖資料建立失敗');
+  }
 
   return json(req, env, { chart_id: id, session_id: sessionId });
 }
@@ -74,11 +94,16 @@ export async function updateHumanDesignAnswers(req: Request, env: Env, chartId: 
     .filter((value) => Number.isInteger(value));
   if (answers.length > 50) return badRequest(req, env, 'answers 太多');
 
-  const result = await env.DB.prepare(
-    `UPDATE hd_charts
-        SET chat_answers = ?, updated_at = ?
-      WHERE id = ?`
-  ).bind(JSON.stringify(answers), new Date().toISOString(), chartId).run();
+  let result: D1Result;
+  try {
+    result = await env.DB.prepare(
+      `UPDATE hd_charts
+          SET chat_answers = ?, updated_at = ?
+        WHERE id = ?`
+    ).bind(JSON.stringify(answers), new Date().toISOString(), chartId).run();
+  } catch (err) {
+    return humanDesignDbError(req, env, err, '人類圖問答更新失敗');
+  }
 
   if ((result.meta?.changes ?? 0) === 0) {
     return json(req, env, { error: '找不到人類圖紀錄' }, { status: 404 });
