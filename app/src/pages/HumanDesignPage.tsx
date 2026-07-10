@@ -73,13 +73,15 @@ function AnalysingScreen() {
 
 export default function HumanDesignPage() {
   const [params, setParams] = useSearchParams();
-  const [page, setPage] = useState<Page>('landing');
+  const initialStoredState = useMemo(() => readStoredState(), []);
+  const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
+  const [page, setPage] = useState<Page>(() => (initialStoredState?.chart || hasCheckoutReturn ? 'report' : 'landing'));
   const [pageKey, setPageKey] = useState(0);
-  const [chart, setChart] = useState<HDChart | null>(() => readStoredState()?.chart ?? null);
-  const [birthData, setBirthData] = useState(() => readStoredState()?.birthData ?? { date: '', time: '', city: '' });
-  const [chartId, setChartId] = useState(() => readStoredState()?.chartId ?? '');
-  const [access, setAccess] = useState<HumanDesignAccess>(() => readStoredState()?.access ?? 'locked');
-  const [email, setEmail] = useState(() => readStoredState()?.email ?? '');
+  const [chart, setChart] = useState<HDChart | null>(() => initialStoredState?.chart ?? null);
+  const [birthData, setBirthData] = useState(() => initialStoredState?.birthData ?? { date: '', time: '', city: '' });
+  const [chartId, setChartId] = useState(() => initialStoredState?.chartId ?? '');
+  const [access, setAccess] = useState<HumanDesignAccess>(() => initialStoredState?.access ?? 'locked');
+  const [email, setEmail] = useState(() => initialStoredState?.email ?? '');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const goTo = (next: Page) => {
@@ -266,14 +268,20 @@ export default function HumanDesignPage() {
         .then(({ order }) => {
           if (order.status !== 'paid') return;
           const latest = readStoredState();
-          if (!latest?.chart) return;
+          const restored = latest?.chart ? latest : chart ? { chart, chartId, birthData, access, email } : null;
+          if (!restored?.chart) return;
           const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full' || order.item_id === 'human_design_bundle'
             ? 'full'
             : order.item_id === 'human_design_basic'
               ? 'basic'
-              : latest.access ?? 'email';
+              : restored.access ?? 'email';
+          setChart(restored.chart);
+          setBirthData(restored.birthData);
+          setChartId(restored.chartId);
+          setEmail(restored.email ?? '');
           setAccess(nextAccess);
-          persistState({ ...latest, access: nextAccess });
+          setPage('report');
+          persistState({ ...restored, access: nextAccess });
         })
         .catch((err) => console.error('human design checkout verification failed:', err));
     }
