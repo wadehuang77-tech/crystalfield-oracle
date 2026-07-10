@@ -10,7 +10,7 @@ import { checkoutApi, humanDesignApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 
 type Page = 'landing' | 'hero' | 'loading' | 'report';
-type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full';
+type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full' | 'bundle';
 
 const STATE_KEY = 'cf_human_design_state_v1';
 
@@ -232,8 +232,8 @@ export default function HumanDesignPage() {
         email ? { guest_email: email } : undefined,
       );
       if (admin_unlocked) {
-        setAccess('full');
-        persistState({ chart, chartId, birthData, access: 'full', email });
+        setAccess('bundle');
+        persistState({ chart, chartId, birthData, access: 'bundle', email });
         setCheckoutLoading(false);
         return;
       }
@@ -270,11 +270,13 @@ export default function HumanDesignPage() {
           const latest = readStoredState();
           const restored = latest?.chart ? latest : chart ? { chart, chartId, birthData, access, email } : null;
           if (!restored?.chart) return;
-          const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full' || order.item_id === 'human_design_bundle'
+          const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full'
             ? 'full'
-            : order.item_id === 'human_design_basic'
-              ? 'basic'
-              : restored.access ?? 'email';
+            : order.item_id === 'human_design_bundle'
+              ? 'bundle'
+              : order.item_id === 'human_design_basic'
+                ? 'basic'
+                : restored.access ?? 'email';
           setChart(restored.chart);
           setBirthData(restored.birthData);
           setChartId(restored.chartId);
@@ -322,7 +324,7 @@ export default function HumanDesignPage() {
             chartId={chartId}
             access={access}
             checkoutLoading={checkoutLoading}
-            isFullUnlocked={access === 'full'}
+            isFullUnlocked={access === 'full' || access === 'bundle'}
             onStartBasicCheckout={startBasicCheckout}
             onStartFullCheckout={startFullCheckout}
             onStartBundleCheckout={startBundleCheckout}

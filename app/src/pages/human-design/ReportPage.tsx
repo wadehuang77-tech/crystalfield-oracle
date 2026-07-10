@@ -7,7 +7,7 @@ import { generateFreeReport } from '../../data/human-design/humanDesignData';
 interface ReportPageProps {
   chart: HDChart;
   chartId?: string;
-  access?: 'locked' | 'email' | 'basic' | 'full';
+  access?: 'locked' | 'email' | 'basic' | 'full' | 'bundle';
   checkoutLoading?: boolean;
   isFullUnlocked?: boolean;
   onStartBasicCheckout?: () => void;
@@ -175,6 +175,8 @@ export default function ReportPage({
   const [fullReportLoading, setFullReportLoading] = useState(false);
   const [fullReportError, setFullReportError] = useState('');
   const [reportVersion, setReportVersion] = useState('');
+  const fullReportRef = useRef<HTMLDivElement>(null);
+  const basicUnlocked = access === 'basic' || access === 'bundle';
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
@@ -256,6 +258,14 @@ export default function ReportPage({
     return () => { cancelled = true; };
   }, [isFullUnlocked, chartId, onEnsureChartSaved]);
 
+  useEffect(() => {
+    if (!isFullUnlocked || basicUnlocked) return;
+    const t = window.setTimeout(() => {
+      fullReportRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [isFullUnlocked, basicUnlocked]);
+
   // Safety guard
   if (!chart || !chart.type || !chart.typeName) {
     return <FallbackReport onNavigate={onNavigate} />;
@@ -269,7 +279,6 @@ export default function ReportPage({
     console.error('generateFreeReport error:', err);
   }
 
-  const basicUnlocked = access === 'basic' || access === 'full';
   const visibleSections = freeSections.filter(s => s.free);
 
   // Determine definition label from definedCenters count
@@ -362,7 +371,8 @@ export default function ReportPage({
         {/* ── Full sections ── */}
         {isFullUnlocked ? (
           <div
-          className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+            ref={fullReportRef}
+            className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
           >
           <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
             完整版 AI 深度解析
