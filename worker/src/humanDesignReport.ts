@@ -4,7 +4,7 @@ import {
 } from './utils';
 import { ensureHumanDesignSchema } from './humanDesignSchema';
 
-export const REPORT_VERSION = 'professional-v7';
+export const REPORT_VERSION = 'professional-v8';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 const MIN_AI_BODY_CHARS = 100;
 
@@ -181,37 +181,18 @@ function buildFixedSectionBody(sectionId: string, chart: HDChart, row: ChartRow,
   const open = chart.undefinedCenters ?? [];
   const gates = chart.keyGates ?? [];
   const channels = chart.keyChannels ?? [];
-  const typeInfo = chart.type ? getKnowledge(knowledge, 'type', chart.type) : null;
-  const authorityInfo = chart.authority ? getKnowledge(knowledge, 'authority', chart.authority) : null;
-  const profileInfo = chart.profile ? getKnowledge(knowledge, 'profile', chart.profile) : null;
   const defInfo = getKnowledge(knowledge, 'definition', definitionKey(chart));
 
   if (sectionId === 'centers') {
-    const definedText = defined.map((center) => {
-      const item = getKnowledge(knowledge, 'center', center);
-      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：這個中心在你的人類圖裡屬於比較穩定的部分，可以把它想成你身上比較固定的習慣、反應和能量來源。它不代表永遠不會變，而是你比較容易信任這裡的感覺，不必一直向外找答案。`;
-    });
-    const openText = open.map((center) => {
-      const item = getKnowledge(knowledge, 'center', center);
-      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：這個中心在你的人類圖裡比較開放，可以把它想成一個容易接收外界訊號的天線。你會很容易感覺到別人的壓力、情緒或期待，但那些不一定都是你的。練習重點是先分辨，再決定要不要回應。`;
-    });
-    return `固定知識資料庫解析：九大中心可以理解成身體和心理裡的九個能量開關。有些中心在你身上比較穩定，像固定電源；有些中心比較開放，像接收器，容易接到環境和他人的狀態。你的類型是 ${typeName}，${typeInfo?.body ?? '類型描述將依資料庫持續補充。'}\n\n已定義中心：${centerList(defined, '無固定定義中心')}。\n${definedText.join('\n\n') || '你目前沒有固定定義中心，環境品質會直接影響能量狀態。建議你特別重視身處的人、地方和生活節奏，因為它們會明顯改變你的感受。'}\n\n開放中心：${centerList(open, '開放中心較少')}。\n${openText.join('\n\n') || '你的開放中心較少，主要練習是維持已定義中心的穩定使用。'}\n\n定義狀態：${defInfo?.title ?? '定義'}。${defInfo?.body ?? ''}`;
+    return `九大中心可以先理解成你的能量開關：已定義中心比較像穩定電源，代表你比較容易信任、也比較常自然表現出來的部分；開放中心則像接收器，容易感受到環境和別人的情緒、壓力或期待。\n\n你的已定義中心是 ${centerList(defined, '無固定定義中心')}，這些是你比較穩的能量來源。開放中心是 ${centerList(open, '開放中心較少')}，提醒你不要把外界狀態都當成自己的責任。你的整體定義為 ${defInfo?.title ?? '定義狀態'}，重點不是把每個中心背起來，而是練習分辨：哪些感覺真正來自你，哪些只是經過你。`;
   }
 
   if (sectionId === 'gates') {
-    const gateText = gates.map((gate) => {
-      const item = getKnowledge(knowledge, 'gate', String(gate));
-      return item ? `${item.title}：${item.body}` : `閘門 ${gate}：閘門可以理解成你身上某一種固定主題，像是一個常常出現的性格按鈕。它不一定每天都很明顯，但遇到特定人事物時，就會被啟動。解讀時不能只看號碼，還要看它接在哪個中心、是否形成通道，以及你當下是否按照自己的決策方式行動。`;
-    });
-    return `固定知識資料庫解析：64 閘門可以想成 64 種人生主題，每個閘門都像一個內在開關，代表你容易被什麼事情觸動、在哪些地方有天賦、又容易在哪些地方卡住。你的關鍵閘門為 ${list(gates, '尚未偵測到關鍵閘門')}。\n\n${gateText.join('\n\n')}\n\n解讀原則：64 閘門本身是固定知識，不需要呼叫 OpenAI；真正的個人化來自它們與你的中心、通道、${authority}、人生角色交叉後形成的表達方式。簡單說，閘門像材料，中心和通道像電路，你的決策方式則決定這股能量能不能用在對的地方。`;
+    return `64 閘門不用當成艱深名詞來背，它比較像你生命裡常被啟動的主題按鈕。某些閘門會帶來天賦、興趣與吸引力；某些閘門在壓力下，也可能變成反覆卡住的模式。\n\n你的關鍵閘門是 ${list(gates, '尚未偵測到關鍵閘門')}。請把它們看成線索，而不是限制。真正重要的是：這些主題是否有接成通道、位在哪些中心，以及你做決定時有沒有回到 ${authority}。當你用對節奏行動，閘門會像資源；當你急著證明自己，同一股能量就容易變成壓力。`;
   }
 
   if (sectionId === 'channels') {
-    const channelText = channels.map((channel) => {
-      const item = getKnowledge(knowledge, 'channel', channelKey(channel));
-      return item ? `${item.title}：${item.body}` : `${channel}：通道可以理解成兩個能量中心之間已經接好的線路。當一條通道成立，代表這股能量在你身上比較固定，別人也比較容易感受到。它可能表現在工作方式、說話風格、人際互動或做決定的節奏上。重點不是把它用到滿，而是用在正確的人、事、時機上。`;
-    });
-    return `固定知識資料庫解析：通道是人類圖裡很重要的固定能量線，可以把它想成你身上已經接好的內在電路。中心像發電站，閘門像插座，通道就是讓能量穩定流動的線。你的主要通道為 ${list(channels, '尚未偵測到主要通道')}。\n\n${channelText.join('\n\n')}\n\n補充固定資訊：${profileInfo?.title ?? chart.profile ?? '人生角色'} - ${profileInfo?.body ?? '人生角色資料將依固定知識庫補充。'}\n${authorityInfo?.title ?? authority} - ${authorityInfo?.body ?? '權威資料將依固定知識庫補充。'}\n\n白話提醒：通道不是要你一直表現某種能力，而是提醒你這些特質比較容易自然流露。當你感到順、穩、身體沒有抗拒時，通道通常會用得比較健康；當你急著證明自己時，同一股能量也可能變成壓力。`;
+    return `通道可以想成兩個中心之間已經接好的能量線。當一條通道成立，代表這股特質在你身上比較固定，別人也比較容易感受到；它可能表現在說話方式、工作節奏、人際互動，或你自然處理事情的方法。\n\n你的主要通道是 ${list(channels, '尚未偵測到主要通道')}。如果目前通道較少，代表你更容易受環境和關係觸發，不是能力不足。通道的重點不是要你一直表現，而是提醒你：在正確的人、事、時機裡，你的能量會自然流動。請搭配 ${typeName} 的策略與 ${authority} 做選擇，會比硬推更準。`;
   }
 
   return '';
