@@ -196,7 +196,6 @@ export default function HumanDesignPage() {
           <ReportPage
             chart={chart}
             chartId={chartId}
-            birthDate={birthData.date}
             isFullUnlocked
             onEnsureChartSaved={ensureChartSaved}
             onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}

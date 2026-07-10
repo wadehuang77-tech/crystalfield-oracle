@@ -7,7 +7,6 @@ import { generateFreeReport } from '../../data/human-design/humanDesignData';
 interface ReportPageProps {
   chart: HDChart;
   chartId?: string;
-  birthDate: string;
   isFullUnlocked?: boolean;
   onEnsureChartSaved?: () => Promise<void>;
   onNavigate: (page: string) => void;
@@ -25,58 +24,6 @@ function useInView() {
     return () => obs.disconnect();
   }, []);
   return { ref, inView };
-}
-
-function buildPaidContent(chart: HDChart, birthDate: string) {
-  const defined = chart.definedCenters.join('、') || '無固定定義中心';
-  const open = chart.undefinedCenters.join('、') || '開放中心很少';
-  return [
-    {
-      title: '九大中心完整解析',
-      icon: '◉',
-      body: `你的定義中心集中在 ${defined}，這些是你較穩定、可被信任的能量來源。開放中心包含 ${open}，代表你容易讀取環境與他人的頻率，也需要練習分辨哪些感受不是自己的。`,
-    },
-    {
-      title: '64 閘門分析',
-      icon: '✦',
-      body: `目前最鮮明的閘門訊號是 ${chart.keyGates.join('、')}。它們像是你的內在語彙，會影響你吸引機會、表達天賦，以及在壓力下重複出現的生命題目。`,
-    },
-    {
-      title: '通道分析',
-      icon: '◈',
-      body: `你的主要通道為 ${chart.keyChannels.join('、')}。通道代表兩個中心之間穩定流動的能量，適合被當成長期優勢，而不是短期情緒。`,
-    },
-    {
-      title: 'AI 深度人格分析',
-      icon: '◇',
-      body: `你是 ${chart.typeName}，這代表你不是那種適合一直用意志力硬推人生的人。你的內在其實有一套很細緻的節奏，會透過 ${chart.authorityName}、身體感受、情緒沉澱或時間，慢慢告訴你什麼是真的適合你。你可能曾經覺得自己不夠快、不夠果斷，或和別人的運作方式不一樣，但這並不代表你有問題，而是你的能量本來就需要被溫柔地聽見。\n\n請記得，越貼近「${chart.strategy}」，你越能分辨哪些選擇是在保護你，哪些只是頭腦焦慮。當你走在對的位置，會更容易感到 ${chart.signature}；當你長期偏離自己，${chart.notSelf} 就會出現，像靈魂輕輕提醒你：該停下來照顧自己了。`,
-    },
-    {
-      title: 'AI 能量處方',
-      icon: '★',
-      body: `你的能量處方不是要你更努力，而是讓你慢慢回到自己。接下來七天，請每天用一個小決策練習 ${chart.authorityName}。任何需要承諾時間、金錢或情感的事，都先不要急著答應。你可以停下來，呼吸三次，問自己：「這件事有讓我更靠近 ${chart.signature} 嗎？還是只是讓我害怕變成 ${chart.notSelf}？」\n\n你的身體其實一直在說話，只是過去可能被責任、焦慮或別人的期待蓋住了。每天留十分鐘給自己，不滑手機、不回訊息，只是感覺身體。這不是浪費時間，而是在把散出去的能量慢慢收回來。你不需要修理自己，你只是需要回到那個還沒被外界拉走的自己。`,
-    },
-    {
-      title: 'AI 職涯方向建議',
-      icon: '◎',
-      body: `在職涯裡，你真正的天賦不只是技能，而是你用能量的方式。你的主要通道 ${chart.keyChannels.join('、')} 和關鍵閘門 ${chart.keyGates.join('、')}，都在提醒你：你有自己自然發光的方式，不需要靠過度消耗來證明價值。真正適合你的工作，應該能讓你比較穩定地感到 ${chart.signature}，而不是長期把你推進 ${chart.notSelf}。\n\n如果一份工作總是逼你違反自己的節奏、一直趕、一直配合、一直證明，即使外表看起來很有前途，也可能不是最滋養你的地方。請溫柔地相信，選擇適合自己的工作節奏不是逃避，而是一種深層的專業。當你的能量被放在對的位置，你的能力會更自然被看見。`,
-    },
-    {
-      title: 'AI 愛情關係分析',
-      icon: '◈',
-      body: `在感情裡，你很需要一種被理解的安全感。你不是不願意愛，也不是故意慢熱或敏感，而是你的能量需要按照自己的節奏靠近。出生日期 ${birthDate} 對應的人生角色 ${chart.profile} ${chart.profileName}，提醒你在親密關係中，不只是在愛別人，也在學習如何不弄丟自己。\n\n你的開放中心包含 ${open}，這表示你可能很容易感受到對方的情緒、壓力或期待。請記得，界線不是冷漠，而是讓愛不要變成消耗。真正適合你的人，會願意理解你的等待、沉澱與確認，而不是催促你立刻變成他期待的樣子。當關係讓你更接近 ${chart.signature}，那份愛才會真正滋養你。`,
-    },
-    {
-      title: 'AI 財富能量模式',
-      icon: '◇',
-      body: `你的財富能量不是只靠拼命累積，而是和「你的能量有沒有放在對的位置」很有關。當你用 ${chart.strategy} 選擇合作、工作或收入機會，再用 ${chart.authorityName} 確認是否承諾，金錢比較容易成為自然回流，而不是焦慮換來的成果。你不是不能賺錢，而是不能長期用背叛自己的方式賺錢。\n\n請特別留意 ${chart.notSelf} 如何影響你的金錢決定。你可能會為了安全感接下不適合的工作，為了被肯定而低估價格，或為了不讓人失望而接受消耗你的合作。真正的豐盛，是你的時間、天賦和身體都被尊重。當你越靠近 ${chart.signature}，財富也會更像支持，而不是壓迫。`,
-    },
-    {
-      title: 'AI 靈魂使命',
-      icon: '✦',
-      body: `${chart.incarnationCross} 指向你此生反覆被帶回的主題。這不是一句高高在上的口號，而是你生命裡會一直出現的內在方向。你可能曾經覺得自己和別人不太一樣，某些選擇看起來合理，你的心卻無法安定；某些路大家都說好，你的身體卻一直感到抗拒。這些感覺不是麻煩，而是你的靈魂在提醒你：你不是來複製別人的人生。\n\n當你更接近使命時，不代表生活永遠輕鬆，但你會更常感到 ${chart.signature}。你的提醒是：少一點急著證明自己，多一點信任 ${chart.strategy} 和 ${chart.authorityName}。你的存在不需要成為所有人的答案；你只需要把自己的能量校準清楚，讓真正需要你的人和機會，自然認出你。`,
-    },
-  ];
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -166,7 +113,6 @@ function FallbackReport({ onNavigate }: { onNavigate: (p: string) => void }) {
 export default function ReportPage({
   chart,
   chartId = '',
-  birthDate,
   isFullUnlocked = false,
   onEnsureChartSaved,
   onNavigate,
@@ -175,6 +121,7 @@ export default function ReportPage({
   const [fullReportSections, setFullReportSections] = useState<HumanDesignFullReportSection[] | null>(null);
   const [fullReportLoading, setFullReportLoading] = useState(false);
   const [fullReportError, setFullReportError] = useState('');
+  const [reportVersion, setReportVersion] = useState('');
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
@@ -186,10 +133,12 @@ export default function ReportPage({
       setFullReportSections(null);
       setFullReportError('');
       setFullReportLoading(false);
+      setReportVersion('');
       return;
     }
     if (!chartId) {
       setFullReportLoading(true);
+      setReportVersion('');
       void onEnsureChartSaved?.();
       return;
     }
@@ -197,16 +146,26 @@ export default function ReportPage({
     let cancelled = false;
     setFullReportLoading(true);
     setFullReportError('');
+    setReportVersion('');
 
     humanDesignApi.getFullReport(chartId)
-      .then(({ sections }) => {
+      .then(({ sections, report_version }) => {
         if (cancelled) return;
+        if (!sections.length) {
+          setFullReportError('完整版資料庫報告沒有回傳內容，請稍後再試。');
+          setFullReportSections(null);
+          setReportVersion('');
+          return;
+        }
+        setReportVersion(report_version);
         setFullReportSections(sections);
       })
       .catch((err) => {
         if (cancelled) return;
         console.error('human design full report load failed:', err);
-        setFullReportError('完整版資料庫報告暫時無法載入，已先顯示備用內容。');
+        setFullReportError('完整版資料庫報告暫時無法載入，請稍後再試。');
+        setFullReportSections(null);
+        setReportVersion('');
       })
       .finally(() => {
         if (!cancelled) setFullReportLoading(false);
@@ -238,7 +197,7 @@ export default function ReportPage({
     chart.definedCenters.length <= 6 ? '雙重定義' : '多重定義';
 
   const handleDownload = () => window.print();
-  const paidContent = fullReportSections ?? buildPaidContent(chart, birthDate);
+  const paidContent = fullReportSections ?? [];
   const isWaitingForFullReport = isFullUnlocked && !fullReportSections && !fullReportError && (fullReportLoading || !chartId);
 
   return (
@@ -316,6 +275,9 @@ export default function ReportPage({
           {isFullUnlocked && fullReportLoading && (
             <p className="text-cyan-300/60 text-xs text-center mb-3">正在讀取資料庫完整版報告...</p>
           )}
+          {isFullUnlocked && reportVersion && (
+            <p className="text-white/20 text-[11px] text-center mb-3">資料版本：{reportVersion}</p>
+          )}
           {isFullUnlocked && fullReportError && (
             <p className="text-amber-300/70 text-xs text-center mb-3">{fullReportError}</p>
           )}
@@ -324,6 +286,12 @@ export default function ReportPage({
               <div className="px-6 py-8 text-center">
                 <p className="text-cyan-200/75 text-sm leading-loose">
                   正在生成你的完整 AI 靈魂藍圖，這會比一般摘要更細緻一些...
+                </p>
+              </div>
+            ) : fullReportError && paidContent.length === 0 ? (
+              <div className="px-6 py-8 text-center">
+                <p className="text-amber-200/75 text-sm leading-loose">
+                  完整版內容目前沒有成功載入，系統不會再顯示舊版短文。請稍後重新整理，或確認後台 Worker 已部署最新版本。
                 </p>
               </div>
             ) : (
