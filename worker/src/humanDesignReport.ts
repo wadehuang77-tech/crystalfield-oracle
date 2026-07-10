@@ -4,7 +4,7 @@ import {
 } from './utils';
 import { ensureHumanDesignSchema } from './humanDesignSchema';
 
-export const REPORT_VERSION = 'professional-v9';
+export const REPORT_VERSION = 'professional-v10';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 const MIN_AI_BODY_CHARS = 100;
 
@@ -201,11 +201,11 @@ function buildFixedSectionBody(sectionId: string, chart: HDChart, row: ChartRow,
   }
 
   if (sectionId === 'gates') {
-    return `64 閘門不用當成艱深名詞來背，它比較像你生命裡常被啟動的主題按鈕。有些閘門會帶來天賦、興趣與吸引力；有些閘門在壓力下，也可能變成反覆卡住的模式。\n\n你的關鍵閘門是 ${compactList(gates, '尚未偵測到關鍵閘門')}。請把它們看成線索，而不是限制。真正重要的是：這些主題是否接成通道、位在哪些中心，以及你做決定時有沒有回到 ${authority}。用對節奏時，閘門會像資源；急著證明自己時，同一股能量就容易變成壓力。`;
+    return `64 閘門可以理解成你生命裡的「主題按鈕」。每一個閘門都代表一種容易被啟動的感受、天賦或課題；它不一定每天都很明顯，但遇到特定的人、事、環境時，就會變得特別有感。閘門本身不是好壞判斷，而是在提醒你：你在哪些地方容易有自然能力，也在哪些地方容易因壓力而重複卡住。\n\n你的關鍵閘門是 ${compactList(gates, '尚未偵測到關鍵閘門')}。請先把它們看成生命線索，而不是限制。判讀時不要只看號碼，還要看它位在哪個中心、是否和另一個閘門接成通道，以及你做決定時有沒有回到 ${authority}。當你按照自己的節奏行動，閘門會像資源，幫你把天賦用在對的地方；當你急著證明自己、討好別人或硬推結果時，同一股能量就可能變成焦慮、執著或壓力。`;
   }
 
   if (sectionId === 'channels') {
-    return `通道可以想成兩個中心之間接好的能量線。當通道成立，代表這股特質在你身上比較固定，別人也比較容易感受到；它可能表現在說話方式、工作節奏、人際互動，或你自然處理事情的方法。\n\n你的主要通道是 ${compactList(channels, '尚未偵測到主要通道')}。如果通道較少，代表你更容易受環境和關係觸發，不是能力不足。通道的重點不是一直表現，而是提醒你：在正確的人、事、時機裡，能量會自然流動。搭配 ${typeName} 的策略與 ${authority}，會比硬推更準。`;
+    return `通道可以想成兩個中心之間已經接好的能量線。閘門像插座，中心像能量區，通道就是把兩邊連起來的固定線路。當通道成立，代表這股特質在你身上比較穩定，不需要別人提醒也容易自然流露；別人也比較容易從你的說話方式、工作節奏、人際互動，或處理事情的方法裡感受到它。\n\n你的主要通道是 ${compactList(channels, '尚未偵測到主要通道')}。如果通道不多，不代表能力不足，而是代表你更容易被環境、關係或當下情境觸發出不同面向。通道的重點不是要你一直表現某種能力，而是幫你看懂：什麼特質是你比較固定的力量，什麼時候會用得順，什麼時候會變成消耗。搭配 ${typeName} 的策略與 ${authority} 做選擇，會比用頭腦硬推更準，也更不容易把天賦用成壓力。`;
   }
 
   return '';
