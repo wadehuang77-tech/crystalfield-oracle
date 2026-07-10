@@ -21,6 +21,7 @@ const SPREAD_HOME: Record<string, string> = {
   numerology_forecast: '/numerology?section=forecast',
   human_design_basic:  '/human-design',
   human_design_full:   '/human-design',
+  human_design_bundle: '/human-design',
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {

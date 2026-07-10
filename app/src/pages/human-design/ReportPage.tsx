@@ -12,6 +12,7 @@ interface ReportPageProps {
   isFullUnlocked?: boolean;
   onStartBasicCheckout?: () => void;
   onStartFullCheckout?: () => void;
+  onStartBundleCheckout?: () => void;
   onEnsureChartSaved?: () => Promise<boolean>;
   onNavigate: (page: string) => void;
 }
@@ -165,6 +166,7 @@ export default function ReportPage({
   isFullUnlocked = false,
   onStartBasicCheckout,
   onStartFullCheckout,
+  onStartBundleCheckout,
   onEnsureChartSaved,
   onNavigate,
 }: ReportPageProps) {
@@ -436,6 +438,15 @@ export default function ReportPage({
             >
               <Lock className="h-4 w-4" />
               {checkoutLoading ? '前往付款中...' : '解鎖完整版 AI 深度解析 NT$499'}
+            </button>
+            <button
+              type="button"
+              onClick={onStartBundleCheckout}
+              disabled={checkoutLoading}
+              className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-300/15 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <span>{checkoutLoading ? '前往付款中...' : '解鎖基礎報告 + 完整版深度解析 NT$598'}</span>
+              <span className="mt-1 text-xs font-medium text-amber-100/70">省 NT$100</span>
             </button>
           </div>
         )}

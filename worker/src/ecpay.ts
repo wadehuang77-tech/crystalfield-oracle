@@ -58,6 +58,7 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   // ── 人類圖方案 ────────────────────────────────────────────────
   human_design_basic: { id: 'human_design_basic', name: '人類圖 基礎完整報告', amount: 199 },
   human_design_full: { id: 'human_design_full', name: '人類圖 完整版 AI 深度解析', amount: 499 },
+  human_design_bundle: { id: 'human_design_bundle', name: '人類圖 基礎報告 + 完整版深度解析', amount: 598 },
   // ── 月費會員 ─────────────────────────────────────────────────
   membership_monthly: { id: 'membership_monthly', name: '月費會員 (所有塔羅單張不限次數)', amount: 99 },
 };

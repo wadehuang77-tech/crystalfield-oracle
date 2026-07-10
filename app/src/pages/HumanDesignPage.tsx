@@ -219,6 +219,30 @@ export default function HumanDesignPage() {
     }
   };
 
+  const startBundleCheckout = async () => {
+    if (!chart || checkoutLoading) return;
+    persistState({ chart, chartId, birthData, access, email });
+    setCheckoutLoading(true);
+    try {
+      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(
+        'human_design_bundle',
+        undefined,
+        email ? { guest_email: email } : undefined,
+      );
+      if (admin_unlocked) {
+        setAccess('full');
+        persistState({ chart, chartId, birthData, access: 'full', email });
+        setCheckoutLoading(false);
+        return;
+      }
+      if (ecpay) submitToEcpay(ecpay, () => setCheckoutLoading(false));
+      else setCheckoutLoading(false);
+    } catch (err) {
+      console.error('human design bundle checkout failed:', err);
+      setCheckoutLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (page !== 'loading') return;
     const normal = window.setTimeout(() => goTo('report'), 2800);
@@ -243,7 +267,7 @@ export default function HumanDesignPage() {
           if (order.status !== 'paid') return;
           const latest = readStoredState();
           if (!latest?.chart) return;
-          const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full'
+          const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full' || order.item_id === 'human_design_bundle'
             ? 'full'
             : order.item_id === 'human_design_basic'
               ? 'basic'
@@ -293,6 +317,7 @@ export default function HumanDesignPage() {
             isFullUnlocked={access === 'full'}
             onStartBasicCheckout={startBasicCheckout}
             onStartFullCheckout={startFullCheckout}
+            onStartBundleCheckout={startBundleCheckout}
             onEnsureChartSaved={ensureChartSaved}
             onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}
           />
