@@ -56,7 +56,7 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   numerology_full:     { id: 'numerology_full',     name: '生命靈數 完整靈魂版', amount: 10 },
   numerology_forecast: { id: 'numerology_forecast', name: '生命靈數 完整流年報告', amount: 499 },
   // ── 人類圖方案 ────────────────────────────────────────────────
-  human_design_full: { id: 'human_design_full', name: '人類圖 完整 AI 深度報告', amount: 1999 },
+  human_design_full: { id: 'human_design_full', name: '人類圖 完整 AI 深度報告', amount: 10 },
   // ── 月費會員 ─────────────────────────────────────────────────
   membership_monthly: { id: 'membership_monthly', name: '月費會員 (所有塔羅單張不限次數)', amount: 99 },
 };

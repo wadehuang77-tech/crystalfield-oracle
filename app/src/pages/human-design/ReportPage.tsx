@@ -331,7 +331,7 @@ export default function ReportPage({
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500" />
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-30 group-hover:opacity-50 transition-opacity" />
-                <span className="relative text-white">{unlocking ? '前往付款中...' : 'NT$1,999 解鎖完整報告'}</span>
+                <span className="relative text-white">{unlocking ? '前往付款中...' : 'NT$10 解鎖完整報告'}</span>
                 <ArrowRight className="relative w-4 h-4 text-white" />
               </button>
             </div>
