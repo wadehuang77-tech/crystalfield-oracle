@@ -3,7 +3,7 @@ import {
   json,
 } from './utils';
 
-const REPORT_VERSION = 'professional-v2';
+const REPORT_VERSION = 'professional-v3';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 
 type CenterName =
@@ -159,29 +159,29 @@ function buildFixedSectionBody(sectionId: string, chart: HDChart, row: ChartRow,
   if (sectionId === 'centers') {
     const definedText = defined.map((center) => {
       const item = getKnowledge(knowledge, 'center', center);
-      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：此中心為穩定定義來源。`;
+      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：這個中心在你的人類圖裡屬於比較穩定的部分，可以把它想成你身上比較固定的習慣、反應和能量來源。它不代表永遠不會變，而是你比較容易信任這裡的感覺，不必一直向外找答案。`;
     });
     const openText = open.map((center) => {
       const item = getKnowledge(knowledge, 'center', center);
-      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：此中心是開放感知入口。`;
+      return item ? `${item.title}：${item.body}` : `${CENTER_LABELS[center] ?? center}：這個中心在你的人類圖裡比較開放，可以把它想成一個容易接收外界訊號的天線。你會很容易感覺到別人的壓力、情緒或期待，但那些不一定都是你的。練習重點是先分辨，再決定要不要回應。`;
     });
-    return `固定知識資料庫解析：你的類型是 ${typeName}，${typeInfo?.body ?? '類型描述將依資料庫持續補充。'}\n\n已定義中心：${centerList(defined, '無固定定義中心')}。\n${definedText.join('\n') || '你目前沒有固定定義中心，環境品質會直接影響能量狀態。'}\n\n開放中心：${centerList(open, '開放中心較少')}。\n${openText.join('\n') || '你的開放中心較少，主要練習是維持已定義中心的穩定使用。'}\n\n定義狀態：${defInfo?.title ?? '定義'}。${defInfo?.body ?? ''}`;
+    return `固定知識資料庫解析：九大中心可以理解成身體和心理裡的九個能量開關。有些中心在你身上比較穩定，像固定電源；有些中心比較開放，像接收器，容易接到環境和他人的狀態。你的類型是 ${typeName}，${typeInfo?.body ?? '類型描述將依資料庫持續補充。'}\n\n已定義中心：${centerList(defined, '無固定定義中心')}。\n${definedText.join('\n\n') || '你目前沒有固定定義中心，環境品質會直接影響能量狀態。建議你特別重視身處的人、地方和生活節奏，因為它們會明顯改變你的感受。'}\n\n開放中心：${centerList(open, '開放中心較少')}。\n${openText.join('\n\n') || '你的開放中心較少，主要練習是維持已定義中心的穩定使用。'}\n\n定義狀態：${defInfo?.title ?? '定義'}。${defInfo?.body ?? ''}`;
   }
 
   if (sectionId === 'gates') {
     const gateText = gates.map((gate) => {
       const item = getKnowledge(knowledge, 'gate', String(gate));
-      return item ? `${item.title}：${item.body}` : `閘門 ${gate}：此閘門資料將依固定知識庫補充。`;
+      return item ? `${item.title}：${item.body}` : `閘門 ${gate}：閘門可以理解成你身上某一種固定主題，像是一個常常出現的性格按鈕。它不一定每天都很明顯，但遇到特定人事物時，就會被啟動。解讀時不能只看號碼，還要看它接在哪個中心、是否形成通道，以及你當下是否按照自己的決策方式行動。`;
     });
-    return `固定知識資料庫解析：你的關鍵閘門為 ${list(gates, '尚未偵測到關鍵閘門')}。\n\n${gateText.join('\n\n')}\n\n解讀原則：64 閘門本身是固定知識，不需要呼叫 OpenAI；真正的個人化來自它們與你的中心、通道、${authority}、人生角色交叉後形成的表達方式。`;
+    return `固定知識資料庫解析：64 閘門可以想成 64 種人生主題，每個閘門都像一個內在開關，代表你容易被什麼事情觸動、在哪些地方有天賦、又容易在哪些地方卡住。你的關鍵閘門為 ${list(gates, '尚未偵測到關鍵閘門')}。\n\n${gateText.join('\n\n')}\n\n解讀原則：64 閘門本身是固定知識，不需要呼叫 OpenAI；真正的個人化來自它們與你的中心、通道、${authority}、人生角色交叉後形成的表達方式。簡單說，閘門像材料，中心和通道像電路，你的決策方式則決定這股能量能不能用在對的地方。`;
   }
 
   if (sectionId === 'channels') {
     const channelText = channels.map((channel) => {
       const item = getKnowledge(knowledge, 'channel', channelKey(channel));
-      return item ? `${item.title}：${item.body}` : `${channel}：此通道代表兩個中心之間的穩定能量流，會形成可被他人辨識的固定特質。`;
+      return item ? `${item.title}：${item.body}` : `${channel}：通道可以理解成兩個能量中心之間已經接好的線路。當一條通道成立，代表這股能量在你身上比較固定，別人也比較容易感受到。它可能表現在工作方式、說話風格、人際互動或做決定的節奏上。重點不是把它用到滿，而是用在正確的人、事、時機上。`;
     });
-    return `固定知識資料庫解析：你的主要通道為 ${list(channels, '尚未偵測到主要通道')}。\n\n${channelText.join('\n\n')}\n\n補充固定資訊：${profileInfo?.title ?? chart.profile ?? '人生角色'} - ${profileInfo?.body ?? '人生角色資料將依固定知識庫補充。'}\n${authorityInfo?.title ?? authority} - ${authorityInfo?.body ?? '權威資料將依固定知識庫補充。'}`;
+    return `固定知識資料庫解析：通道是人類圖裡很重要的固定能量線，可以把它想成你身上已經接好的內在電路。中心像發電站，閘門像插座，通道就是讓能量穩定流動的線。你的主要通道為 ${list(channels, '尚未偵測到主要通道')}。\n\n${channelText.join('\n\n')}\n\n補充固定資訊：${profileInfo?.title ?? chart.profile ?? '人生角色'} - ${profileInfo?.body ?? '人生角色資料將依固定知識庫補充。'}\n${authorityInfo?.title ?? authority} - ${authorityInfo?.body ?? '權威資料將依固定知識庫補充。'}\n\n白話提醒：通道不是要你一直表現某種能力，而是提醒你這些特質比較容易自然流露。當你感到順、穩、身體沒有抗拒時，通道通常會用得比較健康；當你急著證明自己時，同一股能量也可能變成壓力。`;
   }
 
   return '';
