@@ -195,6 +195,30 @@ export default function HumanDesignPage() {
     }
   };
 
+  const startFullCheckout = async () => {
+    if (!chart || checkoutLoading) return;
+    persistState({ chart, chartId, birthData, access, email });
+    setCheckoutLoading(true);
+    try {
+      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(
+        'human_design_full',
+        undefined,
+        email ? { guest_email: email } : undefined,
+      );
+      if (admin_unlocked) {
+        setAccess('full');
+        persistState({ chart, chartId, birthData, access: 'full', email });
+        setCheckoutLoading(false);
+        return;
+      }
+      if (ecpay) submitToEcpay(ecpay, () => setCheckoutLoading(false));
+      else setCheckoutLoading(false);
+    } catch (err) {
+      console.error('human design full checkout failed:', err);
+      setCheckoutLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (page !== 'loading') return;
     const normal = window.setTimeout(() => goTo('report'), 2800);
@@ -268,6 +292,7 @@ export default function HumanDesignPage() {
             checkoutLoading={checkoutLoading}
             isFullUnlocked={access === 'full'}
             onStartBasicCheckout={startBasicCheckout}
+            onStartFullCheckout={startFullCheckout}
             onEnsureChartSaved={ensureChartSaved}
             onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}
           />

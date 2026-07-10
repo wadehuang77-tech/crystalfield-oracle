@@ -11,6 +11,7 @@ interface ReportPageProps {
   checkoutLoading?: boolean;
   isFullUnlocked?: boolean;
   onStartBasicCheckout?: () => void;
+  onStartFullCheckout?: () => void;
   onEnsureChartSaved?: () => Promise<boolean>;
   onNavigate: (page: string) => void;
 }
@@ -38,6 +39,18 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const FALLBACK_COLOR = 'from-blue-950/40 to-cyan-950/40 border-blue-400/20';
+
+const FULL_REPORT_TITLES = [
+  '九大中心完整解析',
+  '64 閘門分析',
+  '通道分析',
+  '深度人格分析',
+  '能量處方',
+  '職涯方向建議',
+  '愛情關係分析',
+  '財富能量模式',
+  '靈魂使命',
+];
 
 function FreeCard({
   section,
@@ -151,6 +164,7 @@ export default function ReportPage({
   checkoutLoading = false,
   isFullUnlocked = false,
   onStartBasicCheckout,
+  onStartFullCheckout,
   onEnsureChartSaved,
   onNavigate,
 }: ReportPageProps) {
@@ -396,14 +410,33 @@ export default function ReportPage({
           </div>
           </div>
         ) : (
-          <div className={`mb-8 rounded-2xl border border-white/8 bg-white/3 px-6 py-6 text-center transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className={`mb-8 rounded-2xl border border-cyan-300/15 bg-cyan-300/5 px-5 py-5 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/8">
               <Lock className="h-4 w-4 text-white/45" />
             </div>
-            <p className="mb-1 text-sm font-semibold text-white/60">完整版 AI 深度解析尚未解鎖</p>
-            <p className="text-xs leading-relaxed text-white/35">
-              基礎完整報告 NT$199 只解鎖上方基礎段落，不包含完整版 AI 深度解析。
+            <p className="mb-2 text-center text-sm font-semibold text-white/80">完整版 AI 深度解析</p>
+            <p className="mb-4 text-center text-xs leading-relaxed text-white/45">
+              解鎖後查看以下 9 項完整說明
             </p>
+            <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {FULL_REPORT_TITLES.map((title) => (
+                <div
+                  key={title}
+                  className="rounded-xl border border-white/8 bg-slate-950/35 px-3 py-2.5 text-sm font-medium text-white/70"
+                >
+                  {title}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={onStartFullCheckout}
+              disabled={checkoutLoading}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <Lock className="h-4 w-4" />
+              {checkoutLoading ? '前往付款中...' : '解鎖完整版 AI 深度解析 NT$499'}
+            </button>
           </div>
         )}
 
