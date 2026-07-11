@@ -13,7 +13,9 @@ type Page = 'landing' | 'hero' | 'loading' | 'report';
 type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full' | 'bundle';
 
 const STATE_KEY = 'cf_human_design_state_v1';
+const SESSION_STATE_KEY = 'cf_human_design_state_session_v1';
 const CHECKOUT_RETURN_KEY = 'cf_human_design_checkout_return_v1';
+const SESSION_CHECKOUT_RETURN_KEY = 'cf_human_design_checkout_return_session_v1';
 
 interface StoredState {
   chart: HDChart;
@@ -25,36 +27,42 @@ interface StoredState {
 
 function readStoredState(): StoredState | null {
   try {
-    const raw = localStorage.getItem(STATE_KEY);
+    const raw = localStorage.getItem(STATE_KEY) ?? sessionStorage.getItem(SESSION_STATE_KEY);
     return raw ? JSON.parse(raw) as StoredState : null;
   } catch {
     localStorage.removeItem(STATE_KEY);
+    sessionStorage.removeItem(SESSION_STATE_KEY);
     return null;
   }
 }
 
 function markCheckoutReturn(access: HumanDesignAccess) {
-  localStorage.setItem(CHECKOUT_RETURN_KEY, JSON.stringify({ access, at: Date.now() }));
+  const value = JSON.stringify({ access, at: Date.now() });
+  localStorage.setItem(CHECKOUT_RETURN_KEY, value);
+  sessionStorage.setItem(SESSION_CHECKOUT_RETURN_KEY, value);
 }
 
 function readCheckoutReturn(): { access: HumanDesignAccess; at: number } | null {
   try {
-    const raw = localStorage.getItem(CHECKOUT_RETURN_KEY);
+    const raw = localStorage.getItem(CHECKOUT_RETURN_KEY) ?? sessionStorage.getItem(SESSION_CHECKOUT_RETURN_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { access?: HumanDesignAccess; at?: number };
     if (!parsed.access || !parsed.at || Date.now() - parsed.at > 60 * 60 * 1000) {
       localStorage.removeItem(CHECKOUT_RETURN_KEY);
+      sessionStorage.removeItem(SESSION_CHECKOUT_RETURN_KEY);
       return null;
     }
     return { access: parsed.access, at: parsed.at };
   } catch {
     localStorage.removeItem(CHECKOUT_RETURN_KEY);
+    sessionStorage.removeItem(SESSION_CHECKOUT_RETURN_KEY);
     return null;
   }
 }
 
 function clearCheckoutReturn() {
   localStorage.removeItem(CHECKOUT_RETURN_KEY);
+  sessionStorage.removeItem(SESSION_CHECKOUT_RETURN_KEY);
 }
 
 function AnalysingScreen() {
@@ -99,10 +107,8 @@ function AnalysingScreen() {
 export default function HumanDesignPage() {
   const [params, setParams] = useSearchParams();
   const initialStoredState = useMemo(() => readStoredState(), []);
-  const initialCheckoutReturn = useMemo(() => readCheckoutReturn(), []);
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
-  const shouldRestoreCheckout = hasCheckoutReturn && Boolean(initialStoredState?.chart || initialCheckoutReturn);
-  const [page, setPage] = useState<Page>(() => (shouldRestoreCheckout ? 'report' : 'landing'));
+  const [page, setPage] = useState<Page>(() => (hasCheckoutReturn ? 'report' : 'landing'));
   const [pageKey, setPageKey] = useState(0);
   const [chart, setChart] = useState<HDChart | null>(() => initialStoredState?.chart ?? null);
   const [birthData, setBirthData] = useState(() => initialStoredState?.birthData ?? { date: '', time: '', city: '' });
@@ -110,6 +116,7 @@ export default function HumanDesignPage() {
   const [access, setAccess] = useState<HumanDesignAccess>(() => initialStoredState?.access ?? 'locked');
   const [email, setEmail] = useState(() => initialStoredState?.email ?? '');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutRestoring, setCheckoutRestoring] = useState(hasCheckoutReturn);
 
   const goTo = (next: Page) => {
     setPage(next);
@@ -118,7 +125,9 @@ export default function HumanDesignPage() {
   };
 
   const persistState = (next: StoredState) => {
-    localStorage.setItem(STATE_KEY, JSON.stringify(next));
+    const value = JSON.stringify(next);
+    localStorage.setItem(STATE_KEY, value);
+    sessionStorage.setItem(SESSION_STATE_KEY, value);
   };
 
   const handleCalculate = (birthDate: string, birthTime: string, birthCity: string) => {
@@ -303,13 +312,14 @@ export default function HumanDesignPage() {
           const latest = readStoredState();
           const restored = latest?.chart ? latest : chart ? { chart, chartId, birthData, access, email } : null;
           if (!restored?.chart) return;
+          const pendingReturn = readCheckoutReturn();
           const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full'
             ? 'full'
             : order.item_id === 'human_design_bundle'
               ? 'bundle'
               : order.item_id === 'human_design_basic'
                 ? 'basic'
-                : restored.access ?? 'email';
+                : pendingReturn?.access ?? restored.access ?? 'email';
           setChart(restored.chart);
           setBirthData(restored.birthData);
           setChartId(restored.chartId);
@@ -318,8 +328,12 @@ export default function HumanDesignPage() {
           setPage('report');
           persistState({ ...restored, access: nextAccess });
           clearCheckoutReturn();
+          setCheckoutRestoring(false);
         })
-        .catch((err) => console.error('human design checkout verification failed:', err));
+        .catch((err) => {
+          console.error('human design checkout verification failed:', err);
+          setCheckoutRestoring(false);
+        });
     }
     const next = new URLSearchParams(params);
     next.delete('order_id');
@@ -368,7 +382,8 @@ export default function HumanDesignPage() {
             onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}
           />
         )}
-        {page === 'report' && !chart && <LandingPage onCalculate={handleCalculate} />}
+        {page === 'report' && !chart && checkoutRestoring && <AnalysingScreen />}
+        {page === 'report' && !chart && !checkoutRestoring && <LandingPage onCalculate={handleCalculate} />}
       </main>
     </div>
   );
