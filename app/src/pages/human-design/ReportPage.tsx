@@ -524,7 +524,7 @@ export default function ReportPage({
               disabled={checkoutLoading}
               className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-yellow-100/60 bg-gradient-to-r from-yellow-200 via-amber-100 to-cyan-200 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/15 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <span>{checkoutLoading ? '前往付款中...' : '解鎖人類圖核心解析 + 專屬人生使用說明書 NT$598'}</span>
+              <span>{checkoutLoading ? '前往付款中...' : '解鎖人類圖核心解析 + 專屬人生使用說明書 NT$489 省100'}</span>
             </button>
           </div>
         )}

@@ -12,7 +12,7 @@ export const SPREAD_PRICES: Record<string, number> = {
   osho_three:         250,
   human_design_basic: 199,
   human_design_full:  399,
-  human_design_bundle: 598,
+  human_design_bundle: 489,
   membership_monthly: 99,
 };
 
