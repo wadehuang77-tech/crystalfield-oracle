@@ -138,7 +138,7 @@ function FreeCard({
             {locked && (
               <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-300/5 px-4 py-4 text-center">
                 <p className="mb-3 text-xs leading-relaxed text-cyan-100/70">
-                  已顯示約 20% 內容。解鎖基礎完整報告後，可查看這一區與其他基礎段落。
+                  已顯示約 20% 內容。解鎖我的人類圖核心解析後，可查看這一區與其他核心段落。
                 </p>
                 <button
                   type="button"
@@ -147,7 +147,7 @@ function FreeCard({
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Lock className="h-4 w-4" />
-                  {checkoutLoading ? '前往付款中...' : '解鎖基礎完整報告 NT$199'}
+                  {checkoutLoading ? '前往付款中...' : '解鎖我的人類圖核心解析 NT$199'}
                 </button>
               </div>
             )}
@@ -524,7 +524,7 @@ export default function ReportPage({
               disabled={checkoutLoading}
               className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-yellow-100/60 bg-gradient-to-r from-yellow-200 via-amber-100 to-cyan-200 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/15 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <span>{checkoutLoading ? '前往付款中...' : '解鎖基礎報告 + 專屬人生使用說明書 NT$598'}</span>
+              <span>{checkoutLoading ? '前往付款中...' : '解鎖人類圖核心解析 + 專屬人生使用說明書 NT$598'}</span>
             </button>
           </div>
         )}
