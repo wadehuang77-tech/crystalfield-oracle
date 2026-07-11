@@ -81,7 +81,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   if (!item) return badRequest(req, env, '商品代號錯誤');
   const isNumerologyCheckout = item.id.startsWith('numerology_');
   const isHumanDesignCheckout = item.id.startsWith('human_design_');
-  const shouldAdminInstantUnlock = isAdmin && !isNumerologyCheckout;
+  const shouldAdminInstantUnlock = isAdmin;
 
   const expectedCount = SPREAD_CARD_COUNT[item.id] ?? 0;
   const isGuestSpreadCheckout = !user && expectedCount > 0;
