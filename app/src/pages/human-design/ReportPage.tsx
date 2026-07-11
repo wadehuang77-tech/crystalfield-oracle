@@ -53,6 +53,14 @@ const FULL_REPORT_TITLES = [
   '靈魂使命',
 ];
 
+const FULL_REPORT_LOADING_STEPS = [
+  '確認付款完成',
+  '建立你的人類圖能量資料',
+  '整理固定知識與圖表結構',
+  '生成 AI 深度解析內容',
+  '準備完整報告畫面',
+];
+
 function FreeCard({
   section,
   chart,
@@ -154,6 +162,63 @@ function FallbackReport({ onNavigate }: { onNavigate: (p: string) => void }) {
           重新開始
         </button>
       </div>
+    </div>
+  );
+}
+
+function FullReportLoadingCard() {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setStep((current) => Math.min(current + 1, FULL_REPORT_LOADING_STEPS.length - 1));
+    }, 1800);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const progress = Math.min(92, 18 + step * 18);
+
+  return (
+    <div className="px-6 py-7">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-cyan-300/25 bg-cyan-300/10 shadow-lg shadow-cyan-500/10">
+        <Sparkles className="h-5 w-5 text-cyan-200 animate-pulse" />
+      </div>
+      <p className="mb-2 text-center text-sm font-semibold text-white/85">
+        付款已完成，正在生成你的 Human Design AI Report
+      </p>
+      <p className="mx-auto mb-5 max-w-sm text-center text-xs leading-relaxed text-cyan-100/55">
+        系統正在正常運作，請停留在此頁。完整深度解析需要整合圖表、固定知識與 AI 解讀，通常會比一般摘要多等一點時間。
+      </p>
+      <div className="mb-5 h-2 overflow-hidden rounded-full bg-white/8">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 transition-all duration-700"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div className="space-y-2">
+        {FULL_REPORT_LOADING_STEPS.map((label, index) => {
+          const done = index < step;
+          const active = index === step;
+          return (
+            <div
+              key={label}
+              className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-xs transition ${
+                active
+                  ? 'border-cyan-300/30 bg-cyan-300/10 text-cyan-100'
+                  : done
+                    ? 'border-teal-300/15 bg-teal-300/5 text-teal-100/70'
+                    : 'border-white/6 bg-white/3 text-white/35'
+              }`}
+            >
+              <span className={`h-2 w-2 rounded-full ${active ? 'bg-cyan-300 animate-pulse' : done ? 'bg-teal-300' : 'bg-white/20'}`} />
+              <span>{label}</span>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-5 text-center text-[11px] leading-relaxed text-white/35">
+        若等待較久，請不要重新付款；報告完成後會自動顯示。
+      </p>
     </div>
   );
 }
@@ -378,7 +443,7 @@ export default function ReportPage({
             完整版 AI 深度解析
           </p>
           {isFullUnlocked && fullReportLoading && (
-            <p className="text-cyan-300/60 text-xs text-center mb-3">正在讀取資料庫完整版報告...</p>
+            <p className="text-cyan-300/60 text-xs text-center mb-3">報告生成中，完成後會自動顯示</p>
           )}
           {isFullUnlocked && reportVersion && (
             <p className="text-white/20 text-[11px] text-center mb-3">資料版本：{reportVersion}</p>
@@ -388,11 +453,7 @@ export default function ReportPage({
           )}
           <div className="relative rounded-2xl overflow-hidden border border-white/6">
             {isWaitingForFullReport ? (
-              <div className="px-6 py-8 text-center">
-                <p className="text-cyan-200/75 text-sm leading-loose">
-                  正在生成你的完整 AI 靈魂藍圖，這會比一般摘要更細緻一些...
-                </p>
-              </div>
+              <FullReportLoadingCard />
             ) : fullReportError && paidContent.length === 0 ? (
               <div className="px-6 py-8 text-center">
                 <p className="text-amber-200/75 text-sm leading-loose">
