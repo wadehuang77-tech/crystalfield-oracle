@@ -522,7 +522,7 @@ export default function ReportPage({
               type="button"
               onClick={onStartBundleCheckout}
               disabled={checkoutLoading}
-              className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-300/15 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-yellow-100/60 bg-gradient-to-r from-yellow-200 via-amber-100 to-cyan-200 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/15 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <span>{checkoutLoading ? '前往付款中...' : '解鎖基礎報告 + 完整版深度解析 NT$10'}</span>
             </button>
