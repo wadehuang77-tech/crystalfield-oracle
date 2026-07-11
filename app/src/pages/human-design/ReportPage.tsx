@@ -57,7 +57,7 @@ const FULL_REPORT_LOADING_STEPS = [
   '確認付款完成',
   '建立你的人類圖能量資料',
   '整理固定知識與圖表結構',
-  '生成 AI 深度解析內容',
+  '生成深度解析內容',
   '準備完整報告畫面',
 ];
 
@@ -192,10 +192,10 @@ function FullReportLoadingCard() {
         <Sparkles className="h-5 w-5 text-cyan-200 animate-pulse" />
       </div>
       <p className="mb-2 text-center text-sm font-semibold text-white/85">
-        付款已完成，正在生成你的 Human Design AI Report
+        付款已完成，正在生成你的 Human Design Report
       </p>
       <p className="mx-auto mb-5 max-w-sm text-center text-xs leading-relaxed text-cyan-100/55">
-        系統正在正常運作，請停留在此頁。完整深度解析需要整合圖表、固定知識與 AI 解讀，通常會比一般摘要多等一點時間。
+        系統正在正常運作，請停留在此頁。完整深度解析需要整合圖表、固定知識與個人化解讀，通常會比一般摘要多等一點時間。
       </p>
       <div className="mb-5 h-2 overflow-hidden rounded-full bg-white/8">
         <div
@@ -448,7 +448,7 @@ export default function ReportPage({
             className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
           >
           <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
-            完整版 AI 深度解析
+            完整版深度解析
           </p>
           {isFullUnlocked && fullReportLoading && (
             <p className="text-cyan-300/60 text-xs text-center mb-3">報告生成中，完成後會自動顯示</p>
@@ -495,7 +495,7 @@ export default function ReportPage({
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/8">
               <Lock className="h-4 w-4 text-white/45" />
             </div>
-            <p className="mb-2 text-center text-sm font-semibold text-white/80">完整版 AI 深度解析</p>
+            <p className="mb-2 text-center text-sm font-semibold text-white/80">完整版深度解析</p>
             <p className="mb-4 text-center text-xs leading-relaxed text-white/45">
               解鎖後查看以下 9 項完整說明
             </p>
@@ -516,7 +516,7 @@ export default function ReportPage({
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Lock className="h-4 w-4" />
-              {checkoutLoading ? '前往付款中...' : '解鎖完整版 AI 深度解析 NT$10'}
+              {checkoutLoading ? '前往付款中...' : '解鎖完整版深度解析 NT$10'}
             </button>
             <button
               type="button"
