@@ -99,12 +99,12 @@ const DEFAULT_SECTIONS: SectionDef[] = [
   { id: 'centers', sort_order: 1, icon: '◉', title: '九大中心完整解析', focus: '逐一分析九大中心的定義狀態、制約入口與能量校準方式。', generation_mode: 'fixed' },
   { id: 'gates', sort_order: 2, icon: '✦', title: '64 閘門分析', focus: '解析關鍵閘門的天賦語彙、陰影模式與成熟表達。', generation_mode: 'fixed' },
   { id: 'channels', sort_order: 3, icon: '◈', title: '通道分析', focus: '說明主要通道如何形成穩定能量迴路。', generation_mode: 'fixed' },
-  { id: 'personality', sort_order: 4, icon: '◇', title: 'AI 深度人格分析', focus: '整合類型、策略、權威、人生角色與本命十字。', generation_mode: 'openai' },
-  { id: 'prescription', sort_order: 5, icon: '★', title: 'AI 能量處方', focus: '提供能量管理、決策練習與環境調整建議。', generation_mode: 'openai' },
-  { id: 'career', sort_order: 6, icon: '◎', title: 'AI 職涯方向建議', focus: '從天賦輸出、適合角色與合作條件給出建議。', generation_mode: 'openai' },
-  { id: 'love', sort_order: 7, icon: '◈', title: 'AI 愛情關係分析', focus: '分析親密關係中的需求、界線與溝通節奏。', generation_mode: 'openai' },
-  { id: 'wealth', sort_order: 8, icon: '◇', title: 'AI 財富能量模式', focus: '解析金錢決策、價值交換與豐盛阻塞。', generation_mode: 'openai' },
-  { id: 'mission', sort_order: 9, icon: '✦', title: 'AI 靈魂使命', focus: '總結靈魂任務、成熟方向與年度提醒。', generation_mode: 'openai' },
+  { id: 'personality', sort_order: 4, icon: '◇', title: '深度人格分析', focus: '整合類型、策略、權威、人生角色與本命十字。', generation_mode: 'openai' },
+  { id: 'prescription', sort_order: 5, icon: '★', title: '能量處方', focus: '提供能量管理、決策練習與環境調整建議。', generation_mode: 'openai' },
+  { id: 'career', sort_order: 6, icon: '◎', title: '職涯方向建議', focus: '從天賦輸出、適合角色與合作條件給出建議。', generation_mode: 'openai' },
+  { id: 'love', sort_order: 7, icon: '◈', title: '愛情關係分析', focus: '分析親密關係中的需求、界線與溝通節奏。', generation_mode: 'openai' },
+  { id: 'wealth', sort_order: 8, icon: '◇', title: '財富能量模式', focus: '解析金錢決策、價值交換與豐盛阻塞。', generation_mode: 'openai' },
+  { id: 'mission', sort_order: 9, icon: '✦', title: '靈魂使命', focus: '總結靈魂任務、成熟方向與年度提醒。', generation_mode: 'openai' },
 ];
 
 const CENTER_LABELS: Record<CenterName, string> = {

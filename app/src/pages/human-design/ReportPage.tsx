@@ -61,6 +61,14 @@ const FULL_REPORT_LOADING_STEPS = [
   '準備完整報告畫面',
 ];
 
+function displayFullReportTitle(title: string): string {
+  return title.replace(/^AI\s+/, '');
+}
+
+function displayFullReportIcon(section: HumanDesignFullReportSection): string {
+  return section.id === 'personality' ? '◇' : section.icon;
+}
+
 function FreeCard({
   section,
   chart,
@@ -464,13 +472,13 @@ export default function ReportPage({
               <div className="p-1 space-y-1">
                 {paidContent.map(s => (
                   <div
-                    key={s.title}
+                    key={s.id}
                     className="px-5 py-3.5 rounded-xl bg-white/2"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <span className="text-white/30 text-sm">{s.icon}</span>
-                        <span className="text-white/50 text-sm font-medium">{s.title}</span>
+                        <span className="text-white/30 text-sm">{displayFullReportIcon(s)}</span>
+                        <span className="text-white/50 text-sm font-medium">{displayFullReportTitle(s.title)}</span>
                       </div>
                     </div>
                     {'body' in s && typeof s.body === 'string' && (
