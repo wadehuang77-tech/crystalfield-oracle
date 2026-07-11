@@ -13,6 +13,7 @@ type Page = 'landing' | 'hero' | 'loading' | 'report';
 type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full' | 'bundle';
 
 const STATE_KEY = 'cf_human_design_state_v1';
+const CHECKOUT_RETURN_KEY = 'cf_human_design_checkout_return_v1';
 
 interface StoredState {
   chart: HDChart;
@@ -30,6 +31,30 @@ function readStoredState(): StoredState | null {
     localStorage.removeItem(STATE_KEY);
     return null;
   }
+}
+
+function markCheckoutReturn(access: HumanDesignAccess) {
+  localStorage.setItem(CHECKOUT_RETURN_KEY, JSON.stringify({ access, at: Date.now() }));
+}
+
+function readCheckoutReturn(): { access: HumanDesignAccess; at: number } | null {
+  try {
+    const raw = localStorage.getItem(CHECKOUT_RETURN_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { access?: HumanDesignAccess; at?: number };
+    if (!parsed.access || !parsed.at || Date.now() - parsed.at > 60 * 60 * 1000) {
+      localStorage.removeItem(CHECKOUT_RETURN_KEY);
+      return null;
+    }
+    return { access: parsed.access, at: parsed.at };
+  } catch {
+    localStorage.removeItem(CHECKOUT_RETURN_KEY);
+    return null;
+  }
+}
+
+function clearCheckoutReturn() {
+  localStorage.removeItem(CHECKOUT_RETURN_KEY);
 }
 
 function AnalysingScreen() {
@@ -74,8 +99,10 @@ function AnalysingScreen() {
 export default function HumanDesignPage() {
   const [params, setParams] = useSearchParams();
   const initialStoredState = useMemo(() => readStoredState(), []);
+  const initialCheckoutReturn = useMemo(() => readCheckoutReturn(), []);
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
-  const [page, setPage] = useState<Page>(() => (hasCheckoutReturn ? 'report' : 'landing'));
+  const shouldRestoreCheckout = hasCheckoutReturn && Boolean(initialStoredState?.chart || initialCheckoutReturn);
+  const [page, setPage] = useState<Page>(() => (shouldRestoreCheckout ? 'report' : 'landing'));
   const [pageKey, setPageKey] = useState(0);
   const [chart, setChart] = useState<HDChart | null>(() => initialStoredState?.chart ?? null);
   const [birthData, setBirthData] = useState(() => initialStoredState?.birthData ?? { date: '', time: '', city: '' });
@@ -175,6 +202,7 @@ export default function HumanDesignPage() {
 
   const startBasicCheckout = async () => {
     if (!chart || checkoutLoading) return;
+    markCheckoutReturn('basic');
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
     try {
@@ -184,6 +212,7 @@ export default function HumanDesignPage() {
         email ? { guest_email: email } : undefined,
       );
       if (admin_unlocked) {
+        clearCheckoutReturn();
         setAccess('basic');
         persistState({ chart, chartId, birthData, access: 'basic', email });
         setCheckoutLoading(false);
@@ -199,6 +228,7 @@ export default function HumanDesignPage() {
 
   const startFullCheckout = async () => {
     if (!chart || checkoutLoading) return;
+    markCheckoutReturn('full');
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
     try {
@@ -208,6 +238,7 @@ export default function HumanDesignPage() {
         email ? { guest_email: email } : undefined,
       );
       if (admin_unlocked) {
+        clearCheckoutReturn();
         setAccess('full');
         persistState({ chart, chartId, birthData, access: 'full', email });
         setCheckoutLoading(false);
@@ -223,6 +254,7 @@ export default function HumanDesignPage() {
 
   const startBundleCheckout = async () => {
     if (!chart || checkoutLoading) return;
+    markCheckoutReturn('bundle');
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
     try {
@@ -232,6 +264,7 @@ export default function HumanDesignPage() {
         email ? { guest_email: email } : undefined,
       );
       if (admin_unlocked) {
+        clearCheckoutReturn();
         setAccess('bundle');
         persistState({ chart, chartId, birthData, access: 'bundle', email });
         setCheckoutLoading(false);
@@ -284,6 +317,7 @@ export default function HumanDesignPage() {
           setAccess(nextAccess);
           setPage('report');
           persistState({ ...restored, access: nextAccess });
+          clearCheckoutReturn();
         })
         .catch((err) => console.error('human design checkout verification failed:', err));
     }
