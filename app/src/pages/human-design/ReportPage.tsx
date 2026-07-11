@@ -147,7 +147,7 @@ function FreeCard({
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Lock className="h-4 w-4" />
-                  {checkoutLoading ? '前往付款中...' : '解鎖基礎完整報告 NT$10'}
+                  {checkoutLoading ? '前往付款中...' : '解鎖基礎完整報告 NT$199'}
                 </button>
               </div>
             )}
@@ -448,7 +448,7 @@ export default function ReportPage({
             className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
           >
           <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
-            完整版深度解析
+            專屬人生使用說明書
           </p>
           {isFullUnlocked && fullReportLoading && (
             <p className="text-cyan-300/60 text-xs text-center mb-3">報告生成中，完成後會自動顯示</p>
@@ -495,7 +495,7 @@ export default function ReportPage({
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/8">
               <Lock className="h-4 w-4 text-white/45" />
             </div>
-            <p className="mb-2 text-center text-sm font-semibold text-white/80">完整版深度解析</p>
+            <p className="mb-2 text-center text-sm font-semibold text-white/80">專屬人生使用說明書</p>
             <p className="mb-4 text-center text-xs leading-relaxed text-white/45">
               解鎖後查看以下 9 項完整說明
             </p>
@@ -516,7 +516,7 @@ export default function ReportPage({
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Lock className="h-4 w-4" />
-              {checkoutLoading ? '前往付款中...' : '解鎖完整版深度解析 NT$10'}
+              {checkoutLoading ? '前往付款中...' : '解鎖你的專屬人生使用說明書 NT$399'}
             </button>
             <button
               type="button"
@@ -524,7 +524,7 @@ export default function ReportPage({
               disabled={checkoutLoading}
               className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-yellow-100/60 bg-gradient-to-r from-yellow-200 via-amber-100 to-cyan-200 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/15 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <span>{checkoutLoading ? '前往付款中...' : '解鎖基礎報告 + 完整版深度解析 NT$10'}</span>
+              <span>{checkoutLoading ? '前往付款中...' : '解鎖基礎報告 + 專屬人生使用說明書 NT$598'}</span>
             </button>
           </div>
         )}

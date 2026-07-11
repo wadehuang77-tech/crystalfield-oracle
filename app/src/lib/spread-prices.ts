@@ -10,9 +10,9 @@ export const SPREAD_PRICES: Record<string, number> = {
   egyptian_pastlife:  499,
   cosmic_cross:       599,
   osho_three:         250,
-  human_design_basic: 10,
-  human_design_full:  10,
-  human_design_bundle: 10,
+  human_design_basic: 199,
+  human_design_full:  399,
+  human_design_bundle: 598,
   membership_monthly: 99,
 };
 
