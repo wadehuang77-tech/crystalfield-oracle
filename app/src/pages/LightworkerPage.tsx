@@ -77,7 +77,7 @@ function LightworkerPage() {
     setShowDrawPage(false);
   };
 
-  const handleBack = () => {
+  const _handleBack = () => {
     if (showDrawPage || hasDrawn || isShuffling || drawnPreview) {
       reset();
       return;
@@ -330,7 +330,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function SpreadCard({
+function _SpreadCard({
   onClick, title, body, cta, price, sigil,
 }: {
   onClick: () => void;
@@ -363,7 +363,7 @@ function SpreadCard({
   );
 }
 
-function SingleSpreadSigil() {
+function _SingleSpreadSigil() {
   return (
     <svg viewBox="-30 -40 60 80" className="w-12 h-16" stroke="currentColor" fill="none">
       <rect x="-12" y="-20" width="24" height="40" strokeWidth="1" />
@@ -373,7 +373,7 @@ function SingleSpreadSigil() {
   );
 }
 
-function CelticCrossSigil() {
+function _CelticCrossSigil() {
   return (
     <svg viewBox="-40 -40 80 80" className="w-16 h-16" stroke="currentColor" fill="none">
       <rect x="-9" y="-9" width="18" height="18" strokeWidth="0.9" />

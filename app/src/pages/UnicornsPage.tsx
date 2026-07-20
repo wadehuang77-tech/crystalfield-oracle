@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, BookOpen, Lock, RotateCcw, Search, X, Loader2 } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -468,7 +468,7 @@ export default function UnicornsPage() {
                       {drawnCards.map((slot, index) => {
                         const labels = ['過去的能量根源', '當下的能量焦點', '未來的能量趨勢'];
                         const sym = ['過', '現', '未'][index];
-                        const g = (slot.unlocked!.gated as UnicornGated);
+                        const g = (slot.unlocked!.gated as unknown as UnicornGated);
                         return (
                           <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl">
                             <div className="flex items-center gap-4 mb-5 pb-4 border-b border-pink-500/15">
@@ -493,7 +493,7 @@ export default function UnicornsPage() {
 
               {spreadType === 'single' && drawnCards.map((slot) => {
                 const previewKw = (slot.preview.preview as { keywords?: string[] }).keywords ?? [];
-                const g = slot.unlocked?.gated as UnicornGated | undefined;
+                const g = slot.unlocked?.gated as unknown as UnicornGated | undefined;
                 const isUnlocked = !!g;
                 return (
                   <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl">
@@ -581,7 +581,7 @@ export default function UnicornsPage() {
     );
   }
 
-  const libraryGated = libraryUnlocked?.gated as UnicornGated | undefined;
+  const libraryGated = libraryUnlocked?.gated as unknown as UnicornGated | undefined;
   const librarySelectedKw = librarySelectedCard
     ? ((librarySelectedCard.preview as { keywords?: string[] }).keywords ?? [])
     : [];
@@ -728,7 +728,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function SpreadChoice({
+function _SpreadChoice({
   onClick, sigil, title, body, cta, disabled, price,
 }: {
   onClick: () => void; sigil: React.ReactNode; title: string;
@@ -785,7 +785,7 @@ function DrawPrep({ onDraw, onCancel, disabled }: { onDraw: () => void; onCancel
   );
 }
 
-function ShufflingState() {
+function _ShufflingState() {
   return (
     <section className="text-center py-24">
       <div className="relative inline-block">
@@ -812,7 +812,7 @@ function DeckSigil() {
   );
 }
 
-function SingleSpreadSigil() {
+function _SingleSpreadSigil() {
   return (
     <svg viewBox="-30 -40 60 80" className="w-12 h-16" stroke="currentColor" fill="none">
       <rect x="-12" y="-20" width="24" height="40" strokeWidth="1" />
@@ -822,7 +822,7 @@ function SingleSpreadSigil() {
   );
 }
 
-function TripleSpreadSigil() {
+function _TripleSpreadSigil() {
   return (
     <svg viewBox="-40 -40 80 80" className="w-16 h-16" stroke="currentColor" fill="none">
       {[-22, 0, 22].map((x) => (

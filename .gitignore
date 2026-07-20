@@ -17,6 +17,20 @@ build/
 # Cloudflare / Wrangler local state
 .wrangler/
 .dev.vars
+.dev.vars.*
+wrangler.local.toml
+
+# Local secrets, credentials, and private keys
+.envrc
+.envrc.local
+.secrets
+.secrets.*
+credentials*.json
+secrets*.json
+*.pem
+*.key
+*.p12
+*.pfx
 
 # Logs
 *.log

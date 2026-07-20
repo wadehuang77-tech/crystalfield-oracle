@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { XCircle, Clock, ArrowRight } from 'lucide-react';
+import { XCircle, Clock, ArrowRight, type LucideProps } from 'lucide-react';
 import { checkoutApi, type Order } from '../lib/api';
 import { consumeMembershipCheckoutRedirect } from '../lib/pendingDraw';
 import { formatPrice } from '../lib/spread-prices';
@@ -312,7 +312,7 @@ function Actions({ children }: { children: React.ReactNode }) {
 function Icon({
   Icon: I, tone, pulse,
 }: {
-  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  Icon: React.ComponentType<LucideProps>;
   tone: 'gold' | 'wine';
   pulse?: boolean;
 }) {

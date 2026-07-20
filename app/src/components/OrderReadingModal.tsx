@@ -338,10 +338,12 @@ function PickGatedDetail({ pick }: { pick: ReadingPick }) {
   );
 }
 
-function GatedBlock({ gated, reversed }: { gated: Record<string, unknown>; reversed: boolean }) {
+function GatedBlock({ gated, reversed }: { gated: unknown; reversed: boolean }) {
+  if (!gated || typeof gated !== 'object') return <div />;
+  const obj = gated as Record<string, unknown>;
   return (
     <div className="space-y-2 text-sm">
-      {Object.entries(gated).map(([key, value]) => {
+      {Object.entries(obj).map(([key, value]) => {
         const isOppositePosition =
           (reversed && key === 'uprightMeaning') ||
           (!reversed && key === 'reversedMeaning');

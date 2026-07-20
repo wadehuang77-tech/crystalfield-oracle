@@ -132,7 +132,7 @@ function EgyptianGodsPage() {
     setUnlockError(null);
   };
 
-  const handleBack = () => {
+  const _handleBack = () => {
     if (showCardLayout || hasDrawn || isDrawing || singlePreview || pastlifeSlots.length > 0) {
       resetDraw();
       return;
@@ -188,7 +188,7 @@ function EgyptianGodsPage() {
             return {
               ...s,
               full: {
-                ...(u.gated as EgyptianGated),
+                ...(u.gated as unknown as EgyptianGated),
                 titleChinese: u.name,
                 title: u.name_secondary ?? '',
                 symbol: previewSymbol,
@@ -262,13 +262,13 @@ function EgyptianGodsPage() {
       const previewSymbol = (s.preview.preview as { symbol?: string }).symbol ?? '';
       return {
         ...s,
-        full: { ...(u.gated as EgyptianGated), titleChinese: u.name, title: u.name_secondary ?? '', symbol: previewSymbol },
+        full: { ...(u.gated as unknown as EgyptianGated), titleChinese: u.name, title: u.name_secondary ?? '', symbol: previewSymbol },
       };
     }));
     setIsPastlifeUnlocked(true);
   }, [pastlifeGate.unlockedCards]);
 
-  const singleGated = singleUnlocked?.gated as EgyptianGated | undefined;
+  const singleGated = singleUnlocked?.gated as unknown as EgyptianGated | undefined;
   const isSingleUnlocked = !!singleGated;
   const singleSymbol = (singlePreview?.preview as { symbol?: string })?.symbol;
   const handlePastlifeEmailSubmitted = async (email: string) => {

@@ -160,13 +160,7 @@ function DragonsPage() {
     setUnlockError(null);
   };
 
-  const handleBack = () => {
-    if (showCardLayout || hasDrawn || isShuffling || singlePreview || threeSlots.length > 0) {
-      reset();
-      return;
-    }
-    navigate(-1);
-  };
+  
 
   useEffect(() => {
     if (hasDrawn) {
@@ -213,7 +207,7 @@ function DragonsPage() {
             return {
               ...s,
               full: {
-                ...(u.gated as DragonGated),
+                ...(u.gated as unknown as DragonGated),
                 name: u.name,
                 nameEn: u.name_secondary ?? '',
                 keywords: previewKw,
@@ -259,12 +253,12 @@ function DragonsPage() {
       const u = byKey.get(s.preview.card_key);
       if (!u) return s;
       const previewKw = (s.preview.preview as { keywords?: string[] }).keywords ?? [];
-      return { ...s, full: { ...(u.gated as DragonGated), name: u.name, nameEn: u.name_secondary ?? '', keywords: previewKw } };
+      return { ...s, full: { ...(u.gated as unknown as DragonGated), name: u.name, nameEn: u.name_secondary ?? '', keywords: previewKw } };
     }));
     setIsThreeUnlocked(true);
   }, [threeGate.unlockedCards]);
 
-  const singleGated = singleUnlocked?.gated as DragonGated | undefined;
+  const singleGated = singleUnlocked?.gated as unknown as DragonGated | undefined;
   const isSingleUnlocked = !!singleGated;
   const singlePreviewKw = (singlePreview?.preview as { keywords?: string[] })?.keywords ?? [];
   const handleThreeEmailSubmitted = async (email: string) => {
@@ -600,35 +594,7 @@ function ThreeSection({ title, children }: { title: string; children: React.Reac
   );
 }
 
-function SpreadChoice({
-  onClick, sigil, title, body, cta, disabled, price,
-}: {
-  onClick: () => void; sigil: React.ReactNode; title: string;
-  body: string; cta: string; disabled?: boolean; price?: number;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-5 sm:p-6 shadow-xl group text-left transition-all duration-300 hover:border-emerald-500/70 hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed min-h-[15rem] sm:min-h-[18rem]"
-    >
-      <div className="flex flex-col items-center text-center h-full">
-        <div className="text-emerald-500 mb-4 sm:mb-6 transition-transform duration-500 group-hover:rotate-12 scale-90 sm:scale-100">
-          {sigil}
-        </div>
-        <h2 className="font-serif text-xl sm:text-2xl text-emerald-100 tracking-[0.25em] sm:tracking-[0.3em] mb-2 sm:mb-3">{title}</h2>
-        <p className={`text-xs sm:text-sm text-emerald-300/80 leading-loose max-w-xs ${price !== undefined ? 'mb-2 sm:mb-3' : 'mb-6 sm:mb-8'}`}>{body}</p>
-        {price !== undefined && (
-          <p className="font-serif text-sm sm:text-base text-emerald-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">NT$ {price}</p>
-        )}
-        <span className="mt-auto inline-flex items-center gap-2 px-5 py-2 border border-emerald-500/50 bg-emerald-500/10 rounded-lg text-xs tracking-[0.35em] sm:tracking-[0.4em] text-emerald-200 transition-all duration-300 group-hover:bg-emerald-500/25 group-hover:border-emerald-400/70 group-hover:translate-x-1">
-          {cta}
-          <ArrowRight className="w-4 h-4" strokeWidth={1.4} />
-        </span>
-      </div>
-    </button>
-  );
-}
+ 
 
 function DrawPrep({ onDraw, onCancel, disabled, hint }: { onDraw: () => void; onCancel: () => void; disabled: boolean; hint: string }) {
   return (
@@ -665,28 +631,7 @@ function DeckSigil() {
   );
 }
 
-function SingleSpreadSigil() {
-  return (
-    <svg viewBox="-30 -40 60 80" className="w-12 h-16" stroke="currentColor" fill="none">
-      <rect x="-12" y="-20" width="24" height="40" strokeWidth="1" />
-      <rect x="-9" y="-17" width="18" height="34" strokeWidth="0.4" opacity="0.5" />
-      <circle cx="0" cy="0" r="5" strokeWidth="0.8" />
-    </svg>
-  );
-}
-
-function TripleSpreadSigil() {
-  return (
-    <svg viewBox="-40 -40 80 80" className="w-16 h-16" stroke="currentColor" fill="none">
-      {[-22, 0, 22].map((x) => (
-        <g key={x}>
-          <rect x={x - 9} y={-15} width="18" height="30" strokeWidth="1" />
-          <rect x={x - 7} y={-13} width="14" height="26" strokeWidth="0.4" opacity="0.5" />
-        </g>
-      ))}
-    </svg>
-  );
-}
+ 
 
 function CardBackOrnament() {
   return (

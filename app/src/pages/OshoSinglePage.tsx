@@ -24,7 +24,7 @@ interface OshoGated {
 }
 
 export default function OshoSinglePage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [deck, setDeck] = useState<CardPreview[] | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
   const [drawnPreview, setDrawnPreview] = useState<CardPreview | null>(null);

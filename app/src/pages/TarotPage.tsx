@@ -199,7 +199,7 @@ function TarotPage() {
   useEffect(() => {
     if (!singleGate.unlockedCard || isUnlocked) return;
     setDrawnCards((prev) => prev.map((d, i) =>
-      i === 0 ? { ...d, card: buildShim(d.preview, singleGate.unlockedCard!.gated as TarotGated) } : d
+      i === 0 ? { ...d, card: buildShim(d.preview, singleGate.unlockedCard!.gated as unknown as TarotGated) } : d
     ));
     setIsUnlocked(true);
   }, [singleGate.unlockedCard]);
@@ -220,7 +220,7 @@ function TarotPage() {
     const byKey = new Map(multiGate.unlockedCards.map((u) => [u.card_key, u]));
     setDrawnCards((prev) => prev.map((d) => {
       const u = byKey.get(d.preview.card_key);
-      return u ? { ...d, card: buildShim(d.preview, u.gated as TarotGated) } : d;
+      return u ? { ...d, card: buildShim(d.preview, u.gated as unknown as TarotGated) } : d;
     }));
     setIsLocallyUnlocked(true);
   }, [multiGate.unlockedCards]);
@@ -376,7 +376,7 @@ function TarotPage() {
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setDrawnCards((prev) => prev.map((d) => {
             const u = byKey.get(d.preview.card_key);
-            return u ? { ...d, card: buildShim(d.preview, u.gated as TarotGated) } : d;
+            return u ? { ...d, card: buildShim(d.preview, u.gated as unknown as TarotGated) } : d;
           }));
           setIsLocallyUnlocked(true);
         } catch (err) {
@@ -432,7 +432,7 @@ function TarotPage() {
     setIsLocallyUnlocked(false);
   };
 
-  const handleBack = () => {
+  const _handleBack = () => {
     if (showCardLayout || hasDrawn || isDrawing || drawnCards.length > 0) {
       resetDraw();
       if (searchParams.get('spread')) {
@@ -449,7 +449,7 @@ function TarotPage() {
     setShowCardLayout(true);
   };
 
-  const showFullContent = isLocallyUnlocked;
+  const _showFullContent = isLocallyUnlocked;
 
   const getPreviewText = (text: string): string => {
     return text.slice(0, Math.floor(text.length * 0.5)) + '...';

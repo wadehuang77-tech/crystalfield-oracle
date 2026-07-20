@@ -44,7 +44,7 @@ interface DrawnCard {
 }
 
 function TarotSinglePage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [deck, setDeck] = useState<CardPreview[] | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
   const [drawnCard, setDrawnCard] = useState<DrawnCard | null>(null);
@@ -161,7 +161,7 @@ function TarotSinglePage() {
   };
 
   const previewData = drawnCard?.preview.preview as TarotPreview | undefined;
-  const gated = drawnCard?.unlocked?.gated as TarotGated | undefined;
+  const gated = drawnCard?.unlocked?.gated as unknown as TarotGated | undefined;
   const isUnlocked = !!gated;
 
   return (

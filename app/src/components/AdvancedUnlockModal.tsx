@@ -11,9 +11,9 @@ interface AdvancedUnlockModalProps {
 export function AdvancedUnlockModal({
   isOpen,
   onClose,
-  readingType
+  readingType: _readingType
 }: AdvancedUnlockModalProps) {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const navigate = useNavigate();
 
   if (!isOpen) return null;

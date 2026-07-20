@@ -293,7 +293,7 @@ export interface ReadingPick {
   card_name: string;
   card_name_secondary: string | null;
   reversed?: boolean;
-  gated: Record<string, unknown> | null;
+  gated: unknown | null;
 }
 
 export interface ReadingRow {
@@ -393,7 +393,6 @@ export interface CardPreview {
 export interface UnlockedCard extends CardPreview {
   gated: Record<string, unknown>;
   reversed?: boolean;
-  position?: number;
 }
 
 export const cardsApi = {

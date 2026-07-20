@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+ 
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
@@ -8,7 +8,7 @@ import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 function WorkYourLightPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const { cards: deck } = useDeck('work_your_light');
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
