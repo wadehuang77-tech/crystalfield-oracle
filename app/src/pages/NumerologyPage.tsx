@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Gem, Star, Sparkles, ChevronRight, LogIn, Check, Minus } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Gem, Star, Sparkles, ChevronRight, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
 import DailyEnergy from '../components/numerology/DailyEnergy';
@@ -64,7 +64,6 @@ function getTierFromSku(sku: string): PlanTier {
 }
 
 export default function NumerologyPage() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
 
@@ -557,23 +556,6 @@ export default function NumerologyPage() {
               客製化水晶排列與冥想儀式，<br />
               為您量身打造全方位的心靈支持。
             </p>
-            {!user && (
-              <button
-                onClick={() => navigate('/auth?redirect=/numerology')}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '7px 16px', borderRadius: 999,
-                  background: 'rgba(167,139,250,0.07)',
-                  border: '1px solid rgba(167,139,250,0.18)',
-                  color: 'rgba(196,181,253,0.6)',
-                  fontSize: 12, cursor: 'pointer',
-                  transition: 'all 0.2s',
-                } as React.CSSProperties}
-              >
-                <LogIn style={{ width: 12, height: 12 }} />
-                登入以儲存你的靈數記錄
-              </button>
-            )}
           </div>
 
           <div
