@@ -142,7 +142,7 @@ function HomePage() {
                   </div>
                 </div>
                 <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-violet-100 tracking-wide mb-1">光之訊息</h2>
+                  <h2 className="text-xl font-serif text-violet-100 tracking-wide mb-1">Lightworker光之訊息</h2>
                   <p className="text-violet-200/70 text-xs tracking-wide">單張・宇宙十字牌陣</p>
                 </div>
               </div>
