@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
- 
+
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';

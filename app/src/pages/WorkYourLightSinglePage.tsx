@@ -131,7 +131,9 @@ function WorkYourLightSinglePage() {
   });
 
   useEffect(() => {
-    if (gate.unlockedCard && !unlocked) setUnlocked(gate.unlockedCard);
+    if (gate.unlockedCard) {
+      setUnlocked((current) => current ?? gate.unlockedCard);
+    }
   }, [gate.unlockedCard]);
 
   const handleUnlocked = (email: string, card?: UnlockedCard) => {

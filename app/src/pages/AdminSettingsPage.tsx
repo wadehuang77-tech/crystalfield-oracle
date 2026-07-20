@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { adminApi } from '../lib/api';
 import { Shield, UserPlus, Trash2, Loader2, Mail, Check, X, ArrowLeft } from 'lucide-react';
@@ -21,11 +21,16 @@ export function AdminSettingsPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    checkAdminStatus();
-  }, [user]);
+  const loadAdmins = useCallback(async () => {
+    try {
+      const { admins } = await adminApi.admins();
+      setAdmins(admins);
+    } catch {
+      // Keep the settings page available so the admin can retry.
+    }
+  }, []);
 
-  const checkAdminStatus = async () => {
+  const checkAdminStatus = useCallback(async () => {
     if (!user) {
       navigate('/auth');
       return;
@@ -44,15 +49,11 @@ export function AdminSettingsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadAdmins, navigate, user]);
 
-  const loadAdmins = async () => {
-    try {
-      const { admins } = await adminApi.admins();
-      setAdmins(admins);
-    } catch {
-    }
-  };
+  useEffect(() => {
+    void checkAdminStatus();
+  }, [checkAdminStatus]);
 
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +120,7 @@ export function AdminSettingsPage() {
           <h1 className="font-serif text-2xl text-blue-100 tracking-[0.25em] mb-4">無權限訪問</h1>
           <p className="text-blue-300/80 mb-7 tracking-wide">您沒有管理員權限，無法訪問此頁面。</p>
           <button onClick={() => navigate('/')} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 !text-xs">
-            返　回　首　頁
+            返 回 首 頁
           </button>
         </div>
       </div>
@@ -134,7 +135,7 @@ export function AdminSettingsPage() {
           className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 transition-colors text-sm mb-6"
         >
           <ArrowLeft className="w-4 h-4" strokeWidth={1.4} />
-          返　回　用　戶　列　表
+          返 回 用 戶 列 表
         </button>
 
         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-blue-500/30 rounded-2xl p-4 sm:p-6 shadow-xl">
@@ -194,7 +195,7 @@ export function AdminSettingsPage() {
                 ) : (
                   <>
                     <UserPlus className="w-4 h-4" strokeWidth={1.4} />
-                    添　加
+                    添 加
                   </>
                 )}
               </button>

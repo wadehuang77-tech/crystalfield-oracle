@@ -19,8 +19,8 @@ export function CrystalGridPromoModal({ isOpen, show, onClose }: CrystalGridProm
   }, [visible]);
 
   const trackEvent = (eventName: string) => {
-    if ((window as any).gtag) {
-      (window as any).gtag('event', eventName, {
+    if (window.gtag) {
+      window.gtag('event', eventName, {
         event_category: 'Crystal_Course',
         event_label: 'Tarot_CTA_Modal',
       });

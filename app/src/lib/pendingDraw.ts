@@ -28,7 +28,9 @@ export function savePendingDraw(spread_id: string, picks: PendingDrawPick[]): vo
   try {
     const data: PendingDraw = { spread_id, picks, draw_at: Date.now() };
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {}
+  } catch {
+    // The checkout flow can continue even when session storage is unavailable.
+  }
 }
 
 export function consumePendingDraw(spread_id: string): PendingDraw | null {
@@ -50,13 +52,17 @@ export function consumePendingDraw(spread_id: string): PendingDraw | null {
 }
 
 export function clearPendingDraw(): void {
-  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+  try { sessionStorage.removeItem(STORAGE_KEY); } catch {
+    // Missing storage is equivalent to having no pending draw to clear.
+  }
 }
 
 export function savePendingSingleDraw(data: Omit<PendingSingleDraw, 'draw_at'>): void {
   try {
     sessionStorage.setItem(SINGLE_STORAGE_KEY, JSON.stringify({ ...data, draw_at: Date.now() }));
-  } catch {}
+  } catch {
+    // The reading flow can continue without restoring this draw later.
+  }
 }
 
 export function consumePendingSingleDraw(spread_id: string): PendingSingleDraw | null {
@@ -78,7 +84,9 @@ export function consumePendingSingleDraw(spread_id: string): PendingSingleDraw |
 }
 
 export function saveMembershipCheckoutRedirect(path: string): void {
-  try { sessionStorage.setItem(MEMBERSHIP_REDIRECT_KEY, path); } catch {}
+  try { sessionStorage.setItem(MEMBERSHIP_REDIRECT_KEY, path); } catch {
+    // Checkout remains usable even if the post-payment redirect cannot be saved.
+  }
 }
 
 export function consumeMembershipCheckoutRedirect(): string | null {

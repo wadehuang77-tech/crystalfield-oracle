@@ -5,10 +5,9 @@ import { X, Sparkles, Star, Lock } from 'lucide-react';
 interface FreeReadingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onRegistered?: () => void; // called after successful registration + return
 }
 
-export function FreeReadingModal({ isOpen, onClose, onRegistered: _onRegistered }: FreeReadingModalProps) {
+export function FreeReadingModal({ isOpen, onClose }: FreeReadingModalProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [closing, setClosing] = useState(false);

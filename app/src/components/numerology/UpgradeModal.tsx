@@ -7,7 +7,6 @@ interface Props {
   onConfirm: (tier: PlanTier) => void;
   onEmailUnlock?: (email: string) => Promise<void>;
   defaultTier?: PlanTier;
-  currentTier: PlanTier;
 }
 
 type PlanKey = 'basic' | 'advanced' | 'full';
@@ -109,7 +108,7 @@ function tierToKey(t: PlanTier): PlanKey {
   return 'full';
 }
 
-export default function UpgradeModal({ onClose, onConfirm, defaultTier, currentTier: _currentTier }: Props) {
+export default function UpgradeModal({ onClose, onConfirm, defaultTier }: Props) {
   const [selected, setSelected] = useState<PlanKey>(tierToKey(defaultTier ?? 3));
   const activePlan = PLANS[selected];
 
@@ -191,7 +190,6 @@ export default function UpgradeModal({ onClose, onConfirm, defaultTier, currentT
           {/* ── Plan Cards ─────────────────────────────────────────── */}
           {/* Featured plan (NT$599) on top, full width */}
           <PlanCard
-            planKey="full"
             plan={PLANS.full}
             selected={selected === 'full'}
             onSelect={() => setSelected('full')}
@@ -200,14 +198,12 @@ export default function UpgradeModal({ onClose, onConfirm, defaultTier, currentT
           {/* Two smaller plans side by side */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <PlanCard
-              planKey="basic"
               plan={PLANS.basic}
               selected={selected === 'basic'}
               onSelect={() => setSelected('basic')}
               compact
             />
             <PlanCard
-              planKey="advanced"
               plan={PLANS.advanced}
               selected={selected === 'advanced'}
               onSelect={() => setSelected('advanced')}
@@ -342,13 +338,11 @@ export default function UpgradeModal({ onClose, onConfirm, defaultTier, currentT
 }
 
 function PlanCard({
-  planKey: _planKey,
   plan,
   selected,
   onSelect,
   compact = false,
 }: {
-  planKey: PlanKey;
   plan: typeof PLANS[PlanKey];
   selected: boolean;
   onSelect: () => void;

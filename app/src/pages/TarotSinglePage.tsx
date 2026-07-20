@@ -129,8 +129,10 @@ function TarotSinglePage() {
   });
 
   useEffect(() => {
-    if (gate.unlockedCard && drawnCard && !drawnCard.unlocked) {
-      setDrawnCard(prev => prev ? { ...prev, unlocked: gate.unlockedCard } : null);
+    if (gate.unlockedCard) {
+      setDrawnCard((current) => current && !current.unlocked
+        ? { ...current, unlocked: gate.unlockedCard }
+        : current);
     }
   }, [gate.unlockedCard]);
 

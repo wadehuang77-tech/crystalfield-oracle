@@ -7,14 +7,18 @@ function safeGet(key: string): number {
   catch { return 0; }
 }
 function safeSet(key: string, n: number) {
-  try { localStorage.setItem(key, String(n)); } catch {}
+  try { localStorage.setItem(key, String(n)); } catch {
+    // Storage may be unavailable in private browsing or restricted contexts.
+  }
 }
 function safeGetBool(key: string): boolean {
   try { return localStorage.getItem(key) === '1'; }
   catch { return false; }
 }
 function safeSetBool(key: string) {
-  try { localStorage.setItem(key, '1'); } catch {}
+  try { localStorage.setItem(key, '1'); } catch {
+    // Storage may be unavailable in private browsing or restricted contexts.
+  }
 }
 
 export function getSingleUnlockCount(): number { return safeGet(SINGLE_KEY); }

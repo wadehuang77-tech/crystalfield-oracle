@@ -496,7 +496,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
       {/* Crystal Grid + Bracelet Recommendation — advanced tier */}
       {oracleUnlocked ? (
         <div id="numerology-advanced-crystal">
-          <CrystalBracelet report={report} tier={tier} onUpgrade={onUpgrade} />
+          <CrystalBracelet report={report} />
         </div>
       ) : (
         <div

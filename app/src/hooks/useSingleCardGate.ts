@@ -39,6 +39,12 @@ export function useSingleCardGate({
   const [showMembership, setShowMembership] = useState(false);
   const firedRef = useRef(false);
   const lastCardKeyRef = useRef<string | null>(null);
+  const userRef = useRef(user);
+  const spreadIdRef = useRef(spreadId);
+  const reversedRef = useRef(reversed);
+  userRef.current = user;
+  spreadIdRef.current = spreadId;
+  reversedRef.current = reversed;
 
   useEffect(() => {
     if (!enabled || !cardKey) { firedRef.current = false; return; }
@@ -50,7 +56,7 @@ export function useSingleCardGate({
     const hasSeenEmailGate = hasSeenSingleEmailGate();
     const autoUnlock = () => {
       setPhase('loading');
-      cardsApi.freeUnlockSingle(spreadId, cardKey, reversed)
+      cardsApi.freeUnlockSingle(spreadIdRef.current, cardKey, reversedRef.current)
         .then(({ card }) => {
           setUnlockedCard(card);
           incrementSingleUnlock();
@@ -71,12 +77,12 @@ export function useSingleCardGate({
       autoUnlock();
     };
 
-    if (user) {
+    if (userRef.current) {
       setPhase('loading');
       profileApi.me()
         .then(({ profile }) => {
           if (profile?.membership?.is_active || profile?.purchased_spreads?.includes('membership_monthly')) {
-            return cardsApi.freeUnlockSingle(spreadId, cardKey, reversed)
+            return cardsApi.freeUnlockSingle(spreadIdRef.current, cardKey, reversedRef.current)
               .then(({ card }) => {
                 setUnlockedCard(card);
                 setPhase('unlocked');

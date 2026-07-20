@@ -1,19 +1,15 @@
 import { X, Lock, Sparkles } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 interface AdvancedUnlockModalProps {
   isOpen: boolean;
   onClose: () => void;
-  readingType: string;
 }
 
 export function AdvancedUnlockModal({
   isOpen,
-  onClose,
-  readingType: _readingType
+  onClose
 }: AdvancedUnlockModalProps) {
-  const { user: _user } = useAuth();
   const navigate = useNavigate();
 
   if (!isOpen) return null;

@@ -37,7 +37,7 @@ export function PaywallGate({
   isPaid: isPaidProp,
   picks,
 }: PaywallGateProps) {
-  const access = useSpreadAccess(spreadId ?? '');
+  const access = useSpreadAccess();
   const isPaidByOrder = isPaidProp ?? access.isPaid;
   const accessLoadError = isPaidProp === undefined ? access.loadError : null;
   const { user } = useAuth();

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import ParticleBackground from '../components/human-design/ParticleBackground';
@@ -293,6 +293,9 @@ export default function HumanDesignPage() {
     return () => window.clearTimeout(normal);
   }, [page]);
 
+  const checkoutStateRef = useRef({ chart, chartId, birthData, access, email });
+  checkoutStateRef.current = { chart, chartId, birthData, access, email };
+
   useEffect(() => {
     const orderId = params.get('order_id');
     const orderToken = params.get('order_token');
@@ -310,7 +313,12 @@ export default function HumanDesignPage() {
         .then(({ order }) => {
           if (order.status !== 'paid') return;
           const latest = readStoredState();
-          const restored = latest?.chart ? latest : chart ? { chart, chartId, birthData, access, email } : null;
+          const current = checkoutStateRef.current;
+          const restored = latest?.chart
+            ? latest
+            : current.chart
+              ? { ...current, chart: current.chart }
+              : null;
           if (!restored?.chart) return;
           const pendingReturn = readCheckoutReturn();
           const nextAccess: HumanDesignAccess = order.item_id === 'human_design_full'

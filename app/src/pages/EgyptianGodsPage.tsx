@@ -230,7 +230,9 @@ function EgyptianGodsPage() {
   });
 
   useEffect(() => {
-    if (singleGate.unlockedCard && !singleUnlocked) setSingleUnlocked(singleGate.unlockedCard);
+    if (singleGate.unlockedCard) {
+      setSingleUnlocked((current) => current ?? singleGate.unlockedCard);
+    }
   }, [singleGate.unlockedCard]);
 
   const pastlifePicks = hasDrawn && pastlifeSlots.length === 7 && spreadType === 'pastlife'
@@ -246,7 +248,7 @@ function EgyptianGodsPage() {
   });
 
   useEffect(() => {
-    if (!pastlifeGate.unlockedCards || isPastlifeUnlocked) return;
+    if (!pastlifeGate.unlockedCards) return;
     const byKey = new Map(pastlifeGate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
     setPastlifeSlots((prev) => prev.map((s) => {
       const u = byKey.get(s.preview.card_key);
@@ -296,14 +298,14 @@ function EgyptianGodsPage() {
                   sigil={<SingleSpreadSigil />}
                   title="單張神諭"
                   body="一張牌,直接的神性指引。"
-                  cta="抽　牌"
+                  cta="抽 牌"
                 />
                 <SpreadChoice
                   onClick={() => handleSpreadTypeChange('pastlife')}
                   sigil={<PastlifeSigil />}
                   title="前世因果解鎖陣"
                   body="七張牌交疊,揭開前世今生的因果連結。"
-                  cta="展　陣"
+                  cta="展 陣"
                   price={499}
                 />
               </div>
@@ -313,7 +315,7 @@ function EgyptianGodsPage() {
 
         {showCardLayout && !isDrawing && !hasDrawn && (
           <section className="max-w-2xl mx-auto text-center py-8">
-            <h2 className="font-serif text-3xl text-yellow-100 tracking-[0.3em] mb-5">準　備　抽　牌</h2>
+            <h2 className="font-serif text-3xl text-yellow-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
             <p className="text-sm sm:text-base text-yellow-300/85 mb-12 leading-loose">
               {spreadType === 'pastlife'
                 ? '七張牌將為你揭開前世今生的因果連結'
@@ -332,17 +334,17 @@ function EgyptianGodsPage() {
             </div>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button onClick={drawCard} disabled={!deck || deck.length === 0} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-medium rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                抽　牌
+                抽 牌
               </button>
               <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-yellow-500/30 rounded-xl hover:bg-slate-700/60 hover:border-yellow-400/50 transition-all text-yellow-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                返　回
+                返 回
               </button>
             </div>
           </section>
         )}
 
-        {isDrawing && <CardShuffleAnimation message="神　祇　傳　遞　訊　息　中" />}
+        {isDrawing && <CardShuffleAnimation message="神 祇 傳 遞 訊 息 中" />}
 
         {hasDrawn && spreadType === 'single' && singlePreview && (
           <section className="max-w-3xl mx-auto space-y-10">
@@ -422,7 +424,7 @@ function EgyptianGodsPage() {
             <div className="flex justify-center">
               <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-yellow-500/30 rounded-xl hover:bg-slate-700/60 hover:border-yellow-400/50 transition-all text-yellow-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重　新　抽　牌
+                重 新 抽 牌
               </button>
             </div>
           </section>
@@ -503,7 +505,7 @@ function EgyptianGodsPage() {
                     <p className="font-serif text-2xl text-yellow-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('egyptian_pastlife') ?? 0)}</p>
                     {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
                     <button onClick={handleCheckoutPastlife} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-medium rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {isCheckingOut ? '跳　轉　至　綠　界…' : '立　即　解　鎖'}
+                      {isCheckingOut ? '跳 轉 至 綠 界…' : '立 即 解 鎖'}
                     </button>
                   </div>
                 )}
@@ -583,7 +585,7 @@ function EgyptianGodsPage() {
             <div className="flex justify-center pt-4">
               <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-yellow-500/30 rounded-xl hover:bg-slate-700/60 hover:border-yellow-400/50 transition-all text-yellow-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重　新　抽　牌
+                重 新 抽 牌
               </button>
             </div>
           </section>

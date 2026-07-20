@@ -55,11 +55,7 @@ const LINKS = [
   },
 ];
 
-interface SocialLinksFooterProps {
-  theme?: string;
-}
-
-export default function SocialLinksFooter(_: SocialLinksFooterProps) {
+export default function SocialLinksFooter() {
   return (
     <footer className="mt-20 mb-4 max-w-3xl mx-auto px-4">
       <div className="ornamental-divider mb-10">

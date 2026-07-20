@@ -10,7 +10,7 @@ interface SpreadAccessResult {
   refreshAccess: () => Promise<void>;
 }
 
-export function useSpreadAccess(_spreadId: string): SpreadAccessResult {
+export function useSpreadAccess(): SpreadAccessResult {
   const { user } = useAuth();
   const userState: UserState = user ? 'user_free' : 'guest';
   return {

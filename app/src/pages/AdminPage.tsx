@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { adminApi, Profile, GuestEmail, AdminOrder } from '../lib/api';
 import { Shield, Users, Calendar, Mail, Loader2, Settings, Download, Filter, UserCheck, BarChart3, Receipt, Coins, Trash2, BookOpen, CheckSquare, Square } from 'lucide-react';
@@ -34,11 +34,51 @@ export function AdminPage() {
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
-  useEffect(() => {
-    checkAdminStatus();
-  }, [user]);
+  const loadUsers = useCallback(async () => {
+    try {
+      const { users } = await adminApi.users();
+      setUsers(users);
+      setFilteredUsers(users);
 
-  const checkAdminStatus = async () => {
+      const uniqueOccupations = Array.from(
+        new Set(
+          users
+            .map((u) => u.occupation)
+            .filter((o): o is string => o !== null && o !== '')
+        )
+      ).sort();
+      setOccupations(uniqueOccupations);
+    } catch {
+      // Keep the admin shell available so another data section can still load.
+    }
+  }, []);
+
+  const loadGuestEmails = useCallback(async () => {
+    setGuestLoading(true);
+    try {
+      const { guests } = await adminApi.guests();
+      setGuestEmails(guests);
+    } catch {
+      // Keep the existing list when this optional admin request fails.
+    } finally {
+      setGuestLoading(false);
+    }
+  }, []);
+
+  const loadOrders = useCallback(async (status: 'all' | 'paid' | 'pending' | 'failed') => {
+    setOrdersLoading(true);
+    try {
+      const { orders, summary } = await adminApi.orders(status === 'all' ? undefined : status);
+      setOrders(orders);
+      setOrdersSummary(summary);
+    } catch {
+      // Keep the existing order list when a refresh fails.
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, []);
+
+  const checkAdminStatus = useCallback(async () => {
     if (!user) {
       navigate('/auth');
       return;
@@ -57,48 +97,11 @@ export function AdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadGuestEmails, loadOrders, loadUsers, navigate, user]);
 
-  const loadUsers = async () => {
-    try {
-      const { users } = await adminApi.users();
-      setUsers(users);
-      setFilteredUsers(users);
-
-      const uniqueOccupations = Array.from(
-        new Set(
-          users
-            .map((u) => u.occupation)
-            .filter((o): o is string => o !== null && o !== '')
-        )
-      ).sort();
-      setOccupations(uniqueOccupations);
-    } catch {
-    }
-  };
-
-  const loadGuestEmails = async () => {
-    setGuestLoading(true);
-    try {
-      const { guests } = await adminApi.guests();
-      setGuestEmails(guests);
-    } catch {
-    } finally {
-      setGuestLoading(false);
-    }
-  };
-
-  const loadOrders = async (status: 'all' | 'paid' | 'pending' | 'failed') => {
-    setOrdersLoading(true);
-    try {
-      const { orders, summary } = await adminApi.orders(status === 'all' ? undefined : status);
-      setOrders(orders);
-      setOrdersSummary(summary);
-    } catch {
-    } finally {
-      setOrdersLoading(false);
-    }
-  };
+  useEffect(() => {
+    void checkAdminStatus();
+  }, [checkAdminStatus]);
 
   const handleDeleteOrder = async (order: AdminOrder) => {
     const ok = confirm(
@@ -172,7 +175,7 @@ export function AdminPage() {
   useEffect(() => {
     if (isAdmin) loadOrders(orderStatusFilter);
     setSelectedOrderIds(new Set());
-  }, [orderStatusFilter, isAdmin]);
+  }, [orderStatusFilter, isAdmin, loadOrders]);
 
   const exportOrdersToCSV = () => {
     const header = ['訂單號','Email','商品','金額 (NTD)','付款狀態','付款方式','綠界交易編號','建立時間 (台北)','付款時間 (台北)'];

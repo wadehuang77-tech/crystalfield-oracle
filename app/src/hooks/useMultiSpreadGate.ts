@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cardsApi, publicApi, type UnlockedCard } from '../lib/api';
 import { getMultiUnlockCount, incrementMultiUnlock } from './useDrawCounter';
 
@@ -34,12 +34,12 @@ export function useMultiSpreadGate({
   const firedRef = useRef(false);
   const lastPicksKeyRef = useRef<string>('');
 
-  const unlockForFree = async (picksToUnlock: Pick[]) => {
+  const unlockForFree = useCallback(async (picksToUnlock: Pick[]) => {
     const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock);
     setUnlockedCards(cards);
     incrementMultiUnlock();
     setPhase('unlocked');
-  };
+  }, [spreadId]);
 
   useEffect(() => {
     if (!enabled || !picks || picks.length === 0) { firedRef.current = false; return; }
@@ -69,7 +69,7 @@ export function useMultiSpreadGate({
     } else {
       setPhase('paywall');
     }
-  }, [emailGateAtCount, enabled, picks, spreadId]);
+  }, [emailGateAtCount, enabled, picks, unlockForFree]);
 
   const onEmailUnlocked = async (email: string) => {
     if (!picks || picks.length === 0) return;

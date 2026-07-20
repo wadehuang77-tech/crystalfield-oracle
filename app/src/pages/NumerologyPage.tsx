@@ -85,7 +85,6 @@ export default function NumerologyPage() {
   const [forecastCheckoutUnlocked, setForecastCheckoutUnlocked] = useState(() =>
     localStorage.getItem(FORECAST_UNLOCK_KEY) === '1',
   );
-  const displayTier: PlanTier = localTier;
   const paidContentTier: PlanTier = localTier >= 2 ? localTier : 0;
   const pendingUpgradeRef = useRef<PlanTier | null>(null);
 
@@ -765,7 +764,6 @@ export default function NumerologyPage() {
           onClose={() => setShowUpgrade(false)}
           onConfirm={handleUpgradeConfirm}
           defaultTier={upgradeDefaultTier}
-          currentTier={displayTier}
         />
       )}
 

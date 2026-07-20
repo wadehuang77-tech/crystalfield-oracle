@@ -7,15 +7,13 @@ interface EmailUnlockModalProps {
   onClose: () => void;
   onEmailSubmitted: (email: string) => void;
   readingType: string;
-  cardData: any;
 }
 
 export function EmailUnlockModal({
   isOpen,
   onClose,
   onEmailSubmitted,
-  readingType,
-  cardData: _cardData
+  readingType
 }: EmailUnlockModalProps) {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -175,7 +175,7 @@ function CosmicCrossPage() {
   };
 
   useEffect(() => {
-    if (!gate.unlockedCards || isLocallyUnlocked) return;
+    if (!gate.unlockedCards) return;
     const byKey = new Map(gate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
     setSelectedCards((prev) => prev.map((s) => {
       const u = byKey.get(s.preview.card_key);

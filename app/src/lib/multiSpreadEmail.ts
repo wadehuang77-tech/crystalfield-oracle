@@ -20,5 +20,7 @@ export function saveMultiSpreadEmail(email: string): void {
   if (!trimmed) return;
   try {
     localStorage.setItem(STORAGE_KEY, trimmed);
-  } catch {}
+  } catch {
+    // Checkout can continue with the guest fallback when storage is unavailable.
+  }
 }

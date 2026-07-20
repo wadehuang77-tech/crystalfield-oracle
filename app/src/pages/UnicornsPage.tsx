@@ -221,8 +221,10 @@ export default function UnicornsPage() {
   });
 
   useEffect(() => {
-    if (singleGate.unlockedCard && drawnCards[0] && !drawnCards[0].unlocked) {
-      setDrawnCards([{ preview: drawnCards[0].preview, unlocked: singleGate.unlockedCard }]);
+    if (singleGate.unlockedCard) {
+      setDrawnCards((current) => current[0] && !current[0].unlocked
+        ? [{ preview: current[0].preview, unlocked: singleGate.unlockedCard }]
+        : current);
     }
   }, [singleGate.unlockedCard]);
 
@@ -239,7 +241,7 @@ export default function UnicornsPage() {
   });
 
   useEffect(() => {
-    if (!threeGate.unlockedCards || isLocallyUnlocked) return;
+    if (!threeGate.unlockedCards) return;
     const byKey = new Map(threeGate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
     setDrawnCards((prev) => prev.map((s) => ({ ...s, unlocked: byKey.get(s.preview.card_key) ?? null })));
     setIsLocallyUnlocked(true);
@@ -276,7 +278,7 @@ export default function UnicornsPage() {
             </p>
             <button onClick={() => setShowDrawPage(false)} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
               <BookOpen className="w-4 h-4" strokeWidth={1.4} />
-              查　看　所　有　牌
+              查 看 所 有 牌
             </button>
           </section>
 
@@ -359,11 +361,11 @@ export default function UnicornsPage() {
               </div>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button onClick={performThreeCardDraw} disabled={!deck} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-medium rounded-xl shadow-lg hover:shadow-pink-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                  抽　牌
+                  抽 牌
                 </button>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                  返　回
+                  返 回
                 </button>
               </div>
             </section>
@@ -379,7 +381,7 @@ export default function UnicornsPage() {
                 </h2>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                  重　新　抽　牌
+                  重 新 抽 牌
                 </button>
               </div>
 
@@ -593,7 +595,7 @@ export default function UnicornsPage() {
           </p>
           <button onClick={() => setShowDrawPage(true)} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
             <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-            返　回　抽　牌
+            返 回 抽 牌
           </button>
         </section>
 
@@ -601,7 +603,7 @@ export default function UnicornsPage() {
           <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-500" strokeWidth={1.4} />
           <input
             type="text"
-            placeholder="搜　尋　牌　卡"
+            placeholder="搜 尋 牌 卡"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-3 bg-slate-900/50 border-2 border-pink-500/30 rounded-lg text-pink-100 placeholder-pink-400/50 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-colors pl-7 text-center"
@@ -723,7 +725,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function DrawPrep({ onDraw, onCancel, disabled }: { onDraw: () => void; onCancel: () => void; disabled: boolean }) {
   return (
     <section className="max-w-2xl mx-auto text-center py-8">
-      <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">準　備　抽　牌</h2>
+      <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
       <p className="text-sm sm:text-base text-pink-300/85 mb-12 leading-loose">
         閉上眼睛,感受獨角獸的魔法能量,當你準備好時點擊下方按鈕
       </p>
@@ -736,11 +738,11 @@ function DrawPrep({ onDraw, onCancel, disabled }: { onDraw: () => void; onCancel
       </div>
       <div className="flex flex-col sm:flex-row justify-center gap-4">
         <button onClick={onDraw} disabled={disabled} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-medium rounded-xl shadow-lg hover:shadow-pink-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-          抽　牌
+          抽 牌
         </button>
         <button onClick={onCancel} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
           <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-          返　回
+          返 回
         </button>
       </div>
     </section>

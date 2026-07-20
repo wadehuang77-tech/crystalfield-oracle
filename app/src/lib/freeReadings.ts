@@ -11,7 +11,9 @@ function readInt(key: string): number {
   try { return Math.max(0, parseInt(localStorage.getItem(key) ?? '0', 10) || 0); } catch { return 0; }
 }
 function writeInt(key: string, n: number) {
-  try { localStorage.setItem(key, String(n)); } catch {}
+  try { localStorage.setItem(key, String(n)); } catch {
+    // Keep the reading flow usable when browser storage is unavailable.
+  }
 }
 
 export function getGuestFreeUsed(): number  { return Math.min(readInt(GUEST_KEY), 1); }

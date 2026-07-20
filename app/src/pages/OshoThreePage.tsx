@@ -191,7 +191,7 @@ export default function OshoThreePage() {
   };
 
   useEffect(() => {
-    if (!gate.unlockedCards || isLocallyUnlocked || !reading) return;
+    if (!gate.unlockedCards) return;
     const byKey = new Map(gate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
     const synth = (slot: { preview: CardPreview }): FullCard | null => {
       const u = byKey.get(slot.preview.card_key);
@@ -200,11 +200,11 @@ export default function OshoThreePage() {
       if (!m) return null;
       return { card_key: slot.preview.card_key, name: u.name, subtitle: u.name_secondary ?? '', meanings: m };
     };
-    setReading({
-      inner:       { ...reading.inner,       full: synth(reading.inner) },
-      outer:       { ...reading.outer,       full: synth(reading.outer) },
-      integration: { ...reading.integration, full: synth(reading.integration) },
-    });
+    setReading((current) => current ? {
+      inner:       { ...current.inner,       full: synth(current.inner) },
+      outer:       { ...current.outer,       full: synth(current.outer) },
+      integration: { ...current.integration, full: synth(current.integration) },
+    } : null);
     setIsLocallyUnlocked(true);
   }, [gate.unlockedCards]);
 

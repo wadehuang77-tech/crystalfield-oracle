@@ -197,7 +197,7 @@ function TarotPage() {
   });
 
   useEffect(() => {
-    if (!singleGate.unlockedCard || isUnlocked) return;
+    if (!singleGate.unlockedCard) return;
     setDrawnCards((prev) => prev.map((d, i) =>
       i === 0 ? { ...d, card: buildShim(d.preview, singleGate.unlockedCard!.gated as unknown as TarotGated) } : d
     ));
@@ -216,7 +216,7 @@ function TarotPage() {
   });
 
   useEffect(() => {
-    if (!multiGate.unlockedCards || isLocallyUnlocked) return;
+    if (!multiGate.unlockedCards) return;
     const byKey = new Map(multiGate.unlockedCards.map((u) => [u.card_key, u]));
     setDrawnCards((prev) => prev.map((d) => {
       const u = byKey.get(d.preview.card_key);
@@ -291,9 +291,13 @@ function TarotPage() {
     }, 1500);
   };
 
+  const drawnCardsRef = useRef(drawnCards);
+  drawnCardsRef.current = drawnCards;
+
   useEffect(() => {
-    if (hasDrawn && drawnCards.length > 0) {
-      drawnCards.forEach((_, index) => {
+    const currentDrawnCards = drawnCardsRef.current;
+    if (hasDrawn && currentDrawnCards.length > 0) {
+      currentDrawnCards.forEach((_, index) => {
         setTimeout(() => {
           setDrawnCards(prev =>
             prev.map((card, i) =>
@@ -461,7 +465,7 @@ function TarotPage() {
           {!hasDrawn && !isDrawing && !showCardLayout && (
             <>
               <div className="mb-12">
-                <p className="text-center text-xs sm:text-sm tracking-[0.6em] text-orange-400/80 mb-2">選　擇　牌　陣</p>
+                <p className="text-center text-xs sm:text-sm tracking-[0.6em] text-orange-400/80 mb-2">選 擇 牌 陣</p>
                 <div className="ornamental-divider mb-10">
                   <svg viewBox="-8 -8 16 16" className="w-3 h-3" fill="currentColor">
                     <path d="M 0 -6 L 6 0 L 0 6 L -6 0 Z" />
@@ -542,11 +546,11 @@ function TarotPage() {
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button onClick={drawSingleCard} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-xl shadow-lg hover:shadow-orange-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                   <Sparkles className="w-5 h-5" strokeWidth={1.4} />
-                  抽　牌
+                  抽 牌
                 </button>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-orange-500/30 rounded-xl hover:bg-slate-700/60 hover:border-orange-400/50 transition-all text-orange-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                  重　選　牌　陣
+                  重 選 牌 陣
                 </button>
               </div>
             </div>
@@ -645,11 +649,11 @@ function TarotPage() {
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button onClick={performDraw} disabled={isDrawing} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-xl shadow-lg hover:shadow-orange-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                   <Sparkles className="w-5 h-5" strokeWidth={1.4} />
-                  抽　牌
+                  抽 牌
                 </button>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-orange-500/30 rounded-xl hover:bg-slate-700/60 hover:border-orange-400/50 transition-all text-orange-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                  重　選　牌　陣
+                  重 選 牌 陣
                 </button>
               </div>
             </div>

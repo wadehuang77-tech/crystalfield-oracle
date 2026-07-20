@@ -1,12 +1,9 @@
 import { Gem, ShoppingBag, Sparkles } from 'lucide-react';
 import type { NumerologyReport } from '../../lib/numerology';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
-import type { PlanTier } from '../../hooks/usePremium';
 
 interface Props {
   report: NumerologyReport;
-  tier: PlanTier;
-  onUpgrade: (required: PlanTier) => void;
 }
 
 interface BraceletTheme {
@@ -266,7 +263,7 @@ function BraceletCard({ theme, featured = false }: { theme: BraceletTheme; featu
   );
 }
 
-export default function CrystalBracelet({ report, tier: _tier, onUpgrade: _onUpgrade }: Props) {
+export default function CrystalBracelet({ report }: Props) {
   const missingCrystals = report.missingNumbers
     .flatMap(n => missingNumberData[n]?.crystals || [])
     .slice(0, 4);

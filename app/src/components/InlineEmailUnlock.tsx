@@ -25,31 +25,42 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
 
   const autoFiredRef = useRef(false);
   const lastUserIdRef = useRef<string | null>(null);
+  const userRef = useRef(user);
+  const cardUnlockRef = useRef(cardUnlock);
+  const onUnlockedRef = useRef(onUnlocked);
+  const readingTypeRef = useRef(readingType);
+  userRef.current = user;
+  cardUnlockRef.current = cardUnlock;
+  onUnlockedRef.current = onUnlocked;
+  readingTypeRef.current = readingType;
+
   useEffect(() => {
-    const currentUserId = user?.id ?? null;
+    const currentUser = userRef.current;
+    const currentUserId = currentUser?.id ?? null;
     if (lastUserIdRef.current !== currentUserId) {
       lastUserIdRef.current = currentUserId;
       autoFiredRef.current = false;
       setAutoUnlockFailed(false);
       setAutoUnlockError(null);
     }
-    if (!user || autoFiredRef.current) return;
+    if (!currentUser || autoFiredRef.current) return;
     autoFiredRef.current = true;
     setAutoUnlockFailed(false);
     setAutoUnlockError(null);
     (async () => {
       try {
-        if (cardUnlock) {
+        const currentCardUnlock = cardUnlockRef.current;
+        if (currentCardUnlock) {
           const { card } = await cardsApi.unlockSingle(
-            cardUnlock.spread_id,
-            cardUnlock.card_key,
-            user.email,
-            cardUnlock.reversed,
+            currentCardUnlock.spread_id,
+            currentCardUnlock.card_key,
+            currentUser.email,
+            currentCardUnlock.reversed,
           );
-          onUnlocked(user.email, card);
+          onUnlockedRef.current(currentUser.email, card);
         } else {
-          await publicApi.saveEmail(user.email, readingType).catch(() => {});
-          onUnlocked(user.email);
+          await publicApi.saveEmail(currentUser.email, readingTypeRef.current).catch(() => {});
+          onUnlockedRef.current(currentUser.email);
         }
       } catch (err) {
         setAutoUnlockFailed(true);

@@ -100,7 +100,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
               <Lock className="w-6 h-6" strokeWidth={1.4} />
             </div>
             <h3 className="font-serif text-xl sm:text-2xl text-blue-100 tracking-[0.3em] mb-2">
-              解　鎖　完　整　牌　陣　解　析
+              解 鎖 完 整 牌 陣 解 析
             </h3>
             <p className="text-sm sm:text-base text-blue-200/85 mt-3 tracking-wide">{spreadName}</p>
             {price !== null && (
@@ -138,7 +138,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
               {isCheckingOut ? (
                 <>
                   <span className="w-4 h-4 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin"/>
-                  跳　轉　至　綠　界…
+                  跳 轉 至 綠 界…
                 </>
               ) : (
                 <>
@@ -150,7 +150,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
           ) : (
             <button onClick={handleGoToLogin} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full">
               <LogIn className="w-4 h-4" strokeWidth={1.4} />
-              先　登　入
+              先 登 入
             </button>
           )}
 

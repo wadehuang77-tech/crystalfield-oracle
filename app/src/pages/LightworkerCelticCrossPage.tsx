@@ -209,7 +209,7 @@ function LightworkerCelticCrossPage() {
   };
 
   useEffect(() => {
-    if (!gate.unlockedCards || isLocallyUnlocked) return;
+    if (!gate.unlockedCards) return;
     const byKey = new Map(gate.unlockedCards.map((u: UnlockedCard) => [u.card_key, u]));
     setSelectedCards((prev) => prev.map((c) => {
       if (!c.preview) return c;

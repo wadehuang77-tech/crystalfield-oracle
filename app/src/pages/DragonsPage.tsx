@@ -160,7 +160,7 @@ function DragonsPage() {
     setUnlockError(null);
   };
 
-  
+
 
   useEffect(() => {
     if (hasDrawn) {
@@ -231,7 +231,9 @@ function DragonsPage() {
   });
 
   useEffect(() => {
-    if (singleGate.unlockedCard && !singleUnlocked) setSingleUnlocked(singleGate.unlockedCard);
+    if (singleGate.unlockedCard) {
+      setSingleUnlocked((current) => current ?? singleGate.unlockedCard);
+    }
   }, [singleGate.unlockedCard]);
 
   const threePicks = hasDrawn && threeSlots.length > 0
@@ -247,7 +249,7 @@ function DragonsPage() {
   });
 
   useEffect(() => {
-    if (!threeGate.unlockedCards || isThreeUnlocked) return;
+    if (!threeGate.unlockedCards) return;
     const byKey = new Map(threeGate.unlockedCards.map((u) => [u.card_key, u]));
     setThreeSlots((prev) => prev.map((s) => {
       const u = byKey.get(s.preview.card_key);
@@ -351,22 +353,22 @@ function DragonsPage() {
             </div>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button onClick={performThreeCardDraw} disabled={!deck} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                抽　牌
+                抽 牌
               </button>
               <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                返　回
+                返 回
               </button>
             </div>
           </section>
         )}
 
-        {isShuffling && <CardShuffleAnimation message="龍　族　火　焰　翻　湧　中" />}
+        {isShuffling && <CardShuffleAnimation message="龍 族 火 焰 翻 湧 中" />}
 
         {threeSlots.length > 0 && hasDrawn && (
           <section className="max-w-3xl mx-auto space-y-10">
             <div className="text-center">
-              <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-3">過 　 現 　 未</h2>
+              <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-3">過   現   未</h2>
               <p className="text-sm text-emerald-300/80">龍族為你揭示時間之流的智慧</p>
             </div>
 
@@ -435,7 +437,7 @@ function DragonsPage() {
                     <p className="font-serif text-2xl text-emerald-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('dragons_three') ?? 0)}</p>
                     {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
                     <button onClick={handleUnlockThree} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {isCheckingOut ? '跳　轉　至　綠　界…' : '立　即　解　鎖'}
+                      {isCheckingOut ? '跳 轉 至 綠 界…' : '立 即 解 鎖'}
                     </button>
                   </div>
                 )}
@@ -473,7 +475,7 @@ function DragonsPage() {
             <div className="flex justify-center pt-4">
               <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重　新　抽　牌
+                重 新 抽 牌
               </button>
             </div>
           </section>
@@ -559,7 +561,7 @@ function DragonsPage() {
             <div className="flex justify-center">
               <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重　新　抽　牌
+                重 新 抽 牌
               </button>
             </div>
           </section>
@@ -594,12 +596,12 @@ function ThreeSection({ title, children }: { title: string; children: React.Reac
   );
 }
 
- 
+
 
 function DrawPrep({ onDraw, onCancel, disabled, hint }: { onDraw: () => void; onCancel: () => void; disabled: boolean; hint: string }) {
   return (
     <section className="max-w-2xl mx-auto text-center py-8">
-      <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">準　備　抽　牌</h2>
+      <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
       <p className="text-sm sm:text-base text-emerald-300/85 mb-12 leading-loose">{hint}</p>
       <div className="flex justify-center mb-12">
         <div className="w-44 sm:w-56">
@@ -610,11 +612,11 @@ function DrawPrep({ onDraw, onCancel, disabled, hint }: { onDraw: () => void; on
       </div>
       <div className="flex flex-col sm:flex-row justify-center gap-4">
         <button onClick={onDraw} disabled={disabled} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-          抽　牌
+          抽 牌
         </button>
         <button onClick={onCancel} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
           <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-          返　回
+          返 回
         </button>
       </div>
     </section>
@@ -631,7 +633,7 @@ function DeckSigil() {
   );
 }
 
- 
+
 
 function CardBackOrnament() {
   return (

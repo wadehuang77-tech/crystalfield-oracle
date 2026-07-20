@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Sparkles, Gem, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport, OracleCard, MissingNumberData, CrystalInfo } from '../../lib/numerology';
-import { missingNumberData, ALL_GRID_LINES } from '../../lib/numerology';
+import { missingNumberData } from '../../lib/numerology';
 import type { PlanTier } from '../../hooks/usePremium';
 
 interface Props {
@@ -19,13 +19,8 @@ function generateCrossAnalysis(report: NumerologyReport, card: OracleCard): {
 } {
   const topMissing = report.missingNumbers[0];
   const missingData = topMissing ? missingNumberData[topMissing] : null;
-  const presentGridLines = ALL_GRID_LINES.filter(line =>
-    line.numbers.every(n => report.presentNumbers.includes(n))
-  );
-  const topLine = presentGridLines[0];
-
   const blockpoint = buildBlockpoint(card, report, topMissing, missingData);
-  const crystalGrid = buildCrystalGrid(card, report, topMissing, missingData, topLine);
+  const crystalGrid = buildCrystalGrid(card, topMissing, missingData);
   const ritual = buildRitual(card, report, topMissing, missingData);
 
   return { blockpoint, crystalGrid, ritual };
@@ -98,10 +93,8 @@ function buildBlockpoint(
 
 function buildCrystalGrid(
   card: OracleCard,
-  _report: NumerologyReport,
   topMissing: number | undefined,
-  missingData: MissingNumberData | null,
-  _topLine: typeof ALL_GRID_LINES[number] | undefined
+  missingData: MissingNumberData | null
 ): string {
   const elementGrids: Record<string, string> = {
     '月亮': `結合「${card.name}」的月亮元素，建議進行「月光直覺水晶陣」。在滿月或新月夜，於室外或窗前佈置：以「月光石」或「透明拉長石」作為中心石，代表${card.nameEn}的神聖指引；四個方位各放一顆「白水晶柱」作為能量放大器；${topMissing ? `再搭配 ${missingData?.crystals.map((c: CrystalInfo) => c.nameZh).join('、') ?? '對應水晶'}，放置於東方位，針對性地補充缺失數字 ${topMissing} 的能量頻率。` : `再加入四顆「粉晶」佈放於方位之間，柔化並平衡整個能量場。`}整個水晶陣在月光下充電一夜，第二天清晨取回後，選取中心石配戴於身上，讓月亮神諭的指引持續伴隨你。`,

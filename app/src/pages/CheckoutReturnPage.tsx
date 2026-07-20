@@ -243,7 +243,7 @@ function PaidSuccess({ order, onSpread }: { order: Order; onSpread: () => void }
           </p>
 
           <div className="mt-8 mb-6 inline-block px-4 py-2 border border-blue-500/25">
-            <p className="text-[11px] text-blue-400/70 tracking-[0.3em] mb-1">訂　單　號</p>
+            <p className="text-[11px] text-blue-400/70 tracking-[0.3em] mb-1">訂 單 號</p>
             <p className="font-mono text-xs text-blue-200/85">{order.merchant_trade_no}</p>
           </div>
 
