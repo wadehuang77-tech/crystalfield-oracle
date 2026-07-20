@@ -49,7 +49,7 @@ function HomePage() {
                 </div>
                 <div className="flex-grow min-w-0">
                   <h2 className="text-xl font-serif text-orange-100 tracking-wide mb-1">偉特塔羅</h2>
-                  <p className="text-orange-200/70 text-xs tracking-wide">單張・三張牌陣・凱爾特十字・前世因果</p>
+                  <p className="text-orange-200/70 text-xs tracking-wide">清楚明白的未來指引</p>
                 </div>
               </div>
             </div>
@@ -65,7 +65,7 @@ function HomePage() {
                 </div>
                 <div className="flex-grow min-w-0">
                   <h2 className="text-xl font-serif text-cyan-100 tracking-wide mb-1">光行者神諭</h2>
-                  <p className="text-cyan-200/70 text-xs tracking-wide">單張・十字交叉使命陣</p>
+                  <p className="text-cyan-200/70 text-xs tracking-wide">清理負能量與靈性頻率提升</p>
                 </div>
               </div>
             </div>
@@ -85,7 +85,7 @@ function HomePage() {
                 </div>
                 <div className="flex-grow min-w-0">
                   <h2 className="text-xl font-serif text-pink-100 tracking-wide mb-1">獨角獸塔羅</h2>
-                  <p className="text-pink-200/70 text-xs tracking-wide">單張・三張牌陣</p>
+                  <p className="text-pink-200/70 text-xs tracking-wide">溫柔療癒的陪伴與鼓勵</p>
                 </div>
               </div>
             </div>
@@ -106,7 +106,7 @@ function HomePage() {
                 </div>
                 <div className="flex-grow min-w-0">
                   <h2 className="text-xl font-serif text-emerald-100 tracking-wide mb-1">龍族塔羅</h2>
-                  <p className="text-emerald-200/70 text-xs tracking-wide">單張・三張牌陣</p>
+                  <p className="text-emerald-200/70 text-xs tracking-wide">突破現狀的強大行動力</p>
                 </div>
               </div>
             </div>
@@ -127,7 +127,7 @@ function HomePage() {
                 </div>
                 <div className="flex-grow min-w-0">
                   <h2 className="text-xl font-serif text-yellow-100 tracking-wide mb-1">埃及神諭</h2>
-                  <p className="text-yellow-200/70 text-xs tracking-wide">單張・前世因果解鎖陣</p>
+                  <p className="text-yellow-200/70 text-xs tracking-wide">揭開深層潛意識與靈魂藍圖</p>
                 </div>
               </div>
             </div>
@@ -143,7 +143,7 @@ function HomePage() {
                 </div>
                 <div className="flex-grow min-w-0">
                   <h2 className="text-xl font-serif text-violet-100 tracking-wide mb-1">Lightworker光之訊息</h2>
-                  <p className="text-violet-200/70 text-xs tracking-wide">單張・宇宙十字牌陣</p>
+                  <p className="text-violet-200/70 text-xs tracking-wide">接引高維光之能量與靈魂指引</p>
                 </div>
               </div>
             </div>
@@ -170,7 +170,7 @@ function HomePage() {
                   <h2 className="text-2xl font-serif bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent leading-tight">
                     奧修禪卡
                   </h2>
-                  <p className="text-teal-200/60 text-sm mt-0.5 tracking-wide">不是預測未來，而是照見此刻的真相</p>
+                  <p className="text-teal-200/60 text-sm mt-0.5 tracking-wide">看清當下真相與內心覺察</p>
                 </div>
               </div>
             </div>
