@@ -23,13 +23,13 @@ function HomePage() {
               你現在最希望獲得什麼樣的力量？
             </h2>
             <ul className="space-y-2.5 text-sm sm:text-base leading-relaxed text-blue-100/85">
-              <li><strong className="text-blue-50">A. 清楚明白的未來指引</strong> → （推薦：<strong className="text-orange-200">偉特塔羅</strong>）</li>
-              <li><strong className="text-blue-50">B. 溫柔療癒的陪伴與鼓勵</strong> → （推薦：<strong className="text-pink-200">獨角獸塔羅</strong>）</li>
-              <li><strong className="text-blue-50">C. 突破現狀的強大行動力</strong> → （推薦：<strong className="text-emerald-200">龍族塔羅</strong>）</li>
-              <li><strong className="text-blue-50">D. 清理負能量與靈性頻率提升</strong> → （推薦：<strong className="text-cyan-200">光行者神諭</strong>）</li>
-              <li><strong className="text-blue-50">E. 揭開深層潛意識與靈魂藍圖</strong> → （推薦：<strong className="text-yellow-200">埃及神諭</strong>）</li>
-              <li><strong className="text-blue-50">F. 接引高維光之能量與靈魂指引</strong> → （推薦：<strong className="text-violet-200">Lightworker光之訊息</strong>）</li>
-              <li><strong className="text-blue-50">G. 看清當下真相與內心覺察</strong> → （推薦：<strong className="text-teal-200">奧修禪卡</strong>）</li>
+              <li><strong className="text-blue-50">A. 經典必備</strong>「全球發行量最大，學習塔羅占卜的第一選擇。」 → （推薦：<strong className="text-orange-200">偉特塔羅</strong>）</li>
+              <li><strong className="text-blue-50">B. 熱銷 No.1 溫柔療癒</strong>「零基礎也能上手，每天給自己最溫柔的靈魂指引。」 → （推薦：<strong className="text-pink-200">獨角獸塔羅</strong>）</li>
+              <li><strong className="text-blue-50">C. 強大氣場 突破困境</strong>「接引龍族的保護與顯化魔法，帶領你採取關鍵行動。」 → （推薦：<strong className="text-emerald-200">龍族塔羅</strong>）</li>
+              <li><strong className="text-blue-50">D. 高頻能量 清理提升</strong>「接引高維光之訊息，清理負面情緒並提升靈魂頻率。」 → （推薦：<strong className="text-cyan-200">光行者神諭</strong>）</li>
+              <li><strong className="text-blue-50">E. 神秘學 靈魂藍圖</strong>「連結古埃及神祇智慧，解開前世今生與潛意識課題。」 → （推薦：<strong className="text-yellow-200">埃及神諭</strong>）</li>
+              <li><strong className="text-blue-50">F. 直覺靈感</strong>「接引高維光之能量，為靈魂帶來清晰指引與清理。」 → （推薦：<strong className="text-violet-200">Lightworker光之訊息</strong>）</li>
+              <li><strong className="text-blue-50">G. 深度覺察 突破盲點</strong>「直指內心真實狀態，幫助你看清當下與現實真相。」 → （推薦：<strong className="text-teal-200">奧修禪卡</strong>）</li>
             </ul>
           </div>
         </header>
