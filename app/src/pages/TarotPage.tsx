@@ -148,7 +148,7 @@ function TarotMultiEmailGate({
 
 function TarotPage() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { cards: deck } = useDeck('tarot');
   const initialSpread = ((): SpreadType => {
@@ -432,24 +432,11 @@ function TarotPage() {
     setIsLocallyUnlocked(false);
   };
 
-  const _handleBack = () => {
-    if (showCardLayout || hasDrawn || isDrawing || drawnCards.length > 0) {
-      resetDraw();
-      if (searchParams.get('spread')) {
-        setSearchParams({}, { replace: true });
-      }
-      return;
-    }
-    navigate(-1);
-  };
-
   const handleSpreadTypeChange = (newSpreadType: SpreadType) => {
     setSpreadType(newSpreadType);
     setIsLocallyUnlocked(false);
     setShowCardLayout(true);
   };
-
-  const _showFullContent = isLocallyUnlocked;
 
   const getPreviewText = (text: string): string => {
     return text.slice(0, Math.floor(text.length * 0.5)) + '...';

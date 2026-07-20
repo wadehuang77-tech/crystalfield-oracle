@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Sparkles } from 'lucide-react';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -24,7 +23,6 @@ interface OshoGated {
 }
 
 export default function OshoSinglePage() {
-  const _navigate = useNavigate();
   const [deck, setDeck] = useState<CardPreview[] | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
   const [drawnPreview, setDrawnPreview] = useState<CardPreview | null>(null);

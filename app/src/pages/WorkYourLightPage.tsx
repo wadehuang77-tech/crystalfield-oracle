@@ -1,21 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
  
-import { useAuth } from '../contexts/AuthContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 function WorkYourLightPage() {
   const navigate = useNavigate();
-  const { user: _user } = useAuth();
   const { cards: deck } = useDeck('work_your_light');
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const drawCard = () => navigate('/work-your-light-single');
-
-  const handleCosmicCrossClick = (_e: React.MouseEvent) => {
-  };
 
   const deckReady = !!deck && deck.length > 0;
 
@@ -64,7 +59,6 @@ function WorkYourLightPage() {
           <div className="flex flex-col items-center gap-4">
             <Link
               to="/cosmic-cross"
-              onClick={handleCosmicCrossClick}
               className="group relative w-full flex-1"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
@@ -112,28 +106,6 @@ function DeckSigil() {
       <circle r="11" strokeWidth="0.7" opacity="0.7" />
       <circle r="5" strokeWidth="0.7" />
       <circle r="2" fill="currentColor" />
-    </svg>
-  );
-}
-
-function SingleSpreadSigil() {
-  return (
-    <svg viewBox="-30 -40 60 80" className="w-12 h-16" stroke="currentColor" fill="none">
-      <rect x="-12" y="-20" width="24" height="40" strokeWidth="1" />
-      <rect x="-9" y="-17" width="18" height="34" strokeWidth="0.4" opacity="0.5" />
-      <circle cx="0" cy="0" r="5" strokeWidth="0.8" />
-    </svg>
-  );
-}
-
-function CosmicCrossSigil() {
-  return (
-    <svg viewBox="-40 -40 80 80" className="w-16 h-16" stroke="currentColor" fill="none">
-      <rect x="-7" y="-32" width="14" height="22" strokeWidth="0.9" />
-      <rect x="-7" y="10" width="14" height="22" strokeWidth="0.9" />
-      <rect x="-32" y="-7" width="22" height="14" strokeWidth="0.9" />
-      <rect x="10" y="-7" width="22" height="14" strokeWidth="0.9" />
-      <rect x="-9" y="-9" width="18" height="18" strokeWidth="1.1" />
     </svg>
   );
 }

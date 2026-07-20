@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
+import { RotateCcw, Sparkles } from 'lucide-react';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { MembershipGate } from '../components/MembershipGate';
@@ -75,14 +75,6 @@ function LightworkerPage() {
     setHasDrawn(false);
     setIsShuffling(false);
     setShowDrawPage(false);
-  };
-
-  const _handleBack = () => {
-    if (showDrawPage || hasDrawn || isShuffling || drawnPreview) {
-      reset();
-      return;
-    }
-    navigate(-1);
   };
 
   useEffect(() => {
@@ -327,62 +319,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-3">{title}</h3>
       <p className="text-cyan-100/90 leading-loose whitespace-pre-line">{children}</p>
     </div>
-  );
-}
-
-function _SpreadCard({
-  onClick, title, body, cta, price, sigil,
-}: {
-  onClick: () => void;
-  title: string;
-  body: string;
-  cta: string;
-  price?: number;
-  sigil: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-cyan-500/30 rounded-2xl p-5 sm:p-6 shadow-xl group text-left transition-all duration-300 hover:border-cyan-500/70 hover:-translate-y-1 min-h-[15rem] sm:min-h-[18rem]"
-    >
-      <div className="flex flex-col items-center text-center h-full">
-        <div className="text-cyan-400 mb-4 sm:mb-6 transition-transform duration-500 group-hover:rotate-12 scale-90 sm:scale-100">
-          {sigil}
-        </div>
-        <h2 className="font-serif text-xl sm:text-2xl text-cyan-100 tracking-[0.25em] sm:tracking-[0.3em] mb-2 sm:mb-3">{title}</h2>
-        <p className={`text-xs sm:text-sm text-cyan-300/80 leading-loose max-w-xs ${price !== undefined ? 'mb-2 sm:mb-3' : 'mb-6 sm:mb-8'}`}>{body}</p>
-        {price !== undefined && (
-          <p className="font-serif text-sm sm:text-base text-cyan-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">NT$ {price}</p>
-        )}
-        <span className="mt-auto inline-flex items-center gap-2 px-5 py-2 border border-cyan-500/50 bg-cyan-500/10 rounded-lg text-xs tracking-[0.35em] sm:tracking-[0.4em] text-cyan-200 transition-all duration-300 group-hover:bg-cyan-500/25 group-hover:border-cyan-400/70 group-hover:translate-x-1">
-          {cta}
-          <ArrowRight className="w-4 h-4" strokeWidth={1.4} />
-        </span>
-      </div>
-    </button>
-  );
-}
-
-function _SingleSpreadSigil() {
-  return (
-    <svg viewBox="-30 -40 60 80" className="w-12 h-16" stroke="currentColor" fill="none">
-      <rect x="-12" y="-20" width="24" height="40" strokeWidth="1" />
-      <rect x="-9" y="-17" width="18" height="34" strokeWidth="0.4" opacity="0.5" />
-      <circle cx="0" cy="0" r="5" strokeWidth="0.8" />
-    </svg>
-  );
-}
-
-function _CelticCrossSigil() {
-  return (
-    <svg viewBox="-40 -40 80 80" className="w-16 h-16" stroke="currentColor" fill="none">
-      <rect x="-9" y="-9" width="18" height="18" strokeWidth="0.9" />
-      <rect x="-12" y="-6" width="24" height="12" strokeWidth="0.9" transform="rotate(90)" />
-      <rect x="-9" y="-32" width="18" height="14" strokeWidth="0.7" />
-      <rect x="-9" y="18" width="18" height="14" strokeWidth="0.7" />
-      <rect x="-32" y="-7" width="14" height="14" strokeWidth="0.7" />
-      <rect x="18" y="-7" width="14" height="14" strokeWidth="0.7" />
-    </svg>
   );
 }
 

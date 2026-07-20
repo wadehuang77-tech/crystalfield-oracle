@@ -145,14 +145,6 @@ export default function UnicornsPage() {
     setUnlockError(null);
   };
 
-  const handleDrawHeaderBack = () => {
-    if (showCardLayout || drawnCards.length > 0 || isDrawing) {
-      resetDraw();
-      return;
-    }
-    navigate(-1);
-  };
-
   useEffect(() => {
     if (hasDrawn) {
       window.scrollTo(0, 0);
@@ -728,36 +720,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function _SpreadChoice({
-  onClick, sigil, title, body, cta, disabled, price,
-}: {
-  onClick: () => void; sigil: React.ReactNode; title: string;
-  body: string; cta: string; disabled?: boolean; price?: number;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-5 sm:p-6 shadow-xl group text-left transition-all duration-300 hover:border-pink-500/70 hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed min-h-[15rem] sm:min-h-[18rem]"
-    >
-      <div className="flex flex-col items-center text-center h-full">
-        <div className="text-pink-500 mb-4 sm:mb-6 transition-transform duration-500 group-hover:rotate-12 scale-90 sm:scale-100">
-          {sigil}
-        </div>
-        <h2 className="font-serif text-xl sm:text-2xl text-pink-100 tracking-[0.25em] sm:tracking-[0.3em] mb-2 sm:mb-3">{title}</h2>
-        <p className={`text-xs sm:text-sm text-pink-300/80 leading-loose max-w-xs ${price !== undefined ? 'mb-2 sm:mb-3' : 'mb-6 sm:mb-8'}`}>{body}</p>
-        {price !== undefined && (
-          <p className="font-serif text-sm sm:text-base text-pink-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">NT$ {price}</p>
-        )}
-        <span className="mt-auto inline-flex items-center gap-2 px-5 py-2 border border-pink-500/50 bg-pink-500/10 rounded-lg text-xs tracking-[0.35em] sm:tracking-[0.4em] text-pink-200 transition-all duration-300 group-hover:bg-pink-500/25 group-hover:border-pink-400/70 group-hover:translate-x-1">
-          {cta}
-          <ArrowRight className="w-4 h-4" strokeWidth={1.4} />
-        </span>
-      </div>
-    </button>
-  );
-}
-
 function DrawPrep({ onDraw, onCancel, disabled }: { onDraw: () => void; onCancel: () => void; disabled: boolean }) {
   return (
     <section className="max-w-2xl mx-auto text-center py-8">
@@ -785,22 +747,6 @@ function DrawPrep({ onDraw, onCancel, disabled }: { onDraw: () => void; onCancel
   );
 }
 
-function _ShufflingState() {
-  return (
-    <section className="text-center py-24">
-      <div className="relative inline-block">
-        <div className="absolute inset-0 -m-12 bg-slate-800/15 blur-3xl rounded-full animate-pulse" />
-        <div className="relative text-pink-500 animate-spin" style={{ animationDuration: '2.5s' }}>
-          <ShuffleSigil />
-        </div>
-      </div>
-      <p className="font-serif text-xl sm:text-2xl text-pink-100 mt-10 tracking-[0.4em] animate-pulse">
-        獨 角 獸 為 你 選 牌 中
-      </p>
-    </section>
-  );
-}
-
 function DeckSigil() {
   return (
     <svg viewBox="-30 -30 60 60" className="w-20 h-20 sm:w-24 sm:h-24" stroke="currentColor" fill="none">
@@ -808,29 +754,6 @@ function DeckSigil() {
       <circle r="22" strokeWidth="0.4" opacity="0.5" strokeDasharray="0.4 1.5" />
       <path d="M 0 -16 L 4.7 -4.9 L 16.5 -4.9 L 7 2 L 10.5 13.4 L 0 6 L -10.5 13.4 L -7 2 L -16.5 -4.9 L -4.7 -4.9 Z" strokeWidth="0.9" />
       <circle r="1.2" fill="currentColor" />
-    </svg>
-  );
-}
-
-function _SingleSpreadSigil() {
-  return (
-    <svg viewBox="-30 -40 60 80" className="w-12 h-16" stroke="currentColor" fill="none">
-      <rect x="-12" y="-20" width="24" height="40" strokeWidth="1" />
-      <rect x="-9" y="-17" width="18" height="34" strokeWidth="0.4" opacity="0.5" />
-      <circle cx="0" cy="0" r="5" strokeWidth="0.8" />
-    </svg>
-  );
-}
-
-function _TripleSpreadSigil() {
-  return (
-    <svg viewBox="-40 -40 80 80" className="w-16 h-16" stroke="currentColor" fill="none">
-      {[-22, 0, 22].map((x) => (
-        <g key={x}>
-          <rect x={x - 9} y={-15} width="18" height="30" strokeWidth="1" />
-          <rect x={x - 7} y={-13} width="14" height="26" strokeWidth="0.4" opacity="0.5" />
-        </g>
-      ))}
     </svg>
   );
 }
@@ -845,16 +768,3 @@ function CardBackOrnament() {
   );
 }
 
-function ShuffleSigil() {
-  return (
-    <svg viewBox="-40 -40 80 80" className="w-20 h-20 sm:w-24 sm:h-24" stroke="currentColor" fill="none">
-      <circle r="36" strokeWidth="0.5" strokeDasharray="2 4" opacity="0.6" />
-      <circle r="28" strokeWidth="0.7" />
-      <path d="M 0 -22 L 6 -6 L 0 0 L -6 -6 Z" fill="currentColor" fillOpacity="0.4" />
-      <path d="M 22 0 L 6 6 L 0 0 L 6 -6 Z" fill="currentColor" fillOpacity="0.4" />
-      <path d="M 0 22 L -6 6 L 0 0 L 6 6 Z" fill="currentColor" fillOpacity="0.25" />
-      <path d="M -22 0 L -6 -6 L 0 0 L -6 6 Z" fill="currentColor" fillOpacity="0.25" />
-      <circle r="2" fill="currentColor" />
-    </svg>
-  );
-}

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import { useNavigate } from 'react-router-dom';
 import { RotateCcw, Sparkles } from 'lucide-react';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -44,7 +43,6 @@ interface DrawnCard {
 }
 
 function TarotSinglePage() {
-  const _navigate = useNavigate();
   const [deck, setDeck] = useState<CardPreview[] | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
   const [drawnCard, setDrawnCard] = useState<DrawnCard | null>(null);

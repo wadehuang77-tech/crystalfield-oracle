@@ -132,14 +132,6 @@ function EgyptianGodsPage() {
     setUnlockError(null);
   };
 
-  const _handleBack = () => {
-    if (showCardLayout || hasDrawn || isDrawing || singlePreview || pastlifeSlots.length > 0) {
-      resetDraw();
-      return;
-    }
-    navigate(-1);
-  };
-
   useEffect(() => {
     if (hasDrawn) {
       window.scrollTo(0, 0);
@@ -162,7 +154,7 @@ function EgyptianGodsPage() {
           return;
         }
         const slots = order.picks
-          .map((p, i) => {
+          .map<PastlifeSlot | null>((p, i) => {
             const preview = deck.find((c) => c.card_key === p.card_key);
             if (!preview) return null;
             return { preview, position: PASTLIFE_POSITIONS[i], full: null };

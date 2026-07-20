@@ -100,8 +100,7 @@ export function generateSpiritualGrowthInterpretation(
 }
 
 export function generateHealingInterpretation(
-  position: number,
-  card: LightworkerCard
+  position: number
 ): string {
   const positionHealing = {
     1: '你的情緒中心正在經歷重要的轉化。這張牌顯示你當前情緒體的狀態，以及需要關注的療癒焦點。深入感受這個能量，允許自己誠實地面對內在的情緒波動。療癒始於接納，當你能夠不批判地看見自己的情緒時，轉化就已經開始了。',
@@ -120,8 +119,7 @@ export function generateHealingInterpretation(
 }
 
 export function generateLifePathInterpretation(
-  position: number,
-  card: LightworkerCard
+  position: number
 ): string {
   const positionPath = {
     1: '你的人生核心正圍繞著這個主題展開。這張牌揭示你當前生命階段的中心課題與能量頻率。它不僅反映你現在的位置，也指出你需要專注的方向。理解這個核心能量將幫助你做出更符合靈魂藍圖的選擇，讓你的行動與真實使命對齊。',
