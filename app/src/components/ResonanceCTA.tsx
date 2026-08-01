@@ -1,6 +1,9 @@
 import { Calendar, Sparkles, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import qrImage from '../../public/L_gainfriends_2dbarcodes_GW.png';
+import { publicApi, PublicButtonLink } from '../lib/api';
+
+const AI_TAROT_BUTTON_KEY = 'resonance-ai-tarot-design';
 
 function QRCodeModal({ onClose }: { onClose: () => void }) {
   return (
@@ -54,6 +57,28 @@ function QRCodeModal({ onClose }: { onClose: () => void }) {
 
 export function ResonanceCTA() {
   const [showQR, setShowQR] = useState(false);
+  const [aiTarotLink, setAiTarotLink] = useState<PublicButtonLink | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void publicApi.buttonLink(AI_TAROT_BUTTON_KEY)
+      .then((result) => {
+        if (active) setAiTarotLink(result);
+      })
+      .catch(() => {
+        if (active) {
+          setAiTarotLink({
+            button_key: AI_TAROT_BUTTON_KEY,
+            available: false,
+            form: null,
+            label: '報名尚未開放',
+          });
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <>
@@ -84,34 +109,53 @@ export function ResonanceCTA() {
               <Calendar className="w-8 h-8 text-blue-100 flex-shrink-0" />
               <div>
                 <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                  預約深度療癒解析
+                  想為你的品牌建置專屬塔羅系統？
                 </h4>
                 <p className="text-blue-100 text-xs sm:text-sm">
-                  一對一深度對談，協助你找到根源問題與轉化方向
+                  按此預約諮詢
                 </p>
               </div>
             </div>
           </button>
 
-          <a
-            href="https://forms.gle/DrFhpNTcYBPYq7667"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 rounded-xl p-6 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-slate-800/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-            <div className="relative flex items-center gap-3">
-              <Sparkles className="w-8 h-8 text-blue-100 flex-shrink-0" />
-              <div className="text-left">
-                <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                  了解 AI 療癒系統
-                </h4>
-                <p className="text-blue-100 text-xs sm:text-sm">
-                  免費說明會｜探索如何透過科技與靈性結合進行自我療癒
-                </p>
+          {aiTarotLink?.available && aiTarotLink.form?.url ? (
+            <a
+              href={aiTarotLink.form.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 rounded-xl p-6 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-slate-800/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <div className="relative flex items-center gap-3">
+                <Sparkles className="w-8 h-8 text-blue-100 flex-shrink-0" />
+                <div className="text-left">
+                  <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
+                    解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開
+                  </h4>
+                  <p className="text-blue-100 text-xs sm:text-sm">
+                    免費線上說明會｜教你如何用 AI 設計塔羅牌，零基礎打造高質感的個人牌卡
+                  </p>
+                </div>
+              </div>
+            </a>
+          ) : (
+            <div
+              aria-disabled="true"
+              className="relative overflow-hidden bg-gradient-to-r from-slate-700 to-slate-700 rounded-xl p-6 shadow-lg opacity-75 cursor-not-allowed"
+            >
+              <div className="relative flex items-center gap-3">
+                <Sparkles className="w-8 h-8 text-blue-100 flex-shrink-0" />
+                <div className="text-left">
+                  <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
+                    解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開
+                  </h4>
+                  <p className="text-blue-100 text-xs sm:text-sm">
+                    報名尚未開放
+                  </p>
+                </div>
               </div>
             </div>
-          </a>
+          )}
         </div>
 
         <div className="text-center mt-6">

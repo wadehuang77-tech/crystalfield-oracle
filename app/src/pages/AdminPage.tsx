@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { adminApi, Profile, GuestEmail, AdminOrder } from '../lib/api';
-import { Shield, Users, Calendar, Mail, Loader2, Settings, Download, Filter, UserCheck, BarChart3, Receipt, Coins, Trash2, BookOpen, CheckSquare, Square } from 'lucide-react';
+import { Shield, Users, Calendar, Mail, Loader2, Settings, Download, Filter, UserCheck, BarChart3, Receipt, Coins, Trash2, BookOpen, CheckSquare, Square, FileText } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { OrderReadingModal } from '../components/OrderReadingModal';
 import { formatDateTimeTW } from '../lib/dateFormat';
@@ -311,6 +311,10 @@ export function AdminPage() {
                 <Link to="/admin/settings" className="inline-flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 !text-xs">
                   <Settings className="w-4 h-4" strokeWidth={1.4} />
                   管理員設定
+                </Link>
+                <Link to="/admin/google-forms" className="inline-flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 !text-xs">
+                  <FileText className="w-4 h-4" strokeWidth={1.4} />
+                  Google 表單管理
                 </Link>
               </div>
             </div>

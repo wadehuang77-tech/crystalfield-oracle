@@ -117,6 +117,42 @@ export interface GuestEmail {
   status?: string;
 }
 
+export interface GoogleFormAdmin {
+  id: string;
+  name: string;
+  url: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface ButtonLinkSetting {
+  button_key: string;
+  label: string;
+  google_form_id: string | null;
+  selected_form: {
+    id: string;
+    name: string | null;
+    url: string | null;
+    is_active: boolean;
+    deleted_at: string | null;
+  } | null;
+  warning: string | null;
+  updated_at: string | null;
+}
+
+export interface PublicButtonLink {
+  button_key: string;
+  available: boolean;
+  form: {
+    id: string;
+    name: string | null;
+    url: string | null;
+  } | null;
+  label: string | null;
+}
+
 export const authApi = {
   signUp: (body: {
     email: string;
@@ -244,6 +280,9 @@ export const publicApi = {
       method: 'POST',
       body: { event_type, event_data, email: email ?? null },
     }).catch(() => {}),
+
+  buttonLink: (buttonKey: string) =>
+    req<PublicButtonLink>(`/api/button-links/${encodeURIComponent(buttonKey)}`),
 };
 
 export interface HumanDesignChartInput {
@@ -364,6 +403,27 @@ export const adminApi = {
     req<{ ok: true; alreadyGranted: boolean }>(`/api/admin/orders/${encodeURIComponent(id)}/repair-access`, {
       method: 'POST',
     }),
+  googleForms: () =>
+    req<{ forms: GoogleFormAdmin[] }>('/api/admin/google-forms'),
+  createGoogleForm: (body: { name: string; url: string; is_active: boolean }) =>
+    req<{ form: GoogleFormAdmin }>('/api/admin/google-forms', { method: 'POST', body }),
+  updateGoogleForm: (id: string, body: { name: string; url: string; is_active: boolean }) =>
+    req<{ form: GoogleFormAdmin }>(`/api/admin/google-forms/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body,
+    }),
+  deleteGoogleForm: (id: string) =>
+    req<{ ok: true; affected_buttons: Array<{ button_key: string; label: string }> }>(
+      `/api/admin/google-forms/${encodeURIComponent(id)}`,
+      { method: 'DELETE', body: { confirm: true } },
+    ),
+  buttonLinkSettings: () =>
+    req<{ settings: ButtonLinkSetting[] }>('/api/admin/button-link-settings'),
+  updateButtonLinkSetting: (buttonKey: string, googleFormId: string) =>
+    req<{ ok: true; setting: { button_key: string; google_form_id: string } }>(
+      `/api/admin/button-link-settings/${encodeURIComponent(buttonKey)}`,
+      { method: 'PUT', body: { google_form_id: googleFormId } },
+    ),
 };
 
 export type DeckId =

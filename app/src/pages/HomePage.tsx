@@ -31,6 +31,12 @@ function HomePage() {
               <li><strong className="text-blue-50">F. 接引高維光之能量與靈魂指引</strong> → （推薦：<strong className="text-violet-200">Lightworker光之訊息</strong>）</li>
               <li><strong className="text-blue-50">G. 看清當下真相與內心覺察</strong> → （推薦：<strong className="text-teal-200">奧修禪卡</strong>）</li>
             </ul>
+            <div className="mt-6 border-t border-blue-300/20 pt-5 text-center">
+              <p className="relative inline-block bg-gradient-to-r from-amber-200 via-white to-cyan-200 bg-clip-text text-xl font-black tracking-wide text-transparent drop-shadow-[0_0_12px_rgba(255,255,255,0.85)] sm:text-2xl md:text-3xl">
+                任選三個牌陣,可免費算三次
+                <span className="pointer-events-none absolute inset-x-[8%] top-[12%] h-px bg-white/80 blur-[1px]" />
+              </p>
+            </div>
           </div>
         </header>
 

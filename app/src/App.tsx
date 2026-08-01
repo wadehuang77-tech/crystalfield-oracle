@@ -22,6 +22,7 @@ import OshoThreePage from './pages/OshoThreePage';
 import { AdminPage } from './pages/AdminPage';
 import { AdminSettingsPage } from './pages/AdminSettingsPage';
 import { AdminKpiPage } from './pages/AdminKpiPage';
+import { GoogleFormsAdminPage } from './pages/GoogleFormsAdminPage';
 import CheckoutReturnPage from './pages/CheckoutReturnPage';
 import LandingPage from './pages/LandingPage';
 import NumerologyPage from './pages/NumerologyPage';
@@ -44,6 +45,7 @@ function RouterBody() {
           <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute><AdminSettingsPage /></ProtectedRoute>} />
           <Route path="/admin/kpi" element={<ProtectedRoute><AdminKpiPage /></ProtectedRoute>} />
+          <Route path="/admin/google-forms" element={<ProtectedRoute><GoogleFormsAdminPage /></ProtectedRoute>} />
           <Route path="/tarot" element={<TarotPage />} />
           <Route path="/tarot-single" element={<TarotSinglePage />} />
           <Route path="/lightworker" element={<LightworkerPage />} />

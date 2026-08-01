@@ -32,6 +32,15 @@ import {
   REPORT_VERSION,
 } from './humanDesignReport';
 import {
+  adminCreateGoogleForm,
+  adminDeleteGoogleForm,
+  adminListButtonLinkSettings,
+  adminListGoogleForms,
+  adminUpdateButtonLinkSetting,
+  adminUpdateGoogleForm,
+  getPublicButtonLink,
+} from './googleForms';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -156,6 +165,14 @@ export default {
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await updateHumanDesignAnswers(req, env, id);
       }
+
+      if (path.startsWith('/api/button-links/') && req.method === 'GET') {
+        return await getPublicButtonLink(
+          req,
+          env,
+          decodeURIComponent(path.slice('/api/button-links/'.length)),
+        );
+      }
       if (path.startsWith('/api/human-design/charts/') && path.endsWith('/full-report') && req.method === 'GET') {
         const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/full-report'.length));
         const rl = await rateLimit(env, 'hd-full-report-ip', clientIp(req), 30, 3600);
@@ -186,6 +203,36 @@ export default {
       if (path === '/api/admin/admins'         && req.method === 'POST') return await adminAddAdmin(req, env);
       if (path.startsWith('/api/admin/admins/') && req.method === 'DELETE') {
         return await adminRemoveAdmin(req, env, decodeURIComponent(path.split('/').pop() || ''));
+      }
+      if (path === '/api/admin/google-forms' && req.method === 'GET') {
+        return await adminListGoogleForms(req, env);
+      }
+      if (path === '/api/admin/google-forms' && req.method === 'POST') {
+        return await adminCreateGoogleForm(req, env);
+      }
+      if (path.startsWith('/api/admin/google-forms/') && req.method === 'PUT') {
+        return await adminUpdateGoogleForm(
+          req,
+          env,
+          decodeURIComponent(path.slice('/api/admin/google-forms/'.length)),
+        );
+      }
+      if (path.startsWith('/api/admin/google-forms/') && req.method === 'DELETE') {
+        return await adminDeleteGoogleForm(
+          req,
+          env,
+          decodeURIComponent(path.slice('/api/admin/google-forms/'.length)),
+        );
+      }
+      if (path === '/api/admin/button-link-settings' && req.method === 'GET') {
+        return await adminListButtonLinkSettings(req, env);
+      }
+      if (path.startsWith('/api/admin/button-link-settings/') && req.method === 'PUT') {
+        return await adminUpdateButtonLinkSetting(
+          req,
+          env,
+          decodeURIComponent(path.slice('/api/admin/button-link-settings/'.length)),
+        );
       }
       if (path === '/api/metrics/daily' && req.method === 'GET') return await adminMetricsDaily(req, env, url);
 

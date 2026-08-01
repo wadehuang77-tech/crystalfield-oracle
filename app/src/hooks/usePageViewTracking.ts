@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { trackEvent } from '../lib/tracking';
+import { trackGoogleAnalyticsPageView } from '../lib/googleAnalytics';
 
 export function usePageViewTracking() {
   const location = useLocation();
+  const isInitialPageView = useRef(true);
 
   useEffect(() => {
     trackEvent('page_view', {
@@ -11,5 +13,15 @@ export function usePageViewTracking() {
       search: location.search,
       referrer: document.referrer || null,
     });
-  }, [location.pathname, location.search]);
+    trackGoogleAnalyticsPageView(
+      `${location.pathname}${location.search}${location.hash}`,
+    );
+
+    // The initial PageView is sent by index.html. Track subsequent SPA navigations here.
+    if (isInitialPageView.current) {
+      isInitialPageView.current = false;
+    } else {
+      window.fbq?.('track', 'PageView');
+    }
+  }, [location.hash, location.pathname, location.search]);
 }
