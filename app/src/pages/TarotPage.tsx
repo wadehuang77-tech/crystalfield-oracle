@@ -142,6 +142,31 @@ function CelticCrossIntro() {
   );
 }
 
+const PAST_LIFE_KARMIC_PROMPTS = [
+  '為什麼總是在同一種人身上受傷？揭開你們前世未完的課題與約定。',
+  '這份控制不住的強烈牽絆，是緣分還是債？一鍵解鎖你們前世的因果糾葛。',
+  '有些相遇，是為了重逢；有些離開，是為了還清。看懂你們今生的靈魂劇本。',
+  '找不到原因的焦慮與匱乏感？也許你承載了來自前世的靈魂印記。',
+  '今生的天賦與卡點，其實早已寫在前世的劇本裡。抽牌解鎖你的靈魂記憶。',
+  '你從前世帶給今生最大的天賦是什麼？揭示你未被發掘的靈魂潛能。',
+  '今生你來到這個世界，究竟要完成什麼靈魂功課？',
+];
+
+function PastLifeKarmicIntro() {
+  return (
+    <div className="max-w-4xl mx-auto mb-10 rounded-2xl border border-violet-400/35 bg-gradient-to-br from-violet-500/10 via-slate-900/85 to-orange-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_32px_rgba(167,139,250,0.14)]">
+      <div className="space-y-4 text-left">
+        {PAST_LIFE_KARMIC_PROMPTS.map((prompt) => (
+          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-orange-50/95">
+            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-violet-300" strokeWidth={1.5} />
+            <span>{prompt}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface DrawnCard {
   preview: CardPreview;
   card: TarotCard;
@@ -641,6 +666,7 @@ function TarotPage() {
               </div>
 
               {spreadType === 'celtic' && <CelticCrossIntro />}
+              {spreadType === 'pastlife' && <PastLifeKarmicIntro />}
 
               {spreadType === 'three' && (
                 <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
