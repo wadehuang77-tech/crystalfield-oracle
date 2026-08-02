@@ -368,7 +368,7 @@ function EgyptianGodsPage() {
                   title="前世因果解鎖陣"
                   body="七張牌交疊,揭開前世今生的因果連結。"
                   cta="展 陣"
-                  price={499}
+                  price={599}
                 />
               </div>
             </section>

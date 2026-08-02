@@ -569,7 +569,7 @@ function TarotPage() {
                     { key: 'single',   Icon: Layers,    name: '單張牌',         desc: '快速指引', price: undefined },
                     { key: 'three',    Icon: Columns3,  name: '三張牌陣',       desc: '過去 · 現在 · 未來',     price: 250 },
                     { key: 'celtic',   Icon: Compass,   name: '凱爾特十字',     desc: '深度全面解讀',           price: 599 },
-                    { key: 'pastlife', Icon: Hourglass, name: '前世因果解鎖陣', desc: '揭開前世今生的因果',     price: 499 },
+                    { key: 'pastlife', Icon: Hourglass, name: '前世因果解鎖陣', desc: '揭開前世今生的因果',     price: 599 },
                   ] as const).map((s) => (
                     <button
                       key={s.key}
