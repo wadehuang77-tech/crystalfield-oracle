@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
+import { ArrowRight, Lock, RotateCcw, Sparkles } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
@@ -48,6 +48,30 @@ const PASTLIFE_POSITIONS = [
   '靈魂要釋放的',
   '解鎖與療癒方式',
 ];
+
+const EGYPTIAN_PAST_LIFE_PROMPTS = [
+  '感覺運勢低迷、缺乏動力？接引古埃及太陽神的極陽能量，為你照亮前路、顯化奇蹟。',
+  '走過人生的低谷與碎裂？讓生命與魔法之母 Isis，溫柔重組你的靈魂，迎接光榮重生。',
+  '召喚埃及女神的愛與豐盛祝福：修復內在創傷，開啟你沉睡已久的第三眼與高維直覺。',
+  '給正在經歷人生轉折的你：每一次的結束，都是古老神話中光明的復活儀式。',
+  '在天平上秤量真相：讓智慧之神與阿努比斯，幫你一眼穿透迷霧，看清局勢真相。',
+  '拒絕曖昧不明與自我欺騙。埃及神諭將以最精準、直白的宇宙法則，指引你最佳道路。',
+];
+
+function EgyptianPastLifeIntro() {
+  return (
+    <div className="mx-auto mb-10 rounded-2xl border border-yellow-400/35 bg-gradient-to-br from-yellow-500/10 via-slate-900/85 to-amber-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_34px_rgba(250,204,21,0.14)]">
+      <div className="space-y-4 text-left">
+        {EGYPTIAN_PAST_LIFE_PROMPTS.map((prompt) => (
+          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-yellow-50/95">
+            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-yellow-300" strokeWidth={1.5} />
+            <span>{prompt}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function EgyptianGodsPage() {
   const navigate = useNavigate();
@@ -354,11 +378,13 @@ function EgyptianGodsPage() {
         {showCardLayout && !isDrawing && !hasDrawn && (
           <section className="max-w-2xl mx-auto text-center py-8">
             <h2 className="font-serif text-3xl text-yellow-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
-            <p className="text-sm sm:text-base text-yellow-300/85 mb-12 leading-loose">
+            <p className={`text-sm sm:text-base text-yellow-300/85 leading-loose ${spreadType === 'pastlife' ? 'mb-8' : 'mb-12'}`}>
               {spreadType === 'pastlife'
                 ? '七張牌將為你揭開前世今生的因果連結'
                 : '閉上眼睛,專注於你的問題'}
             </p>
+            {spreadType === 'pastlife' && <EgyptianPastLifeIntro />}
+
             <div className="flex justify-center mb-12 gap-3">
               {(spreadType === 'pastlife' ? Array.from({ length: 7 }) : Array.from({ length: 1 })).map((_, i) => (
                 <div key={i} className={spreadType === 'pastlife' ? 'w-12 sm:w-16' : 'w-44 sm:w-56'}>
