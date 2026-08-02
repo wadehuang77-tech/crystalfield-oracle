@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
+import { ArrowRight, Lock, RotateCcw, Sparkles } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
@@ -19,6 +19,29 @@ import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/m
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
+
+const DRAGON_THREE_CARD_PROMPTS = [
+  '拖延不決的關係，只是在消耗你的靈魂。讓龍族的火焰，幫你斬斷不健康的能量連結。',
+  '告別情感綁架與毒性關係！召喚龍族力量，拿回屬於你的內在主導權。',
+  '最近總是莫名疲憊、運勢卡卡？讓龍族的烈火為你燒盡沉重氣場，還原清爽自己。',
+  '深層淨化心靈死角，清除內在的恐懼與焦慮，重新啟動高頻能量。',
+  '你需要的不只是安慰，而是破局的勇氣。龍族將賦予你突破現狀的強大力量。',
+];
+
+function DragonThreeCardIntro() {
+  return (
+    <div className="max-w-3xl mx-auto mb-10 rounded-2xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-slate-900/85 to-emerald-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_34px_rgba(251,146,60,0.14)]">
+      <div className="space-y-4 text-left">
+        {DRAGON_THREE_CARD_PROMPTS.map((prompt) => (
+          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-emerald-50/95">
+            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-amber-300" strokeWidth={1.5} />
+            <span>{prompt}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface DragonGated {
   message: string;
@@ -380,6 +403,8 @@ function DragonsPage() {
 
         {showCardLayout && !isShuffling && !hasDrawn && spreadType === 'three' && (
           <section className="max-w-2xl mx-auto text-center py-8">
+            <DragonThreeCardIntro />
+
             <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">三 張 牌 陣</h2>
             <p className="text-sm sm:text-base text-emerald-300/85 mb-12 leading-loose">
               龍族將引領你看見過去、現在與未來的智慧連結
@@ -409,6 +434,8 @@ function DragonsPage() {
 
         {threeSlots.length > 0 && hasDrawn && (
           <section className="max-w-3xl mx-auto space-y-10">
+            <DragonThreeCardIntro />
+
             <div className="text-center">
               <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-3">過   現   未</h2>
               <p className="text-sm text-emerald-300/80">龍族為你揭示時間之流的智慧</p>
