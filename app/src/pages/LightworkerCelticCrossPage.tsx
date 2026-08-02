@@ -25,6 +25,31 @@ import { useAuth } from '../contexts/AuthContext';
 
 const SPREAD_ID = 'celtic_cross';
 
+const LIGHTWORKER_MISSION_PROMPTS = [
+  '常常覺得自己不屬於這個世界？抽一張牌，解鎖你來到地球的「靈魂合約與使命」。',
+  '不只是為了生存而工作！揭示你今生真正想完成的心願與靈魂藍圖。',
+  '你比自己想像的更具力量！點亮你尚未發掘的「靈魂天賦與療癒潛能」。',
+  '感覺內在有一股力量想突破？接收高維度的召喚，站上屬於你的靈魂舞台。',
+  '停止低估自己。你天生就是帶著光與愛的療癒者與開創者。',
+  '感到疲憊卡頓？接引高維度的純淨光芒，快速提升你的個人能量氣場。',
+  '連結你的光之團隊（指導靈與天使），領取此刻專屬於你的神聖提醒。',
+];
+
+function LightworkerMissionIntro() {
+  return (
+    <div className="rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-cyan-500/10 via-slate-900/85 to-blue-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_34px_rgba(34,211,238,0.13)]">
+      <div className="space-y-4 text-left">
+        {LIGHTWORKER_MISSION_PROMPTS.map((prompt) => (
+          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-cyan-50/95">
+            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-cyan-300" strokeWidth={1.5} />
+            <span>{prompt}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface CardPosition {
   position: number;
   title: string;
@@ -283,6 +308,8 @@ function LightworkerCelticCrossPage() {
 
         {!hasDrawn && !isShuffling && (
           <div className="max-w-5xl mx-auto space-y-8">
+            <LightworkerMissionIntro />
+
             <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-cyan-500/30 rounded-3xl p-8 sm:p-12 shadow-2xl text-center">
               <h2 className="text-2xl sm:text-3xl font-serif text-cyan-100 mb-6">準備開始</h2>
               <p className="text-cyan-200/70 leading-relaxed text-sm sm:text-base mb-8">
