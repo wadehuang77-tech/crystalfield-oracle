@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { RotateCcw, Lock } from 'lucide-react';
+import { RotateCcw, Lock, Sparkles } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -16,6 +16,29 @@ import { useAuth } from '../contexts/AuthContext';
 
 const SPREAD_ID = 'cosmic_cross';
 const CARD_COUNT = 11;
+
+const COSMIC_CROSS_LIGHT_PROMPTS = [
+  '覺得自己不夠好、閃閃發不起來？點亮你內在沉睡已久的靈魂光芒。',
+  '給習慣照顧別人的你：今天，把愛與注意力重新收回自己身上。',
+  '擁抱你的脆弱與不完美！每一張卡片，都是宇宙寫給你的溫柔情書。',
+  '感到孤單迷惘？你並不孤單，讓高頻光芒卡片陪伴你度過每一個低潮。',
+  '呼喚你的靈魂光芒！點亮你今生的專屬天賦與星際記憶。',
+];
+
+function CosmicCrossLightIntro() {
+  return (
+    <div className="mb-8 rounded-2xl border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-slate-900/85 to-orange-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_34px_rgba(167,139,250,0.13)]">
+      <div className="space-y-4 text-left">
+        {COSMIC_CROSS_LIGHT_PROMPTS.map((prompt) => (
+          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-orange-50/95">
+            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-violet-300" strokeWidth={1.5} />
+            <span>{prompt}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface CosmicGated {
   coreMeaning?: string;
@@ -215,6 +238,8 @@ function CosmicCrossPage() {
         <div className="max-w-4xl mx-auto">
           {!hasDrawn && !isDrawing && (
             <>
+              <CosmicCrossLightIntro />
+
               <div className="bg-gradient-to-br from-slate-800/70 to-slate-900/70 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 mb-8 shadow-xl">
                 <h2 className="text-2xl font-serif text-orange-100 mb-4 text-center">使用建議</h2>
                 <div className="space-y-4 text-orange-100/90 leading-relaxed">
