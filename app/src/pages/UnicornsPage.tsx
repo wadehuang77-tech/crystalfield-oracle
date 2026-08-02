@@ -295,6 +295,17 @@ export default function UnicornsPage() {
               <DeckSigil />
             </div>
             <h1 className="font-serif text-3xl sm:text-5xl text-pink-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">獨角獸塔羅</h1>
+            {drawnCards.length === 0 && !showCardLayout && !isDrawing && (
+              <div className="max-w-3xl mx-auto mb-8 rounded-2xl border border-pink-400/35 bg-gradient-to-br from-fuchsia-500/10 via-slate-900/80 to-rose-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_30px_rgba(244,114,182,0.14)]">
+                <p className="text-left text-base sm:text-lg leading-loose text-pink-50/95">
+                  「獨角獸」的能量非常特別，祂代表著
+                  <strong className="font-semibold text-pink-200">純潔、無條件的愛、高頻療癒與奇蹟</strong>
+                  。如果說一般塔羅牌像是一位「直言不諱的客觀智者」，那
+                  <strong className="font-semibold text-pink-200">獨角獸塔羅</strong>
+                  就像是一位「溫柔擁抱你、告訴你你已經做得很好的靈魂守護者」。
+                </p>
+              </div>
+            )}
             <p className="text-base text-pink-300/80 leading-loose tracking-wide max-w-md mx-auto mb-8">
               純淨能量,神聖之光。<br />
               一張牌,即是一道魔法的指引。
