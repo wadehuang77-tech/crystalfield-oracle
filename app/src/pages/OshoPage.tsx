@@ -6,10 +6,10 @@ export default function OshoPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
-      <div className="max-w-6xl mx-auto p-8">
-        <div className="flex items-center gap-6 mb-12">
-          <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-10 sm:py-14">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-7 mb-12 text-center sm:text-left">
+          <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center shadow-xl shadow-teal-500/30">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 sm:w-14 sm:h-14">
               <circle cx="20" cy="20" r="14" stroke="white" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.6"/>
               <circle cx="20" cy="20" r="8" fill="white" fillOpacity="0.15" stroke="white" strokeWidth="1.5"/>
               <path d="M20 8 C20 8 26 14 26 20 C26 26 20 32 20 32 C20 32 14 26 14 20 C14 14 20 8 20 8Z" fill="white" fillOpacity="0.25"/>
@@ -20,11 +20,11 @@ export default function OshoPage() {
               <path d="M32 20 L28 20" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
             </svg>
           </div>
-          <div className="text-left">
-            <h1 className="text-3xl font-serif bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent leading-tight">
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-serif bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent leading-tight tracking-[0.08em]">
               奧修禪卡
             </h1>
-            <p className="text-teal-200/70 text-sm mt-1 tracking-wide">不是預測未來，而是照見此刻的真相</p>
+            <p className="text-teal-200/75 text-base sm:text-lg mt-2 tracking-wide">不是預測未來，而是照見此刻的真相</p>
           </div>
         </div>
 
