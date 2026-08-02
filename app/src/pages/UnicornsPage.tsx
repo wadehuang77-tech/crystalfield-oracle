@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, BookOpen, Lock, RotateCcw, Search, X, Loader2 } from 'lucide-react';
+import { ArrowRight, BookOpen, Lock, RotateCcw, Search, Sparkles, X, Loader2 } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
@@ -20,6 +20,29 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 
 const SPREAD_ID = 'unicorns_three';
+
+const UNICORN_THREE_CARD_PROMPTS = [
+  '感覺全世界都不懂你？讓獨角獸的溫柔能量，給你最深的陪伴與擁抱。',
+  '累的時候，不需要硬撐。這裡有一個只屬於你的安全角落，靜靜聽你說。',
+  '迷惘時，你需要的不只是答案，而是一份相信自己的勇氣。',
+  '常常覺得自己不夠好？獨角獸要提醒你：「你本來的樣子，就很有力量。」',
+  '停止自責與內耗，今日的獨角獸指引，為你注入滿滿的無條件之愛。',
+];
+
+function UnicornThreeCardIntro() {
+  return (
+    <div className="max-w-3xl mx-auto mb-10 rounded-2xl border border-pink-400/35 bg-gradient-to-br from-fuchsia-500/10 via-slate-900/80 to-rose-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_30px_rgba(244,114,182,0.14)]">
+      <div className="space-y-4 text-left">
+        {UNICORN_THREE_CARD_PROMPTS.map((prompt) => (
+          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-pink-50/95">
+            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-pink-300" strokeWidth={1.5} />
+            <span>{prompt}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface UnicornGated {
   point1: string; point2: string; point3: string;
@@ -346,6 +369,8 @@ export default function UnicornsPage() {
 
           {showCardLayout && drawnCards.length === 0 && !isDrawing && spreadType === 'three' && (
             <section className="max-w-2xl mx-auto text-center py-8">
+              <UnicornThreeCardIntro />
+
               <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">三 張 牌 陣</h2>
               <p className="text-sm text-pink-300/85 leading-loose mb-12">
                 獨角獸將引領你看見過去、現在與未來的魔法連結
@@ -375,6 +400,8 @@ export default function UnicornsPage() {
 
           {drawnCards.length > 0 && (
             <section className="max-w-3xl mx-auto space-y-10">
+              {spreadType === 'three' && <UnicornThreeCardIntro />}
+
               <div className="text-center">
                 <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">
                   {spreadType === 'three' ? '三 張 牌 陣 指 引' : '此 刻 指 引'}
