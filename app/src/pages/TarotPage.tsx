@@ -75,6 +75,27 @@ const SPREAD_IDS: Record<SpreadType, string> = {
   pastlife: 'tarot_pastlife'
 };
 
+const THREE_CARD_RELATIONSHIP_PROMPTS = [
+  '深夜總是獨自亂想？給在感情裡感到疲憊、委屈的你，一份溫柔的能量解答。',
+  '明明在一起，卻覺得越來越遠？找出你們之間的隱形卡點與轉機。',
+  '這段關係該繼續堅持，還是勇敢放手？讓牌卡成為你最懂你的閨蜜指引。',
+];
+
+function ThreeCardRelationshipIntro() {
+  return (
+    <div className="max-w-4xl mx-auto mb-10 rounded-2xl border border-orange-400/35 bg-gradient-to-br from-orange-500/10 via-slate-900/80 to-rose-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_30px_rgba(251,146,60,0.12)]">
+      <div className="space-y-4 text-left">
+        {THREE_CARD_RELATIONSHIP_PROMPTS.map((prompt) => (
+          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-orange-50/95">
+            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-orange-300" strokeWidth={1.5} />
+            <span>{prompt}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface DrawnCard {
   preview: CardPreview;
   card: TarotCard;
@@ -558,6 +579,8 @@ function TarotPage() {
 
           {showCardLayout && !hasDrawn && !isDrawing && spreadType !== 'single' && (
             <div className="max-w-5xl mx-auto animate-fade-in">
+              {spreadType === 'three' && <ThreeCardRelationshipIntro />}
+
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-serif text-orange-100 mb-3">
                   {spreadType === 'three' && '三張牌陣'}
@@ -926,6 +949,8 @@ function TarotPage() {
 
               {spreadType === 'three' && (
                 <div className="space-y-8">
+                  <ThreeCardRelationshipIntro />
+
                   <div className="text-center mb-8 animate-fade-in">
                     <h2 className="text-3xl font-serif text-orange-100 mb-2">三張牌陣解讀</h2>
                     <p className="text-orange-200/70">過去 - 現在 - 未來</p>
