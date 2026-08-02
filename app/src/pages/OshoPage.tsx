@@ -28,6 +28,29 @@ export default function OshoPage() {
           </div>
         </div>
 
+        <section className="max-w-4xl mx-auto mb-12 rounded-2xl border border-teal-400/30 bg-gradient-to-br from-teal-500/10 via-slate-900/85 to-cyan-500/10 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_0_32px_rgba(45,212,191,0.12)]">
+          <div className="space-y-5 text-base sm:text-lg leading-loose text-teal-50/90">
+            <p className="font-semibold text-teal-100">
+              奧修禪卡（Osho Zen Tarot）的核心價值與一般的預測型塔羅完全不同——祂不強調「預測未來算得準不準」，而是專注於「此時此刻（Here and Now）」的覺察、內在靜心、打破執著與自我超越。
+            </p>
+            <p>
+              會被奧修禪卡吸引的人，往往不是想問「他愛不愛我」或「我會不會發財」，而是處於「內心極度焦慮、陷入思維死角、過度內耗、想看清內在真相」的狀態。
+            </p>
+            <h2 className="pt-2 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-cyan-100">
+              奧修禪卡｜回到當下，看清內在的真相
+            </h2>
+            <p>
+              生命中許多痛苦，不是因為問題太難，而是因為我們的腦袋抓著過去不放、或對未來充滿恐懼。
+            </p>
+            <p className="font-semibold text-teal-100">
+              奧修禪卡不預測遙遠的未來，祂是一面無比清晰的鏡子。
+            </p>
+            <p>
+              祂照出你此刻的內在心境、隱藏的制約，以及你一直忽視的內在力量。當你不再與當下抗衡，答案自然就會浮現。
+            </p>
+          </div>
+        </section>
+
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <SpreadCard
             onClick={() => navigate('/osho/single')}
