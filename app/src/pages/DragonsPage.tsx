@@ -403,12 +403,12 @@ function DragonsPage() {
 
         {showCardLayout && !isShuffling && !hasDrawn && spreadType === 'three' && (
           <section className="max-w-2xl mx-auto text-center py-8">
-            <DragonThreeCardIntro />
-
             <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">三 張 牌 陣</h2>
-            <p className="text-sm sm:text-base text-emerald-300/85 mb-12 leading-loose">
+            <p className="text-sm sm:text-base text-emerald-300/85 mb-8 leading-loose">
               龍族將引領你看見過去、現在與未來的智慧連結
             </p>
+            <DragonThreeCardIntro />
+
             <div className="flex justify-center mb-12 gap-4">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="w-24 sm:w-32">
@@ -434,8 +434,6 @@ function DragonsPage() {
 
         {threeSlots.length > 0 && hasDrawn && (
           <section className="max-w-3xl mx-auto space-y-10">
-            <DragonThreeCardIntro />
-
             <div className="text-center">
               <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-3">過   現   未</h2>
               <p className="text-sm text-emerald-300/80">龍族為你揭示時間之流的智慧</p>
