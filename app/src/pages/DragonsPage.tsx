@@ -283,6 +283,48 @@ function DragonsPage() {
                 <DeckSigil />
               </div>
               <h1 className="font-serif text-3xl sm:text-5xl text-emerald-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">龍族塔羅</h1>
+              <div className="max-w-3xl mx-auto mb-8 rounded-2xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-slate-900/85 to-emerald-500/10 px-5 py-6 sm:px-8 sm:py-8 text-left shadow-[0_0_34px_rgba(251,146,60,0.14)]">
+                <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-amber-100">
+                  龍族能量清理｜斷除消耗，拿回屬於你的力量
+                </h2>
+                <div className="space-y-4 text-base sm:text-lg leading-loose text-emerald-50/90">
+                  <p>你是不是正忍受著一段讓你不斷委屈、內耗的關係？</p>
+                  <p>或是感覺最近氣場沉重，怎麼努力都跨不過眼前的僵局？</p>
+                  <p>
+                    龍族代表著最純粹的
+                    <strong className="font-semibold text-amber-200">破局之火與神聖防護</strong>
+                    。
+                  </p>
+                  <p>
+                    祂們不說好聽的空話，而是以強大的能量協助你
+                    <strong className="font-semibold text-amber-200">燒盡負面連結、斬斷毒性關係、重塑氣場</strong>
+                    。
+                  </p>
+                  <p className="font-semibold text-amber-100">
+                    是時候停止委屈自己了。在這裡，讓龍族的烈火為你開道！
+                  </p>
+                </div>
+
+                <div className="mt-7 border-t border-amber-400/20 pt-6">
+                  <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-amber-100">
+                    【龍族斷除與淨化三步驟】
+                  </h3>
+                  <ol className="space-y-4 text-sm sm:text-base leading-loose text-emerald-50/90">
+                    <li className="flex items-start gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">1</span>
+                      <p><strong className="text-amber-100">挺直脊椎，深胸呼吸</strong>：想像雙腳扎根大地，感受內在的堅定。</p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">2</span>
+                      <p><strong className="text-amber-100">在心中默想</strong>：「請龍族協助我清理（某段關係/某種焦慮），帶給我斬斷與突破的勇氣。」</p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">3</span>
+                      <p><strong className="text-amber-100">憑直覺選一張牌</strong>：接收專屬於你的龍族聖火指引與強大保護。</p>
+                    </li>
+                  </ol>
+                </div>
+              </div>
               <p className="text-base sm:text-lg text-emerald-300/80 leading-loose tracking-wide max-w-md mx-auto">
                 古老龍族的智慧與火焰。<br />
                 召喚轉化與突破的勇氣。
