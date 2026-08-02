@@ -119,6 +119,32 @@ export default function OshoSinglePage() {
             <p className="text-teal-300/60 text-sm">靜心片刻，讓你的直覺引導你</p>
           </div>
 
+          <section className="mx-auto mb-10 rounded-2xl border border-teal-400/30 bg-gradient-to-br from-teal-500/10 via-slate-900/85 to-cyan-500/10 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_0_32px_rgba(45,212,191,0.12)]">
+            <p className="text-center text-base sm:text-lg font-semibold leading-loose text-teal-100">
+              深呼吸，放下大腦的分析與評斷，在這裡與真實的自己相遇。
+            </p>
+
+            <div className="mt-7 border-t border-teal-400/20 pt-6">
+              <h2 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-cyan-100">
+                【當下覺察三步驟】
+              </h2>
+              <ol className="space-y-4 text-sm sm:text-base leading-loose text-teal-50/90">
+                <li className="flex items-start gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">1</span>
+                  <p><strong className="text-teal-100">放鬆肩膀與嘴角</strong>：將注意力從大腦轉移到胸口的呼吸。</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">2</span>
+                  <p><strong className="text-teal-100">在心中默想</strong>：「此刻，我需要覺察到什麼？請指引我看清當下的真相。」</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">3</span>
+                  <p><strong className="text-teal-100">憑直覺抽一張牌</strong>：開啟專屬於你的靈魂覺察時刻。</p>
+                </li>
+              </ol>
+            </div>
+          </section>
+
           {deckError && (
             <p className="text-center text-red-300 mb-6">{deckError}</p>
           )}
