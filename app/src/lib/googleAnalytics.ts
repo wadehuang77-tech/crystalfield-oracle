@@ -10,6 +10,11 @@ export function initGoogleAnalytics(): void {
   if (initialized || !GA_MEASUREMENT_ID || typeof window === 'undefined') return;
   initialized = true;
 
+  // The static Google tag in index.html makes GA4 visible to installation
+  // checkers before React starts. This code remains as a fallback for other
+  // HTML shells, while this flag prevents a duplicate config call.
+  if (window.__ga4Initialized) return;
+
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function gtag(...args: unknown[]) {
     window.dataLayer?.push(args);
@@ -28,6 +33,7 @@ export function initGoogleAnalytics(): void {
 
   window.gtag('js', new Date());
   window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false });
+  window.__ga4Initialized = true;
 }
 
 export function trackGoogleAnalyticsPageView(pagePath: string): void {

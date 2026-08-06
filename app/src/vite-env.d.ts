@@ -11,5 +11,6 @@ interface ImportMeta {
 interface Window {
   dataLayer?: unknown[];
   gtag?: (...args: unknown[]) => void;
+  __ga4Initialized?: boolean;
   fbq?: (command: 'track', eventName: string, params?: Record<string, unknown>) => void;
 }
