@@ -368,7 +368,6 @@ function EgyptianGodsPage() {
                   title="前世因果解鎖陣"
                   body="七張牌交疊,揭開前世今生的因果連結。"
                   cta="展 陣"
-                  price={599}
                 />
               </div>
             </section>
@@ -676,10 +675,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function SpreadChoice({
-  onClick, sigil, title, body, cta, price,
+  onClick, sigil, title, body, cta,
 }: {
   onClick: () => void; sigil: React.ReactNode; title: string;
-  body: string; cta: string; price?: number;
+  body: string; cta: string;
 }) {
   return (
     <button
@@ -691,12 +690,7 @@ function SpreadChoice({
           {sigil}
         </div>
         <h2 className="font-serif text-xl sm:text-2xl text-yellow-100 tracking-[0.25em] sm:tracking-[0.3em] mb-2 sm:mb-3">{title}</h2>
-        <p className="text-xs sm:text-sm text-yellow-300/80 leading-loose max-w-xs mb-2 sm:mb-3">{body}</p>
-        {price !== undefined ? (
-          <p className="font-serif text-sm sm:text-base text-yellow-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">NT$ {price}</p>
-        ) : (
-          <p className="font-serif text-sm sm:text-base text-yellow-300 tracking-[0.2em] sm:tracking-[0.25em] mb-6 sm:mb-8">免費</p>
-        )}
+        <p className="text-xs sm:text-sm text-yellow-300/80 leading-loose max-w-xs mb-6 sm:mb-8">{body}</p>
         <span className="mt-auto inline-flex items-center gap-2 px-5 py-2 border border-yellow-500/50 bg-yellow-500/10 rounded-lg text-xs tracking-[0.35em] sm:tracking-[0.4em] text-yellow-200 transition-all duration-300 group-hover:bg-yellow-500/25 group-hover:border-yellow-400/70 group-hover:translate-x-1">
           {cta}
           <ArrowRight className="w-4 h-4" strokeWidth={1.4} />

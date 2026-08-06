@@ -566,10 +566,10 @@ function TarotPage() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 max-w-5xl mx-auto">
                   {([
-                    { key: 'single',   Icon: Layers,    name: '單張牌',         desc: '快速指引', price: undefined },
-                    { key: 'three',    Icon: Columns3,  name: '三張牌陣',       desc: '過去 · 現在 · 未來',     price: 250 },
-                    { key: 'celtic',   Icon: Compass,   name: '凱爾特十字',     desc: '深度全面解讀',           price: 599 },
-                    { key: 'pastlife', Icon: Hourglass, name: '前世因果解鎖陣', desc: '揭開前世今生的因果',     price: 599 },
+                    { key: 'single',   Icon: Layers,    name: '單張牌',         desc: '快速指引' },
+                    { key: 'three',    Icon: Columns3,  name: '三張牌陣',       desc: '過去 · 現在 · 未來' },
+                    { key: 'celtic',   Icon: Compass,   name: '凱爾特十字',     desc: '深度全面解讀' },
+                    { key: 'pastlife', Icon: Hourglass, name: '前世因果解鎖陣', desc: '揭開前世今生的因果' },
                   ] as const).map((s) => (
                     <button
                       key={s.key}
@@ -579,11 +579,6 @@ function TarotPage() {
                       <s.Icon className="w-7 h-7 mb-4 text-orange-400" strokeWidth={1.3} />
                       <h3 className="font-serif text-base sm:text-lg text-orange-100 mb-2 tracking-[0.18em]">{s.name}</h3>
                       <p className="text-xs sm:text-sm text-orange-300/75 leading-relaxed">{s.desc}</p>
-                      {s.price !== undefined ? (
-                        <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">NT$ {s.price}</p>
-                      ) : (
-                        <p className="font-serif text-sm sm:text-base text-orange-300 tracking-[0.2em] mt-3">免費</p>
-                      )}
                     </button>
                   ))}
                 </div>

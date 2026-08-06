@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 
 function WorkYourLightPage() {
   const navigate = useNavigate();
@@ -89,9 +88,6 @@ function WorkYourLightPage() {
                 <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                   <span>{deckReady ? '單張牌' : '卡片資料準備中'}</span>
                   <span className="text-sm sm:text-base opacity-90">接收宇宙訊息</span>
-                  {deckReady && (
-                    <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.2em]">免費</span>
-                  )}
                 </h3>
               </div>
             </button>
@@ -108,7 +104,6 @@ function WorkYourLightPage() {
                 <h3 className="text-lg sm:text-xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                   <span>宇宙十字牌陣</span>
                   <span className="text-sm sm:text-base opacity-90">(Cosmic Cross)</span>
-                  <span className="text-xs sm:text-sm opacity-80 mt-1">{formatPrice(getSpreadPrice('cosmic_cross') ?? 0)}</span>
                 </h3>
               </div>
             </Link>

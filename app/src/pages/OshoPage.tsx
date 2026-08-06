@@ -66,7 +66,6 @@ export default function OshoPage() {
             onClick={() => navigate('/osho/three')}
             title="三張牌陣"
             body="過去・現在・未來，或身・心・靈。深度冥想之選。"
-            price={250}
             icon={
               <div className="w-20 h-20 bg-gradient-to-br from-teal-500/20 to-cyan-500/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                 <div className="flex gap-1">
@@ -85,13 +84,12 @@ export default function OshoPage() {
 }
 
 function SpreadCard({
-  onClick, title, body, icon, price,
+  onClick, title, body, icon,
 }: {
   onClick: () => void;
   title: string;
   body: string;
   icon: React.ReactNode;
-  price?: number;
 }) {
   return (
     <button
@@ -102,11 +100,6 @@ function SpreadCard({
         {icon}
         <h2 className="text-3xl font-serif text-teal-100">{title}</h2>
         <p className="text-teal-200/70 text-center">{body}</p>
-        {price !== undefined ? (
-          <p className="text-base font-medium text-teal-300 tracking-[0.25em]">NT$ {price}</p>
-        ) : (
-          <p className="text-base font-medium text-teal-300 tracking-[0.2em]">免費</p>
-        )}
       </div>
     </button>
   );

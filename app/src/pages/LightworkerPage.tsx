@@ -8,7 +8,6 @@ import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import { useDeck, pickRandomCards } from '../hooks/useDeck';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
@@ -180,7 +179,6 @@ function LightworkerPage() {
                       <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                         <span>單張牌</span>
                         <span className="text-sm sm:text-base opacity-90">接收宇宙訊息</span>
-                        <span className="text-xs sm:text-sm opacity-80 mt-1 tracking-[0.2em]">免費</span>
                       </h3>
                     </div>
                   </button>
@@ -197,7 +195,6 @@ function LightworkerPage() {
                       <h3 className="text-lg sm:text-xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                         <span>十字交叉使命陣</span>
                         <span className="text-sm sm:text-base opacity-90">(Celtic Cross)</span>
-                        <span className="text-xs sm:text-sm opacity-80 mt-1">{formatPrice(getSpreadPrice('celtic_cross') ?? 0)}</span>
                       </h3>
                     </div>
                   </button>
