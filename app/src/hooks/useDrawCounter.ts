@@ -1,6 +1,8 @@
 const SINGLE_KEY = 'cf_single_unlocks_v3';
 const SINGLE_EMAIL_GATE_KEY = 'cf_single_email_gate_seen_v3';
-const MULTI_KEY  = 'cf_multi_unlocks';
+const MULTI_KEY = 'cf_multi_unlocks';
+
+export const MULTI_SPREAD_FREE_LIMIT = 3;
 
 function safeGet(key: string): number {
   try { return Math.max(0, parseInt(localStorage.getItem(key) ?? '0', 10) || 0); }
@@ -23,6 +25,9 @@ function safeSetBool(key: string) {
 
 export function getSingleUnlockCount(): number { return safeGet(SINGLE_KEY); }
 export function getMultiUnlockCount():  number { return safeGet(MULTI_KEY); }
+export function getRemainingMultiUnlocks(): number {
+  return Math.max(0, MULTI_SPREAD_FREE_LIMIT - getMultiUnlockCount());
+}
 export function hasSeenSingleEmailGate(): boolean { return safeGetBool(SINGLE_EMAIL_GATE_KEY); }
 export function markSingleEmailGateSeen(): void { safeSetBool(SINGLE_EMAIL_GATE_KEY); }
 

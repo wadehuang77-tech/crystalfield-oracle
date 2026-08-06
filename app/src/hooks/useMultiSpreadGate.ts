@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cardsApi, publicApi, type UnlockedCard } from '../lib/api';
-import { getMultiUnlockCount, incrementMultiUnlock } from './useDrawCounter';
+import {
+  getMultiUnlockCount,
+  incrementMultiUnlock,
+  MULTI_SPREAD_FREE_LIMIT,
+} from './useDrawCounter';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'email_gate' | 'paywall';
 
@@ -56,7 +60,7 @@ export function useMultiSpreadGate({
       return;
     }
 
-    if (count < 3) {
+    if (count < MULTI_SPREAD_FREE_LIMIT) {
       setPhase('loading');
       unlockForFree(picks)
         .then(() => {
