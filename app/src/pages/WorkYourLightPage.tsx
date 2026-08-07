@@ -1,23 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
 
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
-
-const COSMIC_CROSS_CARD_THEMES = [
-  { number: 1, theme: '目前現狀' },
-  { number: 2, theme: '靈魂的召喚' },
-  { number: 3, theme: '正在升起的能量' },
-  { number: 4, theme: '正在消逝的事物' },
-  { number: 5, theme: '靈魂天賦' },
-  { number: 6, theme: '正在顯化的事物' },
-  { number: 7, theme: '下一步' },
-  { number: 8, theme: '前世的影響' },
-  { number: 9, theme: '你需要知道的事' },
-  { number: 10, theme: '希望與恐懼' },
-  { number: 11, theme: '潛在結果' },
-] as const;
 
 function WorkYourLightPage() {
   const navigate = useNavigate();
@@ -144,44 +129,7 @@ function WorkYourLightPage() {
           </div>
         </div>
 
-        <div className="mt-16 max-w-5xl mx-auto rounded-3xl border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-slate-900/80 to-fuchsia-500/10 px-3 py-7 sm:px-8 sm:py-10 shadow-[0_0_34px_rgba(167,139,250,0.12)]">
-          <div className="mb-7 text-center">
-            <p className="mb-2 text-xs sm:text-sm tracking-[0.35em] text-violet-300/75">宇 宙 十 字 牌 陣</p>
-            <h2 className="font-serif text-xl sm:text-3xl tracking-wide text-violet-100">11 個牌位與主旨</h2>
-          </div>
-
-          <div className="space-y-7 sm:space-y-10">
-            <div className="grid grid-cols-6 gap-1.5 sm:gap-3">
-              {COSMIC_CROSS_CARD_THEMES.slice(0, 6).map((card) => (
-                <CosmicCrossThemeCard key={card.number} number={card.number} theme={card.theme} />
-              ))}
-            </div>
-            <div className="mx-auto grid w-5/6 grid-cols-5 gap-1.5 sm:gap-3">
-              {COSMIC_CROSS_CARD_THEMES.slice(6).map((card) => (
-                <CosmicCrossThemeCard key={card.number} number={card.number} theme={card.theme} />
-              ))}
-            </div>
-          </div>
-        </div>
-
       </section>
-    </div>
-  );
-}
-
-function CosmicCrossThemeCard({ number, theme }: { number: number; theme: string }) {
-  return (
-    <div className="min-w-0 flex flex-col items-center text-center">
-      <div className="relative w-full aspect-[2/3] rounded-md sm:rounded-xl border border-violet-300/35 bg-gradient-to-br from-slate-800 via-indigo-950 to-slate-950 shadow-[0_10px_28px_-12px_rgba(139,92,246,0.65)] flex items-center justify-center overflow-visible">
-        <div className="pointer-events-none absolute inset-1 sm:inset-2 rounded-[0.2rem] sm:rounded-lg border border-violet-300/15" />
-        <span className="absolute -top-2 sm:-top-3 left-1/2 z-10 -translate-x-1/2 flex h-5 w-5 sm:h-8 sm:w-8 items-center justify-center rounded-full border border-fuchsia-200/65 bg-gradient-to-br from-fuchsia-500 to-violet-700 text-[9px] sm:text-sm font-semibold text-white shadow-lg">
-          {number}
-        </span>
-        <Sparkles className="h-3.5 w-3.5 sm:h-7 sm:w-7 text-fuchsia-300/45" strokeWidth={1.2} />
-      </div>
-      <p className="mt-2 sm:mt-3 min-h-[2.25rem] sm:min-h-[2.75rem] text-[9px] sm:text-sm leading-snug text-violet-100/90 break-words flex items-start justify-center">
-        {theme}
-      </p>
     </div>
   );
 }

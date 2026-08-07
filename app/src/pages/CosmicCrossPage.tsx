@@ -67,6 +67,47 @@ const positions = [
   { id: 11, label: '潛在結果',          description: 'Potential outcome',                  englishShort: 'Outcome',         interpretation: '這張牌揭示如果你遵循當前的路徑，可能展開的未來景象。' },
 ];
 
+function CosmicCrossPositionGuide() {
+  return (
+    <section className="mt-2 rounded-3xl border border-orange-400/30 bg-gradient-to-br from-orange-500/10 via-slate-900/80 to-violet-500/10 px-3 py-7 sm:px-8 sm:py-10 shadow-[0_0_34px_rgba(251,146,60,0.12)]">
+      <div className="mb-8 text-center">
+        <p className="mb-2 text-xs sm:text-sm tracking-[0.35em] text-orange-300/75">宇 宙 十 字 牌 陣</p>
+        <h2 className="font-serif text-xl sm:text-3xl tracking-wide text-orange-100">11 張牌的代號與主旨</h2>
+      </div>
+
+      <div className="space-y-7 sm:space-y-10">
+        <div className="grid grid-cols-6 gap-1.5 sm:gap-4">
+          {positions.slice(0, 6).map((position) => (
+            <CosmicCrossPositionCard key={position.id} position={position} />
+          ))}
+        </div>
+        <div className="mx-auto grid w-5/6 grid-cols-5 gap-1.5 sm:gap-4">
+          {positions.slice(6).map((position) => (
+            <CosmicCrossPositionCard key={position.id} position={position} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CosmicCrossPositionCard({ position }: { position: (typeof positions)[number] }) {
+  return (
+    <div className="min-w-0 flex flex-col items-center text-center">
+      <div className="relative w-full aspect-[2/3] rounded-md sm:rounded-xl border border-orange-300/35 bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950 shadow-[0_10px_28px_-12px_rgba(249,115,22,0.6)] flex items-center justify-center overflow-visible">
+        <div className="pointer-events-none absolute inset-1 sm:inset-2 rounded-[0.2rem] sm:rounded-lg border border-orange-300/15" />
+        <span className="absolute -top-2 sm:-top-3 left-1/2 z-10 -translate-x-1/2 flex h-5 w-5 sm:h-8 sm:w-8 items-center justify-center rounded-full border border-orange-200/70 bg-gradient-to-br from-orange-500 to-orange-700 text-[9px] sm:text-sm font-semibold text-white shadow-lg">
+          {position.id}
+        </span>
+        <Sparkles className="h-3.5 w-3.5 sm:h-7 sm:w-7 text-orange-300/45" strokeWidth={1.2} />
+      </div>
+      <p className="mt-2 sm:mt-3 min-h-[2.25rem] sm:min-h-[2.75rem] text-[9px] sm:text-sm leading-snug text-orange-100/90 break-words flex items-start justify-center">
+        {position.label}
+      </p>
+    </div>
+  );
+}
+
 function CosmicCrossPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -270,6 +311,8 @@ function CosmicCrossPage() {
                   </span>
                 </button>
               </div>
+
+              <CosmicCrossPositionGuide />
             </>
           )}
 
