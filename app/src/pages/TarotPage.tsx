@@ -682,30 +682,28 @@ function TarotPage() {
               )}
 
               {spreadType === 'celtic' && (
-                <div className="max-w-4xl mx-auto mb-8">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+                <div className="max-w-3xl mx-auto mb-8 px-1 sm:px-4">
+                  <div className="grid grid-cols-5 gap-x-1.5 gap-y-5 sm:gap-x-4 sm:gap-y-6">
                     {[
-                      { pos: 1, name: '現況', col: 'md:col-start-2' },
-                      { pos: 2, name: '挑戰', col: 'md:col-start-2' },
-                      { pos: 3, name: '根源', col: 'md:col-start-1' },
-                      { pos: 4, name: '過去', col: 'md:col-start-3' },
-                      { pos: 5, name: '目標', col: 'md:col-start-2' },
-                      { pos: 6, name: '未來', col: 'md:col-start-2' },
-                      { pos: 7, name: '自己', col: 'md:col-start-4 md:row-start-1' },
-                      { pos: 8, name: '環境', col: 'md:col-start-4' },
-                      { pos: 9, name: '希望/恐懼', col: 'md:col-start-4' },
-                      { pos: 10, name: '結果', col: 'md:col-start-4' }
+                      { pos: 1, name: '現況' },
+                      { pos: 2, name: '挑戰' },
+                      { pos: 3, name: '根源' },
+                      { pos: 4, name: '過去' },
+                      { pos: 5, name: '目標' },
+                      { pos: 6, name: '未來' },
+                      { pos: 7, name: '自己' },
+                      { pos: 8, name: '環境' },
+                      { pos: 9, name: '希望/恐懼' },
+                      { pos: 10, name: '結果' }
                     ].map((card) => (
-                      <div key={card.pos} className={`${card.col} bg-slate-800/80 border border-orange-500/30 rounded-lg p-3`}>
-                        <div className="flex flex-col items-center gap-2">
-                          <span className="flex items-center justify-center w-6 h-6 bg-orange-600/50 rounded-full text-xs font-bold border border-orange-400/50">
+                      <div key={card.pos} className="min-w-0 flex flex-col items-center gap-1.5 sm:gap-2">
+                        <div className="relative w-full max-w-[5.5rem] sm:max-w-[6.5rem] aspect-[2/3] bg-slate-800/80 border border-orange-500/30 rounded-md sm:rounded-lg shadow-md flex items-center justify-center">
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-orange-600/80 rounded-full text-[10px] sm:text-xs font-bold border border-orange-300/60 shadow">
                             {card.pos}
                           </span>
-                          <div className="w-full aspect-[2/3] bg-slate-800 rounded border border-orange-500/20 flex items-center justify-center">
-                            <Sparkles className="w-6 h-6 text-orange-400/30" />
-                          </div>
-                          <p className="text-xs text-orange-100 text-center leading-tight">{card.name}</p>
+                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400/30" />
                         </div>
+                        <p className="min-h-[1.75rem] text-[9px] sm:text-xs text-orange-100 text-center leading-tight break-keep">{card.name}</p>
                       </div>
                     ))}
                   </div>
