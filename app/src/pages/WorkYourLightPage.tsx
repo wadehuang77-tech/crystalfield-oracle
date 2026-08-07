@@ -4,6 +4,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
 
+const COSMIC_CROSS_CARD_THEMES = [
+  { number: 1, theme: '目前現狀' },
+  { number: 2, theme: '靈魂的召喚' },
+  { number: 3, theme: '正在升起的能量' },
+  { number: 4, theme: '正在消逝的事物' },
+  { number: 5, theme: '靈魂天賦' },
+  { number: 6, theme: '正在顯化的事物' },
+  { number: 7, theme: '下一步' },
+  { number: 8, theme: '前世的影響' },
+  { number: 9, theme: '你需要知道的事' },
+  { number: 10, theme: '希望與恐懼' },
+  { number: 11, theme: '潛在結果' },
+] as const;
+
 function WorkYourLightPage() {
   const navigate = useNavigate();
   const { cards: deck } = useDeck('work_your_light');
@@ -129,7 +143,38 @@ function WorkYourLightPage() {
           </div>
         </div>
 
+        <div className="mt-16 max-w-5xl mx-auto rounded-3xl border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-slate-900/80 to-fuchsia-500/10 px-3 py-7 sm:px-8 sm:py-10 shadow-[0_0_34px_rgba(167,139,250,0.12)]">
+          <div className="mb-7 text-center">
+            <p className="mb-2 text-xs sm:text-sm tracking-[0.35em] text-violet-300/75">宇 宙 十 字 牌 陣</p>
+            <h2 className="font-serif text-xl sm:text-3xl tracking-wide text-violet-100">11 個牌位與主旨</h2>
+          </div>
+
+          <div className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-6 gap-1.5 sm:gap-3">
+              {COSMIC_CROSS_CARD_THEMES.slice(0, 6).map((card) => (
+                <CosmicCrossThemeCard key={card.number} number={card.number} theme={card.theme} />
+              ))}
+            </div>
+            <div className="mx-auto grid w-5/6 grid-cols-5 gap-1.5 sm:gap-3">
+              {COSMIC_CROSS_CARD_THEMES.slice(6).map((card) => (
+                <CosmicCrossThemeCard key={card.number} number={card.number} theme={card.theme} />
+              ))}
+            </div>
+          </div>
+        </div>
+
       </section>
+    </div>
+  );
+}
+
+function CosmicCrossThemeCard({ number, theme }: { number: number; theme: string }) {
+  return (
+    <div className="min-w-0 min-h-[5.75rem] sm:min-h-[7.5rem] rounded-lg sm:rounded-xl border border-violet-400/30 bg-slate-900/65 px-1 py-2.5 sm:px-3 sm:py-4 shadow-md flex flex-col items-center justify-center gap-2 sm:gap-3 text-center">
+      <span className="flex h-5 w-5 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-full border border-fuchsia-300/50 bg-violet-500/20 text-[9px] sm:text-xs font-semibold text-fuchsia-100">
+        {number}
+      </span>
+      <p className="text-[9px] sm:text-sm leading-snug text-violet-100/90 break-words">{theme}</p>
     </div>
   );
 }
