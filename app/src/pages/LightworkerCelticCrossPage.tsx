@@ -72,6 +72,16 @@ const POSITIONS: Omit<CardPosition, 'preview' | 'full'>[] = [
   { position: 10, title: '第十牌',   subtitle: '最終結果 / 潛在成就',    description: '最終可能達到的成果與靈性成就' },
 ];
 
+function getPreviewInterpretation(position: CardPosition): string {
+  if (!position.preview) return '';
+  const excerpt = position.preview.preview_excerpt?.trim();
+  if (excerpt) return excerpt;
+
+  const keywords = (position.preview.preview as { keywords?: string[] }).keywords ?? [];
+  const keywordText = keywords.length > 0 ? `關鍵能量：${keywords.join('、')}。` : '';
+  return `「${position.preview.name}」出現在「${position.subtitle}」牌位，提醒你留意${position.description}。${keywordText}`;
+}
+
 function LightworkerCelticCrossPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -365,8 +375,10 @@ function LightworkerCelticCrossPage() {
 
             {!showFullContent && (
               <div className="space-y-6">
-                {selectedCards.map((position) => (
-                  <div key={position.position} className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-lg border-2 border-cyan-500/40 rounded-3xl overflow-hidden shadow-2xl shadow-cyan-500/20">
+                {selectedCards.map((position) => {
+                  const previewInterpretation = getPreviewInterpretation(position);
+                  return (
+                  <div key={position.position} data-preview-card={position.position} className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-lg border-2 border-cyan-500/40 rounded-3xl overflow-hidden shadow-2xl shadow-cyan-500/20">
                     <div className="relative bg-gradient-to-br from-slate-950/60 via-slate-950/60 to-slate-950 p-6 sm:p-8 border-b-2 border-cyan-500/30">
                       <div className="relative flex items-start gap-4">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-500 flex items-center justify-center text-xl font-bold flex-shrink-0">
@@ -390,11 +402,14 @@ function LightworkerCelticCrossPage() {
                     </div>
                     <div className="p-6 sm:p-8">
                       <div className="bg-slate-900/30 border border-cyan-500/30 rounded-xl p-6">
-                        {position.preview?.preview_excerpt ? (
+                        {position.preview ? (
                           <>
+                            <h4 className="mb-4 text-lg sm:text-xl font-serif text-cyan-100">
+                              牌義解讀（前 30% 預覽）
+                            </h4>
                             <div className="relative">
                               <p className="text-cyan-100/85 text-sm sm:text-base leading-loose whitespace-pre-line">
-                                {position.preview.preview_excerpt}
+                                {previewInterpretation}
                               </p>
                               <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
                             </div>
@@ -411,7 +426,8 @@ function LightworkerCelticCrossPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
 
                 {gate.phase === 'loading' && (
                   <div className="text-center text-cyan-300/70 py-6 tracking-wider">解鎖中…</div>
