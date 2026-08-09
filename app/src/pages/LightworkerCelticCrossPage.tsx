@@ -405,7 +405,7 @@ function LightworkerCelticCrossPage() {
                         {position.preview ? (
                           <>
                             <h4 className="mb-4 text-lg sm:text-xl font-serif text-cyan-100">
-                              牌義解讀（前 30% 預覽）
+                              牌義解讀（前 40% 預覽）
                             </h4>
                             <div className="relative">
                               <p className="text-cyan-100/85 text-sm sm:text-base leading-loose whitespace-pre-line">
@@ -414,7 +414,7 @@ function LightworkerCelticCrossPage() {
                               <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
                             </div>
                             <p className="mt-3 text-xs text-cyan-300/70 tracking-wide text-center">
-                              前 30% 預覽 — 解鎖看完整解讀
+                              前 40% 預覽 — 解鎖看完整解讀
                             </p>
                           </>
                         ) : (

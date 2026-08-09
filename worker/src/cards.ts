@@ -80,11 +80,12 @@ export async function getDeckPreview(
 }
 
 const EXCERPT_RATIO = 0.3;
+const LIGHTWORKER_EXCERPT_RATIO = 0.4;
 const EXCERPT_MIN = 20;
 
-function clipExcerpt(text: string): string {
+function clipExcerpt(text: string, ratio = EXCERPT_RATIO): string {
   const t = text.trim();
-  const target = Math.max(EXCERPT_MIN, Math.floor(t.length * EXCERPT_RATIO));
+  const target = Math.max(EXCERPT_MIN, Math.floor(t.length * ratio));
   if (t.length <= target) return t;
   return t.slice(0, target).trimEnd() + '…';
 }
@@ -120,7 +121,8 @@ function buildExcerpts(
     return out;
   }
   const teaser = pickFirstString(gated);
-  return teaser ? { preview_excerpt: clipExcerpt(teaser) } : {};
+  const ratio = deckId === 'lightworker' ? LIGHTWORKER_EXCERPT_RATIO : EXCERPT_RATIO;
+  return teaser ? { preview_excerpt: clipExcerpt(teaser, ratio) } : {};
 }
 
 interface SingleUnlockBody {
