@@ -75,6 +75,19 @@ const SPREAD_IDS: Record<SpreadType, string> = {
   pastlife: 'tarot_pastlife'
 };
 
+const CELTIC_CROSS_POSITIONS = [
+  '當前狀況',
+  '挑戰/障礙',
+  '根源/過去',
+  '近期過去',
+  '可能未來',
+  '近期未來',
+  '內在態度',
+  '外在影響',
+  '希望/恐懼',
+  '最終結果',
+] as const;
+
 const THREE_CARD_RELATIONSHIP_PROMPTS = [
   '深夜總是獨自亂想？給在感情裡感到疲憊、委屈的你，一份溫柔的能量解答。',
   '明明在一起，卻覺得越來越遠？找出你們之間的隱形卡點與轉機。',
@@ -1266,13 +1279,12 @@ function TarotPage() {
                           </div>
                         </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {drawnCards.slice(0, 3).map((drawn, index) => {
-                            const positions = ['當前狀況', '挑戰/障礙', '根源/過去'];
+                          {drawnCards.slice(0, CELTIC_CROSS_POSITIONS.length).map((drawn, index) => {
                             return (
                               <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl">
                                 <div className="flex items-center gap-2 mb-4">
                                   <span className="flex items-center justify-center w-8 h-8 bg-orange-600/50 rounded-full text-sm font-bold border border-orange-400/50">{index + 1}</span>
-                                  <h3 className="text-lg font-serif text-orange-200">{positions[index]}</h3>
+                                  <h3 className="text-lg font-serif text-orange-200">{CELTIC_CROSS_POSITIONS[index]}</h3>
                                 </div>
                                 {drawn.isReversed && (
                                   <div className="text-center mb-3">
@@ -1284,6 +1296,9 @@ function TarotPage() {
                                 <div className="bg-slate-900/30 rounded-lg p-3 border border-orange-500/20">
                                   <p className="text-xs leading-relaxed">
                                     {drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning}
+                                  </p>
+                                  <p className="mt-3 text-[0.65rem] text-orange-300/70 tracking-wide text-center">
+                                    前 30% 預覽 — 解鎖看完整解讀
                                   </p>
                                 </div>
                               </div>
@@ -1348,15 +1363,11 @@ function TarotPage() {
                         </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {drawnCards.map((drawn, index) => {
-                            const positions = [
-                              '當前狀況', '挑戰/障礙', '根源/過去', '近期過去', '可能未來',
-                              '近期未來', '內在態度', '外在影響', '希望/恐懼', '最終結果'
-                            ];
                             return (
                               <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                                 <div className="flex items-center gap-2 mb-4">
                                   <span className="flex items-center justify-center w-8 h-8 bg-orange-600/50 rounded-full text-sm font-bold border border-orange-400/50">{index + 1}</span>
-                                  <h3 className="text-lg font-serif text-orange-200">{positions[index]}</h3>
+                                  <h3 className="text-lg font-serif text-orange-200">{CELTIC_CROSS_POSITIONS[index]}</h3>
                                 </div>
                                 {drawn.isReversed && (
                                   <div className="text-center mb-3">
