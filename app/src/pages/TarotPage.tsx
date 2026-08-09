@@ -1142,7 +1142,7 @@ function TarotPage() {
                     )}
                     {!isLocallyUnlocked && (
                       <div className="space-y-6">
-                        {drawnCards.slice(0, 2).map((drawn, index) => {
+                        {drawnCards.slice(0, 7).map((drawn, index) => {
                           const positionGuide = getPastLifePositionGuide(index);
                           const cardMeaning = drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning;
                           const interpretationText = positionGuide.guideText(cardMeaning, undefined);
@@ -1164,6 +1164,9 @@ function TarotPage() {
                                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
                                     <h4 className="text-orange-200 text-lg font-medium mb-4">靈魂訊息（預覽）</h4>
                                     <p className="text-orange-100/90 leading-relaxed">{interpretationText.slice(0, Math.floor(interpretationText.length * 0.3)) + '...'}</p>
+                                    <p className="mt-3 text-[0.65rem] text-orange-300/70 tracking-wide text-center">
+                                      前 30% 預覽 — 解鎖看完整解讀
+                                    </p>
                                   </div>
                                 </div>
                               </div>
