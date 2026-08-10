@@ -385,10 +385,10 @@ export const humanDesignApi = {
       body: { chat_answers },
     }),
 
-  getFullReport: (chart_id: string) =>
+  getFullReport: (chart_id: string, auth: { proofs: HumanDesignShareProof[]; capabilities: string[] }) =>
     req<{ report_version: string; sections: HumanDesignFullReportSection[]; cached: boolean }>(
       `/api/human-design/charts/${encodeURIComponent(chart_id)}/full-report`,
-      { timeoutMs: 70000 },
+      { method: 'POST', body: auth, timeoutMs: 70000 },
     ),
 };
 
@@ -491,6 +491,38 @@ export const adminApi = {
       `/api/admin/button-link-settings/${encodeURIComponent(buttonKey)}`,
       { method: 'PUT', body: { google_form_id: googleFormId } },
     ),
+};
+
+export interface HumanDesignShareProof {
+  order_id: string;
+  order_token: string;
+}
+
+export type HumanDesignShareGroup = 'identity' | 'core' | 'full' | 'summary';
+
+export interface HumanDesignShareAccess {
+  groups: HumanDesignShareGroup[];
+  plan_names: string[];
+  plan_for: Partial<Record<HumanDesignShareGroup, string>>;
+  issued_capabilities: string[];
+}
+
+export const humanDesignShareApi = {
+  access: (body: { chart_id: string; proofs: HumanDesignShareProof[]; capabilities: string[] }) =>
+    req<HumanDesignShareAccess>('/api/human-design-share-access', { method: 'POST', body }),
+  create: (body: {
+    chart_id: string;
+    section_key: string;
+    image_base64: string;
+    proofs: HumanDesignShareProof[];
+    capabilities: string[];
+  }) => req<{ id: string; url: string; revoke_token: string; expires_at: string; issued_capabilities: string[] }>(
+    '/api/human-design-share-results', { method: 'POST', body, timeoutMs: 30000 },
+  ),
+  revoke: (id: string, revokeToken: string) =>
+    req<{ ok: true }>(`/api/human-design-share-results/${encodeURIComponent(id)}`, {
+      method: 'DELETE', body: { revoke_token: revokeToken },
+    }),
 };
 
 export type DeckId =

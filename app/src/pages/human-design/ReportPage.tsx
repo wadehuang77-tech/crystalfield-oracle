@@ -3,6 +3,8 @@ import { Lock, Sparkles, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
 import { humanDesignApi, type HumanDesignFullReportSection } from '../../lib/api';
 import { generateFreeReport } from '../../data/human-design/humanDesignData';
+import HumanDesignShareButton from '../../components/human-design/HumanDesignShare';
+import { getHumanDesignShareCapabilities, getHumanDesignShareProofs } from '../../lib/humanDesignShareAuth';
 
 interface ReportPageProps {
   chart: HDChart;
@@ -69,6 +71,35 @@ function displayFullReportIcon(section: HumanDesignFullReportSection): string {
   return section.id === 'personality' ? '◇' : section.icon;
 }
 
+const CORE_SHARE_IDS = new Set(['type', 'profile', 'strategy', 'authority', 'definition', 'ai-summary', 'basic-talent', 'ai-tip']);
+
+function normalizeCoreId(id: string) {
+  return id.startsWith('fb-') ? id.slice(3) : id;
+}
+
+function coreShareResult(id: string, chart: HDChart) {
+  const definition = chart.definedCenters.length === 0 ? '無定義（反映者）'
+    : chart.definedCenters.length <= 3 ? '單一定義'
+      : chart.definedCenters.length <= 6 ? '雙重定義' : '多重定義';
+  return ({
+    type: chart.typeName,
+    profile: `${chart.profile} ${chart.profileName}`,
+    strategy: chart.strategy,
+    authority: chart.authorityName,
+    definition,
+    'ai-summary': chart.typeName,
+    'basic-talent': chart.typeName,
+    'ai-tip': chart.strategy,
+  } as Record<string, string>)[id] ?? chart.typeName;
+}
+
+function coreShareName(id: string) {
+  return ({
+    type: '能量類型', profile: '人生角色', strategy: '人生策略', authority: '內在權威', definition: '定義',
+    'ai-summary': '人格能量摘要', 'basic-talent': '天賦與優勢', 'ai-tip': '當下行動指引',
+  } as Record<string, string>)[id] ?? '人類圖指引';
+}
+
 function FreeCard({
   section,
   chart,
@@ -102,6 +133,7 @@ function FreeCard({
     : content;
   const paragraphs = previewContent.split('\n\n').map(p => p.trim()).filter(Boolean);
   const displayParagraphs = paragraphs.length > 0 ? paragraphs : ['此區塊的詳細說明正在準備中。'];
+  const shareId = normalizeCoreId(section.id);
 
   return (
     <div
@@ -150,6 +182,16 @@ function FreeCard({
                   {checkoutLoading ? '前往付款中...' : '解鎖我的人類圖核心解析 NT$199'}
                 </button>
               </div>
+            )}
+            {!locked && CORE_SHARE_IDS.has(shareId) && (
+              <HumanDesignShareButton
+                group={shareId === 'type' ? 'identity' : 'core'}
+                sectionKey={`core_${shareId}`}
+                sectionName={coreShareName(shareId)}
+                result={coreShareResult(shareId, chart)}
+                summary={content}
+                guidance={`依循你的${shareId === 'authority' ? '內在權威' : '能量設計'}，讓正確的選擇自然浮現。`}
+              />
             )}
           </div>
         )}
@@ -305,7 +347,10 @@ export default function ReportPage({
     setFullReportError('');
     setReportVersion('');
 
-    humanDesignApi.getFullReport(chartId)
+    humanDesignApi.getFullReport(chartId, {
+      proofs: getHumanDesignShareProofs(),
+      capabilities: getHumanDesignShareCapabilities(),
+    })
       .then(({ sections, report_version }) => {
         if (cancelled) return;
         if (!sections.length) {
@@ -484,6 +529,16 @@ export default function ReportPage({
                     {'body' in s && typeof s.body === 'string' && (
                       <p className="mt-3 pl-7 text-white/65 text-sm leading-[1.85]">{s.body}</p>
                     )}
+                    <div className="pl-7">
+                      <HumanDesignShareButton
+                        group="full"
+                        sectionKey={`full_${s.id}`}
+                        sectionName={displayFullReportTitle(s.title)}
+                        result={chart.typeName}
+                        summary={s.body}
+                        guidance="看見自己的能量運作方式，就是活出天賦與自由的第一步。"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -528,6 +583,25 @@ export default function ReportPage({
             </button>
           </div>
         )}
+
+        <div className="mb-8 rounded-2xl border border-cyan-300/15 bg-gradient-to-br from-blue-950/40 to-violet-950/40 p-5 text-center">
+          <p className="mb-4 text-sm text-cyan-100/75">把這份能量藍圖分享給重要的人</p>
+          <HumanDesignShareButton
+            group="summary"
+            sectionKey="report_summary"
+            sectionName="人類圖能量藍圖"
+            result={chart.typeName}
+            summary={chart.aiIntro || `你是${chart.typeName}，適合依循${chart.strategy}做出選擇。`}
+            guidance={`相信${chart.authorityName}的訊號，讓生命能量回到適合你的節奏。`}
+            highlights={[
+              `人生角色：${chart.profile} ${chart.profileName}`,
+              `內在權威：${chart.authorityName}`,
+              `人生策略：${chart.strategy}`,
+            ]}
+            scope="report_summary"
+            reportButton
+          />
+        </div>
 
         {/* ── Footer actions ── */}
         <div className="flex justify-center gap-3 flex-wrap">

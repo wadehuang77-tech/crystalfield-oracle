@@ -5,9 +5,17 @@ import ParticleBackground from '../components/human-design/ParticleBackground';
 import LandingPage from './human-design/LandingPage';
 import HeroCardPage from './human-design/HeroCardPage';
 import ReportPage from './human-design/ReportPage';
+import { HumanDesignShareProvider } from '../components/human-design/HumanDesignShare';
 import { calculateHDChart, type HDChart } from '../lib/human-design/humanDesignCalc';
-import { checkoutApi, humanDesignApi } from '../lib/api';
+import { checkoutApi, humanDesignApi, humanDesignShareApi, type HumanDesignShareAccess } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  getHumanDesignShareCapabilities,
+  getHumanDesignShareProofs,
+  mergeHumanDesignShareCapabilities,
+  saveHumanDesignShareProof,
+} from '../lib/humanDesignShareAuth';
 
 type Page = 'landing' | 'hero' | 'loading' | 'report';
 type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full' | 'bundle';
@@ -105,6 +113,7 @@ function AnalysingScreen() {
 }
 
 export default function HumanDesignPage() {
+  const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const initialStoredState = useMemo(() => readStoredState(), []);
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
@@ -117,6 +126,8 @@ export default function HumanDesignPage() {
   const [email, setEmail] = useState(() => initialStoredState?.email ?? '');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutRestoring, setCheckoutRestoring] = useState(hasCheckoutReturn);
+  const [shareAccess, setShareAccess] = useState<HumanDesignShareAccess | null>(null);
+  const [shareCapabilities, setShareCapabilities] = useState<string[]>(() => getHumanDesignShareCapabilities());
 
   const goTo = (next: Page) => {
     setPage(next);
@@ -215,11 +226,12 @@ export default function HumanDesignPage() {
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
     try {
-      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(
+      const { ecpay, admin_unlocked, order_id, order_token } = await checkoutApi.createOrder(
         'human_design_basic',
         undefined,
         email ? { guest_email: email } : undefined,
       );
+      saveHumanDesignShareProof(order_id, order_token);
       if (admin_unlocked) {
         clearCheckoutReturn();
         setAccess('basic');
@@ -241,11 +253,12 @@ export default function HumanDesignPage() {
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
     try {
-      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(
+      const { ecpay, admin_unlocked, order_id, order_token } = await checkoutApi.createOrder(
         'human_design_full',
         undefined,
         email ? { guest_email: email } : undefined,
       );
+      saveHumanDesignShareProof(order_id, order_token);
       if (admin_unlocked) {
         clearCheckoutReturn();
         setAccess('full');
@@ -267,11 +280,12 @@ export default function HumanDesignPage() {
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
     try {
-      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(
+      const { ecpay, admin_unlocked, order_id, order_token } = await checkoutApi.createOrder(
         'human_design_bundle',
         undefined,
         email ? { guest_email: email } : undefined,
       );
+      saveHumanDesignShareProof(order_id, order_token);
       if (admin_unlocked) {
         clearCheckoutReturn();
         setAccess('bundle');
@@ -300,6 +314,7 @@ export default function HumanDesignPage() {
     const orderId = params.get('order_id');
     const orderToken = params.get('order_token');
     if (!orderId && !orderToken) return;
+    if (orderId) saveHumanDesignShareProof(orderId, orderToken);
     const stored = readStoredState();
     if (stored) {
       setChart(stored.chart);
@@ -353,6 +368,29 @@ export default function HumanDesignPage() {
     window.scrollTo(0, 0);
   }, [page]);
 
+  useEffect(() => {
+    if (!chartId || !chart) {
+      setShareAccess(null);
+      return;
+    }
+    let cancelled = false;
+    const proofs = getHumanDesignShareProofs();
+    const capabilities = getHumanDesignShareCapabilities();
+    humanDesignShareApi.access({ chart_id: chartId, proofs, capabilities })
+      .then((nextAccess) => {
+        if (cancelled) return;
+        const merged = mergeHumanDesignShareCapabilities(nextAccess.issued_capabilities);
+        setShareCapabilities(merged);
+        setShareAccess(nextAccess);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('human design share access failed:', err);
+        setShareAccess(null);
+      });
+    return () => { cancelled = true; };
+  }, [chart, chartId, access, user]);
+
   const isFullUnlocked = access === 'full' || access === 'bundle';
 
   return (
@@ -377,18 +415,27 @@ export default function HumanDesignPage() {
         )}
         {page === 'loading' && <AnalysingScreen />}
         {page === 'report' && chart && (
-          <ReportPage
-            chart={chart}
-            chartId={chartId}
-            access={access}
-            checkoutLoading={checkoutLoading}
-            isFullUnlocked={isFullUnlocked}
-            onStartBasicCheckout={startBasicCheckout}
-            onStartFullCheckout={startFullCheckout}
-            onStartBundleCheckout={startBundleCheckout}
-            onEnsureChartSaved={ensureChartSaved}
-            onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}
-          />
+          <HumanDesignShareProvider value={{
+            chart,
+            chartId,
+            access: shareAccess,
+            proofs: getHumanDesignShareProofs(),
+            capabilities: shareCapabilities,
+            onCapabilities: (tokens) => setShareCapabilities(mergeHumanDesignShareCapabilities(tokens)),
+          }}>
+            <ReportPage
+              chart={chart}
+              chartId={chartId}
+              access={access}
+              checkoutLoading={checkoutLoading}
+              isFullUnlocked={isFullUnlocked}
+              onStartBasicCheckout={startBasicCheckout}
+              onStartFullCheckout={startFullCheckout}
+              onStartBundleCheckout={startBundleCheckout}
+              onEnsureChartSaved={ensureChartSaved}
+              onNavigate={(target) => goTo(target === 'landing' ? 'landing' : 'report')}
+            />
+          </HumanDesignShareProvider>
         )}
         {page === 'report' && !chart && checkoutRestoring && <AnalysingScreen />}
         {page === 'report' && !chart && !checkoutRestoring && <LandingPage onCalculate={handleCalculate} />}

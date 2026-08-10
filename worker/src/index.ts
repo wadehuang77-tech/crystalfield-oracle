@@ -54,6 +54,14 @@ import {
   revokeNumerologyShare,
 } from './numerologyShareResults';
 import {
+  createHumanDesignShareResult,
+  getHumanDesignShareAccess,
+  getHumanDesignShareImage,
+  getHumanDesignSharePage,
+  hasHumanDesignPaidGroup,
+  revokeHumanDesignShare,
+} from './humanDesignShareResults';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -138,6 +146,18 @@ export default {
       if (path.startsWith('/numerology/share/') && req.method === 'GET') {
         return await getNumerologySharePage(req, env, decodeURIComponent(path.slice('/numerology/share/'.length)));
       }
+      if (path === '/api/human-design-share-access' && req.method === 'POST') return await getHumanDesignShareAccess(req, env);
+      if (path === '/api/human-design-share-results' && req.method === 'POST') return await createHumanDesignShareResult(req, env);
+      if (path.startsWith('/api/human-design-share-results/') && req.method === 'DELETE') {
+        return await revokeHumanDesignShare(req, env, decodeURIComponent(path.slice('/api/human-design-share-results/'.length)));
+      }
+      if (path.startsWith('/human-design/share/') && path.endsWith('/image') && req.method === 'GET') {
+        const id = decodeURIComponent(path.slice('/human-design/share/'.length, -'/image'.length));
+        return await getHumanDesignShareImage(req, env, id);
+      }
+      if (path.startsWith('/human-design/share/') && req.method === 'GET') {
+        return await getHumanDesignSharePage(req, env, decodeURIComponent(path.slice('/human-design/share/'.length)));
+      }
       if (path === '/api/share-card-image' && req.method === 'GET') return await getShareCardImage(req, env, url);
       if (path.startsWith('/share/') && path.endsWith('/image') && req.method === 'GET') {
         const id = decodeURIComponent(path.slice('/share/'.length, -'/image'.length));
@@ -207,10 +227,14 @@ export default {
           decodeURIComponent(path.slice('/api/button-links/'.length)),
         );
       }
-      if (path.startsWith('/api/human-design/charts/') && path.endsWith('/full-report') && req.method === 'GET') {
+      if (path.startsWith('/api/human-design/charts/') && path.endsWith('/full-report') && req.method === 'POST') {
         const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/full-report'.length));
         const rl = await rateLimit(env, 'hd-full-report-ip', clientIp(req), 30, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env);
+        const accessBody = await readBody<Record<string, unknown>>(req, 64 * 1024);
+        if (!await hasHumanDesignPaidGroup(req, env, id, accessBody, 'full')) {
+          return forbidden(req, env, '此完整版報告尚未完成付款解鎖');
+        }
         return await getHumanDesignFullReport(req, env, id);
       }
 
