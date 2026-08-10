@@ -311,6 +311,47 @@ export const shareApi = {
     `${BASE}/api/share-card-image?deck_id=${encodeURIComponent(deckId)}&card_key=${encodeURIComponent(cardKey)}`,
 };
 
+export interface NumerologyShareProof {
+  order_id: string;
+  order_token: string;
+}
+
+export type NumerologyShareGroup = 'profile' | 'missing' | 'grid' | 'oracle' | 'forecast' | 'bracelet' | 'summary';
+
+export interface NumerologyShareAccess {
+  groups: NumerologyShareGroup[];
+  plan_names: string[];
+  plan_for: Partial<Record<NumerologyShareGroup, string>>;
+  issued_capabilities: string[];
+}
+
+export interface CreateNumerologyShareInput {
+  section_key: string;
+  numerology_number: number;
+  section_name: string;
+  share_scope: 'single_section' | 'report_summary';
+  summary: string;
+  guidance: string;
+  highlights?: string[];
+  image_base64: string;
+  proofs: NumerologyShareProof[];
+  capabilities: string[];
+}
+
+export const numerologyShareApi = {
+  access: (body: { proofs: NumerologyShareProof[]; capabilities: string[] }) =>
+    req<NumerologyShareAccess>('/api/numerology-share-access', { method: 'POST', body }),
+  create: (body: CreateNumerologyShareInput) =>
+    req<{ id: string; url: string; revoke_token: string; expires_at: string; issued_capabilities: string[] }>(
+      '/api/numerology-share-results',
+      { method: 'POST', body, timeoutMs: 30000 },
+    ),
+  revoke: (id: string, revokeToken: string) =>
+    req<{ ok: true }>(`/api/numerology-share-results/${encodeURIComponent(id)}`, {
+      method: 'DELETE', body: { revoke_token: revokeToken },
+    }),
+};
+
 export interface HumanDesignChartInput {
   birth_date: string;
   birth_time: string;

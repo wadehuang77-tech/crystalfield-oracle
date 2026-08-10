@@ -4,6 +4,7 @@ import type { NumerologyReport, GridLine } from '../../lib/numerology';
 import ContentGate from './ContentGate';
 import { InlineEmailUnlock } from '../InlineEmailUnlock';
 import type { PlanTier } from '../../hooks/usePremium';
+import NumerologyShareButton from './NumerologyShare';
 
 interface Props {
   report: NumerologyReport;
@@ -237,6 +238,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
               <p className="text-sm leading-[1.95]" style={{ color: '#e9d5ff' }}>{line.ritual}</p>
             </div>
           </ContentGate>
+          <NumerologyShareButton group="grid" sectionKey={`grid_${line.id}`} sectionName={`${line.name}（${line.id}）`} summary={line.soulBlueprint} guidance={line.ritual} highlights={line.crystals} />
         </div>
       )}
     </div>

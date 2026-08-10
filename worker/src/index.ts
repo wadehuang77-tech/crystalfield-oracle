@@ -47,6 +47,13 @@ import {
   getSharePage,
 } from './shareResults';
 import {
+  createNumerologyShareResult,
+  getNumerologyShareAccess,
+  getNumerologyShareImage,
+  getNumerologySharePage,
+  revokeNumerologyShare,
+} from './numerologyShareResults';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -119,6 +126,18 @@ export default {
 
       if (path === '/api/decks' && req.method === 'GET') return await listDecks(req, env);
       if (path === '/api/share-results' && req.method === 'POST') return await createShareResult(req, env);
+      if (path === '/api/numerology-share-access' && req.method === 'POST') return await getNumerologyShareAccess(req, env);
+      if (path === '/api/numerology-share-results' && req.method === 'POST') return await createNumerologyShareResult(req, env);
+      if (path.startsWith('/api/numerology-share-results/') && req.method === 'DELETE') {
+        return await revokeNumerologyShare(req, env, decodeURIComponent(path.slice('/api/numerology-share-results/'.length)));
+      }
+      if (path.startsWith('/numerology/share/') && path.endsWith('/image') && req.method === 'GET') {
+        const id = decodeURIComponent(path.slice('/numerology/share/'.length, -'/image'.length));
+        return await getNumerologyShareImage(req, env, id);
+      }
+      if (path.startsWith('/numerology/share/') && req.method === 'GET') {
+        return await getNumerologySharePage(req, env, decodeURIComponent(path.slice('/numerology/share/'.length)));
+      }
       if (path === '/api/share-card-image' && req.method === 'GET') return await getShareCardImage(req, env, url);
       if (path.startsWith('/share/') && path.endsWith('/image') && req.method === 'GET') {
         const id = decodeURIComponent(path.slice('/share/'.length, -'/image'.length));

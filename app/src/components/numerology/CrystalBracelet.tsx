@@ -1,6 +1,7 @@
 import { Gem, ShoppingBag, Sparkles } from 'lucide-react';
 import type { NumerologyReport } from '../../lib/numerology';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
+import NumerologyShareButton from './NumerologyShare';
 
 interface Props {
   report: NumerologyReport;
@@ -307,6 +308,7 @@ export default function CrystalBracelet({ report }: Props) {
         <p className="text-sm leading-[1.9]" style={{ color: 'rgba(233,213,255,0.78)' }}>
           {crystalGridGuidance}
         </p>
+        <NumerologyShareButton group="bracelet" sectionKey="crystal_grid" sectionName="神聖水晶陣指引" summary={crystalGridGuidance} guidance="以穩定的意念啟動水晶陣，讓能量支持你的生命方向。" highlights={uniqueCrystals.map(c => c.nameZh)} />
       </div>
 
       <div className="flex items-center gap-2">
@@ -363,6 +365,7 @@ export default function CrystalBracelet({ report }: Props) {
           {generalTwo.map(theme => (
             <BraceletCard key={theme.id} theme={theme} />
           ))}
+          <NumerologyShareButton group="bracelet" sectionKey="crystal_bracelet" sectionName="專屬水晶建議" summary={featuredBracelet.description} guidance={`讓「${featuredBracelet.name}」陪伴你穩定展現${featuredBracelet.tag}的力量。`} highlights={featuredBracelet.crystalNames} />
         </div>
     </div>
   );

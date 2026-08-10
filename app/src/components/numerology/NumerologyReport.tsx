@@ -7,6 +7,7 @@ import GridLines from './GridLines';
 import OracleReading from './OracleReading';
 import PersonalYearForecast from './PersonalYearForecast';
 import type { PlanTier } from '../../hooks/usePremium';
+import NumerologyShareButton from './NumerologyShare';
 
 const CRYSTAL_UNLOCK_FEATURES = [
   '完整缺失數字分析',
@@ -29,7 +30,7 @@ interface Props {
   onOracleUnlock: () => void;
 }
 
-function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: string }) {
+function StatCard({ icon, label, value, color, sectionKey, guidance }: { icon: React.ReactNode; label: string; value: string; color: string; sectionKey: string; guidance: string }) {
   return (
     <div
       className="rounded-2xl p-4 space-y-2 transition-all duration-300"
@@ -46,6 +47,7 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label:
         <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(196,181,253,0.5)' }}>{label}</span>
       </div>
       <p className="text-sm leading-relaxed" style={{ color: '#e9d5ff' }}>{value}</p>
+      <NumerologyShareButton group="profile" sectionKey={sectionKey} sectionName={label} summary={value} guidance={guidance} />
     </div>
   );
 }
@@ -115,6 +117,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
           </div>
           <h2 className="font-serif text-2xl text-gradient-gold mb-3">{report.personality}</h2>
           <p className="text-sm leading-relaxed max-w-sm mx-auto" style={{ color: 'rgba(233,213,255,0.75)' }}>{report.lifePathDescription}</p>
+          <NumerologyShareButton group="profile" sectionKey="life_path" sectionName="主命數" summary={report.lifePathDescription} guidance={report.soulLesson} />
           <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
             {lpCrystals.map(c => <CrystalChip key={c.nameZh} {...c} />)}
           </div>
@@ -170,10 +173,10 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
 
       {/* Soul Profile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <StatCard icon={<Heart className="w-4 h-4" />} label="情感模式" value={report.emotionalPattern} color="#fda4af" />
-        <StatCard icon={<DollarSign className="w-4 h-4" />} label="財運能量" value={report.wealthEnergy} color="#fbbf24" />
-        <StatCard icon={<Star className="w-4 h-4" />} label="靈魂課題" value={report.soulLesson} color="#a78bfa" />
-        <StatCard icon={<Zap className="w-4 h-4" />} label="對應脈輪" value={report.chakra} color={report.chakraColor} />
+        <StatCard icon={<Heart className="w-4 h-4" />} label="情感模式" value={report.emotionalPattern} color="#fda4af" sectionKey="emotional" guidance="理解自己的情感節奏，讓關係回到真誠與平衡。" />
+        <StatCard icon={<DollarSign className="w-4 h-4" />} label="財運能量" value={report.wealthEnergy} color="#fbbf24" sectionKey="wealth" guidance="相信你的價值，讓天賦成為穩定而豐盛的力量。" />
+        <StatCard icon={<Star className="w-4 h-4" />} label="靈魂課題" value={report.soulLesson} color="#a78bfa" sectionKey="soul_lesson" guidance="每一次覺察，都是靈魂朝完整更靠近的一步。" />
+        <StatCard icon={<Zap className="w-4 h-4" />} label="對應脈輪" value={report.chakra} color={report.chakraColor} sectionKey="chakra" guidance="溫柔照顧這個能量中心，讓身心重新對齊。" />
       </div>
 
       {/* Grid Lines */}
@@ -358,6 +361,7 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
                             <p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'rgba(251,191,36,0.6)' }}>能量宣言</p>
                             <p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>「{data.affirmation}」</p>
                           </div>
+                          <NumerologyShareButton group="missing" sectionKey={`missing_${n}`} sectionName={`缺失數字 ${n} × 水晶療癒`} number={n} summary={data.crystalFix} guidance={data.affirmation} highlights={data.crystals.map(c => c.nameZh)} />
                         </div>
                       ) : (
                         /* Blurred lock gate */
@@ -555,6 +559,13 @@ export default function NumerologyReport({ report, oracleCard, onReset, tier, on
           </div>
         </div>
       )}
+
+      <NumerologyShareButton
+        group="summary" sectionKey="report_summary" sectionName="完整生命靈數解析"
+        summary={report.lifePathDescription} guidance={report.soulLesson}
+        highlights={[report.emotionalPattern, report.wealthEnergy, report.chakra]}
+        scope="report_summary" reportButton
+      />
 
       {/* Reset */}
       <button

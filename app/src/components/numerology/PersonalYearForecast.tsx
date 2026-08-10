@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Sun, Briefcase, Heart, Sparkles, AlertTriangle, Gem, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport } from '../../lib/numerology';
 import { getPersonalYearData } from '../../lib/numerology';
+import NumerologyShareButton from './NumerologyShare';
 
 interface Props {
   report: NumerologyReport;
@@ -144,6 +145,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
             </span>
           </div>
           <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{data.overview}</p>
+          <NumerologyShareButton group="forecast" sectionKey="forecast_summary" sectionName={`${CURRENT_YEAR} 流年運勢`} number={data.number} summary={data.overview} guidance={data.affirmation} highlights={[data.keyword, data.theme]} />
         </div>
 
         {/* Progress bar — shown when locked */}
@@ -207,6 +209,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                         <p className="text-sm leading-[1.9] pt-3" style={{ color: '#e9d5ff' }}>
                           {data[key as 'career' | 'love' | 'spiritual' | 'warning']}
                         </p>
+                        <NumerologyShareButton group="forecast" sectionKey={`forecast_${key}`} sectionName={SECTION_LABELS[key]} number={data.number} summary={data[key]} guidance={data.affirmation} />
                       </div>
                     )}
                   </div>
@@ -246,6 +249,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                   </div>
                 ))}
               </div>
+              <NumerologyShareButton group="forecast" sectionKey="forecast_crystals" sectionName="流年守護水晶" number={data.number} summary={data.crystals.map(c => `${c.nameZh}：${c.reason}`).join('；')} guidance={data.affirmation} highlights={data.crystals.map(c => c.nameZh)} />
             </div>
 
             {/* Affirmation */}

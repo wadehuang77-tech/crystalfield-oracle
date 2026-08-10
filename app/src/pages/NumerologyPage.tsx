@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Gem, Star, Sparkles, ChevronRight, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
+import { NumerologyShareProvider } from '../components/numerology/NumerologyShare';
 import DailyEnergy from '../components/numerology/DailyEnergy';
 import AIChatAdvisor from '../components/numerology/AIChatAdvisor';
 import UpgradeModal from '../components/numerology/UpgradeModal';
@@ -10,7 +11,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { calculateNumerology, drawOracleCard } from '../lib/numerology';
 import type { NumerologyReport as Report, OracleCard } from '../lib/numerology';
 import type { PlanTier } from '../hooks/usePremium';
-import { checkoutApi } from '../lib/api';
+import { checkoutApi, numerologyShareApi } from '../lib/api';
+import type { NumerologyShareAccess } from '../lib/api';
+import { getNumerologyShareCapabilities, getNumerologyShareProofs, mergeNumerologyShareCapabilities, saveNumerologyShareProof } from '../lib/numerologyShareAuth';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 
 type Tab = 'report' | 'daily' | 'ai';
@@ -76,6 +79,8 @@ export default function NumerologyPage() {
   const [upgradeDefaultTier, setUpgradeDefaultTier] = useState<PlanTier>(3);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [expandedUnlockKey, setExpandedUnlockKey] = useState<string | null>(null);
+  const [shareAccess, setShareAccess] = useState<NumerologyShareAccess | null>(null);
+  const [shareCapabilities, setShareCapabilities] = useState<string[]>(() => getNumerologyShareCapabilities());
 
   const [localTier, setLocalTier] = useState<PlanTier>(() => {
     const n = Number(localStorage.getItem(LOCAL_TIER_KEY));
@@ -107,7 +112,8 @@ export default function NumerologyPage() {
       if (sku) {
         setCheckoutLoading(true);
         checkoutApi.createOrder(sku)
-          .then(({ ecpay }) => {
+          .then(({ ecpay, order_id, order_token }) => {
+            saveNumerologyShareProof(order_id, order_token);
             if (ecpay) submitToEcpay(ecpay, () => setCheckoutLoading(false));
             else setCheckoutLoading(false);
           })
@@ -159,6 +165,7 @@ export default function NumerologyPage() {
 
     let cancelled = false;
     const orderToken = searchParams.get('order_token');
+    saveNumerologyShareProof(orderId, orderToken);
 
     checkoutApi.getOrder(orderId, orderToken)
       .then(({ order }) => {
@@ -212,6 +219,23 @@ export default function NumerologyPage() {
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!report) { setShareAccess(null); return; }
+    let cancelled = false;
+    const proofs = getNumerologyShareProofs();
+    numerologyShareApi.access({ proofs, capabilities: shareCapabilities })
+      .then((access) => {
+        if (cancelled) return;
+        if (access.issued_capabilities.length) {
+          const merged = mergeNumerologyShareCapabilities(access.issued_capabilities);
+          setShareCapabilities(merged);
+        }
+        setShareAccess(access);
+      })
+      .catch(() => { if (!cancelled) setShareAccess(null); });
+    return () => { cancelled = true; };
+  }, [report, user, shareCapabilities]);
 
   // ── Actions ─────────────────────────────────────────────────────
   const handleSubmit = async (date: string, useOracle: boolean) => {
@@ -289,7 +313,8 @@ export default function NumerologyPage() {
     saveReturnState(section);
     setCheckoutLoading(true);
     try {
-      const { ecpay } = await checkoutApi.createOrder(sku);
+      const { ecpay, order_id, order_token } = await checkoutApi.createOrder(sku);
+      saveNumerologyShareProof(order_id, order_token);
       if (ecpay) {
         submitToEcpay(ecpay, () => setCheckoutLoading(false));
       } else {
@@ -522,7 +547,8 @@ export default function NumerologyPage() {
     if (!sku) return;
     setCheckoutLoading(true);
     try {
-      const { ecpay } = await checkoutApi.createOrder(sku);
+      const { ecpay, order_id, order_token } = await checkoutApi.createOrder(sku);
+      saveNumerologyShareProof(order_id, order_token);
       if (ecpay) {
         submitToEcpay(ecpay, () => setCheckoutLoading(false));
       } else {
@@ -666,7 +692,13 @@ export default function NumerologyPage() {
           {activeTab === 'report' && (
             <>
               {showUnlockPanel && renderUnlockShortcutPanel()}
-              <NumerologyReport
+              <NumerologyShareProvider value={{
+                number: report.lifePathNumber,
+                access: shareAccess,
+                proofs: getNumerologyShareProofs(),
+                capabilities: shareCapabilities,
+                onCapabilities: (tokens) => setShareCapabilities(mergeNumerologyShareCapabilities(tokens)),
+              }}><NumerologyReport
                 report={report}
                 oracleCard={oracleCard}
                 onReset={handleReset}
@@ -678,7 +710,7 @@ export default function NumerologyPage() {
                 onForecastUnlock={handleForecastUnlock}
                 oracleUnlocked={oracleUnlocked}
                 onOracleUnlock={() => handleTierCheckout(2, 'advanced')}
-              />
+              /></NumerologyShareProvider>
             </>
           )}
           {activeTab === 'daily' && (

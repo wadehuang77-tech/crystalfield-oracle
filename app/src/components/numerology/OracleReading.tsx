@@ -3,6 +3,7 @@ import { Sparkles, Gem, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-
 import type { NumerologyReport, OracleCard, MissingNumberData, CrystalInfo } from '../../lib/numerology';
 import { missingNumberData } from '../../lib/numerology';
 import type { PlanTier } from '../../hooks/usePremium';
+import NumerologyShareButton from './NumerologyShare';
 
 interface Props {
   report: NumerologyReport;
@@ -333,6 +334,7 @@ export default function OracleReading({ report, card, tier, oracleUnlocked, onOr
             <FieldBlock label="生命藍圖解析" color={accentColor}>
               <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{blueprintAnalysis}</p>
             </FieldBlock>
+            <NumerologyShareButton group="oracle" sectionKey="oracle_blueprint" sectionName="靈魂藍圖 × 當下能量" summary={blueprintAnalysis} guidance={spiritualGrowth} highlights={soulGifts} />
 
             {/* Growth Suggestion */}
             <div className="rounded-xl p-4" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)' }}>
@@ -452,6 +454,7 @@ export default function OracleReading({ report, card, tier, oracleUnlocked, onOr
                   <p className="text-sm leading-[1.95] pl-4 border-l" style={{ color: '#e9d5ff', borderColor: `${accentColor}25` }}>
                     {analysis.blockpoint}
                   </p>
+                  <NumerologyShareButton group="oracle" sectionKey="oracle_blockpoint" sectionName="當下靈數卡關點揭示" summary={analysis.blockpoint} guidance={actionDirection} />
                 </div>
               )}
             </div>
@@ -476,6 +479,7 @@ export default function OracleReading({ report, card, tier, oracleUnlocked, onOr
                   {oracleUnlocked ? (
                     <div className="rounded-2xl p-4" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}15` }}>
                       <p className="text-sm leading-[1.95]" style={{ color: '#e9d5ff' }}>{analysis.crystalGrid}</p>
+                      <NumerologyShareButton group="oracle" sectionKey="oracle_crystal_grid" sectionName="神聖水晶陣排列指引" summary={analysis.crystalGrid} guidance="讓水晶頻率支持你回到平衡與清明。" />
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', padding: '16px 0' }}>
@@ -552,6 +556,7 @@ export default function OracleReading({ report, card, tier, oracleUnlocked, onOr
                         </div>
                       );
                     })}
+                    <NumerologyShareButton group="oracle" sectionKey="oracle_ritual" sectionName="靜心冥想儀式指引" summary={analysis.ritual} guidance={spiritualGrowth} />
                   </div>
                   )}
                 </div>
@@ -563,6 +568,7 @@ export default function OracleReading({ report, card, tier, oracleUnlocked, onOr
               <p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: `${accentColor}80` }}>靈性成長提醒</p>
               <p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>「{spiritualReminder}」</p>
             </div>
+            <NumerologyShareButton group="oracle" sectionKey="oracle_energy" sectionName="當下能量交叉指引" summary={currentEnergyState} guidance={actionDirection} highlights={[cosmicMessage, energyBalance]} />
           </div>
         ) : (
           /* 25% free preview for 當下能量 */
