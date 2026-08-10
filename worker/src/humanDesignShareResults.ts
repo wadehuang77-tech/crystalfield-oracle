@@ -145,6 +145,7 @@ async function authorizedItems(req: Request, env: Env, chartId: string, body: Ac
   // A valid signed order proof is authoritative for guests and may repair a capability
   // that an earlier release accidentally bound to another chart.
   for (const item of proofCandidates.values()) {
+    if (user && found.has(item.orderId)) continue;
     const token = await bindOrder(env, chartId, item, true);
     if (!token) continue;
     found.set(item.orderId, item);

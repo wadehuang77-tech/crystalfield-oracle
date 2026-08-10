@@ -416,16 +416,16 @@ async function readSavedReport(env: Env, chartId: string): Promise<ReportSection
   return sections.results.length ? sections.results : null;
 }
 
-async function saveReport(env: Env, row: ChartRow, chart: HDChart, defs: SectionDef[]): Promise<ReportSection[]> {
+async function saveReport(
+  env: Env,
+  row: ChartRow,
+  chart: HDChart,
+  defs: SectionDef[],
+  aiBodies: Record<string, string> | null = null,
+): Promise<ReportSection[]> {
   const now = new Date().toISOString();
   const reportId = crypto.randomUUID();
   const knowledge = knowledgeLookup(await getKnowledgeRows(env));
-  let aiBodies: Record<string, string> | null = null;
-  try {
-    aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge);
-  } catch (err) {
-    console.error('human design OpenAI generation failed:', err);
-  }
   const sections = defs.map((def) => {
     const isOpenAi = (def.generation_mode === 'openai') || OPENAI_SECTION_IDS.has(def.id);
     return {
@@ -505,7 +505,31 @@ async function saveReport(env: Env, row: ChartRow, chart: HDChart, defs: Section
   return sections;
 }
 
-export async function getHumanDesignFullReport(req: Request, env: Env, chartId: string): Promise<Response> {
+async function enhanceSavedReport(
+  env: Env,
+  row: ChartRow,
+  chart: HDChart,
+  defs: SectionDef[],
+): Promise<void> {
+  try {
+    const knowledge = knowledgeLookup(await getKnowledgeRows(env));
+    const aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge);
+    if (aiBodies && Object.keys(aiBodies).length > 0) {
+      await saveReport(env, row, chart, defs, aiBodies);
+    }
+  } catch (err) {
+    // The complete deterministic report is already stored. AI enhancement failure
+    // must never remove paid content or turn the entire report into an error state.
+    console.error('human design background enhancement failed:', err);
+  }
+}
+
+export async function getHumanDesignFullReport(
+  req: Request,
+  env: Env,
+  chartId: string,
+  ctx?: ExecutionContext,
+): Promise<Response> {
   try {
     await ensureHumanDesignSchema(env);
   } catch (err) {
@@ -536,7 +560,11 @@ export async function getHumanDesignFullReport(req: Request, env: Env, chartId: 
     }
 
     const defs = await getSectionDefs(env);
-    const sections = await saveReport(env, row, parseChart(row), defs);
+    const chart = parseChart(row);
+    // Save and return a complete nine-section report first. AI enhancement happens
+    // after the response so a slow or unavailable model cannot block paid content.
+    const sections = await saveReport(env, row, chart, defs);
+    if (ctx) ctx.waitUntil(enhanceSavedReport(env, row, chart, defs));
     return json(req, env, { report_version: REPORT_VERSION, sections, cached: false });
   } catch (err) {
     return fullReportDbError(req, env, err, '人類圖完整版報告產生失敗');

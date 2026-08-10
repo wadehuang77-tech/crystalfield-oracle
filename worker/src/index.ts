@@ -88,7 +88,7 @@ const SESSION_SEC = 60 * 60 * 24 * 7;
 const WORKER_DIAGNOSTIC_VERSION = 'hd-diagnostics-2026-07-10-v6';
 
 export default {
-  async fetch(req: Request, env: Env): Promise<Response> {
+  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (req.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders(req, env) });
     }
@@ -235,7 +235,7 @@ export default {
         if (!await hasHumanDesignPaidGroup(req, env, id, accessBody, 'full')) {
           return forbidden(req, env, '此完整版報告尚未完成付款解鎖');
         }
-        return await getHumanDesignFullReport(req, env, id);
+        return await getHumanDesignFullReport(req, env, id, ctx);
       }
 
       if (path === '/api/admin/check'          && req.method === 'GET')  return await adminCheck(req, env);
