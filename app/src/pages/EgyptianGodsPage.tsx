@@ -20,6 +20,7 @@ import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/m
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -482,6 +483,14 @@ function EgyptianGodsPage() {
               </div>
             </div>
 
+            <ShareReadingSection
+              deckId="egyptian_gods"
+              deckName="埃及神諭"
+              spreadName="單張牌陣"
+              cards={[{ cardKey: singlePreview.card_key, name: singlePreview.name }]}
+              summary={singlePreview.preview_excerpt || '埃及諸神正在以古老智慧，為你照亮眼前的道路。'}
+            />
+
             {isSingleUnlocked ? <ResonanceCTA /> : <TarotCourseCTA />}
 
             <div className="flex justify-center">
@@ -642,6 +651,18 @@ function EgyptianGodsPage() {
                 <ResonanceCTA />
               </div>
             )}
+
+            <ShareReadingSection
+              deckId="egyptian_gods"
+              deckName="埃及神諭"
+              spreadName="前世因果解鎖陣"
+              cards={pastlifeSlots.map((slot) => ({
+                cardKey: slot.preview.card_key,
+                name: slot.preview.name,
+                position: slot.position,
+              }))}
+              summary={pastlifeSlots[0]?.preview.preview_excerpt || '古老神諭正在協助你看見靈魂記憶與今生課題。'}
+            />
 
             <TarotCourseCTA />
 

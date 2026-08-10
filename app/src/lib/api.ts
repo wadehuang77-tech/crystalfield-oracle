@@ -285,6 +285,32 @@ export const publicApi = {
     req<PublicButtonLink>(`/api/button-links/${encodeURIComponent(buttonKey)}`),
 };
 
+export interface PublicShareCard {
+  name: string;
+  position?: string;
+}
+
+export interface CreateShareResultInput {
+  deck_id: string;
+  deck_name: string;
+  spread_name: string;
+  cards: PublicShareCard[];
+  summary: string;
+  image_base64: string;
+}
+
+export const shareApi = {
+  create: (body: CreateShareResultInput) =>
+    req<{ id: string; url: string; expires_at: string }>('/api/share-results', {
+      method: 'POST',
+      body,
+      timeoutMs: 30000,
+    }),
+
+  cardImageUrl: (deckId: string, cardKey: string) =>
+    `${BASE}/api/share-card-image?deck_id=${encodeURIComponent(deckId)}&card_key=${encodeURIComponent(cardKey)}`,
+};
+
 export interface HumanDesignChartInput {
   birth_date: string;
   birth_time: string;

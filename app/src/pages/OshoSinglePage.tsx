@@ -11,6 +11,7 @@ import { useConversionTracking, usePageView } from '../hooks/useConversionTracki
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 interface OshoGated {
   meanings: {
@@ -258,6 +259,14 @@ export default function OshoSinglePage() {
             )}
           </div>
         </div>
+
+        <ShareReadingSection
+          deckId="osho"
+          deckName="奧修禪卡"
+          spreadName="單張牌陣"
+          cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
+          summary={drawnPreview.preview_excerpt || '放下分析與評斷，答案會在當下自然浮現。'}
+        />
 
         {!isUnlocked && <TarotCourseCTA />}
 

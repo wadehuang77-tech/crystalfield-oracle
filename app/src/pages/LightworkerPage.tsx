@@ -11,6 +11,7 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 interface LightworkerGated {
   cosmicMessage: string;
@@ -332,6 +333,14 @@ function LightworkerPage() {
                 )}
               </div>
             </div>
+
+            <ShareReadingSection
+              deckId="lightworker"
+              deckName="光行者神諭"
+              spreadName="單張牌陣"
+              cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
+              summary={drawnPreview.preview_excerpt || '光之團隊正在提醒你，信任靈魂深處的召喚。'}
+            />
 
             {!isUnlocked && <TarotCourseCTA />}
 

@@ -18,6 +18,7 @@ import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/m
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -599,6 +600,18 @@ export default function UnicornsPage() {
                   </div>
                 );
               })}
+
+              <ShareReadingSection
+                deckId="unicorns"
+                deckName="獨角獸塔羅"
+                spreadName={spreadType === 'three' ? '三張牌陣' : '單張牌陣'}
+                cards={drawnCards.map((slot, index) => ({
+                  cardKey: slot.preview.card_key,
+                  name: slot.preview.name,
+                  position: spreadType === 'three' ? ['過去', '現在', '未來'][index] : undefined,
+                }))}
+                summary={drawnCards[0]?.preview.preview_excerpt || '獨角獸正在提醒你，你本來的樣子就很有力量。'}
+              />
 
               {spreadType === 'single' && drawnCards.some((s) => s.unlocked) ? <ResonanceCTA /> : <TarotCourseCTA />}
             </section>

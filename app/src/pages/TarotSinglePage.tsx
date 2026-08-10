@@ -11,6 +11,7 @@ import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 interface TarotPreview {
   keywords: string[];
@@ -421,6 +422,17 @@ function TarotSinglePage() {
                   {isUnlocked && <ResonanceCTA />}
                 </div>
               </div>
+
+              <ShareReadingSection
+                deckId="tarot"
+                deckName="偉特塔羅"
+                spreadName="單張牌陣"
+                cards={[{
+                  cardKey: drawnCard.preview.card_key,
+                  name: `${drawnCard.preview.name}${drawnCard.isReversed ? '（逆位）' : '（正位）'}`,
+                }]}
+                summary={(drawnCard.isReversed ? drawnCard.preview.reversed_excerpt : drawnCard.preview.upright_excerpt) || '宇宙正在為你照亮此刻最重要的訊息。'}
+              />
 
               {!isUnlocked && <TarotCourseCTA />}
 

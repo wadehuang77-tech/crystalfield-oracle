@@ -19,6 +19,7 @@ import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/m
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 const DRAGON_THREE_CARD_PROMPTS = [
   '拖延不決的關係，只是在消耗你的靈魂。讓龍族的火焰，幫你斬斷不健康的能量連結。',
@@ -535,6 +536,18 @@ function DragonsPage() {
               </>
             )}
 
+            <ShareReadingSection
+              deckId="dragons"
+              deckName="龍族塔羅"
+              spreadName="三張牌陣"
+              cards={threeSlots.map((slot, index) => ({
+                cardKey: slot.preview.card_key,
+                name: slot.preview.name,
+                position: ['過去', '現在', '未來'][index],
+              }))}
+              summary={threeSlots[0]?.preview.preview_excerpt || '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。'}
+            />
+
             <TarotCourseCTA />
 
             <div className="flex justify-center pt-4">
@@ -620,6 +633,14 @@ function DragonsPage() {
                 )}
               </div>
             </div>
+
+            <ShareReadingSection
+              deckId="dragons"
+              deckName="龍族塔羅"
+              spreadName="單張牌陣"
+              cards={[{ cardKey: singlePreview.card_key, name: singlePreview.name }]}
+              summary={singlePreview.preview_excerpt || '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。'}
+            />
 
             {isSingleUnlocked ? <ResonanceCTA /> : <TarotCourseCTA />}
 

@@ -14,6 +14,7 @@ import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/m
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useAuth } from '../contexts/AuthContext';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 const SPREAD_ID = 'osho_three';
 
@@ -484,6 +485,18 @@ export default function OshoThreePage() {
             </div>
           )
         )}
+
+        <ShareReadingSection
+          deckId="osho"
+          deckName="奧修禪卡"
+          spreadName="三張牌陣"
+          cards={[
+            { cardKey: reading.inner.preview.card_key, name: reading.inner.preview.name, position: '內在感受' },
+            { cardKey: reading.outer.preview.card_key, name: reading.outer.preview.name, position: '外在表現' },
+            { cardKey: reading.integration.preview.card_key, name: reading.integration.preview.name, position: '整合建議' },
+          ]}
+          summary={reading.integration.preview.preview_excerpt || reading.inner.preview.preview_excerpt || '回到此時此刻，看清內在真正的聲音。'}
+        />
 
         <TarotCourseCTA />
 

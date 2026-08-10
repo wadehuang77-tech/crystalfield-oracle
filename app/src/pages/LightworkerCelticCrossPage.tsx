@@ -22,6 +22,7 @@ import { type CardPreview, type UnlockedCard } from '../lib/api';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { useAuth } from '../contexts/AuthContext';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 const SPREAD_ID = 'celtic_cross';
 
@@ -575,6 +576,18 @@ function LightworkerCelticCrossPage() {
                 </div>
               </>
             )}
+
+            <ShareReadingSection
+              deckId="lightworker"
+              deckName="光行者神諭"
+              spreadName="十字交叉使命陣"
+              cards={selectedCards.filter((card) => card.preview).map((card) => ({
+                cardKey: card.preview!.card_key,
+                name: card.preview!.name,
+                position: card.subtitle,
+              }))}
+              summary={selectedCards.find((card) => card.preview)?.preview?.preview_excerpt || '光之團隊正在協助你看見靈魂使命與下一步方向。'}
+            />
 
             <TarotCourseCTA />
 

@@ -41,6 +41,12 @@ import {
   getPublicButtonLink,
 } from './googleForms';
 import {
+  createShareResult,
+  getShareCardImage,
+  getShareImage,
+  getSharePage,
+} from './shareResults';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -112,6 +118,15 @@ export default {
       if (path === '/api/membership/cancel'        && req.method === 'POST') return await cancelMyMembership(req, env);
 
       if (path === '/api/decks' && req.method === 'GET') return await listDecks(req, env);
+      if (path === '/api/share-results' && req.method === 'POST') return await createShareResult(req, env);
+      if (path === '/api/share-card-image' && req.method === 'GET') return await getShareCardImage(req, env, url);
+      if (path.startsWith('/share/') && path.endsWith('/image') && req.method === 'GET') {
+        const id = decodeURIComponent(path.slice('/share/'.length, -'/image'.length));
+        return await getShareImage(req, env, id);
+      }
+      if (path.startsWith('/share/') && req.method === 'GET') {
+        return await getSharePage(req, env, decodeURIComponent(path.slice('/share/'.length)));
+      }
       if (path.startsWith('/api/decks/') && path.endsWith('/preview') && req.method === 'GET') {
         const deckId = decodeURIComponent(path.slice('/api/decks/'.length, -('/preview'.length)));
         return await getDeckPreview(req, env, deckId);

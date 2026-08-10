@@ -12,6 +12,7 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 interface DeepInterpretation {
   coreMeaning: string;
@@ -330,6 +331,14 @@ function WorkYourLightSinglePage() {
                   </div>
                 )}
               </div>
+
+              <ShareReadingSection
+                deckId="work_your_light"
+                deckName="Lightwork 光之訊息"
+                spreadName="單張牌陣"
+                cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
+                summary={drawnPreview.preview_excerpt || '宇宙正在提醒你，你本來的樣子就充滿光芒。'}
+              />
 
               {isUnlocked && <ResonanceCTA />}
               {!isUnlocked && <TarotCourseCTA />}

@@ -13,6 +13,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { useAuth } from '../contexts/AuthContext';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 const SPREAD_ID = 'cosmic_cross';
 const CARD_COUNT = 11;
@@ -496,6 +497,18 @@ function CosmicCrossPage() {
                   </div>
                 </>
               )}
+
+              <ShareReadingSection
+                deckId="work_your_light"
+                deckName="Lightwork 光之訊息"
+                spreadName="宇宙十字牌陣"
+                cards={selectedCards.map((slot, index) => ({
+                  cardKey: slot.preview.card_key,
+                  name: slot.preview.name,
+                  position: positions[index]?.label,
+                }))}
+                summary={selectedCards[0]?.preview.preview_excerpt || '宇宙正在喚醒你內在的光芒與靈魂天賦。'}
+              />
 
               <TarotCourseCTA />
 

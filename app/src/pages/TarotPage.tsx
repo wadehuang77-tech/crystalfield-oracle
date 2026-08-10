@@ -21,6 +21,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import ShareReadingSection from '../components/ShareReadingSection';
 
 interface TarotCard {
   id: string;
@@ -1419,6 +1420,20 @@ function TarotPage() {
                     </>
                 </div>
               )}
+
+              <ShareReadingSection
+                deckId="tarot"
+                deckName="偉特塔羅"
+                spreadName={({ single: '單張牌陣', three: '三張牌陣', celtic: '凱爾特十字陣', pastlife: '前世因果解鎖陣' } as const)[spreadType]}
+                cards={drawnCards.map((drawn, index) => ({
+                  cardKey: drawn.preview.card_key,
+                  name: `${drawn.card.nameChinese}${drawn.isReversed ? '（逆位）' : '（正位）'}`,
+                  position: spreadType === 'three' ? ['過去', '現在', '未來'][index] : spreadType === 'celtic' ? CELTIC_CROSS_POSITIONS[index] : drawn.position,
+                }))}
+                summary={drawnCards[0]?.isReversed
+                  ? drawnCards[0]?.preview.reversed_excerpt || '宇宙邀請你放慢腳步，重新看見內在真正的需要。'
+                  : drawnCards[0]?.preview.upright_excerpt || '宇宙正在為你照亮眼前最重要的方向。'}
+              />
 
               <TarotCourseCTA />
 
