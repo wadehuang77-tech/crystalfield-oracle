@@ -17,7 +17,7 @@ type AccessBody = { chart_id?: unknown; proofs?: unknown; capabilities?: unknown
 type Item = { orderId: string; itemId: string };
 
 interface ChartRow {
-  id: string; hd_type: string; hd_profile: string; hd_authority: string; chart_data: string;
+  id: string; user_id: string | null; hd_type: string; hd_profile: string; hd_authority: string; chart_data: string;
 }
 
 interface ShareRow {
@@ -79,22 +79,24 @@ function parseCapabilities(value: unknown): string[] {
 async function getChart(env: Env, chartId: string): Promise<ChartRow | null> {
   if (!ID_PATTERN.test(chartId)) return null;
   return env.DB.prepare(
-    `SELECT id, hd_type, hd_profile, hd_authority, chart_data FROM hd_charts WHERE id = ? LIMIT 1`,
+    `SELECT id, user_id, hd_type, hd_profile, hd_authority, chart_data FROM hd_charts WHERE id = ? LIMIT 1`,
   ).bind(chartId).first<ChartRow>();
 }
 
-async function bindOrder(env: Env, chartId: string, item: Item): Promise<string | null> {
+async function bindOrder(env: Env, chartId: string, item: Item, allowRebind = false): Promise<string | null> {
   const existing = await env.DB.prepare(
     `SELECT chart_id FROM hd_share_capabilities WHERE order_id = ? LIMIT 1`,
   ).bind(item.orderId).first<{ chart_id: string }>();
-  if (existing && existing.chart_id !== chartId) return null;
+  if (existing && existing.chart_id !== chartId && !allowRebind) return null;
   const token = `${crypto.randomUUID()}.${crypto.randomUUID().replace(/-/g, '')}`;
   const now = new Date();
   const expiresAt = new Date(now.getTime() + CAPABILITY_TTL_DAYS * 86400_000).toISOString();
   if (existing) {
     await env.DB.prepare(
-      `UPDATE hd_share_capabilities SET token_hash = ?, item_id = ?, expires_at = ?, revoked_at = NULL WHERE order_id = ? AND chart_id = ?`,
-    ).bind(await sha256(token), item.itemId, expiresAt, item.orderId, chartId).run();
+      `UPDATE hd_share_capabilities
+          SET token_hash = ?, chart_id = ?, item_id = ?, expires_at = ?, revoked_at = NULL
+        WHERE order_id = ?`,
+    ).bind(await sha256(token), chartId, item.itemId, expiresAt, item.orderId).run();
   } else {
     await env.DB.prepare(
       `INSERT INTO hd_share_capabilities (id, token_hash, order_id, chart_id, item_id, created_at, expires_at)
@@ -108,6 +110,7 @@ async function authorizedItems(req: Request, env: Env, chartId: string, body: Ac
   const found = new Map<string, Item>();
   const issued: string[] = [];
   const user = await readSession(req, env);
+  const chart = await getChart(env, chartId);
 
   for (const token of parseCapabilities(body.capabilities)) {
     const row = await env.DB.prepare(
@@ -119,23 +122,30 @@ async function authorizedItems(req: Request, env: Env, chartId: string, body: Ac
     if (row && PLAN_GROUPS[row.item_id]) found.set(row.order_id, { orderId: row.order_id, itemId: row.item_id });
   }
 
-  const candidates = new Map<string, Item>();
-  if (user) {
+  // Signed-in members may use their own paid plans on charts owned by the same account.
+  // Do not bind every account order to the first chart opened: that made later unlocked charts unshareable.
+  if (user && chart?.user_id === user.id) {
     const rows = await env.DB.prepare(
       `SELECT id, item_id FROM orders WHERE user_id = ? AND status = 'paid' AND item_id LIKE 'human_design_%'`,
     ).bind(user.id).all<{ id: string; item_id: string }>();
-    for (const row of rows.results ?? []) if (PLAN_GROUPS[row.item_id]) candidates.set(row.id, { orderId: row.id, itemId: row.item_id });
+    for (const row of rows.results ?? []) {
+      if (PLAN_GROUPS[row.item_id]) found.set(row.id, { orderId: row.id, itemId: row.item_id });
+    }
   }
+
+  const proofCandidates = new Map<string, Item>();
   for (const proof of parseProofs(body.proofs)) {
     if (!await verifyOrderToken(proof.orderToken, env, proof.orderId)) continue;
     const row = await env.DB.prepare(
       `SELECT id, item_id FROM orders WHERE id = ? AND status = 'paid' AND item_id LIKE 'human_design_%'`,
     ).bind(proof.orderId).first<{ id: string; item_id: string }>();
-    if (row && PLAN_GROUPS[row.item_id]) candidates.set(row.id, { orderId: row.id, itemId: row.item_id });
+    if (row && PLAN_GROUPS[row.item_id]) proofCandidates.set(row.id, { orderId: row.id, itemId: row.item_id });
   }
-  for (const item of candidates.values()) {
-    if (found.has(item.orderId)) continue;
-    const token = await bindOrder(env, chartId, item);
+
+  // A valid signed order proof is authoritative for guests and may repair a capability
+  // that an earlier release accidentally bound to another chart.
+  for (const item of proofCandidates.values()) {
+    const token = await bindOrder(env, chartId, item, true);
     if (!token) continue;
     found.set(item.orderId, item);
     issued.push(token);
