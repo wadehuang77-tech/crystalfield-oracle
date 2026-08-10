@@ -75,7 +75,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
             </span>
           </h1>
           <p className="text-white/40 text-sm leading-relaxed">
-            輸入你的出生資料，<br />AI 在幾秒內完成你的人類圖計算。
+            輸入你的出生資料，<br />看見靈魂選擇的能量節奏與生命方向。
           </p>
         </div>
 
@@ -181,7 +181,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
         <div
           className={`mt-6 flex justify-center gap-6 transition-all duration-700 delay-400 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
         >
-          {['即時計算', '5 種能量類型', 'AI 深度解析'].map(t => (
+          {['即時計算', '5 種能量類型', '靈魂能量解析'].map(t => (
             <div key={t} className="flex items-center gap-1.5 text-white/25 text-xs">
               <div className="w-1 h-1 rounded-full bg-cyan-400/50" />
               {t}

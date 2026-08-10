@@ -44,23 +44,23 @@ const TYPE_COLORS: Record<string, string> = {
 const FALLBACK_COLOR = 'from-blue-950/40 to-cyan-950/40 border-blue-400/20';
 
 const FULL_REPORT_TITLES = [
-  '九大中心完整解析',
-  '64 閘門分析',
-  '通道分析',
-  '深度人格分析',
-  '能量處方',
-  '職涯方向建議',
-  '愛情關係分析',
-  '財富能量模式',
-  '靈魂使命',
+  '九大能量中心｜內在之光與開放之窗',
+  '靈魂閘門｜天賦與生命課題',
+  '能量通道｜天賦流動路徑',
+  '靈魂能量全貌',
+  '七日能量回歸指引',
+  '天賦與職涯能量',
+  '親密關係與能量界線',
+  '財富流動與價值能量',
+  '靈魂使命與生命方向',
 ];
 
 const FULL_REPORT_LOADING_STEPS = [
   '確認付款完成',
-  '建立你的人類圖能量資料',
-  '整理固定知識與圖表結構',
-  '生成深度解析內容',
-  '準備完整報告畫面',
+  '展開你的人類圖能量藍圖',
+  '整理天賦、中心與生命主題',
+  '書寫多角度深度指引',
+  '準備完整能量報告',
 ];
 
 function displayFullReportTitle(title: string): string {
@@ -96,7 +96,7 @@ function coreShareResult(id: string, chart: HDChart) {
 function coreShareName(id: string) {
   return ({
     type: '能量類型', profile: '人生角色', strategy: '人生策略', authority: '內在權威', definition: '定義',
-    'ai-summary': '人格能量摘要', 'basic-talent': '天賦與優勢', 'ai-tip': '當下行動指引',
+    'ai-summary': '靈魂能量摘要', 'basic-talent': '天賦與優勢', 'ai-tip': '今日能量指引',
   } as Record<string, string>)[id] ?? '人類圖指引';
 }
 
@@ -234,10 +234,10 @@ function FullReportLoadingCard() {
         <Sparkles className="h-5 w-5 text-cyan-200 animate-pulse" />
       </div>
       <p className="mb-2 text-center text-sm font-semibold text-white/85">
-        付款已完成，正在生成你的 Human Design Report
+        付款已完成，正在展開你的人類圖能量藍圖
       </p>
       <p className="mx-auto mb-5 max-w-sm text-center text-xs leading-relaxed text-cyan-100/55">
-        系統正在正常運作，請停留在此頁。完整深度解析需要整合圖表、固定知識與個人化解讀，通常會比一般摘要多等一點時間。
+        請在此頁稍候片刻。我們正在整合你的能量圖、靈魂主題與個人化指引，讓每一段文字更貼近你的生命節奏。
       </p>
       <div className="mb-5 h-2 overflow-hidden rounded-full bg-white/8">
         <div
@@ -493,7 +493,7 @@ export default function ReportPage({
             className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
           >
           <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
-            專屬人生使用說明書
+            專屬靈魂能量藍圖
           </p>
           {isFullUnlocked && fullReportLoading && (
             <p className="text-cyan-300/60 text-xs text-center mb-3">報告生成中，完成後會自動顯示</p>
@@ -510,7 +510,7 @@ export default function ReportPage({
             ) : fullReportError && paidContent.length === 0 ? (
               <div className="px-6 py-8 text-center">
                 <p className="text-amber-200/75 text-sm leading-loose">
-                  完整版內容目前沒有成功載入，系統不會再顯示舊版短文。請稍後重新整理，或確認後台 Worker 已部署最新版本。
+                  完整版能量指引暫時沒有成功載入。請稍後重新整理；若仍無法顯示，請聯絡我們協助確認。
                 </p>
               </div>
             ) : (
@@ -527,7 +527,7 @@ export default function ReportPage({
                       </div>
                     </div>
                     {'body' in s && typeof s.body === 'string' && (
-                      <p className="mt-3 pl-7 text-white/65 text-sm leading-[1.85]">{s.body}</p>
+                      <p className="mt-3 pl-7 whitespace-pre-line text-white/65 text-sm leading-[1.85]">{s.body}</p>
                     )}
                     <div className="pl-7">
                       <HumanDesignShareButton
@@ -550,7 +550,7 @@ export default function ReportPage({
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/8">
               <Lock className="h-4 w-4 text-white/45" />
             </div>
-            <p className="mb-2 text-center text-sm font-semibold text-white/80">專屬人生使用說明書</p>
+            <p className="mb-2 text-center text-sm font-semibold text-white/80">專屬靈魂能量藍圖</p>
             <p className="mb-4 text-center text-xs leading-relaxed text-white/45">
               解鎖後查看以下 9 項完整說明
             </p>
@@ -571,7 +571,7 @@ export default function ReportPage({
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Lock className="h-4 w-4" />
-              {checkoutLoading ? '前往付款中...' : '解鎖你的專屬人生使用說明書 NT$399'}
+              {checkoutLoading ? '前往付款中...' : '解鎖你的專屬靈魂能量藍圖 NT$399'}
             </button>
             <button
               type="button"
@@ -579,7 +579,7 @@ export default function ReportPage({
               disabled={checkoutLoading}
               className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-yellow-100/60 bg-gradient-to-r from-yellow-200 via-amber-100 to-cyan-200 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/15 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <span>{checkoutLoading ? '前往付款中...' : '解鎖人類圖核心解析 + 專屬人生使用說明書 NT$489 省100'}</span>
+              <span>{checkoutLoading ? '前往付款中...' : '解鎖人類圖核心解析 + 專屬靈魂能量藍圖 NT$489 省100'}</span>
             </button>
           </div>
         )}

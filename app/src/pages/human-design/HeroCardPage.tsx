@@ -109,7 +109,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-400/25 bg-cyan-400/5 mb-4">
             <Sparkles className="w-3 h-3 text-cyan-400" />
             <span className="text-xs text-cyan-400 tracking-widest font-medium uppercase">
-              你的 AI 人類圖已完成
+              你的人類圖能量藍圖已完成
             </span>
           </div>
           <div className="text-white/30 text-xs">
@@ -173,7 +173,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
                 <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-2.5 h-2.5 text-white" />
                 </div>
-                <span className="text-white/30 text-xs font-medium">AI 人生使命解析</span>
+                <span className="text-white/30 text-xs font-medium">靈魂使命訊息</span>
               </div>
               <p className="text-white/75 text-sm leading-[1.8] pl-7 italic">
                 "{chart.aiIntro}"
