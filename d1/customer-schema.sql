@@ -10,6 +10,7 @@
 -- 可重複執行(開發時常用)
 DROP TABLE IF EXISTS reading_unlocks;
 DROP TABLE IF EXISTS advanced_reading_unlocks;
+DROP TABLE IF EXISTS multi_spread_free_unlocks;
 DROP TABLE IF EXISTS conversion_events;
 DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS email_leads;
@@ -108,6 +109,20 @@ CREATE TABLE advanced_reading_unlocks (
 CREATE INDEX idx_advanced_reading_unlocks_email        ON advanced_reading_unlocks(email);
 CREATE INDEX idx_advanced_reading_unlocks_reading_type ON advanced_reading_unlocks(reading_type);
 CREATE INDEX idx_advanced_reading_unlocks_created_at   ON advanced_reading_unlocks(created_at DESC);
+
+-- ---------------------------------------------------------------------------
+-- multi_spread_free_unlocks: 每個 Email、每個牌陣限一次免費完整解讀
+-- 只保存正規化 Email 的 SHA-256，不在此表重複保存明文 Email。
+-- ---------------------------------------------------------------------------
+CREATE TABLE multi_spread_free_unlocks (
+  id         TEXT PRIMARY KEY,
+  email_hash TEXT NOT NULL,
+  spread_id  TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(email_hash, spread_id)
+);
+CREATE INDEX idx_multi_spread_free_unlocks_created
+  ON multi_spread_free_unlocks(created_at DESC);
 
 -- ---------------------------------------------------------------------------
 -- conversion_events:轉換漏斗事件

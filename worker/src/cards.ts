@@ -337,13 +337,21 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
 }
 
 interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
-interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; }
+interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; email?: string; }
+
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
 
 export async function freeUnlockSpread(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSpreadBody>(req);
   if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
   const spread = SPREADS[body.spread_id];
   if (spread.free) return badRequest(req, env, 'use free-unlock-single for single cards');
+  const session = await readSession(req, env);
+  const email = (session?.email ?? body.email ?? '').trim().toLowerCase();
+  if (!validEmail(email)) return badRequest(req, env, '請輸入有效的 Email 地址');
   if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
     return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
   }
@@ -353,5 +361,27 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
+
+  const emailHash = await sha256Hex(email);
+  let claimResult: D1Result<unknown>;
+  try {
+    claimResult = await env.DB.prepare(
+      `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at)
+       VALUES (?, ?, ?, ?)`,
+    ).bind(crypto.randomUUID(), emailHash, body.spread_id, new Date().toISOString()).run();
+  } catch {
+    return json(req, env, {
+      error: '免費額度資料表尚未建立，請先套用 017_multi_spread_free_unlocks.sql',
+      code: 'FREE_SPREAD_MIGRATION_REQUIRED',
+    }, { status: 503 });
+  }
+
+  if ((claimResult.meta.changes ?? 0) !== 1) {
+    return json(req, env, {
+      error: '此牌陣的免費體驗已使用完畢',
+      code: 'FREE_SPREAD_ALREADY_USED',
+    }, { status: 409 });
+  }
+
   return json(req, env, { spread_id: body.spread_id, cards });
 }

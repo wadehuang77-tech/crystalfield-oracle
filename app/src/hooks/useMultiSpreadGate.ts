@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { cardsApi, publicApi, type UnlockedCard } from '../lib/api';
+import { cardsApi, type UnlockedCard } from '../lib/api';
 import {
   getMultiUnlockCount,
   getMultiSpreadGateDecision,
@@ -35,11 +35,11 @@ export function useMultiSpreadGate({
   const firedRef = useRef(false);
   const lastPicksKeyRef = useRef<string>('');
 
-  const unlockForFree = useCallback(async (picksToUnlock: Pick[]) => {
+  const unlockForFree = useCallback(async (picksToUnlock: Pick[], email: string) => {
     if (getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
       throw new Error('這個牌陣的免費體驗已使用完畢');
     }
-    const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock);
+    const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock, email);
     setUnlockedCards(cards);
     incrementMultiUnlock(spreadId);
     setPhase('unlocked');
@@ -73,11 +73,17 @@ export function useMultiSpreadGate({
     setPhase('loading');
     setError(null);
     try {
-      await publicApi.saveEmail(email, spreadId).catch(() => {});
-      await unlockForFree(picks);
+      await unlockForFree(picks, email);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '解鎖失敗');
-      setPhase('email_gate');
+      const apiError = err as Error & { status?: number };
+      setError(apiError instanceof Error ? apiError.message : '解鎖失敗');
+      if (apiError.status === 409) {
+        incrementMultiUnlock(spreadId);
+        setPhase('paywall');
+        return;
+      } else {
+        setPhase('email_gate');
+      }
       throw err;
     }
   };

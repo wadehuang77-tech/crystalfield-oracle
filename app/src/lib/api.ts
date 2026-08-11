@@ -569,10 +569,11 @@ export const cardsApi = {
   freeUnlockSpread: (
     spread_id: string,
     picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
+    email: string,
   ) =>
     req<{ spread_id: string; cards: UnlockedCard[] }>('/api/cards/free-unlock-spread', {
       method: 'POST',
-      body: { spread_id, picks },
+      body: { spread_id, picks, email },
     }),
 
   unlockSingle: (spread_id: string, card_key: string, email: string, reversed = false) =>
