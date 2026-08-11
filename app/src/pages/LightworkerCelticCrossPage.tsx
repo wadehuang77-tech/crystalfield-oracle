@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Sparkles, RotateCcw, Lock } from 'lucide-react';
 import {
@@ -84,21 +84,16 @@ function getPreviewInterpretation(position: CardPosition): string {
 
 type MissionCardMode = 'layout' | 'preview' | 'full';
 
-function MissionCardVisual({ position, revealFace }: { position: CardPosition; revealFace: boolean }) {
-  const image = revealFace ? position.preview?.image : null;
+function MissionCardVisual({ position, children }: { position: CardPosition; children: ReactNode }) {
   return (
-    <div className="relative mx-auto w-full max-w-[9.5rem] sm:max-w-[10.5rem] pt-4">
+    <div className="relative mx-auto w-full max-w-[10.5rem] pt-4">
       <div className="absolute left-1/2 top-0 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-cyan-100/60 bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold text-white shadow-[0_0_20px_rgba(34,211,238,0.55)]">
         {position.position}
       </div>
       <div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-cyan-300/40 bg-gradient-to-br from-slate-800 via-slate-900 to-cyan-950 p-2 shadow-[0_14px_34px_-16px_rgba(34,211,238,0.75)]">
-        {image ? (
-          <img src={image} alt={`${position.position}. ${position.preview?.name ?? position.subtitle}`} className="h-full w-full rounded-lg object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center rounded-lg border border-cyan-300/20 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.15),transparent_58%)]">
-            <Sparkles className="h-9 w-9 text-cyan-200/70" strokeWidth={1.2} />
-          </div>
-        )}
+        <div className="h-full overflow-y-auto rounded-lg border border-cyan-300/20 bg-slate-950/35 px-3 pb-3 pt-7 scrollbar-thin">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -121,50 +116,55 @@ function MissionReadingCard({ position, mode }: { position: CardPosition; mode: 
       data-full-card={mode === 'full' ? position.position : undefined}
       className="min-w-0"
     >
-      <MissionCardVisual position={position} revealFace={mode !== 'layout'} />
-      <div className="mt-4 min-h-[4.5rem] text-center">
-        <h3 className="font-serif text-base leading-snug text-cyan-50 sm:text-lg">{position.title}</h3>
-        <p className="mt-1 text-xs leading-relaxed text-cyan-200/75 sm:text-sm">{position.subtitle}</p>
-        {mode !== 'layout' && position.preview && (
-          <p className="mt-2 font-serif text-lg text-cyan-100">{position.preview.name}</p>
-        )}
-      </div>
-
-      {mode === 'preview' && (
-        <div className="mt-3 rounded-2xl border border-cyan-400/30 bg-slate-950/65 p-4 shadow-lg">
-          <h4 className="mb-3 text-center font-serif text-sm text-cyan-100">牌義解讀（前 30% 預覽）</h4>
-          <div className="relative">
-            <p className="whitespace-pre-line text-sm leading-7 text-cyan-50/90">{previewInterpretation}</p>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-9 bg-gradient-to-b from-transparent to-slate-950/95" />
+      <MissionCardVisual position={position}>
+        <div className="space-y-3 text-center">
+          <div>
+            <h3 className="font-serif text-sm leading-snug text-cyan-50 sm:text-base">{position.title}</h3>
+            <p className="mt-1 text-[0.68rem] leading-relaxed text-cyan-200/75 sm:text-xs">{position.subtitle}</p>
           </div>
-          <p className="mt-3 text-center text-[0.68rem] tracking-wide text-cyan-200/80">前 30% 預覽・解鎖看完整解讀</p>
-        </div>
-      )}
 
-      {isFull && (
-        <div className="mt-3 space-y-3 rounded-2xl border border-cyan-400/35 bg-slate-950/65 p-4 shadow-lg">
-          <h4 className="text-center font-serif text-sm text-cyan-100">完整牌義解讀（100%）</h4>
-          {position.full!.keywords.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-1.5">
-              {position.full!.keywords.map((keyword) => (
-                <span key={keyword} className="rounded-full border border-cyan-400/25 bg-cyan-500/10 px-2 py-1 text-[0.68rem] text-cyan-200">{keyword}</span>
-              ))}
+          {mode === 'layout' && (
+            <p className="border-t border-cyan-400/15 pt-3 text-xs leading-6 text-cyan-100/80">{position.description}</p>
+          )}
+
+          {mode !== 'layout' && position.preview && (
+            <p className="border-t border-cyan-400/15 pt-3 font-serif text-base text-cyan-100">{position.preview.name}</p>
+          )}
+
+          {mode === 'preview' && (
+            <div className="space-y-2 text-left">
+              <h4 className="text-center font-serif text-xs text-cyan-100">牌義解讀（前 30% 預覽）</h4>
+              <p className="whitespace-pre-line text-xs leading-6 text-cyan-50/90">{previewInterpretation}</p>
+              <p className="text-center text-[0.62rem] leading-5 tracking-wide text-cyan-200/80">前 30% 預覽・解鎖看完整解讀</p>
             </div>
           )}
-          {sections.map((section) => (
-            <section key={section.title} className="rounded-xl border border-cyan-400/15 bg-slate-900/55 p-3">
-              <h5 className="mb-1.5 text-xs font-medium text-cyan-200">{section.title}</h5>
-              <p className="whitespace-pre-line text-sm leading-7 text-cyan-50/90">{section.text}</p>
-            </section>
-          ))}
-          {position.full!.soulQuestion && (
-            <section className="rounded-xl border-l-2 border-cyan-300 bg-cyan-500/10 p-3">
-              <h5 className="mb-1.5 text-xs font-medium text-cyan-200">靈魂提問</h5>
-              <p className="text-sm italic leading-7 text-cyan-50/90">{position.full!.soulQuestion}</p>
-            </section>
+
+          {isFull && (
+            <div className="space-y-3 text-left">
+              <h4 className="text-center font-serif text-xs text-cyan-100">完整牌義解讀（100%）</h4>
+              {position.full!.keywords.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1">
+                  {position.full!.keywords.map((keyword) => (
+                    <span key={keyword} className="rounded-full border border-cyan-400/25 bg-cyan-500/10 px-1.5 py-0.5 text-[0.58rem] text-cyan-200">{keyword}</span>
+                  ))}
+                </div>
+              )}
+              {sections.map((section) => (
+                <section key={section.title} className="border-t border-cyan-400/15 pt-2">
+                  <h5 className="mb-1 text-[0.68rem] font-medium text-cyan-200">{section.title}</h5>
+                  <p className="whitespace-pre-line text-xs leading-6 text-cyan-50/90">{section.text}</p>
+                </section>
+              ))}
+              {position.full!.soulQuestion && (
+                <section className="border-t border-cyan-300/30 pt-2">
+                  <h5 className="mb-1 text-[0.68rem] font-medium text-cyan-200">靈魂提問</h5>
+                  <p className="text-xs italic leading-6 text-cyan-50/90">{position.full!.soulQuestion}</p>
+                </section>
+              )}
+            </div>
           )}
         </div>
-      )}
+      </MissionCardVisual>
     </article>
   );
 }
