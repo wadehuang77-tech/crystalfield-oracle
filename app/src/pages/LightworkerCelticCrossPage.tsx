@@ -503,6 +503,37 @@ function LightworkerCelticCrossPage() {
 
             {showFullContent && (
               <>
+                <section className="rounded-2xl border-2 border-cyan-400/45 bg-slate-900/70 px-5 py-6 shadow-[0_0_28px_rgba(34,211,238,0.12)] sm:px-8 sm:py-7">
+                  <div className="mb-5 text-center">
+                    <h3 className="font-serif text-2xl text-cyan-100 sm:text-3xl">解牌閱讀小提醒</h3>
+                    <p className="mt-2 text-sm text-cyan-200/90 sm:text-base">
+                      重點看以下 <strong className="text-cyan-100">5 張關鍵牌</strong>：
+                    </p>
+                  </div>
+                  <div className="grid gap-3 text-sm leading-relaxed text-cyan-50 sm:grid-cols-2 sm:text-base lg:grid-cols-5">
+                    <p className="rounded-xl border border-cyan-400/20 bg-cyan-950/25 p-4">
+                      <strong className="block text-cyan-200">位置 1（核心現狀）</strong>
+                      <span className="mt-1 block">你當前的靈魂狀態與生命起跑點。</span>
+                    </p>
+                    <p className="rounded-xl border border-cyan-400/20 bg-cyan-950/25 p-4">
+                      <strong className="block text-cyan-200">位置 2（核心挑戰）</strong>
+                      <span className="mt-1 block">阻礙使命落實的主要障礙與靈魂功課。</span>
+                    </p>
+                    <p className="rounded-xl border border-cyan-400/20 bg-cyan-950/25 p-4">
+                      <strong className="block text-cyan-200">位置 4（潛意識根基）</strong>
+                      <span className="mt-1 block">深層的靈魂天賦與未察覺的真正渴望。</span>
+                    </p>
+                    <p className="rounded-xl border border-cyan-400/20 bg-cyan-950/25 p-4">
+                      <strong className="block text-cyan-200">位置 6（近期方向）</strong>
+                      <span className="mt-1 block">突破現狀、將使命落地的下一個關鍵行動。</span>
+                    </p>
+                    <p className="rounded-xl border border-cyan-400/20 bg-cyan-950/25 p-4 sm:col-span-2 lg:col-span-1">
+                      <strong className="block text-cyan-200">位置 10（最終使命）</strong>
+                      <span className="mt-1 block">整合所有歷程後，最終實現的靈魂願景與成就。</span>
+                    </p>
+                  </div>
+                </section>
+
                 <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:gap-x-6 lg:grid-cols-5">
                   {selectedCards.map((position) => (
                     <MissionReadingCard key={position.position} position={position} mode="full" />
