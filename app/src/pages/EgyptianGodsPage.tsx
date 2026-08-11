@@ -74,6 +74,49 @@ function EgyptianPastLifeIntro() {
   );
 }
 
+function EgyptianPastlifePreviewCard({ slot, index }: { slot: PastlifeSlot; index: number }) {
+  const positionGuide = getPastLifePositionGuide(index);
+  return (
+    <article className="relative min-w-0 pt-4" data-egyptian-preview-card={index + 1}>
+      <span className="absolute left-1/2 top-0 z-20 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border border-yellow-100/70 bg-amber-600 text-sm font-semibold text-white shadow-[0_0_18px_rgba(245,158,11,0.55)]">
+        {index + 1}
+      </span>
+      <div className="h-[28rem] overflow-hidden rounded-xl border border-yellow-300/40 bg-slate-950 p-2 shadow-[0_14px_34px_-16px_rgba(245,158,11,0.7)]">
+        <div
+          className="h-full overflow-y-scroll rounded-lg border border-yellow-300/20 bg-slate-900 px-3 pb-4 pt-7"
+          style={{ scrollbarColor: '#f59e0b rgba(15, 23, 42, 0.55)', scrollbarWidth: 'thin' }}
+        >
+          <div className="space-y-3 text-center">
+            <div>
+              <h3 className="font-serif text-base leading-snug text-yellow-50">{positionGuide.sectionTitle}</h3>
+              <p className="mt-1 text-[0.68rem] leading-relaxed text-yellow-200">{slot.position}</p>
+            </div>
+            <div className="border-t border-yellow-300/25 pt-3">
+              <p className="font-serif text-base leading-snug text-yellow-50">{slot.preview.name}</p>
+              {slot.preview.name_secondary && (
+                <p className="mt-1 text-[0.68rem] leading-relaxed text-yellow-200">{slot.preview.name_secondary}</p>
+              )}
+            </div>
+            <div className="space-y-2 text-left">
+              <h4 className="text-center font-serif text-xs text-yellow-100">牌義解讀（前 30% 預覽）</h4>
+              {slot.preview.preview_excerpt ? (
+                <p className="whitespace-pre-line text-xs leading-6 text-yellow-50">
+                  {slot.preview.preview_excerpt}
+                </p>
+              ) : (
+                <p className="text-center text-xs leading-6 text-yellow-50">解鎖後可查看完整牌義解讀</p>
+              )}
+              <p className="border-t border-yellow-300/20 pt-2 text-center text-[0.62rem] leading-5 tracking-wide text-yellow-200">
+                前 30% 預覽・向下捲動閱讀
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function EgyptianGodsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -501,7 +544,7 @@ function EgyptianGodsPage() {
         )}
 
         {hasDrawn && spreadType === 'pastlife' && pastlifeSlots.length === 7 && (
-          <section className="max-w-4xl mx-auto space-y-10">
+          <section className="max-w-6xl mx-auto space-y-10">
             <div className="text-center">
               <h2 className="font-serif text-3xl sm:text-4xl text-yellow-100 tracking-[0.3em] mb-4">前世因果解鎖陣</h2>
               <p className="text-sm sm:text-base text-yellow-300/80 leading-loose max-w-2xl mx-auto">
@@ -512,40 +555,17 @@ function EgyptianGodsPage() {
 
             {!isPastlifeUnlocked && (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                  {pastlifeSlots.map((slot, index) => {
-                    const positionGuide = getPastLifePositionGuide(index);
-                    return (
-                      <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl !p-5">
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className="chapter-glyph text-2xl shrink-0 w-9 h-9 flex items-center justify-center border border-yellow-500/40">
-                            {index + 1}
-                          </span>
-                          <div className="min-w-0">
-                            <p className="text-yellow-200 text-sm tracking-[0.4em] uppercase text-xs">{positionGuide.sectionTitle}</p>
-                            <p className="text-xs text-yellow-300/70 truncate">{slot.position}</p>
-                          </div>
-                        </div>
-                        <div className="pt-3 border-t border-yellow-500/15">
-                          <h4 className="deck-name text-base text-yellow-100 text-center mb-1">{slot.preview.name}</h4>
-                          {slot.preview.name_secondary && (
-                            <p className="text-xs text-yellow-400/80 tracking-wide text-center mb-3">{slot.preview.name_secondary}</p>
-                          )}
-                          {slot.preview.preview_excerpt && (
-                            <div className="relative mt-2">
-                              <p className="text-yellow-100/85 text-xs leading-loose whitespace-pre-line">
-                                {slot.preview.preview_excerpt}
-                              </p>
-                              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
-                            </div>
-                          )}
-                          <p className="mt-2 text-[0.65rem] text-yellow-400/70 tracking-wide text-center">
-                            前 30% 預覽
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="space-y-8 sm:space-y-10">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+                    {pastlifeSlots.slice(0, 4).map((slot, index) => (
+                      <EgyptianPastlifePreviewCard key={index} slot={slot} index={index} />
+                    ))}
+                  </div>
+                  <div className="mx-auto grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:w-3/4 lg:grid-cols-3">
+                    {pastlifeSlots.slice(4).map((slot, index) => (
+                      <EgyptianPastlifePreviewCard key={index + 4} slot={slot} index={index + 4} />
+                    ))}
+                  </div>
                 </div>
 
                 {pastlifeGate.phase === 'loading' && (

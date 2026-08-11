@@ -109,6 +109,52 @@ function CosmicCrossPositionCard({ position }: { position: (typeof positions)[nu
   );
 }
 
+function CosmicCrossPreviewCard({
+  position,
+  slot,
+}: {
+  position: (typeof positions)[number];
+  slot: DrawnSlot;
+}) {
+  return (
+    <article className="relative min-w-0 pt-4" data-cosmic-preview-card={position.id}>
+      <span className="absolute left-1/2 top-0 z-20 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border border-orange-100/70 bg-orange-600 text-sm font-semibold text-white shadow-[0_0_18px_rgba(249,115,22,0.55)]">
+        {position.id}
+      </span>
+      <div className="h-[28rem] overflow-hidden rounded-xl border border-orange-300/40 bg-slate-950 p-2 shadow-[0_14px_34px_-16px_rgba(249,115,22,0.7)]">
+        <div
+          className="h-full overflow-y-scroll rounded-lg border border-orange-300/20 bg-slate-900 px-3 pb-4 pt-7"
+          style={{ scrollbarColor: '#fb923c rgba(15, 23, 42, 0.55)', scrollbarWidth: 'thin' }}
+        >
+          <div className="space-y-3 text-center">
+            <div>
+              <h3 className="font-serif text-base leading-snug text-orange-50">{position.label}</h3>
+              <p className="mt-1 text-[0.68rem] leading-relaxed text-orange-200">{position.englishShort}</p>
+              <p className="mt-1 text-[0.65rem] leading-relaxed text-orange-100">{position.description}</p>
+            </div>
+            <p className="border-t border-orange-300/25 pt-3 font-serif text-base leading-snug text-orange-50">
+              {slot.preview.name}
+            </p>
+            <div className="space-y-2 text-left">
+              <h4 className="text-center font-serif text-xs text-orange-100">牌義解讀（前 30% 預覽）</h4>
+              {slot.preview.preview_excerpt ? (
+                <p className="whitespace-pre-line text-xs leading-6 text-orange-50">
+                  {slot.preview.preview_excerpt}
+                </p>
+              ) : (
+                <p className="text-center text-xs leading-6 text-orange-50">解鎖後可查看完整牌義解讀</p>
+              )}
+              <p className="border-t border-orange-300/20 pt-2 text-center text-[0.62rem] leading-5 tracking-wide text-orange-200">
+                前 30% 預覽・向下捲動閱讀
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function CosmicCrossPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -275,7 +321,7 @@ function CosmicCrossPage() {
 
         {deckError && <p className="text-center text-red-500 mb-6">{deckError}</p>}
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {!hasDrawn && !isDrawing && (
             <>
               <CosmicCrossLightIntro />
@@ -326,39 +372,17 @@ function CosmicCrossPage() {
 
               {!showFullContent && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {positions.map((position, index) => (
-                      <div
-                        key={position.id}
-                        className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl"
-                      >
-                        <div className="text-center mb-5">
-                          <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-orange-600/40 to-orange-600/40 rounded-full mb-3 border-2 border-orange-400/30">
-                            <span className="text-orange-100 font-bold text-lg">{position.id}</span>
-                          </div>
-                          <h3 className="text-orange-200 font-medium text-lg mb-1">{position.label}</h3>
-                          <p className="text-orange-300/70 text-xs tracking-wide uppercase">{position.englishShort}</p>
-                          <p className="text-orange-400/60 text-xs mt-1 italic">{position.description}</p>
-                        </div>
-
-                        <div className="bg-slate-900/50 rounded-xl p-5 border border-orange-400/20">
-                          <p className="text-orange-100/90 text-base text-center font-medium mb-3">
-                            {selectedCards[index].preview.name}
-                          </p>
-                          {selectedCards[index].preview.preview_excerpt && (
-                            <div className="relative">
-                              <p className="text-orange-100/85 text-sm leading-loose whitespace-pre-line">
-                                {selectedCards[index].preview.preview_excerpt}
-                              </p>
-                              <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
-                            </div>
-                          )}
-                          <p className="mt-3 text-xs text-orange-300/70 tracking-wide text-center">
-                            前 30% 預覽 — 解鎖看完整解讀
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="space-y-8 sm:space-y-10">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-6">
+                      {positions.slice(0, 6).map((position, index) => (
+                        <CosmicCrossPreviewCard key={position.id} position={position} slot={selectedCards[index]} />
+                      ))}
+                    </div>
+                    <div className="mx-auto grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:w-5/6 lg:grid-cols-5">
+                      {positions.slice(6).map((position, index) => (
+                        <CosmicCrossPreviewCard key={position.id} position={position} slot={selectedCards[index + 6]} />
+                      ))}
+                    </div>
                   </div>
 
                   {gate.phase === 'loading' && (
