@@ -268,8 +268,6 @@ function EgyptianGodsPage() {
     spreadId: 'egyptian_pastlife',
     picks: pastlifePicks,
     enabled: hasDrawn && pastlifeSlots.length === 7 && !isPastlifeUnlocked,
-    emailGateAtCount: 1,
-    emailSource: 'egyptian_pastlife',
   });
 
   useEffect(() => {
@@ -556,9 +554,9 @@ function EgyptianGodsPage() {
                 {pastlifeGate.phase === 'email_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-yellow-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">第 2 次需輸入 Email 解鎖</h3>
+                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">首次免費試算・Email 解鎖</h3>
                     <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
-                      這次輸入 Email 後可免費查看完整前世因果陣，第 3 次仍可免費解鎖。
+                      輸入 Email 後可免費查看這個前世因果陣的完整解讀；同一牌陣第二次起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handlePastlifeEmailSubmitted(email); }}

@@ -225,9 +225,9 @@ function TarotMultiEmailGate({
           <Lock className="w-7 h-7 text-orange-300" />
         </div>
       </div>
-      <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">還有兩次免費完整解讀</h3>
+      <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">首次完整解讀免費</h3>
       <p className="text-orange-200/80 text-base leading-relaxed mb-6 max-w-md mx-auto">
-        輸入 Email 後，這次立即免費解鎖，接下來你還可以再免費看 1 次完整牌陣。
+        輸入 Email 後，立即免費解鎖這個牌陣的完整解讀；同一牌陣第二次起需付費。
       </p>
       <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-3">
         <input
@@ -317,8 +317,6 @@ function TarotPage() {
     spreadId: SPREAD_IDS[spreadType],
     picks: multiPicks,
     enabled: isMultiCardSpread && hasDrawn && drawnCards.length > 0 && !isLocallyUnlocked,
-    emailGateAtCount: 1,
-    emailSource: SPREAD_IDS[spreadType],
   });
 
   useEffect(() => {

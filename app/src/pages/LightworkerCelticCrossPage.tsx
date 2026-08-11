@@ -235,8 +235,6 @@ function LightworkerCelticCrossPage() {
     spreadId: SPREAD_ID,
     picks: gatePicks,
     enabled: hasDrawn && !isLocallyUnlocked,
-    emailGateAtCount: 1,
-    emailSource: SPREAD_ID,
   });
 
   const handleEmailUnlock = async (email: string) => {
@@ -439,9 +437,9 @@ function LightworkerCelticCrossPage() {
                         <Lock className="w-7 h-7 text-cyan-300" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">第 2 次需輸入 Email 解鎖</h3>
+                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">首次免費試算・Email 解鎖</h3>
                     <p className="text-cyan-200/80 text-base leading-relaxed max-w-md mx-auto">
-                      這次輸入 Email 後可免費查看完整十字陣，第 3 次仍可免費解鎖。
+                      輸入 Email 後可免費查看這個十字陣的完整解讀；同一牌陣第二次起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleEmailUnlock(email); }}

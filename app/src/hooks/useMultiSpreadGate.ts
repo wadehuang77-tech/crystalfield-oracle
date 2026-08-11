@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { cardsApi, publicApi, type UnlockedCard } from '../lib/api';
 import {
   getMultiUnlockCount,
+  getMultiSpreadGateDecision,
   incrementMultiUnlock,
   MULTI_SPREAD_FREE_LIMIT,
 } from './useDrawCounter';
@@ -14,8 +15,6 @@ interface UseMultiSpreadGateOptions {
   spreadId: string;
   picks: Pick[] | null; // null = not drawn yet
   enabled: boolean;     // true when cards have been drawn
-  emailGateAtCount?: number | null;
-  emailSource?: string;
 }
 
 interface UseMultiSpreadGateResult {
@@ -29,8 +28,6 @@ export function useMultiSpreadGate({
   spreadId,
   picks,
   enabled,
-  emailGateAtCount = null,
-  emailSource,
 }: UseMultiSpreadGateOptions): UseMultiSpreadGateResult {
   const [phase, setPhase] = useState<MultiGatePhase>('idle');
   const [unlockedCards, setUnlockedCards] = useState<UnlockedCard[] | null>(null);
@@ -39,9 +36,12 @@ export function useMultiSpreadGate({
   const lastPicksKeyRef = useRef<string>('');
 
   const unlockForFree = useCallback(async (picksToUnlock: Pick[]) => {
+    if (getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
+      throw new Error('這個牌陣的免費體驗已使用完畢');
+    }
     const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock);
     setUnlockedCards(cards);
-    incrementMultiUnlock();
+    incrementMultiUnlock(spreadId);
     setPhase('unlocked');
   }, [spreadId]);
 
@@ -53,34 +53,27 @@ export function useMultiSpreadGate({
     lastPicksKeyRef.current = picksKey;
     firedRef.current = true;
 
-    const count = getMultiUnlockCount();
+    const count = getMultiUnlockCount(spreadId);
 
-    if (emailGateAtCount !== null && count === emailGateAtCount) {
+    const nextPhase = getMultiSpreadGateDecision(count);
+    if (nextPhase === 'email_gate') {
       setPhase('email_gate');
-      return;
-    }
-
-    if (count < MULTI_SPREAD_FREE_LIMIT) {
-      setPhase('loading');
-      unlockForFree(picks)
-        .then(() => {
-          setError(null);
-        })
-        .catch((err) => {
-          setError(err instanceof Error ? err.message : '解鎖失敗');
-          setPhase('paywall');
-        });
     } else {
       setPhase('paywall');
     }
-  }, [emailGateAtCount, enabled, picks, unlockForFree]);
+  }, [enabled, picks, spreadId]);
 
   const onEmailUnlocked = async (email: string) => {
     if (!picks || picks.length === 0) return;
+    if (getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
+      setError('這個牌陣的免費體驗已使用完畢');
+      setPhase('paywall');
+      return;
+    }
     setPhase('loading');
     setError(null);
     try {
-      await publicApi.saveEmail(email, emailSource ?? spreadId).catch(() => {});
+      await publicApi.saveEmail(email, spreadId).catch(() => {});
       await unlockForFree(picks);
     } catch (err) {
       setError(err instanceof Error ? err.message : '解鎖失敗');

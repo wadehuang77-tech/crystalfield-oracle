@@ -260,8 +260,6 @@ export default function UnicornsPage() {
     spreadId: SPREAD_ID,
     picks: threePicks,
     enabled: spreadType === 'three' && drawnCards.length === 3 && !isLocallyUnlocked,
-    emailGateAtCount: 1,
-    emailSource: SPREAD_ID,
   });
 
   useEffect(() => {
@@ -471,9 +469,9 @@ export default function UnicornsPage() {
                       {threeGate.phase === 'email_gate' && (
                         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 text-center space-y-5">
                           <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
-                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">第 2 次需輸入 Email 解鎖</h3>
+                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">首次免費試算・Email 解鎖</h3>
                           <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">
-                            這次輸入 Email 後可免費查看完整三張牌陣，第 3 次仍可免費解鎖。
+                            輸入 Email 後可免費查看這個三張牌陣的完整解讀；同一牌陣第二次起需付費。
                           </p>
                           <InlineEmailUnlock
                             onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
