@@ -120,6 +120,15 @@ function buildExcerpts(
     if (r) out.reversed_excerpt = clipExcerpt(r);
     return out;
   }
+  if (deckId === 'work_your_light') {
+    const deep = gated.deepInterpretation;
+    if (deep && typeof deep === 'object') {
+      const coreMeaning = (deep as Record<string, unknown>).coreMeaning;
+      if (typeof coreMeaning === 'string' && coreMeaning.trim()) {
+        return { preview_excerpt: clipExcerpt(coreMeaning, EXCERPT_RATIO) };
+      }
+    }
+  }
   const teaser = pickFirstString(gated);
   const ratio = deckId === 'lightworker' ? LIGHTWORKER_EXCERPT_RATIO : EXCERPT_RATIO;
   return teaser ? { preview_excerpt: clipExcerpt(teaser, ratio) } : {};
