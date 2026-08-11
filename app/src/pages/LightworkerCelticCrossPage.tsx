@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Sparkles, RotateCcw, Lock } from 'lucide-react';
 import {
-  generateConciseCardInterpretation,
   generateOverallSpiritualGrowthSummary,
   generateOverallHealingSummary,
   generateOverallLifePathSummary,
@@ -81,6 +80,93 @@ function getPreviewInterpretation(position: CardPosition): string {
   const keywords = (position.preview.preview as { keywords?: string[] }).keywords ?? [];
   const keywordText = keywords.length > 0 ? `關鍵能量：${keywords.join('、')}。` : '';
   return `「${position.preview.name}」出現在「${position.subtitle}」牌位，提醒你留意${position.description}。${keywordText}`;
+}
+
+type MissionCardMode = 'layout' | 'preview' | 'full';
+
+function MissionCardVisual({ position, revealFace }: { position: CardPosition; revealFace: boolean }) {
+  const image = revealFace ? position.preview?.image : null;
+  return (
+    <div className="relative mx-auto w-full max-w-[9.5rem] sm:max-w-[10.5rem] pt-4">
+      <div className="absolute left-1/2 top-0 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-cyan-100/60 bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold text-white shadow-[0_0_20px_rgba(34,211,238,0.55)]">
+        {position.position}
+      </div>
+      <div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-cyan-300/40 bg-gradient-to-br from-slate-800 via-slate-900 to-cyan-950 p-2 shadow-[0_14px_34px_-16px_rgba(34,211,238,0.75)]">
+        {image ? (
+          <img src={image} alt={`${position.position}. ${position.preview?.name ?? position.subtitle}`} className="h-full w-full rounded-lg object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center rounded-lg border border-cyan-300/20 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.15),transparent_58%)]">
+            <Sparkles className="h-9 w-9 text-cyan-200/70" strokeWidth={1.2} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MissionReadingCard({ position, mode }: { position: CardPosition; mode: MissionCardMode }) {
+  const previewInterpretation = getPreviewInterpretation(position);
+  const isFull = mode === 'full' && position.full;
+  const sections = position.full ? [
+    { title: '宇宙訊息', text: position.full.cosmicMessage },
+    { title: '當下狀態', text: position.full.currentSituation },
+    { title: '深層含義', text: position.full.deeperMeaning },
+    { title: '行動指引', text: position.full.actionGuidance },
+    { title: '能量療癒', text: position.full.energyHealing },
+  ].filter((section) => section.text?.trim()) : [];
+
+  return (
+    <article
+      data-preview-card={mode === 'preview' ? position.position : undefined}
+      data-full-card={mode === 'full' ? position.position : undefined}
+      className="min-w-0"
+    >
+      <MissionCardVisual position={position} revealFace={mode !== 'layout'} />
+      <div className="mt-4 min-h-[4.5rem] text-center">
+        <h3 className="font-serif text-base leading-snug text-cyan-50 sm:text-lg">{position.title}</h3>
+        <p className="mt-1 text-xs leading-relaxed text-cyan-200/75 sm:text-sm">{position.subtitle}</p>
+        {mode !== 'layout' && position.preview && (
+          <p className="mt-2 font-serif text-lg text-cyan-100">{position.preview.name}</p>
+        )}
+      </div>
+
+      {mode === 'preview' && (
+        <div className="mt-3 rounded-2xl border border-cyan-400/30 bg-slate-950/65 p-4 shadow-lg">
+          <h4 className="mb-3 text-center font-serif text-sm text-cyan-100">牌義解讀（前 30% 預覽）</h4>
+          <div className="relative">
+            <p className="whitespace-pre-line text-sm leading-7 text-cyan-50/90">{previewInterpretation}</p>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-9 bg-gradient-to-b from-transparent to-slate-950/95" />
+          </div>
+          <p className="mt-3 text-center text-[0.68rem] tracking-wide text-cyan-200/80">前 30% 預覽・解鎖看完整解讀</p>
+        </div>
+      )}
+
+      {isFull && (
+        <div className="mt-3 space-y-3 rounded-2xl border border-cyan-400/35 bg-slate-950/65 p-4 shadow-lg">
+          <h4 className="text-center font-serif text-sm text-cyan-100">完整牌義解讀（100%）</h4>
+          {position.full!.keywords.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {position.full!.keywords.map((keyword) => (
+                <span key={keyword} className="rounded-full border border-cyan-400/25 bg-cyan-500/10 px-2 py-1 text-[0.68rem] text-cyan-200">{keyword}</span>
+              ))}
+            </div>
+          )}
+          {sections.map((section) => (
+            <section key={section.title} className="rounded-xl border border-cyan-400/15 bg-slate-900/55 p-3">
+              <h5 className="mb-1.5 text-xs font-medium text-cyan-200">{section.title}</h5>
+              <p className="whitespace-pre-line text-sm leading-7 text-cyan-50/90">{section.text}</p>
+            </section>
+          ))}
+          {position.full!.soulQuestion && (
+            <section className="rounded-xl border-l-2 border-cyan-300 bg-cyan-500/10 p-3">
+              <h5 className="mb-1.5 text-xs font-medium text-cyan-200">靈魂提問</h5>
+              <p className="text-sm italic leading-7 text-cyan-50/90">{position.full!.soulQuestion}</p>
+            </section>
+          )}
+        </div>
+      )}
+    </article>
+  );
 }
 
 function LightworkerCelticCrossPage() {
@@ -340,23 +426,12 @@ function LightworkerCelticCrossPage() {
               </button>
             </div>
 
-            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-cyan-500/30 rounded-3xl p-8 sm:p-10 shadow-2xl">
-              <h3 className="text-xl sm:text-2xl font-serif text-cyan-100 mb-6 text-center">牌陣說明</h3>
-              <div className="grid md:grid-cols-2 gap-6">
+            <div className="rounded-3xl border-2 border-cyan-500/30 bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6 shadow-2xl backdrop-blur-md sm:p-10">
+              <p className="mb-2 text-center text-sm tracking-[0.45em] text-cyan-300/70">十 字 交 叉 使 命 陣</p>
+              <h3 className="mb-8 text-center font-serif text-2xl text-cyan-100 sm:text-3xl">10 張牌的代號與主旨</h3>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:gap-x-6 lg:grid-cols-5">
                 {selectedCards.map((position) => (
-                  <div key={position.position} className="bg-slate-900/40 border border-cyan-500/20 rounded-xl p-5">
-                    <div className="flex items-start gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-500 flex items-center justify-center text-sm font-bold flex-shrink-0">
-                        {position.position}
-                      </div>
-                      <div>
-                        <h4 className="text-cyan-100 font-medium text-base mb-1">
-                          {position.title} - {position.subtitle}
-                        </h4>
-                        <p className="text-cyan-200/60 text-sm">{position.description}</p>
-                      </div>
-                    </div>
-                  </div>
+                  <MissionReadingCard key={position.position} position={position} mode="layout" />
                 ))}
               </div>
             </div>
@@ -374,58 +449,11 @@ function LightworkerCelticCrossPage() {
 
             {!showFullContent && (
               <div className="space-y-6">
-                {selectedCards.map((position) => {
-                  const previewInterpretation = getPreviewInterpretation(position);
-                  return (
-                  <div key={position.position} data-preview-card={position.position} className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-lg border-2 border-cyan-500/40 rounded-3xl overflow-hidden shadow-2xl shadow-cyan-500/20">
-                    <div className="relative bg-gradient-to-br from-slate-950/60 via-slate-950/60 to-slate-950 p-6 sm:p-8 border-b-2 border-cyan-500/30">
-                      <div className="relative flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-500 flex items-center justify-center text-xl font-bold flex-shrink-0">
-                          {position.position}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-2xl sm:text-3xl font-serif text-cyan-100 mb-2">
-                            {position.title} - {position.subtitle}
-                          </h3>
-                          <p className="text-cyan-300/80 text-sm sm:text-base">{position.description}</p>
-                          {position.preview && (
-                            <p className="text-cyan-200/70 text-sm mt-3">
-                              本位:<span className="text-cyan-100 font-medium">{position.preview.name}</span>
-                              {position.preview.name_secondary && (
-                                <span className="text-cyan-300/60 ml-2">({position.preview.name_secondary})</span>
-                              )}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-6 sm:p-8">
-                      <div className="bg-slate-950/70 border border-cyan-400/40 rounded-xl p-6 sm:p-7">
-                        {position.preview ? (
-                          <>
-                            <h4 className="mb-4 text-xl sm:text-2xl font-serif text-cyan-50">
-                              牌義解讀（前 40% 預覽）
-                            </h4>
-                            <div>
-                              <p className="text-cyan-50 text-base sm:text-lg leading-8 sm:leading-9 whitespace-pre-line">
-                                {previewInterpretation}
-                              </p>
-                            </div>
-                            <p className="mt-4 text-sm text-cyan-200 tracking-wide text-center">
-                              前 40% 預覽 — 解鎖看完整解讀
-                            </p>
-                          </>
-                        ) : (
-                          <div className="text-center">
-                            <Lock className="w-7 h-7 mx-auto text-cyan-300 mb-2" />
-                            <p className="text-cyan-200/80 text-sm">解鎖後可看到此位的完整解讀</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  );
-                })}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:gap-x-6 lg:grid-cols-5">
+                  {selectedCards.map((position) => (
+                    <MissionReadingCard key={position.position} position={position} mode="preview" />
+                  ))}
+                </div>
 
                 {gate.phase === 'loading' && (
                   <div className="text-center text-cyan-300/70 py-6 tracking-wider">解鎖中…</div>
@@ -475,67 +503,11 @@ function LightworkerCelticCrossPage() {
 
             {showFullContent && (
               <>
-                {selectedCards.map((position) => (
-                  <div key={position.position} className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-lg border-2 border-cyan-500/40 rounded-3xl overflow-hidden shadow-2xl shadow-cyan-500/20">
-                    <div className="relative bg-gradient-to-br from-slate-950/60 via-slate-950/60 to-slate-950 p-6 sm:p-8 border-b-2 border-cyan-500/30">
-                      <div className="relative flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-500 flex items-center justify-center text-xl font-bold flex-shrink-0">
-                          {position.position}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-2xl sm:text-3xl font-serif text-cyan-100 mb-2">
-                            {position.title} - {position.subtitle}
-                          </h3>
-                          <p className="text-cyan-300/80 text-sm sm:text-base mb-4">{position.description}</p>
-                          {position.full && (
-                            <div className="mt-4">
-                              <h4 className="text-3xl sm:text-4xl font-serif text-cyan-100 mb-2">
-                                {position.full.name}
-                              </h4>
-                              {position.full.nameEn && (
-                                <p className="text-cyan-300/80 text-base sm:text-lg uppercase tracking-widest font-light">
-                                  {position.full.nameEn}
-                                </p>
-                              )}
-                              <div className="flex flex-wrap gap-2 mt-4">
-                                {position.full.keywords.map((keyword, idx) => (
-                                  <span key={idx} className="px-3 py-1.5 bg-slate-800/20 border border-cyan-400/30 rounded-full text-cyan-200 text-xs sm:text-sm font-light tracking-wide">
-                                    {keyword}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {position.full && (
-                      <div className="p-6 sm:p-8 space-y-6">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-1 h-6 bg-gradient-to-b from-cyan-400 to-cyan-500 rounded-full"></div>
-                            <h4 className="text-lg sm:text-xl font-serif text-cyan-100">牌義解讀</h4>
-                          </div>
-                          <p className="text-cyan-100/90 leading-relaxed text-sm sm:text-base pl-7">
-                            {generateConciseCardInterpretation(position.position, position.full)}
-                          </p>
-                        </div>
-                        {position.full.soulQuestion && (
-                          <div className="bg-gradient-to-br from-slate-900/30 to-slate-900/30 border-l-4 border-cyan-400 rounded-2xl p-6">
-                            <div className="flex items-start gap-4">
-                              <div className="flex-1">
-                                <h4 className="text-lg sm:text-xl font-serif text-cyan-100 mb-3">靈魂提問</h4>
-                                <p className="text-cyan-100/90 italic leading-relaxed text-sm sm:text-base">
-                                  {position.full.soulQuestion}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:gap-x-6 lg:grid-cols-5">
+                  {selectedCards.map((position) => (
+                    <MissionReadingCard key={position.position} position={position} mode="full" />
+                  ))}
+                </div>
 
                 <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-cyan-400/40 rounded-3xl p-8 sm:p-12 shadow-2xl mt-12">
                   <div className="text-center mb-10">

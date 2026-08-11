@@ -80,7 +80,7 @@ export async function getDeckPreview(
 }
 
 const EXCERPT_RATIO = 0.3;
-const LIGHTWORKER_EXCERPT_RATIO = 0.4;
+const LIGHTWORKER_EXCERPT_RATIO = 0.3;
 const EXCERPT_MIN = 20;
 
 function clipExcerpt(text: string, ratio = EXCERPT_RATIO): string {
