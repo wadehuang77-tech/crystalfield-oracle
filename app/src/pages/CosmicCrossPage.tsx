@@ -433,6 +433,42 @@ function CosmicCrossPage() {
 
               {showFullContent && (
                 <>
+                  <section className="rounded-2xl border-2 border-orange-400/45 bg-slate-900/75 px-5 py-6 shadow-[0_0_30px_rgba(249,115,22,0.12)] sm:px-8 sm:py-8">
+                    <div className="mb-6 text-center">
+                      <h3 className="font-serif text-2xl text-orange-100 sm:text-3xl">解牌閱讀小提醒</h3>
+                      <p className="mt-2 text-sm text-orange-200/90 sm:text-base">
+                        重點看以下 <strong className="text-orange-100">5 張關鍵牌</strong>：
+                      </p>
+                    </div>
+                    <div className="grid gap-4 text-sm leading-relaxed text-orange-50 lg:grid-cols-2 sm:text-base">
+                      <article className="rounded-xl border border-orange-400/20 bg-orange-950/20 p-5">
+                        <h4 className="font-semibold text-orange-200">1. Card 1：核心議題（The Core / Current Energy）</h4>
+                        <p className="mt-3"><strong className="text-orange-200">位置：</strong>牌陣中央最底層的基礎。</p>
+                        <p className="mt-2"><strong className="text-orange-200">重點：</strong>代表你當前靈魂的核心狀態與當下正在經歷的主題。它是整個牌陣的基石，點出你此刻最需要覺察的能量焦點。</p>
+                      </article>
+                      <article className="rounded-xl border border-orange-400/20 bg-orange-950/20 p-5">
+                        <h4 className="font-semibold text-orange-200">2. Card 2：阻礙與挑戰（The Challenge / What’s Blocking You）</h4>
+                        <p className="mt-3"><strong className="text-orange-200">位置：</strong>橫跨在 Card 1 之上的交叉牌。</p>
+                        <p className="mt-2"><strong className="text-orange-200">重點：</strong>代表阻礙你連結光或落實使命的核心卡關點（可能是內在恐懼、舊有模式或外在干擾）。解開這張牌，能量才能重新流動。</p>
+                      </article>
+                      <article className="rounded-xl border border-orange-400/20 bg-orange-950/20 p-5">
+                        <h4 className="font-semibold text-orange-200">3. Card 5：靈魂渴望 / 潛意識（The Soul’s Calling / Subconscious）</h4>
+                        <p className="mt-3"><strong className="text-orange-200">位置：</strong>十字的底部（根基）。</p>
+                        <p className="mt-2"><strong className="text-orange-200">重點：</strong>代表你靈魂深處真正的渴望與天賦根基。它揭示了頭腦可能忽略、但靈魂一直在召喚你的深層方向。</p>
+                      </article>
+                      <article className="rounded-xl border border-orange-400/20 bg-orange-950/20 p-5">
+                        <h4 className="font-semibold text-orange-200">4. Card 9：靈魂解藥 / 宇宙指引（The Action / Spiritual Prescription）</h4>
+                        <p className="mt-3"><strong className="text-orange-200">位置：</strong>右側軸線的關鍵行動牌。</p>
+                        <p className="mt-2"><strong className="text-orange-200">重點：</strong>這是最直接的行動指南。它告訴你「現在該採取什麼行動」來調和阻礙，是將高維度的宇宙指引落實在現實生活中的橋樑。</p>
+                      </article>
+                      <article className="rounded-xl border border-orange-400/20 bg-orange-950/20 p-5 lg:col-span-2">
+                        <h4 className="font-semibold text-orange-200">5. Card 11：最終整合 / 靈魂願景（The Outcome / Cosmic Vision）</h4>
+                        <p className="mt-3"><strong className="text-orange-200">位置：</strong>十字頂端或最終落腳點。</p>
+                        <p className="mt-2"><strong className="text-orange-200">重點：</strong>代表你跨越挑戰、順應指引後，最終展現的靈魂姿態與更高的意識狀態。它為你指引整體靈魂旅程的宏觀遠景。</p>
+                      </article>
+                    </div>
+                  </section>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {positions.map((position, index) => {
                       const full = selectedCards[index].full!;
