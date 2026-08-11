@@ -47,6 +47,13 @@ interface CosmicGated {
   inquiryPrompt?: string | null;
   activationPrayer?: string | null;
   transmissionPrayer?: string | null;
+  deepInterpretation?: {
+    coreMeaning?: string;
+    higherSelfMessage?: string;
+    spiritualGuidance?: string;
+    energyQualities?: string;
+    suitableQuestions?: string;
+  } | null;
 }
 
 interface DrawnSlot {
@@ -472,6 +479,8 @@ function CosmicCrossPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {positions.map((position, index) => {
                       const full = selectedCards[index].full!;
+                      const coreExplanation = full.deepInterpretation?.coreMeaning?.trim()
+                        || full.coreMeaning?.trim();
                       return (
                         <div
                           key={position.id}
@@ -498,10 +507,10 @@ function CosmicCrossPage() {
                               <p className="text-orange-100/70 text-xs leading-relaxed">{position.interpretation}</p>
                             </div>
 
-                            {full.coreMeaning && (
+                            {coreExplanation && (
                               <div className="pt-3 border-t border-orange-500/20">
-                                <h5 className="text-orange-200/90 text-xs font-medium mb-2 uppercase tracking-wide">牌卡訊息</h5>
-                                <p className="text-orange-100/80 text-sm leading-relaxed">{full.coreMeaning}</p>
+                                <h5 className="text-orange-200/90 text-xs font-medium mb-2 uppercase tracking-wide">深度牌卡訊息</h5>
+                                <p className="text-orange-100/90 text-sm leading-relaxed">{coreExplanation}</p>
                               </div>
                             )}
 
