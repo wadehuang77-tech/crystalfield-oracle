@@ -318,7 +318,7 @@ export default function OshoThreePage() {
     const nameColor = accent === 'teal' ? 'text-teal-100' : 'text-cyan-100';
     const italicColor = accent === 'teal' ? 'text-teal-300/70' : 'text-cyan-300/70';
     const lockBoxBorder = accent === 'teal' ? 'border-teal-500/30' : 'border-cyan-500/30';
-    const bodyColor = accent === 'teal' ? 'text-teal-100/85' : 'text-cyan-100/85';
+    const bodyColor = accent === 'teal' ? 'text-teal-100' : 'text-cyan-100';
     const hintColor = accent === 'teal' ? 'text-teal-300/70' : 'text-cyan-300/70';
 
     return (
@@ -334,11 +334,10 @@ export default function OshoThreePage() {
         <div className={`bg-slate-900/60 border ${lockBoxBorder} rounded-lg p-4`}>
           {slot.preview.preview_excerpt ? (
             <>
-              <div className="relative">
+              <div>
                 <p className={`${bodyColor} text-sm leading-loose whitespace-pre-line`}>
                   {slot.preview.preview_excerpt}
                 </p>
-                <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
               </div>
               <p className={`mt-3 text-[0.65rem] ${hintColor} tracking-wide text-center`}>
                 前 30% 預覽

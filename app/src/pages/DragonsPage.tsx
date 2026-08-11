@@ -459,11 +459,10 @@ function DragonsPage() {
                           </div>
                         )}
                         {slot.preview.preview_excerpt && (
-                          <div className="relative mt-2 pt-3 border-t border-emerald-500/15">
-                            <p className="text-emerald-100/85 text-xs leading-loose whitespace-pre-line">
+                          <div className="mt-2 pt-3 border-t border-emerald-500/15">
+                            <p className="text-emerald-100 text-xs leading-loose whitespace-pre-line">
                               {slot.preview.preview_excerpt}
                             </p>
-                            <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none" />
                           </div>
                         )}
                         <p className="mt-2 text-[0.65rem] text-emerald-400/70 tracking-wide text-center">
