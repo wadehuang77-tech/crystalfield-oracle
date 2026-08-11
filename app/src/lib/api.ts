@@ -1,4 +1,5 @@
-const BASE = import.meta.env.VITE_API_BASE || '';
+const BASE = import.meta.env.VITE_API_BASE
+  || (import.meta.env.PROD ? 'https://api.crystalfield101.com' : '');
 
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
