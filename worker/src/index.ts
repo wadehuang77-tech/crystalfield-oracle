@@ -494,18 +494,13 @@ async function saveEmail(req: Request, env: Env): Promise<Response> {
       env.DB.prepare(
         `INSERT INTO emails (id, email, source, created_at)
          VALUES (?, ?, ?, ?)
-         ON CONFLICT(email) DO UPDATE SET
-           source = excluded.source,
-           created_at = excluded.created_at`
+         ON CONFLICT(email) DO NOTHING`
       ).bind(crypto.randomUUID(), email, source, now),
 
       env.DB.prepare(
         `INSERT INTO leads (id, email, source, created_at, status)
          VALUES (?, ?, ?, ?, 'success')
-         ON CONFLICT(email) DO UPDATE SET
-           source = excluded.source,
-           created_at = excluded.created_at,
-           status = 'success'`
+         ON CONFLICT(email) DO NOTHING`
       ).bind(crypto.randomUUID(), email, source, now),
     ]);
     return await json(req, env, { success: true });
@@ -669,7 +664,17 @@ async function adminListGuestEmails(req: Request, env: Env): Promise<Response> {
   if (r instanceof Response) return r;
   const result = await env.DB.prepare(
     `SELECT id, email, source, created_at, status
-     FROM leads ORDER BY created_at DESC LIMIT 1000`
+       FROM (
+         SELECT id, email, source, created_at, status,
+                ROW_NUMBER() OVER (
+                  PARTITION BY lower(trim(email))
+                  ORDER BY created_at ASC, id ASC
+                ) AS duplicate_rank
+           FROM leads
+       )
+      WHERE duplicate_rank = 1
+      ORDER BY created_at DESC
+      LIMIT 1000`
   ).all();
   return await json(req, env, { guests: result.results || [] });
 }

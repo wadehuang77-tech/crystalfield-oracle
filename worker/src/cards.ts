@@ -167,7 +167,7 @@ export async function unlockSingleCard(req: Request, env: Env): Promise<Response
     env.DB.prepare(
       `INSERT INTO emails (id, email, source, created_at)
        VALUES (?, ?, ?, ?)
-       ON CONFLICT(email) DO UPDATE SET source = excluded.source`,
+       ON CONFLICT(email) DO NOTHING`,
     ).bind(crypto.randomUUID(), email, body.spread_id, now),
     env.DB.prepare(
       `INSERT INTO leads (id, email, source, created_at, status)
