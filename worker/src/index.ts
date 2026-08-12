@@ -516,6 +516,29 @@ async function saveEmail(req: Request, env: Env): Promise<Response> {
 
 const ALLOWED_KPI_EVENTS = new Set(['page_view', 'email_submit', 'pay_success']);
 
+function taipeiDateKey(date: Date): string {
+  return new Date(date.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+async function dailyVisitorKey(req: Request, env: Env, trackedAt: Date): Promise<string | null> {
+  const ip = clientIp(req).split(',')[0]?.trim();
+  if (!ip || ip === 'unknown') return null;
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(env.JWT_SECRET),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    new TextEncoder().encode(`kpi-page-view:${taipeiDateKey(trackedAt)}:${ip}`),
+  );
+  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 async function trackEvent(req: Request, env: Env): Promise<Response> {
   const body = await readBody<{
     event_type?: string;
@@ -526,16 +549,24 @@ async function trackEvent(req: Request, env: Env): Promise<Response> {
   }
 
   const sessionUser = await readSession(req, env);
+  const trackedAt = new Date();
+  const visitorKey = body.event_type === 'page_view'
+    ? await dailyVisitorKey(req, env, trackedAt)
+    : null;
+  const eventId = visitorKey ? `page-view:${visitorKey}` : crypto.randomUUID();
+  const meta = visitorKey
+    ? { ...(body.meta ?? {}), visitor_key: visitorKey }
+    : (body.meta ?? {});
 
   await env.DB.prepare(
-    `INSERT INTO events (id, user_id, event_type, created_at, meta)
+    `INSERT OR IGNORE INTO events (id, user_id, event_type, created_at, meta)
      VALUES (?, ?, ?, ?, ?)`
   ).bind(
-    crypto.randomUUID(),
+    eventId,
     sessionUser?.id ?? null,
     body.event_type,
-    new Date().toISOString(),
-    JSON.stringify(body.meta ?? {}),
+    trackedAt.toISOString(),
+    JSON.stringify(meta),
   ).run();
 
   return await json(req, env, { ok: true });
@@ -998,13 +1029,26 @@ async function adminMetricsDaily(req: Request, env: Env, url: URL): Promise<Resp
   if (r instanceof Response) return r;
 
   const days = Math.min(Math.max(Number(url.searchParams.get('days') ?? '7'), 1), 60);
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const now = new Date();
+  const todayKey = taipeiDateKey(now);
+  const firstDay = new Date(now.getTime() - (days - 1) * 24 * 60 * 60 * 1000);
+  const firstDayKey = taipeiDateKey(firstDay);
+  const since = new Date(`${firstDayKey}T00:00:00+08:00`).toISOString();
 
   const result = await env.DB.prepare(
     `SELECT
-        substr(created_at, 1, 10) AS day,
+        date(created_at, '+8 hours') AS day,
         event_type,
-        COUNT(*) AS cnt
+        COUNT(DISTINCT CASE
+          WHEN event_type = 'page_view' THEN COALESCE(
+            json_extract(meta, '$.visitor_key'),
+            CASE
+              WHEN user_id IS NOT NULL THEN 'legacy-user:' || user_id
+              ELSE 'legacy-event:' || id
+            END
+          )
+          ELSE id
+        END) AS cnt
        FROM events
       WHERE created_at >= ?
         AND event_type IN ('page_view', 'email_submit')
@@ -1021,7 +1065,7 @@ async function adminMetricsDaily(req: Request, env: Env, url: URL): Promise<Resp
 
   const paidOrders = await env.DB.prepare(
     `SELECT
-        substr(COALESCE(paid_at, updated_at, created_at), 1, 10) AS day,
+        date(COALESCE(paid_at, updated_at, created_at), '+8 hours') AS day,
         COALESCE(paid_at, updated_at, created_at) AS paid_at,
         email,
         item_id,
@@ -1069,7 +1113,6 @@ async function adminMetricsDaily(req: Request, env: Env, url: URL): Promise<Resp
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  const todayKey = new Date().toISOString().slice(0, 10);
   const today = byDay[todayKey] ?? emptyDailyBucket();
 
   const totals = daily.reduce(
