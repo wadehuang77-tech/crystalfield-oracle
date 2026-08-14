@@ -82,12 +82,12 @@ type MissionCardMode = 'layout' | 'preview' | 'full';
 
 function MissionCardVisual({ position, children, expand = false }: { position: CardPosition; children: ReactNode; expand?: boolean }) {
   return (
-    <div className="relative mx-auto w-full max-w-[10.5rem] pt-4">
+    <div className={`relative mx-auto w-full pt-4 ${expand ? 'max-w-none' : 'max-w-[10.5rem]'}`}>
       <div className="absolute left-1/2 top-0 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-cyan-100/60 bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold text-white shadow-[0_0_20px_rgba(34,211,238,0.55)]">
         {position.position}
       </div>
-      <div className={`relative rounded-xl border border-cyan-300/40 bg-gradient-to-br from-slate-800 via-slate-900 to-cyan-950 p-2 shadow-[0_14px_34px_-16px_rgba(34,211,238,0.75)] ${expand ? 'min-h-[16rem]' : 'aspect-[2/3] overflow-hidden'}`}>
-        <div className={`rounded-lg border border-cyan-300/20 bg-slate-950/35 px-3 pb-3 pt-7 ${expand ? 'min-h-[15rem]' : 'h-full overflow-y-auto scrollbar-thin'}`}>
+      <div className={`relative rounded-xl border border-cyan-300/40 bg-gradient-to-br from-slate-800 via-slate-900 to-cyan-950 p-2 shadow-[0_14px_34px_-16px_rgba(34,211,238,0.75)] ${expand ? 'h-auto overflow-visible' : 'aspect-[2/3] overflow-hidden'}`}>
+        <div className={`rounded-lg border border-cyan-300/20 bg-slate-950/35 px-3 pb-3 pt-7 ${expand ? 'h-auto overflow-visible sm:px-5 sm:pb-5' : 'h-full overflow-y-auto scrollbar-thin'}`}>
           {children}
         </div>
       </div>
@@ -530,7 +530,7 @@ function LightworkerCelticCrossPage() {
                   </div>
                 </section>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:gap-x-6 lg:grid-cols-5">
+                <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-5">
                   {selectedCards.map((position) => (
                     <MissionReadingCard key={position.position} position={position} mode="full" />
                   ))}
