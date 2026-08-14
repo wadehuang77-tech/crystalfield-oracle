@@ -130,39 +130,34 @@ function LightworkerPage() {
 
             <section className="max-w-4xl mx-auto mb-12 rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-cyan-500/10 via-slate-900/85 to-blue-500/10 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_0_34px_rgba(34,211,238,0.13)]">
               <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-cyan-100">
-                光行者神諭卡｜回應召喚，解鎖你的靈魂使命
+                🌟 光行者神諭卡｜回應召喚，解鎖你的靈魂使命
               </h2>
               <div className="space-y-4 text-base sm:text-lg leading-loose text-cyan-50/90">
-                <p>你是否曾覺得自己與世俗的規範有些隔閡？</p>
-                <p>是否常在內心深處感覺，自己來到這個世界上，有著某種更深遠的意義與使命？</p>
+                <p>你是否曾覺得自己與這世界有些隔閡？</p>
                 <p className="font-semibold text-cyan-100">你並非迷路，你只是在等待覺醒。</p>
-                <p>「光行者神諭卡」是連結高維度智慧與光之團隊的橋樑。</p>
                 <p>
-                  祂不只為你指引方向，更將點亮你沉睡的
-                  <strong className="font-semibold text-cyan-200">靈魂天賦、療癒力量與神聖藍圖</strong>
-                  。協助你跨越世俗的焦慮，活出豐盛、璀璨且充滿意義的本真自我。
-                </p>
-                <p className="font-semibold text-blue-100">
-                  閉上眼睛，感受胸口的溫暖光芒，聆聽來自靈魂深處的召喚。
+                  「光行者神諭卡」將為你連結高維度智慧，點亮沉睡的
+                  <strong className="font-semibold text-cyan-200">靈魂天賦與神聖藍圖</strong>
+                  ，陪你跨越焦慮，活出本真自我。
                 </p>
               </div>
 
               <div className="mt-7 border-t border-cyan-400/20 pt-6">
                 <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-cyan-100">
-                  【靈魂覺醒靜心三步驟】
+                  【靈魂覺醒 3 步驟】
                 </h3>
                 <ol className="space-y-4 text-sm sm:text-base leading-loose text-cyan-50/90">
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 bg-cyan-500/15 font-semibold text-cyan-200">1</span>
-                    <p><strong className="text-cyan-100">脊椎挺直，深呼吸</strong>：將注意力收回胸口（心輪），感受光芒籠罩全身。</p>
+                    <p><strong className="text-cyan-100">靜心</strong>：深呼吸，將注意力收回心輪。</p>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 bg-cyan-500/15 font-semibold text-cyan-200">2</span>
-                    <p><strong className="text-cyan-100">在心中默想</strong>：「請光之團隊指引我，我此刻的靈魂使命與天賦是什麼？」</p>
+                    <p><strong className="text-cyan-100">默想</strong>：「請光之團隊指引我，我此刻的靈魂使命是什麼？」</p>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 bg-cyan-500/15 font-semibold text-cyan-200">3</span>
-                    <p><strong className="text-cyan-100">憑直覺抽取你的光之卡片</strong>：開啟專屬於你的靈魂覺察與使命藍圖。</p>
+                    <p><strong className="text-cyan-100">抽牌</strong>：憑直覺抽取卡片，解鎖你的靈魂藍圖。</p>
                   </li>
                 </ol>
               </div>

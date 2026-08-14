@@ -19,11 +19,9 @@ const SPREAD_ID = 'cosmic_cross';
 const CARD_COUNT = 11;
 
 const COSMIC_CROSS_LIGHT_PROMPTS = [
-  '覺得自己不夠好、閃閃發不起來？點亮你內在沉睡已久的靈魂光芒。',
   '給習慣照顧別人的你：今天，把愛與注意力重新收回自己身上。',
+  '覺得自己不夠好、閃閃發不起來？點亮你內在沉睡已久的靈魂光芒。',
   '擁抱你的脆弱與不完美！每一張卡片，都是宇宙寫給你的溫柔情書。',
-  '感到孤單迷惘？你並不孤單，讓高頻光芒卡片陪伴你度過每一個低潮。',
-  '呼喚你的靈魂光芒！點亮你今生的專屬天賦與星際記憶。',
 ];
 
 function CosmicCrossLightIntro() {
@@ -402,9 +400,9 @@ function CosmicCrossPage() {
                           <Lock className="w-7 h-7 text-orange-300" />
                         </div>
                       </div>
-                      <h3 className="text-2xl font-serif text-orange-100 tracking-wide">首次免費試算・Email 解鎖</h3>
+                      <h3 className="text-2xl font-serif text-orange-100 tracking-wide">第二次免費試算・Email 解鎖</h3>
                       <p className="text-orange-200/80 text-base leading-relaxed max-w-md mx-auto">
-                        輸入 Email 後可免費查看這個宇宙十字牌陣的完整解讀；同一牌陣第二次起需付費。
+                        第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
                       </p>
                       <InlineEmailUnlock
                         onUnlocked={(email) => { void handleEmailUnlock(email); }}

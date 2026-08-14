@@ -51,12 +51,9 @@ const PASTLIFE_POSITIONS = [
 ];
 
 const EGYPTIAN_PAST_LIFE_PROMPTS = [
-  '感覺運勢低迷、缺乏動力？接引古埃及太陽神的極陽能量，為你照亮前路、顯化奇蹟。',
   '走過人生的低谷與碎裂？讓生命與魔法之母 Isis，溫柔重組你的靈魂，迎接光榮重生。',
-  '召喚埃及女神的愛與豐盛祝福：修復內在創傷，開啟你沉睡已久的第三眼與高維直覺。',
-  '給正在經歷人生轉折的你：每一次的結束，都是古老神話中光明的復活儀式。',
   '在天平上秤量真相：讓智慧之神與阿努比斯，幫你一眼穿透迷霧，看清局勢真相。',
-  '拒絕曖昧不明與自我欺騙。埃及神諭將以最精準、直白的宇宙法則，指引你最佳道路。',
+  '感覺運勢低迷、缺乏動力？接引古埃及太陽神的極陽能量，為你照亮前路、顯化奇蹟。',
 ];
 
 function EgyptianPastLifeIntro() {
@@ -353,38 +350,32 @@ function EgyptianGodsPage() {
               <h1 className="font-serif text-3xl sm:text-5xl text-yellow-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">埃及神諭</h1>
               <div className="max-w-3xl mx-auto mb-8 rounded-2xl border border-yellow-400/35 bg-gradient-to-br from-yellow-500/10 via-slate-900/85 to-amber-500/10 px-5 py-6 sm:px-8 sm:py-8 text-left shadow-[0_0_34px_rgba(250,204,21,0.14)]">
                 <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-yellow-100">
-                  埃及神諭殿堂｜連結千年的神聖智慧與能量
+                  🏛️ 埃及神諭殿堂｜連結千年的神聖智慧與能量
                 </h2>
                 <div className="space-y-4 text-base sm:text-lg leading-loose text-yellow-50/90">
                   <p>歡迎來到古老而神聖的埃及神宮。</p>
-                  <p>
-                    這裡沒有繁複的世俗規條，只有最純粹的
-                    <strong className="font-semibold text-yellow-200">宇宙秩序、重生魔法與無上尊榮</strong>
-                    。
-                  </p>
-                  <p>當你心懷迷惘、渴望突破，或是需要強大的能量守護時——</p>
-                  <p>埃及諸神早已在此等候。祂們將以太陽神的光芒驅散黑暗，以 Isis 女神的羽翼撫平創傷，為你照亮靈魂最真實的模樣。</p>
+                  <p>當你心懷迷惘、渴望突破，埃及諸神早已在此等候。祂們將以太陽神的光芒驅散黑暗，以 Isis 女神的羽翼撫平創傷，為你照亮靈魂最真實的模樣。</p>
                   <p className="font-semibold text-amber-100">
-                    靜下心來，踏上神殿的階梯，聆聽來自尼羅河畔的神諭指引。
+                    靜下心來，踏上階梯，領取來自尼羅河畔的神諭指引。
                   </p>
                 </div>
 
                 <div className="mt-7 border-t border-yellow-400/20 pt-6">
                   <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-yellow-100">
-                    【神殿靜心指引】
+                    【神殿靜心 3 步驟】
                   </h3>
                   <ol className="space-y-4 text-sm sm:text-base leading-loose text-yellow-50/90">
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-yellow-300/50 bg-yellow-500/15 font-semibold text-yellow-200">1</span>
-                      <p><strong className="text-yellow-100">挺直脊椎，深呼吸三次</strong>：感受埃及太陽般的溫暖能量注入全身。</p>
+                      <p><strong className="text-yellow-100">靜心</strong>：挺直脊椎深呼吸三次，感受太陽般的溫暖能量注入全身。</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-yellow-300/50 bg-yellow-500/15 font-semibold text-yellow-200">2</span>
-                      <p><strong className="text-yellow-100">在心中默想</strong>：「懇請埃及諸神，為我指引此刻（感情/事業/人生）的最佳方向。」</p>
+                      <p><strong className="text-yellow-100">默想</strong>：「懇請埃及諸神，為我指引此刻（感情 / 事業 / 人生）的最佳方向。」</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-yellow-300/50 bg-yellow-500/15 font-semibold text-yellow-200">3</span>
-                      <p><strong className="text-yellow-100">點擊進入神殿抽牌</strong>：領取專屬於你的埃及神話力量與神聖祝福。</p>
+                      <p><strong className="text-yellow-100">抽牌</strong>：點擊進入神殿，領取專屬於你的埃及神聖力量與祝福。</p>
                     </li>
                   </ol>
                 </div>
@@ -574,9 +565,9 @@ function EgyptianGodsPage() {
                 {pastlifeGate.phase === 'email_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-yellow-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">首次免費試算・Email 解鎖</h3>
+                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">第二次免費試算・Email 解鎖</h3>
                     <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
-                      輸入 Email 後可免費查看這個前世因果陣的完整解讀；同一牌陣第二次起需付費。
+                      第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handlePastlifeEmailSubmitted(email); }}

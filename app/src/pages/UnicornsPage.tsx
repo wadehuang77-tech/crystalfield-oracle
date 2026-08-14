@@ -24,10 +24,8 @@ const SPREAD_ID = 'unicorns_three';
 
 const UNICORN_THREE_CARD_PROMPTS = [
   '感覺全世界都不懂你？讓獨角獸的溫柔能量，給你最深的陪伴與擁抱。',
-  '累的時候，不需要硬撐。這裡有一個只屬於你的安全角落，靜靜聽你說。',
-  '迷惘時，你需要的不只是答案，而是一份相信自己的勇氣。',
-  '常常覺得自己不夠好？獨角獸要提醒你：「你本來的樣子，就很有力量。」',
   '停止自責與內耗，今日的獨角獸指引，為你注入滿滿的無條件之愛。',
+  '累的時候，不需要硬撐。這裡有一個只屬於你的安全角落，靜靜聽你說。',
 ];
 
 function UnicornThreeCardIntro() {
@@ -468,9 +466,9 @@ export default function UnicornsPage() {
                       {threeGate.phase === 'email_gate' && (
                         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 text-center space-y-5">
                           <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
-                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">首次免費試算・Email 解鎖</h3>
+                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">第二次免費試算・Email 解鎖</h3>
                           <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">
-                            輸入 Email 後可免費查看這個三張牌陣的完整解讀；同一牌陣第二次起需付費。
+                            第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
                           </p>
                           <InlineEmailUnlock
                             onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}

@@ -36,39 +36,36 @@ function WorkYourLightPage() {
       <section className="max-w-4xl mx-auto px-4 sm:px-10 pb-12">
         <div className="rounded-2xl border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-slate-900/85 to-fuchsia-500/10 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_0_34px_rgba(167,139,250,0.14)]">
           <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-violet-100">
-            Work Your Light 啟動光芒神諭卡｜你就是自己的解答
+            ✨ Work Your Light 啟動光芒神諭卡｜你就是自己的解答
           </h2>
           <div className="space-y-4 text-base sm:text-lg leading-loose text-violet-50/90">
-            <p>在這個嘈雜的世界裡，我們總習慣向外尋求認同與答案，卻忘了最了解你的人，永遠是你自己。</p>
-            <p className="font-semibold text-violet-100">
-              《Work Your Light》不預測命運，祂是一把開啟你內在智慧的鑰匙。
-            </p>
-            <p>溫柔地剝開外在的焦慮與討好，連結你最強大的內在直覺。</p>
+            <p>我們總習慣向外尋求答案，卻忘了最了解你的人，永遠是你自己。</p>
             <p>
-              祂要提醒你：
-              <strong className="font-semibold text-fuchsia-200">你不需要變得完美才值得被愛，你現在的樣子，就充滿了光芒。</strong>
+              這不是預測命運的牌卡，而是一把
+              <strong className="font-semibold text-fuchsia-200">開啟你內在智慧的鑰匙</strong>
+              。溫柔剝開焦慮與討好，連結你最強大的直覺——你現在的樣子，就充滿了光芒。
             </p>
             <p className="font-semibold text-fuchsia-100">
-              深呼吸，將雙手放在心口，聆聽你內心深處最真實的聲音。
+              深呼吸，將手放在心口，聆聽你內心最真實的聲音。
             </p>
           </div>
 
           <div className="mt-7 border-t border-violet-400/20 pt-6">
             <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-violet-100">
-              【啟動直覺靜心三步驟】
+              【啟動直覺 3 步驟】
             </h3>
             <ol className="space-y-4 text-sm sm:text-base leading-loose text-violet-50/90">
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-300/50 bg-violet-500/15 font-semibold text-violet-200">1</span>
-                <p><strong className="text-violet-100">放鬆身體，閉上眼</strong>：感受到心口有一道溫柔的粉紫色光芒在擴散。</p>
+                <p><strong className="text-violet-100">靜心</strong>：閉上眼放鬆，感受心口溫柔的粉紫色光芒擴散。</p>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-300/50 bg-violet-500/15 font-semibold text-violet-200">2</span>
-                <p><strong className="text-violet-100">在心中默想</strong>：「此刻，我的內心想提醒我什麼？我該如何啟動我的光芒？」</p>
+                <p><strong className="text-violet-100">默想</strong>：「此刻，我的內心想提醒我什麼？我該如何啟動光芒？」</p>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-300/50 bg-violet-500/15 font-semibold text-violet-200">3</span>
-                <p><strong className="text-violet-100">憑直覺選一張牌</strong>：領取宇宙與你內在智慧獻給你的浪漫指引。</p>
+                <p><strong className="text-violet-100">抽牌</strong>：憑直覺抽取卡片，領取專屬於你的內在智慧指引。</p>
               </li>
             </ol>
           </div>

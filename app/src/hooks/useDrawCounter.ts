@@ -5,10 +5,11 @@ const MULTI_KEY = 'cf_multi_unlocks';
 const MULTI_BY_SPREAD_KEY = 'cf_multi_unlocks_by_spread_v1';
 const LEGACY_BLOCK_KEY = '__legacy_shared_quota_used__';
 
-export const MULTI_SPREAD_FREE_LIMIT = 1;
-export type MultiSpreadGateDecision = 'email_gate' | 'paywall';
+export const MULTI_SPREAD_FREE_LIMIT = 2;
+export type MultiSpreadGateDecision = 'auto_unlock' | 'email_gate' | 'paywall';
 
 export function getMultiSpreadGateDecision(count: number): MultiSpreadGateDecision {
+  if (count <= 0) return 'auto_unlock';
   return count >= MULTI_SPREAD_FREE_LIMIT ? 'paywall' : 'email_gate';
 }
 
@@ -31,20 +32,26 @@ function safeSetBool(key: string) {
   }
 }
 
-function readMultiSpreadUsage(): Record<string, true> {
+function readMultiSpreadUsage(): Record<string, number> {
   try {
     const raw = localStorage.getItem(MULTI_BY_SPREAD_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
       return Object.fromEntries(
-        Object.entries(parsed).filter(([, used]) => used === true),
-      ) as Record<string, true>;
+        Object.entries(parsed).flatMap(([spreadId, used]) => {
+          // The previous version stored `true` after its one Email-based free
+          // unlock. Preserve that history as both new free stages consumed.
+          if (used === true) return [[spreadId, MULTI_SPREAD_FREE_LIMIT]];
+          if (typeof used !== 'number' || !Number.isFinite(used)) return [];
+          return [[spreadId, Math.min(MULTI_SPREAD_FREE_LIMIT, Math.max(0, Math.floor(used)))]];
+        }),
+      ) as Record<string, number>;
     }
 
     // The legacy counter did not record which spread was used. Block legacy
     // visitors from receiving reset credits, matching the previous policy.
     if (safeGet(MULTI_KEY) > 0) {
-      const migrated = { [LEGACY_BLOCK_KEY]: true } as Record<string, true>;
+      const migrated = { [LEGACY_BLOCK_KEY]: MULTI_SPREAD_FREE_LIMIT } as Record<string, number>;
       localStorage.setItem(MULTI_BY_SPREAD_KEY, JSON.stringify(migrated));
       return migrated;
     }
@@ -54,7 +61,7 @@ function readMultiSpreadUsage(): Record<string, true> {
   return {};
 }
 
-function writeMultiSpreadUsage(usage: Record<string, true>): void {
+function writeMultiSpreadUsage(usage: Record<string, number>): void {
   try { localStorage.setItem(MULTI_BY_SPREAD_KEY, JSON.stringify(usage)); } catch {
     // Storage may be unavailable in private browsing or restricted contexts.
   }
@@ -63,7 +70,8 @@ function writeMultiSpreadUsage(usage: Record<string, true>): void {
 export function getSingleUnlockCount(): number { return safeGet(SINGLE_KEY); }
 export function getMultiUnlockCount(spreadId: string): number {
   const usage = readMultiSpreadUsage();
-  return usage[LEGACY_BLOCK_KEY] || usage[spreadId] ? 1 : 0;
+  if ((usage[LEGACY_BLOCK_KEY] ?? 0) > 0) return MULTI_SPREAD_FREE_LIMIT;
+  return usage[spreadId] ?? 0;
 }
 export function getRemainingMultiUnlocks(spreadId: string): number {
   return Math.max(0, MULTI_SPREAD_FREE_LIMIT - getMultiUnlockCount(spreadId));
@@ -78,7 +86,8 @@ export function incrementSingleUnlock(): number {
 }
 export function incrementMultiUnlock(spreadId: string): number {
   const usage = readMultiSpreadUsage();
-  usage[spreadId] = true;
+  const next = Math.min(MULTI_SPREAD_FREE_LIMIT, (usage[spreadId] ?? 0) + 1);
+  usage[spreadId] = next;
   writeMultiSpreadUsage(usage);
-  return 1;
+  return next;
 }

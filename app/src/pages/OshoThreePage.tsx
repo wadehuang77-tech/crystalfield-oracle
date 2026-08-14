@@ -20,10 +20,8 @@ const SPREAD_ID = 'osho_three';
 
 const OSHO_THREE_CARD_PROMPTS = [
   '腦袋轉個不停、越想越煩？奧修禪卡幫你按下一鍵暫停，看清思維的幻象。',
-  '不要用過去的經驗懲罰自己，也不要為未來的幻想焦慮。抽一張牌，回到此時此刻。',
-  '卡在苦惱裡出不來？看懂你內在的「制約」與「執著」，學會真正地鬆手。',
-  '痛苦來自於對抗現狀。讓禪卡的智慧教你如何「順應流動」，找回內心的平靜。',
   '不是環境困住了你，是觀念綁架了你。一秒看懂你當前的內在心境。',
+  '卡在苦惱裡出不來？看懂你內在的『制約』與『執著』，學會真正地鬆手。',
 ];
 
 function OshoThreeCardIntro() {
@@ -411,9 +409,9 @@ export default function OshoThreePage() {
             {gate.phase === 'email_gate' && (
               <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8 text-center space-y-5">
                 <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
-                <h3 className="font-serif text-2xl text-teal-100">首次免費試算・Email 解鎖</h3>
+                <h3 className="font-serif text-2xl text-teal-100">第二次免費試算・Email 解鎖</h3>
                 <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">
-                  輸入 Email 後可免費查看這個三張牌陣的完整解讀；同一牌陣第二次起需付費。
+                  第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
                 </p>
                 <InlineEmailUnlock
                   onUnlocked={(email) => { void handleEmailUnlock(email); }}

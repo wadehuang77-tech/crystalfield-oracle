@@ -35,7 +35,7 @@ export function useMultiSpreadGate({
   const firedRef = useRef(false);
   const lastPicksKeyRef = useRef<string>('');
 
-  const unlockForFree = useCallback(async (picksToUnlock: Pick[], email: string) => {
+  const unlockForFree = useCallback(async (picksToUnlock: Pick[], email?: string) => {
     if (getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
       throw new Error('這個牌陣的免費體驗已使用完畢');
     }
@@ -56,12 +56,25 @@ export function useMultiSpreadGate({
     const count = getMultiUnlockCount(spreadId);
 
     const nextPhase = getMultiSpreadGateDecision(count);
-    if (nextPhase === 'email_gate') {
+    if (nextPhase === 'auto_unlock') {
+      setPhase('loading');
+      setError(null);
+      void unlockForFree(picks).catch((err: unknown) => {
+        const apiError = err as Error & { status?: number; body?: { code?: string } };
+        if (apiError.body?.code === 'FREE_SPREAD_EMAIL_REQUIRED') {
+          if (getMultiUnlockCount(spreadId) === 0) incrementMultiUnlock(spreadId);
+          setPhase('email_gate');
+          return;
+        }
+        setError(apiError instanceof Error ? apiError.message : '解鎖失敗');
+        setPhase('email_gate');
+      });
+    } else if (nextPhase === 'email_gate') {
       setPhase('email_gate');
     } else {
       setPhase('paywall');
     }
-  }, [enabled, picks, spreadId]);
+  }, [enabled, picks, spreadId, unlockForFree]);
 
   const onEmailUnlocked = async (email: string) => {
     if (!picks || picks.length === 0) return;
@@ -75,10 +88,16 @@ export function useMultiSpreadGate({
     try {
       await unlockForFree(picks, email);
     } catch (err) {
-      const apiError = err as Error & { status?: number };
+      const apiError = err as Error & { status?: number; body?: { code?: string } };
       setError(apiError instanceof Error ? apiError.message : '解鎖失敗');
       if (apiError.status === 409) {
-        incrementMultiUnlock(spreadId);
+        if (apiError.body?.code === 'FREE_SPREAD_EMAIL_REQUIRED') {
+          setPhase('email_gate');
+          return;
+        }
+        while (getMultiUnlockCount(spreadId) < MULTI_SPREAD_FREE_LIMIT) {
+          incrementMultiUnlock(spreadId);
+        }
         setPhase('paywall');
         return;
       } else {

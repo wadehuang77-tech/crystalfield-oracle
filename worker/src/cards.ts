@@ -1,6 +1,7 @@
 import { verifyOrderToken } from './checkout';
 import {
   badRequest,
+  clientIp,
   Env,
   forbidden,
   json,
@@ -353,14 +354,25 @@ async function sha256Hex(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+async function hmacSha256Hex(secret: string, value: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 export async function freeUnlockSpread(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSpreadBody>(req);
   if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
   const spread = SPREADS[body.spread_id];
   if (spread.free) return badRequest(req, env, 'use free-unlock-single for single cards');
-  const session = await readSession(req, env);
-  const email = (session?.email ?? body.email ?? '').trim().toLowerCase();
-  if (!validEmail(email)) return badRequest(req, env, '請輸入有效的 Email 地址');
+  const email = (body.email ?? '').trim().toLowerCase();
+  if (email && !validEmail(email)) return badRequest(req, env, '請輸入有效的 Email 地址');
   if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
     return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
   }
@@ -371,13 +383,24 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 
-  const emailHash = await sha256Hex(email);
+  const ip = clientIp(req).split(',')[0]?.trim();
+  if (!ip || ip === 'unknown') {
+    return json(req, env, { error: '無法確認免費體驗資格，請稍後再試' }, { status: 400 });
+  }
+  const visitorHash = await hmacSha256Hex(env.JWT_SECRET, `multi-spread:${ip}`);
+  const isEmailStage = email.length > 0;
+  const claimId = isEmailStage
+    ? `multi-stage2:${body.spread_id}:${visitorHash}`
+    : `multi-stage1:${body.spread_id}:${visitorHash}`;
+  const claimHash = isEmailStage
+    ? await sha256Hex(email)
+    : `anonymous:${visitorHash}`;
   let claimResult: D1Result<unknown>;
   try {
     claimResult = await env.DB.prepare(
       `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at)
        VALUES (?, ?, ?, ?)`,
-    ).bind(crypto.randomUUID(), emailHash, body.spread_id, new Date().toISOString()).run();
+    ).bind(claimId, claimHash, body.spread_id, new Date().toISOString()).run();
   } catch {
     return json(req, env, {
       error: '免費額度資料表尚未建立，請先套用 017_multi_spread_free_unlocks.sql',
@@ -386,6 +409,12 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
   }
 
   if ((claimResult.meta.changes ?? 0) !== 1) {
+    if (!isEmailStage) {
+      return json(req, env, {
+        error: '第一次免費體驗已使用，請輸入 Email 解鎖第二次免費體驗',
+        code: 'FREE_SPREAD_EMAIL_REQUIRED',
+      }, { status: 409 });
+    }
     return json(req, env, {
       error: '此牌陣的免費體驗已使用完畢',
       code: 'FREE_SPREAD_ALREADY_USED',

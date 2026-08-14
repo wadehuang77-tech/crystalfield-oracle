@@ -159,11 +159,7 @@ function CelticCrossIntro() {
 const PAST_LIFE_KARMIC_PROMPTS = [
   '為什麼總是在同一種人身上受傷？揭開你們前世未完的課題與約定。',
   '這份控制不住的強烈牽絆，是緣分還是債？一鍵解鎖你們前世的因果糾葛。',
-  '有些相遇，是為了重逢；有些離開，是為了還清。看懂你們今生的靈魂劇本。',
-  '找不到原因的焦慮與匱乏感？也許你承載了來自前世的靈魂印記。',
-  '今生的天賦與卡點，其實早已寫在前世的劇本裡。抽牌解鎖你的靈魂記憶。',
   '你從前世帶給今生最大的天賦是什麼？揭示你未被發掘的靈魂潛能。',
-  '今生你來到這個世界，究竟要完成什麼靈魂功課？',
 ];
 
 function PastLifeKarmicIntro() {
@@ -225,9 +221,9 @@ function TarotMultiEmailGate({
           <Lock className="w-7 h-7 text-orange-300" />
         </div>
       </div>
-      <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">首次完整解讀免費</h3>
+      <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">第二次免費試算・Email 解鎖</h3>
       <p className="text-orange-200/80 text-base leading-relaxed mb-6 max-w-md mx-auto">
-        輸入 Email 後，立即免費解鎖這個牌陣的完整解讀；同一牌陣第二次起需付費。
+        第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
       </p>
       <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-3">
         <input

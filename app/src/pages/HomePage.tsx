@@ -33,7 +33,7 @@ function HomePage() {
             </ul>
             <div className="mt-6 border-t border-blue-300/20 pt-5 text-center">
               <p className="relative inline-block bg-gradient-to-r from-amber-200 via-white to-cyan-200 bg-clip-text text-xl font-black tracking-wide text-transparent drop-shadow-[0_0_12px_rgba(255,255,255,0.85)] sm:text-2xl md:text-3xl">
-                每一種多牌陣，新使用者都可輸入 Email 免費試算一次
+                每一種多牌陣，第一次免 Email 免費試算，第二次輸入 Email 仍可免費解鎖
                 <span className="pointer-events-none absolute inset-x-[8%] top-[12%] h-px bg-white/80 blur-[1px]" />
               </p>
             </div>

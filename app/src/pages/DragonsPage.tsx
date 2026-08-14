@@ -24,8 +24,6 @@ import ShareReadingSection from '../components/ShareReadingSection';
 const DRAGON_THREE_CARD_PROMPTS = [
   '拖延不決的關係，只是在消耗你的靈魂。讓龍族的火焰，幫你斬斷不健康的能量連結。',
   '告別情感綁架與毒性關係！召喚龍族力量，拿回屬於你的內在主導權。',
-  '最近總是莫名疲憊、運勢卡卡？讓龍族的烈火為你燒盡沉重氣場，還原清爽自己。',
-  '深層淨化心靈死角，清除內在的恐懼與焦慮，重新啟動高頻能量。',
   '你需要的不只是安慰，而是破局的勇氣。龍族將賦予你突破現狀的強大力量。',
 ];
 
@@ -307,42 +305,35 @@ function DragonsPage() {
               <h1 className="font-serif text-3xl sm:text-5xl text-emerald-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">龍族塔羅</h1>
               <div className="max-w-3xl mx-auto mb-8 rounded-2xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-slate-900/85 to-emerald-500/10 px-5 py-6 sm:px-8 sm:py-8 text-left shadow-[0_0_34px_rgba(251,146,60,0.14)]">
                 <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-amber-100">
-                  龍族能量清理｜斷除消耗，拿回屬於你的力量
+                  🐉 龍族能量清理｜斷除消耗，拿回你的力量
                 </h2>
                 <div className="space-y-4 text-base sm:text-lg leading-loose text-emerald-50/90">
-                  <p>你是不是正忍受著一段讓你不斷委屈、內耗的關係？</p>
-                  <p>或是感覺最近氣場沉重，怎麼努力都跨不過眼前的僵局？</p>
+                  <p>你是否正忍受著讓你委屈、內耗的關係或僵局？</p>
                   <p>
-                    龍族代表著最純粹的
-                    <strong className="font-semibold text-amber-200">破局之火與神聖防護</strong>
-                    。
-                  </p>
-                  <p>
-                    祂們不說好聽的空話，而是以強大的能量協助你
-                    <strong className="font-semibold text-amber-200">燒盡負面連結、斬斷毒性關係、重塑氣場</strong>
-                    。
+                    龍族代表最純粹的<strong className="font-semibold text-amber-200">破局之火</strong>與
+                    <strong className="font-semibold text-amber-200">神聖防護</strong>。祂們不說空話，只以強大能量為你燒盡負面連結、斬斷毒性關係。
                   </p>
                   <p className="font-semibold text-amber-100">
-                    是時候停止委屈自己了。在這裡，讓龍族的烈火為你開道！
+                    是時候停止委屈自己，讓龍族烈火為你開道！
                   </p>
                 </div>
 
                 <div className="mt-7 border-t border-amber-400/20 pt-6">
                   <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-amber-100">
-                    【龍族斷除與淨化三步驟】
+                    【龍族斷除與淨化 3 步驟】
                   </h3>
                   <ol className="space-y-4 text-sm sm:text-base leading-loose text-emerald-50/90">
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">1</span>
-                      <p><strong className="text-amber-100">挺直脊椎，深胸呼吸</strong>：想像雙腳扎根大地，感受內在的堅定。</p>
+                      <p><strong className="text-amber-100">扎根</strong>：挺直脊椎深呼吸，感受內在的堅定。</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">2</span>
-                      <p><strong className="text-amber-100">在心中默想</strong>：「請龍族協助我清理（某段關係/某種焦慮），帶給我斬斷與突破的勇氣。」</p>
+                      <p><strong className="text-amber-100">默想</strong>：「請龍族協助我清理（關係/焦慮），賜予我斬斷與突破的勇氣。」</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">3</span>
-                      <p><strong className="text-amber-100">憑直覺選一張牌</strong>：接收專屬於你的龍族聖火指引與強大保護。</p>
+                      <p><strong className="text-amber-100">抽牌</strong>：憑直覺抽牌，接收專屬於你的龍族聖火與防護指引</p>
                     </li>
                   </ol>
                 </div>
@@ -479,9 +470,9 @@ function DragonsPage() {
                 {threeGate.phase === 'email_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">首次免費試算・Email 解鎖</h3>
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">第二次免費試算・Email 解鎖</h3>
                     <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
-                      輸入 Email 後可免費查看這個三張牌陣的完整解讀；同一牌陣第二次起需付費。
+                      第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}

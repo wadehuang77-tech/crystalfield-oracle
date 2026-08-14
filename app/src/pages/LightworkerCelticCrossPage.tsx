@@ -28,10 +28,6 @@ const SPREAD_ID = 'celtic_cross';
 const LIGHTWORKER_MISSION_PROMPTS = [
   '常常覺得自己不屬於這個世界？抽一張牌，解鎖你來到地球的「靈魂合約與使命」。',
   '不只是為了生存而工作！揭示你今生真正想完成的心願與靈魂藍圖。',
-  '你比自己想像的更具力量！點亮你尚未發掘的「靈魂天賦與療癒潛能」。',
-  '感覺內在有一股力量想突破？接收高維度的召喚，站上屬於你的靈魂舞台。',
-  '停止低估自己。你天生就是帶著光與愛的療癒者與開創者。',
-  '感到疲憊卡頓？接引高維度的純淨光芒，快速提升你的個人能量氣場。',
   '連結你的光之團隊（指導靈與天使），領取此刻專屬於你的神聖提醒。',
 ];
 
@@ -465,9 +461,9 @@ function LightworkerCelticCrossPage() {
                         <Lock className="w-7 h-7 text-cyan-300" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">首次免費試算・Email 解鎖</h3>
+                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">第二次免費試算・Email 解鎖</h3>
                     <p className="text-cyan-200/80 text-base leading-relaxed max-w-md mx-auto">
-                      輸入 Email 後可免費查看這個十字陣的完整解讀；同一牌陣第二次起需付費。
+                      第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleEmailUnlock(email); }}
