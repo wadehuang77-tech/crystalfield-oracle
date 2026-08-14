@@ -78,6 +78,23 @@ function getPreviewInterpretation(position: CardPosition): string {
   return `「${position.preview.name}」出現在「${position.subtitle}」牌位，提醒你留意${position.description}。${keywordText}`;
 }
 
+function shortenFullInterpretation(text?: string | null): string {
+  const content = text?.trim() ?? '';
+  if (content.length < 2) return content;
+
+  const targetLength = Math.ceil(content.length / 2);
+  const earliestNaturalEnding = Math.floor(targetLength * 0.75);
+  const candidate = content.slice(0, targetLength + 1);
+  const endings = [...candidate.matchAll(/[。！？!?]/gu)];
+  const naturalEnding = endings.length > 0 ? endings[endings.length - 1].index : undefined;
+
+  if (naturalEnding !== undefined && naturalEnding >= earliestNaturalEnding) {
+    return content.slice(0, naturalEnding + 1);
+  }
+
+  return `${content.slice(0, targetLength).replace(/[，、；：,.!?！？。…\s]+$/u, '')}…`;
+}
+
 type MissionCardMode = 'layout' | 'preview' | 'full';
 
 function MissionCardVisual({ position, children, expand = false }: { position: CardPosition; children: ReactNode; expand?: boolean }) {
@@ -99,11 +116,11 @@ function MissionReadingCard({ position, mode }: { position: CardPosition; mode: 
   const previewInterpretation = getPreviewInterpretation(position);
   const isFull = mode === 'full' && position.full;
   const sections = position.full ? [
-    { title: '宇宙訊息', text: position.full.cosmicMessage },
-    { title: '當下狀態', text: position.full.currentSituation },
-    { title: '深層含義', text: position.full.deeperMeaning },
-    { title: '行動指引', text: position.full.actionGuidance },
-    { title: '能量療癒', text: position.full.energyHealing },
+    { title: '宇宙訊息', text: shortenFullInterpretation(position.full.cosmicMessage) },
+    { title: '當下狀態', text: shortenFullInterpretation(position.full.currentSituation) },
+    { title: '深層含義', text: shortenFullInterpretation(position.full.deeperMeaning) },
+    { title: '行動指引', text: shortenFullInterpretation(position.full.actionGuidance) },
+    { title: '能量療癒', text: shortenFullInterpretation(position.full.energyHealing) },
   ].filter((section) => section.text?.trim()) : [];
 
   return (
@@ -154,7 +171,7 @@ function MissionReadingCard({ position, mode }: { position: CardPosition; mode: 
               {position.full!.soulQuestion && (
                 <section className="border-t border-cyan-300/30 pt-2">
                   <h5 className="mb-1 text-[0.68rem] font-medium text-cyan-200">靈魂提問</h5>
-                  <p className="text-xs italic leading-6 text-cyan-50/90">{position.full!.soulQuestion}</p>
+                  <p className="text-xs italic leading-6 text-cyan-50/90">{shortenFullInterpretation(position.full!.soulQuestion)}</p>
                 </section>
               )}
             </div>
