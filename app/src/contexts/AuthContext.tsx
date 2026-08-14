@@ -13,6 +13,7 @@ export interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, metadata?: UserMetadata) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: (credential: string, csrfToken: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<{ error: Error | null }>;
   verifyResetCode: (email: string, code: string) => Promise<{ error: Error | null; reset_token?: string }>;

@@ -42,6 +42,11 @@ database_id = "7e74927a-0213-4ad5-bd4a-87cf4ea5c1a7"
 # Cloudflare Send Email binding 有「收件人必須驗證」的限制,生產環境不能用,改 Resend
 # RESEND_API_KEY 用 wrangler secret put 設定,不寫進 toml
 
+# Google Identity Services 登入
+# GOOGLE_CLIENT_ID 是公開識別碼（不是機密）。建立 Web OAuth Client 後執行
+# `npx wrangler secret put GOOGLE_CLIENT_ID`，可避免後續部署覆蓋 Dashboard 文字變數。
+# Google Cloud 的 Authorized JavaScript origins 必須包含正式與本機前端網址。
+
 # 環境變數(非敏感)
 [vars]
 # 允許的前端 origin。可填多個用逗號分隔。

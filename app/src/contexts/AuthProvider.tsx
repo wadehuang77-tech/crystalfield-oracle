@@ -39,6 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async (credential: string, csrfToken: string) => {
+    try {
+      const { user } = await authApi.signInWithGoogle(credential, csrfToken);
+      setUser(user);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err : new Error('Google 登入失敗') };
+    }
+  };
+
   const signOut = async () => {
     try {
       await authApi.signOut();
@@ -81,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       requestPasswordReset,
       verifyResetCode,

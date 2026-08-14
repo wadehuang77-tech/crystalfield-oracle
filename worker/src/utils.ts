@@ -17,6 +17,7 @@ export interface Env {
   MAIL_REPLY_TO?: string;
   OPENAI_API_KEY?: string;
   OPENAI_MODEL?: string;
+  GOOGLE_CLIENT_ID?: string;
 }
 
 export interface SessionUser {

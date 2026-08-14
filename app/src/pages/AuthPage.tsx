@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, CheckCircle, Mail, Lock, Sparkles } from 'lucide-react';
+import { GoogleSignInButton } from '../components/GoogleSignInButton';
 
 type Mode = 'login' | 'signup' | 'forgot-email' | 'forgot-code' | 'forgot-password';
 
@@ -12,7 +13,7 @@ export default function AuthPage() {
   const {
     user,
     loading: authLoading,
-    signUp, signIn,
+    signUp, signIn, signInWithGoogle,
     requestPasswordReset, verifyResetCode, resetPassword,
   } = useAuth();
   const navigate = useNavigate();
@@ -98,6 +99,16 @@ export default function AuthPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = async (credential: string, csrfToken: string) => {
+    setError('');
+    const { error } = await signInWithGoogle(credential, csrfToken);
+    if (error) {
+      setError(error.message || 'Google 登入失敗');
+      throw error;
+    }
+    navigate(redirectTo || '/');
   };
 
   const handleRequestReset = async (e: React.FormEvent) => {
@@ -302,6 +313,8 @@ export default function AuthPage() {
               <button type="submit" disabled={loading} className="auth-submit-btn">
                 {loading ? '處理中...' : mode === 'login' ? '登入' : '註冊'}
               </button>
+
+              <GoogleSignInButton onCredential={handleGoogleSignIn} />
             </form>
           )}
 

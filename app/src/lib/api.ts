@@ -167,6 +167,15 @@ export const authApi = {
   signIn: (email: string, password: string) =>
     req<{ user: SessionUser }>('/api/auth/signin', { method: 'POST', body: { email, password } }),
 
+  googleConfig: () =>
+    req<{ client_id: string | null; csrf_token: string }>('/api/auth/google/config'),
+
+  signInWithGoogle: (credential: string, csrf_token: string) =>
+    req<{ user: SessionUser }>('/api/auth/google', {
+      method: 'POST',
+      body: { credential, csrf_token },
+    }),
+
   signOut: () => req<{ ok: true }>('/api/auth/signout', { method: 'POST' }),
 
   me: () => req<{ user: SessionUser | null }>('/api/auth/me'),

@@ -287,6 +287,18 @@ SMOKE_ORIGIN=https://crystalfield101.com
 CLOUDFLARE_PAGES_PROJECT_NAME=   # 留空則僅自動部署 Worker
 ```
 
+#### Google 帳戶登入
+
+在 Google Cloud 建立「Web application」OAuth Client，並於 Authorized JavaScript origins 加入：
+
+```text
+https://crystalfield101.com
+https://www.crystalfield101.com
+http://localhost:5173
+```
+
+將 OAuth Client ID 設為 Worker 的 `GOOGLE_CLIENT_ID` binding。Client ID 是公開識別碼，不是機密，也不需要 Client Secret；為避免後續 Wrangler 部署覆蓋 Dashboard 文字變數，建議執行 `npx wrangler secret put GOOGLE_CLIENT_ID` 保存。設定完成並部署 Worker 後，登入與註冊頁會顯示 Google 官方登入按鈕。
+
 ## 開發注意事項
 
 - **API client** 位於 `app/src/lib/api.ts`，所有 fetch 走 `credentials: 'include'`（cookie-based auth）。
