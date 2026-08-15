@@ -6,6 +6,7 @@ import {
   incrementMultiUnlock,
   MULTI_SPREAD_FREE_LIMIT,
 } from './useDrawCounter';
+import { trackCardDrawComplete, trackFreeReadingView } from '../lib/ga4';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'email_gate' | 'paywall';
 
@@ -48,6 +49,8 @@ export function useMultiSpreadGate({
   useEffect(() => {
     if (!enabled || !picks || picks.length === 0) { firedRef.current = false; return; }
 
+    trackCardDrawComplete(spreadId);
+
     const picksKey = picks.map(p => p.card_key).join(',');
     if (lastPicksKeyRef.current === picksKey && firedRef.current) return;
     lastPicksKeyRef.current = picksKey;
@@ -75,6 +78,12 @@ export function useMultiSpreadGate({
       setPhase('paywall');
     }
   }, [enabled, picks, spreadId, unlockForFree]);
+
+  useEffect(() => {
+    if (phase === 'unlocked' && unlockedCards?.length) {
+      trackFreeReadingView(spreadId);
+    }
+  }, [phase, spreadId, unlockedCards]);
 
   const onEmailUnlocked = async (email: string) => {
     if (!picks || picks.length === 0) return;

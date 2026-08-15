@@ -19,6 +19,7 @@ import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -136,6 +137,7 @@ export default function UnicornsPage() {
 
   const drawSingleCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('unicorns_single');
     setIsDrawing(true);
     setTimeout(() => {
       const drawn = pickRandomCards(deck, 1);
@@ -150,6 +152,7 @@ export default function UnicornsPage() {
 
   const performThreeCardDraw = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart(SPREAD_ID);
     setIsDrawing(true);
     setIsLocallyUnlocked(false);
     setTimeout(() => {

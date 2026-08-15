@@ -13,6 +13,7 @@ import { ResonanceCTA } from '../components/ResonanceCTA';
 import { useConversionTracking, usePageView } from '../hooks/useConversionTracking';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 interface DeepInterpretation {
   coreMeaning: string;
@@ -95,6 +96,7 @@ function WorkYourLightSinglePage() {
 
   const drawCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('work_your_light_single');
     setIsDrawing(true);
     setHasDrawn(false);
     setRevealed(false);

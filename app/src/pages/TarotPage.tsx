@@ -22,6 +22,7 @@ import { getMultiSpreadCheckoutGuestEmail, readSavedMultiSpreadEmail, saveMultiS
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 interface TarotCard {
   id: string;
@@ -370,6 +371,7 @@ function TarotPage() {
 
   const drawSingleCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('tarot_single');
 
     setIsDrawing(true);
     setHasDrawn(false);
@@ -494,6 +496,7 @@ function TarotPage() {
 
   const performDraw = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart(SPREAD_IDS[spreadType]);
 
     setIsDrawing(true);
     setHasDrawn(false);

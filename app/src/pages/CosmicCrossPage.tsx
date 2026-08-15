@@ -14,6 +14,7 @@ import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/m
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 const SPREAD_ID = 'cosmic_cross';
 const CARD_COUNT = 11;
@@ -175,6 +176,7 @@ function CosmicCrossPage() {
 
   const drawCards = () => {
     if (!deck || deck.length < CARD_COUNT) return;
+    trackReadingStart(SPREAD_ID);
 
     setIsDrawing(true);
     setHasDrawn(false);

@@ -21,6 +21,7 @@ import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -160,6 +161,7 @@ function EgyptianGodsPage() {
 
   const drawCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart(spreadType === 'single' ? 'egyptian_single' : 'egyptian_pastlife');
     setIsDrawing(true);
     setHasDrawn(false);
     setSingleUnlocked(null);

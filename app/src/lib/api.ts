@@ -1,3 +1,5 @@
+import { trackBeginCheckout, trackUnlockClick } from './ga4';
+
 const BASE = import.meta.env.VITE_API_BASE
   || (import.meta.env.PROD ? 'https://api.crystalfield101.com' : '');
 
@@ -240,11 +242,15 @@ export interface Order {
 }
 
 export const checkoutApi = {
-  createOrder: (spread_id: string, picks?: OrderPick[], guest?: GuestOrderAccess) =>
-    req<{ order_id: string; merchant_trade_no: string; ecpay: EcpayForm | null; admin_unlocked?: boolean; order_token?: string | null }>(
+  createOrder: async (spread_id: string, picks?: OrderPick[], guest?: GuestOrderAccess) => {
+    trackUnlockClick(spread_id);
+    const result = await req<{ order_id: string; merchant_trade_no: string; ecpay: EcpayForm | null; admin_unlocked?: boolean; order_token?: string | null }>(
       '/api/checkout/create-order',
       { method: 'POST', body: { spread_id, picks, ...guest } },
-    ),
+    );
+    trackBeginCheckout(spread_id, result.order_id);
+    return result;
+  },
 
   getOrder: (orderId: string, orderToken?: string | null) =>
     req<{ order: Order }>(`/api/orders/${encodeURIComponent(orderId)}`, {

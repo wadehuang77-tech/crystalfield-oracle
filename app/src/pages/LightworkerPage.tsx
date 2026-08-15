@@ -12,6 +12,7 @@ import { type CardPreview, type UnlockedCard } from '../lib/api';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 interface LightworkerGated {
   cosmicMessage: string;
@@ -48,6 +49,7 @@ function LightworkerPage() {
 
   const drawCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('lightworker_single');
     setIsShuffling(true);
     setHasDrawn(false);
     setUnlocked(null);

@@ -12,6 +12,7 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 interface OshoGated {
   meanings: {
@@ -66,6 +67,7 @@ export default function OshoSinglePage() {
 
   const drawCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('osho_single');
     setIsRevealing(true);
 
     if (drawTimerRef.current) clearTimeout(drawTimerRef.current);

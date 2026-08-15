@@ -1,7 +1,18 @@
 import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { MouseEvent } from 'react';
+import { trackDeckSelect, type OracleDeckId } from '../lib/ga4';
 
 function HomePage() {
+  const handleDeckSelect = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    const link = target.closest<HTMLElement>('[data-deck-id][data-deck-name]');
+    if (!link) return;
+    const deckId = link.dataset.deckId as OracleDeckId | undefined;
+    const deckName = link.dataset.deckName;
+    if (deckId && deckName) trackDeckSelect(deckId, deckName);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ic3RhcnMiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI4MCIgcj0iMC41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMikiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSI0MCIgcj0iMS41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz48Y2lyY2xlIGN4PSIxODAiIGN5PSIxNjAiIHI9IjAuOCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXJzKSIvPjwvc3ZnPg==')] opacity-40"></div>
@@ -40,8 +51,8 @@ function HomePage() {
           </div>
         </header>
 
-        <div className="space-y-3 w-full max-w-4xl">
-          <Link to="/tarot" className="group relative block">
+        <div className="space-y-3 w-full max-w-4xl" onClick={handleDeckSelect}>
+          <Link to="/tarot" className="group relative block" data-deck-id="tarot" data-deck-name="偉特塔羅">
             <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-orange-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-orange-500/30 group-hover:border-orange-400/60">
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-orange-950/40 via-red-950/30 to-slate-900">
                 <div className="flex-shrink-0">
@@ -61,7 +72,7 @@ function HomePage() {
             </div>
           </Link>
 
-          <Link to="/lightworker" className="group relative block">
+          <Link to="/lightworker" className="group relative block" data-deck-id="lightworker" data-deck-name="光行者神諭">
             <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-cyan-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-cyan-500/30 group-hover:border-cyan-400/60">
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-slate-900">
                 <div className="flex-shrink-0">
@@ -77,7 +88,7 @@ function HomePage() {
             </div>
           </Link>
 
-          <Link to="/unicorns" className="group relative block">
+          <Link to="/unicorns" className="group relative block" data-deck-id="unicorns" data-deck-name="獨角獸塔羅">
             <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-pink-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-pink-500/30 group-hover:border-pink-400/60">
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-pink-950/40 via-rose-950/30 to-slate-900">
                 <div className="flex-shrink-0">
@@ -97,7 +108,7 @@ function HomePage() {
             </div>
           </Link>
 
-          <Link to="/dragons" className="group relative block">
+          <Link to="/dragons" className="group relative block" data-deck-id="dragons" data-deck-name="龍族塔羅">
             <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-emerald-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-emerald-500/30 group-hover:border-emerald-400/60">
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900">
                 <div className="flex-shrink-0">
@@ -118,7 +129,7 @@ function HomePage() {
             </div>
           </Link>
 
-          <Link to="/egyptian-gods" className="group relative block">
+          <Link to="/egyptian-gods" className="group relative block" data-deck-id="egyptian_gods" data-deck-name="埃及神諭">
             <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-yellow-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-yellow-500/30 group-hover:border-yellow-400/60">
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-yellow-950/40 via-amber-950/30 to-slate-900">
                 <div className="flex-shrink-0">
@@ -139,7 +150,7 @@ function HomePage() {
             </div>
           </Link>
 
-          <Link to="/work-your-light" className="group relative block">
+          <Link to="/work-your-light" className="group relative block" data-deck-id="work_your_light" data-deck-name="Lightworker光之訊息">
             <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-violet-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-violet-500/30 group-hover:border-violet-400/60">
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-violet-950/40 via-purple-950/30 to-slate-900">
                 <div className="flex-shrink-0">
@@ -156,8 +167,8 @@ function HomePage() {
           </Link>
         </div>
 
-        <div className="w-full max-w-4xl mt-8">
-          <Link to="/osho">
+        <div className="w-full max-w-4xl mt-8" onClick={handleDeckSelect}>
+          <Link to="/osho" data-deck-id="osho" data-deck-name="奧修禪卡">
             <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-teal-500/40 rounded-2xl overflow-hidden shadow-xl hover:border-teal-400/60 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/20 hover:scale-105 cursor-pointer">
               <div className="flex items-center gap-5 px-6 py-5 bg-gradient-to-r from-teal-950/40 via-cyan-950/30 to-slate-900">
                 <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center shadow-lg shadow-teal-500/30">

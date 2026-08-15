@@ -20,6 +20,7 @@ import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 const DRAGON_THREE_CARD_PROMPTS = [
   '拖延不決的關係，只是在消耗你的靈魂。讓龍族的火焰，幫你斬斷不健康的能量連結。',
@@ -96,6 +97,7 @@ function DragonsPage() {
 
   const drawCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('dragons_single');
     setIsShuffling(true);
     setHasDrawn(false);
     setThreeSlots([]);
@@ -122,6 +124,7 @@ function DragonsPage() {
 
   const performThreeCardDraw = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('dragons_three');
     setIsShuffling(true);
     setHasDrawn(false);
     setSinglePreview(null);

@@ -15,6 +15,7 @@ import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 const SPREAD_ID = 'osho_three';
 
@@ -74,6 +75,7 @@ export default function OshoThreePage() {
 
   const drawCards = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart(SPREAD_ID);
     setIsRevealing(true);
     setIsLocallyUnlocked(false);
     setUnlockError(null);

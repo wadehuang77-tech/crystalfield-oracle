@@ -4,6 +4,7 @@ import { XCircle, Clock, ArrowRight, type LucideProps } from 'lucide-react';
 import { checkoutApi, type Order } from '../lib/api';
 import { consumeMembershipCheckoutRedirect } from '../lib/pendingDraw';
 import { formatPrice } from '../lib/spread-prices';
+import { trackPurchase } from '../lib/ga4';
 
 const SPREAD_HOME: Record<string, string> = {
   tarot_three:        '/tarot?spread=three',
@@ -104,6 +105,11 @@ export default function CheckoutReturnPage() {
     const base = SPREAD_HOME[order.item_id] ?? '/';
     navigate(appendOrderId(base, order.id, orderToken));
   };
+
+  useEffect(() => {
+    if (order?.status !== 'paid') return;
+    trackPurchase(order.item_id, order.merchant_trade_no, order.amount);
+  }, [order]);
 
   useEffect(() => {
     if (order?.status !== 'paid') return;

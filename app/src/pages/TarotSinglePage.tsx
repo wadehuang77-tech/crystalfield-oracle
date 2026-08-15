@@ -12,6 +12,7 @@ import { useConversionTracking, usePageView } from '../hooks/useConversionTracki
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 interface TarotPreview {
   keywords: string[];
@@ -81,6 +82,7 @@ function TarotSinglePage() {
 
   const drawCard = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart('tarot_single');
 
     setIsDrawing(true);
     setHasDrawn(false);

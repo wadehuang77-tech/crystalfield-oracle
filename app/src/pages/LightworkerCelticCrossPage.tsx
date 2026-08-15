@@ -22,6 +22,7 @@ import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/m
 import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
+import { trackReadingStart } from '../lib/ga4';
 
 const SPREAD_ID = 'celtic_cross';
 
@@ -203,6 +204,7 @@ function LightworkerCelticCrossPage() {
 
   const drawCards = () => {
     if (!deck || deck.length === 0) return;
+    trackReadingStart(SPREAD_ID);
     setIsShuffling(true);
     setHasDrawn(false);
     setIsLocallyUnlocked(false);

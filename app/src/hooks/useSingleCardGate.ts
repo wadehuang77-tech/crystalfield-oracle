@@ -7,6 +7,7 @@ import {
   incrementSingleUnlock,
   markSingleEmailGateSeen,
 } from './useDrawCounter';
+import { trackCardDrawComplete, trackFreeReadingView } from '../lib/ga4';
 
 export type SingleGatePhase = 'idle' | 'loading' | 'unlocked' | 'email_gate' | 'membership_gate';
 
@@ -48,6 +49,7 @@ export function useSingleCardGate({
 
   useEffect(() => {
     if (!enabled || !cardKey) { firedRef.current = false; return; }
+    trackCardDrawComplete(spreadId);
     if (lastCardKeyRef.current === cardKey && firedRef.current) return;
     lastCardKeyRef.current = cardKey;
     firedRef.current = true;
@@ -97,7 +99,13 @@ export function useSingleCardGate({
     }
 
     continueForNonMember();
-  }, [enabled, cardKey, user?.id]);
+  }, [enabled, cardKey, spreadId, user?.id]);
+
+  useEffect(() => {
+    if (phase === 'unlocked' && unlockedCard) {
+      trackFreeReadingView(spreadId);
+    }
+  }, [phase, spreadId, unlockedCard]);
 
   const onEmailUnlocked = (_email: string, card?: UnlockedCard) => {
     if (card) {
