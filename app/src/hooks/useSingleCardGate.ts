@@ -49,7 +49,7 @@ export function useSingleCardGate({
 
   useEffect(() => {
     if (!enabled || !cardKey) { firedRef.current = false; return; }
-    trackCardDrawComplete(spreadId);
+    trackCardDrawComplete(spreadId, 1);
     if (lastCardKeyRef.current === cardKey && firedRef.current) return;
     lastCardKeyRef.current = cardKey;
     firedRef.current = true;
@@ -103,7 +103,7 @@ export function useSingleCardGate({
 
   useEffect(() => {
     if (phase === 'unlocked' && unlockedCard) {
-      trackFreeReadingView(spreadId);
+      trackFreeReadingView(spreadId, 'free_unlock_api', Boolean(unlockedCard));
     }
   }, [phase, spreadId, unlockedCard]);
 

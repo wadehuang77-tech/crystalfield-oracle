@@ -10,7 +10,9 @@ function HomePage() {
     if (!link) return;
     const deckId = link.dataset.deckId as OracleDeckId | undefined;
     const deckName = link.dataset.deckName;
-    if (deckId && deckName) trackDeckSelect(deckId, deckName);
+    if (deckId && deckName) {
+      trackDeckSelect(deckId, deckName, link.getAttribute('href') ?? '');
+    }
   };
 
   return (

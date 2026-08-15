@@ -244,11 +244,13 @@ export interface Order {
 export const checkoutApi = {
   createOrder: async (spread_id: string, picks?: OrderPick[], guest?: GuestOrderAccess) => {
     trackUnlockClick(spread_id);
-    const result = await req<{ order_id: string; merchant_trade_no: string; ecpay: EcpayForm | null; admin_unlocked?: boolean; order_token?: string | null }>(
+    const result = await req<{ order_id: string; merchant_trade_no: string; item_name: string; amount: number; ecpay: EcpayForm | null; admin_unlocked?: boolean; order_token?: string | null }>(
       '/api/checkout/create-order',
       { method: 'POST', body: { spread_id, picks, ...guest } },
     );
-    trackBeginCheckout(spread_id, result.order_id);
+    if (!result.admin_unlocked) {
+      trackBeginCheckout(spread_id, result.merchant_trade_no, result.amount, result.item_name);
+    }
     return result;
   },
 

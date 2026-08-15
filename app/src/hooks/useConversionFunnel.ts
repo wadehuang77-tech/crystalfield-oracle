@@ -23,13 +23,6 @@ export function useConversionFunnel(
   useEffect(() => {
     if (!enabled || !readingCompleted) return;
 
-    if (window.gtag) {
-      window.gtag('event', 'tarot_reading_completed', {
-        event_category: 'engagement',
-        event_label: 'reading_done',
-      });
-    }
-
     const modalTimer = setTimeout(() => {
       setShowModal(true);
     }, modalDelay);

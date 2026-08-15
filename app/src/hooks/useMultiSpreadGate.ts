@@ -49,7 +49,7 @@ export function useMultiSpreadGate({
   useEffect(() => {
     if (!enabled || !picks || picks.length === 0) { firedRef.current = false; return; }
 
-    trackCardDrawComplete(spreadId);
+    trackCardDrawComplete(spreadId, picks.length);
 
     const picksKey = picks.map(p => p.card_key).join(',');
     if (lastPicksKeyRef.current === picksKey && firedRef.current) return;
@@ -81,7 +81,7 @@ export function useMultiSpreadGate({
 
   useEffect(() => {
     if (phase === 'unlocked' && unlockedCards?.length) {
-      trackFreeReadingView(spreadId);
+      trackFreeReadingView(spreadId, 'free_unlock_api', unlockedCards.length > 0);
     }
   }, [phase, spreadId, unlockedCards]);
 

@@ -219,6 +219,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     return json(req, env, {
       order_id: orderId,
       merchant_trade_no: merchantTradeNo,
+      item_name: item.name,
+      amount: item.amount,
       ecpay: null,
       admin_unlocked: true,
       order_token: orderToken,
@@ -259,6 +261,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   return json(req, env, {
     order_id: orderId,
     merchant_trade_no: merchantTradeNo,
+    item_name: item.name,
+    amount: item.amount,
     ecpay: form,
     order_token: orderToken,
   });

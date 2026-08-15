@@ -12,13 +12,6 @@ export function useCrystalPromo(readingComplete: boolean) {
   useEffect(() => {
     if (!readingComplete) return;
 
-    if (window.gtag) {
-      window.gtag('event', 'tarot_reading_completed', {
-        event_category: 'engagement',
-        event_label: 'reading_done',
-      });
-    }
-
     const hasShownBefore = localStorage.getItem(STORAGE_KEY);
     if (hasShownBefore) return;
 

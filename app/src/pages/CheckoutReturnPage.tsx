@@ -108,7 +108,13 @@ export default function CheckoutReturnPage() {
 
   useEffect(() => {
     if (order?.status !== 'paid') return;
-    trackPurchase(order.item_id, order.merchant_trade_no, order.amount);
+    trackPurchase(
+      order.item_id,
+      order.merchant_trade_no,
+      order.amount,
+      order.item_name,
+      order.ecpay_payment_type ?? 'unknown',
+    );
   }, [order]);
 
   useEffect(() => {
