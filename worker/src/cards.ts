@@ -383,10 +383,11 @@ async function oracleVisitorHash(req: Request, env: Env): Promise<string | null>
 }
 
 async function completedOracleReadings(env: Env, visitorHash: string): Promise<number> {
+  const visitorSuffix = `:${visitorHash}`;
   const row = await env.DB.prepare(
     `SELECT COUNT(*) AS count FROM multi_spread_free_unlocks
-      WHERE id LIKE ? AND id NOT LIKE 'oracle-reservation:%'`,
-  ).bind(`%:${visitorHash}`).first<{ count: number }>();
+      WHERE substr(id, ?) = ? AND substr(id, 1, 19) != 'oracle-reservation:'`,
+  ).bind(-visitorSuffix.length, visitorSuffix).first<{ count: number }>();
   return Math.max(0, Number(row?.count ?? 0));
 }
 
@@ -404,8 +405,8 @@ export async function startOracleFreeReading(req: Request, env: Env): Promise<Re
   if (!visitorHash) return json(req, env, { error: '無法確認免費體驗資格' }, { status: 400 });
   await env.DB.prepare(
     `DELETE FROM multi_spread_free_unlocks
-      WHERE id LIKE ? AND id LIKE 'oracle-reservation:%' AND created_at < datetime('now', '-30 minutes')`,
-  ).bind(`%:${visitorHash}`).run();
+      WHERE id = ? AND created_at < datetime('now', '-30 minutes')`,
+  ).bind(`oracle-reservation:${visitorHash}`).run();
   const completed = await completedOracleReadings(env, visitorHash);
   if (completed >= GLOBAL_FREE_READING_LIMIT) {
     return json(req, env, {

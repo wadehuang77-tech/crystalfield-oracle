@@ -336,6 +336,7 @@ export default {
 
       return await json(req, env, { error: 'not found', path }, { status: 404 });
     } catch (err) {
+      console.error('Unhandled worker request error', err);
       if (err instanceof PayloadTooLargeError) {
         return payloadTooLarge(req, env);
       }
