@@ -10,6 +10,7 @@ export type OracleSpreadId =
   | 'work_your_light_single' | 'cosmic_cross'
   | 'osho_single' | 'osho_three';
 export type OracleTopic = 'love' | 'career' | 'wealth' | 'relationship' | 'self_growth' | 'general';
+export type OracleNeedType = 'relationship' | 'career_finance' | 'past_life' | 'soul_guidance';
 
 interface OracleSpreadDefinition {
   deck_id: OracleDeckId;
@@ -54,6 +55,8 @@ type Ga4EventMap = {
   unlock_click: { deck_id: OracleDeckId; spread_id: OracleSpreadId; reading_id: string; product_id: string; product_name: string; value: number; currency: 'TWD' };
   begin_checkout: { currency: 'TWD'; value: number; transaction_id: string; deck_id: OracleDeckId; spread_id: OracleSpreadId; reading_id: string; items: Ga4Item[] };
   purchase: { transaction_id: string; currency: 'TWD'; value: number; deck_id: OracleDeckId; spread_id: OracleSpreadId; reading_id: string; payment_type: string; items: Ga4Item[] };
+  oracle_need_selected: { need_type: OracleNeedType };
+  oracle_reading_started: { need_type: OracleNeedType; spread_type: OracleSpreadId; deck_type: OracleDeckId };
 };
 
 export type Ga4EventName = keyof Ga4EventMap;
@@ -145,6 +148,22 @@ function item(productId: string, name: string, value: number): Ga4Item {
 export function trackDeckSelect(deckId: OracleDeckId, deckName: string, destinationPath: string): void {
   if (!destinationPath.startsWith('/')) return;
   trackEvent('oracle_deck_select', { deck_id: deckId, deck_name: deckName, destination_path: destinationPath });
+}
+
+export function trackOracleNeedSelected(needType: OracleNeedType): void {
+  trackEvent('oracle_need_selected', { need_type: needType });
+}
+
+export function trackOracleReadingStarted(
+  needType: OracleNeedType,
+  spreadType: OracleSpreadId,
+  deckType: OracleDeckId,
+): void {
+  trackEvent('oracle_reading_started', {
+    need_type: needType,
+    spread_type: spreadType,
+    deck_type: deckType,
+  });
 }
 
 export function trackReadingStart(spreadId: string, topic?: string): string | null {

@@ -1,207 +1,321 @@
-import { Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import type { MouseEvent } from 'react';
-import { trackDeckSelect, type OracleDeckId } from '../lib/ga4';
+import { useState, type FormEvent, type MouseEvent } from 'react';
+import {
+  ChevronDown,
+  HeartHandshake,
+  History,
+  MoonStar,
+  ShieldCheck,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  trackDeckSelect,
+  trackOracleNeedSelected,
+  trackOracleReadingStarted,
+  type OracleDeckId,
+  type OracleNeedType,
+  type OracleSpreadId,
+} from '../lib/ga4';
+
+interface NeedOption {
+  id: 'emotion_career' | 'past_life' | 'soul' | 'clearing';
+  shortLabel: string;
+  title: string;
+  description: string;
+  questions: string[];
+  needType: OracleNeedType;
+  deckType: OracleDeckId;
+  spreadType: OracleSpreadId;
+  destination: string;
+  icon: LucideIcon;
+  color: 'rose' | 'amber' | 'violet' | 'emerald';
+}
+
+const NEED_OPTIONS: NeedOption[] = [
+  {
+    id: 'emotion_career',
+    shortLabel: '情感與工作財運',
+    title: '我想了解情感、工作與財運',
+    description: '釐清感情關係、工作方向、合作機會與財運發展，幫助你看見目前的狀況及下一步方向。',
+    questions: [
+      '對方現在怎麼看我？',
+      '這段關係未來會如何發展？',
+      '目前適合轉職或創業嗎？',
+      '這個合作機會值得把握嗎？',
+      '我的財運卡在哪裡？',
+    ],
+    needType: 'career_finance',
+    deckType: 'tarot',
+    spreadType: 'tarot_three',
+    destination: '/tarot?spread=three',
+    icon: HeartHandshake,
+    color: 'rose',
+  },
+  {
+    id: 'past_life',
+    shortLabel: '前世今生',
+    title: '我想探索前世與今生的連結',
+    description: '探索前世經驗如何影響今生，看見重複出現的關係模式、課題、承諾與尚未完成的功課。',
+    questions: [
+      '我和某個人前世有什麼關係？',
+      '為什麼我總是遇到相同的感情模式？',
+      '今生的困境與前世有什麼連結？',
+      '我今生需要完成什麼課題？',
+      '有哪些前世能量需要放下？',
+    ],
+    needType: 'past_life',
+    deckType: 'egyptian_gods',
+    spreadType: 'egyptian_pastlife',
+    destination: '/egyptian-gods?spread=pastlife',
+    icon: History,
+    color: 'amber',
+  },
+  {
+    id: 'soul',
+    shortLabel: '靈魂與內在指引',
+    title: '我想尋找靈魂與內在指引',
+    description: '看見當下的生命課題、內在阻礙與靈魂訊息，找到更符合自己真實方向的選擇。',
+    questions: [
+      '我現在最需要面對的課題是什麼？',
+      '為什麼我一直無法突破目前的困境？',
+      '我的內在真正想要的是什麼？',
+      '宇宙現在想提醒我什麼？',
+      '我的靈魂希望我走向哪個方向？',
+    ],
+    needType: 'soul_guidance',
+    deckType: 'work_your_light',
+    spreadType: 'cosmic_cross',
+    destination: '/cosmic-cross',
+    icon: MoonStar,
+    color: 'violet',
+  },
+  {
+    id: 'clearing',
+    shortLabel: '關係能量清理',
+    title: '我想清理關係中的負面能量',
+    description: '看見關係中累積的情緒、依附、衝突與能量牽連，找出需要釋放和療癒的地方，幫助自己重新建立健康的界線。',
+    questions: [
+      '我和對方之間累積了哪些負面能量？',
+      '這段關係中，我需要放下什麼？',
+      '為什麼我無法走出這段關係？',
+      '我們之間是否存在過度依附或能量牽連？',
+      '我要如何清理舊關係帶來的情緒影響？',
+    ],
+    needType: 'relationship',
+    deckType: 'dragons',
+    spreadType: 'dragons_three',
+    destination: '/dragons?spread=three',
+    icon: ShieldCheck,
+    color: 'emerald',
+  },
+];
+
+const COLOR_STYLES = {
+  rose: {
+    idle: 'border-pink-400/25 bg-gradient-to-br from-pink-950/45 via-purple-950/35 to-slate-950/80',
+    selected: 'border-pink-300 shadow-[0_0_35px_rgba(244,114,182,0.35)] ring-1 ring-pink-300/60',
+    icon: 'border-pink-300/40 bg-pink-400/10 text-pink-200',
+    accent: 'text-pink-200',
+    button: 'from-pink-500 to-violet-500 shadow-pink-500/25',
+  },
+  amber: {
+    idle: 'border-amber-400/25 bg-gradient-to-br from-amber-950/45 via-yellow-950/30 to-slate-950/80',
+    selected: 'border-amber-300 shadow-[0_0_35px_rgba(251,191,36,0.3)] ring-1 ring-amber-300/60',
+    icon: 'border-amber-300/40 bg-amber-400/10 text-amber-200',
+    accent: 'text-amber-200',
+    button: 'from-amber-500 to-orange-500 shadow-amber-500/25',
+  },
+  violet: {
+    idle: 'border-violet-400/25 bg-gradient-to-br from-indigo-950/50 via-violet-950/35 to-slate-950/80',
+    selected: 'border-violet-300 shadow-[0_0_35px_rgba(167,139,250,0.35)] ring-1 ring-violet-300/60',
+    icon: 'border-violet-300/40 bg-violet-400/10 text-violet-200',
+    accent: 'text-violet-200',
+    button: 'from-violet-500 to-indigo-500 shadow-violet-500/25',
+  },
+  emerald: {
+    idle: 'border-emerald-400/25 bg-gradient-to-br from-emerald-950/45 via-cyan-950/30 to-slate-950/80',
+    selected: 'border-emerald-300 shadow-[0_0_35px_rgba(52,211,153,0.3)] ring-1 ring-emerald-300/60',
+    icon: 'border-emerald-300/40 bg-emerald-400/10 text-emerald-200',
+    accent: 'text-emerald-200',
+    button: 'from-emerald-500 to-cyan-500 shadow-emerald-500/25',
+  },
+} as const;
+
+const ADVANCED_DECKS: Array<{ id: OracleDeckId; name: string; path: string }> = [
+  { id: 'tarot', name: '偉特塔羅', path: '/tarot' },
+  { id: 'lightworker', name: '光行者神諭', path: '/lightworker' },
+  { id: 'unicorns', name: '獨角獸塔羅', path: '/unicorns' },
+  { id: 'dragons', name: '龍族塔羅', path: '/dragons' },
+  { id: 'egyptian_gods', name: '埃及神諭', path: '/egyptian-gods' },
+  { id: 'work_your_light', name: 'Lightworker 光之訊息', path: '/work-your-light' },
+  { id: 'osho', name: '奧修禪卡', path: '/osho' },
+];
 
 function HomePage() {
-  const handleDeckSelect = (event: MouseEvent<HTMLDivElement>) => {
+  const navigate = useNavigate();
+  const [selectedId, setSelectedId] = useState<NeedOption['id'] | null>(null);
+  const [question, setQuestion] = useState('');
+  const [error, setError] = useState('');
+
+  const selectNeed = (option: NeedOption) => {
+    if (selectedId === option.id) return;
+    setSelectedId(option.id);
+    setQuestion('');
+    setError('');
+    trackOracleNeedSelected(option.needType);
+  };
+
+  const startReading = (event: FormEvent, option: NeedOption) => {
+    event.preventDefault();
+    const trimmedQuestion = question.trim();
+    if (!trimmedQuestion) {
+      setError('請先輸入你想詢問的問題');
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('cf_oracle_intent', JSON.stringify({
+        need_id: option.id,
+        question: trimmedQuestion,
+        deck_type: option.deckType,
+        spread_type: option.spreadType,
+        created_at: Date.now(),
+      }));
+    } catch {
+      // The draw flow still works when private browsing blocks session storage.
+    }
+
+    trackOracleReadingStarted(option.needType, option.spreadType, option.deckType);
+    navigate(option.destination);
+  };
+
+  const handleAdvancedDeckSelect = (event: MouseEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
     const link = target.closest<HTMLElement>('[data-deck-id][data-deck-name]');
     if (!link) return;
     const deckId = link.dataset.deckId as OracleDeckId | undefined;
     const deckName = link.dataset.deckName;
-    if (deckId && deckName) {
-      trackDeckSelect(deckId, deckName, link.getAttribute('href') ?? '');
-    }
+    if (deckId && deckName) trackDeckSelect(deckId, deckName, link.getAttribute('href') ?? '');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ic3RhcnMiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI4MCIgcj0iMC41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMikiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSI0MCIgcj0iMS41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz48Y2lyY2xlIGN4PSIxODAiIGN5PSIxNjAiIHI9IjAuOCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXJzKSIvPjwvc3ZnPg==')] opacity-40"></div>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3Mub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ic3RhcnMiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI4MCIgcj0iMC41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMikiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSI0MCIgcj0iMS41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz48Y2lyY2xlIGN4PSIxODAiIGN5PSIxNjAiIHI9IjAuOCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXJzKSIvPjwvc3ZnPg==')] opacity-40" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-12 pb-12 sm:pb-16 flex flex-col items-center">
-        <header className="text-center mb-10 sm:mb-16">
-          <div className="flex justify-center mb-4 sm:mb-6">
-            <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-blue-300 opacity-80 animate-pulse" />
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-serif mb-3 sm:mb-4 tracking-wide text-blue-100 drop-shadow-lg">
-            塔羅靈性指引入口
+      <main className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-14 pt-7 sm:px-6 sm:pt-12">
+        <header className="mb-7 max-w-3xl text-center sm:mb-10">
+          <Sparkles className="mx-auto mb-3 h-11 w-11 animate-pulse text-blue-300/80 sm:h-14 sm:w-14" />
+          <h1 className="mb-3 font-serif text-3xl tracking-wide text-blue-100 drop-shadow-lg sm:text-5xl">
+            你現在最想獲得哪一種指引？
           </h1>
-          <p className="text-blue-200/80 text-base sm:text-lg md:text-xl font-light tracking-wider">
-            選擇你的牌卡系統，開啟內在智慧之旅
+          <p className="text-sm leading-relaxed text-blue-200/80 sm:text-lg">
+            選擇需求、寫下問題，系統會自動為你連結合適的牌卡與牌陣
           </p>
-
-          <div className="mt-6 sm:mt-8 max-w-3xl mx-auto rounded-2xl border border-blue-400/20 bg-slate-950/40 px-5 py-5 sm:px-7 sm:py-6 text-left shadow-lg backdrop-blur-sm">
-            <h2 className="text-center text-base sm:text-lg font-bold text-blue-100 tracking-wide mb-4">
-              你現在最希望獲得什麼樣的力量？
-            </h2>
-            <ul className="space-y-2.5 text-sm sm:text-base leading-relaxed text-blue-100/85">
-              <li><strong className="text-blue-50">A. 清楚明白的未來指引</strong> → （推薦：<strong className="text-orange-200">偉特塔羅</strong>）</li>
-              <li><strong className="text-blue-50">B. 溫柔療癒的陪伴與鼓勵</strong> → （推薦：<strong className="text-pink-200">獨角獸塔羅</strong>）</li>
-              <li><strong className="text-blue-50">C. 突破現狀的強大行動力</strong> → （推薦：<strong className="text-emerald-200">龍族塔羅</strong>）</li>
-              <li><strong className="text-blue-50">D. 清理負能量與靈性頻率提升</strong> → （推薦：<strong className="text-cyan-200">光行者神諭</strong>）</li>
-              <li><strong className="text-blue-50">E. 揭開深層潛意識與靈魂藍圖</strong> → （推薦：<strong className="text-yellow-200">埃及神諭</strong>）</li>
-              <li><strong className="text-blue-50">F. 接引高維光之能量與靈魂指引</strong> → （推薦：<strong className="text-violet-200">Lightworker光之訊息</strong>）</li>
-              <li><strong className="text-blue-50">G. 看清當下真相與內心覺察</strong> → （推薦：<strong className="text-teal-200">奧修禪卡</strong>）</li>
-            </ul>
-            <div className="mt-6 border-t border-blue-300/20 pt-5 text-center">
-              <p className="relative inline-block bg-gradient-to-r from-amber-200 via-white to-cyan-200 bg-clip-text text-xl font-black tracking-wide text-transparent drop-shadow-[0_0_12px_rgba(255,255,255,0.85)] sm:text-2xl md:text-3xl">
-                每一種多牌陣，第一次免 Email 免費試算，第二次輸入 Email 仍可免費解鎖
-                <span className="pointer-events-none absolute inset-x-[8%] top-[12%] h-px bg-white/80 blur-[1px]" />
-              </p>
-            </div>
-          </div>
         </header>
 
-        <div className="space-y-3 w-full max-w-4xl" onClick={handleDeckSelect}>
-          <Link to="/tarot" className="group relative block" data-deck-id="tarot" data-deck-name="偉特塔羅">
-            <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-orange-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-orange-500/30 group-hover:border-orange-400/60">
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-orange-950/40 via-red-950/30 to-slate-900">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/30">
-                    <svg className="w-10 h-10 text-orange-300" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="15" y="15" width="25" height="40" rx="3" strokeWidth="2" />
-                      <rect x="37" y="25" width="25" height="40" rx="3" strokeWidth="2" />
-                      <rect x="60" y="15" width="25" height="40" rx="3" strokeWidth="2" />
-                    </svg>
+        <section className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2" aria-label="占卜需求選擇">
+          {NEED_OPTIONS.map((option, index) => {
+            const selected = selectedId === option.id;
+            const styles = COLOR_STYLES[option.color];
+            const Icon = option.icon;
+
+            return (
+              <article
+                key={option.id}
+                className={`overflow-hidden rounded-3xl border backdrop-blur-sm transition duration-300 ${styles.idle} ${selected ? `${styles.selected} scale-[1.01]` : 'hover:-translate-y-0.5 hover:border-blue-300/40'}`}
+              >
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-4 p-5 text-left sm:p-6"
+                  aria-expanded={selected}
+                  aria-controls={`need-content-${option.id}`}
+                  onClick={() => selectNeed(option)}
+                >
+                  <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${styles.icon}`}>
+                    <Icon className="h-7 w-7" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className={`mb-1 block text-xs font-bold tracking-[0.22em] ${styles.accent}`}>
+                      選項 {index + 1}
+                    </span>
+                    <span className="block font-serif text-xl tracking-wide text-white sm:text-2xl">
+                      {option.shortLabel}
+                    </span>
+                  </span>
+                  <ChevronDown className={`h-6 w-6 shrink-0 text-blue-200/70 transition-transform duration-300 ${selected ? 'rotate-180' : ''}`} />
+                </button>
+
+                {selected && (
+                  <div id={`need-content-${option.id}`} className="border-t border-white/10 px-5 pb-6 pt-5 sm:px-6">
+                    <h2 className="mb-3 font-serif text-xl text-blue-50 sm:text-2xl">{option.title}</h2>
+                    <p className="mb-5 leading-7 text-blue-100/80">{option.description}</p>
+
+                    <div className="mb-5 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+                      <h3 className={`mb-3 text-sm font-bold tracking-wider ${styles.accent}`}>適用問題</h3>
+                      <ul className="space-y-2 text-sm leading-6 text-blue-100/75 sm:text-base">
+                        {option.questions.map((item) => <li key={item}>・{item}</li>)}
+                      </ul>
+                    </div>
+
+                    <form onSubmit={(event) => startReading(event, option)}>
+                      <label htmlFor={`question-${option.id}`} className="mb-2 block text-sm font-bold text-blue-100">
+                        你想詢問的問題
+                      </label>
+                      <textarea
+                        id={`question-${option.id}`}
+                        value={question}
+                        onChange={(event) => {
+                          setQuestion(event.target.value);
+                          if (error) setError('');
+                        }}
+                        maxLength={300}
+                        rows={3}
+                        placeholder="請寫下一個你此刻最想得到指引的問題……"
+                        className="w-full resize-none rounded-2xl border border-blue-300/20 bg-slate-950/65 px-4 py-3 text-base leading-6 text-white outline-none transition placeholder:text-blue-200/35 focus:border-blue-300/60 focus:ring-2 focus:ring-blue-400/20"
+                      />
+                      {error && <p className="mt-2 text-sm text-rose-300" role="alert">{error}</p>}
+                      <button
+                        type="submit"
+                        className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3.5 text-base font-bold tracking-widest text-white shadow-lg transition hover:scale-[1.01] active:scale-[0.99] ${styles.button}`}
+                      >
+                        開始抽牌
+                      </button>
+                    </form>
                   </div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-orange-100 tracking-wide mb-1">偉特塔羅</h2>
-                  <p className="text-orange-200/70 text-xs tracking-wide">全球公認占卜入門經典，零基礎也能輕鬆看懂解答，輕鬆建立清晰直覺</p>
-                </div>
-              </div>
-            </div>
-          </Link>
+                )}
+              </article>
+            );
+          })}
+        </section>
 
-          <Link to="/lightworker" className="group relative block" data-deck-id="lightworker" data-deck-name="光行者神諭">
-            <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-cyan-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-cyan-500/30 group-hover:border-cyan-400/60">
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-slate-900">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/30">
-                    <Sparkles className="w-10 h-10 text-cyan-300" strokeWidth={1.5} />
-                  </div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-cyan-100 tracking-wide mb-1">光行者神諭</h2>
-                  <p className="text-cyan-200/70 text-xs tracking-wide">高頻能量 清理提升 接引高維光之訊息，清理負面情緒並提升靈魂頻率</p>
-                </div>
-              </div>
-            </div>
-          </Link>
+        <p className="mt-7 text-center text-sm leading-6 text-blue-100/60">
+          每一種多牌陣第一次免 Email 免費試算，第二次輸入 Email 仍可免費解鎖
+        </p>
 
-          <Link to="/unicorns" className="group relative block" data-deck-id="unicorns" data-deck-name="獨角獸塔羅">
-            <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-pink-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-pink-500/30 group-hover:border-pink-400/60">
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-pink-950/40 via-rose-950/30 to-slate-900">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-pink-500/10 border border-pink-500/30">
-                    <svg className="w-10 h-10 text-pink-300" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M 50 20 L 45 35 L 30 35 L 42 45 L 37 60 L 50 50 L 63 60 L 58 45 L 70 35 L 55 35 Z" fill="currentColor" opacity="0.3" />
-                      <path d="M 50 15 Q 45 10 40 15 Q 35 20 40 25 Q 45 30 50 25 Q 55 30 60 25 Q 65 20 60 15 Q 55 10 50 15" strokeWidth="2.5" />
-                      <path d="M 50 70 L 50 85 M 48 75 L 52 75 M 47 80 L 53 80" strokeWidth="2.5" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-pink-100 tracking-wide mb-1">獨角獸塔羅</h2>
-                  <p className="text-pink-200/70 text-xs tracking-wide">零基礎也能上手，每天給自己最溫柔的靈魂指引</p>
-                </div>
-              </div>
-            </div>
-          </Link>
+        <details className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">
+          <summary className="cursor-pointer select-none py-1 text-center text-sm tracking-wide hover:text-blue-100">
+            進階選擇：我想自己選擇牌卡
+          </summary>
+          <div className="mt-4 grid grid-cols-2 gap-2 border-t border-blue-300/10 pt-4 sm:grid-cols-3" onClick={handleAdvancedDeckSelect}>
+            {ADVANCED_DECKS.map((deck) => (
+              <Link
+                key={deck.id}
+                to={deck.path}
+                data-deck-id={deck.id}
+                data-deck-name={deck.name}
+                className="rounded-xl border border-blue-300/15 bg-blue-950/30 px-3 py-3 text-center text-sm text-blue-100/75 transition hover:border-blue-300/40 hover:text-blue-50"
+              >
+                {deck.name}
+              </Link>
+            ))}
+          </div>
+        </details>
 
-          <Link to="/dragons" className="group relative block" data-deck-id="dragons" data-deck-name="龍族塔羅">
-            <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-emerald-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-emerald-500/30 group-hover:border-emerald-400/60">
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-                    <svg className="w-10 h-10 text-emerald-300" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M 50 20 Q 30 25 25 40 Q 20 55 30 65 L 40 55 Q 35 45 40 35 L 50 30 L 60 35 Q 65 45 60 55 L 70 65 Q 80 55 75 40 Q 70 25 50 20" fill="currentColor" opacity="0.3" strokeWidth="2.5" />
-                      <path d="M 50 30 L 50 70 M 40 45 L 45 50 M 60 45 L 55 50" strokeWidth="2.5" />
-                      <circle cx="42" cy="38" r="3" fill="currentColor" />
-                      <circle cx="58" cy="38" r="3" fill="currentColor" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-emerald-100 tracking-wide mb-1">龍族塔羅</h2>
-                  <p className="text-emerald-200/70 text-xs tracking-wide">強大氣場 突破困境 接引龍族的保護與顯化魔法，帶領你採取關鍵行動</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/egyptian-gods" className="group relative block" data-deck-id="egyptian_gods" data-deck-name="埃及神諭">
-            <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-yellow-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-yellow-500/30 group-hover:border-yellow-400/60">
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-yellow-950/40 via-amber-950/30 to-slate-900">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-yellow-500/10 border border-yellow-500/30">
-                    <svg className="w-10 h-10 text-yellow-300" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M 50 25 L 35 50 L 50 50 L 45 75 L 70 45 L 55 45 L 65 25 Z" fill="currentColor" opacity="0.3" strokeWidth="2.5" />
-                      <circle cx="30" cy="30" r="8" strokeWidth="2.5" />
-                      <path d="M 25 30 L 35 30 M 30 25 L 30 35" strokeWidth="2" />
-                      <path d="M 20 70 Q 30 60 40 70 M 60 70 Q 70 60 80 70" strokeWidth="2.5" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-yellow-100 tracking-wide mb-1">埃及神諭</h2>
-                  <p className="text-yellow-200/70 text-xs tracking-wide">神秘學 靈魂藍圖 連結古埃及神祇智慧，解開前世今生與潛意識課題</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/work-your-light" className="group relative block" data-deck-id="work_your_light" data-deck-name="Lightworker光之訊息">
-            <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-violet-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-violet-500/30 group-hover:border-violet-400/60">
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-violet-950/40 via-purple-950/30 to-slate-900">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-violet-500/10 border border-violet-500/30">
-                    <Sparkles className="w-10 h-10 text-violet-300" strokeWidth={1.5} />
-                  </div>
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h2 className="text-xl font-serif text-violet-100 tracking-wide mb-1">Lightworker光之訊息</h2>
-                  <p className="text-violet-200/70 text-xs tracking-wide">直覺靈感 接引高維光之能量，為靈魂帶來清晰指引與清理</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        <div className="w-full max-w-4xl mt-8" onClick={handleDeckSelect}>
-          <Link to="/osho" data-deck-id="osho" data-deck-name="奧修禪卡">
-            <div className="relative bg-gradient-to-r from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-2 border-teal-500/40 rounded-2xl overflow-hidden shadow-xl hover:border-teal-400/60 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/20 hover:scale-105 cursor-pointer">
-              <div className="flex items-center gap-5 px-6 py-5 bg-gradient-to-r from-teal-950/40 via-cyan-950/30 to-slate-900">
-                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
-                  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-9 h-9">
-                    <circle cx="20" cy="20" r="14" stroke="white" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.6"/>
-                    <circle cx="20" cy="20" r="8" fill="white" fillOpacity="0.15" stroke="white" strokeWidth="1.5"/>
-                    <path d="M20 8 C20 8 26 14 26 20 C26 26 20 32 20 32 C20 32 14 26 14 20 C14 14 20 8 20 8Z" fill="white" fillOpacity="0.25"/>
-                    <circle cx="20" cy="20" r="3" fill="white" opacity="0.9"/>
-                    <path d="M20 12 L20 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
-                    <path d="M20 32 L20 28" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
-                    <path d="M8 20 L12 20" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
-                    <path d="M32 20 L28 20" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
-                  </svg>
-                </div>
-                <div className="text-left">
-                  <h2 className="text-2xl font-serif bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent leading-tight">
-                    奧修禪卡
-                  </h2>
-                  <p className="text-teal-200/60 text-sm mt-0.5 tracking-wide">深度覺察 突破盲點 直指內心真實狀態，幫助你看清當下與現實真相</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        <footer className="mt-12 sm:mt-20 text-center">
-          <p className="text-blue-200/50 text-sm font-light italic">
-            願你的內在智慧，照亮前行的道路
-          </p>
+        <footer className="mt-12 text-center text-sm italic text-blue-200/45">
+          願你的內在智慧，照亮前行的道路
         </footer>
-      </div>
+      </main>
     </div>
   );
 }

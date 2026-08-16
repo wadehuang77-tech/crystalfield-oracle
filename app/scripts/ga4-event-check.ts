@@ -53,6 +53,15 @@ analytics.trackDeckSelect('tarot', '偉特塔羅', '/tarot');
 assert(count('oracle_deck_select') === 1, 'One deck click must send exactly one oracle_deck_select');
 assert(event('oracle_deck_select').params.destination_path === '/tarot', 'Deck event must include destination_path');
 
+analytics.trackOracleNeedSelected('career_finance');
+assert(count('oracle_need_selected') === 1, 'One need click must send exactly one oracle_need_selected');
+assert(event('oracle_need_selected').params.need_type === 'career_finance', 'Need event must include need_type');
+
+analytics.trackOracleReadingStarted('career_finance', 'tarot_three', 'tarot');
+assert(count('oracle_reading_started') === 1, 'One need-based start must send exactly one oracle_reading_started');
+assert(event('oracle_reading_started').params.spread_type === 'tarot_three', 'Need-based start must include spread_type');
+assert(event('oracle_reading_started').params.deck_type === 'tarot', 'Need-based start must include deck_type');
+
 const firstReadingId = analytics.trackReadingStart('tarot_three', 'not-a-free-text-question');
 const duplicateReadingId = analytics.trackReadingStart('tarot_three', 'love');
 assert(firstReadingId && firstReadingId === duplicateReadingId, 'Repeated start before completion must reuse reading_id');
