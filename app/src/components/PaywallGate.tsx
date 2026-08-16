@@ -1,11 +1,10 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, Sparkles, Check, LogIn, Gift, Tag, Crown, ChevronRight } from 'lucide-react';
-import { getSpreadPrice, getSpreadCategory, formatPrice, CATEGORY_BUNDLE, COMBO_1499, COMBO_1999 } from '../lib/spread-prices';
+import { getSpreadPrice, getSpreadCategory, formatPrice, CATEGORY_BUNDLE, ORACLE_BUNDLES } from '../lib/spread-prices';
 import type { BundleOption } from '../lib/spread-prices';
 import { useAuth } from '../contexts/AuthContext';
 import { useSpreadAccess } from '../hooks/useSpreadAccess';
-import { useBundleCredits } from '../hooks/useBundleCredits';
 import { checkoutApi, publicApi, type OrderPick } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { savePendingDraw } from '../lib/pendingDraw';
@@ -46,7 +45,6 @@ export function PaywallGate({
   const price = spreadId ? getSpreadPrice(spreadId) : null;
   const category = spreadId ? getSpreadCategory(spreadId) : null;
   const categoryBundle = category ? CATEGORY_BUNDLE[category] : null;
-  const { hasCredit, consume: consumeBundle } = useBundleCredits();
 
   const [progress, setProgress] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -57,7 +55,6 @@ export function PaywallGate({
 
   // ── Free reading state ────────────────────────────────────────────
   const [freeGranted, setFreeGranted] = useState(false);
-  const [bundleGranted, setBundleGranted] = useState(false);
 
   // Check free / bundle access when gate first appears (isPaidByOrder = false)
   useEffect(() => {
@@ -77,22 +74,17 @@ export function PaywallGate({
       return;
     }
 
-    // 3. Bundle credit
-    if (user && category && hasCredit(category)) {
-      consumeBundle(category).then(ok => { if (ok) setBundleGranted(true); });
-      return;
-    }
-
-    // 4. Guest needs to register to get 2 more free reads
+    // 3. Guest needs to register to get 2 more free reads
     if (!user && needsRegistrationForFree()) {
       setShowFreeModal(true);
     }
 
-    // 5. Paywall
+    // 4. Paywall. Paid bundle credits are consumed only by the successful
+    // spread-unlock API, never merely because this gate rendered.
     startProgressThenPaywall();
   }, [isPaidByOrder]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const effectivePaid = isPaidByOrder || freeGranted || bundleGranted;
+  const effectivePaid = isPaidByOrder || freeGranted;
 
   function startProgressThenPaywall() {
     setProgress(0);
@@ -155,7 +147,7 @@ export function PaywallGate({
   if (effectivePaid) {
     const badge = freeGranted
       ? `免費體驗（剩餘 ${freeReadsLeft()} 次）`
-      : bundleGranted ? '套票使用 ✓' : null;
+      : null;
     return (
       <>
         {badge && (
@@ -278,7 +270,7 @@ export function PaywallGate({
               <div className="pt-1">
                 <p className="text-xs text-blue-400/50 tracking-[0.2em] text-center mb-3 uppercase">綜合套餐</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {([COMBO_1499, COMBO_1999] as BundleOption[]).map(combo => (
+                  {(ORACLE_BUNDLES.filter((bundle) => bundle.id !== categoryBundle?.id) as BundleOption[]).map(combo => (
                     <button
                       key={combo.id}
                       onClick={() => user ? handleCheckout(combo.id) : handleGoToLogin()}

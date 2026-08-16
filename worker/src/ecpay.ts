@@ -28,20 +28,32 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   // ── 前世因果陣 ─────────────────────────────────────────────────
   tarot_pastlife:    { id: 'tarot_pastlife',    name: '偉特塔羅 前世因果解鎖陣',   amount: 599, category: 'pastlife'   },
   egyptian_pastlife: { id: 'egyptian_pastlife', name: '埃及神諭 前世因果解鎖陣',   amount: 599, category: 'pastlife'   },
-  // ── 套票 ─────────────────────────────────────────────────────
+  // ── 30 日會員帳號套票 ────────────────────────────────────────
+  three_card_5pack_30d: {
+    id: 'three_card_5pack_30d', name: '所有三張牌陣 5 次方案 (30日)', amount: 600,
+    bundle: { three_card: 5, ten_card: 0, pastlife: 0, days: 30 },
+  },
+  three_pastlife_3plus3_30d: {
+    id: 'three_pastlife_3plus3_30d', name: '三張牌陣 3 次＋前世因果陣 3 次 (30日)', amount: 1200,
+    bundle: { three_card: 3, ten_card: 0, pastlife: 3, days: 30 },
+  },
+  deep_spread_5pack_30d: {
+    id: 'deep_spread_5pack_30d', name: '深度十字牌陣任選 5 次 (30日)', amount: 1800,
+    bundle: { three_card: 0, ten_card: 5, pastlife: 0, days: 30 },
+  },
+  // 舊訂單相容：不再顯示於前台，但付款回傳仍可正確入帳。
   three_card_3pack_7d: {
-    id: 'three_card_3pack_7d', name: '三張牌陣 3次套票 (7日)',  amount: 10,
+    id: 'three_card_3pack_7d', name: '三張牌陣 3次套票 (7日)', amount: 10,
     bundle: { three_card: 3, ten_card: 0, pastlife: 0, days: 7 },
   },
   ten_card_3pack_7d: {
-    id: 'ten_card_3pack_7d',   name: '十張牌陣 3次套票 (7日)',  amount: 10,
+    id: 'ten_card_3pack_7d', name: '十張牌陣 3次套票 (7日)', amount: 10,
     bundle: { three_card: 0, ten_card: 3, pastlife: 0, days: 7 },
   },
   pastlife_3pack_7d: {
-    id: 'pastlife_3pack_7d',   name: '前世因果陣 3次套票 (7日)', amount: 10,
+    id: 'pastlife_3pack_7d', name: '前世因果陣 3次套票 (7日)', amount: 10,
     bundle: { three_card: 0, ten_card: 0, pastlife: 3, days: 7 },
   },
-  // ── 綜合套餐 ─────────────────────────────────────────────────
   bundle_1499_30d: {
     id: 'bundle_1499_30d', name: '靈魂探索套餐 (30日)', amount: 10,
     bundle: { three_card: 5, ten_card: 1, pastlife: 2, days: 30 },

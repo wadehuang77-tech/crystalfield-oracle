@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { cardsApi, oracleFreeApi, type UnlockedCard } from '../lib/api';
+import { bundleApi, cardsApi, oracleFreeApi, type UnlockedCard } from '../lib/api';
 import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted, trackOraclePaywallViewed } from '../lib/ga4';
 import { getOracleFreeIntent } from '../lib/oracleFreeAccess';
+import { useAuth } from '../contexts/AuthContext';
+import { getSpreadCategory } from '../lib/spread-prices';
 import { getMultiUnlockCount, getMultiSpreadGateDecision, incrementMultiUnlock, MULTI_SPREAD_FREE_LIMIT } from './useDrawCounter';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'email_gate' | 'paywall';
@@ -19,6 +21,8 @@ interface UseMultiSpreadGateResult {
   unlockedCards: UnlockedCard[] | null;
   error: string | null;
   onEmailUnlocked: (email: string) => Promise<void>;
+  unlockSource: 'free' | 'bundle' | null;
+  bundleRemaining: number | null;
 }
 
 export function useMultiSpreadGate({
@@ -26,14 +30,18 @@ export function useMultiSpreadGate({
   picks,
   enabled,
 }: UseMultiSpreadGateOptions): UseMultiSpreadGateResult {
+  const { user } = useAuth();
   const [phase, setPhase] = useState<MultiGatePhase>('idle');
   const [unlockedCards, setUnlockedCards] = useState<UnlockedCard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [unlockSource, setUnlockSource] = useState<'free' | 'bundle' | null>(null);
+  const [bundleRemaining, setBundleRemaining] = useState<number | null>(null);
   const firedRef = useRef(false);
   const lastPicksKeyRef = useRef<string>('');
   const completionSentRef = useRef(false);
   const paywallTrackedRef = useRef(false);
   const oracleIntent = useMemo(() => getOracleFreeIntent(spreadId), [spreadId]);
+  const category = useMemo(() => getSpreadCategory(spreadId), [spreadId]);
 
   const unlockForFree = useCallback(async (picksToUnlock: Pick[], email?: string) => {
     if (!oracleIntent && getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
@@ -42,9 +50,51 @@ export function useMultiSpreadGate({
     const readingId = oracleIntent?.access_mode === 'free' ? oracleIntent.reading_id : undefined;
     const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock, readingId, email);
     setUnlockedCards(cards);
+    setUnlockSource('free');
     if (!oracleIntent) incrementMultiUnlock(spreadId);
     setPhase('unlocked');
   }, [spreadId, oracleIntent]);
+
+  const unlockWithBundle = useCallback(async (picksToUnlock: Pick[], picksKey: string): Promise<boolean> => {
+    if (!user || !category) return false;
+    const creditResult = await bundleApi.getCredits();
+    if (!creditResult.credits || creditResult.credits[category] <= 0) return false;
+    const storageKey = `cf_bundle_reading:${spreadId}:${picksKey}`;
+    let readingId = '';
+    try { readingId = sessionStorage.getItem(storageKey) ?? ''; } catch { /* storage unavailable */ }
+    if (!readingId) {
+      readingId = crypto.randomUUID();
+      try { sessionStorage.setItem(storageKey, readingId); } catch { /* storage unavailable */ }
+    }
+    const result = await bundleApi.unlockSpread(spreadId, picksToUnlock, readingId);
+    setUnlockedCards(result.cards);
+    setBundleRemaining(result.remaining);
+    setUnlockSource('bundle');
+    setPhase('unlocked');
+    return true;
+  }, [user, category, spreadId]);
+
+  const showPaywallOrUseBundle = useCallback(async (picksToUnlock: Pick[], picksKey: string) => {
+    if (user && category) {
+      setPhase('loading');
+      try {
+        if (await unlockWithBundle(picksToUnlock, picksKey)) return;
+      } catch (err) {
+        const apiError = err as Error & { status?: number };
+        if (apiError.status !== 402) setError(apiError.message || '套票解鎖失敗');
+      }
+    }
+    setPhase('paywall');
+    if (oracleIntent && !paywallTrackedRef.current) {
+      paywallTrackedRef.current = true;
+      trackOraclePaywallViewed({
+        reason: 'free_limit_reached', completed_free_readings: 2,
+        deck_type: oracleIntent.deck_type,
+        spread_type: oracleIntent.spread_type,
+        need_type: oracleIntent.need_type,
+      });
+    }
+  }, [user, category, unlockWithBundle, oracleIntent]);
 
   useEffect(() => {
     if (!enabled || !picks || picks.length === 0) { firedRef.current = false; return; }
@@ -55,19 +105,12 @@ export function useMultiSpreadGate({
     if (lastPicksKeyRef.current === picksKey && firedRef.current) return;
     lastPicksKeyRef.current = picksKey;
     firedRef.current = true;
+    setUnlockSource(null);
+    setBundleRemaining(null);
 
     if (oracleIntent) {
       if (oracleIntent.access_mode === 'paywall_preview') {
-        setPhase('paywall');
-        if (!paywallTrackedRef.current) {
-          paywallTrackedRef.current = true;
-          trackOraclePaywallViewed({
-            reason: 'free_limit_reached', completed_free_readings: 2,
-            deck_type: oracleIntent.deck_type,
-            spread_type: oracleIntent.spread_type,
-            need_type: oracleIntent.need_type,
-          });
-        }
+        void showPaywallOrUseBundle(picks, picksKey);
         return;
       }
       setPhase('loading'); setError(null);
@@ -85,12 +128,14 @@ export function useMultiSpreadGate({
         }
         setError(apiError instanceof Error ? apiError.message : '解鎖失敗'); setPhase('email_gate');
       });
+    } else if (nextPhase === 'paywall') {
+      void showPaywallOrUseBundle(picks, picksKey);
     } else setPhase(nextPhase);
-  }, [enabled, picks, spreadId, unlockForFree, oracleIntent]);
+  }, [enabled, picks, spreadId, unlockForFree, oracleIntent, showPaywallOrUseBundle]);
 
   useEffect(() => {
     if (phase === 'unlocked' && unlockedCards?.length) {
-      trackFreeReadingView(spreadId, 'free_unlock_api', unlockedCards.length > 0);
+      if (unlockSource === 'free') trackFreeReadingView(spreadId, 'free_unlock_api', unlockedCards.length > 0);
       if (oracleIntent?.access_mode === 'free' && oracleIntent.reading_id && !completionSentRef.current) {
         const readingId = oracleIntent.reading_id;
         completionSentRef.current = true;
@@ -105,7 +150,7 @@ export function useMultiSpreadGate({
         }).catch(() => { completionSentRef.current = false; });
       }
     }
-  }, [phase, spreadId, unlockedCards, oracleIntent]);
+  }, [phase, spreadId, unlockedCards, oracleIntent, unlockSource]);
 
   const onEmailUnlocked = async (email: string) => {
     if (!picks || picks.length === 0) return;
@@ -123,5 +168,5 @@ export function useMultiSpreadGate({
     }
   };
 
-  return { phase, unlockedCards, error, onEmailUnlocked };
+  return { phase, unlockedCards, error, onEmailUnlocked, unlockSource, bundleRemaining };
 }

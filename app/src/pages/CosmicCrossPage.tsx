@@ -11,10 +11,10 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 const SPREAD_ID = 'cosmic_cross';
 const CARD_COUNT = 11;
@@ -383,15 +383,7 @@ function CosmicCrossPage() {
                       <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
                         更深層的指引與靈魂訊息在後面。解鎖十一張牌的完整宇宙解讀。
                       </p>
-                      <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
-                      {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
-                      <button
-                        onClick={handleCheckout}
-                        disabled={isCheckingOut}
-                        className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                      >
-                        {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
-                      </button>
+                      <OraclePricingPlans spreadId={SPREAD_ID} onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
                     </div>
                   )}
                 </div>
@@ -399,6 +391,7 @@ function CosmicCrossPage() {
 
               {showFullContent && (
                 <>
+                  <BundleCreditStatus spreadId={SPREAD_ID} remaining={gate.bundleRemaining} />
                   <section className="rounded-2xl border-2 border-orange-400/45 bg-slate-900/75 px-5 py-6 shadow-[0_0_30px_rgba(249,115,22,0.12)] sm:px-8 sm:py-8">
                     <div className="mb-6 text-center">
                       <h3 className="font-serif text-2xl text-orange-100 sm:text-3xl">解牌閱讀小提醒</h3>

@@ -15,11 +15,11 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -462,15 +462,13 @@ export default function UnicornsPage() {
                           <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
                           <h3 className="font-serif text-2xl text-pink-100 tracking-[0.3em]">解鎖完整獨角獸訊息</h3>
                           <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">展開三張牌的完整解讀，揭示過去、現在、未來的能量脈絡。</p>
-                          <p className="font-serif text-2xl text-pink-200 tracking-[0.3em]">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
-                          <button onClick={handleCheckoutThree} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-fuchsia-600 to-rose-600 hover:from-fuchsia-500 hover:to-rose-500 text-white font-medium rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                            {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
-                          </button>
+                          <OraclePricingPlans spreadId={SPREAD_ID} onSingleCheckout={handleCheckoutThree} singleLoading={isCheckingOut} error={unlockError} />
                         </div>
                       )}
                     </div>
                   ) : (
                     <div className="space-y-6">
+                      <BundleCreditStatus spreadId={SPREAD_ID} remaining={threeGate.bundleRemaining} />
                       {drawnCards.map((slot, index) => {
                         const labels = ['過去的能量根源', '當下的能量焦點', '未來的能量趨勢'];
                         const sym = ['過', '現', '未'][index];

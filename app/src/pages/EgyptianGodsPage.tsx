@@ -17,11 +17,11 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -563,11 +563,7 @@ function EgyptianGodsPage() {
                     <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
                       解鎖七張牌的完整靈魂解讀,揭開你前世與今生的連結。
                     </p>
-                    <p className="font-serif text-2xl text-yellow-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('egyptian_pastlife') ?? 0)}</p>
-                    {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
-                    <button onClick={handleCheckoutPastlife} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-medium rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {isCheckingOut ? '跳 轉 至 綠 界…' : '立 即 解 鎖'}
-                    </button>
+                    <OraclePricingPlans spreadId="egyptian_pastlife" onSingleCheckout={handleCheckoutPastlife} singleLoading={isCheckingOut} error={unlockError} />
                   </div>
                 )}
               </>
@@ -575,6 +571,7 @@ function EgyptianGodsPage() {
 
             {isPastlifeUnlocked && (
               <div className="space-y-6">
+                <BundleCreditStatus spreadId="egyptian_pastlife" remaining={pastlifeGate.bundleRemaining} />
                 {pastlifeSlots.map((slot, index) => {
                   const positionGuide = getPastLifePositionGuide(index);
                   if (!slot.full) return null;

@@ -534,3 +534,100 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
   }
   return json(req, env, { spread_id: body.spread_id, cards });
 }
+
+interface BundleUnlockSpreadBody {
+  spread_id: string;
+  picks: SpreadUnlockPick[];
+  reading_id: string;
+}
+
+const BUNDLE_CATEGORY_BY_SPREAD: Record<string, 'three_card' | 'ten_card' | 'pastlife'> = {
+  tarot_three: 'three_card',
+  unicorns_three: 'three_card',
+  dragons_three: 'three_card',
+  osho_three: 'three_card',
+  tarot_celtic: 'ten_card',
+  celtic_cross: 'ten_card',
+  cosmic_cross: 'ten_card',
+  tarot_pastlife: 'pastlife',
+  egyptian_pastlife: 'pastlife',
+};
+
+/**
+ * Returns the full reading and consumes one paid bundle credit exactly once.
+ * The existing multi_spread_free_unlocks table doubles as an idempotency ledger;
+ * the bundle marker never participates in free-reading counts.
+ */
+export async function bundleUnlockSpread(req: Request, env: Env): Promise<Response> {
+  const session = await readSession(req, env);
+  if (!session) return unauthorized(req, env, '套票綁定會員帳號，請先登入');
+
+  const body = await readBody<BundleUnlockSpreadBody>(req);
+  const spread = SPREADS[body.spread_id];
+  const category = BUNDLE_CATEGORY_BY_SPREAD[body.spread_id];
+  if (!spread || spread.free || !category) return badRequest(req, env, 'spread_id invalid');
+  if (!body.reading_id || body.reading_id.length > 100) return badRequest(req, env, 'reading_id invalid');
+  if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
+    return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
+  }
+
+  const cards: Array<Record<string, unknown>> = [];
+  for (const pick of body.picks) {
+    const card = await loadFullCard(env, spread.deck_id, pick.card_key);
+    if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
+    cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
+  }
+
+  const usageId = `bundle-use:${session.id}:${body.reading_id}`;
+  const pendingHash = `bundle-pending:${session.id}:${body.reading_id}`;
+  const completeHash = `bundle-complete:${session.id}:${body.reading_id}`;
+  const now = new Date().toISOString();
+  const existing = await env.DB.prepare(
+    `SELECT id, email_hash FROM multi_spread_free_unlocks WHERE id = ?`,
+  ).bind(usageId).first<{ id: string; email_hash: string }>();
+  if (existing && existing.email_hash !== completeHash) {
+    return json(req, env, { error: '此筆解鎖正在處理，請稍後重試', code: 'BUNDLE_UNLOCK_IN_PROGRESS' }, { status: 409 });
+  }
+
+  const col = `${category}_remaining`;
+  const expCol = `${category}_expires`;
+  if (!existing) {
+    const claimed = await env.DB.prepare(
+      `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at)
+       VALUES (?, ?, ?, ?)`,
+    ).bind(usageId, pendingHash, body.spread_id, now).run();
+
+    if ((claimed.meta.changes ?? 0) === 1) {
+      const consumed = await env.DB.prepare(
+        `UPDATE bundle_credits
+            SET ${col} = ${col} - 1, updated_at = ?
+          WHERE user_id = ? AND ${col} > 0 AND ${expCol} IS NOT NULL AND ${expCol} >= ?`,
+      ).bind(now, session.id, now).run();
+      if ((consumed.meta.changes ?? 0) !== 1) {
+        await env.DB.prepare(`DELETE FROM multi_spread_free_unlocks WHERE id = ?`).bind(usageId).run();
+        return json(req, env, { error: '此方案已無可用額度或已過期', code: 'BUNDLE_CREDIT_UNAVAILABLE' }, { status: 402 });
+      }
+      await env.DB.prepare(
+        `UPDATE multi_spread_free_unlocks SET email_hash = ? WHERE id = ? AND email_hash = ?`,
+      ).bind(completeHash, usageId, pendingHash).run();
+      await env.DB.prepare(
+        `INSERT INTO advanced_reading_unlocks
+           (id, email, reading_type, unlocked_at, card_data, created_at)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+      ).bind(crypto.randomUUID(), session.email, body.spread_id, now, JSON.stringify(body.picks), now).run();
+    } else {
+      return json(req, env, { error: '此筆解鎖正在處理，請稍後重試', code: 'BUNDLE_UNLOCK_IN_PROGRESS' }, { status: 409 });
+    }
+  }
+
+  const balance = await env.DB.prepare(
+    `SELECT ${col} AS remaining FROM bundle_credits WHERE user_id = ?`,
+  ).bind(session.id).first<{ remaining: number }>();
+  return json(req, env, {
+    spread_id: body.spread_id,
+    cards,
+    category,
+    remaining: Math.max(0, Number(balance?.remaining ?? 0)),
+    already_consumed: !!existing,
+  });
+}

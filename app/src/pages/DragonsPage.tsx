@@ -16,11 +16,11 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 interface DragonGated {
   message: string;
@@ -469,11 +469,7 @@ function DragonsPage() {
                     <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
                       展開三張牌的完整解讀,揭示過去、現在、未來的能量脈絡。
                     </p>
-                    <p className="font-serif text-2xl text-emerald-200 tracking-[0.3em]">{formatPrice(getSpreadPrice('dragons_three') ?? 0)}</p>
-                    {unlockError && <p className="text-red-500 text-sm">{unlockError}</p>}
-                    <button onClick={handleUnlockThree} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {isCheckingOut ? '跳 轉 至 綠 界…' : '立 即 解 鎖'}
-                    </button>
+                    <OraclePricingPlans spreadId="dragons_three" onSingleCheckout={handleUnlockThree} singleLoading={isCheckingOut} error={unlockError} />
                   </div>
                 )}
               </>
@@ -481,6 +477,7 @@ function DragonsPage() {
 
             {isThreeUnlocked && (
               <>
+                <BundleCreditStatus spreadId="dragons_three" remaining={threeGate.bundleRemaining} />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {threeSlots.map((slot, index) => {
                     if (!slot.full) return null;

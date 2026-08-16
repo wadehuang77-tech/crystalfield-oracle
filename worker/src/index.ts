@@ -8,6 +8,7 @@ import {
   oracleFreeReadingStatus,
   startOracleFreeReading,
   completeOracleFreeReading,
+  bundleUnlockSpread,
   unlockSingleCard,
   unlockSpread,
 } from './cards';
@@ -189,6 +190,11 @@ export default {
         const rl = await rateLimit(env, 'free-unlock', clientIp(req), 20, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await freeUnlockSpread(req, env);
+      }
+      if (path === '/api/cards/bundle-unlock-spread' && req.method === 'POST') {
+        const rl = await rateLimit(env, 'bundle-unlock', clientIp(req), 30, 3600);
+        if (!rl.allowed) return tooManyRequests(req, env, '解鎖要求過於頻繁，請稍後再試');
+        return await bundleUnlockSpread(req, env);
       }
       if (path === '/api/cards/single-unlock' && req.method === 'POST') {
         const rl = await rateLimit(env, 'cards-unlock', clientIp(req), 30, 3600);

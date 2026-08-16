@@ -23,6 +23,9 @@ const SPREAD_HOME: Record<string, string> = {
   human_design_basic:  '/human-design',
   human_design_full:   '/human-design',
   human_design_bundle: '/human-design',
+  three_card_5pack_30d: '/oracle',
+  three_pastlife_3plus3_30d: '/oracle',
+  deep_spread_5pack_30d: '/oracle',
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {

@@ -19,10 +19,10 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 interface TarotCard {
   id: string;
@@ -982,19 +982,12 @@ function TarotPage() {
                         <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
                           過去、現在、未來三張牌的深度靈魂訊息，幫助你看見完整的能量流動。
                         </p>
-                        <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice('tarot_three') ?? 0)}</p>
-                        {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
-                        <button
-                          onClick={handleCheckout}
-                          disabled={isCheckingOut}
-                          className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                        >
-                          {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
-                        </button>
+                        <OraclePricingPlans spreadId="tarot_three" onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
                       </div>
                     )}
                     {isLocallyUnlocked && (
                       <div className="space-y-8">
+                        <BundleCreditStatus spreadId="tarot_three" remaining={multiGate.bundleRemaining} />
                         <div className="grid md:grid-cols-3 gap-6">
                           {drawnCards.map((drawn, index) => (
                             <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -1098,19 +1091,12 @@ function TarotPage() {
                         <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
                           七張牌揭開前世今生的因果連結，帶你走向真正的釋放與療癒。
                         </p>
-                        <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice('tarot_pastlife') ?? 0)}</p>
-                        {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
-                        <button
-                          onClick={handleCheckout}
-                          disabled={isCheckingOut}
-                          className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                        >
-                          {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
-                        </button>
+                        <OraclePricingPlans spreadId="tarot_pastlife" onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
                       </div>
                     )}
                     {isLocallyUnlocked && (
                       <div className="space-y-6">
+                        <BundleCreditStatus spreadId="tarot_pastlife" remaining={multiGate.bundleRemaining} />
                         {drawnCards.map((drawn, index) => {
                           const positionGuide = getPastLifePositionGuide(index);
                           const cardMeaning = drawn.isReversed ? drawn.card.reversedMeaning : drawn.card.uprightMeaning;
@@ -1233,19 +1219,12 @@ function TarotPage() {
                         <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
                           十張牌的深度生命解析，帶你看見全面的能量格局與行動方向。
                         </p>
-                        <p className="font-serif text-2xl text-orange-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice('tarot_celtic') ?? 0)}</p>
-                        {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
-                        <button
-                          onClick={handleCheckout}
-                          disabled={isCheckingOut}
-                          className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                        >
-                          {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
-                        </button>
+                        <OraclePricingPlans spreadId="tarot_celtic" onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
                       </div>
                     )}
                     {isLocallyUnlocked && (
                       <div className="space-y-6">
+                        <BundleCreditStatus spreadId="tarot_celtic" remaining={multiGate.bundleRemaining} />
                         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
                           <h3 className="text-orange-200 text-lg font-medium mb-4 flex items-center gap-2">
                             <Sparkles className="w-5 h-5" />

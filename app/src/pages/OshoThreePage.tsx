@@ -11,11 +11,11 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 const SPREAD_ID = 'osho_three';
 
@@ -405,16 +405,14 @@ export default function OshoThreePage() {
                 <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
                 <h3 className="font-serif text-2xl text-teal-100">解鎖完整奧修三張牌陣</h3>
                 <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">展開三張牌的完整解讀，揭示內在、外在與整合的能量脈絡。</p>
-                <p className="font-serif text-2xl text-teal-200 tracking-[0.3em]">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
-                <button onClick={handleCheckout} disabled={isCheckingOut} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                  {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
-                </button>
+                <OraclePricingPlans spreadId={SPREAD_ID} onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
               </div>
             )}
           </div>
         ) : (
           showFullContent ? (
             <div className="space-y-8 mb-8">
+              <BundleCreditStatus spreadId={SPREAD_ID} remaining={gate.bundleRemaining} />
               <div className="grid lg:grid-cols-3 gap-8">
                 {fullSlot(reading.inner.full!, '內在感受', 'Inner', 'teal', [
                   { heading: '當下能量狀態', key: 'currentEnergy' },

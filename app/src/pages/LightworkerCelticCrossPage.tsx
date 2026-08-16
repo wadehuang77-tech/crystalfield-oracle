@@ -19,10 +19,10 @@ import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
 import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { formatPrice, getSpreadPrice } from '../lib/spread-prices';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 const SPREAD_ID = 'celtic_cross';
 
@@ -473,15 +473,7 @@ function LightworkerCelticCrossPage() {
                     <p className="text-cyan-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
                       更深層的指引與轉化在後面。解鎖十張牌的完整靈魂使命解讀，揭示你的靈性道路全貌。
                     </p>
-                    <p className="font-serif text-2xl text-cyan-200 tracking-[0.3em] mb-6">{formatPrice(getSpreadPrice(SPREAD_ID) ?? 0)}</p>
-                    {unlockError && <p className="text-red-500 text-sm mb-4">{unlockError}</p>}
-                    <button
-                      onClick={handleCheckout}
-                      disabled={isCheckingOut}
-                      className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-cyan-500 hover:from-cyan-400 hover:to-cyan-400 text-cyan-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {isCheckingOut ? '跳轉至綠界…' : '立即解鎖'}
-                    </button>
+                    <OraclePricingPlans spreadId={SPREAD_ID} onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
                   </div>
                 )}
               </div>
@@ -489,6 +481,7 @@ function LightworkerCelticCrossPage() {
 
             {showFullContent && (
               <>
+                <BundleCreditStatus spreadId={SPREAD_ID} remaining={gate.bundleRemaining} />
                 <section className="rounded-2xl border-2 border-cyan-400/45 bg-slate-900/70 px-5 py-6 shadow-[0_0_28px_rgba(34,211,238,0.12)] sm:px-8 sm:py-7">
                   <div className="mb-5 text-center">
                     <h3 className="font-serif text-2xl text-cyan-100 sm:text-3xl">解牌閱讀小提醒</h3>

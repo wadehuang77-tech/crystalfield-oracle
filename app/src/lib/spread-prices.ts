@@ -41,62 +41,52 @@ export interface BundleOption {
 }
 
 export const THREE_CARD_BUNDLE: BundleOption = {
-  id: 'three_card_3pack_7d',
-  label: '三張牌陣 3次套票',
-  price: 10,
-  usesLabel: '可算 3 次',
-  daysLabel: '7 日內有效',
-  highlight: true,
-  grants: { three_card: 3, ten_card: 0, pastlife: 0 },
-};
-
-export const PASTLIFE_BUNDLE: BundleOption = {
-  id: 'pastlife_3pack_7d',
-  label: '前世因果陣 3次套票',
-  price: 10,
-  usesLabel: '可算 3 次',
-  daysLabel: '7 日內有效',
-  highlight: true,
-  grants: { three_card: 0, ten_card: 0, pastlife: 3 },
-};
-
-export const TEN_CARD_BUNDLE: BundleOption = {
-  id: 'ten_card_3pack_7d',
-  label: '十張牌陣 3次套票',
-  price: 10,
-  usesLabel: '可算 3 次',
-  daysLabel: '7 日內有效',
-  highlight: true,
-  grants: { three_card: 0, ten_card: 3, pastlife: 0 },
-};
-
-export const COMBO_1499: BundleOption = {
-  id: 'bundle_1499_30d',
-  label: '靈魂探索套餐',
-  price: 10,
-  originalPrice: 10,
-  saving: 0,
-  usesLabel: '三張×5・前世×2・十張×1',
+  id: 'three_card_5pack_30d',
+  label: '所有三張牌陣 5 次方案',
+  price: 600,
+  originalPrice: 1250,
+  saving: 650,
+  usesLabel: '所有三張牌陣共用 5 次',
   daysLabel: '30 日內有效',
-  grants: { three_card: 5, ten_card: 1, pastlife: 2 },
+  highlight: true,
+  grants: { three_card: 5, ten_card: 0, pastlife: 0 },
 };
 
-export const COMBO_1999: BundleOption = {
-  id: 'bundle_1999_30d',
-  label: '深度靈魂套餐',
-  price: 10,
-  originalPrice: 10,
-  saving: 0,
-  usesLabel: '三張×6・前世×3・十張×3',
+export const THREE_PASTLIFE_BUNDLE: BundleOption = {
+  id: 'three_pastlife_3plus3_30d',
+  label: '三張牌陣 3 次＋前世因果陣 3 次',
+  price: 1200,
+  originalPrice: 2547,
+  saving: 1347,
+  usesLabel: '三張牌陣 3 次・前世因果陣 3 次',
   daysLabel: '30 日內有效',
-  grants: { three_card: 6, ten_card: 3, pastlife: 3 },
+  highlight: true,
+  grants: { three_card: 3, ten_card: 0, pastlife: 3 },
+};
+
+export const DEEP_SPREAD_BUNDLE: BundleOption = {
+  id: 'deep_spread_5pack_30d',
+  label: '深度十字牌陣任選 5 次',
+  price: 1800,
+  originalPrice: 2995,
+  saving: 1195,
+  usesLabel: '凱爾特十字・十字交叉使命・宇宙十字共用 5 次',
+  daysLabel: '30 日內有效',
+  highlight: true,
+  grants: { three_card: 0, ten_card: 5, pastlife: 0 },
 };
 
 export const CATEGORY_BUNDLE: Record<SpreadCategory, BundleOption> = {
   three_card: THREE_CARD_BUNDLE,
-  ten_card:   TEN_CARD_BUNDLE,
-  pastlife:   PASTLIFE_BUNDLE,
+  ten_card:   DEEP_SPREAD_BUNDLE,
+  pastlife:   THREE_PASTLIFE_BUNDLE,
 };
+
+export const ORACLE_BUNDLES: BundleOption[] = [
+  THREE_CARD_BUNDLE,
+  THREE_PASTLIFE_BUNDLE,
+  DEEP_SPREAD_BUNDLE,
+];
 
 export function getSpreadPrice(spreadId: string): number | null {
   return SPREAD_PRICES[spreadId] ?? null;

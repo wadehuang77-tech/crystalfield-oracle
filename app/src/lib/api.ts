@@ -280,6 +280,21 @@ export const bundleApi = {
       '/api/bundle-credits/consume',
       { method: 'POST', body: { category } },
     ),
+
+  unlockSpread: (
+    spread_id: string,
+    picks: OrderPick[],
+    reading_id: string,
+  ) => req<{
+    spread_id: string;
+    cards: UnlockedCard[];
+    category: 'three_card' | 'ten_card' | 'pastlife';
+    remaining: number;
+    already_consumed: boolean;
+  }>('/api/cards/bundle-unlock-spread', {
+    method: 'POST',
+    body: { spread_id, picks, reading_id },
+  }),
 };
 
 export const publicApi = {
