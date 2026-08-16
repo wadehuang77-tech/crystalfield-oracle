@@ -578,20 +578,21 @@ export const cardsApi = {
   deckPreview: (deckId: DeckId) =>
     req<{ deck_id: DeckId; cards: CardPreview[] }>(`/api/decks/${encodeURIComponent(deckId)}/preview`),
 
-  freeUnlockSingle: (spread_id: string, card_key: string, reversed = false) =>
-    req<{ card: UnlockedCard }>('/api/cards/free-unlock-single', {
+  freeUnlockSingle: (spread_id: string, card_key: string, reversed = false, reading_id?: string) =>
+    req<{ card: UnlockedCard; free_readings_remaining: number | null }>('/api/cards/free-unlock-single', {
       method: 'POST',
-      body: { spread_id, card_key, reversed },
+      body: { spread_id, card_key, reversed, reading_id },
     }),
 
   freeUnlockSpread: (
     spread_id: string,
     picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
+    reading_id?: string,
     email?: string,
   ) =>
-    req<{ spread_id: string; cards: UnlockedCard[] }>('/api/cards/free-unlock-spread', {
+    req<{ spread_id: string; cards: UnlockedCard[]; free_readings_remaining: number }>('/api/cards/free-unlock-spread', {
       method: 'POST',
-      body: { spread_id, picks, email },
+      body: { spread_id, picks, reading_id, email },
     }),
 
   unlockSingle: (spread_id: string, card_key: string, email: string, reversed = false) =>
@@ -610,6 +611,20 @@ export const cardsApi = {
       method: 'POST',
       body: { spread_id, picks, order_id, order_token: order_token ?? undefined },
     }),
+};
+
+export const oracleFreeApi = {
+  status: () => req<{ completed_free_readings: number; remaining_free_readings: number }>(
+    '/api/oracle/free-reading-status',
+  ),
+  start: (spread_id: string) => req<{ reading_id: string; remaining_free_readings: number }>(
+    '/api/oracle/free-reading-start', { method: 'POST', body: { spread_id } },
+  ),
+  complete: (reading_id: string) => req<{
+    free_reading_number: 1 | 2;
+    completed_free_readings: number;
+    remaining_free_readings: number;
+  }>('/api/oracle/free-reading-complete', { method: 'POST', body: { reading_id } }),
 };
 
 export interface DailyRow {

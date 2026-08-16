@@ -5,6 +5,9 @@ import {
   freeUnlockSpread,
   getSpreadDef,
   listDecks,
+  oracleFreeReadingStatus,
+  startOracleFreeReading,
+  completeOracleFreeReading,
   unlockSingleCard,
   unlockSpread,
 } from './cards';
@@ -225,6 +228,19 @@ export default {
         const rl = await rateLimit(env, 'hd-answers-ip', clientIp(req), 30, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await updateHumanDesignAnswers(req, env, id);
+      }
+      if (path === '/api/oracle/free-reading-status' && req.method === 'GET') {
+        return await oracleFreeReadingStatus(req, env);
+      }
+      if (path === '/api/oracle/free-reading-start' && req.method === 'POST') {
+        const rl = await rateLimit(env, 'oracle-free-start', clientIp(req), 20, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await startOracleFreeReading(req, env);
+      }
+      if (path === '/api/oracle/free-reading-complete' && req.method === 'POST') {
+        const rl = await rateLimit(env, 'oracle-free-complete', clientIp(req), 20, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await completeOracleFreeReading(req, env);
       }
 
       if (path.startsWith('/api/button-links/') && req.method === 'GET') {

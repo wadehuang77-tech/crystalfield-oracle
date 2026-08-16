@@ -90,94 +90,6 @@ const CELTIC_CROSS_POSITIONS = [
   '最終結果',
 ] as const;
 
-const THREE_CARD_RELATIONSHIP_PROMPTS = [
-  '深夜總是獨自亂想？給在感情裡感到疲憊、委屈的你，一份溫柔的能量解答。',
-  '明明在一起，卻覺得越來越遠？找出你們之間的隱形卡點與轉機。',
-  '這段關係該繼續堅持，還是勇敢放手？讓牌卡成為你最懂你的閨蜜指引。',
-];
-
-function ThreeCardRelationshipIntro() {
-  return (
-    <div className="max-w-4xl mx-auto mb-10 rounded-2xl border border-orange-400/35 bg-gradient-to-br from-orange-500/10 via-slate-900/80 to-rose-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_30px_rgba(251,146,60,0.12)]">
-      <div className="space-y-4 text-left">
-        {THREE_CARD_RELATIONSHIP_PROMPTS.map((prompt) => (
-          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-orange-50/95">
-            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-orange-300" strokeWidth={1.5} />
-            <span>{prompt}</span>
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CelticCrossIntro() {
-  return (
-    <div className="max-w-4xl mx-auto mb-10 rounded-2xl border border-orange-400/35 bg-gradient-to-br from-orange-500/10 via-slate-900/85 to-amber-500/10 px-5 py-6 sm:px-8 sm:py-8 text-left shadow-[0_0_30px_rgba(251,146,60,0.12)]">
-      <h3 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-orange-100">
-        凱爾特十字｜10 牌全景深度透視
-      </h3>
-      <div className="space-y-4 text-base sm:text-lg leading-loose text-orange-50/90">
-        <p>
-          當你遇到的問題不是「是與否」那麼簡單，你需要的是一幅完整的
-          <strong className="font-semibold text-orange-200">命運全景圖</strong>
-          。
-        </p>
-        <p>「凱爾特十字」是百年來塔羅界最經典、最嚴謹的大型牌陣。</p>
-        <p>
-          祂不只告訴你「未來會怎樣」，更層層剝開你的
-          <strong className="font-semibold text-orange-200">過去脈絡、潛意識盲點、外在環境阻礙</strong>
-          ，最後指引出最明亮的出口。
-        </p>
-        <p className="font-semibold text-amber-100">
-          給自己 3 分鐘，把複雜的人生難題，在這裡一次看清。
-        </p>
-      </div>
-
-      <div className="mt-7 border-t border-orange-400/20 pt-6">
-        <h4 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-orange-100">
-          【深度占卜靜心三步驟】
-        </h4>
-        <ol className="space-y-4 text-sm sm:text-base leading-loose text-orange-50/90">
-          <li className="flex items-start gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-orange-300/50 bg-orange-500/15 font-semibold text-orange-200">1</span>
-            <p><strong className="text-orange-100">找一個安靜的時間</strong>：深呼吸三次，將注意力集中在胸口。</p>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-orange-300/50 bg-orange-500/15 font-semibold text-orange-200">2</span>
-            <p><strong className="text-orange-100">釐清你的問題</strong>：在心中明確默想（例如：「我與某某人的感情脈絡與最終走向？」或「我未來半年的事業發展與盲點？」）。</p>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-orange-300/50 bg-orange-500/15 font-semibold text-orange-200">3</span>
-            <p><strong className="text-orange-100">依序抽出 10 張牌</strong>：開啟專屬於你的全方位靈魂地圖。</p>
-          </li>
-        </ol>
-      </div>
-    </div>
-  );
-}
-
-const PAST_LIFE_KARMIC_PROMPTS = [
-  '為什麼總是在同一種人身上受傷？揭開你們前世未完的課題與約定。',
-  '這份控制不住的強烈牽絆，是緣分還是債？一鍵解鎖你們前世的因果糾葛。',
-  '你從前世帶給今生最大的天賦是什麼？揭示你未被發掘的靈魂潛能。',
-];
-
-function PastLifeKarmicIntro() {
-  return (
-    <div className="max-w-4xl mx-auto mb-10 rounded-2xl border border-violet-400/35 bg-gradient-to-br from-violet-500/10 via-slate-900/85 to-orange-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_32px_rgba(167,139,250,0.14)]">
-      <div className="space-y-4 text-left">
-        {PAST_LIFE_KARMIC_PROMPTS.map((prompt) => (
-          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-orange-50/95">
-            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-violet-300" strokeWidth={1.5} />
-            <span>{prompt}</span>
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 interface DrawnCard {
   preview: CardPreview;
   card: TarotCard;
@@ -656,7 +568,6 @@ function TarotPage() {
 
           {showCardLayout && !hasDrawn && !isDrawing && spreadType !== 'single' && (
             <div className="max-w-5xl mx-auto animate-fade-in">
-              {spreadType === 'three' && <ThreeCardRelationshipIntro />}
 
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-serif text-orange-100 mb-3">
@@ -671,8 +582,6 @@ function TarotPage() {
                 </p>
               </div>
 
-              {spreadType === 'celtic' && <CelticCrossIntro />}
-              {spreadType === 'pastlife' && <PastLifeKarmicIntro />}
 
               {spreadType === 'three' && (
                 <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
@@ -1027,7 +936,6 @@ function TarotPage() {
 
               {spreadType === 'three' && (
                 <div className="space-y-8">
-                  <ThreeCardRelationshipIntro />
 
                   <div className="text-center mb-8 animate-fade-in">
                     <h2 className="text-3xl font-serif text-orange-100 mb-2">三張牌陣解讀</h2>

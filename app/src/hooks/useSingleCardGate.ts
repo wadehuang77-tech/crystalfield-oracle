@@ -1,13 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { cardsApi, profileApi, type UnlockedCard } from '../lib/api';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { cardsApi, oracleFreeApi, profileApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  getSingleUnlockCount,
-  hasSeenSingleEmailGate,
-  incrementSingleUnlock,
-  markSingleEmailGateSeen,
-} from './useDrawCounter';
-import { trackCardDrawComplete, trackFreeReadingView } from '../lib/ga4';
+import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted } from '../lib/ga4';
+import { getOracleFreeIntent } from '../lib/oracleFreeAccess';
+import { getSingleUnlockCount, hasSeenSingleEmailGate, incrementSingleUnlock, markSingleEmailGateSeen } from './useDrawCounter';
 
 export type SingleGatePhase = 'idle' | 'loading' | 'unlocked' | 'email_gate' | 'membership_gate';
 
@@ -43,6 +39,8 @@ export function useSingleCardGate({
   const userRef = useRef(user);
   const spreadIdRef = useRef(spreadId);
   const reversedRef = useRef(reversed);
+  const completionSentRef = useRef(false);
+  const oracleIntent = useMemo(() => getOracleFreeIntent(spreadId), [spreadId]);
   userRef.current = user;
   spreadIdRef.current = spreadId;
   reversedRef.current = reversed;
@@ -56,25 +54,28 @@ export function useSingleCardGate({
 
     const count = getSingleUnlockCount();
     const hasSeenEmailGate = hasSeenSingleEmailGate();
+
     const autoUnlock = () => {
       setPhase('loading');
-      cardsApi.freeUnlockSingle(spreadIdRef.current, cardKey, reversedRef.current)
+      cardsApi.freeUnlockSingle(spreadIdRef.current, cardKey, reversedRef.current, oracleIntent?.reading_id)
         .then(({ card }) => {
           setUnlockedCard(card);
-          incrementSingleUnlock();
+          if (!oracleIntent) incrementSingleUnlock();
           setPhase('unlocked');
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           setError(err instanceof Error ? err.message : '解鎖失敗');
-          setPhase('email_gate');
+          if (oracleIntent) {
+            setPhase('membership_gate'); setShowMembership(true);
+          } else setPhase('email_gate');
         });
     };
 
+    if (oracleIntent) { autoUnlock(); return; }
+
     const continueForNonMember = () => {
       if (count === 2 && !hasSeenEmailGate) {
-        markSingleEmailGateSeen();
-        setPhase('email_gate');
-        return;
+        markSingleEmailGateSeen(); setPhase('email_gate'); return;
       }
       autoUnlock();
     };
@@ -84,11 +85,8 @@ export function useSingleCardGate({
       profileApi.me()
         .then(({ profile }) => {
           if (profile?.membership?.is_active || profile?.purchased_spreads?.includes('membership_monthly')) {
-            return cardsApi.freeUnlockSingle(spreadIdRef.current, cardKey, reversedRef.current)
-              .then(({ card }) => {
-                setUnlockedCard(card);
-                setPhase('unlocked');
-              });
+            autoUnlock();
+            return;
           }
           continueForNonMember();
         })
@@ -99,13 +97,25 @@ export function useSingleCardGate({
     }
 
     continueForNonMember();
-  }, [enabled, cardKey, spreadId, user?.id]);
+  }, [enabled, cardKey, spreadId, user?.id, oracleIntent]);
 
   useEffect(() => {
     if (phase === 'unlocked' && unlockedCard) {
       trackFreeReadingView(spreadId, 'free_unlock_api', Boolean(unlockedCard));
+      if (oracleIntent && !completionSentRef.current) {
+        completionSentRef.current = true;
+        void oracleFreeApi.complete(oracleIntent.reading_id).then((result) => {
+          trackOracleFreeReadingCompleted(oracleIntent.reading_id, {
+            free_reading_number: result.free_reading_number,
+            remaining_free_readings: result.remaining_free_readings,
+            deck_type: oracleIntent.deck_type,
+            spread_type: oracleIntent.spread_type,
+            need_type: oracleIntent.need_type,
+          });
+        }).catch(() => { completionSentRef.current = false; });
+      }
     }
-  }, [phase, spreadId, unlockedCard]);
+  }, [phase, spreadId, unlockedCard, oracleIntent]);
 
   const onEmailUnlocked = (_email: string, card?: UnlockedCard) => {
     if (card) {

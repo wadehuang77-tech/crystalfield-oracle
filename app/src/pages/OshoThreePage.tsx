@@ -19,27 +19,6 @@ import { trackReadingStart } from '../lib/ga4';
 
 const SPREAD_ID = 'osho_three';
 
-const OSHO_THREE_CARD_PROMPTS = [
-  '腦袋轉個不停、越想越煩？奧修禪卡幫你按下一鍵暫停，看清思維的幻象。',
-  '不是環境困住了你，是觀念綁架了你。一秒看懂你當前的內在心境。',
-  '卡在苦惱裡出不來？看懂你內在的『制約』與『執著』，學會真正地鬆手。',
-];
-
-function OshoThreeCardIntro() {
-  return (
-    <div className="mx-auto mb-8 rounded-2xl border border-teal-400/30 bg-gradient-to-br from-teal-500/10 via-slate-900/85 to-cyan-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_32px_rgba(45,212,191,0.12)]">
-      <div className="space-y-4 text-left">
-        {OSHO_THREE_CARD_PROMPTS.map((prompt) => (
-          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-teal-50/95">
-            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-cyan-300" strokeWidth={1.5} />
-            <span>{prompt}</span>
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 interface OshoMeanings {
   currentEnergy: string;
   dailyGuidance: string;
@@ -240,7 +219,6 @@ export default function OshoThreePage() {
             </h1>
             <p className="text-teal-200/80 text-lg mb-6">適合用於深度冥想或了解個人身心狀態</p>
 
-            <OshoThreeCardIntro />
 
             <div className="max-w-2xl mx-auto space-y-4 text-left bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-6">
               <div className="flex items-start gap-3">

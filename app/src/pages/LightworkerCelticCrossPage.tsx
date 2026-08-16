@@ -26,27 +26,6 @@ import { trackReadingStart } from '../lib/ga4';
 
 const SPREAD_ID = 'celtic_cross';
 
-const LIGHTWORKER_MISSION_PROMPTS = [
-  '常常覺得自己不屬於這個世界？抽一張牌，解鎖你來到地球的「靈魂合約與使命」。',
-  '不只是為了生存而工作！揭示你今生真正想完成的心願與靈魂藍圖。',
-  '連結你的光之團隊（指導靈與天使），領取此刻專屬於你的神聖提醒。',
-];
-
-function LightworkerMissionIntro() {
-  return (
-    <div className="rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-cyan-500/10 via-slate-900/85 to-blue-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_34px_rgba(34,211,238,0.13)]">
-      <div className="space-y-4 text-left">
-        {LIGHTWORKER_MISSION_PROMPTS.map((prompt) => (
-          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-cyan-50/95">
-            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-cyan-300" strokeWidth={1.5} />
-            <span>{prompt}</span>
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 interface CardPosition {
   position: number;
   title: string;
@@ -418,16 +397,8 @@ function LightworkerCelticCrossPage() {
 
         {!hasDrawn && !isShuffling && (
           <div className="max-w-5xl mx-auto space-y-8">
-            <LightworkerMissionIntro />
 
-            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-cyan-500/30 rounded-3xl p-8 sm:p-12 shadow-2xl text-center">
-              <h2 className="text-2xl sm:text-3xl font-serif text-cyan-100 mb-6">準備開始</h2>
-              <p className="text-cyan-200/70 leading-relaxed text-sm sm:text-base mb-8">
-                閉上眼睛，深呼吸三次。<br />
-                將你的意圖專注於你想要探索的靈魂使命與人生方向。<br />
-                準備好後，點擊下方按鈕開始抽取十張指引牌。
-              </p>
-
+            <div className="text-center">
               <button
                 onClick={drawCards}
                 disabled={!deck || deck.length === 0}

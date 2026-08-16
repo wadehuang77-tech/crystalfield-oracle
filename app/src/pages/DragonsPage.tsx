@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Lock, RotateCcw, Sparkles } from 'lucide-react';
+import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
@@ -21,27 +21,6 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
-
-const DRAGON_THREE_CARD_PROMPTS = [
-  '拖延不決的關係，只是在消耗你的靈魂。讓龍族的火焰，幫你斬斷不健康的能量連結。',
-  '告別情感綁架與毒性關係！召喚龍族力量，拿回屬於你的內在主導權。',
-  '你需要的不只是安慰，而是破局的勇氣。龍族將賦予你突破現狀的強大力量。',
-];
-
-function DragonThreeCardIntro() {
-  return (
-    <div className="max-w-3xl mx-auto mb-10 rounded-2xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-slate-900/85 to-emerald-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_34px_rgba(251,146,60,0.14)]">
-      <div className="space-y-4 text-left">
-        {DRAGON_THREE_CARD_PROMPTS.map((prompt) => (
-          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-emerald-50/95">
-            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-amber-300" strokeWidth={1.5} />
-            <span>{prompt}</span>
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 interface DragonGated {
   message: string;
@@ -398,7 +377,6 @@ function DragonsPage() {
             <p className="text-sm sm:text-base text-emerald-300/85 mb-8 leading-loose">
               龍族將引領你看見過去、現在與未來的智慧連結
             </p>
-            <DragonThreeCardIntro />
 
             <div className="flex justify-center mb-12 gap-4">
               {[0, 1, 2].map((i) => (

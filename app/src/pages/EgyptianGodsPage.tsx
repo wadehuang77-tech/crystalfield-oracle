@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Lock, RotateCcw, Sparkles } from 'lucide-react';
+import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
@@ -50,27 +50,6 @@ const PASTLIFE_POSITIONS = [
   '靈魂要釋放的',
   '解鎖與療癒方式',
 ];
-
-const EGYPTIAN_PAST_LIFE_PROMPTS = [
-  '走過人生的低谷與碎裂？讓生命與魔法之母 Isis，溫柔重組你的靈魂，迎接光榮重生。',
-  '在天平上秤量真相：讓智慧之神與阿努比斯，幫你一眼穿透迷霧，看清局勢真相。',
-  '感覺運勢低迷、缺乏動力？接引古埃及太陽神的極陽能量，為你照亮前路、顯化奇蹟。',
-];
-
-function EgyptianPastLifeIntro() {
-  return (
-    <div className="mx-auto mb-10 rounded-2xl border border-yellow-400/35 bg-gradient-to-br from-yellow-500/10 via-slate-900/85 to-amber-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_34px_rgba(250,204,21,0.14)]">
-      <div className="space-y-4 text-left">
-        {EGYPTIAN_PAST_LIFE_PROMPTS.map((prompt) => (
-          <p key={prompt} className="flex items-start gap-3 text-base sm:text-lg leading-relaxed text-yellow-50/95">
-            <Sparkles className="mt-1 h-4 w-4 shrink-0 text-yellow-300" strokeWidth={1.5} />
-            <span>{prompt}</span>
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function EgyptianPastlifePreviewCard({ slot, index }: { slot: PastlifeSlot; index: number }) {
   const positionGuide = getPastLifePositionGuide(index);
@@ -417,7 +396,6 @@ function EgyptianGodsPage() {
                 ? '七張牌將為你揭開前世今生的因果連結'
                 : '閉上眼睛,專注於你的問題'}
             </p>
-            {spreadType === 'pastlife' && <EgyptianPastLifeIntro />}
 
             <div className="flex justify-center mb-12 gap-3">
               {(spreadType === 'pastlife' ? Array.from({ length: 7 }) : Array.from({ length: 1 })).map((_, i) => (

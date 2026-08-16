@@ -57,6 +57,8 @@ type Ga4EventMap = {
   purchase: { transaction_id: string; currency: 'TWD'; value: number; deck_id: OracleDeckId; spread_id: OracleSpreadId; reading_id: string; payment_type: string; items: Ga4Item[] };
   oracle_need_selected: { need_type: OracleNeedType };
   oracle_reading_started: { need_type: OracleNeedType; spread_type: OracleSpreadId; deck_type: OracleDeckId };
+  oracle_free_reading_completed: { free_reading_number: 1 | 2; remaining_free_readings: number; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
+  oracle_paywall_viewed: { reason: 'free_limit_reached'; completed_free_readings: 2; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
 };
 
 export type Ga4EventName = keyof Ga4EventMap;
@@ -164,6 +166,21 @@ export function trackOracleReadingStarted(
     spread_type: spreadType,
     deck_type: deckType,
   });
+}
+
+export function trackOracleFreeReadingCompleted(readingId: string, params: Ga4EventMap['oracle_free_reading_completed']): void {
+  const key = `cf_ga4_oracle_free_completed:${readingId}`;
+  try {
+    if (localStorage.getItem(key) === '1') return;
+    localStorage.setItem(key, '1');
+  } catch {
+    // Analytics still works when persistent storage is unavailable.
+  }
+  trackEvent('oracle_free_reading_completed', params);
+}
+
+export function trackOraclePaywallViewed(params: Ga4EventMap['oracle_paywall_viewed']): void {
+  trackEvent('oracle_paywall_viewed', params);
 }
 
 export function trackReadingStart(spreadId: string, topic?: string): string | null {

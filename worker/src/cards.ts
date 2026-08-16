@@ -1,4 +1,5 @@
 import { verifyOrderToken } from './checkout';
+import { hasActiveMembership } from './subscriptions';
 import {
   badRequest,
   clientIp,
@@ -333,7 +334,7 @@ export function getSpreadDef(spreadId: string): SpreadDef | undefined {
   return SPREADS[spreadId];
 }
 
-interface FreeUnlockSingleBody { spread_id: string; card_key: string; reversed?: boolean; }
+interface FreeUnlockSingleBody { spread_id: string; card_key: string; reversed?: boolean; reading_id?: string; }
 
 export async function freeUnlockSingle(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSingleBody>(req);
@@ -343,11 +344,17 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
   if (!body.card_key) return badRequest(req, env, 'card_key required');
   const card = await loadFullCard(env, spread.deck_id, body.card_key);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
-  return json(req, env, { card: { ...card, reversed: !!body.reversed } });
+  const session = await readSession(req, env);
+  const isMember = session ? await hasActiveMembership(env, session.id) : false;
+  if (!isMember && body.reading_id) {
+    const access = await verifyOracleReservation(req, env, body.reading_id, body.spread_id);
+    if (access instanceof Response) return access;
+  }
+  return json(req, env, { card: { ...card, reversed: !!body.reversed }, free_readings_remaining: null });
 }
 
 interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
-interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; email?: string; }
+interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; reading_id?: string; email?: string; }
 
 async function sha256Hex(value: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
@@ -366,13 +373,133 @@ async function hmacSha256Hex(secret: string, value: string): Promise<string> {
   return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+const GLOBAL_FREE_READING_LIMIT = 2;
+
+async function oracleVisitorHash(req: Request, env: Env): Promise<string | null> {
+  const ip = clientIp(req).split(',')[0]?.trim();
+  return ip && ip !== 'unknown'
+    ? hmacSha256Hex(env.JWT_SECRET, `multi-spread:${ip}`)
+    : null;
+}
+
+async function completedOracleReadings(env: Env, visitorHash: string): Promise<number> {
+  const row = await env.DB.prepare(
+    `SELECT COUNT(*) AS count FROM multi_spread_free_unlocks
+      WHERE id LIKE ? AND id NOT LIKE 'oracle-reservation:%'`,
+  ).bind(`%:${visitorHash}`).first<{ count: number }>();
+  return Math.max(0, Number(row?.count ?? 0));
+}
+
+export async function oracleFreeReadingStatus(req: Request, env: Env): Promise<Response> {
+  const visitorHash = await oracleVisitorHash(req, env);
+  if (!visitorHash) return json(req, env, { error: '無法確認免費體驗資格' }, { status: 400 });
+  const completed = Math.min(GLOBAL_FREE_READING_LIMIT, await completedOracleReadings(env, visitorHash));
+  return json(req, env, { completed_free_readings: completed, remaining_free_readings: GLOBAL_FREE_READING_LIMIT - completed });
+}
+
+export async function startOracleFreeReading(req: Request, env: Env): Promise<Response> {
+  const body = await readBody<{ spread_id: string }>(req);
+  if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
+  const visitorHash = await oracleVisitorHash(req, env);
+  if (!visitorHash) return json(req, env, { error: '無法確認免費體驗資格' }, { status: 400 });
+  await env.DB.prepare(
+    `DELETE FROM multi_spread_free_unlocks
+      WHERE id LIKE ? AND id LIKE 'oracle-reservation:%' AND created_at < datetime('now', '-30 minutes')`,
+  ).bind(`%:${visitorHash}`).run();
+  const completed = await completedOracleReadings(env, visitorHash);
+  if (completed >= GLOBAL_FREE_READING_LIMIT) {
+    return json(req, env, {
+      error: '兩次免費占卜已使用完畢', code: 'FREE_GLOBAL_LIMIT_REACHED',
+      completed_free_readings: Math.min(2, completed), remaining_free_readings: 0,
+    }, { status: 409 });
+  }
+  // A deterministic reservation id makes concurrent tabs contend for the same
+  // row instead of creating several reservations before any result completes.
+  const reservationId = `oracle-reservation:${visitorHash}`;
+  const readingId = crypto.randomUUID();
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at)
+     VALUES (?, ?, ?, ?)`,
+  ).bind(
+    reservationId,
+    `reservation:${readingId}`,
+    body.spread_id,
+    new Date().toISOString(),
+  ).run();
+  const reservation = await env.DB.prepare(
+    `SELECT email_hash, spread_id FROM multi_spread_free_unlocks WHERE id = ?`,
+  ).bind(reservationId).first<{ email_hash: string; spread_id: string }>();
+  const activeReadingId = reservation?.email_hash.startsWith('reservation:')
+    ? reservation.email_hash.slice('reservation:'.length)
+    : '';
+  if (!activeReadingId || reservation?.spread_id !== body.spread_id) {
+    return json(req, env, {
+      error: '已有一筆占卜正在進行，請先完成後再開始新的占卜',
+      code: 'FREE_READING_IN_PROGRESS',
+    }, { status: 409 });
+  }
+  return json(req, env, {
+    reading_id: activeReadingId,
+    remaining_free_readings: Math.max(0, GLOBAL_FREE_READING_LIMIT - completed),
+  });
+}
+
+async function verifyOracleReservation(
+  req: Request, env: Env, readingId: string, spreadId: string,
+): Promise<true | Response> {
+  const visitorHash = await oracleVisitorHash(req, env);
+  if (!visitorHash) return forbidden(req, env, '免費占卜憑證無效');
+  const id = `oracle-reservation:${visitorHash}`;
+  const row = await env.DB.prepare(
+    `SELECT email_hash, spread_id FROM multi_spread_free_unlocks WHERE id = ?`,
+  ).bind(id).first<{ email_hash: string; spread_id: string }>();
+  if (!row || row.spread_id !== spreadId || row.email_hash !== `reservation:${readingId}`) {
+    return forbidden(req, env, '免費占卜憑證無效或已過期');
+  }
+  return true;
+}
+
+export async function completeOracleFreeReading(req: Request, env: Env): Promise<Response> {
+  const body = await readBody<{ reading_id: string }>(req);
+  if (!body.reading_id) return badRequest(req, env, 'reading_id required');
+  const visitorHash = await oracleVisitorHash(req, env);
+  if (!visitorHash) return forbidden(req, env, '免費占卜憑證無效');
+  const reservationId = `oracle-reservation:${visitorHash}`;
+  const completionId = `oracle-complete:${body.reading_id}:${visitorHash}`;
+  const existing = await env.DB.prepare(`SELECT id FROM multi_spread_free_unlocks WHERE id = ?`)
+    .bind(completionId).first<{ id: string }>();
+  if (!existing) {
+    const reservation = await env.DB.prepare(
+      `SELECT email_hash, spread_id FROM multi_spread_free_unlocks WHERE id = ?`,
+    ).bind(reservationId).first<{ email_hash: string; spread_id: string }>();
+    if (!reservation || reservation.email_hash !== `reservation:${body.reading_id}`) {
+      return forbidden(req, env, '免費占卜憑證無效或已過期');
+    }
+    const completedBefore = await completedOracleReadings(env, visitorHash);
+    if (completedBefore >= GLOBAL_FREE_READING_LIMIT) {
+      await env.DB.prepare(`DELETE FROM multi_spread_free_unlocks WHERE id = ?`).bind(reservationId).run();
+      return json(req, env, { error: '兩次免費占卜已使用完畢', code: 'FREE_GLOBAL_LIMIT_REACHED' }, { status: 409 });
+    }
+    await env.DB.batch([
+      env.DB.prepare(
+        `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at) VALUES (?, ?, ?, ?)`,
+      ).bind(completionId, `complete:${body.reading_id}:${visitorHash}`, reservation.spread_id, new Date().toISOString()),
+      env.DB.prepare(`DELETE FROM multi_spread_free_unlocks WHERE id = ?`).bind(reservationId),
+    ]);
+  }
+  const completed = Math.min(GLOBAL_FREE_READING_LIMIT, await completedOracleReadings(env, visitorHash));
+  return json(req, env, {
+    free_reading_number: completed,
+    completed_free_readings: completed,
+    remaining_free_readings: GLOBAL_FREE_READING_LIMIT - completed,
+  });
+}
+
 export async function freeUnlockSpread(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSpreadBody>(req);
   if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
   const spread = SPREADS[body.spread_id];
   if (spread.free) return badRequest(req, env, 'use free-unlock-single for single cards');
-  const email = (body.email ?? '').trim().toLowerCase();
-  if (email && !validEmail(email)) return badRequest(req, env, '請輸入有效的 Email 地址');
   if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
     return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
   }
@@ -383,43 +510,26 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 
-  const ip = clientIp(req).split(',')[0]?.trim();
-  if (!ip || ip === 'unknown') {
-    return json(req, env, { error: '無法確認免費體驗資格，請稍後再試' }, { status: 400 });
+  if (body.reading_id) {
+    const access = await verifyOracleReservation(req, env, body.reading_id, body.spread_id);
+    if (access instanceof Response) return access;
+    return json(req, env, { spread_id: body.spread_id, cards });
   }
-  const visitorHash = await hmacSha256Hex(env.JWT_SECRET, `multi-spread:${ip}`);
+  const email = (body.email ?? '').trim().toLowerCase();
+  if (email && !validEmail(email)) return badRequest(req, env, '請輸入有效的 Email 地址');
+  const visitorHash = await oracleVisitorHash(req, env);
+  if (!visitorHash) return json(req, env, { error: '無法確認免費體驗資格，請稍後再試' }, { status: 400 });
   const isEmailStage = email.length > 0;
-  const claimId = isEmailStage
-    ? `multi-stage2:${body.spread_id}:${visitorHash}`
-    : `multi-stage1:${body.spread_id}:${visitorHash}`;
-  const claimHash = isEmailStage
-    ? await sha256Hex(email)
-    : `anonymous:${visitorHash}`;
-  let claimResult: D1Result<unknown>;
-  try {
-    claimResult = await env.DB.prepare(
-      `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at)
-       VALUES (?, ?, ?, ?)`,
-    ).bind(claimId, claimHash, body.spread_id, new Date().toISOString()).run();
-  } catch {
-    return json(req, env, {
-      error: '免費額度資料表尚未建立，請先套用 017_multi_spread_free_unlocks.sql',
-      code: 'FREE_SPREAD_MIGRATION_REQUIRED',
-    }, { status: 503 });
+  const claimId = `${isEmailStage ? 'multi-stage2' : 'multi-stage1'}:${body.spread_id}:${visitorHash}`;
+  const claimHash = isEmailStage ? await sha256Hex(email) : `anonymous:${visitorHash}`;
+  const claim = await env.DB.prepare(
+    `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at) VALUES (?, ?, ?, ?)`,
+  ).bind(claimId, claimHash, body.spread_id, new Date().toISOString()).run();
+  if ((claim.meta.changes ?? 0) !== 1) {
+    return json(req, env, isEmailStage
+      ? { error: '此牌陣的免費體驗已使用完畢', code: 'FREE_SPREAD_ALREADY_USED' }
+      : { error: '第一次免費體驗已使用，請輸入 Email 解鎖第二次免費體驗', code: 'FREE_SPREAD_EMAIL_REQUIRED' },
+    { status: 409 });
   }
-
-  if ((claimResult.meta.changes ?? 0) !== 1) {
-    if (!isEmailStage) {
-      return json(req, env, {
-        error: '第一次免費體驗已使用，請輸入 Email 解鎖第二次免費體驗',
-        code: 'FREE_SPREAD_EMAIL_REQUIRED',
-      }, { status: 409 });
-    }
-    return json(req, env, {
-      error: '此牌陣的免費體驗已使用完畢',
-      code: 'FREE_SPREAD_ALREADY_USED',
-    }, { status: 409 });
-  }
-
   return json(req, env, { spread_id: body.spread_id, cards });
 }

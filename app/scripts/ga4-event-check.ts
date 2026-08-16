@@ -62,6 +62,28 @@ assert(count('oracle_reading_started') === 1, 'One need-based start must send ex
 assert(event('oracle_reading_started').params.spread_type === 'tarot_three', 'Need-based start must include spread_type');
 assert(event('oracle_reading_started').params.deck_type === 'tarot', 'Need-based start must include deck_type');
 
+analytics.trackOracleFreeReadingCompleted('reading-free-1', {
+  free_reading_number: 1,
+  remaining_free_readings: 1,
+  deck_type: 'tarot',
+  spread_type: 'tarot_three',
+  need_type: 'career_finance',
+});
+analytics.trackOracleFreeReadingCompleted('reading-free-1', {
+  free_reading_number: 1,
+  remaining_free_readings: 1,
+  deck_type: 'tarot',
+  spread_type: 'tarot_three',
+  need_type: 'career_finance',
+});
+assert(count('oracle_free_reading_completed') === 1, 'Free completion must be once per reading_id');
+
+analytics.trackOraclePaywallViewed({
+  reason: 'free_limit_reached', completed_free_readings: 2,
+  deck_type: 'tarot', spread_type: 'tarot_three', need_type: 'career_finance',
+});
+assert(count('oracle_paywall_viewed') === 1, 'Paywall event must be emitted once per view');
+
 const firstReadingId = analytics.trackReadingStart('tarot_three', 'not-a-free-text-question');
 const duplicateReadingId = analytics.trackReadingStart('tarot_three', 'love');
 assert(firstReadingId && firstReadingId === duplicateReadingId, 'Repeated start before completion must reuse reading_id');

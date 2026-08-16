@@ -1,12 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { cardsApi, type UnlockedCard } from '../lib/api';
-import {
-  getMultiUnlockCount,
-  getMultiSpreadGateDecision,
-  incrementMultiUnlock,
-  MULTI_SPREAD_FREE_LIMIT,
-} from './useDrawCounter';
-import { trackCardDrawComplete, trackFreeReadingView } from '../lib/ga4';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { cardsApi, oracleFreeApi, type UnlockedCard } from '../lib/api';
+import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted } from '../lib/ga4';
+import { getOracleFreeIntent } from '../lib/oracleFreeAccess';
+import { getMultiUnlockCount, getMultiSpreadGateDecision, incrementMultiUnlock, MULTI_SPREAD_FREE_LIMIT } from './useDrawCounter';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'email_gate' | 'paywall';
 
@@ -35,16 +31,18 @@ export function useMultiSpreadGate({
   const [error, setError] = useState<string | null>(null);
   const firedRef = useRef(false);
   const lastPicksKeyRef = useRef<string>('');
+  const completionSentRef = useRef(false);
+  const oracleIntent = useMemo(() => getOracleFreeIntent(spreadId), [spreadId]);
 
   const unlockForFree = useCallback(async (picksToUnlock: Pick[], email?: string) => {
-    if (getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
+    if (!oracleIntent && getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
       throw new Error('這個牌陣的免費體驗已使用完畢');
     }
-    const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock, email);
+    const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock, oracleIntent?.reading_id, email);
     setUnlockedCards(cards);
-    incrementMultiUnlock(spreadId);
+    if (!oracleIntent) incrementMultiUnlock(spreadId);
     setPhase('unlocked');
-  }, [spreadId]);
+  }, [spreadId, oracleIntent]);
 
   useEffect(() => {
     if (!enabled || !picks || picks.length === 0) { firedRef.current = false; return; }
@@ -56,62 +54,55 @@ export function useMultiSpreadGate({
     lastPicksKeyRef.current = picksKey;
     firedRef.current = true;
 
-    const count = getMultiUnlockCount(spreadId);
-
-    const nextPhase = getMultiSpreadGateDecision(count);
+    if (oracleIntent) {
+      setPhase('loading'); setError(null);
+      void unlockForFree(picks).catch((err) => { setError(err instanceof Error ? err.message : '解鎖失敗'); setPhase('paywall'); });
+      return;
+    }
+    const nextPhase = getMultiSpreadGateDecision(getMultiUnlockCount(spreadId));
     if (nextPhase === 'auto_unlock') {
-      setPhase('loading');
-      setError(null);
+      setPhase('loading'); setError(null);
       void unlockForFree(picks).catch((err: unknown) => {
-        const apiError = err as Error & { status?: number; body?: { code?: string } };
+        const apiError = err as Error & { body?: { code?: string } };
         if (apiError.body?.code === 'FREE_SPREAD_EMAIL_REQUIRED') {
           if (getMultiUnlockCount(spreadId) === 0) incrementMultiUnlock(spreadId);
-          setPhase('email_gate');
-          return;
+          setPhase('email_gate'); return;
         }
-        setError(apiError instanceof Error ? apiError.message : '解鎖失敗');
-        setPhase('email_gate');
+        setError(apiError instanceof Error ? apiError.message : '解鎖失敗'); setPhase('email_gate');
       });
-    } else if (nextPhase === 'email_gate') {
-      setPhase('email_gate');
-    } else {
-      setPhase('paywall');
-    }
-  }, [enabled, picks, spreadId, unlockForFree]);
+    } else setPhase(nextPhase);
+  }, [enabled, picks, spreadId, unlockForFree, oracleIntent]);
 
   useEffect(() => {
     if (phase === 'unlocked' && unlockedCards?.length) {
       trackFreeReadingView(spreadId, 'free_unlock_api', unlockedCards.length > 0);
+      if (oracleIntent && !completionSentRef.current) {
+        completionSentRef.current = true;
+        void oracleFreeApi.complete(oracleIntent.reading_id).then((result) => {
+          trackOracleFreeReadingCompleted(oracleIntent.reading_id, {
+            free_reading_number: result.free_reading_number,
+            remaining_free_readings: result.remaining_free_readings,
+            deck_type: oracleIntent.deck_type,
+            spread_type: oracleIntent.spread_type,
+            need_type: oracleIntent.need_type,
+          });
+        }).catch(() => { completionSentRef.current = false; });
+      }
     }
-  }, [phase, spreadId, unlockedCards]);
+  }, [phase, spreadId, unlockedCards, oracleIntent]);
 
   const onEmailUnlocked = async (email: string) => {
     if (!picks || picks.length === 0) return;
-    if (getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
-      setError('這個牌陣的免費體驗已使用完畢');
-      setPhase('paywall');
-      return;
+    if (!oracleIntent && getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
+      setPhase('paywall'); return;
     }
     setPhase('loading');
     setError(null);
     try {
       await unlockForFree(picks, email);
     } catch (err) {
-      const apiError = err as Error & { status?: number; body?: { code?: string } };
-      setError(apiError instanceof Error ? apiError.message : '解鎖失敗');
-      if (apiError.status === 409) {
-        if (apiError.body?.code === 'FREE_SPREAD_EMAIL_REQUIRED') {
-          setPhase('email_gate');
-          return;
-        }
-        while (getMultiUnlockCount(spreadId) < MULTI_SPREAD_FREE_LIMIT) {
-          incrementMultiUnlock(spreadId);
-        }
-        setPhase('paywall');
-        return;
-      } else {
-        setPhase('email_gate');
-      }
+      setError(err instanceof Error ? err.message : '解鎖失敗');
+      setPhase('paywall');
       throw err;
     }
   };
