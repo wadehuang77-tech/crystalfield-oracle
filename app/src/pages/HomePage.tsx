@@ -13,14 +13,12 @@ import {
   trackDeckSelect,
   trackOracleNeedSelected,
   trackOracleReadingStarted,
-  trackOraclePaywallViewed,
   type OracleDeckId,
   type OracleNeedType,
   type OracleSpreadId,
 } from '../lib/ga4';
-import { cardsApi, checkoutApi, oracleFreeApi } from '../lib/api';
+import { oracleFreeApi } from '../lib/api';
 import { saveOracleFreeIntent } from '../lib/oracleFreeAccess';
-import { submitToEcpay } from '../lib/ecpayRedirect';
 
 interface NeedOption {
   id: 'emotion_career' | 'past_life' | 'soul' | 'clearing';
@@ -163,9 +161,6 @@ function HomePage() {
   const [error, setError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [isStarting, setIsStarting] = useState(false);
-  const [paywallOption, setPaywallOption] = useState<NeedOption | null>(null);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const paywallTrackedRef = useRef(false);
   const startingRef = useRef(false);
 
   useEffect(() => {
@@ -196,6 +191,7 @@ function HomePage() {
     try {
       const access = await oracleFreeApi.start(option.spreadType);
       saveOracleFreeIntent({
+        access_mode: 'free',
         need_id: option.id,
         need_type: option.needType,
         question: trimmedQuestion,
@@ -211,43 +207,23 @@ function HomePage() {
       const apiError = err as Error & { status?: number; body?: { code?: string } };
       if (apiError.status === 409 && apiError.body?.code === 'FREE_GLOBAL_LIMIT_REACHED') {
         setRemaining(0);
-        setPaywallOption(option);
-        if (!paywallTrackedRef.current) {
-          paywallTrackedRef.current = true;
-          trackOraclePaywallViewed({
-            reason: 'free_limit_reached', completed_free_readings: 2,
-            deck_type: option.deckType, spread_type: option.spreadType, need_type: option.needType,
-          });
-        }
+        saveOracleFreeIntent({
+          access_mode: 'paywall_preview',
+          need_id: option.id,
+          need_type: option.needType,
+          question: trimmedQuestion,
+          deck_type: option.deckType,
+          spread_type: option.spreadType,
+          created_at: Date.now(),
+        });
+        trackOracleReadingStarted(option.needType, option.spreadType, option.deckType);
+        navigate(option.destination);
       } else {
         setError(apiError.message || '免費次數確認失敗，請稍後再試');
       }
     } finally {
       startingRef.current = false;
       setIsStarting(false);
-    }
-  };
-
-  const checkoutReading = async () => {
-    if (!paywallOption || isCheckingOut) return;
-    setIsCheckingOut(true);
-    setError('');
-    try {
-      const deck = await cardsApi.deckPreview(paywallOption.deckType);
-      const count = paywallOption.spreadType === 'cosmic_cross' ? 11
-        : paywallOption.spreadType.includes('pastlife') ? 7 : 3;
-      const picks = [...deck.cards].sort(() => Math.random() - 0.5).slice(0, count)
-        .map((card, index) => ({ card_key: card.card_key, position: index + 1, reversed: Math.random() > 0.5 }));
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(paywallOption.spreadType, picks);
-      if (admin_unlocked) {
-        navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
-        return;
-      }
-      if (!ecpay) throw new Error('結帳資料缺失，請重試');
-      submitToEcpay(ecpay, () => { setError('跳轉至綠界失敗，請重試'); setIsCheckingOut(false); });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '建立付款失敗，請稍後再試');
-      setIsCheckingOut(false);
     }
   };
 
@@ -381,21 +357,6 @@ function HomePage() {
           願你的內在智慧，照亮前行的道路
         </footer>
       </main>
-      {paywallOption && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border border-amber-300/40 bg-slate-950 p-7 text-center shadow-[0_0_45px_rgba(251,191,36,0.25)]">
-            <h2 className="font-serif text-2xl text-amber-100">免費占卜次數已使用完畢</h2>
-            <p className="mt-3 leading-7 text-blue-100/75">你的 2 次免費占卜已完成，本次占卜需先付費才能開始抽牌。</p>
-            {error && <p className="mt-3 text-sm text-rose-300">{error}</p>}
-            <button type="button" onClick={() => void checkoutReading()} disabled={isCheckingOut}
-              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3.5 font-bold text-white disabled:opacity-60">
-              {isCheckingOut ? '準備付款中…' : '付費解鎖本次占卜'}
-            </button>
-            <button type="button" onClick={() => setPaywallOption(null)} disabled={isCheckingOut}
-              className="mt-3 w-full px-5 py-2 text-sm text-blue-200/60">稍後再說</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

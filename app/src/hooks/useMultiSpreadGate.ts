@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cardsApi, oracleFreeApi, type UnlockedCard } from '../lib/api';
-import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted } from '../lib/ga4';
+import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted, trackOraclePaywallViewed } from '../lib/ga4';
 import { getOracleFreeIntent } from '../lib/oracleFreeAccess';
 import { getMultiUnlockCount, getMultiSpreadGateDecision, incrementMultiUnlock, MULTI_SPREAD_FREE_LIMIT } from './useDrawCounter';
 
@@ -32,13 +32,15 @@ export function useMultiSpreadGate({
   const firedRef = useRef(false);
   const lastPicksKeyRef = useRef<string>('');
   const completionSentRef = useRef(false);
+  const paywallTrackedRef = useRef(false);
   const oracleIntent = useMemo(() => getOracleFreeIntent(spreadId), [spreadId]);
 
   const unlockForFree = useCallback(async (picksToUnlock: Pick[], email?: string) => {
     if (!oracleIntent && getMultiUnlockCount(spreadId) >= MULTI_SPREAD_FREE_LIMIT) {
       throw new Error('這個牌陣的免費體驗已使用完畢');
     }
-    const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock, oracleIntent?.reading_id, email);
+    const readingId = oracleIntent?.access_mode === 'free' ? oracleIntent.reading_id : undefined;
+    const { cards } = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock, readingId, email);
     setUnlockedCards(cards);
     if (!oracleIntent) incrementMultiUnlock(spreadId);
     setPhase('unlocked');
@@ -55,6 +57,19 @@ export function useMultiSpreadGate({
     firedRef.current = true;
 
     if (oracleIntent) {
+      if (oracleIntent.access_mode === 'paywall_preview') {
+        setPhase('paywall');
+        if (!paywallTrackedRef.current) {
+          paywallTrackedRef.current = true;
+          trackOraclePaywallViewed({
+            reason: 'free_limit_reached', completed_free_readings: 2,
+            deck_type: oracleIntent.deck_type,
+            spread_type: oracleIntent.spread_type,
+            need_type: oracleIntent.need_type,
+          });
+        }
+        return;
+      }
       setPhase('loading'); setError(null);
       void unlockForFree(picks).catch((err) => { setError(err instanceof Error ? err.message : '解鎖失敗'); setPhase('paywall'); });
       return;
@@ -76,10 +91,11 @@ export function useMultiSpreadGate({
   useEffect(() => {
     if (phase === 'unlocked' && unlockedCards?.length) {
       trackFreeReadingView(spreadId, 'free_unlock_api', unlockedCards.length > 0);
-      if (oracleIntent && !completionSentRef.current) {
+      if (oracleIntent?.access_mode === 'free' && oracleIntent.reading_id && !completionSentRef.current) {
+        const readingId = oracleIntent.reading_id;
         completionSentRef.current = true;
-        void oracleFreeApi.complete(oracleIntent.reading_id).then((result) => {
-          trackOracleFreeReadingCompleted(oracleIntent.reading_id, {
+        void oracleFreeApi.complete(readingId).then((result) => {
+          trackOracleFreeReadingCompleted(readingId, {
             free_reading_number: result.free_reading_number,
             remaining_free_readings: result.remaining_free_readings,
             deck_type: oracleIntent.deck_type,

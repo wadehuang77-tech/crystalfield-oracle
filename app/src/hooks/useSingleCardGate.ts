@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cardsApi, oracleFreeApi, profileApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
-import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted } from '../lib/ga4';
+import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted, trackOraclePaywallViewed } from '../lib/ga4';
 import { getOracleFreeIntent } from '../lib/oracleFreeAccess';
 import { getSingleUnlockCount, hasSeenSingleEmailGate, incrementSingleUnlock, markSingleEmailGateSeen } from './useDrawCounter';
 
@@ -40,6 +40,7 @@ export function useSingleCardGate({
   const spreadIdRef = useRef(spreadId);
   const reversedRef = useRef(reversed);
   const completionSentRef = useRef(false);
+  const paywallTrackedRef = useRef(false);
   const oracleIntent = useMemo(() => getOracleFreeIntent(spreadId), [spreadId]);
   userRef.current = user;
   spreadIdRef.current = spreadId;
@@ -57,7 +58,8 @@ export function useSingleCardGate({
 
     const autoUnlock = () => {
       setPhase('loading');
-      cardsApi.freeUnlockSingle(spreadIdRef.current, cardKey, reversedRef.current, oracleIntent?.reading_id)
+      const readingId = oracleIntent?.access_mode === 'free' ? oracleIntent.reading_id : undefined;
+      cardsApi.freeUnlockSingle(spreadIdRef.current, cardKey, reversedRef.current, readingId)
         .then(({ card }) => {
           setUnlockedCard(card);
           if (!oracleIntent) incrementSingleUnlock();
@@ -71,7 +73,22 @@ export function useSingleCardGate({
         });
     };
 
-    if (oracleIntent) { autoUnlock(); return; }
+    if (oracleIntent) {
+      if (oracleIntent.access_mode === 'paywall_preview') {
+        setPhase('membership_gate');
+        setShowMembership(true);
+        if (!paywallTrackedRef.current) {
+          paywallTrackedRef.current = true;
+          trackOraclePaywallViewed({
+            reason: 'free_limit_reached', completed_free_readings: 2,
+            deck_type: oracleIntent.deck_type,
+            spread_type: oracleIntent.spread_type,
+            need_type: oracleIntent.need_type,
+          });
+        }
+      } else autoUnlock();
+      return;
+    }
 
     const continueForNonMember = () => {
       if (count === 2 && !hasSeenEmailGate) {
@@ -102,10 +119,11 @@ export function useSingleCardGate({
   useEffect(() => {
     if (phase === 'unlocked' && unlockedCard) {
       trackFreeReadingView(spreadId, 'free_unlock_api', Boolean(unlockedCard));
-      if (oracleIntent && !completionSentRef.current) {
+      if (oracleIntent?.access_mode === 'free' && oracleIntent.reading_id && !completionSentRef.current) {
+        const readingId = oracleIntent.reading_id;
         completionSentRef.current = true;
-        void oracleFreeApi.complete(oracleIntent.reading_id).then((result) => {
-          trackOracleFreeReadingCompleted(oracleIntent.reading_id, {
+        void oracleFreeApi.complete(readingId).then((result) => {
+          trackOracleFreeReadingCompleted(readingId, {
             free_reading_number: result.free_reading_number,
             remaining_free_readings: result.remaining_free_readings,
             deck_type: oracleIntent.deck_type,
