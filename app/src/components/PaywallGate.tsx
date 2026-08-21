@@ -44,7 +44,7 @@ export function PaywallGate({
   const location = useLocation();
   const price = spreadId ? getSpreadPrice(spreadId) : null;
   const category = spreadId ? getSpreadCategory(spreadId) : null;
-  const categoryBundle = category ? CATEGORY_BUNDLE[category] : null;
+  const categoryBundle = category && category !== 'three_card' ? CATEGORY_BUNDLE[category] : null;
 
   const [progress, setProgress] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);

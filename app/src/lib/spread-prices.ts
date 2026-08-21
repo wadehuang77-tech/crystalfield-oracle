@@ -83,7 +83,6 @@ export const CATEGORY_BUNDLE: Record<SpreadCategory, BundleOption> = {
 };
 
 export const ORACLE_BUNDLES: BundleOption[] = [
-  THREE_CARD_BUNDLE,
   THREE_PASTLIFE_BUNDLE,
   DEEP_SPREAD_BUNDLE,
 ];
