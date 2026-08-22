@@ -1,4 +1,5 @@
-import { Mail } from 'lucide-react';
+import { Mail, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function SiteFooter() {
   return (
@@ -8,13 +9,22 @@ export default function SiteFooter() {
           <span className="font-serif text-base text-blue-100 tracking-[0.3em]">晶域心語</span>
           <p className="text-xs text-blue-300/70 tracking-wider">「透過占卜看見方向,在療癒中回到內在平衡。」</p>
         </div>
-        <a
-          href="mailto:wadehuang77@gmail.com"
-          className="inline-flex items-center gap-2 text-sm text-blue-300/75 hover:text-blue-300 transition-colors"
-        >
-          <Mail className="w-4 h-4" strokeWidth={1.4} />
-          wadehuang77@gmail.com
-        </a>
+        <div className="flex flex-col items-center gap-3 sm:items-end">
+          <Link
+            to="/privacy"
+            className="inline-flex items-center gap-2 text-sm text-blue-200/80 hover:text-blue-100 transition-colors"
+          >
+            <ShieldCheck className="w-4 h-4" strokeWidth={1.4} />
+            隱私權政策
+          </Link>
+          <a
+            href="mailto:wadehuang77@gmail.com"
+            className="inline-flex items-center gap-2 text-sm text-blue-300/75 hover:text-blue-300 transition-colors"
+          >
+            <Mail className="w-4 h-4" strokeWidth={1.4} />
+            wadehuang77@gmail.com
+          </a>
+        </div>
       </div>
       <div className="border-t border-blue-500/10">
         <p className="text-center text-xs text-blue-400/50 tracking-[0.2em] py-3">

@@ -29,6 +29,7 @@ import NumerologyPage from './pages/NumerologyPage';
 import MembershipPage from './pages/MembershipPage';
 import PageHeader from './components/PageHeader';
 import HumanDesignPage from './pages/HumanDesignPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 function RouterBody() {
   usePageViewTracking();
@@ -42,6 +43,7 @@ function RouterBody() {
           <Route path="/oracle" element={<HomePage />} />
           <Route path="/home" element={<Navigate to="/oracle" replace />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute><AdminSettingsPage /></ProtectedRoute>} />
           <Route path="/admin/kpi" element={<ProtectedRoute><AdminKpiPage /></ProtectedRoute>} />
