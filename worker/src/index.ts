@@ -67,6 +67,11 @@ import {
 } from './humanDesignShareResults';
 import { googleAuthConfig, googleSignin } from './googleAuth';
 import {
+  adminGetMember,
+  adminListMembers,
+  adminMemberStats,
+} from './adminMembers';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -270,6 +275,11 @@ export default {
       if (path === '/api/admin/check'          && req.method === 'GET')  return await adminCheck(req, env);
       if (path === '/api/admin/diagnostics'    && req.method === 'GET')  return await adminDiagnostics(req, env);
       if (path === '/api/admin/users'          && req.method === 'GET')  return await adminListUsers(req, env);
+      if (path === '/api/admin/members/stats'  && req.method === 'GET')  return await adminMemberStats(req, env);
+      if (path === '/api/admin/members'        && req.method === 'GET')  return await adminListMembers(req, env, url);
+      if (path.startsWith('/api/admin/members/') && req.method === 'GET') {
+        return await adminGetMember(req, env, decodeURIComponent(path.slice('/api/admin/members/'.length)));
+      }
       if (path === '/api/admin/guest-emails'   && req.method === 'GET')  return await adminListGuestEmails(req, env);
       if (path === '/api/admin/orders'         && req.method === 'GET')  return await adminListOrders(req, env, url);
       if (path === '/api/admin/orders/bulk-delete' && req.method === 'POST') {

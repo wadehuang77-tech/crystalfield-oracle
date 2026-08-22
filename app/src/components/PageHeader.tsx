@@ -42,6 +42,7 @@ const ROUTES: Record<string, { title: string; accent: Accent }> = {
   '/admin':                      { title: '管理後台',             accent: 'slate'   },
   '/admin/settings':             { title: '設定',                 accent: 'slate'   },
   '/admin/kpi':                  { title: 'KPI',                  accent: 'slate'   },
+  '/admin/members':              { title: '會員資料',             accent: 'slate'   },
 };
 
 const HIDDEN_ON = new Set(['/auth']);

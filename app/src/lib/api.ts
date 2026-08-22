@@ -465,9 +465,59 @@ export interface AdminOrder {
   paid_at: string | null;
 }
 
+export type AdminMemberSort = 'last_login_at' | 'created_at' | 'tarot_usage_count';
+export type AdminMemberOrder = 'asc' | 'desc';
+
+export interface AdminMember {
+  id: string;
+  email: string;
+  name: string | null;
+  pictureUrl: string | null;
+  emailVerified: boolean;
+  googleBound: boolean;
+  googleSubMasked: string | null;
+  tarotUsageCount: number;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt: string | null;
+  loginProvider: 'Google';
+}
+
+export interface AdminMembersResponse {
+  members: AdminMember[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface AdminMemberStats {
+  totalMembers: number;
+  newToday: number;
+  newLast7Days: number;
+  activeLast30Days: number;
+  tarotUsage: {
+    zero: number;
+    one: number;
+    twoOrMore: number;
+  };
+}
+
 export const adminApi = {
   check:  () => req<{ isAdmin: boolean }>('/api/admin/check'),
   users:  () => req<{ users: Profile[] }>('/api/admin/users'),
+  members: (query: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sort?: AdminMemberSort;
+    order?: AdminMemberOrder;
+  } = {}) => req<AdminMembersResponse>('/api/admin/members', { query }),
+  member: (id: string) =>
+    req<{ member: AdminMember }>(`/api/admin/members/${encodeURIComponent(id)}`),
+  memberStats: () => req<AdminMemberStats>('/api/admin/members/stats'),
   guests: () => req<{ guests: GuestEmail[] }>('/api/admin/guest-emails'),
   admins: () => req<{ admins: AdminRow[] }>('/api/admin/admins'),
   addAdmin:    (email: string) => req<{ ok: true }>('/api/admin/admins', { method: 'POST', body: { email } }),

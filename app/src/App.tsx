@@ -23,6 +23,7 @@ import { AdminPage } from './pages/AdminPage';
 import { AdminSettingsPage } from './pages/AdminSettingsPage';
 import { AdminKpiPage } from './pages/AdminKpiPage';
 import { GoogleFormsAdminPage } from './pages/GoogleFormsAdminPage';
+import { AdminMembersPage } from './pages/AdminMembersPage';
 import CheckoutReturnPage from './pages/CheckoutReturnPage';
 import LandingPage from './pages/LandingPage';
 import NumerologyPage from './pages/NumerologyPage';
@@ -48,6 +49,7 @@ function RouterBody() {
           <Route path="/admin/settings" element={<ProtectedRoute><AdminSettingsPage /></ProtectedRoute>} />
           <Route path="/admin/kpi" element={<ProtectedRoute><AdminKpiPage /></ProtectedRoute>} />
           <Route path="/admin/google-forms" element={<ProtectedRoute><GoogleFormsAdminPage /></ProtectedRoute>} />
+          <Route path="/admin/members" element={<ProtectedRoute><AdminMembersPage /></ProtectedRoute>} />
           <Route path="/tarot" element={<TarotPage />} />
           <Route path="/tarot-single" element={<TarotSinglePage />} />
           <Route path="/lightworker" element={<LightworkerPage />} />
