@@ -225,7 +225,7 @@ export default function OshoSinglePage() {
                 {gate.phase === 'loading' && (
                   <div className="text-center text-teal-300/70 py-6 tracking-wider">解鎖中…</div>
                 )}
-                {gate.phase === 'email_gate' && (
+                {gate.phase === 'login_gate' && (
                   <>
                     <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-6">
                       <h3 className="text-xl font-semibold mb-3 text-teal-200 flex items-center gap-3">
@@ -238,7 +238,7 @@ export default function OshoSinglePage() {
                           <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900/95 pointer-events-none rounded-b-lg" />
                         </div>
                       )}
-                      <p className="text-teal-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
+                      <p className="text-teal-200/60 text-xs mt-3">前 30% 預覽，登入後可免費解鎖第 2 次占卜</p>
                     </div>
                     <InlineEmailUnlock
                       onUnlocked={handleUnlocked}

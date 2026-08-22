@@ -64,6 +64,9 @@ async function req<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T>
 export interface SessionUser {
   id: string;
   email: string;
+  name?: string | null;
+  pictureUrl?: string | null;
+  tarotUsageCount?: number;
 }
 
 export interface Profile {
@@ -127,6 +130,9 @@ export interface GoogleFormAdmin {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  display_name?: string | null;
+  picture_url?: string | null;
+  tarot_usage_count?: number;
   deleted_at: string | null;
 }
 
@@ -173,14 +179,14 @@ export const authApi = {
     req<{ client_id: string | null; csrf_token: string }>('/api/auth/google/config'),
 
   signInWithGoogle: (credential: string, csrf_token: string) =>
-    req<{ user: SessionUser }>('/api/auth/google', {
+    req<{ authenticated: true; user: SessionUser }>('/api/auth/google', {
       method: 'POST',
       body: { credential, csrf_token },
     }),
 
   signOut: () => req<{ ok: true }>('/api/auth/signout', { method: 'POST' }),
 
-  me: () => req<{ user: SessionUser | null }>('/api/auth/me'),
+  me: () => req<{ authenticated: boolean; user: SessionUser | null }>('/api/auth/me'),
 
   requestPasswordReset: (email: string) =>
     req<{ ok: true }>('/api/auth/request-password-reset', {

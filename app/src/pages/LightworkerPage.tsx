@@ -287,13 +287,13 @@ function LightworkerPage() {
                         </div>
                       )}
                       <p className="mt-4 text-xs text-cyan-300/70 tracking-wide">
-                        前 30% 預覽 — 留下 Email 解鎖完整解析
+                        前 30% 預覽 — 登入後可免費解鎖第 2 次占卜
                       </p>
                     </div>
                     {gate.phase === 'loading' && (
                       <div className="text-center text-cyan-300/70 py-4 tracking-wider">解鎖中…</div>
                     )}
-                    {gate.phase === 'email_gate' && (
+                    {gate.phase === 'login_gate' && (
                       <InlineEmailUnlock
                         onUnlocked={handleUnlocked}
                         readingType="lightworker_single"

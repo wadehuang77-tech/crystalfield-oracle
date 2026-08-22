@@ -8,6 +8,7 @@ import { CrystalReminderBar } from '../components/CrystalReminderBar';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
+import { TarotLoginGate } from '../components/TarotLoginGate';
 import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import TarotResonanceCTA from '../components/TarotResonanceCTA';
@@ -18,7 +19,7 @@ import { checkoutApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { getMultiSpreadCheckoutGuestEmail, readSavedMultiSpreadEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
+import { getMultiSpreadCheckoutGuestEmail } from '../lib/multiSpreadEmail';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
@@ -96,69 +97,6 @@ interface DrawnCard {
   isReversed: boolean;
   revealed: boolean;
   position?: string;
-}
-
-function TarotMultiEmailGate({
-  onUnlock,
-}: {
-  onUnlock: (email: string) => Promise<void>;
-}) {
-  const [email, setEmail] = useState(() => readSavedMultiSpreadEmail());
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const normalized = email.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
-      setError('請輸入有效的 Email');
-      return;
-    }
-    if (submitting) return;
-
-    setSubmitting(true);
-    setError('');
-    try {
-      await onUnlock(normalized);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '解鎖失敗，請稍後再試');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
-      <div className="flex justify-center mb-4">
-        <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-orange-500/30 rounded-full flex items-center justify-center border-2 border-orange-400/40">
-          <Lock className="w-7 h-7 text-orange-300" />
-        </div>
-      </div>
-      <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">第二次免費試算・Email 解鎖</h3>
-      <p className="text-orange-200/80 text-base leading-relaxed mb-6 max-w-md mx-auto">
-        第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
-      </p>
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-3">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          className="w-full rounded-xl border border-orange-300/30 bg-slate-900/60 px-4 py-3 text-orange-50 placeholder:text-orange-200/35 focus:outline-none focus:border-orange-300/60"
-          disabled={submitting}
-          required
-        />
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-500 hover:from-orange-400 hover:to-orange-400 text-orange-100 font-bold rounded-xl text-lg shadow-xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-        >
-          {submitting ? '解鎖中…' : '輸入Email免費解鎖'}
-        </button>
-      </form>
-    </div>
-  );
 }
 
 function TarotPage() {
@@ -241,12 +179,6 @@ function TarotPage() {
   const handleEmailSubmitted = (email: string, card?: UnlockedCard) => {
     singleGate.onEmailUnlocked(email, card);
     if (card) trackEvent('unlocked', { readingType: 'tarot_single', email });
-  };
-
-  const handleMultiEmailUnlock = async (email: string) => {
-    await multiGate.onEmailUnlocked(email);
-    saveMultiSpreadEmail(email);
-    trackEvent('unlocked', { readingType: SPREAD_IDS[spreadType], email });
   };
 
   const handleCheckout = async () => {
@@ -723,13 +655,13 @@ function TarotPage() {
                             </p>
                             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none rounded-b-lg"></div>
                           </div>
-                          <p className="text-orange-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
+                          <p className="text-orange-200/60 text-xs mt-3">前 30% 預覽，登入後可免費解鎖第 2 次占卜</p>
                         </div>}
 
                         {!isUnlocked && singleGate.phase === 'loading' && (
                           <div className="text-center text-orange-300/70 py-4 tracking-wider">解鎖中…</div>
                         )}
-                        {!isUnlocked && singleGate.phase === 'email_gate' && (
+                        {!isUnlocked && singleGate.phase === 'login_gate' && (
                           <InlineEmailUnlock
                             onUnlocked={handleEmailSubmitted}
                             readingType="tarot_single"
@@ -908,7 +840,7 @@ function TarotPage() {
                         {!isUnlocked && singleGate.phase === 'loading' && (
                           <div className="text-center text-orange-300/70 py-4 tracking-wider">解鎖中…</div>
                         )}
-                        {!isUnlocked && singleGate.phase === 'email_gate' && (
+                        {!isUnlocked && singleGate.phase === 'login_gate' && (
                           <InlineEmailUnlock
                             onUnlocked={handleEmailSubmitted}
                             readingType="tarot_single"
@@ -968,8 +900,8 @@ function TarotPage() {
                     {!isLocallyUnlocked && multiGate.phase === 'loading' && (
                       <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
                     )}
-                    {!isLocallyUnlocked && multiGate.phase === 'email_gate' && (
-                      <TarotMultiEmailGate onUnlock={handleMultiEmailUnlock} />
+                    {!isLocallyUnlocked && multiGate.phase === 'login_gate' && (
+                      <TarotLoginGate theme="dark" />
                     )}
                     {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
                       <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
@@ -1077,8 +1009,8 @@ function TarotPage() {
                     {!isLocallyUnlocked && multiGate.phase === 'loading' && (
                       <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
                     )}
-                    {!isLocallyUnlocked && multiGate.phase === 'email_gate' && (
-                      <TarotMultiEmailGate onUnlock={handleMultiEmailUnlock} />
+                    {!isLocallyUnlocked && multiGate.phase === 'login_gate' && (
+                      <TarotLoginGate theme="dark" />
                     )}
                     {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
                       <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">
@@ -1205,8 +1137,8 @@ function TarotPage() {
                     {!isLocallyUnlocked && multiGate.phase === 'loading' && (
                       <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
                     )}
-                    {!isLocallyUnlocked && multiGate.phase === 'email_gate' && (
-                      <TarotMultiEmailGate onUnlock={handleMultiEmailUnlock} />
+                    {!isLocallyUnlocked && multiGate.phase === 'login_gate' && (
+                      <TarotLoginGate theme="dark" />
                     )}
                     {!isLocallyUnlocked && multiGate.phase === 'paywall' && (
                       <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-md border-2 border-orange-400/40 rounded-2xl p-8 text-center shadow-2xl">

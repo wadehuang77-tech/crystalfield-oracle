@@ -234,7 +234,7 @@ function WorkYourLightSinglePage() {
                     {gate.phase === 'loading' && (
                       <div className="text-center text-violet-300/70 py-6 tracking-wider">解鎖中…</div>
                     )}
-                    {gate.phase === 'email_gate' && (
+                    {gate.phase === 'login_gate' && (
                       <>
                         <div className="bg-gradient-to-r from-violet-600/25 to-violet-600/25 rounded-xl p-6 border-2 border-violet-400/50">
                           <h3 className="text-violet-100 text-xl font-medium mb-4 tracking-wide flex items-center gap-2">
@@ -247,7 +247,7 @@ function WorkYourLightSinglePage() {
                               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-950/95 pointer-events-none rounded-b-lg"></div>
                             </div>
                           )}
-                          <p className="text-violet-200/60 text-xs mt-3">前30%預覽，輸入 Email 解鎖完整解析</p>
+                          <p className="text-violet-200/60 text-xs mt-3">前 30% 預覽，登入後可免費解鎖第 2 次占卜</p>
                         </div>
                         <InlineEmailUnlock
                           onUnlocked={handleUnlocked}

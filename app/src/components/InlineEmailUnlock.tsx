@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Mail, Lock } from 'lucide-react';
 import { cardsApi, publicApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { TarotLoginGate } from './TarotLoginGate';
 
 interface InlineEmailUnlockProps {
   onUnlocked: (email: string, card?: UnlockedCard) => void;
@@ -9,13 +10,14 @@ interface InlineEmailUnlockProps {
   cardData?: Record<string, unknown>;
   theme?: 'light' | 'dark';
   cardUnlock?: { spread_id: string; card_key: string; reversed?: boolean };
+  useTarotLogin?: boolean;
 }
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', cardUnlock }: InlineEmailUnlockProps) {
+export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', cardUnlock, useTarotLogin }: InlineEmailUnlockProps) {
   const { user, loading: authLoading } = useAuth();
   const [emailInput, setEmailInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,7 +36,10 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
   onUnlockedRef.current = onUnlocked;
   readingTypeRef.current = readingType;
 
+  const tarotReading = useTarotLogin ?? /^(tarot|osho|lightworker|unicorns|egyptian|dragons|work_your_light|celtic_cross|cosmic_cross)/.test(readingType);
+
   useEffect(() => {
+    if (tarotReading) return;
     const currentUser = userRef.current;
     const currentUserId = currentUser?.id ?? null;
     if (lastUserIdRef.current !== currentUserId) {
@@ -67,8 +72,9 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
         setAutoUnlockError(err instanceof Error ? err.message : '自動解鎖失敗');
       }
     })();
-  }, [user?.id]);
+  }, [user?.id, tarotReading]);
 
+  if (tarotReading) return <TarotLoginGate theme={theme} />;
   if (authLoading) return null;
   if (user && !autoUnlockFailed) return null;
 

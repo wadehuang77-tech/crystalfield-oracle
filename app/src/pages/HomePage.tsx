@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
 import {
   ChevronDown,
   HeartHandshake,
@@ -19,6 +19,8 @@ import {
 } from '../lib/ga4';
 import { oracleFreeApi } from '../lib/api';
 import { saveOracleFreeIntent } from '../lib/oracleFreeAccess';
+import { TarotLoginGate } from '../components/TarotLoginGate';
+import { useAuth } from '../contexts/AuthContext';
 
 interface NeedOption {
   id: 'emotion_career' | 'past_life' | 'soul' | 'clearing';
@@ -156,11 +158,14 @@ const ADVANCED_DECKS: Array<{ id: OracleDeckId; name: string; path: string }> = 
 
 function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedId, setSelectedId] = useState<NeedOption['id'] | null>(null);
   const [question, setQuestion] = useState('');
   const [error, setError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [loginRequired, setLoginRequired] = useState(false);
+  const pendingRef = useRef<{ option: NeedOption; question: string } | null>(null);
   const startingRef = useRef(false);
 
   useEffect(() => {
@@ -177,14 +182,7 @@ function HomePage() {
     trackOracleNeedSelected(option.needType);
   };
 
-  const startReading = async (event: FormEvent, option: NeedOption) => {
-    event.preventDefault();
-    const trimmedQuestion = question.trim();
-    if (!trimmedQuestion) {
-      setError('請先輸入你想詢問的問題');
-      return;
-    }
-
+  const beginReading = useCallback(async (option: NeedOption, trimmedQuestion: string) => {
     if (startingRef.current) return;
     startingRef.current = true;
     setIsStarting(true);
@@ -201,11 +199,18 @@ function HomePage() {
         created_at: Date.now(),
       });
       setRemaining(access.remaining_free_readings);
+      setLoginRequired(false);
+      pendingRef.current = null;
       trackOracleReadingStarted(option.needType, option.spreadType, option.deckType);
       navigate(option.destination);
     } catch (err) {
       const apiError = err as Error & { status?: number; body?: { code?: string } };
-      if (apiError.status === 409 && apiError.body?.code === 'FREE_GLOBAL_LIMIT_REACHED') {
+      if (apiError.status === 401 && apiError.body?.code === 'TAROT_LOGIN_REQUIRED') {
+        pendingRef.current = { option, question: trimmedQuestion };
+        setLoginRequired(true);
+        setRemaining(1);
+        setError('');
+      } else if (apiError.status === 409 && apiError.body?.code === 'FREE_GLOBAL_LIMIT_REACHED') {
         setRemaining(0);
         saveOracleFreeIntent({
           access_mode: 'paywall_preview',
@@ -225,7 +230,20 @@ function HomePage() {
       startingRef.current = false;
       setIsStarting(false);
     }
+  }, [navigate]);
+
+  const startReading = async (event: FormEvent, option: NeedOption) => {
+    event.preventDefault();
+    const trimmedQuestion = question.trim();
+    if (!trimmedQuestion) { setError('請先輸入你想詢問的問題'); return; }
+    await beginReading(option, trimmedQuestion);
   };
+
+  useEffect(() => {
+    if (!user || !loginRequired || !pendingRef.current) return;
+    const pending = pendingRef.current;
+    void beginReading(pending.option, pending.question);
+  }, [user, loginRequired, beginReading]);
 
   const handleAdvancedDeckSelect = (event: MouseEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
@@ -320,6 +338,7 @@ function HomePage() {
                         {isStarting ? '確認免費次數中…' : '進入牌陣'}
                       </button>
                     </form>
+                    {loginRequired && selectedId === option.id && <div className="mt-5"><TarotLoginGate theme="dark" /></div>}
                   </div>
                 )}
               </article>
@@ -328,10 +347,10 @@ function HomePage() {
         </section>
 
         <p className="mt-7 text-center text-sm leading-6 text-blue-100/70">
-          {remaining === 2 && '你有 2 次免費占卜機會，不限牌卡與牌陣，無須輸入 Email。'}
-          {remaining === 1 && '你還有 1 次免費占卜機會，不限牌卡與牌陣。'}
+          {remaining === 2 && '第 1 次占卜可免登入免費體驗；第 2 次登入後仍可免費占卜。'}
+          {remaining === 1 && '你還有第 2 次免費占卜機會，登入即可免費繼續。'}
           {remaining === 0 && '你的 2 次免費占卜已使用完畢，下一次占卜需要付費解鎖。'}
-          {remaining === null && '所有牌卡與牌陣共用 2 次免費占卜，不需輸入 Email。'}
+          {remaining === null && '所有牌卡與牌陣共用：第 1 次免登入、第 2 次登入免費，第 3 次起付費。'}
         </p>
 
         <details className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">

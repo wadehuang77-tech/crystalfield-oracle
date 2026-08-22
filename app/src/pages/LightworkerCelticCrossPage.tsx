@@ -444,16 +444,16 @@ function LightworkerCelticCrossPage() {
                 {gate.phase === 'loading' && (
                   <div className="text-center text-cyan-300/70 py-6 tracking-wider">解鎖中…</div>
                 )}
-                {gate.phase === 'email_gate' && (
+                {gate.phase === 'login_gate' && (
                   <div className="bg-gradient-to-br from-slate-900/40 to-slate-900/40 border-2 border-cyan-400/50 rounded-2xl p-8 text-center shadow-2xl shadow-cyan-900/30 space-y-5">
                     <div className="flex justify-center">
                       <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/30 to-cyan-500/30 rounded-full flex items-center justify-center border-2 border-cyan-400/40">
                         <Lock className="w-7 h-7 text-cyan-300" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">第二次免費試算・Email 解鎖</h3>
+                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">登入免費解鎖第 2 次占卜</h3>
                     <p className="text-cyan-200/80 text-base leading-relaxed max-w-md mx-auto">
-                      第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
+                      完成登入即可免費繼續本次占卜，第 3 次占卜起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleEmailUnlock(email); }}

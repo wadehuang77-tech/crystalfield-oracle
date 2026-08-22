@@ -448,12 +448,12 @@ function DragonsPage() {
                 {threeGate.phase === 'loading' && (
                   <div className="text-center text-emerald-300/70 py-6 tracking-wider">解鎖中…</div>
                 )}
-                {threeGate.phase === 'email_gate' && (
+                {threeGate.phase === 'login_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">第二次免費試算・Email 解鎖</h3>
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">登入免費解鎖第 2 次占卜</h3>
                     <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
-                      第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
+                      完成登入即可免費繼續本次占卜，第 3 次占卜起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
@@ -561,13 +561,13 @@ function DragonsPage() {
                         </div>
                       )}
                       <p className="mt-4 text-xs text-emerald-400/70 tracking-wide">
-                        前 30% 預覽 — 留下 Email 解鎖完整解析
+                        前 30% 預覽 — 登入後可免費解鎖第 2 次占卜
                       </p>
                     </div>
                     {singleGate.phase === 'loading' && (
                       <div className="text-center text-emerald-300/70 py-4 tracking-wider">解鎖中…</div>
                     )}
-                    {singleGate.phase === 'email_gate' && (
+                    {singleGate.phase === 'login_gate' && (
                       <InlineEmailUnlock
                         onUnlocked={handleSingleEmailSubmitted}
                         readingType="dragons_single"

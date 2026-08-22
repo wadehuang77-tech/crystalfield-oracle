@@ -31,3 +31,13 @@ export function getOracleFreeIntent(spreadId: string): OracleFreeIntent | null {
     return value;
   } catch { return null; }
 }
+
+export function clearOracleFreeIntent(readingId?: string): void {
+  try {
+    if (!readingId) { sessionStorage.removeItem(KEY); return; }
+    const raw = sessionStorage.getItem(KEY);
+    if (!raw) return;
+    const value = JSON.parse(raw) as OracleFreeIntent;
+    if (value.reading_id === readingId) sessionStorage.removeItem(KEY);
+  } catch { /* storage unavailable */ }
+}

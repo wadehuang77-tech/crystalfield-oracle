@@ -456,13 +456,13 @@ function EgyptianGodsPage() {
                         </div>
                       )}
                       <p className="mt-3 text-xs text-yellow-400/70 tracking-wide">
-                        前 30% 預覽 — 留下 Email 解鎖完整解析
+                        前 30% 預覽 — 登入後可免費解鎖第 2 次占卜
                       </p>
                     </div>
                     {singleGate.phase === 'loading' && (
                       <div className="text-center text-yellow-300/70 py-4 tracking-wider">解鎖中…</div>
                     )}
-                    {singleGate.phase === 'email_gate' && (
+                    {singleGate.phase === 'login_gate' && (
                       <InlineEmailUnlock
                         onUnlocked={handleEmailSubmitted}
                         readingType="egyptian_gods_single"
@@ -542,12 +542,12 @@ function EgyptianGodsPage() {
                 {pastlifeGate.phase === 'loading' && (
                   <div className="text-center text-yellow-300/70 py-6 tracking-wider">解鎖中…</div>
                 )}
-                {pastlifeGate.phase === 'email_gate' && (
+                {pastlifeGate.phase === 'login_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-yellow-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">第二次免費試算・Email 解鎖</h3>
+                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">登入免費解鎖第 2 次占卜</h3>
                     <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
-                      第一次可直接免費查看完整解讀；第二次輸入 Email 後仍可免費解鎖，同一牌陣第三次起需付費。
+                      完成登入即可免費繼續本次占卜，第 3 次占卜起需付費。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handlePastlifeEmailSubmitted(email); }}

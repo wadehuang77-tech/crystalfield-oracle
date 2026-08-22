@@ -480,8 +480,24 @@ async function signout(req: Request, env: Env): Promise<Response> {
 
 async function me(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
-  if (!user) return await json(req, env, { user: null });
-  return await json(req, env, { user });
+  if (!user) return await json(req, env, { authenticated: false, user: null });
+  const metadata = await env.DB.prepare(
+    `SELECT display_name, picture_url, tarot_usage_count
+       FROM profile_member_metadata WHERE user_id = ?`,
+  ).bind(user.id).first<{
+    display_name: string | null;
+    picture_url: string | null;
+    tarot_usage_count: number;
+  }>();
+  return await json(req, env, {
+    authenticated: true,
+    user: {
+      ...user,
+      name: metadata?.display_name ?? null,
+      pictureUrl: metadata?.picture_url ?? null,
+      tarotUsageCount: Math.max(0, Number(metadata?.tarot_usage_count ?? 0)),
+    },
+  });
 }
 
 async function getMyProfile(req: Request, env: Env): Promise<Response> {
@@ -489,13 +505,17 @@ async function getMyProfile(req: Request, env: Env): Promise<Response> {
   if (!user) return await unauthorized(req, env);
 
   const row = await env.DB.prepare(
-    `SELECT id, email, age, gender, occupation, healing_interest,
-            purchased_spreads, created_at, updated_at
-     FROM profiles WHERE id = ?`
+    `SELECT p.id, p.email, p.age, p.gender, p.occupation, p.healing_interest,
+            p.purchased_spreads, p.created_at, p.updated_at,
+            m.display_name, m.picture_url, COALESCE(m.tarot_usage_count, 0) AS tarot_usage_count
+       FROM profiles p
+       LEFT JOIN profile_member_metadata m ON m.user_id = p.id
+      WHERE p.id = ?`
   ).bind(user.id).first<{
     id: string; email: string; age: number | null; gender: string | null;
     occupation: string | null; healing_interest: string | null;
     purchased_spreads: string; created_at: string; updated_at: string;
+    display_name: string | null; picture_url: string | null; tarot_usage_count: number;
   }>();
   if (!row) return await json(req, env, { profile: null }, { status: 404 });
   const membership = await getMembershipSummary(env, user.id);

@@ -23,6 +23,7 @@ DROP TABLE IF EXISTS emails;
 DROP TABLE IF EXISTS leads;
 DROP TABLE IF EXISTS subscription_charges;
 DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS profile_member_metadata;
 DROP TABLE IF EXISTS profiles;
 DROP TABLE IF EXISTS admins;
 
@@ -45,6 +46,23 @@ CREATE TABLE profiles (
   purchased_spreads TEXT    DEFAULT '[]'  -- JSON array
 );
 CREATE INDEX idx_profiles_email ON profiles(email);
+
+CREATE TABLE profile_member_metadata (
+  user_id            TEXT PRIMARY KEY,
+  google_sub         TEXT,
+  email_verified     INTEGER NOT NULL DEFAULT 0 CHECK (email_verified IN (0, 1)),
+  display_name       TEXT,
+  picture_url        TEXT,
+  tarot_usage_count  INTEGER NOT NULL DEFAULT 0 CHECK (tarot_usage_count >= 0),
+  created_at         TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at         TEXT NOT NULL DEFAULT (datetime('now')),
+  last_login_at      TEXT,
+  FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX idx_profile_member_metadata_google_sub
+  ON profile_member_metadata(google_sub) WHERE google_sub IS NOT NULL;
+CREATE INDEX idx_profile_member_metadata_last_login
+  ON profile_member_metadata(last_login_at DESC);
 
 -- ---------------------------------------------------------------------------
 -- admins:管理員(id 對應 profiles.id)

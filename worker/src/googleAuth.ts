@@ -1,4 +1,5 @@
 import { signJwt } from './auth';
+import { mergeAnonymousOracleUsageIntoProfile } from './cards';
 import {
   badRequest,
   buildSessionCookie,
@@ -30,6 +31,8 @@ interface GoogleJwtPayload {
   exp?: number;
   iat?: number;
   hd?: string;
+  name?: string;
+  picture?: string;
 }
 
 interface GoogleJwk extends JsonWebKey {
@@ -172,31 +175,101 @@ export async function googleSignin(req: Request, env: Env): Promise<Response> {
     return badRequest(req, env, '請使用 Gmail 或 Google Workspace 帳戶登入');
   }
 
+  type ProfileRow = { id: string; email: string; token_generation: number | null };
+  const now = new Date().toISOString();
+  const displayName = typeof googleUser.name === 'string' ? googleUser.name.trim().slice(0, 200) : '';
+  const pictureUrl = (() => {
+    if (typeof googleUser.picture !== 'string' || googleUser.picture.length > 2048) return '';
+    try { return new URL(googleUser.picture).protocol === 'https:' ? googleUser.picture : ''; }
+    catch { return ''; }
+  })();
+
   let profile = await env.DB.prepare(
-    'SELECT id, email, token_generation FROM profiles WHERE email = ?',
-  ).bind(email).first<{ id: string; email: string; token_generation: number | null }>();
+    `SELECT p.id, p.email, p.token_generation
+       FROM profile_member_metadata m
+       JOIN profiles p ON p.id = m.user_id
+      WHERE m.google_sub = ?`,
+  ).bind(googleUser.sub).first<ProfileRow>();
+
+  if (profile && profile.email !== email) {
+    const emailOwner = await env.DB.prepare('SELECT id FROM profiles WHERE email = ?')
+      .bind(email).first<{ id: string }>();
+    if (emailOwner && emailOwner.id !== profile.id) {
+      return json(req, env, { error: '此 Google Email 已綁定另一個會員帳號' }, { status: 409 });
+    }
+    await env.DB.prepare('UPDATE profiles SET email = ?, updated_at = ? WHERE id = ?')
+      .bind(email, now, profile.id).run();
+    profile = { ...profile, email };
+  }
 
   if (!profile) {
-    const now = new Date().toISOString();
-    const googleProfileId = `google_${googleUser.sub}`;
+    profile = await env.DB.prepare(
+      'SELECT id, email, token_generation FROM profiles WHERE email = ?',
+    ).bind(email).first<ProfileRow>();
+    if (profile) {
+      const linked = await env.DB.prepare(
+        'SELECT google_sub FROM profile_member_metadata WHERE user_id = ?',
+      ).bind(profile.id).first<{ google_sub: string | null }>();
+      if (linked?.google_sub && linked.google_sub !== googleUser.sub) {
+        return json(req, env, { error: '此會員帳號已綁定另一個 Google 帳號' }, { status: 409 });
+      }
+    }
+  }
+
+  if (!profile) {
+    const profileId = crypto.randomUUID();
     await env.DB.prepare(
       `INSERT OR IGNORE INTO profiles
         (id, email, password_hash, created_at, updated_at, purchased_spreads)
        VALUES (?, ?, NULL, ?, ?, '[]')`,
-    ).bind(googleProfileId, email, now, now).run();
+    ).bind(profileId, email, now, now).run();
     profile = await env.DB.prepare(
       'SELECT id, email, token_generation FROM profiles WHERE email = ?',
-    ).bind(email).first<{ id: string; email: string; token_generation: number | null }>();
+    ).bind(email).first<ProfileRow>();
   }
 
   if (!profile) throw new Error('Unable to create Google profile');
+
+  await env.DB.prepare(
+    `INSERT INTO profile_member_metadata
+       (user_id, google_sub, email_verified, display_name, picture_url,
+        tarot_usage_count, created_at, updated_at, last_login_at)
+     VALUES (?, ?, 1, ?, ?, 0, ?, ?, ?)
+     ON CONFLICT(user_id) DO UPDATE SET
+       google_sub = excluded.google_sub,
+       email_verified = 1,
+       display_name = excluded.display_name,
+       picture_url = excluded.picture_url,
+       updated_at = excluded.updated_at,
+       last_login_at = excluded.last_login_at
+     WHERE profile_member_metadata.google_sub IS NULL
+        OR profile_member_metadata.google_sub = excluded.google_sub`,
+  ).bind(profile.id, googleUser.sub, displayName || null, pictureUrl || null, now, now, now).run();
+
+  const linkedIdentity = await env.DB.prepare(
+    'SELECT google_sub FROM profile_member_metadata WHERE user_id = ?',
+  ).bind(profile.id).first<{ google_sub: string | null }>();
+  if (linkedIdentity?.google_sub !== googleUser.sub) {
+    return json(req, env, { error: '此會員帳號已綁定另一個 Google 帳號' }, { status: 409 });
+  }
+
+  const tarotUsageCount = await mergeAnonymousOracleUsageIntoProfile(req, env, profile.id);
 
   const token = await signJwt(
     { sub: profile.id, email: profile.email, gen: profile.token_generation ?? 0 },
     env.JWT_SECRET,
     SESSION_SEC,
   );
-  const response = json(req, env, { user: { id: profile.id, email: profile.email } }, {
+  const response = json(req, env, {
+    authenticated: true,
+    user: {
+      id: profile.id,
+      email: profile.email,
+      name: displayName || null,
+      pictureUrl: pictureUrl || null,
+      tarotUsageCount,
+    },
+  }, {
     headers: { 'Set-Cookie': buildSessionCookie(token, SESSION_SEC) },
   });
   response.headers.append('Set-Cookie', googleCsrfCookie('', 0));

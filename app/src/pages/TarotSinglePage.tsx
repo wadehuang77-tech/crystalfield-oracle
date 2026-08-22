@@ -264,7 +264,7 @@ function TarotSinglePage() {
                         {gate.phase === 'loading' && (
                           <div className="text-center text-orange-300/70 py-6 tracking-wider">解鎖中…</div>
                         )}
-                        {gate.phase === 'email_gate' && (
+                        {gate.phase === 'login_gate' && (
                           <>
                             {(() => {
                               const excerpt = drawnCard.isReversed
@@ -277,7 +277,7 @@ function TarotSinglePage() {
                                     <p className="text-slate-950 leading-relaxed">{excerpt}</p>
                                     <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-transparent to-orange-500/10 pointer-events-none"></div>
                                   </div>
-                                  <p className="text-slate-500 text-xs mt-2">前30%預覽，輸入 Email 解鎖完整解析</p>
+                                  <p className="text-slate-500 text-xs mt-2">前 30% 預覽，登入後可免費解鎖第 2 次占卜</p>
                                 </div>
                               );
                             })()}
