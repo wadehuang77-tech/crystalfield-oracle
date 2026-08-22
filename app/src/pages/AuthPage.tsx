@@ -9,6 +9,15 @@ type Mode = 'login' | 'signup' | 'forgot-email' | 'forgot-code' | 'forgot-passwo
 const STARS_BG_URL =
   "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ic3RhcnMiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI4MCIgcj0iMC41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMikiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSI0MCIgcj0iMS41IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiLz48Y2lyY2xlIGN4PSIxODAiIGN5PSIxNjAiIHI9IjAuOCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3N0YXJzKSIvPjwvc3ZnPg==')";
 
+function validPhone(value: string): boolean {
+  const trimmed = value.trim();
+  const digitCount = trimmed.replace(/\D/g, '').length;
+  return trimmed.length <= 32
+    && /^\+?[0-9\s().-]+$/.test(trimmed)
+    && digitCount >= 7
+    && digitCount <= 20;
+}
+
 export default function AuthPage() {
   const {
     user,
@@ -32,6 +41,8 @@ export default function AuthPage() {
     searchParams.get('mode') === 'signup' ? 'signup' : 'login'
   );
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [resetToken, setResetToken] = useState('');
@@ -80,12 +91,24 @@ export default function AuthPage() {
         if (error) setError(error.message || '電子郵件或密碼錯誤');
         else navigate(redirectTo || '/');
       } else if (mode === 'signup') {
-        if (!age || !gender || !occupation || !healingInterest) {
+        if (!name.trim() || !phone.trim() || !age || !gender || !occupation || !healingInterest) {
           setError('請填寫所有註冊資料');
           setLoading(false);
           return;
         }
+        if (name.trim().length > 100) {
+          setError('姓名不可超過 100 個字元');
+          setLoading(false);
+          return;
+        }
+        if (!validPhone(phone)) {
+          setError('手機號碼格式錯誤');
+          setLoading(false);
+          return;
+        }
         const { error } = await signUp(email, password, {
+          name: name.trim(),
+          phone: phone.trim(),
           age: parseInt(age),
           gender,
           occupation,
@@ -190,6 +213,8 @@ export default function AuthPage() {
     setResetDoneModal(false);
     switchMode('login');
     setEmail('');
+    setName('');
+    setPhone('');
     setPassword('');
     setCode('');
     setResetToken('');
@@ -257,6 +282,21 @@ export default function AuthPage() {
 
           {(mode === 'login' || mode === 'signup') && (
             <form onSubmit={handleLoginSignup} className="space-y-5">
+              {mode === 'signup' && (
+                <PlainField label="姓名">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    maxLength={100}
+                    autoComplete="name"
+                    className="auth-input"
+                    placeholder="請輸入姓名"
+                  />
+                </PlainField>
+              )}
+
               <Field label="電子郵件" icon={<Mail className="w-5 h-5 text-blue-400" />}>
                 <input
                   type="email"
@@ -268,6 +308,22 @@ export default function AuthPage() {
                   placeholder="your@email.com"
                 />
               </Field>
+
+              {mode === 'signup' && (
+                <PlainField label="手機號碼">
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    maxLength={32}
+                    autoComplete="tel"
+                    className="auth-input"
+                    placeholder="請輸入手機號碼"
+                  />
+                </PlainField>
+              )}
 
               <Field label="密碼" icon={<Lock className="w-5 h-5 text-blue-400" />}>
                 <input

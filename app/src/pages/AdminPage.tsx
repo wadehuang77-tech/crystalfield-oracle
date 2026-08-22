@@ -212,10 +212,12 @@ export function AdminPage() {
 
   const exportRegisteredToCSV = () => {
     const csvContent = [
-      ['電子郵件', '年齡', '性別', '工作類型', '療癒興趣', '註冊時間'].join(','),
+      ['姓名', '電子郵件', '手機號碼', '年齡', '性別', '工作類型', '療癒興趣', '註冊時間'].join(','),
       ...filteredUsers.map((u) =>
         [
+          u.name || '',
           u.email,
+          u.phone || '',
           u.age || '',
           u.gender || '',
           u.occupation || '',
@@ -413,7 +415,9 @@ export function AdminPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-blue-700">
+                        <th className="text-left py-4 px-4 text-blue-300 font-semibold">姓名</th>
                         <th className="text-left py-4 px-4 text-blue-300 font-semibold">電子郵件</th>
+                        <th className="text-left py-4 px-4 text-blue-300 font-semibold">手機號碼</th>
                         <th className="text-left py-4 px-4 text-blue-300 font-semibold">年齡</th>
                         <th className="text-left py-4 px-4 text-blue-300 font-semibold">性別</th>
                         <th className="text-left py-4 px-4 text-blue-300 font-semibold">工作類型</th>
@@ -427,11 +431,17 @@ export function AdminPage() {
                           key={userProfile.id}
                           className="border-b border-blue-700/50 hover:bg-slate-800/30 transition-colors"
                         >
+                          <td className="py-4 px-4 text-blue-300">
+                            {userProfile.name || <span className="text-slate-500">未填寫</span>}
+                          </td>
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-2">
                               <Mail className="w-4 h-4 text-slate-400" />
                               <span className="text-blue-200">{userProfile.email}</span>
                             </div>
+                          </td>
+                          <td className="py-4 px-4 text-blue-300">
+                            {userProfile.phone || <span className="text-slate-500">未填寫</span>}
                           </td>
                           <td className="py-4 px-4 text-blue-300">
                             {userProfile.age || <span className="text-slate-500">未填寫</span>}

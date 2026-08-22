@@ -220,15 +220,24 @@ export async function googleSignin(req: Request, env: Env): Promise<Response> {
     const profileId = crypto.randomUUID();
     await env.DB.prepare(
       `INSERT OR IGNORE INTO profiles
-        (id, email, password_hash, created_at, updated_at, purchased_spreads)
-       VALUES (?, ?, NULL, ?, ?, '[]')`,
-    ).bind(profileId, email, now, now).run();
+        (id, name, email, phone, password_hash, created_at, updated_at, purchased_spreads)
+       VALUES (?, ?, ?, NULL, NULL, ?, ?, '[]')`,
+    ).bind(profileId, displayName || null, email, now, now).run();
     profile = await env.DB.prepare(
       'SELECT id, email, token_generation FROM profiles WHERE email = ?',
     ).bind(email).first<ProfileRow>();
   }
 
   if (!profile) throw new Error('Unable to create Google profile');
+
+  if (displayName) {
+    await env.DB.prepare(
+      `UPDATE profiles
+          SET name = CASE WHEN name IS NULL OR trim(name) = '' THEN ? ELSE name END,
+              updated_at = ?
+        WHERE id = ?`,
+    ).bind(displayName, now, profile.id).run();
+  }
 
   await env.DB.prepare(
     `INSERT INTO profile_member_metadata

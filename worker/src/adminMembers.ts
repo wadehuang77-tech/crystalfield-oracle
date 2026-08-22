@@ -14,6 +14,7 @@ interface MemberRow {
   id: string;
   email: string;
   name: string | null;
+  phone: string | null;
   picture_url: string | null;
   email_verified: number;
   tarot_usage_count: number;
@@ -36,6 +37,7 @@ function publicMember(row: MemberRow) {
     id: row.id,
     email: row.email,
     name: row.name,
+    phone: row.phone,
     pictureUrl,
     emailVerified: row.email_verified === 1,
     googleBound: !!row.google_sub,
@@ -61,7 +63,7 @@ export async function adminListMembers(req: Request, env: Env, url: URL): Promis
     const pattern = `%${escapeLike(params.search)}%`;
     conditions.push(`(
       p.email LIKE ? ESCAPE '\\' COLLATE NOCASE OR
-      COALESCE(m.display_name, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+      COALESCE(NULLIF(p.name, ''), m.display_name, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
       p.id LIKE ? ESCAPE '\\' COLLATE NOCASE
     )`);
     filterBinds.push(pattern, pattern, pattern);
@@ -80,8 +82,9 @@ export async function adminListMembers(req: Request, env: Env, url: URL): Promis
 
   const [rowsResult, countRow] = await Promise.all([
     env.DB.prepare(
-      `SELECT p.id, p.email,
-              m.display_name AS name, m.picture_url, m.email_verified,
+      `SELECT p.id, p.email, p.phone,
+              COALESCE(NULLIF(p.name, ''), m.display_name) AS name,
+              m.picture_url, m.email_verified,
               m.tarot_usage_count, m.created_at, m.updated_at,
               m.last_login_at, m.google_sub
          FROM profile_member_metadata m
@@ -115,8 +118,9 @@ export async function adminGetMember(req: Request, env: Env, memberId: string): 
   if (denied) return denied;
 
   const row = await env.DB.prepare(
-    `SELECT p.id, p.email,
-            m.display_name AS name, m.picture_url, m.email_verified,
+    `SELECT p.id, p.email, p.phone,
+            COALESCE(NULLIF(p.name, ''), m.display_name) AS name,
+            m.picture_url, m.email_verified,
             m.tarot_usage_count, m.created_at, m.updated_at,
             m.last_login_at, m.google_sub
        FROM profile_member_metadata m

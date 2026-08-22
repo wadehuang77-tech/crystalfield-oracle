@@ -71,6 +71,7 @@ import {
   adminListMembers,
   adminMemberStats,
 } from './adminMembers';
+import { validateRegistrationIdentity } from './registration';
 import {
   badRequest,
   buildClearCookie,
@@ -362,7 +363,9 @@ export default {
 } satisfies ExportedHandler<Env>;
 
 interface SignupBody {
+  name?: string;
   email: string;
+  phone?: string;
   password: string;
   age?: number;
   gender?: string;
@@ -376,6 +379,8 @@ async function signup(req: Request, env: Env): Promise<Response> {
   if (!rl.allowed) return await tooManyRequests(req, env, '註冊嘗試過多,請 1 小時後再試');
 
   const body = await readBody<SignupBody>(req);
+  const identity = validateRegistrationIdentity(body.name, body.phone);
+  if (!identity.ok) return await badRequest(req, env, identity.error);
   if (!body.email || !validEmail(body.email)) return await badRequest(req, env, '電子郵件格式錯誤');
   if (!body.password || body.password.length < 8) {
     return await badRequest(req, env, '密碼長度至少 8 個字元');
@@ -396,11 +401,11 @@ async function signup(req: Request, env: Env): Promise<Response> {
 
   await env.DB.prepare(
     `INSERT INTO profiles
-      (id, email, password_hash, created_at, updated_at,
+      (id, name, email, phone, password_hash, created_at, updated_at,
        age, gender, occupation, healing_interest, purchased_spreads)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '[]')`
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '[]')`
   ).bind(
-    id, email, hash, now, now,
+    id, identity.name, email, identity.phone, hash, now, now,
     body.age ?? null,
     body.gender ?? null,
     body.occupation ?? null,
@@ -408,7 +413,7 @@ async function signup(req: Request, env: Env): Promise<Response> {
   ).run();
 
   const token = await signJwt({ sub: id, email, gen: 0 }, env.JWT_SECRET, SESSION_SEC);
-  return await json(req, env, { user: { id, email } }, {
+  return await json(req, env, { user: { id, email, name: identity.name } }, {
     headers: { 'Set-Cookie': buildSessionCookie(token, SESSION_SEC) },
   });
 }
@@ -492,9 +497,12 @@ async function me(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
   if (!user) return await json(req, env, { authenticated: false, user: null });
   const metadata = await env.DB.prepare(
-    `SELECT display_name, picture_url, tarot_usage_count
-       FROM profile_member_metadata WHERE user_id = ?`,
+    `SELECT p.name, m.display_name, m.picture_url, COALESCE(m.tarot_usage_count, 0) AS tarot_usage_count
+       FROM profiles p
+       LEFT JOIN profile_member_metadata m ON m.user_id = p.id
+      WHERE p.id = ?`,
   ).bind(user.id).first<{
+    name: string | null;
     display_name: string | null;
     picture_url: string | null;
     tarot_usage_count: number;
@@ -503,7 +511,7 @@ async function me(req: Request, env: Env): Promise<Response> {
     authenticated: true,
     user: {
       ...user,
-      name: metadata?.display_name ?? null,
+      name: metadata?.name ?? metadata?.display_name ?? null,
       pictureUrl: metadata?.picture_url ?? null,
       tarotUsageCount: Math.max(0, Number(metadata?.tarot_usage_count ?? 0)),
     },
@@ -515,14 +523,15 @@ async function getMyProfile(req: Request, env: Env): Promise<Response> {
   if (!user) return await unauthorized(req, env);
 
   const row = await env.DB.prepare(
-    `SELECT p.id, p.email, p.age, p.gender, p.occupation, p.healing_interest,
+    `SELECT p.id, p.name, p.email, p.phone, p.age, p.gender, p.occupation, p.healing_interest,
             p.purchased_spreads, p.created_at, p.updated_at,
             m.display_name, m.picture_url, COALESCE(m.tarot_usage_count, 0) AS tarot_usage_count
        FROM profiles p
        LEFT JOIN profile_member_metadata m ON m.user_id = p.id
       WHERE p.id = ?`
   ).bind(user.id).first<{
-    id: string; email: string; age: number | null; gender: string | null;
+    id: string; name: string | null; email: string; phone: string | null;
+    age: number | null; gender: string | null;
     occupation: string | null; healing_interest: string | null;
     purchased_spreads: string; created_at: string; updated_at: string;
     display_name: string | null; picture_url: string | null; tarot_usage_count: number;
@@ -708,7 +717,7 @@ async function adminListUsers(req: Request, env: Env): Promise<Response> {
   const r = await guardAdmin(req, env);
   if (r instanceof Response) return r;
   const result = await env.DB.prepare(
-    `SELECT id, email, age, gender, occupation, healing_interest,
+    `SELECT id, name, email, phone, age, gender, occupation, healing_interest,
             purchased_spreads, created_at, updated_at
      FROM profiles ORDER BY created_at DESC LIMIT 1000`
   ).all<Record<string, unknown>>();

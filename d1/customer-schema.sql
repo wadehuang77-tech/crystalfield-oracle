@@ -28,7 +28,9 @@ DROP TABLE IF EXISTS admins;
 -- ---------------------------------------------------------------------------
 CREATE TABLE profiles (
   id                TEXT    PRIMARY KEY,
+  name              TEXT,
   email             TEXT    NOT NULL UNIQUE,
+  phone             TEXT,
   password_hash     TEXT,
   created_at        TEXT    DEFAULT (datetime('now')),
   updated_at        TEXT    DEFAULT (datetime('now')),

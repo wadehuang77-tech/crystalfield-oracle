@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const signUp = async (email: string, password: string, metadata?: UserMetadata) => {
+  const signUp = async (email: string, password: string, metadata: UserMetadata) => {
     try {
       const { user } = await authApi.signUp({ email, password, ...metadata });
       setUser(user);

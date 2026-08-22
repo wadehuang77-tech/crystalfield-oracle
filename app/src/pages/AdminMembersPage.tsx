@@ -265,6 +265,7 @@ export function AdminMembersPage() {
                     <th className="hidden px-3 py-3 sm:table-cell">頭像</th>
                     <th className="px-3 py-3">姓名</th>
                     <th className="px-3 py-3">Email</th>
+                    <th className="hidden px-3 py-3 lg:table-cell">手機號碼</th>
                     <th className="px-3 py-3">Tarot 次數</th>
                     <th className="hidden px-3 py-3 md:table-cell">註冊日期</th>
                     <th className="px-3 py-3">最近登入</th>
@@ -288,6 +289,7 @@ export function AdminMembersPage() {
                           </span>
                         </div>
                       </td>
+                      <td className="hidden px-3 py-3 text-blue-200/70 lg:table-cell">{member.phone || '—'}</td>
                       <td className="px-3 py-3">
                         <span className="rounded-full border border-cyan-400/25 bg-cyan-500/10 px-2.5 py-1 font-mono text-cyan-200">{member.tarotUsageCount}</span>
                       </td>
@@ -359,6 +361,8 @@ export function AdminMembersPage() {
 
             <dl className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Detail label="會員 ID" value={selectedMember.id} mono />
+              <Detail label="姓名" value={selectedMember.name || '—'} />
+              <Detail label="手機號碼" value={selectedMember.phone || '—'} />
               <Detail label="登入方式" value={selectedMember.loginProvider} />
               <Detail label="Email 驗證" value={selectedMember.emailVerified ? '已驗證' : '未驗證'} />
               <Detail label="Google 帳號綁定" value={selectedMember.googleBound ? '已綁定' : '未綁定'} />

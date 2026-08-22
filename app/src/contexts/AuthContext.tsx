@@ -2,6 +2,8 @@ import { createContext, useContext } from 'react';
 import type { SessionUser } from '../lib/api';
 
 export interface UserMetadata {
+  name: string;
+  phone: string;
   age: number;
   gender: string;
   occupation: string;
@@ -11,7 +13,7 @@ export interface UserMetadata {
 export interface AuthContextType {
   user: SessionUser | null;
   loading: boolean;
-  signUp: (email: string, password: string, metadata?: UserMetadata) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, metadata: UserMetadata) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: (credential: string, csrfToken: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;

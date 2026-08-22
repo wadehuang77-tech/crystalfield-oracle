@@ -71,7 +71,9 @@ export interface SessionUser {
 
 export interface Profile {
   id: string;
+  name: string | null;
   email: string;
+  phone: string | null;
   age: number | null;
   gender: string | null;
   occupation: string | null;
@@ -164,7 +166,9 @@ export interface PublicButtonLink {
 
 export const authApi = {
   signUp: (body: {
+    name: string;
     email: string;
+    phone: string;
     password: string;
     age?: number;
     gender?: string;
@@ -472,6 +476,7 @@ export interface AdminMember {
   id: string;
   email: string;
   name: string | null;
+  phone: string | null;
   pictureUrl: string | null;
   emailVerified: boolean;
   googleBound: boolean;

@@ -10,6 +10,7 @@
     "test:oracle-quota": "node --experimental-strip-types scripts/oracle-quota-check.ts",
     "test:member-metadata": "node scripts/member-metadata-check.mjs",
     "test:admin-members": "node --experimental-strip-types scripts/admin-members-check.ts",
+    "test:registration-profile": "node --experimental-strip-types scripts/registration-profile-check.ts",
     "types": "wrangler types"
   },
   "devDependencies": {
