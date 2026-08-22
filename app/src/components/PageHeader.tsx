@@ -20,7 +20,7 @@ const ACCENTS = {
 type Accent = keyof typeof ACCENTS;
 
 const ROUTES: Record<string, { title: string; accent: Accent }> = {
-  '/':                           { title: '水晶場',              accent: 'slate'   },
+  '/':                           { title: '晶域心語',            accent: 'slate'   },
   '/oracle':                     { title: '塔羅神諭',            accent: 'slate'   },
   '/tarot':                      { title: '偉特塔羅',            accent: 'orange'  },
   '/tarot-single':               { title: '偉特塔羅 · 單張',     accent: 'orange'  },

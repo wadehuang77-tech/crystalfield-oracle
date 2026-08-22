@@ -151,8 +151,26 @@ export default function LandingPage() {
       </div>
 
       <main className="relative z-10">
+        {/* Public brand introduction required for Google OAuth brand verification. */}
+        <section className="px-6 pt-16 pb-4 text-center" aria-labelledby="brand-heading">
+          <div className="mx-auto max-w-4xl rounded-[2rem] border border-purple-400/20 bg-purple-950/20 px-6 py-10 shadow-[0_20px_80px_rgba(88,28,135,0.18)] backdrop-blur-sm sm:px-10 sm:py-14">
+            <p className="mb-4 text-sm font-medium uppercase tracking-[0.35em] text-amber-200/75">
+              Crystal Field 101
+            </p>
+            <h1 id="brand-heading" className="mb-5 font-serif text-4xl font-bold tracking-[0.16em] text-white sm:text-6xl">
+              晶域心語
+            </h1>
+            <p className="mx-auto max-w-3xl text-base leading-8 text-purple-100/80 sm:text-lg">
+              晶域心語是一個結合塔羅牌占卜、生命靈數與人類圖的自我探索平台，協助使用者理解當下課題、個人天賦、能量特質與人生方向。
+            </p>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-purple-200/60 sm:text-base">
+              首頁與服務介紹皆可免登入瀏覽；只有在使用會員專屬或需要保存個人結果的功能時，才會請你登入帳戶。
+            </p>
+          </div>
+        </section>
+
         {/* ── Cards Section ────────────────────────────────────── */}
-        <section className="pt-16 pb-32">
+        <section className="pt-12 pb-32">
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-14">
               <p className="text-purple-400/60 text-sm uppercase tracking-[0.3em] font-medium mb-4">靈魂探索工具</p>
