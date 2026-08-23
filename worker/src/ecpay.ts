@@ -77,6 +77,9 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   vedic_karma: { id: 'vedic_karma', name: '印度占星｜我的前世業力', amount: 399 },
   vedic_timeline: { id: 'vedic_timeline', name: '印度占星｜我的未來十年', amount: 399 },
   vedic_full: { id: 'vedic_full', name: '印度占星｜完整靈魂業力人生地圖', amount: 999 },
+  vedic_soul_karma: { id: 'vedic_soul_karma', name: '印度占星｜靈魂業力', amount: 499 },
+  vedic_life_full: { id: 'vedic_life_full', name: '印度占星｜人生全解', amount: 499 },
+  vedic_complete: { id: 'vedic_complete', name: '印度占星｜完整人生地圖', amount: 999 },
   // ── 月費會員 ─────────────────────────────────────────────────
   membership_monthly: { id: 'membership_monthly', name: '月費會員 (所有塔羅單張不限次數)', amount: 99 },
 };

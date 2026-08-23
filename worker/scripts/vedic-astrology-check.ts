@@ -8,6 +8,9 @@ const expectedPrices: Record<string, number> = {
   vedic_karma: 399,
   vedic_timeline: 399,
   vedic_full: 999,
+  vedic_soul_karma: 499,
+  vedic_life_full: 499,
+  vedic_complete: 999,
 };
 
 for (const [productId, price] of Object.entries(expectedPrices)) {
@@ -16,6 +19,10 @@ for (const [productId, price] of Object.entries(expectedPrices)) {
 
 const source = readFileSync(new URL('../src/vedicAstrology.ts', import.meta.url), 'utf8');
 assert.match(source, /DasaAtRange/);
+assert.match(source, /housePlacements/);
+assert.match(source, /houseLords/);
+assert.match(source, /karmaAspects/);
+assert.match(source, /第七項｜靈魂業力總結/);
 assert.match(source, /Ayanamsa:\s*'LAHIRI'/);
 assert.match(source, /order\.status !== 'paid'/);
 assert.match(source, /order\.item_id\.startsWith\('vedic_'\)/);

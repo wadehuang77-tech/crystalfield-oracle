@@ -522,7 +522,7 @@ function VedicEntryCard() {
       <div className="relative z-10 flex min-h-[340px] flex-col justify-center px-7 py-10 sm:min-h-[320px] sm:px-12 lg:max-w-[68%] lg:px-16">
         <div className="flex items-center gap-3 text-sm font-medium uppercase tracking-[0.24em] text-amber-200/75">
           <span className="text-xl" aria-hidden>🪷</span>
-          Jyotish · Vedic Astrology
+          印度占星 · 靈魂業力解析
         </div>
         <h3 className="mt-5 font-serif text-3xl font-bold text-amber-50 sm:text-5xl">印度占星｜靈魂業力人生地圖</h3>
         <p className="mt-4 max-w-2xl text-base leading-8 text-violet-100/72 sm:text-lg">

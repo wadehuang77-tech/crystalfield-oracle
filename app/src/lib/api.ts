@@ -324,6 +324,13 @@ export interface VedicChartData {
     end: string;
     subPeriods: Array<{ lord: string; start: string; end: string }>;
   }>;
+  housePlacements: Record<string, number>;
+  houseLords: Record<string, string>;
+  karmaAspects: Array<{
+    source: 'Rahu' | 'Ketu';
+    target: string;
+    relationship: 'conjunction' | 'opposition';
+  }>;
   timezone: string;
   timezoneOffset: string;
 }

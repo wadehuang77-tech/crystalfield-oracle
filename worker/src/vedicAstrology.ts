@@ -15,7 +15,10 @@ import {
 
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
-const REPORT_SCOPES = ['career', 'relationship', 'karma', 'timeline', 'full'] as const;
+const REPORT_SCOPES = [
+  'career', 'relationship', 'karma', 'timeline', 'full',
+  'soul_karma', 'life_full', 'complete',
+] as const;
 
 export type VedicReportScope = typeof REPORT_SCOPES[number];
 
@@ -33,6 +36,13 @@ export interface VedicChartData {
     start: string;
     end: string;
     subPeriods: Array<{ lord: string; start: string; end: string }>;
+  }>;
+  housePlacements: Record<string, number>;
+  houseLords: Record<string, string>;
+  karmaAspects: Array<{
+    source: 'Rahu' | 'Ketu';
+    target: string;
+    relationship: 'conjunction' | 'opposition';
   }>;
   timezone: string;
   timezoneOffset: string;
@@ -102,6 +112,95 @@ const TALENTS_BY_PLANET_SIGN: Record<string, string[]> = {
   Libra: ['協調合作', '美感判斷'], Scorpio: ['深度洞察', '危機轉化'], Sagittarius: ['教學啟發', '願景拓展'],
   Capricorn: ['長期規劃', '組織管理'], Aquarius: ['創新思考', '社群連結'], Pisces: ['直覺想像', '療癒共感'],
 };
+
+const SIGNS = [
+  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
+] as const;
+
+const SIGN_LORDS: Record<string, string> = {
+  Aries: 'Mars', Taurus: 'Venus', Gemini: 'Mercury', Cancer: 'Moon',
+  Leo: 'Sun', Virgo: 'Mercury', Libra: 'Venus', Scorpio: 'Mars',
+  Sagittarius: 'Jupiter', Capricorn: 'Saturn', Aquarius: 'Saturn', Pisces: 'Jupiter',
+};
+
+const SIGN_ZH: Record<string, string> = {
+  Aries: '牡羊座', Taurus: '金牛座', Gemini: '雙子座', Cancer: '巨蟹座',
+  Leo: '獅子座', Virgo: '處女座', Libra: '天秤座', Scorpio: '天蠍座',
+  Sagittarius: '射手座', Capricorn: '摩羯座', Aquarius: '水瓶座', Pisces: '雙魚座',
+};
+
+const PLANET_ZH: Record<string, string> = {
+  Sun: '太陽', Moon: '月亮', Mars: '火星', Mercury: '水星', Jupiter: '木星',
+  Venus: '金星', Saturn: '土星', Rahu: '羅喉', Ketu: '計都',
+};
+
+const NAKSHATRA_ZH: Record<string, string> = {
+  Ashwini: '阿濕毗尼月宿', Bharani: '婆羅尼月宿', Krittika: '基栗底柯月宿', Rohini: '婁西尼月宿',
+  Mrigashira: '鹿首月宿', Ardra: '阿陀羅月宿', Punarvasu: '復增月宿', Pushya: '普沙月宿',
+  Ashlesha: '阿濕萊沙月宿', Magha: '摩伽月宿', 'Purva Phalguni': '前頗具尼月宿',
+  'Uttara Phalguni': '後頗具尼月宿', Hasta: '哈斯塔月宿', Chitra: '質多羅月宿', Swati: '斯瓦提月宿',
+  Vishakha: '毗舍佉月宿', Anuradha: '阿奴羅陀月宿', Jyeshtha: '哲逝陀月宿', Mula: '根本月宿',
+  'Purva Ashadha': '前阿沙陀月宿', 'Uttara Ashadha': '後阿沙陀月宿', Shravana: '室羅伐拏月宿',
+  Dhanishta: '陀尼須陀月宿', Shatabhisha: '百醫月宿', Satabhisha: '百醫月宿',
+  'Purva Bhadrapada': '前婆陀羅月宿', 'Uttara Bhadrapada': '後婆陀羅月宿', Revati: '雷瓦蒂月宿',
+};
+
+function zhSign(value: string): string {
+  return SIGN_ZH[value] || value;
+}
+
+function zhPlanet(value: string | null): string {
+  return value ? (PLANET_ZH[value] || value) : '';
+}
+
+function zhNakshatra(value: string): string {
+  const name = value.split(/\s+-\s+|\s+Pada\s+/i)[0].trim();
+  const suffix = value.slice(name.length).replace(/^\s*-\s*/, '，第 ').replace(/^\s*Pada\s*/i, '，第 ');
+  return `${NAKSHATRA_ZH[name] || name}${suffix ? `${suffix}分區` : ''}`;
+}
+
+function deriveHouseContext(lagna: string, planets: Record<string, string>): Pick<
+  VedicChartData,
+  'housePlacements' | 'houseLords' | 'karmaAspects'
+> {
+  const lagnaIndex = SIGNS.indexOf(lagna as typeof SIGNS[number]);
+  const housePlacements: Record<string, number> = {};
+  const houseLords: Record<string, string> = {};
+  if (lagnaIndex < 0) return { housePlacements, houseLords, karmaAspects: [] };
+
+  for (let house = 1; house <= 12; house += 1) {
+    const sign = SIGNS[(lagnaIndex + house - 1) % 12];
+    houseLords[String(house)] = SIGN_LORDS[sign];
+  }
+  for (const [planet, sign] of Object.entries(planets)) {
+    const signIndex = SIGNS.indexOf(sign as typeof SIGNS[number]);
+    if (signIndex >= 0) housePlacements[planet] = ((signIndex - lagnaIndex + 12) % 12) + 1;
+  }
+
+  const karmaAspects: VedicChartData['karmaAspects'] = [];
+  for (const source of ['Rahu', 'Ketu'] as const) {
+    const sourceHouse = housePlacements[source];
+    if (!sourceHouse) continue;
+    for (const [target, targetHouse] of Object.entries(housePlacements)) {
+      if (target === source || target === (source === 'Rahu' ? 'Ketu' : 'Rahu')) continue;
+      if (targetHouse === sourceHouse) karmaAspects.push({ source, target, relationship: 'conjunction' });
+      if (((targetHouse - sourceHouse + 12) % 12) === 6) karmaAspects.push({ source, target, relationship: 'opposition' });
+    }
+  }
+  return { housePlacements, houseLords, karmaAspects };
+}
+
+function hydrateChartData(chart: VedicChartData): VedicChartData {
+  const context = deriveHouseContext(chart.lagna, chart.planets);
+  return {
+    ...chart,
+    dashaTimeline: Array.isArray(chart.dashaTimeline) ? chart.dashaTimeline : [],
+    housePlacements: chart.housePlacements || context.housePlacements,
+    houseLords: chart.houseLords || context.houseLords,
+    karmaAspects: Array.isArray(chart.karmaAspects) ? chart.karmaAspects : context.karmaAspects,
+  };
+}
 
 function cleanText(value: unknown, max: number): string {
   return typeof value === 'string' ? value.trim().replace(/[<>]/g, '').slice(0, max) : '';
@@ -277,7 +376,7 @@ function deriveFreeResults(chart: VedicChartData): VedicFreeResults {
   return {
     archetype: {
       title: archetypeTitle,
-      body: `${archetypeBody} 你的上升落在 ${chart.lagna}，月亮位於 ${chart.moonSign} 的 ${chart.moonNakshatra} 月宿，顯示外在行動與內在感受需要用不同節奏被理解。`,
+      body: `${archetypeBody} 你的上升落在${zhSign(chart.lagna)}，月亮位於${zhSign(chart.moonSign)}的${zhNakshatra(chart.moonNakshatra)}，顯示外在行動與內在感受需要用不同節奏被理解。`,
     },
     talents: {
       title: '今生最重要的天賦',
@@ -286,15 +385,15 @@ function deriveFreeResults(chart: VedicChartData): VedicFreeResults {
     },
     currentCycle: {
       title: cycleTitle,
-      body: `${cycleBody}${chart.antarDasha ? ` 目前同時受到 ${chart.antarDasha} 次週期影響，近期事件會更集中在這顆行星代表的選擇與學習。` : ''}`,
+      body: `${cycleBody}${chart.antarDasha ? ` 目前同時受到${zhPlanet(chart.antarDasha)}次週期影響，近期事件會更集中在這顆行星代表的選擇與學習。` : ''}`,
     },
     challenge: {
       title: '目前最需要突破的課題',
-      body: `羅喉位於 ${rahu}、計都位於 ${ketu}，顯示靈魂正在離開熟悉卻容易反覆的安全模式，學習走向新的生命能力。土星位於 ${saturn}，提醒你：眼前的卡點未必是沒有機會，而是舊結構需要被重新整理。`,
+      body: `羅喉位於${zhSign(rahu)}、計都位於${zhSign(ketu)}，顯示靈魂正在離開熟悉卻容易反覆的安全模式，學習走向新的生命能力。土星位於${zhSign(saturn)}，提醒你：眼前的卡點未必是沒有機會，而是舊結構需要被重新整理。`,
     },
     nextYear: {
       title: `${currentYear}–${currentYear + 1} 的重要轉折窗口`,
-      body: `未來一年仍以 ${chart.mahaDasha} 大運為主軸。當你願意把注意力放回長期方向，而不是只處理眼前焦慮，事業、關係與資源會出現更清楚的轉折訊號。`,
+      body: `未來一年仍以${zhPlanet(chart.mahaDasha)}大運為主軸。當你願意把注意力放回長期方向，而不是只處理眼前焦慮，事業、關係與資源會出現更清楚的轉折訊號。`,
       lockedPrompts: ['哪幾個月份的推進力量最強？', '適合主動擴張，還是先整頓守成？', '財富與關係機會可能從哪裡出現？'],
     },
   };
@@ -365,10 +464,12 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
     const dasha = parseDashaRange(dashaRaw);
     if (!lagna || !planets.Moon || !planets.Sun || dasha.maha === 'Unknown') throw new Error('VedAstro response incomplete');
 
+    const houseContext = deriveHouseContext(lagna, planets);
     const chart: VedicChartData = {
       ayanamsa: 'LAHIRI', lagna, sunSign: planets.Sun, moonSign: planets.Moon,
       moonNakshatra, planets, mahaDasha: dasha.maha, antarDasha: dasha.antar,
       dashaTimeline: dasha.timeline,
+      ...houseContext,
       timezone, timezoneOffset,
     };
     const freeResults = deriveFreeResults(chart);
@@ -429,21 +530,87 @@ function extractOpenAiText(data: unknown): string {
 const SCOPE_NAMES: Record<VedicReportScope, string> = {
   career: '我的財富與事業', relationship: '我的感情與婚姻', karma: '我的前世業力',
   timeline: '我的未來十年', full: '印度占星完整靈魂業力人生地圖',
+  soul_karma: '靈魂業力｜前世因果與今生課題',
+  life_full: '人生全解｜使命、感情與財富事業',
+  complete: '完整人生地圖｜未來時間軸與靈魂總結',
 };
 
+const REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
+  career: ['財富來源與天賦', '事業方向與工作模式', '目前阻礙', '行動建議'],
+  relationship: ['感情吸引模式', '關係中的靈魂課題', '適合的伴侶特質', '相處與承諾建議'],
+  karma: ['你帶著什麼來到今生？', '反覆出現的業力模式', '今生需要完成的轉化'],
+  timeline: ['目前人生週期', '未來十年時間軸', '轉換期的準備方向'],
+  full: ['前世業力', '今生課題', '感情與關係', '財富與事業', '未來十年', '靈魂總結'],
+  soul_karma: ['你帶著什麼來到今生？', '查看你的前世慣性', '查看今生需要完成的業力轉化'],
+  life_full: ['前世因果與業力模式', '你的今生核心課題', '感情與關係方向', '財富與事業方向'],
+  complete: [
+    '你從哪裡來？', '你為什麼來？', '你要學會什麼？', '什麼在阻礙你？',
+    '感情、財富與使命整合', '你正在往哪裡去？', '第七項｜靈魂業力總結',
+  ],
+};
+
+function karmaFoundation(chart: VedicChartData) {
+  const rahuHouse = chart.housePlacements.Rahu;
+  const ketuHouse = chart.housePlacements.Ketu;
+  const formatAspects = (source: 'Rahu' | 'Ketu') => chart.karmaAspects
+    .filter((aspect) => aspect.source === source)
+    .map((aspect) => `${zhPlanet(aspect.source)}與${zhPlanet(aspect.target)}${aspect.relationship === 'conjunction' ? '同宮' : '對宮呼應'}`);
+  return {
+    羅喉: {
+      星座: zhSign(chart.planets.Rahu || ''),
+      宮位: rahuHouse ? `第${rahuHouse}宮` : '資料不足',
+      宮主星: rahuHouse ? zhPlanet(chart.houseLords[String(rahuHouse)]) : '資料不足',
+      相關相位: formatAspects('Rahu'),
+    },
+    計都: {
+      星座: zhSign(chart.planets.Ketu || ''),
+      宮位: ketuHouse ? `第${ketuHouse}宮` : '資料不足',
+      宮主星: ketuHouse ? zhPlanet(chart.houseLords[String(ketuHouse)]) : '資料不足',
+      相關相位: formatAspects('Ketu'),
+    },
+  };
+}
+
 function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
-  const areas = scope === 'full' ? REPORT_SCOPES.filter((item) => item !== 'full') : [scope];
+  const headings = REPORT_SECTION_HEADINGS[scope];
   const timelineSummary = chart.dashaTimeline.length
-    ? chart.dashaTimeline.map((period) => `${period.start} 至 ${period.end}：${period.lord} 大運`).join('；')
-    : `${chart.mahaDasha} 大運`;
+    ? chart.dashaTimeline.map((period) => `${period.start} 至 ${period.end}：${zhPlanet(period.lord)}大運`).join('；')
+    : `${zhPlanet(chart.mahaDasha)}大運`;
+  const foundation = karmaFoundation(chart);
+  const karmaText = `羅喉位於${foundation.羅喉.星座}${foundation.羅喉.宮位}，計都位於${foundation.計都.星座}${foundation.計都.宮位}。這條軸線象徵你熟悉的慣性，以及今生需要逐步發展的新能力。`;
+  const cycleText = DASHA_THEMES[chart.mahaDasha]?.[1] ?? '你正處於重新理解人生方向的週期。';
+  const bodyFor = (heading: string) => {
+    if (heading === '第七項｜靈魂業力總結') {
+      return `你從哪裡來？你帶著計都所象徵的熟悉能力與反應慣性。\n\n你為什麼來？羅喉指出今生需要練習的新方向。\n\n你要學會什麼？在熟悉與未知之間建立新的選擇能力。\n\n什麼在阻礙你？當舊模式帶來安全感時，你可能反覆回到已經不再適合的道路。\n\n你正在往哪裡去？${cycleText}\n\n給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。`;
+    }
+    if (heading.includes('核心課題') || heading.includes('為什麼來')) {
+      return `${karmaText}${cycleText}\n\n你的今生核心課題：在尊重既有天賦的同時，勇敢練習羅喉所指向的新生命能力。`;
+    }
+    if (heading.includes('前世') || heading.includes('帶著什麼') || heading.includes('從哪裡來')) {
+      return `${karmaText}你對計都所在領域可能特別熟悉，這份熟悉既是天賦，也可能讓你在壓力中反覆使用同一種方法。前世因果在此作為靈魂象徵，邀請你觀察哪些反應已不再適合現在的自己。`;
+    }
+    if (heading.includes('轉化') || heading.includes('學會什麼') || heading.includes('阻礙')) {
+      return `${karmaText}真正的轉化不是否定過去，而是辨認舊模式何時已變成限制。當相同的人際、工作或情緒情境再次出現時，先停下來選擇不同回應，便是在鬆動業力慣性。`;
+    }
+    if (heading.includes('時間') || heading.includes('往哪裡去')) {
+      return `行星週期顯示：${timelineSummary}。${cycleText}這些日期代表能量主題的轉換區間，不是保證發生特定事件；你可以用它安排準備、整頓與行動節奏。`;
+    }
+    if (heading.includes('感情') || heading.includes('關係')) {
+      return `${karmaText}關係會放大你在安全感、界線與親密中的慣性。比起追問一段關係是否命定，更重要的是看見自己是否能在靠近他人的同時保留真實需求與選擇。`;
+    }
+    if (heading.includes('財富') || heading.includes('事業') || heading.includes('使命')) {
+      return `${cycleText}你的財富與事業方向需要同時考量天賦、現實資源與長期節奏。適合你的道路，不只帶來成果，也會讓你逐步發展羅喉所象徵的新能力。涉及重大財務決策時，仍應搭配合格專業意見。`;
+    }
+    return `${cycleText}${karmaText}請把這段內容當成自我覺察的地圖，並以現實經驗與自己的選擇作為最後依據。`;
+  };
   return {
     title: SCOPE_NAMES[scope],
-    introduction: `你的上升為 ${chart.lagna}、月亮位於 ${chart.moonSign}，目前行經 ${chart.mahaDasha} 大運。這份指引以星盤象徵協助你整理生命方向，不把任何結果視為不可改變的命定。`,
-    sections: areas.map((area) => ({
-      heading: SCOPE_NAMES[area],
-      body: `${area === 'timeline' ? `VedAstro 計算出的週期為：${timelineSummary}。` : ''}${DASHA_THEMES[chart.mahaDasha]?.[1] ?? '你正處於重新理解人生方向的週期。'} 羅喉位於 ${chart.planets.Rahu}、計都位於 ${chart.planets.Ketu}，提醒你把熟悉模式與新的成長方向放在一起觀察。請將這段內容當成自我覺察的地圖，並以現實經驗、專業意見與自己的選擇作為最後依據。`,
+    introduction: `你的上升為${zhSign(chart.lagna)}、月亮位於${zhSign(chart.moonSign)}，目前行經${zhPlanet(chart.mahaDasha)}大運。這份指引以星盤象徵協助你整理生命方向，不把任何結果視為不可改變的命定。`,
+    sections: headings.map((heading) => ({
+      heading,
+      body: bodyFor(heading),
     })),
-    closing: '星盤描述的是能量傾向與時間節奏，而不是替你決定人生。你仍然擁有選擇、調整與創造新道路的力量。',
+    closing: '給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。你仍然擁有選擇、調整與創造新道路的力量。',
   };
 }
 
@@ -454,12 +621,21 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
     scope,
     scope_name: SCOPE_NAMES[scope],
     chart,
+    karma_foundation_chinese: karmaFoundation(chart),
+    required_section_headings: REPORT_SECTION_HEADINGS[scope],
     rules: [
       '只使用提供的星盤資料，不杜撰行星位置、日期、月份或事件。',
       '使用繁體中文，語氣溫柔、具體、容易理解，兼顧生活、心理、能量與靈性角度。',
+      '所有行星、星座、月宿、週期與占星術語都必須翻譯成中文；報告不得出現英文標題或英文解釋。',
+      '不要只寫「計都位於第X宮」，必須轉譯成使用者能理解的生命慣性、重複模式、舒適圈與轉化方向。',
+      '前世因果採象徵與自我探索語氣，使用「可能、傾向、邀請你觀察」，不得宣稱可證實的前世事實。',
       '不得宣稱命定、保證發財、保證婚姻或預測疾病死亡。',
       '財務、醫療、法律議題必須提醒讀者搭配合格專業意見。',
-      '單項報告產出 4 至 6 段；完整報告依 career、relationship、karma、timeline 各產出一個 section。',
+      'sections 必須依 required_section_headings 的順序與數量產出，不可省略或自行增加英文標題。',
+      'soul_karma 必須回答前世慣性、重複原因、執著、舒適圈、業力關係領域與今生方向。',
+      'life_full 必須回答前世業力、今生核心課題、感情關係、財富事業與靈魂使命。',
+      '凡包含「你的今生核心課題」段落，最後必須用一句「你的今生核心課題：＿＿＿＿」做出可分享的精簡總結。',
+      'complete 的第七項必須整合回答「你從哪裡來、你為什麼來、你要學會什麼、什麼在阻礙你、你正在往哪裡去」，並給出「給你今生的靈魂訊息」。',
       'timeline 只能使用 chart.dashaTimeline 已提供的起訖日期，不得虛構其他精確月份或事件。',
       '回傳 JSON：title、introduction、sections（heading/body）、closing。',
     ],
@@ -478,7 +654,7 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
           { role: 'user', content: JSON.stringify(prompt) },
         ],
         text: { format: { type: 'json_object' } },
-        max_output_tokens: scope === 'full' ? 7000 : 3500,
+        max_output_tokens: scope === 'full' || scope === 'complete' ? 8000 : 5000,
       }),
     });
     if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
@@ -489,12 +665,14 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
     const introduction = cleanText(parsed.introduction, 3000);
     const closing = cleanText(parsed.closing, 2000);
     const sections = Array.isArray(parsed.sections)
-      ? parsed.sections.slice(0, scope === 'full' ? 8 : 6).map((entry) => {
+      ? parsed.sections.slice(0, REPORT_SECTION_HEADINGS[scope].length).map((entry) => {
         const row = entry && typeof entry === 'object' ? entry as Record<string, unknown> : {};
         return { heading: cleanText(row.heading, 120), body: cleanText(row.body, 6000) };
       }).filter((entry) => entry.heading && entry.body)
       : [];
-    if (!title || !introduction || !sections.length) throw new Error('OpenAI report invalid');
+    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length) {
+      throw new Error('OpenAI report invalid');
+    }
     return { title, introduction, sections, closing };
   } catch {
     return fallbackReport(scope, chart);
@@ -544,7 +722,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   const chartRow = await env.DB.prepare('SELECT * FROM vedic_charts WHERE id = ?')
     .bind(chartId).first<StoredChart>();
   if (!chartRow) return badRequest(req, env, '找不到星盤資料');
-  const chart = JSON.parse(chartRow.chart_json) as VedicChartData;
+  const chart = hydrateChartData(JSON.parse(chartRow.chart_json) as VedicChartData);
   const report = await generatePaidReport(env, scope, chart);
   await env.DB.prepare(
     `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)

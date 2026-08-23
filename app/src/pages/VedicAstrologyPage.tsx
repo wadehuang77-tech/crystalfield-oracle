@@ -1,13 +1,9 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Briefcase,
   Check,
-  Clock3,
-  Heart,
   History,
   Loader2,
-  LockKeyhole,
   MapPin,
   MoonStar,
   Orbit,
@@ -37,36 +33,34 @@ const PLANET_ZH: Record<string, string> = {
 
 const PAID_OPTIONS = [
   {
-    id: 'vedic_career',
-    title: '我的財富與事業',
-    price: 399,
-    icon: Briefcase,
-    description: '財富來源、工作天賦、創業傾向與未來事業節奏。',
-    bullets: ['最容易創造價值的能力', '上班、合作與創業傾向', '財富成長需要建立的結構'],
-  },
-  {
-    id: 'vedic_relationship',
-    title: '我的感情與婚姻',
-    price: 399,
-    icon: Heart,
-    description: '看見吸引模式、關係業力、親密需求與伴侶特質。',
-    bullets: ['容易被什麼類型吸引', '關係裡反覆出現的課題', '適合你的相處與承諾方式'],
-  },
-  {
-    id: 'vedic_karma',
-    title: '我的前世業力',
-    price: 399,
+    id: 'vedic_soul_karma',
+    title: '靈魂業力',
+    subtitle: '前世因果與今生課題',
+    price: 499,
     icon: History,
-    description: '從羅喉與計都理解熟悉模式、成長方向與靈魂功課。',
-    bullets: ['過去熟悉卻容易停滯的模式', '今生需要發展的新能力', '讓問題不再重複的覺察方向'],
+    featured: true,
+    description: '從羅喉、計都、宮位、宮主星與相關相位，看見前世慣性與今生真正需要完成的轉化。',
+    bullets: ['你帶著什麼來到今生？', '為什麼某些事情不斷重複？', '今生需要離開的舒適圈', '你的今生核心課題'],
   },
   {
-    id: 'vedic_timeline',
-    title: '我的未來十年',
-    price: 399,
-    icon: Clock3,
-    description: '沿著行星週期，看見未來十年的生命主題與轉換節奏。',
-    bullets: ['人生週期的長程主題', '適合擴張或整頓的訊號', '每一階段可主動準備的方向'],
+    id: 'vedic_life_full',
+    title: '人生全解',
+    subtitle: '業力、使命、感情與財富事業',
+    price: 499,
+    icon: Stars,
+    featured: false,
+    description: '把前世因果與今生核心課題，放進感情、關係、工作、財富與靈魂使命中完整理解。',
+    bullets: ['業力模式與靈魂使命', '感情與關係方向', '財富與事業天賦', '完成課題後的人生方向'],
+  },
+  {
+    id: 'vedic_complete',
+    title: '完整人生地圖',
+    subtitle: '全部解析、未來時間軸與靈魂總結',
+    price: 999,
+    icon: Sparkles,
+    featured: false,
+    description: '解鎖全部人生主題、未來十年時間軸，以及由人工智慧整合的第七項「靈魂業力總結」。',
+    bullets: ['前世因果與今生課題', '使命、感情與財富事業', '未來十年行星週期', '給你今生的靈魂訊息'],
   },
 ] as const;
 
@@ -178,7 +172,7 @@ export default function VedicAstrologyPage() {
       <CosmicBackground />
       <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6">
         <section className="mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-[0.35em] text-amber-200/75">Jyotish · Vedic Astrology</p>
+          <p className="mb-4 text-sm font-medium tracking-[0.28em] text-amber-200/75">印度占星 · 靈魂業力人生地圖</p>
           <h1 className="font-serif text-4xl leading-tight text-amber-50 sm:text-6xl">印度占星｜靈魂業力人生地圖</h1>
           <p className="mx-auto mt-7 max-w-3xl text-lg leading-9 text-violet-100/80">
             為什麼有些事情，你明明很努力，卻一直重複發生？印度占星從出生星盤，看見今生天賦、感情模式、財富道路，以及正在經歷的人生週期。
@@ -216,17 +210,10 @@ export default function VedicAstrologyPage() {
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">
-            <div className="text-center"><p className="text-sm uppercase tracking-[0.3em] text-fuchsia-300/60">Deep Soul Reports</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">選擇你現在最想理解的人生問題</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">不用先理解艱深名詞。從你最關心的問題進入，星盤會成為整理人生方向的地圖。</p></div>
-            <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">三種深度解析方案</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">選擇你現在最想理解的人生問題</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">不用先理解艱深名詞。從你最關心的問題進入，星盤會成為整理人生方向的地圖。</p></div>
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">
               {PAID_OPTIONS.map((option) => <PaidOption key={option.id} {...option} loading={checkoutLoading === option.id} disabled={!!checkoutLoading} onClick={() => void checkout(option.id)} />)}
             </div>
-            <article className="relative mt-7 overflow-hidden rounded-[2rem] border border-amber-300/45 bg-gradient-to-br from-amber-400/15 via-fuchsia-900/25 to-violet-950/65 p-7 shadow-[0_0_55px_rgba(251,191,36,0.14)] sm:p-10">
-              <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-amber-300/15 blur-3xl" />
-              <div className="relative flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
-                <div className="max-w-3xl"><div className="flex items-center gap-3 text-amber-200"><Sparkles /><span className="text-sm uppercase tracking-[0.25em]">Complete Soul Map</span></div><h3 className="mt-4 font-serif text-3xl text-amber-50">完整靈魂業力人生地圖</h3><p className="mt-4 leading-7 text-violet-50/70">一次解鎖財富事業、感情婚姻、前世業力與未來十年四大主題，從同一張出生星盤看見彼此之間的連結。</p><div className="mt-5 flex flex-wrap gap-2">{PAID_OPTIONS.map((item) => <span key={item.id} className="rounded-full border border-amber-200/20 bg-black/20 px-3 py-1 text-xs text-amber-100/70">{item.title}</span>)}</div></div>
-                <div className="shrink-0 text-center lg:min-w-56"><div className="text-3xl font-bold text-white">NT$999</div><button type="button" disabled={!!checkoutLoading} onClick={() => void checkout('vedic_full')} className="mt-4 w-full rounded-xl bg-gradient-to-r from-amber-400 to-fuchsia-500 px-6 py-3 font-semibold text-slate-950 transition hover:brightness-110 disabled:opacity-50">{checkoutLoading === 'vedic_full' ? '前往付款中…' : '解鎖完整報告'}</button></div>
-              </div>
-            </article>
           </section>
         )}
 
@@ -245,19 +232,17 @@ function FreeResults({ chart }: { chart: VedicChartResponse }) {
   const result = chart.free_results;
   return (
     <section id="vedic-free-results" className="mt-20 scroll-mt-24">
-      <div className="text-center"><p className="text-sm uppercase tracking-[0.3em] text-amber-300/60">Your Free Soul Map</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">你的免費印度占星指引</h2><p className="mt-4 text-sm text-violet-100/55">VedAstro 星曆計算 · Lahiri 恆星黃道</p></div>
+      <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">免費靈魂地圖</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">你的免費印度占星指引</h2><p className="mt-4 text-sm text-violet-100/55">專業星曆計算 · 拉希里恆星黃道</p></div>
       <div className="mx-auto mt-8 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4">
         <ChartBadge label="上升" value={SIGN_ZH[chart.chart.lagna] || chart.chart.lagna} />
         <ChartBadge label="月亮" value={SIGN_ZH[chart.chart.moonSign] || chart.chart.moonSign} />
         <ChartBadge label="太陽" value={SIGN_ZH[chart.chart.sunSign] || chart.chart.sunSign} />
         <ChartBadge label="目前大運" value={PLANET_ZH[chart.chart.mahaDasha] || chart.chart.mahaDasha} />
       </div>
-      <div className="mt-9 grid gap-5 lg:grid-cols-2">
+      <div className="mt-9 grid gap-5 lg:grid-cols-3">
         <ResultCard number="01" eyebrow="人格原型" title={result.archetype.title} body={result.archetype.body} />
-        <ResultCard number="02" eyebrow="今生天賦" title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
+        <ResultCard number="02" eyebrow="今生天賦" title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
         <ResultCard number="03" eyebrow="行星週期" title={result.currentCycle.title} body={result.currentCycle.body} />
-        <ResultCard number="04" eyebrow="靈魂課題" title={result.challenge.title} body={result.challenge.body} />
-        <div className="lg:col-span-2"><ResultCard number="05" eyebrow="未來一年" title={result.nextYear.title} body={result.nextYear.body}>{result.nextYear.lockedPrompts.map((prompt) => <div key={prompt} className="mt-2 flex items-center gap-2 rounded-xl border border-fuchsia-300/15 bg-black/20 px-4 py-3 text-sm text-violet-100/65"><LockKeyhole className="h-4 w-4 text-fuchsia-300" />{prompt}</div>)}</ResultCard></div>
       </div>
     </section>
   );
@@ -273,11 +258,11 @@ function ResultCard({ number, eyebrow, title, body, children }: { number: string
 
 function PaidOption(props: typeof PAID_OPTIONS[number] & { loading: boolean; disabled: boolean; onClick: () => void }) {
   const Icon = props.icon;
-  return <article className="rounded-[1.75rem] border border-violet-300/20 bg-slate-950/55 p-6 transition hover:-translate-y-1 hover:border-fuchsia-300/35"><div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><strong className="text-xl text-white">NT${props.price}</strong></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-3 min-h-14 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? '前往付款中…' : '解鎖這份指引'}</button></article>;
+  return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">主打方案</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><strong className={`text-xl text-white ${props.featured ? 'mt-10 sm:mt-0' : ''}`}>NT${props.price}</strong></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? '前往付款中…' : '解鎖這份指引'}</button></article>;
 }
 
 function PaidReport({ report }: { report: VedicReport }) {
-  return <section id="vedic-paid-report" className="mt-20 scroll-mt-24 rounded-[2rem] border border-amber-300/30 bg-slate-950/65 p-6 shadow-[0_0_60px_rgba(251,191,36,0.1)] sm:p-10"><div className="text-center"><MoonStar className="mx-auto h-10 w-10 text-amber-300" /><p className="mt-4 text-sm uppercase tracking-[0.3em] text-amber-300/60">Unlocked Soul Guidance</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{report.title}</h2></div><p className="mx-auto mt-8 max-w-4xl whitespace-pre-line text-lg leading-9 text-violet-50/75">{report.introduction}</p><div className="mx-auto mt-10 max-w-4xl space-y-6">{report.sections.map((section, index) => <article key={`${section.heading}-${index}`} className="rounded-2xl border border-violet-300/15 bg-violet-950/25 p-6 sm:p-8"><h3 className="font-serif text-2xl text-amber-100">{section.heading}</h3><p className="mt-4 whitespace-pre-line leading-8 text-violet-50/72">{section.body}</p></article>)}</div>{report.closing && <p className="mx-auto mt-10 max-w-3xl border-t border-amber-200/15 pt-7 text-center leading-8 text-amber-50/65">{report.closing}</p>}</section>;
+  return <section id="vedic-paid-report" className="mt-20 scroll-mt-24 rounded-[2rem] border border-amber-300/30 bg-slate-950/65 p-6 shadow-[0_0_60px_rgba(251,191,36,0.1)] sm:p-10"><div className="text-center"><MoonStar className="mx-auto h-10 w-10 text-amber-300" /><p className="mt-4 text-sm tracking-[0.3em] text-amber-300/60">已解鎖的靈魂指引</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{report.title}</h2></div><p className="mx-auto mt-8 max-w-4xl whitespace-pre-line text-lg leading-9 text-violet-50/75">{report.introduction}</p><div className="mx-auto mt-10 max-w-4xl space-y-6">{report.sections.map((section, index) => <article key={`${section.heading}-${index}`} className="rounded-2xl border border-violet-300/15 bg-violet-950/25 p-6 sm:p-8"><h3 className="font-serif text-2xl text-amber-100">{section.heading}</h3><p className="mt-4 whitespace-pre-line leading-8 text-violet-50/72">{section.body}</p></article>)}</div>{report.closing && <p className="mx-auto mt-10 max-w-3xl border-t border-amber-200/15 pt-7 text-center leading-8 text-amber-50/65">{report.closing}</p>}</section>;
 }
 
 function CosmicBackground() {
