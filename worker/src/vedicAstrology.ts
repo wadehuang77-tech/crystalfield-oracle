@@ -567,7 +567,7 @@ const SCOPE_NAMES: Record<VedicReportScope, string> = {
   timeline: '我的未來十年', full: '印度占星完整靈魂業力人生地圖',
   soul_karma: '靈魂業力｜前世因果與今生課題',
   life_full: '人生全解｜使命、感情與財富事業',
-  complete: '完整人生地圖｜未來時間軸與靈魂總結',
+  complete: '完整人生地圖｜6 大人生問題與靈魂業力總結',
 };
 
 const REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
@@ -579,10 +579,39 @@ const REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
   soul_karma: ['你帶著什麼來到今生？', '查看你的前世慣性', '查看今生需要完成的業力轉化'],
   life_full: ['前世因果與業力模式', '你的今生核心課題', '感情與關係方向', '財富與事業方向'],
   complete: [
-    '你從哪裡來？', '你為什麼來？', '你要學會什麼？', '什麼在阻礙你？',
-    '感情、財富與使命整合', '你正在往哪裡去？', '第七項｜靈魂業力總結',
+    '① 前世因果與業力',
+    '② 今生的人生課題',
+    '③ 天賦、使命與人生方向',
+    '④ 感情、婚姻與業力關係',
+    '⑤ 財富與事業業力',
+    '⑥ 未來人生時間軸',
+    '⑦ 靈魂業力總結',
   ],
 };
+
+interface VedicTransitSnapshot {
+  calculatedAt: string;
+  planets: Record<string, string>;
+}
+
+async function loadCurrentTransits(env: Env): Promise<VedicTransitSnapshot | null> {
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10);
+  const time = now.toISOString().slice(11, 16);
+  try {
+    const raw = await vedAstroCall(env, 'AllPlanetRasiSigns', {
+      time: {
+        StdTime: vedicStdTime(date, time, '+00:00'),
+        Location: { Name: 'Greenwich', Latitude: 51.4769, Longitude: 0 },
+      },
+      Ayanamsa: 'LAHIRI',
+    });
+    const planets = parsePlanetSigns(raw);
+    return Object.keys(planets).length ? { calculatedAt: now.toISOString(), planets } : null;
+  } catch {
+    return null;
+  }
+}
 
 function karmaFoundation(chart: VedicChartData) {
   const rahuHouse = chart.housePlacements.Rahu;
@@ -606,7 +635,7 @@ function karmaFoundation(chart: VedicChartData) {
   };
 }
 
-function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
+function fallbackReport(scope: VedicReportScope, chart: VedicChartData, transits: VedicTransitSnapshot | null = null) {
   const headings = REPORT_SECTION_HEADINGS[scope];
   const timelineSummary = chart.dashaTimeline.length
     ? chart.dashaTimeline.map((period) => `${period.start} 至 ${period.end}：${zhPlanet(period.lord)}大運`).join('；')
@@ -614,6 +643,9 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
   const foundation = karmaFoundation(chart);
   const karmaText = `羅喉位於${foundation.羅喉.星座}${foundation.羅喉.宮位}，計都位於${foundation.計都.星座}${foundation.計都.宮位}。這條軸線象徵你熟悉的慣性，以及今生需要逐步發展的新能力。`;
   const cycleText = DASHA_THEMES[chart.mahaDasha]?.[1] ?? '你正處於重新理解人生方向的週期。';
+  const transitText = transits
+    ? `目前天空中的木星位於${zhSign(transits.planets.Jupiter || '未知')}、土星位於${zhSign(transits.planets.Saturn || '未知')}、羅喉位於${zhSign(transits.planets.Rahu || '未知')}。行運只描述當下的集體背景，仍需與你的大運及出生星盤一起閱讀。`
+    : '目前行運資料暫時無法取得，因此以下時間判讀以個人大運與次週期為主，不額外推測未提供的月份。';
   const expandToDetailedReading = (text: string, heading: string) => {
     const additions = [
       `閱讀「${heading}」時，請回想近幾年反覆出現的人、事件與情緒。星盤提供的是觀察角度，不是把你固定在某一種命運裡；真正重要的是辨認自己通常在什麼情境下自動回到舊反應，以及哪些選擇能讓能量開始往新的方向流動。`,
@@ -628,10 +660,10 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
     return expanded;
   };
   const bodyFor = (heading: string) => {
-    if (heading === '第七項｜靈魂業力總結') {
+    if (heading.includes('靈魂業力總結')) {
       return `你從哪裡來？你帶著計都所象徵的熟悉能力與反應慣性。\n\n你為什麼來？羅喉指出今生需要練習的新方向。\n\n你要學會什麼？在熟悉與未知之間建立新的選擇能力。\n\n什麼在阻礙你？當舊模式帶來安全感時，你可能反覆回到已經不再適合的道路。\n\n你正在往哪裡去？${cycleText}\n\n給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。`;
     }
-    if (heading.includes('核心課題') || heading.includes('為什麼來')) {
+    if (heading.includes('人生課題') || heading.includes('核心課題') || heading.includes('為什麼來')) {
       return `${karmaText}${cycleText}\n\n你的今生核心課題：在尊重既有天賦的同時，勇敢練習羅喉所指向的新生命能力。`;
     }
     if (heading.includes('前世') || heading.includes('帶著什麼') || heading.includes('從哪裡來')) {
@@ -641,12 +673,15 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
       return `${karmaText}真正的轉化不是否定過去，而是辨認舊模式何時已變成限制。當相同的人際、工作或情緒情境再次出現時，先停下來選擇不同回應，便是在鬆動業力慣性。`;
     }
     if (heading.includes('時間') || heading.includes('往哪裡去')) {
-      return `行星週期顯示：${timelineSummary}。${cycleText}這些日期代表能量主題的轉換區間，不是保證發生特定事件；你可以用它安排準備、整頓與行動節奏。`;
+      return `行星週期顯示：${timelineSummary}。${cycleText}${transitText}這些日期代表能量主題的轉換區間，不是保證發生特定事件；未來十二個月可依大運與次週期的實際交界，安排準備、整頓與行動節奏。`;
     }
     if (heading.includes('感情') || heading.includes('關係')) {
       return `${karmaText}關係會放大你在安全感、界線與親密中的慣性。比起追問一段關係是否命定，更重要的是看見自己是否能在靠近他人的同時保留真實需求與選擇。`;
     }
-    if (heading.includes('財富') || heading.includes('事業') || heading.includes('使命')) {
+    if (heading.includes('天賦') || heading.includes('使命')) {
+      return `${cycleText}你的天生優勢需要透過真實經驗與長期練習，逐步成為能服務自己也能影響他人的能力。適合你的方向不只是一個職稱，而是能讓你運用既有天賦，同時發展羅喉所指向的新生命能力。\n\n你的靈魂原型：智慧傳遞者。你的力量不只來自把事情做好，也來自將經驗整理成方法，陪伴他人看見新的可能。`;
+    }
+    if (heading.includes('財富') || heading.includes('事業')) {
       return `${cycleText}你的財富與事業方向需要同時考量天賦、現實資源與長期節奏。適合你的道路，不只帶來成果，也會讓你逐步發展羅喉所象徵的新能力。涉及重大財務決策時，仍應搭配合格專業意見。`;
     }
     return `${cycleText}${karmaText}請把這段內容當成自我覺察的地圖，並以現實經驗與自己的選擇作為最後依據。`;
@@ -662,13 +697,19 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
   };
 }
 
-async function generatePaidReport(env: Env, scope: VedicReportScope, chart: VedicChartData) {
-  if (!env.OPENAI_API_KEY) return fallbackReport(scope, chart);
+async function generatePaidReport(
+  env: Env,
+  scope: VedicReportScope,
+  chart: VedicChartData,
+  transits: VedicTransitSnapshot | null = null,
+) {
+  if (!env.OPENAI_API_KEY) return fallbackReport(scope, chart, transits);
   const prompt = {
     task: '依據真實印度占星結構資料，撰寫晶域心語付費深度指引。',
     scope,
     scope_name: SCOPE_NAMES[scope],
     chart,
+    current_transits: transits,
     karma_foundation_chinese: karmaFoundation(chart),
     required_section_headings: REPORT_SECTION_HEADINGS[scope],
     rules: [
@@ -681,11 +722,17 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
       '財務、醫療、法律議題必須提醒讀者搭配合格專業意見。',
       'sections 必須依 required_section_headings 的順序與數量產出，不可省略或自行增加英文標題。',
       '完整人生地圖 complete 的七個 section，每一項正文都必須至少 200 個中文字，建議 220 至 300 字；不能用重複句子、空泛套話或同義反覆湊字數。',
+      'complete 第1項以羅喉、計都、宮位、星座、宮主星與相關相位為底層依據，回答前世生命模式、重複原因、執著慣性、舒適圈、業力關係領域與靈魂方向；正文不可用「計都位於第X宮」作為主要呈現。',
+      'complete 第2項回答靈魂核心課題、卡住模式、必須學會與放下之事、逃避時會重複的情境，以及完成課題後的方向；結尾必須寫「你的今生核心課題：＿＿＿＿」。',
+      'complete 第3項回答天生優勢、隱藏才能、工作與創業傾向、人生使命及成就感道路；結尾必須寫「你的靈魂原型：＿＿＿＿」，再用一句話解釋。',
+      'complete 第4項回答吸引模式、感情業力、關係功課、婚姻與伴侶傾向，以及資料支持的關係轉折窗口；不得保證婚姻結果。',
+      'complete 第5項回答財富模式、賺錢天賦、失財慣性、金錢恐懼或執著、事業業力、創業傾向與較容易擴張的生命階段。',
+      'complete 第6項必須結合 chart.dashaTimeline 的大運／次週期與 current_transits 的當下行運，說明目前章節、未來年度節奏及未來十二個月窗口；只能使用資料中存在的日期，行運缺少時必須明說並以大運為主。',
       '其他方案每個 section 也應提供足夠完整的說明，至少包含星盤依據、生活表現、可能盲點與可實行的轉化方向。',
       'soul_karma 必須回答前世慣性、重複原因、執著、舒適圈、業力關係領域與今生方向。',
       'life_full 必須回答前世業力、今生核心課題、感情關係、財富事業與靈魂使命。',
       '凡包含「你的今生核心課題」段落，最後必須用一句「你的今生核心課題：＿＿＿＿」做出可分享的精簡總結。',
-      'complete 的第七項必須整合回答「你從哪裡來、你為什麼來、你要學會什麼、什麼在阻礙你、你正在往哪裡去」，並給出「給你今生的靈魂訊息」。',
+      'complete 的第七項必須整合回答「你從哪裡來、你為什麼來、你要學會什麼、什麼在阻礙你、你正在往哪裡去」，並以「給你今生的靈魂訊息」收束。',
       'timeline 只能使用 chart.dashaTimeline 已提供的起訖日期，不得虛構其他精確月份或事件。',
       '回傳 JSON：title、introduction、sections（heading/body）、closing。',
     ],
@@ -715,9 +762,9 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
     const introduction = cleanText(parsed.introduction, 3000);
     const closing = cleanText(parsed.closing, 2000);
     const sections = Array.isArray(parsed.sections)
-      ? parsed.sections.slice(0, REPORT_SECTION_HEADINGS[scope].length).map((entry) => {
+      ? parsed.sections.slice(0, REPORT_SECTION_HEADINGS[scope].length).map((entry, index) => {
         const row = entry && typeof entry === 'object' ? entry as Record<string, unknown> : {};
-        return { heading: cleanText(row.heading, 120), body: cleanText(row.body, 6000) };
+        return { heading: REPORT_SECTION_HEADINGS[scope][index], body: cleanText(row.body, 6000) };
       }).filter((entry) => entry.heading && entry.body)
       : [];
     const completeSectionsTooShort = scope === 'complete' && sections.some((section) => section.body.length < 200);
@@ -726,7 +773,7 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
     }
     return { title, introduction, sections, closing };
   } catch {
-    return fallbackReport(scope, chart);
+    return fallbackReport(scope, chart, transits);
   } finally {
     clearTimeout(timer);
   }
@@ -771,11 +818,15 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   let existingNeedsRefresh = false;
   if (existing) {
     try {
-      const existingReport = JSON.parse(existing.content_json) as { sections?: Array<{ body?: string }> };
+      const existingReport = JSON.parse(existing.content_json) as { sections?: Array<{ heading?: string; body?: string }> };
       existingNeedsRefresh = scope === 'complete' && (
         !Array.isArray(existingReport.sections)
         || existingReport.sections.length !== REPORT_SECTION_HEADINGS.complete.length
-        || existingReport.sections.some((section) => typeof section.body !== 'string' || section.body.length < 200)
+        || existingReport.sections.some((section, index) => (
+          section.heading !== REPORT_SECTION_HEADINGS.complete[index]
+          || typeof section.body !== 'string'
+          || section.body.length < 200
+        ))
       );
       if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
     } catch {
@@ -787,7 +838,8 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
     .bind(chartId).first<StoredChart>();
   if (!chartRow) return badRequest(req, env, '找不到星盤資料');
   const chart = hydrateChartData(JSON.parse(chartRow.chart_json) as VedicChartData);
-  const report = await generatePaidReport(env, scope, chart);
+  const transits = scope === 'complete' ? await loadCurrentTransits(env) : null;
+  const report = await generatePaidReport(env, scope, chart, transits);
   if (existing && existingNeedsRefresh) {
     await env.DB.prepare(
       'UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?'

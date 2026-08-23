@@ -2,10 +2,15 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
+  CircleDollarSign,
+  Clock3,
+  HeartHandshake,
+  History,
   Loader2,
   MapPin,
   MoonStar,
   Orbit,
+  Route,
   Sparkles,
   Stars,
 } from 'lucide-react';
@@ -34,14 +39,63 @@ const PAID_OPTIONS = [
   {
     id: 'vedic_complete',
     title: '完整人生地圖',
-    subtitle: '靈魂業力＋人生全解＋未來時間軸＋靈魂總結',
+    subtitle: '6 大人生問題＋第 7 項靈魂業力總結',
     price: 999,
     icon: Sparkles,
     featured: true,
-    description: '一次解鎖完整的靈魂業力與人生全解，從前世慣性、今生核心課題，一路看見感情、關係、財富、事業、使命與未來十年人生週期。',
-    bullets: ['前世因果、業力模式與今生課題', '靈魂使命、感情關係與內在轉化', '財富來源、事業天賦與行動方向', '未來十年行星週期與人生轉折', '第七項靈魂業力總結', '給你今生的靈魂訊息'],
+    description: '一次解鎖七個彼此連結的深度章節，從前世慣性與今生課題，一路看見使命、關係、財富事業、未來時間軸，以及整合全盤的靈魂訊息。',
+    bullets: ['七個章節一次完整解鎖', '每一章皆以你的真實出生星盤為依據', '未來時間軸結合大運、次週期與當下行運', '用生活語言解讀，不需要先懂占星名詞'],
   },
 ] as const;
+
+const LIFE_QUESTIONS = [
+  {
+    number: '01', title: '前世因果與業力', badge: '主打', icon: History,
+    prompt: '你帶著什麼來到今生？',
+    description: '從羅喉、計都、宮位、星座、宮主星與相關相位，看見熟悉的生命慣性，以及今生真正需要前往的方向。',
+    points: ['前世可能累積的生命模式', '反覆出現的關係與課題', '需要離開的舒適圈', '今生需要完成的業力轉化'],
+  },
+  {
+    number: '02', title: '今生的人生課題', badge: '主打', icon: Route,
+    prompt: '這一生，我到底來學什麼？',
+    description: '整理最容易卡住、越逃避越反覆的模式，找出必須學會的能力，以及完成課題後的人生方向。',
+    points: ['靈魂核心課題', '必須學會與放下的模式', '反覆出現的生命考驗', '你的今生核心課題一句話'],
+  },
+  {
+    number: '03', title: '天賦、使命與人生方向', icon: Sparkles,
+    prompt: '我這輩子適合成為什麼樣的人？',
+    description: '不只列出適合職業，而是看懂你的優勢、隱藏才能、工作方式與最容易產生成就感的道路。',
+    points: ['天生優勢與隱藏才能', '創業或上班傾向', '教學、療癒、管理、創作或商業潛能', '你的靈魂原型'],
+  },
+  {
+    number: '04', title: '感情、婚姻與業力關係', icon: HeartHandshake,
+    prompt: '為什麼總是遇到某一類型的人？',
+    description: '看見吸引模式、關係中的業力功課、伴侶傾向，以及較可能出現感情轉折的生命窗口。',
+    points: ['容易被什麼類型吸引', '感情中的業力模式', '關係與婚姻的核心功課', '感情能量較強的時間窗口'],
+  },
+  {
+    number: '05', title: '財富與事業業力', icon: CircleDollarSign,
+    prompt: '為什麼很努力，財富卻一直留不住？',
+    description: '從賺錢能力、金錢恐懼與事業慣性，找出更適合你的財富道路與擴張節奏。',
+    points: ['財富模式與賺錢天賦', '容易失財的慣性', '事業業力與創業能力', '財富較容易擴張的生命階段'],
+  },
+  {
+    number: '06', title: '未來人生時間軸', badge: '高價核心', icon: Clock3,
+    prompt: '你現在走到人生哪一章？',
+    description: '結合印度占星大運、次週期與當下行運，整理未來年度節奏，以及接下來十二個月的重要能量窗口。',
+    points: ['目前人生週期', '未來年度轉換與擴張節奏', '事業、感情與財富窗口', '適合重大決定的準備期'],
+  },
+] as const;
+
+type LifeQuestion = {
+  number: string;
+  title: string;
+  badge?: string;
+  icon: typeof Sparkles;
+  prompt: string;
+  description: string;
+  points: readonly string[];
+};
 
 function saveChart(chart: VedicChartResponse) {
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(chart));
@@ -189,7 +243,16 @@ export default function VedicAstrologyPage() {
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">
-            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">完整深度解析</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">一次看懂你的靈魂業力與人生方向</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">不用先理解艱深名詞。完整人生地圖會把業力、使命、感情、財富事業與未來時間軸整合成同一份深度指引。</p></div>
+            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">完整深度解析</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">6 大人生問題＋靈魂業力總結</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">不需要先理解艱深的印度占星名詞。從你真正想知道的人生問題出發，再由出生星盤整理成一份完整而可行動的生命地圖。</p></div>
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              {LIFE_QUESTIONS.map((question) => <LifeQuestionCard key={question.number} {...question} />)}
+            </div>
+            <article className="mt-5 rounded-[1.75rem] border border-amber-300/35 bg-gradient-to-r from-amber-950/25 via-violet-950/45 to-fuchsia-950/25 p-6 shadow-[0_0_45px_rgba(251,191,36,0.1)] sm:p-8">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-amber-200/30 bg-amber-300/10 font-serif text-xl text-amber-100">07</span>
+                <div><div className="flex flex-wrap items-center gap-3"><h3 className="font-serif text-2xl text-amber-50">靈魂業力總結</h3><span className="rounded-full border border-fuchsia-200/25 bg-fuchsia-400/10 px-3 py-1 text-xs text-fuchsia-100">AI 全盤整合</span></div><p className="mt-3 leading-7 text-violet-50/70">整合前六章，不再重複解釋單一行星，而是直接回答：你從哪裡來、為什麼來、要學會什麼、什麼正在阻礙你，以及你正往哪裡去。</p><p className="mt-4 font-serif text-lg text-amber-100">給你今生的靈魂訊息</p><p className="mt-2 text-sm leading-6 text-white/50">星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。</p></div>
+              </div>
+            </article>
             <div className="mx-auto mt-10 max-w-3xl">
               {PAID_OPTIONS.map((option) => <PaidOption key={option.id} {...option} loading={checkoutLoading === option.id} disabled={!!checkoutLoading} onClick={() => void checkout(option.id)} />)}
             </div>
@@ -233,6 +296,10 @@ function ChartBadge({ label, value }: { label: string; value: string }) {
 
 function ResultCard({ number, eyebrow, title, body, children }: { number: string; eyebrow: string; title: string; body: string; children?: React.ReactNode }) {
   return <article className="h-full rounded-[1.75rem] border border-violet-300/20 bg-gradient-to-br from-slate-950/70 to-violet-950/45 p-6 backdrop-blur-md sm:p-8"><div className="flex items-center justify-between"><span className="text-xs uppercase tracking-[0.25em] text-fuchsia-300/60">{eyebrow}</span><span className="font-serif text-2xl text-amber-200/35">{number}</span></div><h3 className="mt-4 font-serif text-2xl text-amber-50">{title}</h3><div className="mt-4">{children}</div><p className="leading-8 text-violet-50/72">{body}</p></article>;
+}
+
+function LifeQuestionCard({ number, title, badge, icon: Icon, prompt, description, points }: LifeQuestion) {
+  return <article className="rounded-[1.75rem] border border-violet-300/20 bg-gradient-to-br from-slate-950/75 to-violet-950/45 p-6 shadow-[0_0_30px_rgba(139,92,246,0.07)] sm:p-7"><div className="flex items-start justify-between gap-4"><div className="flex items-center gap-3"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon className="h-5 w-5" /></span><span className="font-serif text-2xl text-amber-200/45">{number}</span></div>{badge && <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">{badge}</span>}</div><h3 className="mt-5 font-serif text-2xl text-amber-50">{title}</h3><p className="mt-3 font-medium text-fuchsia-100/85">{prompt}</p><p className="mt-3 leading-7 text-violet-50/65">{description}</p><ul className="mt-5 grid gap-2 sm:grid-cols-2">{points.map((point) => <li key={point} className="flex gap-2 text-sm leading-6 text-white/55"><Check className="mt-1 h-4 w-4 shrink-0 text-amber-300" />{point}</li>)}</ul><p className="mt-5 border-t border-violet-200/10 pt-4 text-sm text-fuchsia-200/70">🔒 完整解讀收錄於人生地圖</p></article>;
 }
 
 function PaidOption(props: typeof PAID_OPTIONS[number] & { loading: boolean; disabled: boolean; onClick: () => void }) {

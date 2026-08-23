@@ -22,7 +22,19 @@ assert.match(source, /DasaAtRange/);
 assert.match(source, /housePlacements/);
 assert.match(source, /houseLords/);
 assert.match(source, /karmaAspects/);
-assert.match(source, /第七項｜靈魂業力總結/);
+for (const heading of [
+  '① 前世因果與業力',
+  '② 今生的人生課題',
+  '③ 天賦、使命與人生方向',
+  '④ 感情、婚姻與業力關係',
+  '⑤ 財富與事業業力',
+  '⑥ 未來人生時間軸',
+  '⑦ 靈魂業力總結',
+]) {
+  assert.match(source, new RegExp(heading), `missing complete report heading: ${heading}`);
+}
+assert.match(source, /loadCurrentTransits/);
+assert.match(source, /current_transits/);
 assert.match(source, /至少 200 個中文字/);
 assert.match(source, /section\.body\.length < 200/);
 assert.match(source, /existingNeedsRefresh/);
