@@ -1,7 +1,7 @@
 export type SpreadCategory = 'three_card' | 'ten_card' | 'pastlife';
 
 export const SPREAD_PRICES: Record<string, number> = {
-  tarot_three:        250,
+  tarot_three:        10,
   tarot_celtic:       599,
   tarot_pastlife:     599,
   celtic_cross:       599,
