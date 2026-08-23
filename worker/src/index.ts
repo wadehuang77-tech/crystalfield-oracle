@@ -72,6 +72,7 @@ import {
   adminMemberStats,
 } from './adminMembers';
 import { validateRegistrationIdentity } from './registration';
+import { createVedicChart, getVedicPaidReport } from './vedicAstrology';
 import {
   badRequest,
   buildClearCookie,
@@ -234,6 +235,12 @@ export default {
         const rl = await rateLimit(env, 'hd-chart-ip', clientIp(req), 20, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await saveHumanDesignChart(req, env);
+      }
+      if (path === '/api/vedic-astrology/charts' && req.method === 'POST') {
+        return await createVedicChart(req, env);
+      }
+      if (path === '/api/vedic-astrology/reports' && req.method === 'POST') {
+        return await getVedicPaidReport(req, env);
       }
       if (path.startsWith('/api/human-design/charts/') && path.endsWith('/answers') && req.method === 'POST') {
         const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/answers'.length));

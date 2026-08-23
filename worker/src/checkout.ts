@@ -10,6 +10,7 @@ import {
   markMembershipFirstPaymentPaid,
   rejectDuplicateActiveMembership,
 } from './subscriptions';
+import { validateVedicCheckoutContext } from './vedicAstrology';
 import {
   badRequest,
   Env,
@@ -35,6 +36,8 @@ interface CreateOrderBody {
   spread_id: string;
   picks?: OrderPick[];
   guest_email?: string;
+  context_id?: string;
+  context_token?: string;
 }
 
 const ORDER_TOKEN_SEC = 60 * 60 * 24 * 7;
@@ -81,13 +84,15 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   if (!item) return badRequest(req, env, '商品代號錯誤');
   const isNumerologyCheckout = item.id.startsWith('numerology_');
   const isHumanDesignCheckout = item.id.startsWith('human_design_');
+  const isVedicCheckout = item.id.startsWith('vedic_');
   const shouldAdminInstantUnlock = isAdmin;
 
   const expectedCount = SPREAD_CARD_COUNT[item.id] ?? 0;
   const isGuestSpreadCheckout = !user && expectedCount > 0;
   const isGuestNumerologyCheckout = !user && isNumerologyCheckout;
   const isGuestHumanDesignCheckout = !user && isHumanDesignCheckout;
-  if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout && !isGuestHumanDesignCheckout) {
+  const isGuestVedicCheckout = !user && isVedicCheckout;
+  if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout && !isGuestHumanDesignCheckout && !isGuestVedicCheckout) {
     return unauthorized(req, env, '請先登入');
   }
   if (user && item.id === 'membership_monthly') {
@@ -97,7 +102,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   }
 
   let guestEmail = typeof body.guest_email === 'string' ? body.guest_email.toLowerCase().trim() : '';
-  if (isGuestSpreadCheckout || isGuestNumerologyCheckout || isGuestHumanDesignCheckout) {
+  if (isGuestSpreadCheckout || isGuestNumerologyCheckout || isGuestHumanDesignCheckout || isGuestVedicCheckout) {
     if (!guestEmail) {
       guestEmail = 'guest-order@crystalfield.local';
     } else if (!validEmail(guestEmail)) {
@@ -118,7 +123,15 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   }
 
   const picks = expectedCount > 0 ? sanitizePicks(body.picks, expectedCount) : null;
-  const picksPayload = picks ? JSON.stringify(picks) : null;
+  let picksPayload = picks ? JSON.stringify(picks) : null;
+  if (isVedicCheckout) {
+    const chartId = typeof body.context_id === 'string' ? body.context_id.trim() : '';
+    const chartToken = typeof body.context_token === 'string' ? body.context_token.trim() : '';
+    if (!chartId || !chartToken || !await validateVedicCheckoutContext(env, chartId, chartToken)) {
+      return badRequest(req, env, '印度占星星盤授權已失效，請重新計算');
+    }
+    picksPayload = JSON.stringify({ vedic_chart_id: chartId });
+  }
 
   const recentPending = user
     ? await env.DB.prepare(
@@ -153,7 +166,9 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
       merchantTradeNo,
       user?.id ?? null,
       user?.email ?? guestEmail,
-      item.id === 'membership_monthly' ? 'subscription' : (isHumanDesignCheckout ? 'human_design' : 'spread'),
+      item.id === 'membership_monthly'
+        ? 'subscription'
+        : (isHumanDesignCheckout ? 'human_design' : (isVedicCheckout ? 'vedic_astrology' : 'spread')),
       item.id,
       item.name,
       item.amount,

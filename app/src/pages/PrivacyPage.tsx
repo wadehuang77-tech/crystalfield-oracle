@@ -4,7 +4,7 @@ const sections = [
   {
     title: '一、我們蒐集的資料',
     paragraphs: [
-      '當你使用晶域心語時，我們可能依你使用的功能蒐集帳戶資料（例如 Email）、你主動提供的占卜問題與選項、生命靈數或人類圖計算所需的出生資料，以及訂單編號、商品、金額與付款狀態等交易紀錄。',
+      '當你使用晶域心語時，我們可能依你使用的功能蒐集帳戶資料（例如 Email）、你主動提供的占卜問題與選項、生命靈數、人類圖或印度占星計算所需的出生資料，以及訂單編號、商品、金額與付款狀態等交易紀錄。',
       '當你選擇使用 Google 帳戶登入時，我們會接收 Google 提供的唯一帳戶識別碼及已驗證的 Email，以建立或辨識你的晶域心語帳戶。我們不會取得或儲存你的 Google 密碼。',
       '網站也可能自動記錄瀏覽器類型、裝置資訊、頁面瀏覽、功能互動、Cookie、匿名訪客識別碼與概略連線資訊，以維持登入狀態、防止濫用並改善服務。',
     ],
@@ -13,7 +13,7 @@ const sections = [
     title: '二、資料使用目的',
     paragraphs: [
       '我們使用上述資料來提供帳戶登入、占卜與個人化解析、免費次數與會員權益管理、付款與訂單處理、客服回覆、安全防護、錯誤排查、服務品質分析及法令遵循。',
-      '你提供的問題或出生資料，僅會在提供相應占卜、生命靈數或人類圖服務所需的範圍內使用，不會作為公開內容；若你主動使用社群分享功能，公開頁面只會顯示經整理的摘要，不會公開完整付費報告或個人敏感資料。',
+      '你提供的問題或出生資料，僅會在提供相應占卜、生命靈數、人類圖或印度占星服務所需的範圍內使用，不會作為公開內容；若你主動使用社群分享功能，公開頁面只會顯示經整理的摘要，不會公開完整付費報告或個人敏感資料。',
     ],
   },
   {
@@ -26,7 +26,8 @@ const sections = [
   {
     title: '四、第三方服務',
     paragraphs: [
-      '為提供網站功能，我們可能使用 Cloudflare 提供網站託管、資料庫與安全服務；Google Identity Services 提供 Google 登入；Google Analytics 4 與 Meta Pixel 協助分析網站使用情形；綠界科技處理付款；Resend 傳送必要郵件；以及 AI 服務供應商產生使用者要求的個人化解析。',
+      '為提供網站功能，我們可能使用 Cloudflare 提供網站託管、資料庫與安全服務；Google Identity Services 提供 Google 登入；Google Analytics 4 與 Meta Pixel 協助分析網站使用情形；綠界科技處理付款；Resend 傳送必要郵件；VedAstro 依使用者明確同意處理出生日期、時間與地點以計算印度占星星盤；以及 AI 服務供應商根據去識別化的衍生星盤產生使用者要求的個人化解析。',
+      '印度占星計算完成後，晶域心語只保存上升、行星星座、月宿與行星週期等衍生星盤，以及付款授權所需的關聯資料；不在印度占星資料表保存使用者輸入的原始出生日期、出生時間或出生地點文字。',
       '第三方服務會依其隱私權政策處理必要資料。付款卡號等敏感金流資料由金流服務商處理，晶域心語不會直接儲存完整信用卡資料。',
     ],
   },
@@ -68,12 +69,12 @@ export default function PrivacyPage() {
       <article className="mx-auto max-w-4xl rounded-3xl border border-purple-400/20 bg-slate-950/65 p-6 shadow-[0_20px_80px_rgba(88,28,135,0.22)] backdrop-blur-sm sm:p-10">
         <p className="text-center text-xs font-medium uppercase tracking-[0.35em] text-amber-200/70">Crystal Field 101</p>
         <h1 className="mt-4 text-center font-serif text-3xl font-bold tracking-[0.12em] text-white sm:text-5xl">晶域心語隱私權政策</h1>
-        <p className="mt-5 text-center text-sm leading-7 text-purple-100/65">最後更新日期：2026 年 8 月 22 日</p>
+        <p className="mt-5 text-center text-sm leading-7 text-purple-100/65">最後更新日期：2026 年 8 月 23 日</p>
 
         <div className="mt-10 space-y-9">
           <section>
             <p className="leading-8 text-slate-200/85">
-              晶域心語重視你的隱私。本政策說明我們在你使用網站、Google 帳戶登入、塔羅占卜、生命靈數、人類圖、會員與付款服務時，如何蒐集、使用、保存及保護資料。
+              晶域心語重視你的隱私。本政策說明我們在你使用網站、Google 帳戶登入、塔羅占卜、生命靈數、人類圖、印度占星、會員與付款服務時，如何蒐集、使用、保存及保護資料。
             </p>
           </section>
 

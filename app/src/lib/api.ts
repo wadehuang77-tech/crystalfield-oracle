@@ -229,6 +229,8 @@ export interface EcpayForm {
 export interface GuestOrderAccess {
   guest_email?: string;
   order_token?: string;
+  context_id?: string;
+  context_token?: string;
 }
 
 export interface OrderPick {
@@ -305,6 +307,61 @@ export const bundleApi = {
     method: 'POST',
     body: { spread_id, picks, reading_id },
   }),
+};
+
+export interface VedicChartData {
+  ayanamsa: 'LAHIRI';
+  lagna: string;
+  sunSign: string;
+  moonSign: string;
+  moonNakshatra: string;
+  planets: Record<string, string>;
+  mahaDasha: string;
+  antarDasha: string | null;
+  dashaTimeline: Array<{
+    lord: string;
+    start: string;
+    end: string;
+    subPeriods: Array<{ lord: string; start: string; end: string }>;
+  }>;
+  timezone: string;
+  timezoneOffset: string;
+}
+
+export interface VedicFreeResults {
+  archetype: { title: string; body: string };
+  talents: { title: string; items: string[]; body: string };
+  currentCycle: { title: string; body: string };
+  challenge: { title: string; body: string };
+  nextYear: { title: string; body: string; lockedPrompts: string[] };
+}
+
+export interface VedicReport {
+  title: string;
+  introduction: string;
+  sections: Array<{ heading: string; body: string }>;
+  closing: string;
+}
+
+export interface VedicChartResponse {
+  chart_id: string;
+  chart_token: string;
+  chart: VedicChartData;
+  free_results: VedicFreeResults;
+  expires_at: string;
+  calculation: { provider: 'VedAstro'; ayanamsa: 'Lahiri' };
+}
+
+export const vedicAstrologyApi = {
+  createChart: (body: { birth_date: string; birth_time: string; birth_place: string; consent: boolean }) =>
+    req<VedicChartResponse>('/api/vedic-astrology/charts', {
+      method: 'POST', body, timeoutMs: 45000,
+    }),
+
+  getPaidReport: (body: { chart_id: string; chart_token: string; order_id: string; order_token: string }) =>
+    req<{ scope: string; report: VedicReport; cached: boolean }>('/api/vedic-astrology/reports', {
+      method: 'POST', body, timeoutMs: 60000,
+    }),
 };
 
 export const publicApi = {

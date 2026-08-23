@@ -71,6 +71,12 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   human_design_basic: { id: 'human_design_basic', name: '我的人類圖核心解析', amount: 199 },
   human_design_full: { id: 'human_design_full', name: '人類圖 專屬人生使用說明書', amount: 399 },
   human_design_bundle: { id: 'human_design_bundle', name: '人類圖核心解析 + 專屬人生使用說明書', amount: 489 },
+  // ── 印度占星 ──────────────────────────────────────────────────
+  vedic_career: { id: 'vedic_career', name: '印度占星｜我的財富與事業', amount: 399 },
+  vedic_relationship: { id: 'vedic_relationship', name: '印度占星｜我的感情與婚姻', amount: 399 },
+  vedic_karma: { id: 'vedic_karma', name: '印度占星｜我的前世業力', amount: 399 },
+  vedic_timeline: { id: 'vedic_timeline', name: '印度占星｜我的未來十年', amount: 399 },
+  vedic_full: { id: 'vedic_full', name: '印度占星｜完整靈魂業力人生地圖', amount: 999 },
   // ── 月費會員 ─────────────────────────────────────────────────
   membership_monthly: { id: 'membership_monthly', name: '月費會員 (所有塔羅單張不限次數)', amount: 99 },
 };

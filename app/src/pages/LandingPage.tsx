@@ -161,7 +161,7 @@ export default function LandingPage() {
               晶域心語
             </h1>
             <p className="mx-auto max-w-3xl text-base leading-8 text-purple-100/80 sm:text-lg">
-              晶域心語是一個結合塔羅牌占卜、生命靈數與人類圖的自我探索平台，協助使用者理解當下課題、個人天賦、能量特質與人生方向。
+              晶域心語是一個結合塔羅牌占卜、生命靈數、人類圖與印度占星的自我探索平台，協助使用者理解當下課題、個人天賦、能量特質與人生方向。
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-purple-200/60 sm:text-base">
               首頁與服務介紹皆可免登入瀏覽；只有在使用會員專屬或需要保存個人結果的功能時，才會請你登入帳戶。
@@ -176,7 +176,7 @@ export default function LandingPage() {
               <p className="text-purple-400/60 text-sm uppercase tracking-[0.3em] font-medium mb-4">靈魂探索工具</p>
               <h2 className="text-4xl sm:text-5xl font-bold text-white mb-5 tracking-tight">探索你的靈魂藍圖</h2>
               <p className="text-purple-200/55 text-lg max-w-lg mx-auto leading-relaxed">
-                透過塔羅牌、生命靈數與人類圖，深入了解你的天賦、課題與人生方向。
+                透過塔羅牌、生命靈數、人類圖與印度占星，深入了解你的天賦、課題與人生方向。
               </p>
             </div>
           </div>
@@ -243,6 +243,10 @@ export default function LandingPage() {
             }}>{CARDS[activeIndex].title}</p>
 
             <p className="text-center mt-2 text-purple-500/40 text-xs tracking-wider swipe-hint">左右滑動探索</p>
+          </div>
+
+          <div className="mx-auto mt-10 max-w-6xl px-6 sm:mt-14">
+            <VedicEntryCard />
           </div>
         </section>
       </main>
@@ -501,6 +505,66 @@ function HumanDesignArtwork() {
           animation: `twinkle ${p.dur}s ease-in-out ${p.delay}s infinite`,
         }} />
       ))}
+    </div>
+  );
+}
+
+// ─── Vedic Astrology featured entry ─────────────────────────────────────────
+function VedicEntryCard() {
+  return (
+    <Link
+      to="/vedic-astrology"
+      aria-label="進入印度占星靈魂業力人生地圖"
+      className="group relative block min-h-[340px] overflow-hidden rounded-[2rem] border border-amber-300/35 bg-[#10071d] no-underline shadow-[0_18px_70px_rgba(180,83,9,0.18)] transition duration-500 hover:-translate-y-1 hover:border-amber-200/65 hover:shadow-[0_26px_90px_rgba(217,119,6,0.30)] sm:min-h-[320px]"
+    >
+      <VedicArtwork />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#090313]/95 via-[#160828]/82 to-[#301207]/55" />
+      <div className="relative z-10 flex min-h-[340px] flex-col justify-center px-7 py-10 sm:min-h-[320px] sm:px-12 lg:max-w-[68%] lg:px-16">
+        <div className="flex items-center gap-3 text-sm font-medium uppercase tracking-[0.24em] text-amber-200/75">
+          <span className="text-xl" aria-hidden>🪷</span>
+          Jyotish · Vedic Astrology
+        </div>
+        <h3 className="mt-5 font-serif text-3xl font-bold text-amber-50 sm:text-5xl">印度占星｜靈魂業力人生地圖</h3>
+        <p className="mt-4 max-w-2xl text-base leading-8 text-violet-100/72 sm:text-lg">
+          從你的出生星盤，看見今生天賦、感情模式、財富道路，以及正在經歷的人生週期與未來轉折。
+        </p>
+        <div className="mt-7 inline-flex w-fit items-center gap-3 rounded-full border border-amber-200/30 bg-gradient-to-r from-amber-600/80 to-fuchsia-700/75 px-7 py-3.5 font-semibold text-white shadow-[0_0_28px_rgba(245,158,11,0.22)] transition group-hover:scale-[1.03] group-hover:brightness-110">
+          開啟我的人生地圖
+          <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" aria-hidden>
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Vedic Astrology Artwork ────────────────────────────────────────────────
+function VedicArtwork() {
+  const points = Array.from({ length: 24 }, (_, index) => ({
+    x: (index * 41 + 13) % 100,
+    y: (index * 67 + 9) % 62,
+    size: 1 + (index % 3),
+  }));
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0" style={{
+        background: 'radial-gradient(ellipse at 50% 27%, rgba(180,83,9,0.78) 0%, rgba(91,33,182,0.48) 38%, rgba(4,0,18,1) 76%)',
+      }} />
+      <div className="absolute right-[8%] top-[8%] h-44 w-44 rounded-full border border-amber-200/25 shadow-[0_0_55px_rgba(251,191,36,0.3)] sm:h-52 sm:w-52" style={{ animation: 'rotateSlow 34s linear infinite' }}>
+        <div className="absolute inset-4 rounded-full border border-fuchsia-200/20" />
+        <div className="absolute inset-10 rounded-full bg-gradient-to-br from-amber-100 via-amber-400 to-orange-700 shadow-[0_0_30px_rgba(251,191,36,0.48)]" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+          <span key={angle} className="absolute left-1/2 top-1/2 h-px w-[68px] origin-left bg-amber-100/20" style={{ transform: `rotate(${angle}deg)` }} />
+        ))}
+      </div>
+      <svg className="absolute right-[2%] top-[1%] h-64 w-64 opacity-20 sm:h-72 sm:w-72" viewBox="0 0 240 240" style={{ animation: 'rotateSlowRev 55s linear infinite' }}>
+        <circle cx="120" cy="120" r="108" fill="none" stroke="#fde68a" strokeWidth="1" />
+        <circle cx="120" cy="120" r="82" fill="none" stroke="#e879f9" strokeWidth="0.8" />
+        <polygon points="120,12 214,174 26,174" fill="none" stroke="#fde68a" strokeWidth="0.8" />
+        <polygon points="120,228 214,66 26,66" fill="none" stroke="#e879f9" strokeWidth="0.8" />
+      </svg>
+      {points.map((point, index) => <span key={index} className="absolute rounded-full bg-amber-100" style={{ left: `${point.x}%`, top: `${point.y}%`, width: point.size, height: point.size, opacity: 0.18 + (index % 4) * 0.12, animation: `twinkle ${3 + (index % 5)}s ease-in-out infinite` }} />)}
     </div>
   );
 }

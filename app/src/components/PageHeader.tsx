@@ -37,6 +37,7 @@ const ROUTES: Record<string, { title: string; accent: Accent }> = {
   '/osho/single':                { title: '奧修禪卡 · 單張',      accent: 'teal'    },
   '/osho/three':                 { title: '奧修禪卡 · 三張',      accent: 'teal'    },
   '/numerology':                 { title: '生命靈數',             accent: 'purple'  },
+  '/vedic-astrology':            { title: '印度占星',             accent: 'yellow'  },
   '/checkout/return':            { title: '付款結果',             accent: 'blue'    },
   '/membership':                 { title: '月費會員',             accent: 'slate'   },
   '/admin':                      { title: '管理後台',             accent: 'slate'   },

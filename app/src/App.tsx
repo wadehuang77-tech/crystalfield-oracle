@@ -31,6 +31,7 @@ import MembershipPage from './pages/MembershipPage';
 import PageHeader from './components/PageHeader';
 import HumanDesignPage from './pages/HumanDesignPage';
 import PrivacyPage from './pages/PrivacyPage';
+import VedicAstrologyPage from './pages/VedicAstrologyPage';
 
 function RouterBody() {
   usePageViewTracking();
@@ -67,6 +68,7 @@ function RouterBody() {
           <Route path="/membership" element={<ProtectedRoute><MembershipPage /></ProtectedRoute>} />
           <Route path="/numerology" element={<NumerologyPage />} />
           <Route path="/human-design" element={<HumanDesignPage />} />
+          <Route path="/vedic-astrology" element={<VedicAstrologyPage />} />
         </Routes>
       </div>
       <SiteFooter />

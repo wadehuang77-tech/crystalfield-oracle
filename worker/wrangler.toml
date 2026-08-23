@@ -14,7 +14,8 @@
 #   3. npx wrangler secret put JWT_SECRET   (隨便給一串 32+ 字元的亂數)
 #   4. npx wrangler secret put ECPAY_HASH_KEY   (綠界提供,可選)
 #   5. npx wrangler secret put ECPAY_HASH_IV    (綠界提供,可選)
-#   6. wrangler deploy
+#   6. npx wrangler secret put VEDASTRO_API_KEY  (印度占星正式流量建議設定)
+#   7. wrangler deploy
 
 name = "bolt-tarot-api"
 main = "src/index.ts"
