@@ -17,7 +17,7 @@ export interface SpreadCatalogItem {
 
 export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   // ── 三張牌陣 ────────────────────────────────────────────────────
-  tarot_three:       { id: 'tarot_three',       name: '偉特塔羅 三張牌陣',         amount: 10, category: 'three_card' },
+  tarot_three:       { id: 'tarot_three',       name: '偉特塔羅 三張牌陣',         amount: 299, category: 'three_card' },
   unicorns_three:    { id: 'unicorns_three',    name: '獨角獸塔羅 三張牌陣',       amount: 250, category: 'three_card' },
   dragons_three:     { id: 'dragons_three',     name: '龍族塔羅 三張牌陣',         amount: 250, category: 'three_card' },
   osho_three:        { id: 'osho_three',        name: '奧修禪卡 三張牌陣',         amount: 250, category: 'three_card' },
