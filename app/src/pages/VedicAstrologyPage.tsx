@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
-  History,
   Loader2,
   MapPin,
   MoonStar,
@@ -33,34 +32,14 @@ const PLANET_ZH: Record<string, string> = {
 
 const PAID_OPTIONS = [
   {
-    id: 'vedic_soul_karma',
-    title: '靈魂業力',
-    subtitle: '前世因果與今生課題',
-    price: 499,
-    icon: History,
-    featured: true,
-    description: '從羅喉、計都、宮位、宮主星與相關相位，看見前世慣性與今生真正需要完成的轉化。',
-    bullets: ['你帶著什麼來到今生？', '為什麼某些事情不斷重複？', '今生需要離開的舒適圈', '你的今生核心課題'],
-  },
-  {
-    id: 'vedic_life_full',
-    title: '人生全解',
-    subtitle: '業力、使命、感情與財富事業',
-    price: 499,
-    icon: Stars,
-    featured: false,
-    description: '把前世因果與今生核心課題，放進感情、關係、工作、財富與靈魂使命中完整理解。',
-    bullets: ['業力模式與靈魂使命', '感情與關係方向', '財富與事業天賦', '完成課題後的人生方向'],
-  },
-  {
     id: 'vedic_complete',
     title: '完整人生地圖',
-    subtitle: '全部解析、未來時間軸與靈魂總結',
+    subtitle: '靈魂業力＋人生全解＋未來時間軸＋靈魂總結',
     price: 999,
     icon: Sparkles,
-    featured: false,
-    description: '解鎖全部人生主題、未來十年時間軸，以及由人工智慧整合的第七項「靈魂業力總結」。',
-    bullets: ['前世因果與今生課題', '使命、感情與財富事業', '未來十年行星週期', '給你今生的靈魂訊息'],
+    featured: true,
+    description: '一次解鎖完整的靈魂業力與人生全解，從前世慣性、今生核心課題，一路看見感情、關係、財富、事業、使命與未來十年人生週期。',
+    bullets: ['前世因果、業力模式與今生課題', '靈魂使命、感情關係與內在轉化', '財富來源、事業天賦與行動方向', '未來十年行星週期與人生轉折', '第七項靈魂業力總結', '給你今生的靈魂訊息'],
   },
 ] as const;
 
@@ -210,8 +189,8 @@ export default function VedicAstrologyPage() {
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">
-            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">三種深度解析方案</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">選擇你現在最想理解的人生問題</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">不用先理解艱深名詞。從你最關心的問題進入，星盤會成為整理人生方向的地圖。</p></div>
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">完整深度解析</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">一次看懂你的靈魂業力與人生方向</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">不用先理解艱深名詞。完整人生地圖會把業力、使命、感情、財富事業與未來時間軸整合成同一份深度指引。</p></div>
+            <div className="mx-auto mt-10 max-w-3xl">
               {PAID_OPTIONS.map((option) => <PaidOption key={option.id} {...option} loading={checkoutLoading === option.id} disabled={!!checkoutLoading} onClick={() => void checkout(option.id)} />)}
             </div>
           </section>

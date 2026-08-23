@@ -15,6 +15,7 @@ import {
 
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
+const FREE_READING_MIN_CHARS = 250;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
   'soul_karma', 'life_full', 'complete',
@@ -202,6 +203,15 @@ function hydrateChartData(chart: VedicChartData): VedicChartData {
   };
 }
 
+function expandReading(text: string, additions: string[], minChars = FREE_READING_MIN_CHARS): string {
+  let expanded = text.trim();
+  for (const addition of additions) {
+    if (expanded.length >= minChars) break;
+    expanded += `\n\n${addition}`;
+  }
+  return expanded;
+}
+
 function cleanText(value: unknown, max: number): string {
   return typeof value === 'string' ? value.trim().replace(/[<>]/g, '').slice(0, max) : '';
 }
@@ -372,20 +382,45 @@ function deriveFreeResults(chart: VedicChartData): VedicFreeResults {
   const ketu = chart.planets.Ketu || '未知';
   const saturn = chart.planets.Saturn || '未知';
   const currentYear = new Date().getUTCFullYear();
+  const talentLabels = talents.length ? talents : ['直覺洞察', '穩定成長', '生命整合'];
+  const archetypeBodyDetailed = expandReading(
+    `${archetypeBody} 你的上升落在${zhSign(chart.lagna)}，月亮位於${zhSign(chart.moonSign)}的${zhNakshatra(chart.moonNakshatra)}，顯示外在行動與內在感受需要用不同節奏被理解。`,
+    [
+      `在人際與工作場合中，你可能先以${zhSign(chart.lagna)}的方式回應世界，展現出別人第一眼容易感受到的氣質；但真正需要安全感、休息或做重要決定時，${zhSign(chart.moonSign)}的情緒節奏會更明顯。當外在角色與內在需求不同步，你可能看起來很有方向，心裡卻需要更長時間消化感受。`,
+      '這個人格原型不是要把你固定成某一種個性，而是幫助你分辨：哪些反應是自然天賦，哪些是為了適應環境而形成的保護。越能允許自己在不同情境中調整速度，你越不需要用勉強、壓抑或過度證明來換取認同。',
+      '實際練習上，可以在每天結束前回想一次：今天哪些時刻讓我感到能量自然流動？哪些時刻讓我明明疲憊卻仍在扮演某種角色？持續記錄會讓你逐漸看懂自己的真實節奏，也更容易建立適合自己的界線與生活方式。',
+    ],
+  );
+  const talentsBodyDetailed = expandReading(
+    `水星、木星與太陽的落點顯示，你的核心能力包含${talentLabels.join('、')}。這些天賦需要透過真實經驗被鍛鍊；當你不再用別人的成功方式衡量自己，它們會逐漸形成可被世界看見的價值。`,
+    [
+      `水星位於${zhSign(chart.planets.Mercury || '未知')}，反映你吸收資訊、思考與表達的方式；木星位於${zhSign(chart.planets.Jupiter || '未知')}，顯示你透過什麼方向擴張視野、建立信念並把經驗傳遞給別人；太陽位於${zhSign(chart.sunSign)}，則提醒你要把能力發展成真正代表自己的創造與選擇。`,
+      '天賦並不等於一開始就比別人熟練，它更像是一種反覆召喚你的能力。你可能因為覺得它太自然、太普通而低估它，也可能因為害怕表現不完美而一直停留在準備階段。真正的突破，是願意把天賦放進具體生活，透過作品、服務、溝通或日常決策慢慢累積信任。',
+      `你可以先從「${talentLabels[0]}」開始，替自己設定一個能在七天內完成的小行動。完成後觀察：做這件事是否讓你更有精神、是否容易進入專注、別人是否自然向你尋求協助。這些現實回饋會比單純相信標籤，更能幫助你確認真正值得長期培養的方向。`,
+    ],
+  );
+  const currentCycleBodyDetailed = expandReading(
+    `${cycleBody}${chart.antarDasha ? ` 目前同時受到${zhPlanet(chart.antarDasha)}次週期影響，近期事件會更集中在這顆行星代表的選擇與學習。` : ''}`,
+    [
+      `你目前行經${zhPlanet(chart.mahaDasha)}大運，這是一段較長的人生背景能量；次週期則像聚光燈，讓某些關係、工作、內在狀態或現實責任在近期變得更需要被看見。它不是保證某件事情一定發生，而是指出哪些主題較容易成為成長與重新選擇的入口。`,
+      '如果最近感到卡住，不必急著把停頓解讀成失敗。行星週期轉換時，舊目標、舊關係或原本熟悉的生活方式，可能暫時失去推動力，目的是讓你重新確認什麼仍值得投入。先整理已經耗能的承諾，再選擇真正符合長期方向的行動，通常比一次做出巨大改變更穩定。',
+      '建議你用三個問題觀察這段週期：現在什麼事情正在被放大？哪些模式已經無法用過去的方法處理？我能採取哪一個不違背自身節奏的實際步驟？每隔一個月重新檢視答案，你會更清楚這段大運正在協助你建立什麼，而不是只看見眼前的不確定。',
+    ],
+  );
 
   return {
     archetype: {
       title: archetypeTitle,
-      body: `${archetypeBody} 你的上升落在${zhSign(chart.lagna)}，月亮位於${zhSign(chart.moonSign)}的${zhNakshatra(chart.moonNakshatra)}，顯示外在行動與內在感受需要用不同節奏被理解。`,
+      body: archetypeBodyDetailed,
     },
     talents: {
       title: '今生最重要的天賦',
-      items: talents.length ? talents : ['直覺洞察', '穩定成長', '生命整合'],
-      body: `水星、木星與太陽的落點顯示，你的能力需要透過真實經驗被鍛鍊。當你不再用別人的成功方式衡量自己，這些天賦會逐漸形成可被世界看見的價值。`,
+      items: talentLabels,
+      body: talentsBodyDetailed,
     },
     currentCycle: {
       title: cycleTitle,
-      body: `${cycleBody}${chart.antarDasha ? ` 目前同時受到${zhPlanet(chart.antarDasha)}次週期影響，近期事件會更集中在這顆行星代表的選擇與學習。` : ''}`,
+      body: currentCycleBodyDetailed,
     },
     challenge: {
       title: '目前最需要突破的課題',
@@ -579,6 +614,19 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
   const foundation = karmaFoundation(chart);
   const karmaText = `羅喉位於${foundation.羅喉.星座}${foundation.羅喉.宮位}，計都位於${foundation.計都.星座}${foundation.計都.宮位}。這條軸線象徵你熟悉的慣性，以及今生需要逐步發展的新能力。`;
   const cycleText = DASHA_THEMES[chart.mahaDasha]?.[1] ?? '你正處於重新理解人生方向的週期。';
+  const expandToDetailedReading = (text: string, heading: string) => {
+    const additions = [
+      `閱讀「${heading}」時，請回想近幾年反覆出現的人、事件與情緒。星盤提供的是觀察角度，不是把你固定在某一種命運裡；真正重要的是辨認自己通常在什麼情境下自動回到舊反應，以及哪些選擇能讓能量開始往新的方向流動。`,
+      '你可以把這份指引帶回日常，從一個可以實行的小步驟開始：記錄觸發點、分辨恐懼與直覺、確認自己的界線，再觀察新的回應帶來什麼不同。當覺察逐漸穩定，原本看似命定的循環便可能成為可以重新選擇的人生路口。',
+      '如果內容牽涉感情、工作或財務上的重大決定，請同時參考現實條件、可信任的人與合格專業意見。印度占星在這裡扮演的是整理內在方向的地圖，而你仍然是決定速度、方法與最終道路的人。',
+    ];
+    let expanded = text;
+    for (const addition of additions) {
+      if (expanded.length >= 220) break;
+      expanded += `\n\n${addition}`;
+    }
+    return expanded;
+  };
   const bodyFor = (heading: string) => {
     if (heading === '第七項｜靈魂業力總結') {
       return `你從哪裡來？你帶著計都所象徵的熟悉能力與反應慣性。\n\n你為什麼來？羅喉指出今生需要練習的新方向。\n\n你要學會什麼？在熟悉與未知之間建立新的選擇能力。\n\n什麼在阻礙你？當舊模式帶來安全感時，你可能反覆回到已經不再適合的道路。\n\n你正在往哪裡去？${cycleText}\n\n給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。`;
@@ -608,7 +656,7 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData) {
     introduction: `你的上升為${zhSign(chart.lagna)}、月亮位於${zhSign(chart.moonSign)}，目前行經${zhPlanet(chart.mahaDasha)}大運。這份指引以星盤象徵協助你整理生命方向，不把任何結果視為不可改變的命定。`,
     sections: headings.map((heading) => ({
       heading,
-      body: bodyFor(heading),
+      body: expandToDetailedReading(bodyFor(heading), heading),
     })),
     closing: '給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。你仍然擁有選擇、調整與創造新道路的力量。',
   };
@@ -632,6 +680,8 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
       '不得宣稱命定、保證發財、保證婚姻或預測疾病死亡。',
       '財務、醫療、法律議題必須提醒讀者搭配合格專業意見。',
       'sections 必須依 required_section_headings 的順序與數量產出，不可省略或自行增加英文標題。',
+      '完整人生地圖 complete 的七個 section，每一項正文都必須至少 200 個中文字，建議 220 至 300 字；不能用重複句子、空泛套話或同義反覆湊字數。',
+      '其他方案每個 section 也應提供足夠完整的說明，至少包含星盤依據、生活表現、可能盲點與可實行的轉化方向。',
       'soul_karma 必須回答前世慣性、重複原因、執著、舒適圈、業力關係領域與今生方向。',
       'life_full 必須回答前世業力、今生核心課題、感情關係、財富事業與靈魂使命。',
       '凡包含「你的今生核心課題」段落，最後必須用一句「你的今生核心課題：＿＿＿＿」做出可分享的精簡總結。',
@@ -670,7 +720,8 @@ async function generatePaidReport(env: Env, scope: VedicReportScope, chart: Vedi
         return { heading: cleanText(row.heading, 120), body: cleanText(row.body, 6000) };
       }).filter((entry) => entry.heading && entry.body)
       : [];
-    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length) {
+    const completeSectionsTooShort = scope === 'complete' && sections.some((section) => section.body.length < 200);
+    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || completeSectionsTooShort) {
       throw new Error('OpenAI report invalid');
     }
     return { title, introduction, sections, closing };
@@ -717,16 +768,35 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   const existing = await env.DB.prepare(
     'SELECT content_json FROM vedic_reports WHERE order_id = ?'
   ).bind(orderId).first<{ content_json: string }>();
-  if (existing) return json(req, env, { scope, report: JSON.parse(existing.content_json), cached: true });
+  let existingNeedsRefresh = false;
+  if (existing) {
+    try {
+      const existingReport = JSON.parse(existing.content_json) as { sections?: Array<{ body?: string }> };
+      existingNeedsRefresh = scope === 'complete' && (
+        !Array.isArray(existingReport.sections)
+        || existingReport.sections.length !== REPORT_SECTION_HEADINGS.complete.length
+        || existingReport.sections.some((section) => typeof section.body !== 'string' || section.body.length < 200)
+      );
+      if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
+    } catch {
+      existingNeedsRefresh = true;
+    }
+  }
 
   const chartRow = await env.DB.prepare('SELECT * FROM vedic_charts WHERE id = ?')
     .bind(chartId).first<StoredChart>();
   if (!chartRow) return badRequest(req, env, '找不到星盤資料');
   const chart = hydrateChartData(JSON.parse(chartRow.chart_json) as VedicChartData);
   const report = await generatePaidReport(env, scope, chart);
-  await env.DB.prepare(
-    `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
-     VALUES (?, ?, ?, ?, ?, ?)`
-  ).bind(crypto.randomUUID(), chartId, orderId, scope, JSON.stringify(report), new Date().toISOString()).run();
+  if (existing && existingNeedsRefresh) {
+    await env.DB.prepare(
+      'UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?'
+    ).bind(JSON.stringify(report), new Date().toISOString(), orderId).run();
+  } else {
+    await env.DB.prepare(
+      `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(crypto.randomUUID(), chartId, orderId, scope, JSON.stringify(report), new Date().toISOString()).run();
+  }
   return json(req, env, { scope, report, cached: false }, { status: 201 });
 }
