@@ -35,8 +35,9 @@ for (const heading of [
 }
 assert.match(source, /loadCurrentTransits/);
 assert.match(source, /current_transits/);
-assert.match(source, /至少 200 個中文字/);
-assert.match(source, /section\.body\.length < 200/);
+assert.match(source, /COMPLETE_LIFE_QUESTION_MIN_CHARS = 250/);
+assert.match(source, /前六個人生問題，每一項正文都必須至少 250 個中文字/);
+assert.match(source, /index < 6 \? COMPLETE_LIFE_QUESTION_MIN_CHARS/);
 assert.match(source, /existingNeedsRefresh/);
 assert.match(source, /FREE_READING_MIN_CHARS = 250/);
 assert.match(source, /Ayanamsa:\s*'LAHIRI'/);

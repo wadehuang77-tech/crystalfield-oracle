@@ -16,6 +16,8 @@ import {
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
+const COMPLETE_LIFE_QUESTION_MIN_CHARS = 250;
+const COMPLETE_SUMMARY_MIN_CHARS = 200;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
   'soul_karma', 'life_full', 'complete',
@@ -646,7 +648,7 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData, transits
   const transitText = transits
     ? `目前天空中的木星位於${zhSign(transits.planets.Jupiter || '未知')}、土星位於${zhSign(transits.planets.Saturn || '未知')}、羅喉位於${zhSign(transits.planets.Rahu || '未知')}。行運只描述當下的集體背景，仍需與你的大運及出生星盤一起閱讀。`
     : '目前行運資料暫時無法取得，因此以下時間判讀以個人大運與次週期為主，不額外推測未提供的月份。';
-  const expandToDetailedReading = (text: string, heading: string) => {
+  const expandToDetailedReading = (text: string, heading: string, minChars = 220) => {
     const additions = [
       `閱讀「${heading}」時，請回想近幾年反覆出現的人、事件與情緒。星盤提供的是觀察角度，不是把你固定在某一種命運裡；真正重要的是辨認自己通常在什麼情境下自動回到舊反應，以及哪些選擇能讓能量開始往新的方向流動。`,
       '你可以把這份指引帶回日常，從一個可以實行的小步驟開始：記錄觸發點、分辨恐懼與直覺、確認自己的界線，再觀察新的回應帶來什麼不同。當覺察逐漸穩定，原本看似命定的循環便可能成為可以重新選擇的人生路口。',
@@ -654,7 +656,7 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData, transits
     ];
     let expanded = text;
     for (const addition of additions) {
-      if (expanded.length >= 220) break;
+      if (expanded.length >= minChars) break;
       expanded += `\n\n${addition}`;
     }
     return expanded;
@@ -689,9 +691,15 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData, transits
   return {
     title: SCOPE_NAMES[scope],
     introduction: `你的上升為${zhSign(chart.lagna)}、月亮位於${zhSign(chart.moonSign)}，目前行經${zhPlanet(chart.mahaDasha)}大運。這份指引以星盤象徵協助你整理生命方向，不把任何結果視為不可改變的命定。`,
-    sections: headings.map((heading) => ({
+    sections: headings.map((heading, index) => ({
       heading,
-      body: expandToDetailedReading(bodyFor(heading), heading),
+      body: expandToDetailedReading(
+        bodyFor(heading),
+        heading,
+        scope === 'complete' && index < 6
+          ? COMPLETE_LIFE_QUESTION_MIN_CHARS
+          : COMPLETE_SUMMARY_MIN_CHARS,
+      ),
     })),
     closing: '給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。你仍然擁有選擇、調整與創造新道路的力量。',
   };
@@ -721,7 +729,7 @@ async function generatePaidReport(
       '不得宣稱命定、保證發財、保證婚姻或預測疾病死亡。',
       '財務、醫療、法律議題必須提醒讀者搭配合格專業意見。',
       'sections 必須依 required_section_headings 的順序與數量產出，不可省略或自行增加英文標題。',
-      '完整人生地圖 complete 的七個 section，每一項正文都必須至少 200 個中文字，建議 220 至 300 字；不能用重複句子、空泛套話或同義反覆湊字數。',
+      '完整人生地圖 complete 的前六個人生問題，每一項正文都必須至少 250 個中文字，建議 280 至 350 字；第七項靈魂業力總結至少 200 個中文字。不能用重複句子、空泛套話或同義反覆湊字數。',
       'complete 第1項以羅喉、計都、宮位、星座、宮主星與相關相位為底層依據，回答前世生命模式、重複原因、執著慣性、舒適圈、業力關係領域與靈魂方向；正文不可用「計都位於第X宮」作為主要呈現。',
       'complete 第2項回答靈魂核心課題、卡住模式、必須學會與放下之事、逃避時會重複的情境，以及完成課題後的方向；結尾必須寫「你的今生核心課題：＿＿＿＿」。',
       'complete 第3項回答天生優勢、隱藏才能、工作與創業傾向、人生使命及成就感道路；結尾必須寫「你的靈魂原型：＿＿＿＿」，再用一句話解釋。',
@@ -767,7 +775,9 @@ async function generatePaidReport(
         return { heading: REPORT_SECTION_HEADINGS[scope][index], body: cleanText(row.body, 6000) };
       }).filter((entry) => entry.heading && entry.body)
       : [];
-    const completeSectionsTooShort = scope === 'complete' && sections.some((section) => section.body.length < 200);
+    const completeSectionsTooShort = scope === 'complete' && sections.some((section, index) => (
+      section.body.length < (index < 6 ? COMPLETE_LIFE_QUESTION_MIN_CHARS : COMPLETE_SUMMARY_MIN_CHARS)
+    ));
     if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || completeSectionsTooShort) {
       throw new Error('OpenAI report invalid');
     }
@@ -825,7 +835,9 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
         || existingReport.sections.some((section, index) => (
           section.heading !== REPORT_SECTION_HEADINGS.complete[index]
           || typeof section.body !== 'string'
-          || section.body.length < 200
+          || section.body.length < (
+            index < 6 ? COMPLETE_LIFE_QUESTION_MIN_CHARS : COMPLETE_SUMMARY_MIN_CHARS
+          )
         ))
       );
       if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
