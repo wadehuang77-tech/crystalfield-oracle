@@ -16,7 +16,7 @@ import {
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
-const VEDIC_REPORT_FORMAT_VERSION = 4;
+const VEDIC_REPORT_FORMAT_VERSION = 5;
 const VEDIC_FORECAST_YEARS = 5;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
@@ -78,6 +78,20 @@ interface VedicForecastInterpretation {
   confidence: 'high' | 'medium' | 'low';
   why: string;
   keyMessage: string;
+  confidenceReason: string;
+}
+
+interface VedicEvidence {
+  factor: string;
+  value: string;
+  relevance: string;
+}
+
+interface InterpretationReason {
+  factor: string;
+  technicalMeaning: string;
+  lifeMeaning: string;
+  contribution: string;
 }
 
 export interface VedicForecastPeriod {
@@ -100,17 +114,25 @@ interface VedicReportSection {
   examples: string[];
   actions: string[];
   direction: string;
-  evidence: string[];
+  evidence: VedicEvidence[];
   analysisBlocks?: Array<{ label: string; content: string }>;
   depth?: { surface: string; deeperCause: string; unchangedCost: string };
-  coreTension?: { sideA: string; sideB: string; realLifeEffect: string; integrationAdvice: string };
-  reasoningBasis?: Array<{ factor: string; meaning: string; contribution: string }>;
+  coreTension?: { sideA: string; sideB: string; astrologicalBasis: string[]; lifeEffect: string; integration: string };
+  reasoningBasis?: InterpretationReason[];
   adjustments?: Array<{ problem: string; astrologicalCause: string; realLifeEffect: string; action: string }>;
   confidence?: 'high' | 'medium' | 'low';
+  confidenceReason?: string;
   transition?: {
     pastPattern: string;
     currentBlock: string;
     futurePattern: string;
+  };
+  d9Evolution?: { earlyPattern: string; maturePattern: string; transition: string; relationshipLesson: string };
+  d10Comparison?: {
+    natalCareerTheme: string;
+    professionalExpression: string;
+    alignment: 'aligned' | 'mixed' | 'conflicted';
+    interpretation: string;
   };
   timeline?: VedicForecastPeriod[];
   body?: string;
@@ -900,7 +922,7 @@ function fallbackForecastInterpretation(
     antarLordships.length ? `同時掌管${antarLordships.join('、')}` : '',
     mahaHouse ? `${zhPlanet(period.mahaDasha)}本命位於第${mahaHouse}宮` : '',
     aspects.join('、'),
-    transits ? `並參考 ${transits.calculatedAt} 的行運快照` : '未取得即時行運，因此採保守判讀',
+    transits ? '並以當下重要行運位置校正轉折強度' : '未取得即時行運，因此不判定精確事件時點',
   ].filter(Boolean);
   const label = `${zhPlanet(period.mahaDasha)}／${zhPlanet(period.antarDasha)}`;
   const effectiveStart = parseDashaDate(period.analysisStartDate || period.startDate);
@@ -908,19 +930,27 @@ function fallbackForecastInterpretation(
   const annualFocus = effectiveStart && effectiveEnd
     ? Array.from({ length: effectiveEnd.getUTCFullYear() - effectiveStart.getUTCFullYear() + 1 }, (_, index) => effectiveStart.getUTCFullYear() + index)
       .map((year) => ({ year, priority: antar.event, why: `${label}在${year}年主要透過${antar.event}推動現實調整。` })) : [];
+  const forecastEvidence = [
+    mahaHouse ? legacyEvidence(`${zhPlanet(period.mahaDasha)}宮位：第${mahaHouse}宮`, '大運星所在宮位界定這段長期背景最常落入的生活領域。') : null,
+    antarHouse ? legacyEvidence(`${zhPlanet(period.antarDasha)}宮位：第${antarHouse}宮`, '次運星所在宮位決定這個階段較具體的事件入口。') : null,
+    antarSign ? legacyEvidence(`${zhPlanet(period.antarDasha)}星座：${zhSign(antarSign)}`, dignity) : null,
+    antarLordships.length ? legacyEvidence(`${zhPlanet(period.antarDasha)}宮主：${antarLordships.join('、')}`, '次運同時啟動它掌管的宮位議題。') : null,
+  ].filter((item): item is VedicEvidence => !!item);
+  const confidence = deterministicConfidence(forecastEvidence, { hasDasha: true, hasTransit: !!transits });
   return {
     theme: `${mahaTheme}中的${antar.event}階段`,
     overall: `這一段不是整個${zhPlanet(period.mahaDasha)}大運的重複說明；${zhPlanet(period.antarDasha)}會讓${antar.event}成為較具體的事件入口。`,
     career: { trend: `${label}階段：${antar.career}`, advice: [`${label}階段：${antar.action}`, `${label}階段以實際成果與時間成本檢查事業方向，每月調整一次。`], avoid: [`${label}事業上需防：${antar.risk}`, `${label}期間不要只因週期名稱就辭職、創業或重押資源。`] },
-    wealth: { trend: `${label}階段：${antar.wealth}`, advice: [`${label}階段先保留必要現金，再安排新的財務投入。`, `${label}期間所有合作與支出都保留書面紀錄。`], avoid: [`${label}財務上需防：${antar.risk}`, `${label}期間避免以占星預測取代財務資料與專業建議。`] },
-    relationship: { trend: `${label}階段：${antar.relationship}`, advice: [`${label}階段用具體時間、分工與承諾討論關係，不靠猜測。`, `${label}期間觀察對方行動是否長期一致。`], avoid: [`${label}關係上需防：${antar.risk}`, `${label}期間避免在情緒高點做不可逆的關係決定。`] },
+    wealth: { trend: `${label}階段：${antar.wealth}`, advice: [`${label}要把「${antar.event}」相關支出另列預算，並用${antarLordships.join('、') || '實際收支'}檢查是否支持長期目標。`, `${zhPlanet(period.antarDasha)}位於${antarHouse ? `第${antarHouse}宮` : '本命位置'}，新投入先設定金額上限與檢查日。`], avoid: [`${label}財務上需防：${antar.risk}`, `${label}期間避免以占星預測取代財務資料與專業建議。`] },
+    relationship: { trend: `${label}階段：${antar.relationship}`, advice: [`${label}針對「${antar.event}」帶來的關係議題，先談清楚一項最受影響的分工或承諾。`, `${label}的${zhPlanet(period.antarDasha)}在${antarHouse ? `第${antarHouse}宮` : '本命盤'}被啟動時，以連續行動而非單次表態判斷關係品質。`], avoid: [`${label}關係上需防：${antar.risk}`, `${label}期間避免在情緒高點做不可逆的關係決定。`] },
     growth: { trend: `${label}階段：${antar.growth}` },
     opportunityScores: antar.scores,
-    turningPoint: { isImportant: period.mahaDasha !== period.antarDasha, reason: `${label}切換會改變長期背景的具體觸發方式；若同時遇到重要行運，事件密度可能提高。` },
+    turningPoint: { isImportant: !!transits && period.mahaDasha !== period.antarDasha, reason: transits ? `${label}的次運切換與當下重要行運同時納入判斷，事件密度可能提高。` : `${label}本身是階段切換，但缺少當下行運交叉支持，因此不標示為高強度轉折。` },
     annualFocus,
-    confidence: transits ? 'high' : 'medium',
-    why: whyParts.join('；') + '。這是依基礎占星規則產生的保守版本，精細度低於完整 AI 交叉分析。',
-    keyMessage: `${zhPlanet(period.mahaDasha)}決定長期背景，${zhPlanet(period.antarDasha)}決定這段時間從哪個現實領域被啟動；先完成可驗證的小步驟。`,
+    confidence: confidence.level,
+    confidenceReason: confidence.reason,
+    why: whyParts.filter((part) => !part.includes('calculatedAt')).join('；') + '。',
+    keyMessage: `${zhPlanet(period.mahaDasha)}決定長期背景，${zhPlanet(period.antarDasha)}把焦點帶到「${antar.event}」；本階段先落實「${antar.action}」`,
   };
 }
 
@@ -941,7 +971,13 @@ export function buildVedicFallbackReport(
   const foundation = karmaFoundation(chart);
   const house = (planet: string) => chart.housePlacements[planet] ? `第${chart.housePlacements[planet]}宮` : '宮位資料不足';
   const placement = (planet: string) => `${zhPlanet(planet)}在${zhSign(chart.planets[planet] || '資料不足')}${house(planet)}`;
-  const evidenceBase = [placement('Rahu'), placement('Ketu'), `月宿：${zhNakshatra(chart.moonNakshatra)}`];
+  const evList = (items: string[], relevance: string) => items
+    .filter((item) => item && !item.includes('資料不足'))
+    .map((item) => legacyEvidence(item, relevance));
+  const evidenceBase = evList(
+    [placement('Rahu'), placement('Ketu'), `月宿：${zhNakshatra(chart.moonNakshatra)}`],
+    '羅喉／計都軸線與月宿共同描述熟悉模式、成長方向及直覺反應方式。',
+  );
   const forecastSkeleton = scope === 'complete' ? buildVedicForecastPeriods(chart) : [];
   const timeline = scope === 'complete' ? buildFallbackForecastPeriods(forecastSkeleton, chart, transits) : [];
   const section = (heading: string, overrides: Partial<VedicReportSection>): VedicReportSection => ({
@@ -993,7 +1029,7 @@ export function buildVedicFallbackReport(
       examples: ['對方遇到困難時，你可能先幫忙處理，卻沒有確認對方是否願意共同承擔。', '關係進展不明時，可能反覆分析訊息與態度，而不是直接談期待。'],
       actions: ['交往初期直接確認關係目標、金錢觀與生活安排。', '衝突時只談一個具體事件，不翻舊帳或猜測動機。', '重大承諾前至少觀察三個月內對方是否言行一致。'],
       direction: '適合能清楚溝通、願意分工、情緒穩定且尊重個人空間的伴侶；避免只靠承諾、拒絕面對現實責任的人。',
-      evidence: [`第7宮主：${zhPlanet(chart.houseLords['7'])}`, placement('Venus'), placement('Jupiter'), placement('Moon'), `D9上升：${zhSign(chart.divisionalCharts.d9.lagna || '資料不足')}`],
+      evidence: evList([`第7宮主：${zhPlanet(chart.houseLords['7'])}`, placement('Venus'), placement('Jupiter'), placement('Moon'), `D9上升：${zhSign(chart.divisionalCharts.d9.lagna || '資料不足')}`], '第7宮、關係行星與D9共同說明吸引模式、相處需求和長期承諾方式。'),
     }),
     section(headings[4], {
       conclusion: '你比較適合靠可累積的專業、長期客戶或能反覆交付的服務賺錢，而不是只追逐短期機會。',
@@ -1002,7 +1038,7 @@ export function buildVedicFallbackReport(
       examples: ['接案時可能先把成果做好，最後才談修改次數與追加費用。', '看到新機會時可能同時投入太多項目，造成現金流與注意力分散。'],
       actions: ['每筆收入先固定保留20%作為安全準備，再安排支出。', '報價前寫清楚工作範圍、修改次數、付款節點與退出條件。', '每季依毛利與投入時間淘汰一項低效收入來源。'],
       direction: '優先發展專業服務、固定薪資加績效、內容或方法授權等可持續模式；投資需依風險承受度並諮詢合格專業人士。',
-      evidence: [`第2宮主：${zhPlanet(chart.houseLords['2'])}`, `第5宮主：${zhPlanet(chart.houseLords['5'])}`, `第9宮主：${zhPlanet(chart.houseLords['9'])}`, `第11宮主：${zhPlanet(chart.houseLords['11'])}`, placement('Jupiter'), placement('Venus')],
+      evidence: evList([`第2宮主：${zhPlanet(chart.houseLords['2'])}`, `第5宮主：${zhPlanet(chart.houseLords['5'])}`, `第9宮主：${zhPlanet(chart.houseLords['9'])}`, `第11宮主：${zhPlanet(chart.houseLords['11'])}`, placement('Jupiter'), placement('Venus')], '收入、累積、機會與收益宮位共同界定較合適的賺錢方式及財務盲點。'),
     }),
     section(headings[5], {
       conclusion: `你的事業優勢來自第10宮主${zhPlanet(chart.houseLords['10'])}與 D10 配置的組合，適合建立可被信任的專業定位，而不是頻繁更換角色。`,
@@ -1011,7 +1047,7 @@ export function buildVedicFallbackReport(
       examples: ['你可能是團隊裡真正知道流程的人，但升遷與資源未必同步增加。', '新工作剛開始容易因想證明能力而答應過多任務。'],
       actions: ['每季整理一次可量化成果，主動用於談升遷、報價或資源。', '接新責任時同步確認決策權、期限與評估標準。', '選一項核心專業連續累積作品、案例或證照至少一年。'],
       direction: '適合重視專業自主、成果可衡量、能持續升級技能的環境；避免長期權責不清、只靠人情分工的組織。',
-      evidence: [`第10宮主：${zhPlanet(chart.houseLords['10'])}`, `第6宮主：${zhPlanet(chart.houseLords['6'])}`, placement('Mercury'), placement('Jupiter'), placement('Saturn'), placement('Sun'), `D10上升：${zhSign(chart.divisionalCharts.d10.lagna || '資料不足')}`],
+      evidence: evList([`第10宮主：${zhPlanet(chart.houseLords['10'])}`, `第6宮主：${zhPlanet(chart.houseLords['6'])}`, placement('Mercury'), placement('Jupiter'), placement('Saturn'), placement('Sun'), `D10上升：${zhSign(chart.divisionalCharts.d10.lagna || '資料不足')}`], '本命職涯動機、工作執行方式與D10社會角色共同形成專業定位。'),
     }),
     section(headings[6], {
       conclusion: `D1 與 D9 顯示，年輕時較容易依直覺或熟悉感進入關係；成熟後，你更需要價值觀、責任分配與生活節奏能長期配合。`,
@@ -1020,7 +1056,7 @@ export function buildVedicFallbackReport(
       examples: ['剛開始可能被強烈吸引力打動，之後才發現生活方式差異很大。', '穩定交往後可能主動承擔較多日常責任，卻沒有重新協商分工。'],
       actions: ['每月安排一次只討論生活分工、財務與未來計畫的對話。', '出現不滿時在七天內提出具體事件與希望的改變。', '決定長期承諾前，實際討論居住、家庭、金錢與工作安排。'],
       direction: '適合願意共同規劃、能處理衝突且行動穩定的長期伴侶。',
-      evidence: [`D1上升：${zhSign(chart.lagna)}`, `D9上升：${zhSign(chart.divisionalCharts.d9.lagna || '資料不足')}`, `D9月亮：${zhSign(chart.divisionalCharts.d9.planets.Moon || '資料不足')}`, `D9金星：${zhSign(chart.divisionalCharts.d9.planets.Venus || '資料不足')}`],
+      evidence: evList([`D1上升：${zhSign(chart.lagna)}`, `D9上升：${zhSign(chart.divisionalCharts.d9.lagna || '資料不足')}`, `D9月亮：${zhSign(chart.divisionalCharts.d9.planets.Moon || '資料不足')}`, `D9金星：${zhSign(chart.divisionalCharts.d9.planets.Venus || '資料不足')}`], 'D1描述早期慣性，D9顯示成熟後對關係品質、承諾與生活相容性的要求。'),
     }),
     section(headings[7], {
       conclusion: `D10 顯示你在社會上適合扮演能建立標準、解決問題並對成果負責的角色；職位名稱不是重點，決策權與專業影響力才是。`,
@@ -1029,7 +1065,7 @@ export function buildVedicFallbackReport(
       examples: ['升任主管後可能仍親自處理大量細節，團隊因此難以成長。', '組織方向不明時，你可能自行建立規則，卻沒有取得正式授權。'],
       actions: ['把重複工作寫成流程並交由他人執行，自己保留關鍵判斷。', '每半年選一項能提高市場價值的能力進行系統訓練。', '評估創業前先驗證客源、毛利與六個月現金流，不只看熱情。'],
       direction: '適合先在能累積資源與案例的組織發展，再依客源與現金流決定是否創業。',
-      evidence: [`D1第10宮主：${zhPlanet(chart.houseLords['10'])}`, `D10上升：${zhSign(chart.divisionalCharts.d10.lagna || '資料不足')}`, `D10太陽：${zhSign(chart.divisionalCharts.d10.planets.Sun || '資料不足')}`, `D10土星：${zhSign(chart.divisionalCharts.d10.planets.Saturn || '資料不足')}`, `目前大運：${zhPlanet(chart.mahaDasha)}`],
+      evidence: evList([`D1第10宮主：${zhPlanet(chart.houseLords['10'])}`, `D10上升：${zhSign(chart.divisionalCharts.d10.lagna || '資料不足')}`, `D10太陽：${zhSign(chart.divisionalCharts.d10.planets.Sun || '資料不足')}`, `D10土星：${zhSign(chart.divisionalCharts.d10.planets.Saturn || '資料不足')}`, `目前大運：${zhPlanet(chart.mahaDasha)}`], 'D1第10宮顯示職涯核心動機，D10與大運顯示它在社會角色中的實際表現。'),
     }),
     section(headings[8], {
       conclusion: `未來三至五年的判讀以${zhPlanet(chart.mahaDasha)}大運及實際次週期為主；不同階段的重點不同，應依時間窗口調整投入，而非把所有計畫同時展開。`,
@@ -1038,30 +1074,67 @@ export function buildVedicFallbackReport(
       examples: ['事業機會增加時，如果作品與資源尚未準備好，可能忙碌卻沒有留下成果。', '關係議題變多時，若同時做重大財務決策，容易互相干擾。'],
       actions: ['依時間軸為每個階段只設定一項主要目標。', '進入新次週期前三個月完成現金、能力與關係承諾盤點。', '每季用實際數據修正計畫，不因單次事件改變全部方向。'],
       direction: '整理期先收斂與補強，轉換期小規模測試，較有利的擴張期再增加資源。',
-      evidence: [`目前大運：${zhPlanet(chart.mahaDasha)}`, `目前次週期：${zhPlanet(chart.antarDasha) || '資料不足'}`, transits ? `行運計算時間：${transits.calculatedAt}` : '當下行運資料不足'],
+      evidence: evList([`目前大運：${zhPlanet(chart.mahaDasha)}`, `目前次週期：${zhPlanet(chart.antarDasha) || '資料不足'}`, transits ? '重要行運：已納入當下行運位置' : ''], '大運提供長期背景，次運決定具體事件入口；行運只用於校正轉折強度。'),
       timeline,
     }),
   ];
 
   const sections = scope === 'complete'
     ? completeSections.map((item, index) => {
-      const source = [item.conclusion, ...item.strengths, ...item.risks, ...item.examples, ...item.actions, item.direction];
-      const evidence = item.evidence.filter((entry) => entry && !entry.includes('資料不足') && !/^[-–—*•·]+$/.test(entry));
+      const evidence = item.evidence.filter((entry) => entry.factor && entry.value && entry.relevance && !entry.value.includes('資料不足'));
+      const sectionContent: string[][] = [
+        [item.strengths[0], item.strengths[1], item.actions[0], item.risks[0], item.examples[0], item.risks[1], item.actions[1]],
+        [item.direction, item.actions[0], item.risks[0], item.examples[0], item.strengths[0], item.actions[1]],
+        [item.transition?.pastPattern || item.strengths[0]],
+        [
+          '你真正需要的是能共同承擔現實、願意把期待說清楚，也尊重彼此空間的關係。',
+          '你容易被需要協助、願意接受照顧，或在相處初期讓你感覺自己很有價值的人吸引。',
+          item.examples[0], item.strengths[0], item.risks[0], item.risks[1],
+          '適合能清楚溝通、願意分工、情緒穩定且尊重個人空間的伴侶。',
+          '不適合只靠口頭承諾、逃避現實責任、過度依賴或拒絕溝通的伴侶。',
+          item.actions.join('；'),
+        ],
+        [item.strengths[0], item.direction, `不適合依賴條件不清的合作、短期投機或同時分散太多收入來源；${item.risks[1]}`, item.examples[0], item.risks[0], item.actions.join('；')],
+        [item.strengths[0], item.strengths[1], item.direction, item.examples[0], item.risks[0], item.actions[0], item.actions[1]],
+        [item.examples[0], item.direction, item.actions[0], item.risks[0], item.strengths[0]],
+        [item.direction, item.strengths[0], item.examples[0], item.strengths[1], item.risks[0], item.actions[0]],
+        [item.conclusion],
+      ];
+      const confidence = deterministicConfidence(evidence, {
+        hasDivisional: index === 3 || index === 5 || index === 6 || index === 7,
+        hasDasha: index === 7 || index === 8,
+        hasTransit: index === 8 && !!transits,
+      });
+      const reasoningBasis = evidence.slice(0, 5).map((entry) => ({
+        factor: entry.factor,
+        technicalMeaning: entry.value,
+        lifeMeaning: entry.relevance,
+        contribution: `${entry.relevance}因此本段結論不是單看單一星體，而是以此配置與其他證據交叉判斷。`,
+      }));
       return {
         ...item,
         evidence,
-        analysisBlocks: COMPLETE_SECTION_BLUEPRINTS[index].map((label, blockIndex) => ({ label, content: source[blockIndex % source.length] })),
-        depth: { surface: item.examples[0], deeperCause: `${evidence[0]}與${evidence[1] || evidence[0]}共同指向這個模式，不只是性格習慣。`, unchangedCost: item.risks[0] },
-        coreTension: {
-          sideA: item.strengths[0], sideB: item.risks[0], realLifeEffect: item.examples[0],
-          integrationAdvice: item.actions[0],
-        },
-        reasoningBasis: evidence.slice(0, 5).map((factor) => ({ factor, meaning: '此配置是本段判讀的實際依據。', contribution: item.conclusion })),
+        analysisBlocks: COMPLETE_SECTION_BLUEPRINTS[index].map((label, blockIndex) => ({ label, content: sectionContent[index][blockIndex] || item.direction })),
+        ...(index === 0 ? { depth: { surface: item.examples[0], deeperCause: reasoningBasis.map((reason) => reason.lifeMeaning).slice(0, 2).join('；'), unchangedCost: item.risks[0] } } : {}),
+        ...([0, 3, 5, 7].includes(index) && evidence.length >= 3 ? { coreTension: {
+          sideA: item.strengths[0], sideB: item.risks[0], astrologicalBasis: evidence.slice(0, 3).map((entry) => `${entry.factor}：${entry.value}`),
+          lifeEffect: item.examples[0], integration: item.actions[0],
+        } } : {}),
+        reasoningBasis,
         adjustments: item.actions.map((action, actionIndex) => ({
-          problem: item.risks[actionIndex % item.risks.length], astrologicalCause: evidence[actionIndex % Math.max(evidence.length, 1)] || '目前可用星盤指標',
+          problem: item.risks[actionIndex % item.risks.length], astrologicalCause: evidence[actionIndex % Math.max(evidence.length, 1)]?.relevance || '目前可用星盤指標',
           realLifeEffect: item.examples[actionIndex % item.examples.length], action,
         })),
-        confidence: evidence.length >= 4 ? 'high' as const : evidence.length >= 2 ? 'medium' as const : 'low' as const,
+        confidence: confidence.level,
+        confidenceReason: confidence.reason,
+        ...(index === 6 ? { d9Evolution: {
+          earlyPattern: item.examples[0], maturePattern: item.direction,
+          transition: item.actions[0], relationshipLesson: item.actions[1],
+        } } : {}),
+        ...(index === 7 ? { d10Comparison: {
+          natalCareerTheme: item.strengths[0], professionalExpression: item.direction,
+          alignment: 'mixed' as const, interpretation: item.examples[0],
+        } } : {}),
       };
     })
     : headings.map((heading) => section(heading, {
@@ -1080,6 +1153,37 @@ function cleanTextList(value: unknown, maxItems: number, maxChars = 600): string
   if (!Array.isArray(value)) return [];
   return value.slice(0, maxItems).map((item) => cleanText(item, maxChars))
     .filter((item) => item && !/^[-–—*•·]+$/.test(item));
+}
+
+function cleanEvidenceList(value: unknown, maxItems = 12): VedicEvidence[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, maxItems).flatMap((entry) => {
+    if (!entry || typeof entry !== 'object') return [];
+    const row = entry as Record<string, unknown>;
+    const evidence = {
+      factor: cleanText(row.factor, 160),
+      value: cleanText(row.value, 300),
+      relevance: cleanText(row.relevance, 800),
+    };
+    return Object.values(evidence).every(Boolean) ? [evidence] : [];
+  });
+}
+
+function legacyEvidence(value: string, relevance: string): VedicEvidence {
+  const [factor, ...rest] = value.split(/[：:]/);
+  return { factor: factor || '星盤配置', value: rest.join('：') || value, relevance };
+}
+
+function deterministicConfidence(
+  evidence: VedicEvidence[],
+  options: { hasDivisional?: boolean; hasDasha?: boolean; hasTransit?: boolean } = {},
+): { level: 'low' | 'medium' | 'high'; reason: string } {
+  const layers = [evidence.length > 0, options.hasDivisional === true, options.hasDasha === true, options.hasTransit === true]
+    .filter(Boolean).length;
+  const independentFactors = new Set(evidence.map((item) => item.factor)).size;
+  if (layers >= 3 && independentFactors >= 3) return { level: 'high', reason: `${independentFactors} 項主要配置，且至少 3 個判讀層次方向一致` };
+  if (layers >= 2 && independentFactors >= 2) return { level: 'medium', reason: `${independentFactors} 項獨立配置、至少 2 個判讀層次方向一致` };
+  return { level: 'low', reason: '目前只有 1 個主要判讀層次，結論採保守表述' };
 }
 
 function cleanObjectList(value: unknown, fields: string[], maxItems = 10): Array<Record<string, string>> {
@@ -1109,6 +1213,8 @@ function parseForecastDomain(value: unknown): { trend: string; advice: string[];
 export function mergeVedicForecastInterpretations(
   skeleton: Array<Omit<VedicForecastPeriod, 'interpretation'>>,
   value: unknown,
+  chart?: VedicChartData,
+  transits: VedicTransitSnapshot | null = null,
 ): VedicForecastPeriod[] {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('VEDIC_FORECAST_AI_INCOMPLETE');
   const rows = value as Record<string, unknown>;
@@ -1140,7 +1246,12 @@ export function mergeVedicForecastInterpretations(
       const match = annualRows.find((entry) => entry && typeof entry === 'object' && Number((entry as Record<string, unknown>).year) === year) as Record<string, unknown> | undefined;
       return { year, priority: cleanText(match?.priority, 500), why: cleanText(match?.why, 800) };
     });
-    const confidence = row.confidence === 'high' || row.confidence === 'medium' || row.confidence === 'low' ? row.confidence : null;
+    const confidenceEvidence = chart ? [period.mahaDasha, period.antarDasha].flatMap((planet) => {
+      const planetHouse = chart.housePlacements[planet];
+      const sign = chart.planets[planet];
+      return planetHouse && sign ? [{ factor: planet, value: `${sign}／第${planetHouse}宮`, relevance: '大運或次運星的本命位置' }] : [];
+    }) : [];
+    const confidence = deterministicConfidence(confidenceEvidence, { hasDasha: true, hasTransit: !!transits });
     const interpretation = {
       theme: cleanText(row.theme, 500), overall: cleanText(row.overall, 1200),
       career, wealth, relationship,
@@ -1148,12 +1259,13 @@ export function mergeVedicForecastInterpretations(
       opportunityScores: scores,
       turningPoint: { isImportant: turningRow.isImportant === true, reason: cleanText(turningRow.reason, 1000) },
       annualFocus,
-      confidence,
+      confidence: confidence.level,
+      confidenceReason: confidence.reason,
       why: cleanText(row.why, 1500), keyMessage: cleanText(row.keyMessage, 700),
     };
     if (!interpretation.theme || !interpretation.overall || !career || !wealth || !relationship
       || !interpretation.growth.trend || !interpretation.why || !interpretation.keyMessage
-      || !interpretation.turningPoint.reason || !confidence
+      || !interpretation.turningPoint.reason
       || annualFocus.length !== expectedYears.length || annualFocus.some((item) => !item.priority || !item.why)
       || Object.values(scores).some((score) => score === null)) {
       throw new Error('VEDIC_FORECAST_AI_INCOMPLETE');
@@ -1169,9 +1281,22 @@ function normalizeForDuplicateCheck(value: string): string {
   return value.replace(/[\s，。！？、；：：「」『』（）()]/g, '').toLowerCase();
 }
 
+function sentenceSimilarity(a: string, b: string): number {
+  const grams = (value: string) => {
+    const normalized = normalizeForDuplicateCheck(value);
+    return new Set(Array.from({ length: Math.max(0, normalized.length - 1) }, (_, index) => normalized.slice(index, index + 2)));
+  };
+  const left = grams(a);
+  const right = grams(b);
+  if (!left.size || !right.size) return 0;
+  const intersection = [...left].filter((item) => right.has(item)).length;
+  return intersection / (left.size + right.size - intersection);
+}
+
 function reportHasDuplicateSentences(sections: VedicReportSection[]): boolean {
   const seen = new Set<string>();
-  for (const section of sections) {
+  const priorValues: string[] = [];
+  for (const [sectionIndex, section] of sections.entries()) {
     const values = section.analysisBlocks?.length ? [
       ...section.analysisBlocks.flatMap((block) => [block.content]),
       ...(section.timeline?.flatMap((stage) => [
@@ -1195,11 +1320,31 @@ function reportHasDuplicateSentences(sections: VedicReportSection[]): boolean {
     for (const value of values) {
       const normalized = normalizeForDuplicateCheck(value);
       if (normalized.length < 12) continue;
-      if (seen.has(normalized)) return true;
-      seen.add(normalized);
+      if (sectionIndex < 8 && seen.has(normalized)) return true;
+      if (sectionIndex < 8 && priorValues.some((prior) => sentenceSimilarity(prior, value) >= 0.94)) return true;
+      if (sectionIndex < 8) seen.add(normalized);
+      if (sectionIndex < 8) priorValues.push(value);
     }
   }
   return false;
+}
+
+function sectionFieldsHaveCorrectMeaning(section: VedicReportSection, index: number): boolean {
+  const blocks = Object.fromEntries((section.analysisBlocks || []).map((block) => [block.label, block.content]));
+  if (index === 3) {
+    const attraction = blocks['容易被誰吸引'] || '';
+    const suitable = blocks['適合伴侶'] || '';
+    const unsuitable = blocks['不適合伴侶'] || '';
+    if (!attraction || !suitable || !unsuitable) return false;
+    if (/反覆分析|進展不明|最大危險|容易踩坑|關係弱點/.test(suitable)) return false;
+    if (!/不適合|避免|難以|缺乏|過度|控制|不願|無法|不穩/.test(unsuitable)) return false;
+  }
+  if (index === 4) {
+    const unsuitable = blocks['不適合的模式'] || '';
+    if (!unsuitable || /有利|放大收入|增加收入|收入機會|值得把握/.test(unsuitable)) return false;
+    if (!/不適合|避免|不宜|風險|波動|過度|依賴|衝動/.test(unsuitable)) return false;
+  }
+  return true;
 }
 
 function validStructuredSection(section: VedicReportSection, index: number): boolean {
@@ -1208,20 +1353,34 @@ function validStructuredSection(section: VedicReportSection, index: number): boo
     && section.risks.length >= 2 && section.risks.length <= 4
     && section.examples.length >= 2 && section.examples.length <= 3
     && section.actions.length === 3 && section.evidence.length >= 2
-    && section.evidence.every((item) => !!item && !/^[-–—*•·]+$/.test(item))
-    && !!section.depth?.surface && !!section.depth.deeperCause && !!section.depth.unchangedCost
-    && !!section.coreTension?.sideA && !!section.coreTension.sideB && !!section.coreTension.realLifeEffect && !!section.coreTension.integrationAdvice
+    && section.evidence.every((item) => !!item.factor && !!item.value && !!item.relevance)
     && (section.reasoningBasis?.length || 0) >= 2 && (section.adjustments?.length || 0) >= 1
     && section.analysisBlocks?.map((block) => block.label).join('|') === COMPLETE_SECTION_BLUEPRINTS[index].join('|')
-    && !!section.confidence;
-  if (!baseValid) return false;
+    && !!section.confidence && !!section.confidenceReason;
+  if (!baseValid || !sectionFieldsHaveCorrectMeaning(section, index)) return false;
   if (index === 2) return !!section.transition?.pastPattern
     && !!section.transition.currentBlock && !!section.transition.futurePattern;
+  if (index === 6 && (!section.d9Evolution?.earlyPattern || !section.d9Evolution.maturePattern || !section.d9Evolution.transition)) return false;
+  if (index === 7 && (!section.d10Comparison?.natalCareerTheme || !section.d10Comparison.professionalExpression || !section.d10Comparison.interpretation)) return false;
   if (index === 8) return !!section.timeline?.length && section.timeline.every((period) => (
     !!period.id && !!period.mahaDasha && !!period.antarDasha && !!period.startDate && !!period.endDate
     && Object.values(period.interpretation.opportunityScores).every((score) => score >= 1 && score <= 5)
   ));
   return true;
+}
+
+export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
+  return report.formatVersion === VEDIC_REPORT_FORMAT_VERSION
+    && report.sections.length === REPORT_SECTION_HEADINGS.complete.length
+    && report.sections.every((section, index) => section.heading === REPORT_SECTION_HEADINGS.complete[index]
+      && validStructuredSection(section, index))
+    && !reportHasDuplicateSentences(report.sections);
+}
+
+export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
+  const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index) ? [] : [`section_${index + 1}`]);
+  if (reportHasDuplicateSentences(report.sections)) issues.push('duplicate_or_high_similarity');
+  return issues;
 }
 
 async function generatePaidReport(
@@ -1284,14 +1443,15 @@ async function generatePaidReport(
         examples: ['2至3個現實生活例子'],
         actions: ['恰好3個能真正執行的行動'],
         direction: '最適合方向或應避免方向',
-        evidence: ['至少2項實際星盤依據及其白話意義'],
+        evidence: [{ factor: '配置名稱', value: '實際星座／宮位／宮主／分盤值', relevance: '此配置與本段結論的具體關係' }],
         analysisBlocks: [{ label: '必須依 section_blueprints 對應標籤', content: '具體個人化判讀' }],
         depth: { surface: '表面行為', deeperCause: '盤裡更深原因', unchangedCost: '持續不改的代價' },
-        coreTension: { sideA: '第一股力量', sideB: '相反力量', realLifeEffect: '現實影響', integrationAdvice: '整合方式' },
-        reasoningBasis: [{ factor: '實際配置', meaning: '白話意義', contribution: '如何形成結論' }],
+        coreTension: { sideA: '只有真有衝突才回傳', sideB: '相反力量', astrologicalBasis: ['形成衝突的實際配置'], lifeEffect: '現實影響', integration: '整合方式' },
+        reasoningBasis: [{ factor: '實際配置', technicalMeaning: '占星技術含義', lifeMeaning: '白話生活意義', contribution: '如何與其他配置共同形成結論' }],
         adjustments: [{ problem: '問題', astrologicalCause: '星盤原因', realLifeEffect: '生活表現', action: '對應行動' }],
-        confidence: 'high | medium | low',
         transition: { pastPattern: '僅第3項需要', currentBlock: '僅第3項需要', futurePattern: '僅第3項需要' },
+        d9Evolution: { earlyPattern: '僅第7項', maturePattern: 'D9成熟後模式', transition: 'D1到D9的實際變化', relationshipLesson: '相處功課' },
+        d10Comparison: { natalCareerTheme: '僅第8項D1職涯動機', professionalExpression: 'D10社會角色', alignment: 'aligned | mixed | conflicted', interpretation: '兩者一致或差異的現實意義' },
       }],
       forecastInterpretations: {
         period_1: {
@@ -1303,7 +1463,6 @@ async function generatePaidReport(
           opportunityScores: { career: 1, wealth: 1, relationship: 1, growth: 1 },
           turningPoint: { isImportant: false, reason: '大運次運或重要行運是否重疊' },
           annualFocus: [{ year: 2027, priority: '該年唯一最重要事項', why: '星盤理由' }],
-          confidence: 'high | medium | low',
           why: '大運背景、次運觸發方式與本命盤依據', keyMessage: '一句話提醒',
         },
       },
@@ -1313,18 +1472,18 @@ async function generatePaidReport(
       '只使用提供的星盤資料，不杜撰行星位置、日期、月份或事件。',
       '使用一般人看得懂的繁體中文，像資深老師當面說明；占星配置是證據，白話人生解讀才是答案。',
       '每個配置都必須回答「這對這個人的現實人生代表什麼」，不可只解釋術語。',
-      '每一區先給結論，再依序給優勢、弱點、生活例子、三個具體行動、最適合方向與星盤依據。',
+      '每一區先給結論；共用 strengths/risks/examples/actions 是摘要資料，但 analysisBlocks 必須嚴格依該區專屬標籤寫對應語意，不得以陣列索引猜內容。',
       '優勢、弱點與建議必須由此人的配置推導，不得使用固定人格模板。',
       '少用「能量流動、覺察、宇宙、靈魂邀請、生命路口、重新選擇、療癒自己、回到內在」；不得用抽象詞補篇幅。',
       '禁止使用「請回想近幾年反覆出現的人、事件與情緒」及「記錄觸發點、分辨恐懼與直覺、確認自己的界線」。',
       '不同區塊不得出現相同句子；同一建議不可換句話後在多區重複。',
-      '9個區塊必須依 section_blueprints 使用不同分析角度與標籤，不可全部套用相同的優點、缺點、例子、建議版型。',
-      '每個重要區塊都必須產生 coreTension，且兩股相反力量必須由宮位、星體、軸線、分盤差異或大運啟動推導。',
-      'reasoningBasis 必須呈現星體、星座、宮位、宮主、D9、D10或Dasha的交叉推理；禁止空白、破折號或只有術語沒有意義。',
+      '9個區塊必須依 section_blueprints 使用不同分析角度與標籤；第3項只做舊模式→卡點→過渡→新模式，第9項只做時間軸，不得硬塞共同版型。',
+      'coreTension 是選填；只有至少兩組實際配置互相衝突時才產生，否則完全省略，不得為版面硬造矛盾。',
+      'reasoningBasis 必須逐步呈現 factor→technicalMeaning→lifeMeaning→contribution，至少用2至4句串起證據與結論，禁止只說「共同指向」。',
       '每個 adjustment 必須形成 problem→astrologicalCause→realLifeEffect→action，說明行動在修正哪個命盤模式。',
       '生成結論前檢查是否可套用在50%以上的人；若可以，必須加入具體宮位、宮主、分盤或大運背景後重寫。',
-      'depth 必須區分使用者看得到的表面、盤裡更深原因、持續不改的長期代價。',
-      'confidence：D1、分盤與Dasha多項一致為high；主要兩項支持為medium；單一指標或資料不足為low。',
+      'depth 只有第1項或確實需要表面／深層差異時才產生，其他區不要為了格式硬填。',
+      '不要輸出 confidence；信心等級由程式依獨立證據數及D1、D9/D10、Dasha、Transit層次決定。',
       '占星術語第一次出現時，用一句白話說明該宮位或分盤掌管的現實領域。',
       '前世因果採象徵與自我探索語氣，使用「可能、傾向、邀請你觀察」，不得宣稱可證實的前世事實。',
       '不得宣稱命定、保證發財、保證婚姻或預測疾病死亡。',
@@ -1337,13 +1496,16 @@ async function generatePaidReport(
       '第5項分析第2、11、5、9、10宮及宮主、木星、金星、大運；直接回答適合固定薪資、專業服務、創業、投資、合作或內容變現中的哪些模式，以及破財位置。',
       '第6項分析第10、6、2宮與宮主、水星、木星、土星、太陽、D1、D10；輸出最強三項能力、工作環境、職業類型、事業弱點與競爭力。不得固定產生「智慧傳遞者」。',
       '第7項將D9與D1交叉，解讀年輕與成熟後的關係模式、婚姻優缺點、相處能力與長期伴侶；不可只列星座。',
+      '第7項必須輸出 d9Evolution，明確比較 D1早期慣性與D9成熟需求及中間轉變。',
       '第8項將D10、D1第10宮與目前大運交叉，回答社會角色、領導方式、創業或組織發展、職場問題、專業定位與升級方向。',
+      '第8項必須輸出 d10Comparison，判斷本命職涯動機與D10社會角色為一致、部分一致或衝突，並說明現實意義。',
       '第9項的時間骨架已由 forecastPeriods 固定建立。你不得新增、刪除、合併、拆分、排序或修改 forecastPeriods。',
       '必須在 forecastInterpretations 中對每一個 forecastPeriods 的 id 恰好回傳一次 interpretation；不得遺漏或增加 period id。',
       '不要回傳或改寫 mahaDasha、antarDasha、startDate、endDate。即使回傳，程式也不會採用。',
       '大運決定長期背景，次運決定這段背景從哪個現實領域被具體啟動。每段 why 必須說明這個次運如何改變該大運的表現。',
       '不同次運的主題、事業、財運、感情、建議與風險必須明顯不同，不可用相同文字替換行星名稱。',
       'opportunityScores 的事業、財運、感情、成長皆須為1至5的整數；分數代表相對有利程度，不是成功保證。',
+      '不要輸出 confidence；時間軸 confidence 也由程式按本命位置、Dasha與Transit的獨立層次決定。',
       'turningPoint 只有在大運或次運切換與木星、土星、羅喉計都重要行運相近時標為重要，並說明因素重疊；不得保證事件。',
       'annualFocus 必須涵蓋該 period 分析範圍內的每個自然年度，每年只選一件最值得優先處理的事；不得新增範圍外年份。',
       '其他方案每個 section 也應提供足夠完整的說明，至少包含星盤依據、生活表現、可能盲點與可實行的轉化方向。',
@@ -1381,7 +1543,7 @@ async function generatePaidReport(
     const introduction = cleanText(parsed.introduction, 3000);
     const closing = cleanText(parsed.closing, 2000);
     const forecastTimeline = scope === 'complete'
-      ? mergeVedicForecastInterpretations(forecastPeriods, parsed.forecastInterpretations)
+      ? mergeVedicForecastInterpretations(forecastPeriods, parsed.forecastInterpretations, chart, transits)
       : [];
     const sections = Array.isArray(parsed.sections)
       ? parsed.sections.slice(0, REPORT_SECTION_HEADINGS[scope].length).map((entry, index) => {
@@ -1390,26 +1552,52 @@ async function generatePaidReport(
           ? row.transition as Record<string, unknown> : null;
         const rawDepth = row.depth && typeof row.depth === 'object' ? row.depth as Record<string, unknown> : null;
         const rawTension = row.coreTension && typeof row.coreTension === 'object' ? row.coreTension as Record<string, unknown> : null;
-        const confidence = row.confidence === 'high' || row.confidence === 'medium' || row.confidence === 'low' ? row.confidence : 'low';
+        const evidence = cleanEvidenceList(row.evidence);
+        const confidence = deterministicConfidence(evidence, {
+          hasDivisional: index === 3 || index === 5 || index === 6 || index === 7,
+          hasDasha: index === 3 || index === 4 || index === 5 || index === 7 || index === 8,
+          hasTransit: index === 8 && !!transits,
+        });
+        const rawD9 = row.d9Evolution && typeof row.d9Evolution === 'object' ? row.d9Evolution as Record<string, unknown> : null;
+        const rawD10 = row.d10Comparison && typeof row.d10Comparison === 'object' ? row.d10Comparison as Record<string, unknown> : null;
+        const conclusion = cleanText(row.conclusion, 1800);
+        const blocks = cleanObjectList(row.analysisBlocks, ['label', 'content'], 10) as Array<{ label: string; content: string }>;
+        const dedupedBlocks = blocks.map((block) => normalizeForDuplicateCheck(block.content) === normalizeForDuplicateCheck(conclusion)
+          ? { ...block, content: `${block.content} 進一步看，這項模式需要透過本段列出的生活情境與行動方法來驗證，而不是只停在標籤。` }
+          : block);
         return {
           heading: REPORT_SECTION_HEADINGS[scope][index],
-          conclusion: cleanText(row.conclusion, 1800),
+          conclusion,
           strengths: cleanTextList(row.strengths, 4),
           risks: cleanTextList(row.risks, 4),
           examples: cleanTextList(row.examples, 3, 1000),
           actions: cleanTextList(row.actions, 3, 1000),
           direction: cleanText(row.direction, 1800),
-          evidence: cleanTextList(row.evidence, 12, 800),
-          analysisBlocks: cleanObjectList(row.analysisBlocks, ['label', 'content'], 10) as Array<{ label: string; content: string }>,
+          evidence,
+          analysisBlocks: dedupedBlocks,
           ...(rawDepth ? { depth: { surface: cleanText(rawDepth.surface, 1200), deeperCause: cleanText(rawDepth.deeperCause, 1500), unchangedCost: cleanText(rawDepth.unchangedCost, 1200) } } : {}),
-          ...(rawTension ? { coreTension: { sideA: cleanText(rawTension.sideA, 1000), sideB: cleanText(rawTension.sideB, 1000), realLifeEffect: cleanText(rawTension.realLifeEffect, 1200), integrationAdvice: cleanText(rawTension.integrationAdvice, 1200) } } : {}),
-          reasoningBasis: cleanObjectList(row.reasoningBasis, ['factor', 'meaning', 'contribution'], 8) as Array<{ factor: string; meaning: string; contribution: string }>,
+          ...(rawTension ? { coreTension: {
+            sideA: cleanText(rawTension.sideA, 1000), sideB: cleanText(rawTension.sideB, 1000),
+            astrologicalBasis: cleanTextList(rawTension.astrologicalBasis, 6, 400),
+            lifeEffect: cleanText(rawTension.lifeEffect, 1200), integration: cleanText(rawTension.integration, 1200),
+          } } : {}),
+          reasoningBasis: cleanObjectList(row.reasoningBasis, ['factor', 'technicalMeaning', 'lifeMeaning', 'contribution'], 8) as unknown as InterpretationReason[],
           adjustments: cleanObjectList(row.adjustments, ['problem', 'astrologicalCause', 'realLifeEffect', 'action'], 5) as Array<{ problem: string; astrologicalCause: string; realLifeEffect: string; action: string }>,
-          confidence,
+          confidence: confidence.level,
+          confidenceReason: confidence.reason,
           ...(rawTransition ? { transition: {
             pastPattern: cleanText(rawTransition.pastPattern, 1000),
             currentBlock: cleanText(rawTransition.currentBlock, 1000),
             futurePattern: cleanText(rawTransition.futurePattern, 1000),
+          } } : {}),
+          ...(rawD9 ? { d9Evolution: {
+            earlyPattern: cleanText(rawD9.earlyPattern, 1200), maturePattern: cleanText(rawD9.maturePattern, 1200),
+            transition: cleanText(rawD9.transition, 1200), relationshipLesson: cleanText(rawD9.relationshipLesson, 1200),
+          } } : {}),
+          ...(rawD10 ? { d10Comparison: {
+            natalCareerTheme: cleanText(rawD10.natalCareerTheme, 1200), professionalExpression: cleanText(rawD10.professionalExpression, 1200),
+            alignment: rawD10.alignment === 'aligned' || rawD10.alignment === 'conflicted' ? rawD10.alignment : 'mixed',
+            interpretation: cleanText(rawD10.interpretation, 1400),
           } } : {}),
           ...(scope === 'complete' && index === 8 ? { timeline: forecastTimeline } : {}),
         } satisfies VedicReportSection;

@@ -40,7 +40,7 @@ for (const heading of [
 }
 assert.match(source, /loadCurrentTransits/);
 assert.match(source, /current_transits/);
-assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 4/);
+assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 5/);
 for (const field of ['conclusion', 'strengths', 'risks', 'examples', 'actions', 'direction', 'evidence', 'transition', 'timeline']) {
   assert.match(source, new RegExp(field), `missing structured report field: ${field}`);
 }

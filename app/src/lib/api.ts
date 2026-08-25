@@ -355,14 +355,17 @@ export interface VedicReport {
     examples?: string[];
     actions?: string[];
     direction?: string;
-    evidence?: string[];
+    evidence?: Array<{ factor: string; value: string; relevance: string }>;
     analysisBlocks?: Array<{ label: string; content: string }>;
     depth?: { surface: string; deeperCause: string; unchangedCost: string };
-    coreTension?: { sideA: string; sideB: string; realLifeEffect: string; integrationAdvice: string };
-    reasoningBasis?: Array<{ factor: string; meaning: string; contribution: string }>;
+    coreTension?: { sideA: string; sideB: string; astrologicalBasis: string[]; lifeEffect: string; integration: string };
+    reasoningBasis?: Array<{ factor: string; technicalMeaning: string; lifeMeaning: string; contribution: string }>;
     adjustments?: Array<{ problem: string; astrologicalCause: string; realLifeEffect: string; action: string }>;
     confidence?: 'high' | 'medium' | 'low';
+    confidenceReason?: string;
     transition?: { pastPattern: string; currentBlock: string; futurePattern: string };
+    d9Evolution?: { earlyPattern: string; maturePattern: string; transition: string; relationshipLesson: string };
+    d10Comparison?: { natalCareerTheme: string; professionalExpression: string; alignment: 'aligned' | 'mixed' | 'conflicted'; interpretation: string };
     timeline?: Array<{
       id: string;
       mahaDasha: string;
@@ -383,6 +386,7 @@ export interface VedicReport {
         turningPoint: { isImportant: boolean; reason: string };
         annualFocus: Array<{ year: number; priority: string; why: string }>;
         confidence: 'high' | 'medium' | 'low';
+        confidenceReason: string;
         why: string;
         keyMessage: string;
       };

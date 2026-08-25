@@ -3,6 +3,8 @@ import {
   buildVedicFallbackReport,
   buildVedicForecastPeriods,
   mergeVedicForecastInterpretations,
+  validateCompleteVedicReport,
+  auditCompleteVedicReport,
   type VedicChartData,
 } from '../src/vedicAstrology.ts';
 
@@ -56,7 +58,7 @@ const interpretationFor = (index: number) => ({
   why: `第${index}段大運背景與次運觸發依據。`, keyMessage: `第${index}段一句話提醒。`,
 });
 const completeAiResponse = Object.fromEntries(skeleton.map((period, index) => [period.id, { ...interpretationFor(index + 1), startDate: 'AI_MUST_NOT_OVERRIDE_THIS_DATE' }]));
-const merged = mergeVedicForecastInterpretations(skeleton, completeAiResponse);
+const merged = mergeVedicForecastInterpretations(skeleton, completeAiResponse, chart);
 assert.equal(merged.length, skeleton.length);
 
 // Test C: an AI-provided date is ignored; the program-owned skeleton wins.
@@ -66,15 +68,16 @@ assert.notEqual(merged[0].startDate, 'AI_MUST_NOT_OVERRIDE_THIS_DATE');
 // Test B: one missing period fails validation.
 const incompleteAiResponse = { ...completeAiResponse };
 delete incompleteAiResponse.period_2;
-assert.throws(() => mergeVedicForecastInterpretations(skeleton, incompleteAiResponse), /VEDIC_FORECAST_AI_INCOMPLETE/);
+assert.throws(() => mergeVedicForecastInterpretations(skeleton, incompleteAiResponse, chart), /VEDIC_FORECAST_AI_INCOMPLETE/);
 const invalidScoreResponse = structuredClone(completeAiResponse);
 invalidScoreResponse.period_1.opportunityScores.career = 6;
-assert.throws(() => mergeVedicForecastInterpretations(skeleton, invalidScoreResponse), /VEDIC_FORECAST_AI_INCOMPLETE/);
+assert.throws(() => mergeVedicForecastInterpretations(skeleton, invalidScoreResponse, chart), /VEDIC_FORECAST_AI_INCOMPLETE/);
 assert.throws(() => buildVedicForecastPeriods({ ...chart, dashaTimeline: [{ ...chart.dashaTimeline[0], subPeriods: [] }] }, referenceDate, 5), /VEDIC_FORECAST_MISSING_ANTARDASHA/);
 
 // Test D: service-failure fallback still contains every Antardasha period.
 const report = buildVedicFallbackReport('complete', chart, null);
-assert.equal(report.formatVersion, 4);
+assert.equal(validateCompleteVedicReport(report), true, `complete fallback report must pass the same production quality gate: ${auditCompleteVedicReport(report).join(', ')}`);
+assert.equal(report.formatVersion, 5);
 assert.equal(report.sections.length, 9);
 for (const [index, section] of report.sections.entries()) {
   assert.ok(section.conclusion, `section ${index + 1} conclusion`);
@@ -86,12 +89,17 @@ for (const [index, section] of report.sections.entries()) {
   assert.ok(section.evidence.length >= 2, `section ${index + 1} evidence`);
 }
 assert.ok(report.sections[2].transition);
-assert.ok(report.sections.every((section) => section.coreTension && section.depth && section.reasoningBasis?.length));
+assert.ok(report.sections.every((section) => section.reasoningBasis?.length && section.confidenceReason));
+assert.ok(report.sections.filter((section) => section.coreTension).length < report.sections.length, 'core tension must be optional');
+assert.ok(report.sections[6].d9Evolution, 'D9 must compare early and mature patterns');
+assert.ok(report.sections[7].d10Comparison, 'D10 must compare natal career and professional expression');
 assert.equal(new Set(report.sections.map((section) => section.analysisBlocks?.map((block) => block.label).join('|'))).size, 9, 'all section blueprints must differ');
-assert.ok(report.sections.every((section) => section.evidence.every((item) => item.trim() && !/^[-–—*•·]+$/.test(item))), 'evidence cannot be blank placeholders');
+assert.ok(report.sections.every((section) => section.evidence.every((item) => item.factor && item.value && item.relevance)), 'evidence must explain relevance');
 assert.doesNotMatch(JSON.stringify(report), /svg(?:能|容易|工作)/i);
+assert.doesNotMatch(JSON.stringify(report), /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}|保守版本|fallback/i, 'frontend report cannot expose engineering diagnostics');
 const fallbackTimeline = report.sections[8].timeline || [];
 assert.equal(fallbackTimeline.length, skeleton.length);
+assert.equal(fallbackTimeline.at(-1)?.analysisEndDate, '2031-08-25', 'forecast must be clipped to five years');
 assert.deepEqual(fallbackTimeline.map(({ id, mahaDasha, antarDasha, startDate, endDate }) => ({ id, mahaDasha, antarDasha, startDate, endDate })), skeleton.map(({ id, mahaDasha, antarDasha, startDate, endDate }) => ({ id, mahaDasha, antarDasha, startDate, endDate })));
 
 // Test F: different Antardasha periods cannot collapse to identical fallback text.
@@ -105,12 +113,17 @@ const fallbackSentences = fallbackTimeline.flatMap(({ interpretation }) => [
   interpretation.relationship.trend, ...interpretation.relationship.advice, ...interpretation.relationship.avoid,
   interpretation.growth.trend, interpretation.why, interpretation.keyMessage,
 ]).map((value) => value.replace(/[\s，。！？、；：：「」『』（）()]/g, '').toLowerCase());
-assert.equal(new Set(fallbackSentences).size, fallbackSentences.length, 'fallback period sentences must not repeat');
+assert.ok(new Set(fallbackSentences).size >= fallbackSentences.length - 1, 'fallback may reuse at most one safety sentence across the whole timeline');
+for (let i = 0; i < fallbackTimeline.length; i += 1) for (let j = i + 1; j < fallbackTimeline.length; j += 1) {
+  if (fallbackTimeline[i].antarDasha !== fallbackTimeline[j].antarDasha) {
+    assert.notEqual(fallbackTimeline[i].interpretation.theme, fallbackTimeline[j].interpretation.theme, 'different Antardasha themes must differ');
+  }
+}
 
 const secondChart: VedicChartData = { ...chart, lagna: 'Aries', planets: { ...chart.planets, Rahu: 'Leo', Ketu: 'Aquarius', Venus: 'Pisces' }, housePlacements: { ...chart.housePlacements, Rahu: 5, Ketu: 11, Venus: 12 } };
 const secondReport = buildVedicFallbackReport('complete', secondChart, null);
 assert.notEqual(secondReport.sections[0].conclusion, report.sections[0].conclusion, 'different charts need visibly different karma conclusions');
-assert.notEqual(secondReport.sections[3].evidence.join('|'), report.sections[3].evidence.join('|'), 'different charts need visibly different relationship evidence');
+assert.notEqual(JSON.stringify(secondReport.sections[3].evidence), JSON.stringify(report.sections[3].evidence), 'different charts need visibly different relationship evidence');
 
 console.log(JSON.stringify({ skeleton, timeline: fallbackTimeline }, null, 2));
 console.log('Forecast tests A-F: passed');
