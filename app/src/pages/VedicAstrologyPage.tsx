@@ -157,6 +157,11 @@ export default function VedicAstrologyPage() {
   const [reportLoading, setReportLoading] = useState(false);
   const [error, setError] = useState('');
   const restoreRef = useRef(false);
+  const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
+
+  const updateBirthTime = (hour: string, minute: string) => {
+    setForm({ ...form, birthTime: `${hour}:${minute}` });
+  };
 
   useEffect(() => {
     if (restoreRef.current || !chart) return;
@@ -181,7 +186,7 @@ export default function VedicAstrologyPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!form.birthDate || !form.birthTime || !form.birthPlace.trim()) {
+    if (!form.birthDate || !/^\d{2}:\d{2}$/.test(form.birthTime) || !form.birthPlace.trim()) {
       setError('請完整填寫出生年月日、出生時間與出生地點');
       return;
     }
@@ -251,7 +256,17 @@ export default function VedicAstrologyPage() {
               <input type="date" required value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="vedic-input" />
             </Field>
             <Field label="出生時間">
-              <input type="time" required value={form.birthTime} onChange={(e) => setForm({ ...form, birthTime: e.target.value })} className="vedic-input" />
+              <div className="grid grid-cols-2 gap-3">
+                <select required aria-label="出生小時（24 小時制）" value={birthHour} onChange={(e) => updateBirthTime(e.target.value, birthMinute)} className="vedic-input">
+                  <option value="">小時</option>
+                  {Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, '0')).map((hour) => <option key={hour} value={hour}>{hour} 時</option>)}
+                </select>
+                <select required aria-label="出生分鐘" value={birthMinute} onChange={(e) => updateBirthTime(birthHour, e.target.value)} className="vedic-input">
+                  <option value="">分鐘</option>
+                  {Array.from({ length: 60 }, (_, minute) => String(minute).padStart(2, '0')).map((minute) => <option key={minute} value={minute}>{minute} 分</option>)}
+                </select>
+              </div>
+              <p className="mt-2 text-xs text-violet-200/45">24 小時制，例如晚上 8:30 請選擇 20 時 30 分。</p>
             </Field>
             <Field label="出生地點" wide>
               <div className="relative"><MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-200/55" /><input type="text" required maxLength={160} placeholder="例如：台北市, 台灣" value={form.birthPlace} onChange={(e) => setForm({ ...form, birthPlace: e.target.value })} className="vedic-input pl-12" /></div>
