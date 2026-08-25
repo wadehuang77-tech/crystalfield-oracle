@@ -293,7 +293,7 @@ export default function VedicAstrologyPage() {
           </section>
         )}
 
-        {reportLoading && <div className="mt-16 flex items-center justify-center gap-3 text-violet-100/70"><Loader2 className="animate-spin" />正在展開已解鎖的人生地圖…</div>}
+        {reportLoading && <div className="mt-16 flex flex-col items-center justify-center gap-3 text-center text-violet-100/70"><div className="flex items-center gap-3"><Loader2 className="animate-spin" />正在展開已解鎖的人生地圖…</div><p className="text-sm text-violet-100/50">深度報告通常需要約 1～2 分鐘，請保持此頁開啟。</p></div>}
         {report && <PaidReport report={report} />}
       </main>
     </div>
