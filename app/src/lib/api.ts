@@ -347,25 +347,11 @@ export interface VedicReport {
   formatVersion?: number;
   title: string;
   introduction: string;
+  consultationQuestion?: string;
   sections: Array<{
     heading: string;
-    conclusion?: string;
-    strengths?: string[];
-    risks?: string[];
-    examples?: string[];
-    actions?: string[];
-    direction?: string;
-    evidence?: Array<{ factor: string; value: string; relevance: string }>;
-    analysisBlocks?: Array<{ label: string; content: string }>;
-    depth?: { surface: string; deeperCause: string; unchangedCost: string };
-    coreTension?: { sideA: string; sideB: string; astrologicalBasis: string[]; lifeEffect: string; integration: string };
-    reasoningBasis?: Array<{ factor: string; technicalMeaning: string; lifeMeaning: string; contribution: string }>;
-    adjustments?: Array<{ problem: string; astrologicalCause: string; realLifeEffect: string; action: string }>;
-    confidence?: 'high' | 'medium' | 'low';
-    confidenceReason?: string;
-    transition?: { pastPattern: string; currentBlock: string; futurePattern: string };
-    d9Evolution?: { earlyPattern: string; maturePattern: string; transition: string; relationshipLesson: string };
-    d10Comparison?: { natalCareerTheme: string; professionalExpression: string; alignment: 'aligned' | 'mixed' | 'conflicted'; interpretation: string };
+    consultation: string;
+    evidence: Array<{ factor: string; value: string; relevance: string }>;
     timeline?: Array<{
       id: string;
       mahaDasha: string;
@@ -376,22 +362,10 @@ export interface VedicReport {
       analysisStartDate?: string;
       analysisEndDate?: string;
       interpretation: {
-        theme: string;
-        overall: string;
-        career: { trend: string; advice: string[]; avoid: string[] };
-        wealth: { trend: string; advice: string[]; avoid: string[] };
-        relationship: { trend: string; advice: string[]; avoid: string[] };
-        growth: { trend: string };
-        opportunityScores: { career: number; wealth: number; relationship: number; growth: number };
-        turningPoint: { isImportant: boolean; reason: string };
-        annualFocus: Array<{ year: number; priority: string; why: string }>;
-        confidence: 'high' | 'medium' | 'low';
-        confidenceReason: string;
-        why: string;
-        keyMessage: string;
+        consultation: string;
+        evidence: Array<{ factor: string; value: string; relevance: string }>;
       };
     }>;
-    body?: string;
   }>;
   closing: string;
 }

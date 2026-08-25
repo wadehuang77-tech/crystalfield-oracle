@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
-  AlertTriangle,
   CircleDollarSign,
   Clock3,
   Briefcase,
@@ -385,34 +384,16 @@ function PaidReport({ report }: { report: VedicReport }) {
     <p className="mx-auto mt-8 max-w-4xl whitespace-pre-line text-lg leading-9 text-violet-50/75">{report.introduction}</p>
     <div className="mx-auto mt-10 max-w-5xl space-y-7">{report.sections.map((section, index) => <article key={`${section.heading}-${index}`} className="rounded-2xl border border-violet-300/15 bg-violet-950/25 p-6 sm:p-8">
       <h3 className="font-serif text-2xl text-amber-100">{section.heading}</h3>
-      {section.conclusion ? <>
-        <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/8 p-5"><p className="text-xs font-semibold tracking-[0.18em] text-amber-300/65">一句話結論</p><p className="mt-2 text-lg font-medium leading-8 text-amber-50">{section.conclusion}</p></div>
-        {section.analysisBlocks?.length ? <DeepSectionContent section={section} /> : <div className="mt-6 grid gap-5 lg:grid-cols-2"><ReportList title="你的優勢" items={section.strengths} tone="positive" /><ReportList title="弱點／容易踩的坑" items={section.risks} tone="warning" /><ReportList title="現實中可能怎麼發生" items={section.examples} tone="neutral" /><ReportList title="具體改善方法" items={section.actions} tone="action" /></div>}
-        {section.transition && <div className="mt-6 grid gap-3 md:grid-cols-3"><TransitionCard label="你過去習慣" text={section.transition.pastPattern} /><TransitionCard label="現在容易卡住" text={section.transition.currentBlock} /><TransitionCard label="未來應發展" text={section.transition.futurePattern} /></div>}
-        {section.timeline?.length ? <div className="mt-7 space-y-5"><h4 className="font-serif text-xl text-fuchsia-100">未來 3～5 年大運時間軸</h4><ForecastOverview periods={section.timeline} />{section.timeline.map((period) => <ForecastCard key={period.id} period={period} />)}</div> : null}
-        <div className="mt-6 rounded-2xl border border-fuchsia-300/15 bg-fuchsia-400/8 p-5"><p className="text-xs font-semibold tracking-[0.18em] text-fuchsia-200/65">最適合你的方向</p><p className="mt-2 leading-7 text-violet-50/80">{section.direction}</p></div>
-        {!section.reasoningBasis?.length && section.evidence?.length ? <details className="mt-5 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/50"><summary className="cursor-pointer text-violet-100/65">查看本段星盤依據</summary><ul className="mt-3 space-y-3">{section.evidence.map((item, evidenceIndex) => <li key={`${item.factor}-${evidenceIndex}`}><strong className="text-violet-100/75">{item.factor}：{item.value}</strong><p className="mt-1 leading-6">{item.relevance}</p></li>)}</ul></details> : null}
-      </> : <p className="mt-4 whitespace-pre-line leading-8 text-violet-50/72">{section.body}</p>}
+      <p className="mt-5 whitespace-pre-line text-base leading-8 text-violet-50/78 sm:text-lg sm:leading-9">{section.consultation}</p>
+      {section.timeline?.length ? <div className="mt-8 space-y-5"><h4 className="font-serif text-xl text-fuchsia-100">未來 3～5 年大運時間軸</h4><ForecastOverview periods={section.timeline} />{section.timeline.map((period) => <ForecastCard key={period.id} period={period} />)}</div> : null}
+      {section.evidence.length ? <EvidenceDetails evidence={section.evidence} /> : null}
     </article>)}</div>
     {report.closing && <p className="mx-auto mt-10 max-w-3xl border-t border-amber-200/15 pt-7 text-center leading-8 text-amber-50/65">{report.closing}</p>}
   </section>;
 }
 
-function ReportList({ title, items = [], tone }: { title: string; items?: string[]; tone: 'positive' | 'warning' | 'neutral' | 'action' }) {
-  const colors = tone === 'positive' ? 'border-emerald-300/15 bg-emerald-400/5 text-emerald-100'
-    : tone === 'warning' ? 'border-rose-300/15 bg-rose-400/5 text-rose-100'
-      : tone === 'action' ? 'border-cyan-300/15 bg-cyan-400/5 text-cyan-100'
-        : 'border-violet-300/15 bg-violet-400/5 text-violet-100';
-  return <section className={`rounded-2xl border p-5 ${colors}`}><h4 className="font-serif text-lg">{title}</h4><ul className="mt-3 space-y-3">{items.map((item, index) => <li key={`${item}-${index}`} className="flex gap-3 text-sm leading-6 text-white/70">{tone === 'warning' ? <AlertTriangle className="mt-1 h-4 w-4 shrink-0" /> : <Check className="mt-1 h-4 w-4 shrink-0" />}<span>{item}</span></li>)}</ul></section>;
-}
-
-function DeepSectionContent({ section }: { section: VedicReport['sections'][number] }) {
-  const confidence = section.confidence === 'high' ? '較強' : section.confidence === 'medium' ? '中等' : '有限';
-  return <div className="mt-6 space-y-5"><div className="grid gap-4 md:grid-cols-2">{section.analysisBlocks?.map((block, index) => <section key={`${block.label}-${index}`} className={`${index % 3 === 0 ? 'md:col-span-2' : ''} rounded-2xl border border-violet-300/15 bg-white/[0.025] p-5`}><h4 className="font-serif text-lg text-fuchsia-100">{block.label}</h4><p className="mt-2 leading-7 text-white/68">{block.content}</p></section>)}</div>{section.depth && <section className="grid gap-3 md:grid-cols-3"><TransitionCard label="你看到的表面" text={section.depth.surface} /><TransitionCard label="盤裡更深的原因" text={section.depth.deeperCause} /><TransitionCard label="如果持續不改" text={section.depth.unchangedCost} /></section>}{section.d9Evolution && <section className="grid gap-3 md:grid-cols-2"><TransitionCard label="年輕時的關係模式" text={section.d9Evolution.earlyPattern} /><TransitionCard label="成熟後真正重視的事" text={section.d9Evolution.maturePattern} /><TransitionCard label="D1 到 D9 的轉變" text={section.d9Evolution.transition} /><TransitionCard label="長期關係功課" text={section.d9Evolution.relationshipLesson} /></section>}{section.d10Comparison && <section className="grid gap-3 md:grid-cols-2"><TransitionCard label="D1：職涯核心動機" text={section.d10Comparison.natalCareerTheme} /><TransitionCard label="D10：社會角色表現" text={section.d10Comparison.professionalExpression} /><div className="md:col-span-2"><TransitionCard label={`兩者關係：${section.d10Comparison.alignment === 'aligned' ? '方向一致' : section.d10Comparison.alignment === 'conflicted' ? '存在落差' : '部分一致'}`} text={section.d10Comparison.interpretation} /></div></section>}{section.coreTension && <section className="rounded-2xl border border-amber-300/20 bg-amber-300/5 p-5"><h4 className="font-serif text-xl text-amber-100">這一區真正存在的內在拉扯</h4><p className="mt-3 text-white/70">一方面：{section.coreTension.sideA}</p><p className="mt-2 text-white/70">另一方面：{section.coreTension.sideB}</p><p className="mt-3 leading-7 text-white/60">現實影響：{section.coreTension.lifeEffect}</p><p className="mt-2 leading-7 text-amber-50/75">整合方式：{section.coreTension.integration}</p></section>}{section.adjustments?.length ? <section className="space-y-3"><h4 className="font-serif text-xl text-cyan-100">對應命盤模式的調整方法</h4>{section.adjustments.map((item, index) => <div key={`${item.problem}-${index}`} className="rounded-xl border border-cyan-300/15 bg-cyan-400/5 p-4"><p className="font-medium text-white/75">{item.problem}</p><p className="mt-2 text-sm text-white/55">星盤原因：{item.astrologicalCause}</p><p className="mt-1 text-sm text-white/55">生活影響：{item.realLifeEffect}</p><p className="mt-2 text-sm text-cyan-100/80">建議：{item.action}</p></div>)}</section> : null}{section.reasoningBasis?.length ? <details className="rounded-xl border border-white/10 px-4 py-3"><summary className="cursor-pointer text-violet-100/70">為什麼會這樣？・判讀依據：{confidence}</summary><div className="mt-2 text-xs text-white/45">{section.confidenceReason}</div><div className="mt-3 space-y-4">{section.reasoningBasis.map((item, index) => <div key={`${item.factor}-${index}`} className="text-sm leading-6 text-white/55"><strong className="text-violet-100/75">{item.factor}：{item.technicalMeaning}</strong><p className="mt-1">白話意義：{item.lifeMeaning}</p><p>如何形成結論：{item.contribution}</p></div>)}</div></details> : null}</div>;
-}
-
-function TransitionCard({ label, text }: { label: string; text: string }) {
-  return <div className="rounded-2xl border border-cyan-300/15 bg-cyan-400/5 p-4"><p className="text-xs tracking-[0.15em] text-cyan-200/60">{label}</p><p className="mt-2 text-sm leading-6 text-white/70">{text}</p></div>;
+function EvidenceDetails({ evidence }: { evidence: Array<{ factor: string; value: string; relevance: string }> }) {
+  return <details className="mt-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/50"><summary className="cursor-pointer text-violet-100/65">本段主要參考星盤配置</summary><ul className="mt-3 space-y-3">{evidence.map((item, index) => <li key={`${item.factor}-${index}`}><strong className="text-violet-100/75">{item.factor}：{item.value}</strong><p className="mt-1 leading-6">{item.relevance}</p></li>)}</ul></details>;
 }
 
 function ForecastCard({ period }: { period: NonNullable<VedicReport['sections'][number]['timeline']>[number] }) {
@@ -420,26 +401,13 @@ function ForecastCard({ period }: { period: NonNullable<VedicReport['sections'][
   return <article className="rounded-2xl border border-fuchsia-300/20 bg-slate-950/50 p-5 sm:p-6">
     <p className="text-sm text-amber-200/65">{period.analysisStartDate || period.startDate} ～ {period.analysisEndDate || period.endDate}</p>
     <h5 className="mt-2 font-serif text-2xl text-amber-100">{period.displayLabel}</h5>
-    <div className="mt-4 rounded-xl border border-violet-300/15 bg-violet-400/5 p-4"><p className="text-xs tracking-[0.15em] text-fuchsia-200/65">這段時間的主題</p><p className="mt-2 text-lg text-violet-50">{interpretation.theme}</p><p className="mt-2 leading-7 text-white/65">{interpretation.overall}</p></div>
-    <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><ScoreStars label="事業" score={interpretation.opportunityScores.career} /><ScoreStars label="財運" score={interpretation.opportunityScores.wealth} /><ScoreStars label="感情" score={interpretation.opportunityScores.relationship} /><ScoreStars label="成長" score={interpretation.opportunityScores.growth} /></div>
-    {interpretation.turningPoint.isImportant && <div className="mt-4 rounded-xl border border-amber-300/25 bg-amber-300/10 p-4"><p className="font-serif text-lg text-amber-100">重要轉折期</p><p className="mt-2 text-sm leading-6 text-white/65">{interpretation.turningPoint.reason}</p></div>}
-    {interpretation.annualFocus.length ? <div className="mt-4 grid gap-3 sm:grid-cols-2">{interpretation.annualFocus.map((item) => <div key={`${period.id}-${item.year}`} className="rounded-xl border border-violet-300/10 bg-violet-400/5 p-4"><p className="font-medium text-fuchsia-100">{item.year} 最重要的是：{item.priority}</p><p className="mt-2 text-xs leading-5 text-white/55">{item.why}</p></div>)}</div> : null}
-    <div className="mt-5 grid gap-4 lg:grid-cols-3"><ForecastDomain label="事業" value={interpretation.career} /><ForecastDomain label="財運" value={interpretation.wealth} /><ForecastDomain label="感情" value={interpretation.relationship} /></div>
-    <div className="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-400/5 p-4"><p className="font-medium text-cyan-100">個人成長</p><p className="mt-2 text-sm leading-6 text-white/65">{interpretation.growth.trend}</p></div>
-    <div className="mt-4 grid gap-4 sm:grid-cols-2"><div className="rounded-xl bg-white/[0.035] p-4"><p className="font-medium text-fuchsia-100">為什麼？・判讀依據：{interpretation.confidence === 'high' ? '較強' : interpretation.confidence === 'medium' ? '中等' : '有限'}</p><p className="mt-1 text-xs text-white/40">{interpretation.confidenceReason}</p><p className="mt-2 text-sm leading-6 text-white/60">{interpretation.why}</p></div><div className="rounded-xl border border-amber-300/15 bg-amber-300/5 p-4"><p className="font-medium text-amber-100">一句話提醒</p><p className="mt-2 text-sm leading-6 text-white/70">{interpretation.keyMessage}</p></div></div>
+    <p className="mt-5 whitespace-pre-line text-base leading-8 text-violet-50/75 sm:text-lg sm:leading-9">{interpretation.consultation}</p>
+    {interpretation.evidence.length ? <EvidenceDetails evidence={interpretation.evidence} /> : null}
   </article>;
 }
 
 function ForecastOverview({ periods }: { periods: NonNullable<VedicReport['sections'][number]['timeline']> }) {
-  return <div className="overflow-x-auto rounded-2xl border border-violet-300/15"><table className="min-w-[760px] w-full text-left text-xs"><thead className="bg-violet-400/10 text-violet-100/70"><tr><th className="p-3">時間</th><th className="p-3">大運／次運</th><th className="p-3">主題</th><th className="p-3">事業</th><th className="p-3">財運</th><th className="p-3">感情</th><th className="p-3">策略</th></tr></thead><tbody>{periods.map((period) => <tr key={`overview-${period.id}`} className="border-t border-white/5 text-white/60"><td className="p-3">{period.analysisStartDate || period.startDate}<br />～ {period.analysisEndDate || period.endDate}</td><td className="p-3 text-amber-100/80">{period.displayLabel}</td><td className="max-w-48 p-3">{period.interpretation.theme}</td><td className="p-3">{period.interpretation.opportunityScores.career}／5</td><td className="p-3">{period.interpretation.opportunityScores.wealth}／5</td><td className="p-3">{period.interpretation.opportunityScores.relationship}／5</td><td className="max-w-52 p-3">{period.interpretation.keyMessage}</td></tr>)}</tbody></table></div>;
-}
-
-function ForecastDomain({ label, value }: { label: string; value: { trend: string; advice: string[]; avoid: string[] } }) {
-  return <section className="rounded-xl border border-white/10 bg-white/[0.025] p-4"><h6 className="font-serif text-lg text-fuchsia-100">{label}</h6><p className="mt-2 text-sm leading-6 text-white/65">{value.trend}</p><p className="mt-4 text-xs font-medium text-emerald-200/80">最適合做</p><ul className="mt-2 space-y-2">{value.advice.map((item) => <li key={item} className="flex gap-2 text-xs leading-5 text-white/60"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />{item}</li>)}</ul><p className="mt-4 text-xs font-medium text-rose-200/80">最需要避免</p><ul className="mt-2 space-y-2">{value.avoid.map((item) => <li key={item} className="flex gap-2 text-xs leading-5 text-white/60"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-300" />{item}</li>)}</ul></section>;
-}
-
-function ScoreStars({ label, score }: { label: string; score: number }) {
-  return <div className="rounded-xl border border-amber-300/10 bg-amber-300/5 p-3 text-center"><p className="text-xs text-white/50">{label}</p><p className="mt-1 tracking-wider text-amber-300" aria-label={`${label} ${score} 星`}>{'★'.repeat(score)}<span className="text-white/15">{'★'.repeat(5 - score)}</span></p></div>;
+  return <div className="overflow-x-auto rounded-2xl border border-violet-300/15"><table className="min-w-[520px] w-full text-left text-sm"><thead className="bg-violet-400/10 text-violet-100/70"><tr><th className="p-3">時間</th><th className="p-3">大運／次運</th></tr></thead><tbody>{periods.map((period) => <tr key={`overview-${period.id}`} className="border-t border-white/5 text-white/60"><td className="p-3">{period.analysisStartDate || period.startDate} ～ {period.analysisEndDate || period.endDate}</td><td className="p-3 text-amber-100/80">{period.displayLabel}</td></tr>)}</tbody></table></div>;
 }
 
 function CosmicBackground() {

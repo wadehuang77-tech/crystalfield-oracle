@@ -40,20 +40,20 @@ for (const heading of [
 }
 assert.match(source, /loadCurrentTransits/);
 assert.match(source, /current_transits/);
-assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 5/);
-for (const field of ['conclusion', 'strengths', 'risks', 'examples', 'actions', 'direction', 'evidence', 'transition', 'timeline']) {
+assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 6/);
+for (const field of ['consultation', 'evidence', 'timeline']) {
   assert.match(source, new RegExp(field), `missing structured report field: ${field}`);
 }
 assert.match(source, /reportHasDuplicateSentences/);
 assert.match(source, /validStructuredSection/);
-assert.match(source, /第4項綜合D1第7宮、第7宮主、金星、木星、月亮、羅喉計都、D9與大運/);
-assert.match(source, /第7項將D9與D1交叉/);
-assert.match(source, /第8項將D10、D1第10宮與目前大運交叉/);
-assert.match(source, /第9項的時間骨架已由 forecastPeriods 固定建立/);
+assert.match(source, /最高原則：不要問這個星體代表什麼/);
+assert.match(source, /自然比較 D1 的早期關係反應與 D9/);
+assert.match(source, /自然比較 D1 的職涯動機與 D10/);
+assert.match(source, /forecast_periods 是程式固定骨架/);
 assert.match(source, /buildVedicForecastPeriods/);
 assert.match(source, /mergeVedicForecastInterpretations/);
 assert.match(source, /VEDIC_FORECAST_MISSING_ANTARDASHA/);
-assert.match(source, /不得新增、刪除、合併、拆分、排序或修改 forecastPeriods/);
+assert.match(source, /不得增加、刪除、合併、改序或改日期/);
 assert.match(source, /chart,/);
 assert.match(source, /current_transits: transits/);
 assert.match(source, /existingNeedsRefresh/);
