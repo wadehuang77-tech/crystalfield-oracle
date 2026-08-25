@@ -4,6 +4,8 @@ import {
   Check,
   CircleDollarSign,
   Clock3,
+  Briefcase,
+  Gem,
   HeartHandshake,
   History,
   Loader2,
@@ -11,6 +13,7 @@ import {
   MoonStar,
   Orbit,
   Route,
+  Scale,
   Sparkles,
   Stars,
 } from 'lucide-react';
@@ -35,22 +38,35 @@ const PLANET_ZH: Record<string, string> = {
   Venus: '金星', Saturn: '土星', Rahu: '羅喉', Ketu: '計都',
 };
 
+const SIGN_ORDER = [
+  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
+] as const;
+
+const NAKSHATRA_ZH: Record<string, string> = {
+  Ashwini: '阿濕毗尼', Bharani: '婆羅尼', Krittika: '基栗底柯', Rohini: '婁西尼',
+  Mrigashira: '鹿首', Ardra: '阿陀羅', Punarvasu: '復增', Pushya: '普沙', Ashlesha: '阿濕萊沙',
+  Magha: '摩伽', Hasta: '哈斯塔', Chitra: '質多羅', Swati: '斯瓦提', Vishakha: '毗舍佉',
+  Anuradha: '阿奴羅陀', Jyeshtha: '哲逝陀', Mula: '根本', Shravana: '室羅伐拏',
+  Dhanishta: '陀尼須陀', Shatabhisha: '百醫', Satabhisha: '百醫', Revati: '雷瓦蒂',
+};
+
 const PAID_OPTIONS = [
   {
     id: 'vedic_complete',
     title: '完整人生地圖',
-    subtitle: '6 大人生問題＋第 7 項靈魂業力總結',
+    subtitle: '9 大印度占星深度解析',
     price: 999,
     icon: Sparkles,
     featured: true,
-    description: '一次解鎖七個彼此連結的深度章節，從前世慣性與今生課題，一路看見使命、關係、財富事業、未來時間軸，以及整合全盤的靈魂訊息。',
-    bullets: ['七個章節一次完整解鎖', '每一章皆以你的真實出生星盤為依據', '未來時間軸結合大運、次週期與當下行運', '用生活語言解讀，不需要先懂占星名詞'],
+    description: '一次解鎖前世業力、今生課題、靈魂軸線、愛情婚姻、財富、事業，以及 D9、D10 分盤與未來 3～5 年大運時間軸。',
+    bullets: ['九個章節一次完整解鎖', 'D9 與 D10 使用真實分盤資料', '未來 3～5 年結合大運、次週期與當下行運', '用生活語言解讀，不需要先懂占星名詞'],
   },
 ] as const;
 
 const LIFE_QUESTIONS = [
   {
-    number: '01', title: '前世因果與業力', badge: '主打', icon: History,
+    number: '01', title: '前世業力', badge: '主打', icon: History,
     prompt: '你帶著什麼來到今生？',
     description: '從羅喉、計都、宮位、星座、宮主星與相關相位，看見熟悉的生命慣性，以及今生真正需要前往的方向。',
     points: ['前世可能累積的生命模式', '反覆出現的關係與課題', '需要離開的舒適圈', '今生需要完成的業力轉化'],
@@ -62,28 +78,46 @@ const LIFE_QUESTIONS = [
     points: ['靈魂核心課題', '必須學會與放下的模式', '反覆出現的生命考驗', '你的今生核心課題一句話'],
   },
   {
-    number: '03', title: '天賦、使命與人生方向', icon: Sparkles,
-    prompt: '我這輩子適合成為什麼樣的人？',
-    description: '不只列出適合職業，而是看懂你的優勢、隱藏才能、工作方式與最容易產生成就感的道路。',
-    points: ['天生優勢與隱藏才能', '創業或上班傾向', '教學、療癒、管理、創作或商業潛能', '你的靈魂原型'],
+    number: '03', title: '羅喉／計都靈魂軸線', badge: '印度占星核心', icon: Orbit,
+    prompt: '我從哪裡來，又要往哪裡去？',
+    description: '從計都看熟悉慣性，從羅喉看今生需要勇敢發展的新方向。',
+    points: ['靈魂熟悉的能力與慣性', '今生的成長方向', '業力關係的發生領域', '兩端能量的整合方法'],
   },
   {
-    number: '04', title: '感情、婚姻與業力關係', icon: HeartHandshake,
+    number: '04', title: '愛情與婚姻', icon: HeartHandshake,
     prompt: '為什麼總是遇到某一類型的人？',
     description: '看見吸引模式、關係中的業力功課、伴侶傾向，以及較可能出現感情轉折的生命窗口。',
     points: ['容易被什麼類型吸引', '感情中的業力模式', '關係與婚姻的核心功課', '感情能量較強的時間窗口'],
   },
   {
-    number: '05', title: '財富與事業業力', icon: CircleDollarSign,
+    number: '05', title: '財富模式', icon: CircleDollarSign,
     prompt: '為什麼很努力，財富卻一直留不住？',
     description: '從賺錢能力、金錢恐懼與事業慣性，找出更適合你的財富道路與擴張節奏。',
-    points: ['財富模式與賺錢天賦', '容易失財的慣性', '事業業力與創業能力', '財富較容易擴張的生命階段'],
+    points: ['財富模式與賺錢天賦', '容易失財的慣性', '金錢恐懼與執著', '財富較容易擴張的生命階段'],
   },
   {
-    number: '06', title: '未來人生時間軸', badge: '高價核心', icon: Clock3,
+    number: '06', title: '事業天賦', icon: Briefcase,
+    prompt: '我適合如何建立專業與影響力？',
+    description: '區分天生能力、工作方式與長期成就路徑，找到更適合自己的事業角色。',
+    points: ['隱藏能力與專業優勢', '上班或創業傾向', '適合的負責與領導方式', '最有成就感的事業道路'],
+  },
+  {
+    number: '07', title: 'D9 婚姻／靈魂成熟度', icon: Gem,
+    prompt: '關係與歲月，會如何讓我越來越成熟？',
+    description: '透過 D9 九分盤觀察承諾、婚姻、內在價值與靈魂經過歲月後展現的成熟品質。',
+    points: ['D9 上升與核心成熟方向', '關係中的承諾與價值觀', '金星與月亮的感情需求', '婚姻不同階段的成長課題'],
+  },
+  {
+    number: '08', title: 'D10 事業分盤', icon: Scale,
+    prompt: '我如何在現實世界建立事業位置？',
+    description: '透過 D10 十分盤觀察職涯成熟、社會責任、領導方式與專業影響力的建立路徑。',
+    points: ['D10 上升與職涯角色', '太陽與土星的成就方式', '專業發展與組織位置', '長期可累積的影響力'],
+  },
+  {
+    number: '09', title: '未來 3～5 年大運時間軸', badge: '高價核心', icon: Clock3,
     prompt: '你現在走到人生哪一章？',
-    description: '結合印度占星大運、次週期與當下行運，整理未來年度節奏，以及接下來十二個月的重要能量窗口。',
-    points: ['目前人生週期', '未來年度轉換與擴張節奏', '事業、感情與財富窗口', '適合重大決定的準備期'],
+    description: '結合大運、次週期與當下行運，整理未來三至五年的轉換、準備與擴張節奏。',
+    points: ['目前人生章節', '未來 3～5 年年度節奏', '事業、感情與財富窗口', '適合重大決定的準備期'],
   },
 ] as const;
 
@@ -243,16 +277,10 @@ export default function VedicAstrologyPage() {
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">
-            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">完整深度解析</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">6 大人生問題＋靈魂業力總結</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">不需要先理解艱深的印度占星名詞。從你真正想知道的人生問題出發，再由出生星盤整理成一份完整而可行動的生命地圖。</p></div>
+            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">完整深度解析</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">9 大印度占星深度解析</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">從本命盤、羅喉計都、大運一路深入 D9 婚姻成熟分盤與 D10 事業分盤，建立有別於一般西方占星的完整人生地圖。</p></div>
             <div className="mt-10 grid gap-5 md:grid-cols-2">
               {LIFE_QUESTIONS.map((question) => <LifeQuestionCard key={question.number} {...question} />)}
             </div>
-            <article className="mt-5 rounded-[1.75rem] border border-amber-300/35 bg-gradient-to-r from-amber-950/25 via-violet-950/45 to-fuchsia-950/25 p-6 shadow-[0_0_45px_rgba(251,191,36,0.1)] sm:p-8">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-amber-200/30 bg-amber-300/10 font-serif text-xl text-amber-100">07</span>
-                <div><div className="flex flex-wrap items-center gap-3"><h3 className="font-serif text-2xl text-amber-50">靈魂業力總結</h3><span className="rounded-full border border-fuchsia-200/25 bg-fuchsia-400/10 px-3 py-1 text-xs text-fuchsia-100">AI 全盤整合</span></div><p className="mt-3 leading-7 text-violet-50/70">整合前六章，不再重複解釋單一行星，而是直接回答：你從哪裡來、為什麼來、要學會什麼、什麼正在阻礙你，以及你正往哪裡去。</p><p className="mt-4 font-serif text-lg text-amber-100">給你今生的靈魂訊息</p><p className="mt-2 text-sm leading-6 text-white/50">星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。</p></div>
-              </div>
-            </article>
             <div className="mx-auto mt-10 max-w-3xl">
               {PAID_OPTIONS.map((option) => <PaidOption key={option.id} {...option} loading={checkoutLoading === option.id} disabled={!!checkoutLoading} onClick={() => void checkout(option.id)} />)}
             </div>
@@ -275,18 +303,55 @@ function FreeResults({ chart }: { chart: VedicChartResponse }) {
   return (
     <section id="vedic-free-results" className="mt-20 scroll-mt-24">
       <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">免費靈魂地圖</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">你的免費印度占星指引</h2><p className="mt-4 text-sm text-violet-100/55">專業星曆計算 · 拉希里恆星黃道</p></div>
-      <div className="mx-auto mt-8 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <ChartBadge label="上升" value={SIGN_ZH[chart.chart.lagna] || chart.chart.lagna} />
         <ChartBadge label="月亮" value={SIGN_ZH[chart.chart.moonSign] || chart.chart.moonSign} />
+        <ChartBadge label="月宿 Nakshatra" value={formatNakshatra(chart.chart.moonNakshatra)} />
         <ChartBadge label="太陽" value={SIGN_ZH[chart.chart.sunSign] || chart.chart.sunSign} />
         <ChartBadge label="目前大運" value={PLANET_ZH[chart.chart.mahaDasha] || chart.chart.mahaDasha} />
+        <ChartBadge label="次週期" value={chart.chart.antarDasha ? (PLANET_ZH[chart.chart.antarDasha] || chart.chart.antarDasha) : '計算中'} />
       </div>
+      <BirthChart chart={chart.chart} />
       <div className="mt-9 grid gap-5 lg:grid-cols-3">
         <ResultCard number="01" eyebrow="人格原型" title={result.archetype.title} body={result.archetype.body} />
         <ResultCard number="02" eyebrow="今生天賦" title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
         <ResultCard number="03" eyebrow="行星週期" title={result.currentCycle.title} body={result.currentCycle.body} />
       </div>
     </section>
+  );
+}
+
+function formatNakshatra(value: string) {
+  const name = value.split(/\s+-\s+|\s+Pada\s+/i)[0].trim();
+  return `${NAKSHATRA_ZH[name] || name}月宿`;
+}
+
+function BirthChart({ chart }: { chart: VedicChartResponse['chart'] }) {
+  const lagnaIndex = SIGN_ORDER.indexOf(chart.lagna as typeof SIGN_ORDER[number]);
+  return (
+    <article className="mx-auto mt-8 max-w-5xl rounded-[1.75rem] border border-amber-300/25 bg-slate-950/55 p-5 shadow-[0_0_45px_rgba(251,191,36,0.08)] sm:p-8">
+      <div className="text-center">
+        <p className="text-xs tracking-[0.25em] text-amber-300/55">出生盤 · D1 本命盤</p>
+        <h3 className="mt-2 font-serif text-2xl text-amber-50">你的印度占星出生盤</h3>
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 12 }, (_, index) => {
+          const house = index + 1;
+          const sign = lagnaIndex >= 0 ? SIGN_ORDER[(lagnaIndex + index) % 12] : '';
+          const planets = Object.entries(chart.housePlacements)
+            .filter(([, planetHouse]) => planetHouse === house)
+            .map(([planet]) => PLANET_ZH[planet] || planet);
+          return (
+            <div key={house} className="min-h-28 rounded-2xl border border-violet-300/15 bg-violet-950/30 p-4">
+              <div className="flex items-center justify-between text-xs text-violet-200/45"><span>第 {house} 宮</span>{house === 1 && <span className="text-amber-200">上升</span>}</div>
+              <p className="mt-2 font-serif text-lg text-amber-50">{SIGN_ZH[sign] || sign}</p>
+              <p className="mt-3 text-sm leading-6 text-fuchsia-100/70">{planets.length ? planets.join('・') : '—'}</p>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-5 text-center text-xs leading-5 text-white/35">依拉希里恆星黃道計算；宮位與行星位置供自我探索參考。</p>
+    </article>
   );
 }
 

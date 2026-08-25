@@ -19,17 +19,22 @@ for (const [productId, price] of Object.entries(expectedPrices)) {
 
 const source = readFileSync(new URL('../src/vedicAstrology.ts', import.meta.url), 'utf8');
 assert.match(source, /DasaAtRange/);
+assert.match(source, /AllPlanetLongitude/);
+assert.match(source, /AllHouseLongitudes/);
+assert.match(source, /deriveDivisionalCharts/);
 assert.match(source, /housePlacements/);
 assert.match(source, /houseLords/);
 assert.match(source, /karmaAspects/);
 for (const heading of [
-  '① 前世因果與業力',
+  '① 前世業力',
   '② 今生的人生課題',
-  '③ 天賦、使命與人生方向',
-  '④ 感情、婚姻與業力關係',
-  '⑤ 財富與事業業力',
-  '⑥ 未來人生時間軸',
-  '⑦ 靈魂業力總結',
+  '③ 羅喉／計都靈魂軸線',
+  '④ 愛情與婚姻',
+  '⑤ 財富模式',
+  '⑥ 事業天賦',
+  '⑦ D9 婚姻／靈魂成熟度',
+  '⑧ D10 事業分盤',
+  '⑨ 未來 3～5 年大運時間軸',
 ]) {
   assert.match(source, new RegExp(heading), `missing complete report heading: ${heading}`);
 }
@@ -37,9 +42,8 @@ assert.match(source, /loadCurrentTransits/);
 assert.match(source, /current_transits/);
 assert.match(source, /COMPLETE_LIFE_QUESTION_MIN_CHARS = 280/);
 assert.match(source, /COMPLETE_LIFE_QUESTION_MAX_CHARS = 350/);
-assert.match(source, /前六個人生問題，每一項正文必須生成 280 至 350 個中文字/);
-assert.match(source, /scope === 'complete' && index < 6/);
-assert.match(source, /index < 6[\s\S]*COMPLETE_LIFE_QUESTION_MIN_CHARS/);
+assert.match(source, /完整人生地圖 complete 共九項，每一項正文必須生成 280 至 350 個中文字/);
+assert.match(source, /scope === 'complete'/);
 assert.match(source, /section\.body\.length > COMPLETE_LIFE_QUESTION_MAX_CHARS/);
 assert.match(source, /existingNeedsRefresh/);
 assert.match(source, /FREE_READING_MIN_CHARS = 250/);

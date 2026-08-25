@@ -18,7 +18,6 @@ const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
 const COMPLETE_LIFE_QUESTION_MIN_CHARS = 280;
 const COMPLETE_LIFE_QUESTION_MAX_CHARS = 350;
-const COMPLETE_SUMMARY_MIN_CHARS = 200;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
   'soul_karma', 'life_full', 'complete',
@@ -33,6 +32,12 @@ export interface VedicChartData {
   moonSign: string;
   moonNakshatra: string;
   planets: Record<string, string>;
+  planetLongitudes: Record<string, number>;
+  lagnaLongitude: number;
+  divisionalCharts: {
+    d9: { lagna: string; planets: Record<string, string> };
+    d10: { lagna: string; planets: Record<string, string> };
+  };
   mahaDasha: string;
   antarDasha: string | null;
   dashaTimeline: Array<{
@@ -199,11 +204,28 @@ function hydrateChartData(chart: VedicChartData): VedicChartData {
   const context = deriveHouseContext(chart.lagna, chart.planets);
   return {
     ...chart,
+    planetLongitudes: chart.planetLongitudes || {},
+    lagnaLongitude: Number.isFinite(chart.lagnaLongitude) ? chart.lagnaLongitude : 0,
+    divisionalCharts: chart.divisionalCharts || {
+      d9: { lagna: '', planets: {} },
+      d10: { lagna: '', planets: {} },
+    },
     dashaTimeline: Array.isArray(chart.dashaTimeline) ? chart.dashaTimeline : [],
     housePlacements: chart.housePlacements || context.housePlacements,
     houseLords: chart.houseLords || context.houseLords,
     karmaAspects: Array.isArray(chart.karmaAspects) ? chart.karmaAspects : context.karmaAspects,
   };
+}
+
+function publicChartData(chart: VedicChartData): Omit<
+  VedicChartData,
+  'planetLongitudes' | 'lagnaLongitude' | 'divisionalCharts'
+> {
+  const { planetLongitudes, lagnaLongitude, divisionalCharts, ...publicChart } = chart;
+  void planetLongitudes;
+  void lagnaLongitude;
+  void divisionalCharts;
+  return publicChart;
 }
 
 function expandReading(text: string, additions: string[], minChars = FREE_READING_MIN_CHARS): string {
@@ -336,6 +358,63 @@ function parsePlanetSigns(value: unknown): Record<string, string> {
     if (planet && sign) result[planet] = sign;
   }
   return result;
+}
+
+function normalizeLongitude(value: number): number {
+  return ((value % 360) + 360) % 360;
+}
+
+function signAtLongitude(value: number): string {
+  return SIGNS[Math.floor(normalizeLongitude(value) / 30)] || '';
+}
+
+function parsePlanetLongitudes(value: unknown): Record<string, number> {
+  const result: Record<string, number> = {};
+  if (typeof value !== 'string') return result;
+  for (const entry of value.split(',')) {
+    const [rawPlanet, rawLongitude] = entry.split('-').map((part) => part.trim());
+    const longitude = Number(rawLongitude);
+    if (rawPlanet && Number.isFinite(longitude)) result[rawPlanet] = normalizeLongitude(longitude);
+  }
+  return result;
+}
+
+function parseLagnaLongitude(value: unknown): number {
+  if (!Array.isArray(value)) return Number.NaN;
+  const firstHouse = value.find((row) => row && typeof row === 'object'
+    && (row as Record<string, unknown>).House === 'House1') as Record<string, unknown> | undefined;
+  const longitude = Number(firstHouse?.Mid);
+  return Number.isFinite(longitude) ? normalizeLongitude(longitude) : Number.NaN;
+}
+
+function navamshaSign(longitude: number): string {
+  const signIndex = Math.floor(normalizeLongitude(longitude) / 30);
+  const degreesInSign = normalizeLongitude(longitude) % 30;
+  const division = Math.min(8, Math.floor(degreesInSign / (30 / 9)));
+  return SIGNS[(signIndex * 9 + division) % 12];
+}
+
+function dashamshaSign(longitude: number): string {
+  const signIndex = Math.floor(normalizeLongitude(longitude) / 30);
+  const degreesInSign = normalizeLongitude(longitude) % 30;
+  const division = Math.min(9, Math.floor(degreesInSign / 3));
+  const startSign = signIndex % 2 === 0 ? signIndex : (signIndex + 8) % 12;
+  return SIGNS[(startSign + division) % 12];
+}
+
+function deriveDivisionalCharts(lagnaLongitude: number, planetLongitudes: Record<string, number>) {
+  return {
+    d9: {
+      lagna: navamshaSign(lagnaLongitude),
+      planets: Object.fromEntries(Object.entries(planetLongitudes)
+        .map(([planet, longitude]) => [planet, navamshaSign(longitude)])),
+    },
+    d10: {
+      lagna: dashamshaSign(lagnaLongitude),
+      planets: Object.fromEntries(Object.entries(planetLongitudes)
+        .map(([planet, longitude]) => [planet, dashamshaSign(longitude)])),
+    },
+  };
 }
 
 function parseDashaRange(value: unknown): {
@@ -482,10 +561,10 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       Location: birth.Location,
     };
 
-    const [planetRaw, nakshatraRaw, lagnaRaw, dashaRaw] = await Promise.all([
-      vedAstroCall(env, 'AllPlanetRasiSigns', { time: birth, Ayanamsa: 'LAHIRI' }),
+    const [planetLongitudeRaw, nakshatraRaw, houseLongitudeRaw, dashaRaw] = await Promise.all([
+      vedAstroCall(env, 'AllPlanetLongitude', { time: birth, Ayanamsa: 'LAHIRI' }),
       vedAstroCall(env, 'MoonConstellation', { time: birth, Ayanamsa: 'LAHIRI' }),
-      vedAstroCall(env, 'LagnaSignName', { time: birth, Ayanamsa: 'LAHIRI' }),
+      vedAstroCall(env, 'AllHouseLongitudes', { time: birth, Ayanamsa: 'LAHIRI' }),
       vedAstroCall(env, 'DasaAtRange', {
         birthTime: birth,
         startTime: check,
@@ -496,16 +575,21 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       }),
     ]);
 
-    const planets = parsePlanetSigns(planetRaw);
-    const lagna = cleanText(lagnaRaw, 30);
+    const planetLongitudes = parsePlanetLongitudes(planetLongitudeRaw);
+    const planets = Object.fromEntries(Object.entries(planetLongitudes)
+      .map(([planet, longitude]) => [planet, signAtLongitude(longitude)]));
+    const lagnaLongitude = parseLagnaLongitude(houseLongitudeRaw);
+    const lagna = signAtLongitude(lagnaLongitude);
     const moonNakshatra = cleanText(nakshatraRaw, 80);
     const dasha = parseDashaRange(dashaRaw);
-    if (!lagna || !planets.Moon || !planets.Sun || dasha.maha === 'Unknown') throw new Error('VedAstro response incomplete');
+    if (!lagna || !planets.Moon || !planets.Sun || !Number.isFinite(lagnaLongitude) || dasha.maha === 'Unknown') throw new Error('VedAstro response incomplete');
 
     const houseContext = deriveHouseContext(lagna, planets);
     const chart: VedicChartData = {
       ayanamsa: 'LAHIRI', lagna, sunSign: planets.Sun, moonSign: planets.Moon,
-      moonNakshatra, planets, mahaDasha: dasha.maha, antarDasha: dasha.antar,
+      moonNakshatra, planets, planetLongitudes, lagnaLongitude,
+      divisionalCharts: deriveDivisionalCharts(lagnaLongitude, planetLongitudes),
+      mahaDasha: dasha.maha, antarDasha: dasha.antar,
       dashaTimeline: dasha.timeline,
       ...houseContext,
       timezone, timezoneOffset,
@@ -523,7 +607,7 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
     return json(req, env, {
       chart_id: id,
       chart_token: chartToken,
-      chart,
+      chart: publicChartData(chart),
       free_results: freeResults,
       expires_at: expiresAt,
       calculation: { provider: 'VedAstro', ayanamsa: 'Lahiri' },
@@ -570,7 +654,7 @@ const SCOPE_NAMES: Record<VedicReportScope, string> = {
   timeline: '我的未來十年', full: '印度占星完整靈魂業力人生地圖',
   soul_karma: '靈魂業力｜前世因果與今生課題',
   life_full: '人生全解｜使命、感情與財富事業',
-  complete: '完整人生地圖｜6 大人生問題與靈魂業力總結',
+  complete: '完整人生地圖｜9 大印度占星深度解析',
 };
 
 const REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
@@ -582,13 +666,15 @@ const REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
   soul_karma: ['你帶著什麼來到今生？', '查看你的前世慣性', '查看今生需要完成的業力轉化'],
   life_full: ['前世因果與業力模式', '你的今生核心課題', '感情與關係方向', '財富與事業方向'],
   complete: [
-    '① 前世因果與業力',
+    '① 前世業力',
     '② 今生的人生課題',
-    '③ 天賦、使命與人生方向',
-    '④ 感情、婚姻與業力關係',
-    '⑤ 財富與事業業力',
-    '⑥ 未來人生時間軸',
-    '⑦ 靈魂業力總結',
+    '③ 羅喉／計都靈魂軸線',
+    '④ 愛情與婚姻',
+    '⑤ 財富模式',
+    '⑥ 事業天賦',
+    '⑦ D9 婚姻／靈魂成熟度',
+    '⑧ D10 事業分盤',
+    '⑨ 未來 3～5 年大運時間軸',
   ],
 };
 
@@ -679,17 +765,25 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData, transits
     return expanded;
   };
   const bodyFor = (heading: string) => {
-    if (heading.includes('靈魂業力總結')) {
-      return `你從哪裡來？你帶著計都所象徵的熟悉能力與反應慣性。\n\n你為什麼來？羅喉指出今生需要練習的新方向。\n\n你要學會什麼？在熟悉與未知之間建立新的選擇能力。\n\n什麼在阻礙你？當舊模式帶來安全感時，你可能反覆回到已經不再適合的道路。\n\n你正在往哪裡去？${cycleText}\n\n給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。`;
-    }
     if (heading.includes('人生課題') || heading.includes('核心課題') || heading.includes('為什麼來')) {
       return `${karmaText}${cycleText}\n\n你的今生核心課題：在尊重既有天賦的同時，勇敢練習羅喉所指向的新生命能力。`;
     }
     if (heading.includes('前世') || heading.includes('帶著什麼') || heading.includes('從哪裡來')) {
       return `${karmaText}你對計都所在領域可能特別熟悉，這份熟悉既是天賦，也可能讓你在壓力中反覆使用同一種方法。前世因果在此作為靈魂象徵，邀請你觀察哪些反應已不再適合現在的自己。`;
     }
+    if (heading.includes('靈魂軸線') || heading.includes('羅喉')) {
+      return `${karmaText}計都象徵已經熟悉、容易自動使用的能力與舒適圈；羅喉則指向陌生卻值得發展的人生經驗。這條軸線不是要求你否定過去，而是把既有能力帶往新的方向，讓安全感與成長不再彼此拉扯。`;
+    }
     if (heading.includes('轉化') || heading.includes('學會什麼') || heading.includes('阻礙')) {
       return `${karmaText}真正的轉化不是否定過去，而是辨認舊模式何時已變成限制。當相同的人際、工作或情緒情境再次出現時，先停下來選擇不同回應，便是在鬆動業力慣性。`;
+    }
+    if (heading.includes('D9')) {
+      const d9 = chart.divisionalCharts.d9;
+      return `D9 婚姻與靈魂成熟分盤的上升落在${zhSign(d9.lagna || '資料不足')}，月亮位於${zhSign(d9.planets.Moon || '資料不足')}，金星位於${zhSign(d9.planets.Venus || '資料不足')}。這張分盤不單預測婚姻，而是觀察你經歷關係、承諾與歲月後，內在價值如何逐漸成熟。它需要與本命盤及大運一起閱讀，不以單一配置判定關係結果。`;
+    }
+    if (heading.includes('D10')) {
+      const d10 = chart.divisionalCharts.d10;
+      return `D10 事業分盤的上升落在${zhSign(d10.lagna || '資料不足')}，太陽位於${zhSign(d10.planets.Sun || '資料不足')}，土星位於${zhSign(d10.planets.Saturn || '資料不足')}。這張分盤呈現你如何在現實世界承擔責任、累積專業與建立影響力，並協助分辨適合你的工作角色、領導方式與長期成就路徑。`;
     }
     if (heading.includes('時間') || heading.includes('往哪裡去')) {
       return `行星週期顯示：${timelineSummary}。${cycleText}${transitText}這些日期代表能量主題的轉換區間，不是保證發生特定事件；未來十二個月可依大運與次週期的實際交界，安排準備、整頓與行動節奏。`;
@@ -713,10 +807,10 @@ function fallbackReport(scope: VedicReportScope, chart: VedicChartData, transits
       body: expandToDetailedReading(
         bodyFor(heading),
         heading,
-        scope === 'complete' && index < 6
+        scope === 'complete'
           ? COMPLETE_LIFE_QUESTION_MIN_CHARS
-          : COMPLETE_SUMMARY_MIN_CHARS,
-        scope === 'complete' && index < 6
+          : 220,
+        scope === 'complete'
           ? COMPLETE_LIFE_QUESTION_MAX_CHARS
           : undefined,
       ),
@@ -749,18 +843,20 @@ async function generatePaidReport(
       '不得宣稱命定、保證發財、保證婚姻或預測疾病死亡。',
       '財務、醫療、法律議題必須提醒讀者搭配合格專業意見。',
       'sections 必須依 required_section_headings 的順序與數量產出，不可省略或自行增加英文標題。',
-      '完整人生地圖 complete 的前六個人生問題，每一項正文必須生成 280 至 350 個中文字，不得少於 280 字，也不得超過 350 字；第七項靈魂業力總結至少 200 個中文字。不能用重複句子、空泛套話或同義反覆湊字數。',
+      '完整人生地圖 complete 共九項，每一項正文必須生成 280 至 350 個中文字，不得少於 280 字，也不得超過 350 字；不能用重複句子、空泛套話或同義反覆湊字數。',
       'complete 第1項以羅喉、計都、宮位、星座、宮主星與相關相位為底層依據，回答前世生命模式、重複原因、執著慣性、舒適圈、業力關係領域與靈魂方向；正文不可用「計都位於第X宮」作為主要呈現。',
       'complete 第2項回答靈魂核心課題、卡住模式、必須學會與放下之事、逃避時會重複的情境，以及完成課題後的方向；結尾必須寫「你的今生核心課題：＿＿＿＿」。',
-      'complete 第3項回答天生優勢、隱藏才能、工作與創業傾向、人生使命及成就感道路；結尾必須寫「你的靈魂原型：＿＿＿＿」，再用一句話解釋。',
+      'complete 第3項專門解讀羅喉與計都的星座、宮位、宮主星及相位，說明熟悉慣性、未知成長方向與靈魂軸線的整合方法。',
       'complete 第4項回答吸引模式、感情業力、關係功課、婚姻與伴侶傾向，以及資料支持的關係轉折窗口；不得保證婚姻結果。',
-      'complete 第5項回答財富模式、賺錢天賦、失財慣性、金錢恐懼或執著、事業業力、創業傾向與較容易擴張的生命階段。',
-      'complete 第6項必須結合 chart.dashaTimeline 的大運／次週期與 current_transits 的當下行運，說明目前章節、未來年度節奏及未來十二個月窗口；只能使用資料中存在的日期，行運缺少時必須明說並以大運為主。',
+      'complete 第5項回答財富模式、賺錢天賦、失財慣性、金錢恐懼或執著，以及較容易擴張的生命階段。',
+      'complete 第6項回答事業天賦、隱藏能力、工作方式、創業或上班傾向、適合承擔的角色與成就感來源。',
+      'complete 第7項只能以 chart.divisionalCharts.d9 的真實 D9 配置結合本命盤解讀婚姻、承諾、價值觀與靈魂成熟度；資料不足時必須明說，不得杜撰。',
+      'complete 第8項只能以 chart.divisionalCharts.d10 的真實 D10 配置結合本命盤解讀職涯角色、專業發展、領導方式與事業成熟路徑；資料不足時必須明說，不得杜撰。',
+      'complete 第9項必須結合 chart.dashaTimeline 的大運／次週期與 current_transits 的當下行運，說明未來三至五年的年度節奏；只能使用資料中存在的日期，行運缺少時必須明說並以大運為主。',
       '其他方案每個 section 也應提供足夠完整的說明，至少包含星盤依據、生活表現、可能盲點與可實行的轉化方向。',
       'soul_karma 必須回答前世慣性、重複原因、執著、舒適圈、業力關係領域與今生方向。',
       'life_full 必須回答前世業力、今生核心課題、感情關係、財富事業與靈魂使命。',
       '凡包含「你的今生核心課題」段落，最後必須用一句「你的今生核心課題：＿＿＿＿」做出可分享的精簡總結。',
-      'complete 的第七項必須整合回答「你從哪裡來、你為什麼來、你要學會什麼、什麼在阻礙你、你正在往哪裡去」，並以「給你今生的靈魂訊息」收束。',
       'timeline 只能使用 chart.dashaTimeline 已提供的起訖日期，不得虛構其他精確月份或事件。',
       '回傳 JSON：title、introduction、sections（heading/body）、closing。',
     ],
@@ -796,10 +892,8 @@ async function generatePaidReport(
       }).filter((entry) => entry.heading && entry.body)
       : [];
     const completeSectionsOutOfRange = scope === 'complete' && sections.some((section, index) => (
-      index < 6
-        ? section.body.length < COMPLETE_LIFE_QUESTION_MIN_CHARS
-          || section.body.length > COMPLETE_LIFE_QUESTION_MAX_CHARS
-        : section.body.length < COMPLETE_SUMMARY_MIN_CHARS
+      section.body.length < COMPLETE_LIFE_QUESTION_MIN_CHARS
+        || section.body.length > COMPLETE_LIFE_QUESTION_MAX_CHARS
     ));
     if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || completeSectionsOutOfRange) {
       throw new Error('OpenAI report invalid');
@@ -858,10 +952,8 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
         || existingReport.sections.some((section, index) => (
           section.heading !== REPORT_SECTION_HEADINGS.complete[index]
           || typeof section.body !== 'string'
-          || (index < 6
-            ? section.body.length < COMPLETE_LIFE_QUESTION_MIN_CHARS
-              || section.body.length > COMPLETE_LIFE_QUESTION_MAX_CHARS
-            : section.body.length < COMPLETE_SUMMARY_MIN_CHARS)
+          || section.body.length < COMPLETE_LIFE_QUESTION_MIN_CHARS
+          || section.body.length > COMPLETE_LIFE_QUESTION_MAX_CHARS
         ))
       );
       if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
