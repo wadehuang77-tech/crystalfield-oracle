@@ -16,7 +16,7 @@ import {
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
-const VEDIC_REPORT_FORMAT_VERSION = 7;
+const VEDIC_REPORT_FORMAT_VERSION = 8;
 const VEDIC_FORECAST_YEARS = 5;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
@@ -1306,13 +1306,46 @@ function reportHasDuplicateSentences(sections: any[]): boolean {
   const consultationTexts = sections.flatMap((section) => [
     section.consultation,
     ...(section.timeline || []).map((period: VedicForecastPeriod) => period.interpretation.consultation),
-  ]).filter((value): value is string => typeof value === 'string' && value.length >= 40);
+  ]).filter((value): value is string => typeof value === 'string' && value.length >= 40)
+    .flatMap((value) => value.split(/[。！？\n]+/).map((sentence) => sentence.trim()).filter((sentence) => traditionalChineseLength(sentence) >= 24));
   for (let left = 0; left < consultationTexts.length; left += 1) {
     for (let right = left + 1; right < consultationTexts.length; right += 1) {
       if (normalizeForDuplicateCheck(consultationTexts[left]) === normalizeForDuplicateCheck(consultationTexts[right])) return true;
+      if (sentenceSimilarity(consultationTexts[left], consultationTexts[right]) >= 0.9) return true;
     }
   }
   return false;
+}
+
+const GENERIC_VEDIC_PHRASES = [
+  '相信自己', '提升覺察', '學習放下', '宇宙正在提醒你', '靈魂邀請你',
+  '能量正在轉換', '開啟新的可能', '成為更完整的自己',
+];
+
+function traditionalChineseLength(value: string): number {
+  return (value.match(/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) || []).length;
+}
+
+function consultationQualityIssues(value: string, minimumChineseLength: number, maximumChineseLength: number, kind: 'section' | 'period' = 'section'): string[] {
+  const text = value.trim();
+  const length = traditionalChineseLength(text);
+  const issues: string[] = [];
+  if (length < minimumChineseLength) issues.push('too_short');
+  if (length > maximumChineseLength) issues.push('too_long');
+  const requirements = [
+    { name: 'deep_problem', pattern: /真正|核心|問題不是|表面.+(?:其實|而是)|最深/ },
+    { name: 'unexpected_cause', pattern: /因為|源自|背後|安全感|確認自己|之所以|根源/ },
+    { name: 'real_scenarios', pattern: /例如|工作上|關係裡|感情中|合作時|收入|伴侶|主管|客戶/ },
+    { name: 'wrong_decision', pattern: /最容易做錯|最容易誤判|最容易吃虧|不該|風險|代價/ },
+    { name: 'executable_solution', pattern: /先.{0,30}(?:確認|寫下|設定|區分)|具體|每次|下一次|期限|比例|條件|步驟/ },
+    ...(kind === 'section' ? [
+      { name: 'talent_shadow', pattern: /天賦|優勢|擅長|能力.{0,35}(?:過度|代價|反而|卻)|越.{0,18}越/ },
+      { name: 'mature_outcome', pattern: /成熟|處理好|轉化後|最後你會|不再.+而是|真正走對/ },
+    ] : []),
+  ];
+  for (const requirement of requirements) if (!requirement.pattern.test(text)) issues.push(requirement.name);
+  if (GENERIC_VEDIC_PHRASES.filter((phrase) => text.includes(phrase)).length >= 2) issues.push('generic_language');
+  return issues;
 }
 
 function validStructuredSection(section: any, index: number): boolean {
@@ -1326,18 +1359,8 @@ function validStructuredSection(section: any, index: number): boolean {
   return true;
 }
 
-function consultationHasDepth(value: string, minimumLength: number): boolean {
-  const text = value.trim();
-  if (text.length < minimumLength) return false;
-  const checks = [
-    /真正|核心|表面|不是.+而是/,
-    /因為|源自|形成|所以|因此/,
-    /可能|容易|當.+時|例如|工作|關係|合作|收入/,
-    /最容易做錯|誤判|代價|吃虧|陷阱|風險/,
-    /停止|不要再|先確認|開始|具體|下一次/,
-    /成熟|處理好|走對|最後會|不再.+而是/,
-  ];
-  return checks.filter((pattern) => pattern.test(text)).length >= 5;
+function consultationHasDepth(value: string, minimumLength: number, kind: 'section' | 'period' = 'section'): boolean {
+  return consultationQualityIssues(value, minimumLength, 720, kind).length === 0;
 }
 
 export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
@@ -1345,11 +1368,19 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
     && report.sections.length === REPORT_SECTION_HEADINGS.complete.length
     && report.sections.every((section, index) => section.heading === REPORT_SECTION_HEADINGS.complete[index]
       && validStructuredSection(section, index))
+    && report.sections.slice(0, 8).every((section) => consultationQualityIssues(section.consultation, 400, 650).length === 0)
+    && (report.sections[8]?.timeline || []).every((period) => consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period').length === 0)
     && !reportHasDuplicateSentences(report.sections);
 }
 
 export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
   const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index) ? [] : [`section_${index + 1}`]);
+  report.sections.slice(0, 8).forEach((section, index) => {
+    for (const issue of consultationQualityIssues(section.consultation, 400, 650)) issues.push(`section_${index + 1}_${issue}`);
+  });
+  report.sections[8]?.timeline?.forEach((period) => {
+    for (const issue of consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period')) issues.push(`period_${period.id}_${issue}`);
+  });
   if (reportHasDuplicateSentences(report.sections)) issues.push('duplicate_or_high_similarity');
   return issues;
 }
@@ -1522,7 +1553,7 @@ async function generatePaidReport(
       program_evidence: chart ? fallbackForecastInterpretation(forecastPeriods[index], chart, transits).evidence : [],
     })),
     output_schema: {
-      formatVersion: 6,
+      formatVersion: VEDIC_REPORT_FORMAT_VERSION,
       title: 'string',
       introduction: '自然的開場諮詢',
       consultationQuestion: 'optional string',
@@ -1534,16 +1565,18 @@ async function generatePaidReport(
       '只回傳 JSON，不得加入 Markdown code fence。',
       '只能使用 chart_facts、program_evidence 與 forecast_periods 的事實；不得猜測或改寫行星、宮位、分盤、大運、次運與日期。',
       '①至⑧每節只輸出 heading 與 consultation；不得輸出固定的結論、優點、缺點、範例、建議、方向、信心、評分或卡片欄位。',
-      '①至⑧通常約400至650個中文字，複雜處可更長；每個次運約350至550字。以完整解析為準，不可湊字或重複。',
+      '①至⑧每篇以450至550個繁體中文字為目標；若配置複雜可小幅超過，但不可用重複配置、免責或鼓勵話湊字。第九節總論約500字，每個次運時段350至500字。',
       '文章內部依「現象→深層機制→吸引或重複模式→代價→真正核心→具體做法→成熟版本」推理，但必須寫成自然文章，絕不可顯示成固定小標或模板。',
-      '每節至少出現一至兩個能打中當事人的深層判斷，例如指出他如何把被需要當成被肯定、把擴張速度當成成功感；判斷必須由本盤交叉證據支持。',
-      '每節至少自然融入兩個由本盤推導的具體人生場景，清楚指出最容易做錯的選擇；改善方法要同時說出應停止什麼、開始什麼，最後描述處理成熟後會成為什麼樣的人。',
-      '每節必須分析一次「天賦如何因過度使用而變成問題及代價」，並交叉使用至少2至4個實際星盤因素，不可單憑一顆星下結論。',
-      '避免「羅喉／計都軸線與月宿共同描述」「覺察」「能量流動」「宇宙」「靈魂邀請」「重新選擇」「回到內在」等泛用句；相同句子或建議不可跨節重複。',
+      '每篇約500字至少要交付三件有價值的事：一個被說中的深層問題、一個當事人原本沒想到的成因、一個下週就能執行的解法。三者缺一就重寫，不得以字數取代洞察。',
+      '每篇至少出現一至兩個只有結合這張命盤才成立的深層判斷。必須先交叉至少三個相關星盤因素，再翻成人生結論；不得將單顆行星關鍵字擴寫成整篇。',
+      '每篇至少自然融入兩個不同場域的具體人生場景，清楚指出最容易做錯的選擇與長期代價。解法不能只寫建立界線、相信自己或學習放下，必須包含觸發情境、可執行步驟、判斷標準或時間限制，並說明為何正好修正盤中模式。',
+      '每篇必須分析一次「天賦如何因過度使用而變成問題及代價」，最後讓當事人看見成熟後不是失去天賦，而是如何把它變成選擇權、專業、關係品質或實際回報。',
+      '禁止「羅喉／計都軸線與月宿共同描述」「相信自己」「提升覺察」「學習放下」「宇宙正在提醒你」「靈魂邀請你」「能量正在轉換」等泛用句。撰寫後內部比對九篇：句子、場景、原因或建議若只替換星名就能搬到另一篇，必須重寫。',
+      '正文約20至30%說明星盤證據，70至80%做白話人生判斷與解法。技術詞第一次出現後立即翻成現實影響，不連續堆疊月宿、定位星、宮主與相位。',
       '術語只作證據，第一次出現立即用白話說明對現實生活的影響；不寫百科式星體介紹。',
       '第七節必須由 D1 到 D9 的成熟變化形成一篇連續文章；第八節必須比較 D1 職涯動機與 D10 社會角色，不可只列配置。',
       '第九節的 forecast_periods 是程式固定骨架，每個 id 恰好回傳一次 consultation，不得增加、刪除、合併、改序或改日期。',
-      '每段時間諮詢必須說明該 Mahadasha 長期背景如何被 Antardasha 具體啟動，並和上一段比較；回答核心主題、變化領域、錯誤決定、事業攻守、財務擴張或保留、感情確認調整或觀察、資源焦點及避免事項。不使用評分卡。',
+      '每段時間諮詢必須說明該 Mahadasha 長期背景如何被 Antardasha 具體啟動，並和上一段比較；回答核心主題、變化領域、錯誤決定、事業攻守、財務擴張或保留、感情確認調整或觀察、資源焦點及避免事項。每段同樣必須有一個深層問題、一個非直覺成因與一個可執行策略，不使用評分卡。',
       '不得保證事件、婚姻或獲利；財務、醫療與法律問題提醒搭配合格專業意見。',
     ],
   };
@@ -1591,8 +1624,8 @@ async function generatePaidReport(
       })
       : [];
     const invalidGeneratedSections = sections.some((section, index) => !validStructuredSection(section, index))
-      || sections.filter((_, index) => !(scope === 'complete' && index === 8)).some((section) => !consultationHasDepth(section.consultation, 360))
-      || (scope === 'complete' && forecastTimeline.some((period) => !consultationHasDepth(period.interpretation.consultation, 300)))
+      || sections.filter((_, index) => !(scope === 'complete' && index === 8)).some((section) => !consultationHasDepth(section.consultation, 400))
+      || (scope === 'complete' && forecastTimeline.some((period) => !consultationHasDepth(period.interpretation.consultation, 300, 'period')))
       || reportHasDuplicateSentences(sections);
     if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || invalidGeneratedSections) {
       throw new Error('OpenAI report invalid');

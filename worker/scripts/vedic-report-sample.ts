@@ -27,9 +27,10 @@ assert.throws(() => mergeVedicForecastInterpretations(skeleton, missing, chart),
 assert.throws(() => mergeVedicForecastInterpretations(skeleton, { ...ai, period_1: { consultation: '太短' } }, chart), /VEDIC_FORECAST_AI_INCOMPLETE/);
 
 const report = buildVedicFallbackReport('complete', chart, null);
-assert.equal(report.formatVersion, 7);
+assert.equal(report.formatVersion, 8);
 assert.equal(report.sections.length, 9);
-assert.equal(validateCompleteVedicReport(report), true, auditCompleteVedicReport(report).join(', '));
+assert.equal(validateCompleteVedicReport(report), false, 'the compact deterministic fallback must not be mistaken for a premium AI report');
+assert.ok(auditCompleteVedicReport(report).some((issue) => issue.includes('too_short')));
 assert.ok(report.sections.every((section) => section.consultation.length >= 180 && section.evidence.length >= 2));
 assert.match(report.sections[6].consultation, /D1|D9|年輕|成熟/);
 assert.match(report.sections[7].consultation, /D1|D10|社會|職涯/);
