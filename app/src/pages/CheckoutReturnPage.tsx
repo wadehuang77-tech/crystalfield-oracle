@@ -130,6 +130,7 @@ export default function CheckoutReturnPage() {
 
   useEffect(() => {
     if (order?.status !== 'paid') return;
+    const isVedicOrder = order.item_id.startsWith('vedic_');
     const t = setTimeout(() => {
       if (order.item_id === 'membership_monthly') {
         const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
@@ -138,7 +139,7 @@ export default function CheckoutReturnPage() {
       }
       const base = SPREAD_HOME[order.item_id] ?? '/';
       navigate(appendOrderId(base, order.id, orderToken), { replace: true });
-    }, 3500);
+    }, isVedicOrder ? 800 : 3500);
     return () => clearTimeout(t);
   }, [order, navigate, orderToken]);
 
@@ -224,6 +225,7 @@ export default function CheckoutReturnPage() {
 }
 
 function PaidSuccess({ order, onSpread }: { order: Order; onSpread: () => void }) {
+  const isVedicOrder = order.item_id.startsWith('vedic_');
   return (
     <div className="relative">
       <div className="absolute inset-0 -m-6 overflow-hidden pointer-events-none">
@@ -271,7 +273,7 @@ function PaidSuccess({ order, onSpread }: { order: Order; onSpread: () => void }
           </div>
 
           <p className="text-sm text-blue-200/85 leading-loose tracking-wide">
-            你的內容已解鎖,<br className="sm:hidden"/>可以回去查看完整解析。
+            {isVedicOrder ? <><strong>深度指引產生中，請等候約 1～2 分鐘。</strong><br />請保持報告頁開啟，完成後會自動顯示。</> : <>你的內容已解鎖,<br className="sm:hidden"/>可以回去查看完整解析。</>}
           </p>
           <p className="text-xs text-blue-300/70 mt-3 tracking-wide">即將自動帶你回去⋯</p>
 

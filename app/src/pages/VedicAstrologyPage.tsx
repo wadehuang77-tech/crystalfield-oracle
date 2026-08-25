@@ -155,6 +155,7 @@ export default function VedicAstrologyPage() {
   const [checkoutLoading, setCheckoutLoading] = useState('');
   const [report, setReport] = useState<VedicReport | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState('');
   const [error, setError] = useState('');
   const restoreRef = useRef(false);
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
@@ -170,6 +171,7 @@ export default function VedicAstrologyPage() {
     if (!orderId || !orderToken) return;
     restoreRef.current = true;
     setReportLoading(true);
+    setReportError('');
     setError('');
     void vedicAstrologyApi.getPaidReport({
       chart_id: chart?.chart_id,
@@ -180,7 +182,7 @@ export default function VedicAstrologyPage() {
       setReport(result.report);
       window.setTimeout(() => document.getElementById('vedic-paid-report')?.scrollIntoView({ behavior: 'smooth' }), 100);
     }).catch((reason) => {
-      setError(reason instanceof Error ? reason.message : '無法取得已解鎖報告');
+      setReportError(reason instanceof Error ? reason.message : '無法取得已解鎖報告');
     }).finally(() => setReportLoading(false));
   }, [chart, searchParams]);
 
@@ -298,7 +300,8 @@ export default function VedicAstrologyPage() {
           </section>
         )}
 
-        {reportLoading && <div className="mt-16 flex flex-col items-center justify-center gap-3 text-center text-violet-100/70"><div className="flex items-center gap-3"><Loader2 className="animate-spin" />正在展開已解鎖的人生地圖…</div><p className="text-sm text-violet-100/50">深度報告通常需要約 1～2 分鐘，請保持此頁開啟。</p></div>}
+        {reportLoading && <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-[#070312]/88 px-5 backdrop-blur-md"><div className="w-full max-w-md rounded-[2rem] border border-amber-300/35 bg-slate-950/95 p-8 text-center shadow-[0_0_70px_rgba(217,70,239,0.25)]"><Loader2 className="mx-auto h-10 w-10 animate-spin text-amber-300" /><h2 className="mt-6 font-serif text-2xl text-amber-50">深度指引產生中</h2><p className="mt-4 text-lg leading-8 text-violet-100/80">請等候約 1～2 分鐘</p><p className="mt-2 text-sm leading-6 text-violet-100/50">正在交叉解析本命盤、D9、D10 與大運時間軸。請保持此頁開啟，完成後會自動顯示。</p></div></div>}
+        {reportError && !reportLoading && <div role="alert" className="fixed inset-x-4 top-24 z-50 mx-auto max-w-lg rounded-2xl border border-rose-300/35 bg-slate-950/95 p-6 text-center shadow-2xl"><p className="font-semibold text-rose-100">深度指引暫時沒有成功顯示</p><p className="mt-2 text-sm leading-6 text-rose-100/70">{reportError}</p><button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-600 px-5 py-3 font-medium text-white">重新取得已付款報告</button></div>}
         {report && <PaidReport report={report} />}
       </main>
     </div>

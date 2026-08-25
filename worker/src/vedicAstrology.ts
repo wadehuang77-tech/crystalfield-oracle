@@ -1654,8 +1654,6 @@ async function generatePaidReport(
 }
 
 export async function getVedicPaidReport(req: Request, env: Env): Promise<Response> {
-  const limit = await rateLimit(env, 'vedic-report', clientIp(req), 12, 3600);
-  if (!limit.allowed) return tooManyRequests(req, env, '報告產生過於頻繁，請稍後再試');
   const body = await readBody<{
     chart_id?: string; chart_token?: string; order_id?: string; order_token?: string;
   }>(req);
@@ -1675,6 +1673,8 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   if (!order || order.status !== 'paid' || !order.item_id.startsWith('vedic_')) {
     return unauthorized(req, env, '此報告尚未完成付款解鎖');
   }
+  const limit = await rateLimit(env, 'vedic-report-order', orderId, 6, 3600);
+  if (!limit.allowed) return tooManyRequests(req, env, '此筆報告重新產生過於頻繁，請稍後再試');
   let linkedChartId = '';
   try {
     const context = JSON.parse(order.picks_payload || '{}') as { vedic_chart_id?: string };
