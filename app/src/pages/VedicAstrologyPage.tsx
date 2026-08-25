@@ -150,7 +150,6 @@ export default function VedicAstrologyPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthPlace: '' });
-  const [consent, setConsent] = useState(false);
   const [chart, setChart] = useState<VedicChartResponse | null>(() => loadChart());
   const [isCalculating, setIsCalculating] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState('');
@@ -184,10 +183,6 @@ export default function VedicAstrologyPage() {
     event.preventDefault();
     if (!form.birthDate || !form.birthTime || !form.birthPlace.trim()) {
       setError('請完整填寫出生年月日、出生時間與出生地點');
-      return;
-    }
-    if (!consent) {
-      setError('請先同意為產生星盤而處理出生資料');
       return;
     }
     setError('');
@@ -261,10 +256,6 @@ export default function VedicAstrologyPage() {
             <Field label="出生地點" wide>
               <div className="relative"><MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-200/55" /><input type="text" required maxLength={160} placeholder="例如：台北市, 台灣" value={form.birthPlace} onChange={(e) => setForm({ ...form, birthPlace: e.target.value })} className="vedic-input pl-12" /></div>
             </Field>
-            <label className="flex items-start gap-3 text-sm leading-6 text-violet-100/65 sm:col-span-2">
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-4 w-4 accent-amber-400" />
-              <span>我同意系統為產生星盤，將出生日期、時間與地點暫時傳送至 VedAstro 計算。晶域心語只保存衍生星盤，不保存這三項原始出生資料。</span>
-            </label>
             {error && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 sm:col-span-2">{error}</p>}
             <button type="submit" disabled={isCalculating} className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-6 py-4 font-semibold shadow-[0_0_32px_rgba(217,70,239,0.28)] transition hover:brightness-110 disabled:opacity-60 sm:col-span-2">
               {isCalculating ? <><Loader2 className="animate-spin" />正在連結出生星盤…</> : <><Stars />開啟我的靈魂業力地圖</>}
