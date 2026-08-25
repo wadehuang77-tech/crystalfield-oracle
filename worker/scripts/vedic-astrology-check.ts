@@ -44,6 +44,8 @@ assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 8/);
 assert.match(source, /一個被說中的深層問題、一個當事人原本沒想到的成因、一個下週就能執行的解法/);
 assert.match(source, /traditionalChineseLength/);
 assert.match(source, /duplicate_or_high_similarity/);
+assert.match(source, /const resolvedChartId = linkedChartId/);
+assert.match(source, /if \(chartId \|\| chartToken\)/);
 for (const field of ['consultation', 'evidence', 'timeline']) {
   assert.match(source, new RegExp(field), `missing structured report field: ${field}`);
 }

@@ -1663,11 +1663,9 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   const chartToken = cleanText(body.chart_token, 2400);
   const orderId = cleanText(body.order_id, 80);
   const orderToken = cleanText(body.order_token, 2400);
-  if (!chartId || !chartToken || !orderId || !orderToken) return badRequest(req, env, '缺少報告授權資料');
+  if (!orderId || !orderToken) return badRequest(req, env, '缺少報告授權資料');
 
   await ensureVedicSchema(env);
-  const chartPayload = await verifyJwt(chartToken, env.JWT_SECRET);
-  if (chartPayload?.sub !== chartId) return unauthorized(req, env, '星盤授權已失效');
   const orderPayload = await verifyJwt(orderToken, env.JWT_SECRET);
   if (orderPayload?.sub !== orderId) return unauthorized(req, env, '訂單授權已失效');
 
@@ -1682,7 +1680,14 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
     const context = JSON.parse(order.picks_payload || '{}') as { vedic_chart_id?: string };
     linkedChartId = context.vedic_chart_id || '';
   } catch {}
-  if (linkedChartId !== chartId) return unauthorized(req, env, '訂單與星盤不相符');
+  if (!linkedChartId) return unauthorized(req, env, '訂單沒有綁定星盤');
+  if (chartId || chartToken) {
+    if (!chartId || !chartToken) return badRequest(req, env, '星盤授權資料不完整');
+    const chartPayload = await verifyJwt(chartToken, env.JWT_SECRET);
+    if (chartPayload?.sub !== chartId) return unauthorized(req, env, '星盤授權已失效');
+    if (linkedChartId !== chartId) return unauthorized(req, env, '訂單與星盤不相符');
+  }
+  const resolvedChartId = linkedChartId;
 
   const scope = order.item_id.replace(/^vedic_/, '') as VedicReportScope;
   if (!REPORT_SCOPES.includes(scope)) return badRequest(req, env, '印度占星商品設定錯誤');
@@ -1711,7 +1716,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   }
 
   const chartRow = await env.DB.prepare('SELECT * FROM vedic_charts WHERE id = ?')
-    .bind(chartId).first<StoredChart>();
+    .bind(resolvedChartId).first<StoredChart>();
   if (!chartRow) return badRequest(req, env, '找不到星盤資料');
   const chart = hydrateChartData(JSON.parse(chartRow.chart_json) as VedicChartData);
   const transits = scope === 'complete' ? await loadCurrentTransits(env) : null;
@@ -1735,7 +1740,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
     await env.DB.prepare(
       `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
        VALUES (?, ?, ?, ?, ?, ?)`
-    ).bind(crypto.randomUUID(), chartId, orderId, scope, JSON.stringify(report), new Date().toISOString()).run();
+    ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(report), new Date().toISOString()).run();
   }
   return json(req, env, { scope, report, cached: false }, { status: 201 });
 }

@@ -164,7 +164,7 @@ export default function VedicAstrologyPage() {
   };
 
   useEffect(() => {
-    if (restoreRef.current || !chart) return;
+    if (restoreRef.current) return;
     const orderId = searchParams.get('order_id');
     const orderToken = searchParams.get('order_token');
     if (!orderId || !orderToken) return;
@@ -172,8 +172,8 @@ export default function VedicAstrologyPage() {
     setReportLoading(true);
     setError('');
     void vedicAstrologyApi.getPaidReport({
-      chart_id: chart.chart_id,
-      chart_token: chart.chart_token,
+      chart_id: chart?.chart_id,
+      chart_token: chart?.chart_token,
       order_id: orderId,
       order_token: orderToken,
     }).then((result) => {
