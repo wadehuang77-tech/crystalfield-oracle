@@ -273,7 +273,7 @@ export default function VedicAstrologyPage() {
               <p className="mt-2 text-xs text-violet-200/45">24 小時制，例如晚上 8:30 請選擇 20 時 30 分。</p>
             </Field>
             <Field label="出生地點" wide>
-              <div className="relative"><MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-200/55" /><input type="text" aria-required="true" aria-invalid={error === '未填出生地點'} maxLength={160} placeholder="例如：台北市, 台灣" value={form.birthPlace} onChange={(e) => { setForm({ ...form, birthPlace: e.target.value }); if (error === '未填出生地點') setError(''); }} className="vedic-input pl-12" /></div>
+              <div className="relative"><MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-200/55" /><input type="text" required aria-required="true" aria-invalid={error === '未填出生地點'} maxLength={160} placeholder="例如：台北市, 台灣" value={form.birthPlace} onInvalid={(event) => { event.currentTarget.setCustomValidity('未填出生地點'); setError('未填出生地點'); }} onInput={(event) => event.currentTarget.setCustomValidity('')} onChange={(e) => { setForm({ ...form, birthPlace: e.target.value }); if (error === '未填出生地點') setError(''); }} className="vedic-input pl-12" /></div>
               <p className={`mt-2 text-xs ${error === '未填出生地點' ? 'text-rose-200' : 'text-violet-200/45'}`}>必填，請輸入城市與國家／地區。</p>
             </Field>
             {error && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 sm:col-span-2">{error}</p>}
