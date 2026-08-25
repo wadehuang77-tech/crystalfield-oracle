@@ -40,7 +40,7 @@ for (const heading of [
 }
 assert.match(source, /loadCurrentTransits/);
 assert.match(source, /current_transits/);
-assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 6/);
+assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 7/);
 for (const field of ['consultation', 'evidence', 'timeline']) {
   assert.match(source, new RegExp(field), `missing structured report field: ${field}`);
 }
@@ -50,6 +50,8 @@ assert.match(source, /最高原則：不要問這個星體代表什麼/);
 assert.match(source, /自然比較 D1 的早期關係反應與 D9/);
 assert.match(source, /自然比較 D1 的職涯動機與 D10/);
 assert.match(source, /forecast_periods 是程式固定骨架/);
+assert.match(source, /現象→深層機制→吸引或重複模式→代價→真正核心→具體做法→成熟版本/);
+assert.match(source, /VEDIC_REPORT_REGENERATE/);
 assert.match(source, /buildVedicForecastPeriods/);
 assert.match(source, /mergeVedicForecastInterpretations/);
 assert.match(source, /VEDIC_FORECAST_MISSING_ANTARDASHA/);

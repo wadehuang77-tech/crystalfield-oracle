@@ -27,7 +27,7 @@ assert.throws(() => mergeVedicForecastInterpretations(skeleton, missing, chart),
 assert.throws(() => mergeVedicForecastInterpretations(skeleton, { ...ai, period_1: { consultation: '太短' } }, chart), /VEDIC_FORECAST_AI_INCOMPLETE/);
 
 const report = buildVedicFallbackReport('complete', chart, null);
-assert.equal(report.formatVersion, 6);
+assert.equal(report.formatVersion, 7);
 assert.equal(report.sections.length, 9);
 assert.equal(validateCompleteVedicReport(report), true, auditCompleteVedicReport(report).join(', '));
 assert.ok(report.sections.every((section) => section.consultation.length >= 180 && section.evidence.length >= 2));
@@ -37,6 +37,7 @@ assert.equal(report.sections[8].timeline?.length, skeleton.length);
 assert.doesNotMatch(JSON.stringify(report), /"(conclusion|strengths|risks|analysisBlocks|opportunityScores|confidence)"\s*:/);
 assert.doesNotMatch(JSON.stringify(report), /AI_CANNOT_OVERRIDE|fallback|保守版本/i);
 assert.equal(new Set(report.sections.map((section) => section.consultation)).size, 9);
+assert.ok(report.sections.every((section) => section.evidence.every((item) => item.factor.trim() && item.value.trim() && item.relevance.trim())), 'blank evidence must never reach the report');
 const second = buildVedicFallbackReport('complete', { ...chart, lagna: 'Aries', planets: { ...chart.planets, Rahu: 'Leo', Ketu: 'Aquarius' }, housePlacements: { ...chart.housePlacements, Rahu: 5, Ketu: 11 } }, null);
 assert.notEqual(second.sections[0].consultation, report.sections[0].consultation);
 console.log(JSON.stringify({ report }, null, 2));

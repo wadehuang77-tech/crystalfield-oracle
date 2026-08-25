@@ -16,7 +16,7 @@ import {
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
-const VEDIC_REPORT_FORMAT_VERSION = 6;
+const VEDIC_REPORT_FORMAT_VERSION = 7;
 const VEDIC_FORECAST_YEARS = 5;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
@@ -1326,6 +1326,20 @@ function validStructuredSection(section: any, index: number): boolean {
   return true;
 }
 
+function consultationHasDepth(value: string, minimumLength: number): boolean {
+  const text = value.trim();
+  if (text.length < minimumLength) return false;
+  const checks = [
+    /真正|核心|表面|不是.+而是/,
+    /因為|源自|形成|所以|因此/,
+    /可能|容易|當.+時|例如|工作|關係|合作|收入/,
+    /最容易做錯|誤判|代價|吃虧|陷阱|風險/,
+    /停止|不要再|先確認|開始|具體|下一次/,
+    /成熟|處理好|走對|最後會|不再.+而是/,
+  ];
+  return checks.filter((pattern) => pattern.test(text)).length >= 5;
+}
+
 export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
   return report.formatVersion === VEDIC_REPORT_FORMAT_VERSION
     && report.sections.length === REPORT_SECTION_HEADINGS.complete.length
@@ -1345,6 +1359,7 @@ async function generatePaidReport(
   scope: VedicReportScope,
   chart: VedicChartData,
   transits: VedicTransitSnapshot | null = null,
+  generationAttempt = 0,
 ) {
   const forecastPeriods = scope === 'complete' ? buildVedicForecastPeriods(chart) : [];
   const diagnostics = {
@@ -1488,12 +1503,24 @@ async function generatePaidReport(
     },
     sections: REPORT_SECTION_HEADINGS[scope].map((heading, index) => ({
       heading,
-      program_evidence: programReport.sections[index]?.evidence || [],
-      special_instruction: index === 6 ? '自然比較 D1 的早期關係反應與 D9 顯示的成熟關係需求，以及人如何從前者走向後者。'
-        : index === 7 ? '自然比較 D1 的職涯動機與 D10 顯示的社會角色、專業定位及現實落差。'
-          : index === 8 ? '本節開頭只寫總體諮詢；各個大運／次運時段另在 forecastInterpretations 撰寫。' : undefined,
+      program_evidence: cleanEvidenceList(programReport.sections[index]?.evidence || []),
+      special_instruction: [
+        '深入說明業力象徵中的熟悉模式如何形成、何時是天賦、何時變成控制或過度承擔、容易吸引誰、長期代價與成熟用法；交叉計都星座宮位、月宿、定位星、羅喉軸線及必要的土星或月亮。不得把前世寫成確定事件。',
+        '把羅喉方向翻成三種具體人生能力，說明它為何特別難，以及通常哪些現實事件會逼當事人學會；不可只說發展某星座或宮位。',
+        '回答當事人正在從哪種人變成哪種人，說明過渡期的不適、兩邊都想保留的原因、最容易退回舊模式的時刻與可觀察的轉變證據；不得重述前兩節。',
+        '像真正的感情諮詢：交叉D1第7宮與宮主、金星、月亮、木星、羅喉計都、D9及大運，判斷吸引類型、危險吸引力、雙方角色、常見誤判、婚後現實議題，以及強烈但不適合和初期平淡但適合長期的人。',
+        '回答錢為何透過特定方式進來、為何留不住、收入和自我價值如何連動；判斷靠時間、方法、品牌、授權或團隊放大，並指出最易吃虧的合作與財富升級優先順序。',
+        '交叉D1第10宮與宮主、太陽、土星、木星、水星、D10及大運，直接判斷別人會為哪種能力付錢、適合的社會角色、不適合久待的環境、能力被低估的原因，以及下一階段真正需要增加的是定價、權限、可見度、案例、團隊、系統或品牌中的哪一項。',
+        '自然比較 D1 的早期關係反應與 D9 顯示的成熟關係需求；說明年輕時被誰吸引、忽略什麼、經歷關係後如何改變，以及成熟後最不能妥協的事情。',
+        '自然比較 D1 的職涯動機與 D10 顯示的社會角色；判斷最常被交付的責任、最能發揮與最耗損的角色、適合組織升遷或自建平台，以及創業或留在組織各自需要補什麼。',
+        '本節開頭只寫總體諮詢；各個大運／次運時段另在 forecastInterpretations 撰寫。',
+      ][index],
     })),
-    forecast_periods: forecastPeriods.map(({ id, mahaDasha, antarDasha, startDate, endDate, displayLabel, analysisStartDate, analysisEndDate }) => ({ id, mahaDasha, antarDasha, startDate, endDate, displayLabel, analysisStartDate, analysisEndDate })),
+    forecast_periods: forecastPeriods.map(({ id, mahaDasha, antarDasha, startDate, endDate, displayLabel, analysisStartDate, analysisEndDate }, index) => ({
+      id, mahaDasha, antarDasha, startDate, endDate, displayLabel, analysisStartDate, analysisEndDate,
+      previous_period: index > 0 ? { mahaDasha: forecastPeriods[index - 1].mahaDasha, antarDasha: forecastPeriods[index - 1].antarDasha, displayLabel: forecastPeriods[index - 1].displayLabel } : null,
+      program_evidence: chart ? fallbackForecastInterpretation(forecastPeriods[index], chart, transits).evidence : [],
+    })),
     output_schema: {
       formatVersion: 6,
       title: 'string',
@@ -1507,14 +1534,16 @@ async function generatePaidReport(
       '只回傳 JSON，不得加入 Markdown code fence。',
       '只能使用 chart_facts、program_evidence 與 forecast_periods 的事實；不得猜測或改寫行星、宮位、分盤、大運、次運與日期。',
       '①至⑧每節只輸出 heading 與 consultation；不得輸出固定的結論、優點、缺點、範例、建議、方向、信心、評分或卡片欄位。',
-      '每篇通常約300至500個中文字，但以說清此人的真正卡點、生活場景、原因和下一步為準，不可為湊字數重複。',
-      '像真人老師對當事人說話：先指出目前最值得處理的問題，再把星盤證據翻成生活情境、盲點與可立刻執行的方法。',
-      '每節至少包含一個只屬於此命盤的洞見、一個具體現實場景、一個直接診斷及一個可執行下一步，但必須自然融入文章，不可做固定小標或清單模板。',
+      '①至⑧通常約400至650個中文字，複雜處可更長；每個次運約350至550字。以完整解析為準，不可湊字或重複。',
+      '文章內部依「現象→深層機制→吸引或重複模式→代價→真正核心→具體做法→成熟版本」推理，但必須寫成自然文章，絕不可顯示成固定小標或模板。',
+      '每節至少出現一至兩個能打中當事人的深層判斷，例如指出他如何把被需要當成被肯定、把擴張速度當成成功感；判斷必須由本盤交叉證據支持。',
+      '每節至少自然融入兩個由本盤推導的具體人生場景，清楚指出最容易做錯的選擇；改善方法要同時說出應停止什麼、開始什麼，最後描述處理成熟後會成為什麼樣的人。',
+      '每節必須分析一次「天賦如何因過度使用而變成問題及代價」，並交叉使用至少2至4個實際星盤因素，不可單憑一顆星下結論。',
       '避免「羅喉／計都軸線與月宿共同描述」「覺察」「能量流動」「宇宙」「靈魂邀請」「重新選擇」「回到內在」等泛用句；相同句子或建議不可跨節重複。',
       '術語只作證據，第一次出現立即用白話說明對現實生活的影響；不寫百科式星體介紹。',
       '第七節必須由 D1 到 D9 的成熟變化形成一篇連續文章；第八節必須比較 D1 職涯動機與 D10 社會角色，不可只列配置。',
       '第九節的 forecast_periods 是程式固定骨架，每個 id 恰好回傳一次 consultation，不得增加、刪除、合併、改序或改日期。',
-      '每段時間諮詢必須說明該 Mahadasha 長期背景如何被 Antardasha 具體啟動，並給出這段時間真正應優先做與避免的事；不使用事業／財運／感情評分卡。',
+      '每段時間諮詢必須說明該 Mahadasha 長期背景如何被 Antardasha 具體啟動，並和上一段比較；回答核心主題、變化領域、錯誤決定、事業攻守、財務擴張或保留、感情確認調整或觀察、資源焦點及避免事項。不使用評分卡。',
       '不得保證事件、婚姻或獲利；財務、醫療與法律問題提醒搭配合格專業意見。',
     ],
   };
@@ -1556,16 +1585,16 @@ async function generatePaidReport(
         return {
           heading: REPORT_SECTION_HEADINGS[scope][index],
           consultation,
-          evidence: programReport.sections[index]?.evidence || [],
+          evidence: cleanEvidenceList(programReport.sections[index]?.evidence || []),
           ...(scope === 'complete' && index === 8 ? { timeline: forecastTimeline } : {}),
         } satisfies VedicReportSection;
       })
       : [];
-    const invalidCompleteSections = scope === 'complete' && (
-      sections.some((section, index) => !validStructuredSection(section, index))
-      || reportHasDuplicateSentences(sections)
-    );
-    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || invalidCompleteSections) {
+    const invalidGeneratedSections = sections.some((section, index) => !validStructuredSection(section, index))
+      || sections.filter((_, index) => !(scope === 'complete' && index === 8)).some((section) => !consultationHasDepth(section.consultation, 360))
+      || (scope === 'complete' && forecastTimeline.some((period) => !consultationHasDepth(period.interpretation.consultation, 300)))
+      || reportHasDuplicateSentences(sections);
+    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || invalidGeneratedSections) {
       throw new Error('OpenAI report invalid');
     }
     if (scope === 'complete') console.info('VEDIC_FORECAST_DIAGNOSTICS', {
@@ -1575,6 +1604,10 @@ async function generatePaidReport(
     });
     return { formatVersion: VEDIC_REPORT_FORMAT_VERSION, title, introduction, ...(consultationQuestion ? { consultationQuestion } : {}), sections, closing };
   } catch (error) {
+    if (env.OPENAI_API_KEY && generationAttempt < 1) {
+      console.warn('VEDIC_REPORT_REGENERATE', { attempt: generationAttempt + 1, reason: error instanceof Error ? error.message : 'unknown' });
+      return generatePaidReport(env, scope, chart, transits, generationAttempt + 1);
+    }
     console.warn('VEDIC_FORECAST_FALLBACK', {
       ...diagnostics,
       aiInterpretationPeriodCount,

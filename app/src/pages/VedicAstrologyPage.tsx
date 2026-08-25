@@ -393,7 +393,9 @@ function PaidReport({ report }: { report: VedicReport }) {
 }
 
 function EvidenceDetails({ evidence }: { evidence: Array<{ factor: string; value: string; relevance: string }> }) {
-  return <details className="mt-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/50"><summary className="cursor-pointer text-violet-100/65">本段主要參考星盤配置</summary><ul className="mt-3 space-y-3">{evidence.map((item, index) => <li key={`${item.factor}-${index}`}><strong className="text-violet-100/75">{item.factor}：{item.value}</strong><p className="mt-1 leading-6">{item.relevance}</p></li>)}</ul></details>;
+  const visibleEvidence = evidence.filter((item) => item.factor.trim() && item.value.trim() && item.relevance.trim());
+  if (!visibleEvidence.length) return null;
+  return <details className="mt-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/50"><summary className="cursor-pointer text-violet-100/65">本段主要參考星盤配置</summary><ul className="mt-3 space-y-3">{visibleEvidence.map((item, index) => <li key={`${item.factor}-${index}`}><strong className="text-violet-100/75">{item.factor}：{item.value}</strong><p className="mt-1 leading-6">{item.relevance}</p></li>)}</ul></details>;
 }
 
 function ForecastCard({ period }: { period: NonNullable<VedicReport['sections'][number]['timeline']>[number] }) {
