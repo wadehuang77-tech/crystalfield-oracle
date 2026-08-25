@@ -40,11 +40,18 @@ for (const heading of [
 }
 assert.match(source, /loadCurrentTransits/);
 assert.match(source, /current_transits/);
-assert.match(source, /COMPLETE_LIFE_QUESTION_MIN_CHARS = 280/);
-assert.match(source, /COMPLETE_LIFE_QUESTION_MAX_CHARS = 350/);
-assert.match(source, /完整人生地圖 complete 共九項，每一項正文必須生成 280 至 350 個中文字/);
-assert.match(source, /scope === 'complete'/);
-assert.match(source, /section\.body\.length > COMPLETE_LIFE_QUESTION_MAX_CHARS/);
+assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 2/);
+for (const field of ['conclusion', 'strengths', 'risks', 'examples', 'actions', 'direction', 'evidence', 'transition', 'timeline']) {
+  assert.match(source, new RegExp(field), `missing structured report field: ${field}`);
+}
+assert.match(source, /reportHasDuplicateSentences/);
+assert.match(source, /validStructuredSection/);
+assert.match(source, /第4項綜合D1第7宮、第7宮主、金星、木星、月亮、羅喉計都、D9與大運/);
+assert.match(source, /第7項將D9與D1交叉/);
+assert.match(source, /第8項將D10、D1第10宮與目前大運交叉/);
+assert.match(source, /第9項必須輸出 timeline/);
+assert.match(source, /chart,/);
+assert.match(source, /current_transits: transits/);
 assert.match(source, /existingNeedsRefresh/);
 assert.match(source, /FREE_READING_MIN_CHARS = 250/);
 assert.match(source, /Ayanamsa:\s*'LAHIRI'/);

@@ -16,8 +16,7 @@ import {
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
-const COMPLETE_LIFE_QUESTION_MIN_CHARS = 280;
-const COMPLETE_LIFE_QUESTION_MAX_CHARS = 350;
+const VEDIC_REPORT_FORMAT_VERSION = 2;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
   'soul_karma', 'life_full', 'complete',
@@ -63,6 +62,43 @@ export interface VedicFreeResults {
   currentCycle: { title: string; body: string };
   challenge: { title: string; body: string };
   nextYear: { title: string; body: string; lockedPrompts: string[] };
+}
+
+interface VedicTimelineStage {
+  period: string;
+  theme: string;
+  career: string;
+  wealth: string;
+  relationship: string;
+  favorableDirection: string;
+  mainRisk: string;
+  action: string;
+}
+
+interface VedicReportSection {
+  heading: string;
+  conclusion: string;
+  strengths: string[];
+  risks: string[];
+  examples: string[];
+  actions: string[];
+  direction: string;
+  evidence: string[];
+  transition?: {
+    pastPattern: string;
+    currentBlock: string;
+    futurePattern: string;
+  };
+  timeline?: VedicTimelineStage[];
+  body?: string;
+}
+
+interface VedicPaidReport {
+  formatVersion: number;
+  title: string;
+  introduction: string;
+  sections: VedicReportSection[];
+  closing: string;
 }
 
 interface VedAstroEnvelope {
@@ -115,6 +151,35 @@ const DASHA_THEMES: Record<string, [string, string]> = {
   Ketu: ['放下舊我與靈魂回收期', '計都週期促使你鬆開熟悉卻耗能的模式。外在成就感可能暫時降低，內在覺察與真正使命則逐漸浮現。'],
 };
 
+const DASHA_PRACTICAL: Record<string, {
+  career: string; wealth: string; relationship: string; favorableDirection: string; mainRisk: string; action: string;
+}> = {
+  Jupiter: {
+    career: '較適合擴充專業、教學、顧問或管理範圍，但先確認新責任能帶來資歷或收入。',
+    wealth: '收入成長機會可能增加，支出也容易因進修或擴張同步上升，需先訂預算上限。',
+    relationship: '較容易討論共同願景與長期計畫，價值觀差異也會變得更明顯。',
+    favorableDirection: '累積證照、案例、公開作品或可提高信任度的專業成果。',
+    mainRisk: '高估同時承擔多項計畫的能力，最後每一項都缺乏足夠投入。',
+    action: '只選一項最有長期回報的擴張計畫，先完成里程碑再增加第二項。',
+  },
+  Saturn: {
+    career: '工作責任與制度要求可能提高，適合建立流程、管理能力與難以取代的專業深度。',
+    wealth: '財務成長較依賴紀律與長期累積，應優先處理負債、固定成本及安全準備。',
+    relationship: '承諾、時間分配與現實責任會成為重點，不適合繼續迴避長期問題。',
+    favorableDirection: '收斂低效項目，建立能連續執行三年以上的工作與財務結構。',
+    mainRisk: '因責任增加而長期過勞，或把進度較慢誤判為完全沒有成果。',
+    action: '每季刪除一項低效責任，將固定時間留給核心專業與身體恢復。',
+  },
+  Venus: {
+    career: '合作、品牌、設計、服務與客戶關係較容易帶來機會，合約與分潤仍要先寫清楚。',
+    wealth: '可透過合作與美感服務增加收入，也需防止享樂支出或人情消費侵蝕成果。',
+    relationship: '感情與社交機會可能變多，適合觀察對方能否在日常責任上保持一致。',
+    favorableDirection: '改善作品呈現、客戶體驗與合作品質，讓專業更容易被看見。',
+    mainRisk: '為維持關係而接受不合理條件，或只看吸引力忽略長期相容性。',
+    action: '所有合作先確認價格、分工、交付與退出條件，再投入額外時間。',
+  },
+};
+
 const TALENTS_BY_PLANET_SIGN: Record<string, string[]> = {
   Aries: ['開創行動', '快速決策'], Taurus: ['資源累積', '穩定實踐'], Gemini: ['溝通傳播', '跨域學習'],
   Cancer: ['情緒洞察', '照顧支持'], Leo: ['創意表達', '帶領群體'], Virgo: ['分析整理', '細節改善'],
@@ -165,8 +230,8 @@ function zhPlanet(value: string | null): string {
 
 function zhNakshatra(value: string): string {
   const name = value.split(/\s+-\s+|\s+Pada\s+/i)[0].trim();
-  const suffix = value.slice(name.length).replace(/^\s*-\s*/, '，第 ').replace(/^\s*Pada\s*/i, '，第 ');
-  return `${NAKSHATRA_ZH[name] || name}${suffix ? `${suffix}分區` : ''}`;
+  const pada = value.match(/Pada\s*(\d+)/i)?.[1];
+  return `${NAKSHATRA_ZH[name] || name}${pada ? `，第 ${pada} 分區` : ''}`;
 }
 
 function deriveHouseContext(lagna: string, planets: Record<string, string>): Pick<
@@ -724,99 +789,198 @@ function karmaFoundation(chart: VedicChartData) {
   };
 }
 
-function fallbackReport(scope: VedicReportScope, chart: VedicChartData, transits: VedicTransitSnapshot | null = null) {
+export function buildVedicFallbackReport(
+  scope: VedicReportScope,
+  chart: VedicChartData,
+  transits: VedicTransitSnapshot | null = null,
+): VedicPaidReport {
   const headings = REPORT_SECTION_HEADINGS[scope];
-  const timelineSummary = chart.dashaTimeline.length
-    ? chart.dashaTimeline.map((period) => `${period.start} 至 ${period.end}：${zhPlanet(period.lord)}大運`).join('；')
-    : `${zhPlanet(chart.mahaDasha)}大運`;
   const foundation = karmaFoundation(chart);
-  const karmaText = `羅喉位於${foundation.羅喉.星座}${foundation.羅喉.宮位}，計都位於${foundation.計都.星座}${foundation.計都.宮位}。這條軸線象徵你熟悉的慣性，以及今生需要逐步發展的新能力。`;
-  const cycleText = DASHA_THEMES[chart.mahaDasha]?.[1] ?? '你正處於重新理解人生方向的週期。';
-  const transitText = transits
-    ? `目前天空中的木星位於${zhSign(transits.planets.Jupiter || '未知')}、土星位於${zhSign(transits.planets.Saturn || '未知')}、羅喉位於${zhSign(transits.planets.Rahu || '未知')}。行運只描述當下的集體背景，仍需與你的大運及出生星盤一起閱讀。`
-    : '目前行運資料暫時無法取得，因此以下時間判讀以個人大運與次週期為主，不額外推測未提供的月份。';
-  const expandToDetailedReading = (
-    text: string,
-    heading: string,
-    minChars = 220,
-    maxChars?: number,
-  ) => {
-    const additions = [
-      `閱讀「${heading}」時，請回想近幾年反覆出現的人、事件與情緒。星盤提供的是觀察角度，不是把你固定在某一種命運裡；真正重要的是辨認自己通常在什麼情境下自動回到舊反應，以及哪些選擇能讓能量開始往新的方向流動。`,
-      '你可以把這份指引帶回日常，從一個可以實行的小步驟開始：記錄觸發點、分辨恐懼與直覺、確認自己的界線，再觀察新的回應帶來什麼不同。當覺察逐漸穩定，原本看似命定的循環便可能成為可以重新選擇的人生路口。',
-      '如果內容牽涉感情、工作或財務上的重大決定，請同時參考現實條件、可信任的人與合格專業意見。印度占星在這裡扮演的是整理內在方向的地圖，而你仍然是決定速度、方法與最終道路的人。',
-    ];
-    let expanded = text;
-    for (const addition of additions) {
-      if (expanded.length >= minChars) break;
-      expanded += `\n\n${addition}`;
-    }
-    if (maxChars && expanded.length > maxChars) {
-      const candidate = expanded.slice(0, maxChars);
-      const sentenceEnd = Math.max(
-        candidate.lastIndexOf('。'),
-        candidate.lastIndexOf('！'),
-        candidate.lastIndexOf('？'),
-      );
-      expanded = sentenceEnd + 1 >= minChars
-        ? candidate.slice(0, sentenceEnd + 1)
-        : candidate;
-    }
-    return expanded;
-  };
-  const bodyFor = (heading: string) => {
-    if (heading.includes('人生課題') || heading.includes('核心課題') || heading.includes('為什麼來')) {
-      return `${karmaText}${cycleText}\n\n你的今生核心課題：在尊重既有天賦的同時，勇敢練習羅喉所指向的新生命能力。`;
-    }
-    if (heading.includes('前世') || heading.includes('帶著什麼') || heading.includes('從哪裡來')) {
-      return `${karmaText}你對計都所在領域可能特別熟悉，這份熟悉既是天賦，也可能讓你在壓力中反覆使用同一種方法。前世因果在此作為靈魂象徵，邀請你觀察哪些反應已不再適合現在的自己。`;
-    }
-    if (heading.includes('靈魂軸線') || heading.includes('羅喉')) {
-      return `${karmaText}計都象徵已經熟悉、容易自動使用的能力與舒適圈；羅喉則指向陌生卻值得發展的人生經驗。這條軸線不是要求你否定過去，而是把既有能力帶往新的方向，讓安全感與成長不再彼此拉扯。`;
-    }
-    if (heading.includes('轉化') || heading.includes('學會什麼') || heading.includes('阻礙')) {
-      return `${karmaText}真正的轉化不是否定過去，而是辨認舊模式何時已變成限制。當相同的人際、工作或情緒情境再次出現時，先停下來選擇不同回應，便是在鬆動業力慣性。`;
-    }
-    if (heading.includes('D9')) {
-      const d9 = chart.divisionalCharts.d9;
-      return `D9 婚姻與靈魂成熟分盤的上升落在${zhSign(d9.lagna || '資料不足')}，月亮位於${zhSign(d9.planets.Moon || '資料不足')}，金星位於${zhSign(d9.planets.Venus || '資料不足')}。這張分盤不單預測婚姻，而是觀察你經歷關係、承諾與歲月後，內在價值如何逐漸成熟。它需要與本命盤及大運一起閱讀，不以單一配置判定關係結果。`;
-    }
-    if (heading.includes('D10')) {
-      const d10 = chart.divisionalCharts.d10;
-      return `D10 事業分盤的上升落在${zhSign(d10.lagna || '資料不足')}，太陽位於${zhSign(d10.planets.Sun || '資料不足')}，土星位於${zhSign(d10.planets.Saturn || '資料不足')}。這張分盤呈現你如何在現實世界承擔責任、累積專業與建立影響力，並協助分辨適合你的工作角色、領導方式與長期成就路徑。`;
-    }
-    if (heading.includes('時間') || heading.includes('往哪裡去')) {
-      return `行星週期顯示：${timelineSummary}。${cycleText}${transitText}這些日期代表能量主題的轉換區間，不是保證發生特定事件；未來十二個月可依大運與次週期的實際交界，安排準備、整頓與行動節奏。`;
-    }
-    if (heading.includes('感情') || heading.includes('關係')) {
-      return `${karmaText}關係會放大你在安全感、界線與親密中的慣性。比起追問一段關係是否命定，更重要的是看見自己是否能在靠近他人的同時保留真實需求與選擇。`;
-    }
-    if (heading.includes('天賦') || heading.includes('使命')) {
-      return `${cycleText}你的天生優勢需要透過真實經驗與長期練習，逐步成為能服務自己也能影響他人的能力。適合你的方向不只是一個職稱，而是能讓你運用既有天賦，同時發展羅喉所指向的新生命能力。\n\n你的靈魂原型：智慧傳遞者。你的力量不只來自把事情做好，也來自將經驗整理成方法，陪伴他人看見新的可能。`;
-    }
-    if (heading.includes('財富') || heading.includes('事業')) {
-      return `${cycleText}你的財富與事業方向需要同時考量天賦、現實資源與長期節奏。適合你的道路，不只帶來成果，也會讓你逐步發展羅喉所象徵的新能力。涉及重大財務決策時，仍應搭配合格專業意見。`;
-    }
-    return `${cycleText}${karmaText}請把這段內容當成自我覺察的地圖，並以現實經驗與自己的選擇作為最後依據。`;
-  };
+  const house = (planet: string) => chart.housePlacements[planet] ? `第${chart.housePlacements[planet]}宮` : '宮位資料不足';
+  const placement = (planet: string) => `${zhPlanet(planet)}在${zhSign(chart.planets[planet] || '資料不足')}${house(planet)}`;
+  const evidenceBase = [placement('Rahu'), placement('Ketu'), `月宿：${zhNakshatra(chart.moonNakshatra)}`];
+  const timeline = chart.dashaTimeline.slice(0, 5).map((period): VedicTimelineStage => {
+    const practical = DASHA_PRACTICAL[period.lord];
+    return {
+      period: `${period.start}～${period.end}`,
+      theme: `${zhPlanet(period.lord)}大運：以${DASHA_THEMES[period.lord]?.[0] || '階段調整'}為主題`,
+      career: practical?.career || `事業重點應配合${zhPlanet(period.lord)}所掌管的主題，以可驗證成果決定是否擴張。`,
+      wealth: practical?.wealth || '先守住現金流與安全準備，再依實際收入增加投入。',
+      relationship: practical?.relationship || '討論承諾時同時檢查價值觀、時間分配與現實責任。',
+      favorableDirection: practical?.favorableDirection || `建立與${zhPlanet(period.lord)}主題一致、可持續至少一年的計畫。`,
+      mainRisk: practical?.mainRisk || '只依週期名稱做重大決定，忽略現實條件與準備程度。',
+      action: practical?.action || '每季用收入、作品、職責或關係品質檢查一次進度。',
+    };
+  });
+  const section = (heading: string, overrides: Partial<VedicReportSection>): VedicReportSection => ({
+    heading,
+    conclusion: '此區塊目前使用保守解讀；待 AI 深度分析完成後會依完整配置提供更精細的判讀。',
+    strengths: ['能從既有經驗快速找到可行方法', '遇到問題時願意承擔並完成責任'],
+    risks: ['壓力大時容易重複使用已經不適合的方法', '可能因熟悉感而忽略新的可行選項'],
+    examples: ['工作或關係遇到相似問題時，可能再次扮演同一種角色。', '明知現況不理想，仍可能因不確定性而延後改變。'],
+    actions: ['列出目前問題中可控制與不可控制的部分，只處理可控制項目。', '替重大決定設定明確期限與三項判斷標準。', '每月檢查一次實際成果，不以當下情緒代替長期證據。'],
+    direction: '選擇能累積實際能力、關係品質與財務安全的方向。',
+    evidence: evidenceBase,
+    ...overrides,
+  });
+
+  const completeSections: VedicReportSection[] = [
+    section(headings[0], {
+      conclusion: `你最容易重複的舊模式，是過度依賴${foundation.計都.星座}${foundation.計都.宮位}所代表的熟悉做法；它讓你反應快，卻也可能讓同類問題一再出現。`,
+      strengths: ['能迅速讀懂熟悉情境並掌握關鍵', '面對壓力時有一套可立即使用的生存方法'],
+      risks: ['太相信過去有效的方法，較晚承認環境已經改變', '容易把熟練變成控制，讓別人難以參與'],
+      examples: ['工作上可能主動接手善後，久而久之所有難題都落到你身上。', '關係中可能先配合或先處理問題，最後才發現自己的需求一直被延後。'],
+      actions: ['同一問題第三次出現時，停止沿用原方法，至少提出兩個新方案。', '承接別人的責任前，先確認期限、權限與回報。', '每季刪除一項只因熟悉而保留、卻沒有成果的承諾。'],
+      direction: `保留計都帶來的熟練能力，但把主要投入移向${foundation.羅喉.星座}${foundation.羅喉.宮位}需要發展的新經驗。`,
+    }),
+    section(headings[1], {
+      conclusion: `這一生最需要學會的，是主動發展${foundation.羅喉.星座}${foundation.羅喉.宮位}代表的能力，而不是只做自己已經很熟的事。`,
+      strengths: ['具備可立即上手的舊經驗', '能辨認哪些做法穩定、哪些做法只是習慣'],
+      risks: ['新方向剛開始不順時，容易快速退回舒適圈', '可能等待完全有把握才行動，因此錯過練習機會'],
+      examples: ['遇到新職位或新合作時，可能因不熟悉而低估自己。', '明明想改變生活方式，卻總在忙碌時恢復原本安排。'],
+      actions: ['把新能力拆成每週一次、連續十二週的練習。', '選一位能提供具體回饋的人，每月檢查一次進度。', '做決定時分開列出「真的風險」與「只是陌生」。'],
+      direction: `今生最值得發展的三項能力：承擔${foundation.羅喉.宮位}議題、練習${foundation.羅喉.星座}式做法、在不確定中以小步驟累積經驗。`,
+    }),
+    section(headings[2], {
+      conclusion: '你的人生轉換不是拋棄舊能力，而是把舊能力改造成能支持新方向的工具。',
+      strengths: ['過去累積的方法可作為穩定基礎', '一旦確認方向，能把經驗轉化為可重複的流程'],
+      risks: ['過渡期容易兩邊都想保留，導致時間與注意力分散', '可能用準備代替行動，長期停在中間狀態'],
+      examples: ['想換工作卻仍接下所有舊任務，使自己沒有時間準備新能力。', '想建立平等關係，遇到衝突時仍自動回到討好或控制。'],
+      actions: ['明確列出一項要停止的舊行為與一項要開始的新行為。', '替過渡期設定九十天期限，不無限延後。', '每週用實際行動次數，而非想法或感受，衡量轉換進度。'],
+      direction: '先減少舊模式佔用的時間，再把釋放出的資源投入新模式。',
+      transition: {
+        pastPattern: `過去習慣：依賴${foundation.計都.星座}${foundation.計都.宮位}帶來的熟悉反應。`,
+        currentBlock: '現在容易卡住：知道舊方法有限，卻還沒有累積足夠的新經驗。',
+        futurePattern: `未來應發展：主動練習${foundation.羅喉.星座}${foundation.羅喉.宮位}所要求的能力。`,
+      },
+    }),
+    section(headings[3], {
+      conclusion: `你的感情判讀需要同時看第7宮主${zhPlanet(chart.houseLords['7'])}、金星、木星、月亮與 D9；你重視的不是表面浪漫，而是能否長期合作並處理現實問題。`,
+      strengths: ['願意為重要關係投入時間', '能觀察伴侶的實際需要並提供協助'],
+      risks: ['可能把照顧、解決問題誤認為親密', '關係不明確時容易自行推測，增加不必要的消耗'],
+      examples: ['對方遇到困難時，你可能先幫忙處理，卻沒有確認對方是否願意共同承擔。', '關係進展不明時，可能反覆分析訊息與態度，而不是直接談期待。'],
+      actions: ['交往初期直接確認關係目標、金錢觀與生活安排。', '衝突時只談一個具體事件，不翻舊帳或猜測動機。', '重大承諾前至少觀察三個月內對方是否言行一致。'],
+      direction: '適合能清楚溝通、願意分工、情緒穩定且尊重個人空間的伴侶；避免只靠承諾、拒絕面對現實責任的人。',
+      evidence: [`第7宮主：${zhPlanet(chart.houseLords['7'])}`, placement('Venus'), placement('Jupiter'), placement('Moon'), `D9上升：${zhSign(chart.divisionalCharts.d9.lagna || '資料不足')}`],
+    }),
+    section(headings[4], {
+      conclusion: '你比較適合靠可累積的專業、長期客戶或能反覆交付的服務賺錢，而不是只追逐短期機會。',
+      strengths: ['能把經驗整理成具有交換價值的成果', '有機會透過長期合作放大收入'],
+      risks: ['收入增加時可能同步擴張支出', '合作條件不清楚時容易承擔超出報酬的工作'],
+      examples: ['接案時可能先把成果做好，最後才談修改次數與追加費用。', '看到新機會時可能同時投入太多項目，造成現金流與注意力分散。'],
+      actions: ['每筆收入先固定保留20%作為安全準備，再安排支出。', '報價前寫清楚工作範圍、修改次數、付款節點與退出條件。', '每季依毛利與投入時間淘汰一項低效收入來源。'],
+      direction: '優先發展專業服務、固定薪資加績效、內容或方法授權等可持續模式；投資需依風險承受度並諮詢合格專業人士。',
+      evidence: [`第2宮主：${zhPlanet(chart.houseLords['2'])}`, `第5宮主：${zhPlanet(chart.houseLords['5'])}`, `第9宮主：${zhPlanet(chart.houseLords['9'])}`, `第11宮主：${zhPlanet(chart.houseLords['11'])}`, placement('Jupiter'), placement('Venus')],
+    }),
+    section(headings[5], {
+      conclusion: `你的事業優勢來自第10宮主${zhPlanet(chart.houseLords['10'])}與 D10 配置的組合，適合建立可被信任的專業定位，而不是頻繁更換角色。`,
+      strengths: ['能處理複雜問題並建立做事標準', '適合把個人能力發展成團隊可使用的方法', '面對長期目標時有持續累積的潛力'],
+      risks: ['工作責任容易越接越多，形成過勞', '如果權責模糊，可能變成替主管或團隊收拾問題的人'],
+      examples: ['你可能是團隊裡真正知道流程的人，但升遷與資源未必同步增加。', '新工作剛開始容易因想證明能力而答應過多任務。'],
+      actions: ['每季整理一次可量化成果，主動用於談升遷、報價或資源。', '接新責任時同步確認決策權、期限與評估標準。', '選一項核心專業連續累積作品、案例或證照至少一年。'],
+      direction: '適合重視專業自主、成果可衡量、能持續升級技能的環境；避免長期權責不清、只靠人情分工的組織。',
+      evidence: [`第10宮主：${zhPlanet(chart.houseLords['10'])}`, `第6宮主：${zhPlanet(chart.houseLords['6'])}`, placement('Mercury'), placement('Jupiter'), placement('Saturn'), placement('Sun'), `D10上升：${zhSign(chart.divisionalCharts.d10.lagna || '資料不足')}`],
+    }),
+    section(headings[6], {
+      conclusion: `D1 與 D9 顯示，年輕時較容易依直覺或熟悉感進入關係；成熟後，你更需要價值觀、責任分配與生活節奏能長期配合。`,
+      strengths: ['願意經營長期關係', '能從相處經驗中修正自己的期待'],
+      risks: ['可能把忍耐當成承諾', '容易等到問題累積後才說出真正需求'],
+      examples: ['剛開始可能被強烈吸引力打動，之後才發現生活方式差異很大。', '穩定交往後可能主動承擔較多日常責任，卻沒有重新協商分工。'],
+      actions: ['每月安排一次只討論生活分工、財務與未來計畫的對話。', '出現不滿時在七天內提出具體事件與希望的改變。', '決定長期承諾前，實際討論居住、家庭、金錢與工作安排。'],
+      direction: '適合願意共同規劃、能處理衝突且行動穩定的長期伴侶。',
+      evidence: [`D1上升：${zhSign(chart.lagna)}`, `D9上升：${zhSign(chart.divisionalCharts.d9.lagna || '資料不足')}`, `D9月亮：${zhSign(chart.divisionalCharts.d9.planets.Moon || '資料不足')}`, `D9金星：${zhSign(chart.divisionalCharts.d9.planets.Venus || '資料不足')}`],
+    }),
+    section(headings[7], {
+      conclusion: `D10 顯示你在社會上適合扮演能建立標準、解決問題並對成果負責的角色；職位名稱不是重點，決策權與專業影響力才是。`,
+      strengths: ['能把混亂工作整理成流程', '適合承擔需要判斷與整合的任務'],
+      risks: ['可能因標準高而難以授權', '在資源不足的環境中容易靠加班補漏洞'],
+      examples: ['升任主管後可能仍親自處理大量細節，團隊因此難以成長。', '組織方向不明時，你可能自行建立規則，卻沒有取得正式授權。'],
+      actions: ['把重複工作寫成流程並交由他人執行，自己保留關鍵判斷。', '每半年選一項能提高市場價值的能力進行系統訓練。', '評估創業前先驗證客源、毛利與六個月現金流，不只看熱情。'],
+      direction: '適合先在能累積資源與案例的組織發展，再依客源與現金流決定是否創業。',
+      evidence: [`D1第10宮主：${zhPlanet(chart.houseLords['10'])}`, `D10上升：${zhSign(chart.divisionalCharts.d10.lagna || '資料不足')}`, `D10太陽：${zhSign(chart.divisionalCharts.d10.planets.Sun || '資料不足')}`, `D10土星：${zhSign(chart.divisionalCharts.d10.planets.Saturn || '資料不足')}`, `目前大運：${zhPlanet(chart.mahaDasha)}`],
+    }),
+    section(headings[8], {
+      conclusion: `未來三至五年的判讀以${zhPlanet(chart.mahaDasha)}大運及實際次週期為主；不同階段的重點不同，應依時間窗口調整投入，而非把所有計畫同時展開。`,
+      strengths: ['能提前辨認需要準備與擴張的階段', '可以把長期目標拆成不同年度任務'],
+      risks: ['把有利期理解成不用準備也會成功', '在整理期急著擴張，增加財務與工作壓力'],
+      examples: ['事業機會增加時，如果作品與資源尚未準備好，可能忙碌卻沒有留下成果。', '關係議題變多時，若同時做重大財務決策，容易互相干擾。'],
+      actions: ['依時間軸為每個階段只設定一項主要目標。', '進入新次週期前三個月完成現金、能力與關係承諾盤點。', '每季用實際數據修正計畫，不因單次事件改變全部方向。'],
+      direction: '整理期先收斂與補強，轉換期小規模測試，較有利的擴張期再增加資源。',
+      evidence: [`目前大運：${zhPlanet(chart.mahaDasha)}`, `目前次週期：${zhPlanet(chart.antarDasha) || '資料不足'}`, transits ? `行運計算時間：${transits.calculatedAt}` : '當下行運資料不足'],
+      timeline,
+    }),
+  ];
+
+  const sections = scope === 'complete'
+    ? completeSections
+    : headings.map((heading) => section(heading, {
+      conclusion: `${heading}的重點需要結合你的上升${zhSign(chart.lagna)}、月亮${zhSign(chart.moonSign)}與目前${zhPlanet(chart.mahaDasha)}大運判讀。`,
+    }));
   return {
+    formatVersion: VEDIC_REPORT_FORMAT_VERSION,
     title: SCOPE_NAMES[scope],
-    introduction: `你的上升為${zhSign(chart.lagna)}、月亮位於${zhSign(chart.moonSign)}，目前行經${zhPlanet(chart.mahaDasha)}大運。這份指引以星盤象徵協助你整理生命方向，不把任何結果視為不可改變的命定。`,
-    sections: headings.map((heading, index) => ({
-      heading,
-      body: expandToDetailedReading(
-        bodyFor(heading),
-        heading,
-        scope === 'complete'
-          ? COMPLETE_LIFE_QUESTION_MIN_CHARS
-          : 220,
-        scope === 'complete'
-          ? COMPLETE_LIFE_QUESTION_MAX_CHARS
-          : undefined,
-      ),
-    })),
-    closing: '給你今生的靈魂訊息：你的星盤不是在告訴你命運已經決定，而是在指出最容易重複的模式，以及這一生最值得發展的方向。你仍然擁有選擇、調整與創造新道路的力量。',
+    introduction: `你的上升為${zhSign(chart.lagna)}、月亮位於${zhSign(chart.moonSign)}，目前行經${zhPlanet(chart.mahaDasha)}大運。以下先說人話與現實表現，再列出星盤依據。`,
+    sections,
+    closing: '這份報告提供可檢查、可執行的方向，但不取代醫療、法律、投資或心理專業意見。重大決定仍應結合現實資料與合格專業建議。',
   };
+}
+
+function cleanTextList(value: unknown, maxItems: number, maxChars = 600): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, maxItems).map((item) => cleanText(item, maxChars)).filter(Boolean);
+}
+
+function parseTimeline(value: unknown): VedicTimelineStage[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 8).flatMap((item) => {
+    const row = item && typeof item === 'object' ? item as Record<string, unknown> : {};
+    const stage = {
+      period: cleanText(row.period, 120), theme: cleanText(row.theme, 600),
+      career: cleanText(row.career, 600), wealth: cleanText(row.wealth, 600),
+      relationship: cleanText(row.relationship, 600),
+      favorableDirection: cleanText(row.favorableDirection, 600),
+      mainRisk: cleanText(row.mainRisk, 600), action: cleanText(row.action, 600),
+    };
+    return Object.values(stage).every(Boolean) ? [stage] : [];
+  });
+}
+
+function normalizeForDuplicateCheck(value: string): string {
+  return value.replace(/[\s，。！？、；：：「」『』（）()]/g, '').toLowerCase();
+}
+
+function reportHasDuplicateSentences(sections: VedicReportSection[]): boolean {
+  const seen = new Set<string>();
+  for (const section of sections) {
+    const values = [
+      section.conclusion, ...section.strengths, ...section.risks, ...section.examples,
+      ...section.actions, section.direction,
+      ...(section.timeline?.flatMap((stage) => [
+        stage.theme, stage.career, stage.wealth, stage.relationship,
+        stage.favorableDirection, stage.mainRisk, stage.action,
+      ]) || []),
+    ];
+    for (const value of values) {
+      const normalized = normalizeForDuplicateCheck(value);
+      if (normalized.length < 12) continue;
+      if (seen.has(normalized)) return true;
+      seen.add(normalized);
+    }
+  }
+  return false;
+}
+
+function validStructuredSection(section: VedicReportSection, index: number): boolean {
+  const baseValid = !!section.heading && !!section.conclusion && !!section.direction
+    && section.strengths.length >= 2 && section.strengths.length <= 4
+    && section.risks.length >= 2 && section.risks.length <= 4
+    && section.examples.length >= 2 && section.examples.length <= 3
+    && section.actions.length === 3 && section.evidence.length >= 2;
+  if (!baseValid) return false;
+  if (index === 2) return !!section.transition?.pastPattern
+    && !!section.transition.currentBlock && !!section.transition.futurePattern;
+  if (index === 8) return !!section.timeline?.length;
+  return true;
 }
 
 async function generatePaidReport(
@@ -825,40 +989,84 @@ async function generatePaidReport(
   chart: VedicChartData,
   transits: VedicTransitSnapshot | null = null,
 ) {
-  if (!env.OPENAI_API_KEY) return fallbackReport(scope, chart, transits);
+  if (!env.OPENAI_API_KEY) return buildVedicFallbackReport(scope, chart, transits);
   const prompt = {
-    task: '依據真實印度占星結構資料，撰寫晶域心語付費深度指引。',
+    task: '像有經驗的印度占星老師面對面解盤：把占星配置翻成現實人生結論與可執行建議。',
     scope,
     scope_name: SCOPE_NAMES[scope],
-    chart,
-    current_transits: transits,
+    analysis_inputs: {
+      d1_birth_chart: {
+        lagna: chart.lagna,
+        sunSign: chart.sunSign,
+        moonSign: chart.moonSign,
+        moonNakshatra: chart.moonNakshatra,
+        planets: chart.planets,
+        housePlacements: chart.housePlacements,
+        houseLords: chart.houseLords,
+        karmaAspects: chart.karmaAspects,
+      },
+      d9_navamsha: chart.divisionalCharts.d9,
+      d10_dashamsha: chart.divisionalCharts.d10,
+      vimshottari_dasha: {
+        mahaDasha: chart.mahaDasha,
+        antarDasha: chart.antarDasha,
+        timeline: chart.dashaTimeline,
+      },
+      current_transits: transits,
+    },
     karma_foundation_chinese: karmaFoundation(chart),
     required_section_headings: REPORT_SECTION_HEADINGS[scope],
+    output_schema: {
+      formatVersion: VEDIC_REPORT_FORMAT_VERSION,
+      title: 'string',
+      introduction: 'string',
+      sections: [{
+        heading: '必須完全等於 required_section_headings 對應項目',
+        conclusion: '1至2句直接結論',
+        strengths: ['2至4項具體優勢'],
+        risks: ['2至4項弱點或容易踩的坑'],
+        examples: ['2至3個現實生活例子'],
+        actions: ['恰好3個能真正執行的行動'],
+        direction: '最適合方向或應避免方向',
+        evidence: ['至少2項實際星盤依據及其白話意義'],
+        transition: { pastPattern: '僅第3項需要', currentBlock: '僅第3項需要', futurePattern: '僅第3項需要' },
+        timeline: [{
+          period: '僅第9項需要，必須來自大運資料中的日期',
+          theme: '主要主題', career: '事業趨勢', wealth: '財運趨勢', relationship: '感情趨勢',
+          favorableDirection: '有利方向', mainRisk: '最大風險', action: '建議行動',
+        }],
+      }],
+      closing: 'string',
+    },
     rules: [
       '只使用提供的星盤資料，不杜撰行星位置、日期、月份或事件。',
-      '使用繁體中文，語氣溫柔、具體、容易理解，兼顧生活、心理、能量與靈性角度。',
-      '所有行星、星座、月宿、週期與占星術語都必須翻譯成中文；報告不得出現英文標題或英文解釋。',
-      '不要只寫「計都位於第X宮」，必須轉譯成使用者能理解的生命慣性、重複模式、舒適圈與轉化方向。',
+      '使用一般人看得懂的繁體中文，像資深老師當面說明；占星配置是證據，白話人生解讀才是答案。',
+      '每個配置都必須回答「這對這個人的現實人生代表什麼」，不可只解釋術語。',
+      '每一區先給結論，再依序給優勢、弱點、生活例子、三個具體行動、最適合方向與星盤依據。',
+      '優勢、弱點與建議必須由此人的配置推導，不得使用固定人格模板。',
+      '少用「能量流動、覺察、宇宙、靈魂邀請、生命路口、重新選擇、療癒自己、回到內在」；不得用抽象詞補篇幅。',
+      '禁止使用「請回想近幾年反覆出現的人、事件與情緒」及「記錄觸發點、分辨恐懼與直覺、確認自己的界線」。',
+      '不同區塊不得出現相同句子；同一建議不可換句話後在多區重複。',
+      '占星術語第一次出現時，用一句白話說明該宮位或分盤掌管的現實領域。',
       '前世因果採象徵與自我探索語氣，使用「可能、傾向、邀請你觀察」，不得宣稱可證實的前世事實。',
       '不得宣稱命定、保證發財、保證婚姻或預測疾病死亡。',
       '財務、醫療、法律議題必須提醒讀者搭配合格專業意見。',
       'sections 必須依 required_section_headings 的順序與數量產出，不可省略或自行增加英文標題。',
-      '完整人生地圖 complete 共九項，每一項正文必須生成 280 至 350 個中文字，不得少於 280 字，也不得超過 350 字；不能用重複句子、空泛套話或同義反覆湊字數。',
-      'complete 第1項以羅喉、計都、宮位、星座、宮主星與相關相位為底層依據，回答前世生命模式、重複原因、執著慣性、舒適圈、業力關係領域與靈魂方向；正文不可用「計都位於第X宮」作為主要呈現。',
-      'complete 第2項回答靈魂核心課題、卡住模式、必須學會與放下之事、逃避時會重複的情境，以及完成課題後的方向；結尾必須寫「你的今生核心課題：＿＿＿＿」。',
-      'complete 第3項專門解讀羅喉與計都的星座、宮位、宮主星及相位，說明熟悉慣性、未知成長方向與靈魂軸線的整合方法。',
-      'complete 第4項回答吸引模式、感情業力、關係功課、婚姻與伴侶傾向，以及資料支持的關係轉折窗口；不得保證婚姻結果。',
-      'complete 第5項回答財富模式、賺錢天賦、失財慣性、金錢恐懼或執著，以及較容易擴張的生命階段。',
-      'complete 第6項回答事業天賦、隱藏能力、工作方式、創業或上班傾向、適合承擔的角色與成就感來源。',
-      'complete 第7項只能以 chart.divisionalCharts.d9 的真實 D9 配置結合本命盤解讀婚姻、承諾、價值觀與靈魂成熟度；資料不足時必須明說，不得杜撰。',
-      'complete 第8項只能以 chart.divisionalCharts.d10 的真實 D10 配置結合本命盤解讀職涯角色、專業發展、領導方式與事業成熟路徑；資料不足時必須明說，不得杜撰。',
-      'complete 第9項必須結合 chart.dashaTimeline 的大運／次週期與 current_transits 的當下行運，說明未來三至五年的年度節奏；只能使用資料中存在的日期，行運缺少時必須明說並以大運為主。',
+      '第1項以前世業力為主：使用計都星座、宮位、宮主、月宿、羅喉計都軸線，必要時加入土星；回答舊模式、優勢、過度使用的代價及停止重複的方法。',
+      '第2項以羅喉為核心：清楚說明計都是熟悉但易過度依賴、羅喉是不熟悉但需發展；direction 必須列出三個今生最值得發展的能力。',
+      '第3項不得重複前兩項；必須輸出 transition，明確呈現「過去習慣→現在卡住→未來發展」。',
+      '第4項綜合D1第7宮、第7宮主、金星、木星、月亮、羅喉計都、D9與大運；說明感情優缺點、吸引類型、問題點、適合與不適合的伴侶。資料不足要明說。',
+      '第5項分析第2、11、5、9、10宮及宮主、木星、金星、大運；直接回答適合固定薪資、專業服務、創業、投資、合作或內容變現中的哪些模式，以及破財位置。',
+      '第6項分析第10、6、2宮與宮主、水星、木星、土星、太陽、D1、D10；輸出最強三項能力、工作環境、職業類型、事業弱點與競爭力。不得固定產生「智慧傳遞者」。',
+      '第7項將D9與D1交叉，解讀年輕與成熟後的關係模式、婚姻優缺點、相處能力與長期伴侶；不可只列星座。',
+      '第8項將D10、D1第10宮與目前大運交叉，回答社會角色、領導方式、創業或組織發展、職場問題、專業定位與升級方向。',
+      '第9項必須輸出 timeline；依實際大運、次週期與行運切成未來3至5年的重要階段，每段包含時間、主題、事業、財運、感情、有利方向、風險與行動。不可虛構日期。',
       '其他方案每個 section 也應提供足夠完整的說明，至少包含星盤依據、生活表現、可能盲點與可實行的轉化方向。',
       'soul_karma 必須回答前世慣性、重複原因、執著、舒適圈、業力關係領域與今生方向。',
       'life_full 必須回答前世業力、今生核心課題、感情關係、財富事業與靈魂使命。',
       '凡包含「你的今生核心課題」段落，最後必須用一句「你的今生核心課題：＿＿＿＿」做出可分享的精簡總結。',
-      'timeline 只能使用 chart.dashaTimeline 已提供的起訖日期，不得虛構其他精確月份或事件。',
-      '回傳 JSON：title、introduction、sections（heading/body）、closing。',
+      'timeline 只能使用 analysis_inputs.vimshottari_dasha.timeline 已提供的起訖日期，不得虛構其他精確月份或事件。',
+      '只能回傳符合 output_schema 的 JSON，不要加 Markdown code fence。',
     ],
   };
   const controller = new AbortController();
@@ -871,11 +1079,11 @@ async function generatePaidReport(
       body: JSON.stringify({
         model: env.OPENAI_MODEL || 'gpt-5.4',
         input: [
-          { role: 'system', content: '你是熟悉 Jyotish 印度占星語彙的靈性陪伴型解讀者。你忠於輸入資料、拒絕命定論，也不以恐懼促銷。' },
+          { role: 'system', content: '你是有多年實務解盤經驗的印度占星老師。你說話直接、具體、重視現實例子與可執行方法；忠於輸入資料，不套模板、不講空泛心靈文、不用恐懼促銷。' },
           { role: 'user', content: JSON.stringify(prompt) },
         ],
         text: { format: { type: 'json_object' } },
-        max_output_tokens: scope === 'full' || scope === 'complete' ? 8000 : 5000,
+        max_output_tokens: scope === 'full' || scope === 'complete' ? 14000 : 6000,
       }),
     });
     if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
@@ -888,19 +1096,36 @@ async function generatePaidReport(
     const sections = Array.isArray(parsed.sections)
       ? parsed.sections.slice(0, REPORT_SECTION_HEADINGS[scope].length).map((entry, index) => {
         const row = entry && typeof entry === 'object' ? entry as Record<string, unknown> : {};
-        return { heading: REPORT_SECTION_HEADINGS[scope][index], body: cleanText(row.body, 6000) };
-      }).filter((entry) => entry.heading && entry.body)
+        const rawTransition = row.transition && typeof row.transition === 'object'
+          ? row.transition as Record<string, unknown> : null;
+        return {
+          heading: REPORT_SECTION_HEADINGS[scope][index],
+          conclusion: cleanText(row.conclusion, 1800),
+          strengths: cleanTextList(row.strengths, 4),
+          risks: cleanTextList(row.risks, 4),
+          examples: cleanTextList(row.examples, 3, 1000),
+          actions: cleanTextList(row.actions, 3, 1000),
+          direction: cleanText(row.direction, 1800),
+          evidence: cleanTextList(row.evidence, 12, 800),
+          ...(rawTransition ? { transition: {
+            pastPattern: cleanText(rawTransition.pastPattern, 1000),
+            currentBlock: cleanText(rawTransition.currentBlock, 1000),
+            futurePattern: cleanText(rawTransition.futurePattern, 1000),
+          } } : {}),
+          ...(Array.isArray(row.timeline) ? { timeline: parseTimeline(row.timeline) } : {}),
+        } satisfies VedicReportSection;
+      })
       : [];
-    const completeSectionsOutOfRange = scope === 'complete' && sections.some((section, index) => (
-      section.body.length < COMPLETE_LIFE_QUESTION_MIN_CHARS
-        || section.body.length > COMPLETE_LIFE_QUESTION_MAX_CHARS
-    ));
-    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || completeSectionsOutOfRange) {
+    const invalidCompleteSections = scope === 'complete' && (
+      sections.some((section, index) => !validStructuredSection(section, index))
+      || reportHasDuplicateSentences(sections)
+    );
+    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || invalidCompleteSections) {
       throw new Error('OpenAI report invalid');
     }
-    return { title, introduction, sections, closing };
+    return { formatVersion: VEDIC_REPORT_FORMAT_VERSION, title, introduction, sections, closing };
   } catch {
-    return fallbackReport(scope, chart, transits);
+    return buildVedicFallbackReport(scope, chart, transits);
   } finally {
     clearTimeout(timer);
   }
@@ -945,16 +1170,17 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   let existingNeedsRefresh = false;
   if (existing) {
     try {
-      const existingReport = JSON.parse(existing.content_json) as { sections?: Array<{ heading?: string; body?: string }> };
+      const existingReport = JSON.parse(existing.content_json) as Partial<VedicPaidReport>;
       existingNeedsRefresh = scope === 'complete' && (
+        existingReport.formatVersion !== VEDIC_REPORT_FORMAT_VERSION
+        ||
         !Array.isArray(existingReport.sections)
         || existingReport.sections.length !== REPORT_SECTION_HEADINGS.complete.length
         || existingReport.sections.some((section, index) => (
           section.heading !== REPORT_SECTION_HEADINGS.complete[index]
-          || typeof section.body !== 'string'
-          || section.body.length < COMPLETE_LIFE_QUESTION_MIN_CHARS
-          || section.body.length > COMPLETE_LIFE_QUESTION_MAX_CHARS
+          || !validStructuredSection(section, index)
         ))
+        || reportHasDuplicateSentences(existingReport.sections)
       );
       if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
     } catch {

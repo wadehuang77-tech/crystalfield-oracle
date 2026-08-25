@@ -344,9 +344,31 @@ export interface VedicFreeResults {
 }
 
 export interface VedicReport {
+  formatVersion?: number;
   title: string;
   introduction: string;
-  sections: Array<{ heading: string; body: string }>;
+  sections: Array<{
+    heading: string;
+    conclusion?: string;
+    strengths?: string[];
+    risks?: string[];
+    examples?: string[];
+    actions?: string[];
+    direction?: string;
+    evidence?: string[];
+    transition?: { pastPattern: string; currentBlock: string; futurePattern: string };
+    timeline?: Array<{
+      period: string;
+      theme: string;
+      career: string;
+      wealth: string;
+      relationship: string;
+      favorableDirection: string;
+      mainRisk: string;
+      action: string;
+    }>;
+    body?: string;
+  }>;
   closing: string;
 }
 

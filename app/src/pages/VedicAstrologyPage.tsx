@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
+  AlertTriangle,
   CircleDollarSign,
   Clock3,
   Briefcase,
@@ -379,7 +380,23 @@ function PaidOption(props: typeof PAID_OPTIONS[number] & { loading: boolean; dis
 }
 
 function PaidReport({ report }: { report: VedicReport }) {
-  return <section id="vedic-paid-report" className="mt-20 scroll-mt-24 rounded-[2rem] border border-amber-300/30 bg-slate-950/65 p-6 shadow-[0_0_60px_rgba(251,191,36,0.1)] sm:p-10"><div className="text-center"><MoonStar className="mx-auto h-10 w-10 text-amber-300" /><p className="mt-4 text-sm tracking-[0.3em] text-amber-300/60">已解鎖的靈魂指引</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{report.title}</h2></div><p className="mx-auto mt-8 max-w-4xl whitespace-pre-line text-lg leading-9 text-violet-50/75">{report.introduction}</p><div className="mx-auto mt-10 max-w-4xl space-y-6">{report.sections.map((section, index) => <article key={`${section.heading}-${index}`} className="rounded-2xl border border-violet-300/15 bg-violet-950/25 p-6 sm:p-8"><h3 className="font-serif text-2xl text-amber-100">{section.heading}</h3><p className="mt-4 whitespace-pre-line leading-8 text-violet-50/72">{section.body}</p></article>)}</div>{report.closing && <p className="mx-auto mt-10 max-w-3xl border-t border-amber-200/15 pt-7 text-center leading-8 text-amber-50/65">{report.closing}</p>}</section>;
+  return <section id="vedic-paid-report" className="mt-20 scroll-mt-24 rounded-[2rem] border border-amber-300/30 bg-slate-950/65 p-6 shadow-[0_0_60px_rgba(251,191,36,0.1)] sm:p-10"><div className="text-center"><MoonStar className="mx-auto h-10 w-10 text-amber-300" /><p className="mt-4 text-sm tracking-[0.3em] text-amber-300/60">已解鎖的深度指引</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{report.title}</h2></div><p className="mx-auto mt-8 max-w-4xl whitespace-pre-line text-lg leading-9 text-violet-50/75">{report.introduction}</p><div className="mx-auto mt-10 max-w-5xl space-y-7">{report.sections.map((section, index) => <article key={`${section.heading}-${index}`} className="rounded-2xl border border-violet-300/15 bg-violet-950/25 p-6 sm:p-8"><h3 className="font-serif text-2xl text-amber-100">{section.heading}</h3>{section.conclusion ? <><div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/8 p-5"><p className="text-xs font-semibold tracking-[0.18em] text-amber-300/65">一句話結論</p><p className="mt-2 text-lg font-medium leading-8 text-amber-50">{section.conclusion}</p></div><div className="mt-6 grid gap-5 lg:grid-cols-2"><ReportList title="你的優勢" items={section.strengths} tone="positive" /><ReportList title="弱點／容易踩的坑" items={section.risks} tone="warning" /><ReportList title="現實中可能怎麼發生" items={section.examples} tone="neutral" /><ReportList title="具體改善方法" items={section.actions} tone="action" /></div>{section.transition && <div className="mt-6 grid gap-3 md:grid-cols-3"><TransitionCard label="你過去習慣" text={section.transition.pastPattern} /><TransitionCard label="現在容易卡住" text={section.transition.currentBlock} /><TransitionCard label="未來應發展" text={section.transition.futurePattern} /></div>}{section.timeline?.length ? <div className="mt-7 space-y-4"><h4 className="font-serif text-xl text-fuchsia-100">未來 3～5 年時間軸</h4>{section.timeline.map((stage) => <article key={`${stage.period}-${stage.theme}`} className="rounded-2xl border border-fuchsia-300/15 bg-slate-950/45 p-5"><h5 className="font-serif text-xl text-amber-100">{stage.period}｜{stage.theme}</h5><dl className="mt-4 grid gap-3 text-sm leading-6 sm:grid-cols-2"><TimelineItem label="事業" value={stage.career} /><TimelineItem label="財運" value={stage.wealth} /><TimelineItem label="感情" value={stage.relationship} /><TimelineItem label="有利方向" value={stage.favorableDirection} /><TimelineItem label="最大風險" value={stage.mainRisk} /><TimelineItem label="建議行動" value={stage.action} /></dl></article>)}</div> : null}<div className="mt-6 rounded-2xl border border-fuchsia-300/15 bg-fuchsia-400/8 p-5"><p className="text-xs font-semibold tracking-[0.18em] text-fuchsia-200/65">最適合你的方向</p><p className="mt-2 leading-7 text-violet-50/80">{section.direction}</p></div>{section.evidence?.length ? <details className="mt-5 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/50"><summary className="cursor-pointer text-violet-100/65">查看本段星盤依據</summary><ul className="mt-3 space-y-2">{section.evidence.map((item) => <li key={item}>・{item}</li>)}</ul></details> : null}</> : <p className="mt-4 whitespace-pre-line leading-8 text-violet-50/72">{section.body}</p>}</article>)}</div>{report.closing && <p className="mx-auto mt-10 max-w-3xl border-t border-amber-200/15 pt-7 text-center leading-8 text-amber-50/65">{report.closing}</p>}</section>;
+}
+
+function ReportList({ title, items = [], tone }: { title: string; items?: string[]; tone: 'positive' | 'warning' | 'neutral' | 'action' }) {
+  const colors = tone === 'positive' ? 'border-emerald-300/15 bg-emerald-400/5 text-emerald-100'
+    : tone === 'warning' ? 'border-rose-300/15 bg-rose-400/5 text-rose-100'
+      : tone === 'action' ? 'border-cyan-300/15 bg-cyan-400/5 text-cyan-100'
+        : 'border-violet-300/15 bg-violet-400/5 text-violet-100';
+  return <section className={`rounded-2xl border p-5 ${colors}`}><h4 className="font-serif text-lg">{title}</h4><ul className="mt-3 space-y-3">{items.map((item, index) => <li key={`${item}-${index}`} className="flex gap-3 text-sm leading-6 text-white/70">{tone === 'warning' ? <AlertTriangle className="mt-1 h-4 w-4 shrink-0" /> : <Check className="mt-1 h-4 w-4 shrink-0" />}<span>{item}</span></li>)}</ul></section>;
+}
+
+function TransitionCard({ label, text }: { label: string; text: string }) {
+  return <div className="rounded-2xl border border-cyan-300/15 bg-cyan-400/5 p-4"><p className="text-xs tracking-[0.15em] text-cyan-200/60">{label}</p><p className="mt-2 text-sm leading-6 text-white/70">{text}</p></div>;
+}
+
+function TimelineItem({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-xl bg-white/[0.035] p-3"><dt className="font-medium text-fuchsia-200/70">{label}</dt><dd className="mt-1 text-white/65">{value}</dd></div>;
 }
 
 function CosmicBackground() {

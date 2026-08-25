@@ -12,11 +12,13 @@
     "test:admin-members": "node --experimental-strip-types scripts/admin-members-check.ts",
     "test:registration-profile": "node --experimental-strip-types scripts/registration-profile-check.ts",
     "test:vedic": "node --experimental-strip-types scripts/vedic-astrology-check.ts",
+    "test:vedic-report": "tsx scripts/vedic-report-sample.ts",
     "types": "wrangler types"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260101.0",
     "@types/tz-lookup": "^6.1.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.3",
     "wrangler": "^4.105.0"
   },
