@@ -16,7 +16,7 @@ import {
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
-const VEDIC_REPORT_FORMAT_VERSION = 8;
+const VEDIC_REPORT_FORMAT_VERSION = 9;
 const VEDIC_FORECAST_YEARS = 5;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
@@ -1368,7 +1368,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
     && report.sections.length === REPORT_SECTION_HEADINGS.complete.length
     && report.sections.every((section, index) => section.heading === REPORT_SECTION_HEADINGS.complete[index]
       && validStructuredSection(section, index))
-    && report.sections.slice(0, 8).every((section) => consultationQualityIssues(section.consultation, 400, 650).length === 0)
+    && report.sections.slice(0, 8).every((section) => consultationQualityIssues(section.consultation, 650, 1100).length === 0)
     && (report.sections[8]?.timeline || []).every((period) => consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period').length === 0)
     && !reportHasDuplicateSentences(report.sections);
 }
@@ -1376,7 +1376,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
 export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
   const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index) ? [] : [`section_${index + 1}`]);
   report.sections.slice(0, 8).forEach((section, index) => {
-    for (const issue of consultationQualityIssues(section.consultation, 400, 650)) issues.push(`section_${index + 1}_${issue}`);
+    for (const issue of consultationQualityIssues(section.consultation, 650, 1100)) issues.push(`section_${index + 1}_${issue}`);
   });
   report.sections[8]?.timeline?.forEach((period) => {
     for (const issue of consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period')) issues.push(`period_${period.id}_${issue}`);
@@ -1565,9 +1565,11 @@ async function generatePaidReport(
       '只回傳 JSON，不得加入 Markdown code fence。',
       '只能使用 chart_facts、program_evidence 與 forecast_periods 的事實；不得猜測或改寫行星、宮位、分盤、大運、次運與日期。',
       '①至⑧每節只輸出 heading 與 consultation；不得輸出固定的結論、優點、缺點、範例、建議、方向、信心、評分或卡片欄位。',
-      '①至⑧每篇以450至550個繁體中文字為目標；若配置複雜可小幅超過，但不可用重複配置、免責或鼓勵話湊字。第九節總論約500字，每個次運時段350至500字。',
+      '①至⑧每篇以750至950個繁體中文字為目標，必須是實質的新洞察，不可用重複配置、免責、鼓勵話或同義改寫湊字。第九節總論約500字、每個次運時段350至500字，這次不得改變第九節的篇幅與分析規則。',
       '文章內部依「現象→深層機制→吸引或重複模式→代價→真正核心→具體做法→成熟版本」推理，但必須寫成自然文章，絕不可顯示成固定小標或模板。',
-      '每篇約500字至少要交付三件有價值的事：一個被說中的深層問題、一個當事人原本沒想到的成因、一個下週就能執行的解法。三者缺一就重寫，不得以字數取代洞察。',
+      '①至⑧每篇至少要交付：一個被說中的深層問題、一個當事人原本沒想到的成因、一個隱藏的心理回報或安全感來源、一個最細微但反覆發生的行為訊號、一個長期代價，以及一個下週就能執行的解法。任何一項缺少就重寫，不得以字數取代洞察。',
+      '像印度占星大師面對面追問到問題背後：本人為什麼明知不舒服仍重複、這個模式曾經保護了什麼、本人從中換得被需要、可控制、可預測或不必冒險等哪種隱性好處，以及真正害怕失去的是什麼。這些判斷必須來自本盤，不得套用固定童年或創傷故事。',
+      '①至⑧要寫出細微到本人能辨認的早期訊號，例如答應前身體或語氣的反應、關係失衡最初如何出現、工作被低估前本人做了哪個習慣動作、財務漏損在決策哪一步開始。不要只描述事情已經惡化後的結果。',
       '每篇至少出現一至兩個只有結合這張命盤才成立的深層判斷。必須先交叉至少三個相關星盤因素，再翻成人生結論；不得將單顆行星關鍵字擴寫成整篇。',
       '每篇至少自然融入兩個不同場域的具體人生場景，清楚指出最容易做錯的選擇與長期代價。解法不能只寫建立界線、相信自己或學習放下，必須包含觸發情境、可執行步驟、判斷標準或時間限制，並說明為何正好修正盤中模式。',
       '每篇必須分析一次「天賦如何因過度使用而變成問題及代價」，最後讓當事人看見成熟後不是失去天賦，而是如何把它變成選擇權、專業、關係品質或實際回報。',
@@ -1581,7 +1583,7 @@ async function generatePaidReport(
     ],
   };
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 45_000);
+  const timer = setTimeout(() => controller.abort(), 70_000);
   try {
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
@@ -1594,7 +1596,7 @@ async function generatePaidReport(
           { role: 'user', content: JSON.stringify(prompt) },
         ],
         text: { format: { type: 'json_object' } },
-        max_output_tokens: scope === 'full' || scope === 'complete' ? 14000 : 6000,
+        max_output_tokens: scope === 'full' || scope === 'complete' ? 22000 : 6000,
       }),
     });
     if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
@@ -1624,7 +1626,7 @@ async function generatePaidReport(
       })
       : [];
     const invalidGeneratedSections = sections.some((section, index) => !validStructuredSection(section, index))
-      || sections.filter((_, index) => !(scope === 'complete' && index === 8)).some((section) => !consultationHasDepth(section.consultation, 400))
+      || sections.filter((_, index) => !(scope === 'complete' && index === 8)).some((section) => !consultationHasDepth(section.consultation, scope === 'complete' ? 650 : 400))
       || (scope === 'complete' && forecastTimeline.some((period) => !consultationHasDepth(period.interpretation.consultation, 300, 'period')))
       || reportHasDuplicateSentences(sections);
     if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || invalidGeneratedSections) {
