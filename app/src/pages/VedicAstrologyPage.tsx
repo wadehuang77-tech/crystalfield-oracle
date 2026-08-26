@@ -188,9 +188,9 @@ export default function VedicAstrologyPage() {
         setReportGeneration(result.generation || []);
         if (result.transientFallback || !result.report) {
           setReport(null);
-          if (result.retryable && attempt < 2) {
+          if (result.retryable && attempt < 20) {
             setReportLoading(true);
-            await new Promise((resolve) => window.setTimeout(resolve, 2500 * (attempt + 1)));
+            await new Promise((resolve) => window.setTimeout(resolve, 600));
             return loadPaidReport(attempt + 1);
           }
           setReportError('完整深度報告尚未生成成功。系統沒有顯示備援模板，請使用下方按鈕安全重試。');

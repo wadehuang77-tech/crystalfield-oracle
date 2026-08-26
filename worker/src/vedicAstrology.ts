@@ -111,6 +111,23 @@ interface VedicPaidReport {
   consultationQuestion?: string;
 }
 
+interface VedicReportDraft {
+  generationOnly: true;
+  formatVersion: number;
+  updatedAt: string;
+  title: string;
+  introduction: string;
+  closing: string;
+  sections: Array<VedicReportSection | null>;
+  generation: Array<{
+    section: number;
+    heading: string;
+    status: 'pending' | 'completed' | 'failed';
+    attempts: number;
+    error?: string;
+  }>;
+}
+
 interface VedAstroEnvelope {
   Status?: string;
   Payload?: unknown;
@@ -1762,7 +1779,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   if (!order || order.status !== 'paid' || !order.item_id.startsWith('vedic_')) {
     return unauthorized(req, env, '此報告尚未完成付款解鎖');
   }
-  const limit = await rateLimit(env, 'vedic-report-order', orderId, 6, 3600);
+  const limit = await rateLimit(env, 'vedic-report-order', orderId, 40, 3600);
   if (!limit.allowed) return tooManyRequests(req, env, '此筆報告重新產生過於頻繁，請稍後再試');
   let linkedChartId = '';
   try {
@@ -1784,9 +1801,11 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
     'SELECT content_json FROM vedic_reports WHERE order_id = ?'
   ).bind(orderId).first<{ content_json: string }>();
   let existingNeedsRefresh = false;
+  let existingDraft: Partial<VedicReportDraft> | null = null;
   if (existing) {
     try {
-      const existingReport = JSON.parse(existing.content_json) as Partial<VedicPaidReport>;
+      const existingReport = JSON.parse(existing.content_json) as Partial<VedicPaidReport> & Partial<VedicReportDraft>;
+      if (existingReport.generationOnly) existingDraft = existingReport;
       existingNeedsRefresh = scope === 'complete'
         && !validateCompleteVedicReport(existingReport as VedicPaidReport);
       if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
@@ -1800,6 +1819,96 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   if (!chartRow) return badRequest(req, env, '找不到星盤資料');
   const chart = hydrateChartData(JSON.parse(chartRow.chart_json) as VedicChartData);
   const transits = scope === 'complete' ? await loadCurrentTransits(env) : null;
+
+  if (scope === 'complete') {
+    const headings = REPORT_SECTION_HEADINGS.complete;
+    const previousGeneration = Array.isArray(existingDraft?.generation) ? existingDraft.generation : [];
+    const previousSections = Array.isArray(existingDraft?.sections) ? existingDraft.sections : [];
+    const draft: VedicReportDraft = {
+      generationOnly: true,
+      formatVersion: VEDIC_REPORT_FORMAT_VERSION,
+      updatedAt: new Date().toISOString(),
+      title: cleanText(existingDraft?.title, 120),
+      introduction: cleanText(existingDraft?.introduction, 3000),
+      closing: cleanText(existingDraft?.closing, 2000),
+      sections: headings.map((_, index) => previousSections[index] || null),
+      generation: headings.map((heading, index) => {
+        const previous = previousGeneration.find((item) => item.section === index + 1);
+        const completed = !!previousSections[index];
+        return {
+          section: index + 1,
+          heading,
+          status: completed ? 'completed' : 'pending',
+          attempts: Number(previous?.attempts || 0),
+          ...(!completed && previous?.error ? { error: previous.error } : {}),
+        };
+      }),
+    };
+    const nextIndex = draft.sections.findIndex((section) => !section);
+    if (nextIndex >= 0) {
+      const state = draft.generation[nextIndex];
+      try {
+        const partial = await generatePaidReportPart(env, scope, chart, transits, 0, [nextIndex]);
+        draft.sections[nextIndex] = partial.sections[0];
+        draft.title ||= partial.title;
+        draft.introduction ||= partial.introduction;
+        draft.closing = partial.closing || draft.closing;
+        draft.generation[nextIndex] = { ...state, status: 'completed', attempts: state.attempts + 1 };
+      } catch (error) {
+        draft.generation[nextIndex] = {
+          ...state,
+          status: 'failed',
+          attempts: state.attempts + 1,
+          error: error instanceof Error ? error.message : 'generation_failed',
+        };
+      }
+      draft.updatedAt = new Date().toISOString();
+    }
+
+    const complete = draft.sections.every((section): section is VedicReportSection => !!section);
+    if (complete) {
+      const completedReport: VedicPaidReport = {
+        formatVersion: VEDIC_REPORT_FORMAT_VERSION,
+        title: draft.title || '完整人生地圖｜9 大印度占星深度解析',
+        introduction: draft.introduction,
+        sections: draft.sections as VedicReportSection[],
+        closing: draft.closing,
+      };
+      if (validateCompleteVedicReport(completedReport)) {
+        if (existing) {
+          await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
+            .bind(JSON.stringify(completedReport), draft.updatedAt, orderId).run();
+        } else {
+          await env.DB.prepare(
+            `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
+             VALUES (?, ?, ?, ?, ?, ?)`
+          ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(completedReport), draft.updatedAt).run();
+        }
+        return json(req, env, { scope, report: completedReport, cached: false }, { status: 201 });
+      }
+      draft.generation = draft.generation.map((item) => ({ ...item, status: 'failed', error: 'combined_report_quality_failed' }));
+    }
+
+    if (existing) {
+      await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
+        .bind(JSON.stringify(draft), draft.updatedAt, orderId).run();
+    } else {
+      await env.DB.prepare(
+        `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
+         VALUES (?, ?, ?, ?, ?, ?)`
+      ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(draft), draft.updatedAt).run();
+    }
+    const active = draft.generation.find((item) => item.status === 'failed');
+    const retryable = !active || active.attempts < 3;
+    return json(req, env, {
+      scope,
+      cached: false,
+      transientFallback: true,
+      retryable,
+      generation: draft.generation,
+    }, { status: 202 });
+  }
+
   let report: VedicPaidReport;
   try {
     report = await generatePaidReport(env, scope, chart, transits);
@@ -1835,31 +1944,6 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
       }, { status: 503 });
     }
     return serverError(req, env, error);
-  }
-  const cacheableReport = scope !== 'complete' || validateCompleteVedicReport(report);
-  if (!cacheableReport) {
-    // A deterministic fallback is useful as a temporary response, but it must
-    // never replace or create the premium cached report. The next request can
-    // therefore retry AI generation instead of being stuck with brief content.
-    const audit = scope === 'complete' ? auditCompleteVedicReport(report) : ['report_generation_failed'];
-    const generation = REPORT_SECTION_HEADINGS[scope].map((heading, index) => {
-      const sectionIssues = audit.filter((issue) => issue.startsWith(`section_${index + 1}_`) || issue === `section_${index + 1}`);
-      return {
-        section: index + 1,
-        heading,
-        status: sectionIssues.length ? 'failed' : 'pending',
-        ...(sectionIssues.length ? { error: sectionIssues.join(', ') } : {}),
-      };
-    });
-    // Never send the deterministic fallback as paid report content. It is only
-    // used internally for evidence and diagnostics; the client must retry AI.
-    return json(req, env, {
-      scope,
-      cached: false,
-      transientFallback: true,
-      retryable: true,
-      generation,
-    }, { status: 202 });
   }
   if (existing && existingNeedsRefresh) {
     await env.DB.prepare(

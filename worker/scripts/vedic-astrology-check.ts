@@ -47,7 +47,7 @@ assert.match(source, /traditionalChineseLength/);
 assert.match(source, /duplicate_or_high_similarity/);
 assert.match(source, /const resolvedChartId = linkedChartId/);
 assert.match(source, /if \(chartId \|\| chartToken\)/);
-assert.match(source, /rateLimit\(env, 'vedic-report-order', orderId, 6, 3600\)/);
+assert.match(source, /rateLimit\(env, 'vedic-report-order', orderId, 40, 3600\)/);
 for (const field of ['consultation', 'evidence', 'timeline']) {
   assert.match(source, new RegExp(field), `missing structured report field: ${field}`);
 }
