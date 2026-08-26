@@ -1371,12 +1371,12 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
       && validStructuredSection(section, index))
     && report.sections.slice(0, 8).every((section) => {
       const length = traditionalChineseLength(section.consultation);
-      return length >= 650 && length <= 1100
+      return length >= 650 && length <= 2500
         && GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length < 2;
     })
     && (report.sections[8]?.timeline || []).every((period) => {
       const length = traditionalChineseLength(period.interpretation.consultation);
-      return length >= 250 && length <= 650;
+      return length >= 250 && length <= 1200;
     })
     && !reportHasDuplicateSentences(report.sections);
 }
@@ -1608,7 +1608,7 @@ async function generatePaidReportPart(
           { role: 'user', content: JSON.stringify(prompt) },
         ],
         text: { format: { type: 'json_object' } },
-        max_output_tokens: requestedSectionIndexes ? (includeForecast ? 10000 : 6500) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
+        max_output_tokens: requestedSectionIndexes ? (includeForecast ? 14000 : 12000) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
       }),
     });
     if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
@@ -1642,12 +1642,12 @@ async function generatePaidReportPart(
       || sections.filter((_, localIndex) => sectionIndexes[localIndex] !== 8).some((section) => {
         const length = traditionalChineseLength(section.consultation);
         return scope === 'complete'
-          ? length < 650 || length > 1100 || GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2
+          ? length < 650 || length > 2500 || GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2
           : !consultationHasDepth(section.consultation, 400);
       })
       || (includeForecast && forecastTimeline.some((period) => {
         const length = traditionalChineseLength(period.interpretation.consultation);
-        return length < 250 || length > 650;
+        return length < 250 || length > 1200;
       }))
       || reportHasDuplicateSentences(sections);
     if (!title || !introduction || sections.length !== sectionIndexes.length || invalidGeneratedSections) {
