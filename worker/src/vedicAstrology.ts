@@ -1369,8 +1369,15 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
     && report.sections.length === REPORT_SECTION_HEADINGS.complete.length
     && report.sections.every((section, index) => section.heading === REPORT_SECTION_HEADINGS.complete[index]
       && validStructuredSection(section, index))
-    && report.sections.slice(0, 8).every((section) => consultationQualityIssues(section.consultation, 650, 1100).length === 0)
-    && (report.sections[8]?.timeline || []).every((period) => consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period').length === 0)
+    && report.sections.slice(0, 8).every((section) => {
+      const length = traditionalChineseLength(section.consultation);
+      return length >= 650 && length <= 1100
+        && GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length < 2;
+    })
+    && (report.sections[8]?.timeline || []).every((period) => {
+      const length = traditionalChineseLength(period.interpretation.consultation);
+      return length >= 250 && length <= 650;
+    })
     && !reportHasDuplicateSentences(report.sections);
 }
 
@@ -1588,7 +1595,7 @@ async function generatePaidReportPart(
     ],
   };
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 70_000);
+  const timer = setTimeout(() => controller.abort(), 120_000);
   try {
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
@@ -1632,11 +1639,25 @@ async function generatePaidReportPart(
       })
       : [];
     const invalidGeneratedSections = sections.some((section, localIndex) => !validStructuredSection(section, sectionIndexes[localIndex]))
-      || sections.filter((_, localIndex) => sectionIndexes[localIndex] !== 8).some((section) => !consultationHasDepth(section.consultation, scope === 'complete' ? 650 : 400))
-      || (includeForecast && forecastTimeline.some((period) => !consultationHasDepth(period.interpretation.consultation, 300, 'period')))
+      || sections.filter((_, localIndex) => sectionIndexes[localIndex] !== 8).some((section) => {
+        const length = traditionalChineseLength(section.consultation);
+        return scope === 'complete'
+          ? length < 650 || length > 1100 || GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2
+          : !consultationHasDepth(section.consultation, 400);
+      })
+      || (includeForecast && forecastTimeline.some((period) => {
+        const length = traditionalChineseLength(period.interpretation.consultation);
+        return length < 250 || length > 650;
+      }))
       || reportHasDuplicateSentences(sections);
     if (!title || !introduction || sections.length !== sectionIndexes.length || invalidGeneratedSections) {
-      throw new Error('OpenAI report invalid');
+      const reasons = [
+        !title ? 'missing_title' : '',
+        !introduction ? 'missing_introduction' : '',
+        sections.length !== sectionIndexes.length ? `section_count_${sections.length}_expected_${sectionIndexes.length}` : '',
+        invalidGeneratedSections ? 'section_quality_invalid' : '',
+      ].filter(Boolean);
+      throw new Error(`OpenAI report invalid: ${reasons.join(',')}`);
     }
     if (scope === 'complete') console.info('VEDIC_FORECAST_DIAGNOSTICS', {
       ...diagnostics,
@@ -1679,10 +1700,24 @@ async function generatePaidReport(
   // Smaller independent requests avoid one 9-section JSON response timing out.
   // Section 9 remains its own batch and continues to use the existing fixed
   // forecast skeleton + mergeVedicForecastInterpretations validation.
-  const batches = [[0, 1], [2, 3], [4, 5], [6, 7], [8]];
-  const results = await Promise.allSettled(
-    batches.map((indexes) => generatePaidReportPart(env, scope, chart, transits, 0, indexes)),
-  );
+  const batches = REPORT_SECTION_HEADINGS.complete.map((_, index) => [index]);
+  const results: PromiseSettledResult<VedicPaidReport>[] = new Array(batches.length);
+  // Three workers keep latency reasonable without flooding the model with all
+  // nine long generations at once. Each section has its own retry boundary.
+  let nextBatch = 0;
+  const worker = async () => {
+    while (nextBatch < batches.length) {
+      const batchIndex = nextBatch;
+      nextBatch += 1;
+      try {
+        const value = await generatePaidReportPart(env, scope, chart, transits, 0, batches[batchIndex]);
+        results[batchIndex] = { status: 'fulfilled', value };
+      } catch (reason) {
+        results[batchIndex] = { status: 'rejected', reason };
+      }
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
   const generation = batches.flatMap((indexes, batchIndex) => indexes.map((index) => {
     const result = results[batchIndex];
     return result.status === 'fulfilled'

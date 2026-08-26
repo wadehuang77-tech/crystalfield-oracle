@@ -403,7 +403,7 @@ export const vedicAstrologyApi = {
 
   getPaidReport: (body: { chart_id?: string; chart_token?: string; order_id: string; order_token: string }) =>
     req<VedicReportResponse>('/api/vedic-astrology/reports', {
-      method: 'POST', body, timeoutMs: 150000,
+      method: 'POST', body, timeoutMs: 300000,
     }),
 };
 
