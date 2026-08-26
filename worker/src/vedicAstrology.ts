@@ -808,7 +808,7 @@ function karmaFoundation(chart: VedicChartData) {
 
 function parseDashaDate(value: string): Date | null {
   const text = value.trim();
-  const dayFirst = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+  const dayFirst = text.match(/(?:^|\s)(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:\s|$)/);
   if (dayFirst) {
     const date = new Date(Date.UTC(Number(dayFirst[3]), Number(dayFirst[2]) - 1, Number(dayFirst[1])));
     return Number.isNaN(date.getTime()) ? null : date;

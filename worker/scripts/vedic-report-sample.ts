@@ -17,6 +17,20 @@ const chart: VedicChartData = {
 
 const skeleton = buildVedicForecastPeriods(chart, new Date('2026-08-25T00:00:00Z'), 5);
 assert.deepEqual(skeleton.map(({ mahaDasha, antarDasha }) => [mahaDasha, antarDasha]), [['Jupiter', 'Saturn'], ['Jupiter', 'Mercury'], ['Saturn', 'Saturn'], ['Saturn', 'Venus']]);
+const vedAstroTimestampChart: VedicChartData = {
+  ...chart,
+  dashaTimeline: chart.dashaTimeline.map((maha) => ({
+    ...maha,
+    start: `13:09 ${maha.start} +08:00`,
+    end: `13:09 ${maha.end} +08:00`,
+    subPeriods: maha.subPeriods.map((antar) => ({
+      ...antar,
+      start: `13:09 ${antar.start} +08:00`,
+      end: `13:09 ${antar.end} +08:00`,
+    })),
+  })),
+};
+assert.equal(buildVedicForecastPeriods(vedAstroTimestampChart, new Date('2026-08-25T00:00:00Z'), 5).length, skeleton.length);
 const consultation = (index: number) => `這是第${index}段依照實際大運與次運寫成的個人諮詢。這段文字不把行星當成百科條目，而是說明當事人在工作安排、金錢責任與關係互動上最可能遇到的現實卡點。長期背景與短期觸發因素必須一起看，因此建議先確認目前承擔的責任是否超過可用時間，再選一件最能留下成果的事推進。執行上，先把承諾、成本、期限及退出條件寫清楚，兩週後依實際結果調整，不因一時焦慮同時開啟多個計畫。這樣才能把此階段的壓力轉成可累積的成果，而不是反覆忙碌。`;
 const ai = Object.fromEntries(skeleton.map((period, index) => [period.id, { consultation: consultation(index + 1), startDate: 'AI_CANNOT_OVERRIDE' }]));
 const merged = mergeVedicForecastInterpretations(skeleton, ai, chart);
