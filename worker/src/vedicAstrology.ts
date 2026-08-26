@@ -1360,7 +1360,8 @@ function validStructuredSection(section: any, index: number): boolean {
 }
 
 function consultationHasDepth(value: string, minimumLength: number, kind: 'section' | 'period' = 'section'): boolean {
-  return consultationQualityIssues(value, minimumLength, 720, kind).length === 0;
+  const maximumLength = kind === 'period' ? 600 : 1100;
+  return consultationQualityIssues(value, minimumLength, maximumLength, kind).length === 0;
 }
 
 export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
@@ -1700,17 +1701,8 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   if (existing) {
     try {
       const existingReport = JSON.parse(existing.content_json) as Partial<VedicPaidReport>;
-      existingNeedsRefresh = scope === 'complete' && (
-        existingReport.formatVersion !== VEDIC_REPORT_FORMAT_VERSION
-        ||
-        !Array.isArray(existingReport.sections)
-        || existingReport.sections.length !== REPORT_SECTION_HEADINGS.complete.length
-        || existingReport.sections.some((section, index) => (
-          section.heading !== REPORT_SECTION_HEADINGS.complete[index]
-          || !validStructuredSection(section, index)
-        ))
-        || reportHasDuplicateSentences(existingReport.sections)
-      );
+      existingNeedsRefresh = scope === 'complete'
+        && !validateCompleteVedicReport(existingReport as VedicPaidReport);
       if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
     } catch {
       existingNeedsRefresh = true;
@@ -1733,6 +1725,13 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
       }, { status: 503 });
     }
     return serverError(req, env, error);
+  }
+  const cacheableReport = scope !== 'complete' || validateCompleteVedicReport(report);
+  if (!cacheableReport) {
+    // A deterministic fallback is useful as a temporary response, but it must
+    // never replace or create the premium cached report. The next request can
+    // therefore retry AI generation instead of being stuck with brief content.
+    return json(req, env, { scope, report, cached: false, transientFallback: true }, { status: 201 });
   }
   if (existing && existingNeedsRefresh) {
     await env.DB.prepare(
