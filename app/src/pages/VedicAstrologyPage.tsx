@@ -200,7 +200,17 @@ export default function VedicAstrologyPage() {
         setReportError('');
         window.setTimeout(() => document.getElementById('vedic-paid-report')?.scrollIntoView({ behavior: 'smooth' }), 100);
       } catch (reason) {
-        if (!cancelled) setReportError(reason instanceof Error ? reason.message : '無法取得已解鎖報告');
+        if (cancelled) return;
+        // A section can finish and be persisted by the Worker even if the browser
+        // loses that individual response. Keep polling the paid order so the UI
+        // can recover the completed report instead of leaving it hidden.
+        if (attempt < 20) {
+          setReportLoading(true);
+          setReportError('深度指引正在完成，網路連線中斷後正在自動重新取得…');
+          await new Promise((resolve) => window.setTimeout(resolve, 1500));
+          return loadPaidReport(attempt + 1);
+        }
+        setReportError(reason instanceof Error ? reason.message : '無法取得已解鎖報告');
       } finally {
         if (!cancelled) setReportLoading(false);
       }

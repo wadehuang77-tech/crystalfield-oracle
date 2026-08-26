@@ -16,7 +16,7 @@ import {
 const VEDASTRO_BASE = 'https://api.vedastro.org/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
-const VEDIC_REPORT_FORMAT_VERSION = 9;
+const VEDIC_REPORT_FORMAT_VERSION = 10;
 const VEDIC_FORECAST_YEARS = 5;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
@@ -1388,7 +1388,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
       && validStructuredSection(section, index))
     && report.sections.slice(0, 8).every((section) => {
       const length = traditionalChineseLength(section.consultation);
-      return length >= 650 && length <= 2500
+      return length >= 320 && length <= 650
         && GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length < 2;
     })
     && (report.sections[8]?.timeline || []).every((period) => {
@@ -1401,7 +1401,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
 export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
   const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index) ? [] : [`section_${index + 1}`]);
   report.sections.slice(0, 8).forEach((section, index) => {
-    for (const issue of consultationQualityIssues(section.consultation, 650, 1100)) issues.push(`section_${index + 1}_${issue}`);
+    for (const issue of consultationQualityIssues(section.consultation, 320, 650)) issues.push(`section_${index + 1}_${issue}`);
   });
   report.sections[8]?.timeline?.forEach((period) => {
     for (const issue of consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period')) issues.push(`period_${period.id}_${issue}`);
@@ -1594,7 +1594,7 @@ async function generatePaidReportPart(
       '只回傳 JSON，不得加入 Markdown code fence。',
       '只能使用 chart_facts、program_evidence 與 forecast_periods 的事實；不得猜測或改寫行星、宮位、分盤、大運、次運與日期。',
       '①至⑧每節只輸出 heading 與 consultation；不得輸出固定的結論、優點、缺點、範例、建議、方向、信心、評分或卡片欄位。',
-      '①至⑧每篇以750至950個繁體中文字為目標，必須是實質的新洞察，不可用重複配置、免責、鼓勵話或同義改寫湊字。第九節總論約500字、每個次運時段350至500字，這次不得改變第九節的篇幅與分析規則。',
+      '①至⑧每篇以350至500個繁體中文字為目標，精簡為原篇幅約一半，但仍必須保留個人化判斷、深層原因、現實表現與可執行解法；不可用重複配置、免責、鼓勵話或同義改寫湊字。第九節總論約500字、每個次運時段350至500字，這次不得改變第九節的篇幅與分析規則。',
       '文章內部依「現象→深層機制→吸引或重複模式→代價→真正核心→具體做法→成熟版本」推理，但必須寫成自然文章，絕不可顯示成固定小標或模板。',
       '①至⑧每篇至少要交付：一個被說中的深層問題、一個當事人原本沒想到的成因、一個隱藏的心理回報或安全感來源、一個最細微但反覆發生的行為訊號、一個長期代價，以及一個下週就能執行的解法。任何一項缺少就重寫，不得以字數取代洞察。',
       '像印度占星大師面對面追問到問題背後：本人為什麼明知不舒服仍重複、這個模式曾經保護了什麼、本人從中換得被需要、可控制、可預測或不必冒險等哪種隱性好處，以及真正害怕失去的是什麼。這些判斷必須來自本盤，不得套用固定童年或創傷故事。',
@@ -1625,7 +1625,7 @@ async function generatePaidReportPart(
           { role: 'user', content: JSON.stringify(prompt) },
         ],
         text: { format: { type: 'json_object' } },
-        max_output_tokens: requestedSectionIndexes ? (includeForecast ? 14000 : 12000) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
+        max_output_tokens: requestedSectionIndexes ? (includeForecast ? 14000 : 7000) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
       }),
     });
     if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
@@ -1659,7 +1659,7 @@ async function generatePaidReportPart(
       || sections.filter((_, localIndex) => sectionIndexes[localIndex] !== 8).some((section) => {
         const length = traditionalChineseLength(section.consultation);
         return scope === 'complete'
-          ? length < 650 || length > 2500 || GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2
+          ? length < 320 || length > 650 || GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2
           : !consultationHasDepth(section.consultation, 400);
       })
       || (includeForecast && forecastTimeline.some((period) => {
