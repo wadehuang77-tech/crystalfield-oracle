@@ -370,6 +370,22 @@ export interface VedicReport {
   closing: string;
 }
 
+export interface VedicReportGenerationStatus {
+  section: number;
+  heading: string;
+  status: 'pending' | 'generating' | 'completed' | 'failed';
+  error?: string;
+}
+
+export interface VedicReportResponse {
+  scope: string;
+  report?: VedicReport;
+  cached: boolean;
+  transientFallback?: boolean;
+  retryable?: boolean;
+  generation?: VedicReportGenerationStatus[];
+}
+
 export interface VedicChartResponse {
   chart_id: string;
   chart_token: string;
@@ -386,7 +402,7 @@ export const vedicAstrologyApi = {
     }),
 
   getPaidReport: (body: { chart_id?: string; chart_token?: string; order_id: string; order_token: string }) =>
-    req<{ scope: string; report: VedicReport; cached: boolean }>('/api/vedic-astrology/reports', {
+    req<VedicReportResponse>('/api/vedic-astrology/reports', {
       method: 'POST', body, timeoutMs: 150000,
     }),
 };

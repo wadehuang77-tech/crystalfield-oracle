@@ -22,6 +22,7 @@ import {
   vedicAstrologyApi,
   type VedicChartResponse,
   type VedicReport,
+  type VedicReportGenerationStatus,
 } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 
@@ -156,6 +157,7 @@ export default function VedicAstrologyPage() {
   const [report, setReport] = useState<VedicReport | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
+  const [reportGeneration, setReportGeneration] = useState<VedicReportGenerationStatus[]>([]);
   const [error, setError] = useState('');
   const restoreRef = useRef(false);
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
@@ -173,17 +175,38 @@ export default function VedicAstrologyPage() {
     setReportLoading(true);
     setReportError('');
     setError('');
-    void vedicAstrologyApi.getPaidReport({
-      chart_id: chart?.chart_id,
-      chart_token: chart?.chart_token,
-      order_id: orderId,
-      order_token: orderToken,
-    }).then((result) => {
-      setReport(result.report);
-      window.setTimeout(() => document.getElementById('vedic-paid-report')?.scrollIntoView({ behavior: 'smooth' }), 100);
-    }).catch((reason) => {
-      setReportError(reason instanceof Error ? reason.message : '無法取得已解鎖報告');
-    }).finally(() => setReportLoading(false));
+    let cancelled = false;
+    const loadPaidReport = async (attempt = 0): Promise<void> => {
+      try {
+        const result = await vedicAstrologyApi.getPaidReport({
+          chart_id: chart?.chart_id,
+          chart_token: chart?.chart_token,
+          order_id: orderId,
+          order_token: orderToken,
+        });
+        if (cancelled) return;
+        setReportGeneration(result.generation || []);
+        if (result.transientFallback || !result.report) {
+          setReport(null);
+          if (result.retryable && attempt < 2) {
+            setReportLoading(true);
+            await new Promise((resolve) => window.setTimeout(resolve, 2500 * (attempt + 1)));
+            return loadPaidReport(attempt + 1);
+          }
+          setReportError('完整深度報告尚未生成成功。系統沒有顯示備援模板，請使用下方按鈕安全重試。');
+          return;
+        }
+        setReport(result.report);
+        setReportError('');
+        window.setTimeout(() => document.getElementById('vedic-paid-report')?.scrollIntoView({ behavior: 'smooth' }), 100);
+      } catch (reason) {
+        if (!cancelled) setReportError(reason instanceof Error ? reason.message : '無法取得已解鎖報告');
+      } finally {
+        if (!cancelled) setReportLoading(false);
+      }
+    };
+    void loadPaidReport();
+    return () => { cancelled = true; };
   }, [chart, searchParams]);
 
   const submit = async (event: FormEvent) => {
@@ -300,8 +323,8 @@ export default function VedicAstrologyPage() {
           </section>
         )}
 
-        {reportLoading && <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-[#070312]/88 px-5 backdrop-blur-md"><div className="w-full max-w-md rounded-[2rem] border border-amber-300/35 bg-slate-950/95 p-8 text-center shadow-[0_0_70px_rgba(217,70,239,0.25)]"><Loader2 className="mx-auto h-10 w-10 animate-spin text-amber-300" /><h2 className="mt-6 font-serif text-2xl text-amber-50">深度指引產生中</h2><p className="mt-4 text-lg leading-8 text-violet-100/80">請等候約 1～2 分鐘</p><p className="mt-2 text-sm leading-6 text-violet-100/50">正在交叉解析本命盤、D9、D10 與大運時間軸。請保持此頁開啟，完成後會自動顯示。</p></div></div>}
-        {reportError && !reportLoading && <div role="alert" className="fixed inset-x-4 top-24 z-50 mx-auto max-w-lg rounded-2xl border border-rose-300/35 bg-slate-950/95 p-6 text-center shadow-2xl"><p className="font-semibold text-rose-100">深度指引暫時沒有成功顯示</p><p className="mt-2 text-sm leading-6 text-rose-100/70">{reportError}</p><button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-600 px-5 py-3 font-medium text-white">重新取得已付款報告</button></div>}
+        {reportLoading && <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-[#070312]/88 px-5 backdrop-blur-md"><div className="w-full max-w-md rounded-[2rem] border border-amber-300/35 bg-slate-950/95 p-8 text-center shadow-[0_0_70px_rgba(217,70,239,0.25)]"><Loader2 className="mx-auto h-10 w-10 animate-spin text-amber-300" /><h2 className="mt-6 font-serif text-2xl text-amber-50">深度指引正在生成／重新生成</h2><p className="mt-4 text-lg leading-8 text-violet-100/80">請等候約 1～2 分鐘</p><p className="mt-2 text-sm leading-6 text-violet-100/50">只有通過完整性檢查的個人化報告才會顯示，暫時備援文字不會冒充付費報告。</p>{reportGeneration.length > 0 && <ul className="mt-5 max-h-40 space-y-1 overflow-y-auto text-left text-xs text-violet-100/60">{reportGeneration.map((item) => <li key={item.section}>第 {item.section} 項：{item.status === 'completed' ? '已完成' : item.status === 'failed' ? '重新生成中' : '生成中'}</li>)}</ul>}</div></div>}
+        {reportError && !reportLoading && <div role="alert" className="fixed inset-x-4 top-24 z-50 mx-auto max-w-lg rounded-2xl border border-rose-300/35 bg-slate-950/95 p-6 text-center shadow-2xl"><p className="font-semibold text-rose-100">完整深度指引尚未生成成功</p><p className="mt-2 text-sm leading-6 text-rose-100/70">{reportError}</p>{reportGeneration.length > 0 && <ul className="mt-4 rounded-xl border border-white/10 p-3 text-left text-xs text-rose-100/65">{reportGeneration.filter((item) => item.status !== 'completed').map((item) => <li key={item.section}>第 {item.section} 項：{item.error || '等待重新生成'}</li>)}</ul>}<button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-600 px-5 py-3 font-medium text-white">安全重試已付款報告</button></div>}
         {report && <PaidReport report={report} />}
       </main>
     </div>

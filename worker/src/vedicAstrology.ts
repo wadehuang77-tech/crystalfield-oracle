@@ -1386,14 +1386,17 @@ export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
   return issues;
 }
 
-async function generatePaidReport(
+async function generatePaidReportPart(
   env: Env,
   scope: VedicReportScope,
   chart: VedicChartData,
   transits: VedicTransitSnapshot | null = null,
   generationAttempt = 0,
+  requestedSectionIndexes?: number[],
 ) {
-  const forecastPeriods = scope === 'complete' ? buildVedicForecastPeriods(chart) : [];
+  const sectionIndexes = requestedSectionIndexes || REPORT_SECTION_HEADINGS[scope].map((_, index) => index);
+  const includeForecast = scope === 'complete' && sectionIndexes.includes(8);
+  const forecastPeriods = includeForecast ? buildVedicForecastPeriods(chart) : [];
   const diagnostics = {
     dashaApiSuccess: chart.dashaTimeline.length > 0,
     mahaDashaCount: chart.dashaTimeline.length,
@@ -1401,6 +1404,7 @@ async function generatePaidReport(
     forecastPeriodCount: forecastPeriods.length,
   };
   if (!env.OPENAI_API_KEY) {
+    if (requestedSectionIndexes) throw new Error('OPENAI_API_KEY_MISSING');
     if (scope === 'complete') console.warn('VEDIC_FORECAST_FALLBACK', { ...diagnostics, aiInterpretationPeriodCount: 0, fallbackUsed: true, reason: 'OPENAI_API_KEY_MISSING' });
     return buildVedicFallbackReport(scope, chart, transits);
   }
@@ -1547,7 +1551,7 @@ async function generatePaidReport(
         '自然比較 D1 的職涯動機與 D10 顯示的社會角色；判斷最常被交付的責任、最能發揮與最耗損的角色、適合組織升遷或自建平台，以及創業或留在組織各自需要補什麼。',
         '本節開頭只寫總體諮詢；各個大運／次運時段另在 forecastInterpretations 撰寫。',
       ][index],
-    })),
+    })).filter((_, index) => sectionIndexes.includes(index)),
     forecast_periods: forecastPeriods.map(({ id, mahaDasha, antarDasha, startDate, endDate, displayLabel, analysisStartDate, analysisEndDate }, index) => ({
       id, mahaDasha, antarDasha, startDate, endDate, displayLabel, analysisStartDate, analysisEndDate,
       previous_period: index > 0 ? { mahaDasha: forecastPeriods[index - 1].mahaDasha, antarDasha: forecastPeriods[index - 1].antarDasha, displayLabel: forecastPeriods[index - 1].displayLabel } : null,
@@ -1597,7 +1601,7 @@ async function generatePaidReport(
           { role: 'user', content: JSON.stringify(prompt) },
         ],
         text: { format: { type: 'json_object' } },
-        max_output_tokens: scope === 'full' || scope === 'complete' ? 22000 : 6000,
+        max_output_tokens: requestedSectionIndexes ? (includeForecast ? 10000 : 6500) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
       }),
     });
     if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
@@ -1611,26 +1615,27 @@ async function generatePaidReport(
     const introduction = cleanText(parsed.introduction, 3000);
     const consultationQuestion = cleanText(parsed.consultationQuestion, 500);
     const closing = cleanText(parsed.closing, 2000);
-    const forecastTimeline = scope === 'complete'
+    const forecastTimeline = includeForecast
       ? mergeVedicForecastInterpretations(forecastPeriods, parsed.forecastInterpretations, chart, transits)
       : [];
     const sections = Array.isArray(parsed.sections)
-      ? parsed.sections.slice(0, REPORT_SECTION_HEADINGS[scope].length).map((entry, index) => {
+      ? parsed.sections.slice(0, sectionIndexes.length).map((entry, localIndex) => {
+        const index = sectionIndexes[localIndex];
         const row = entry && typeof entry === 'object' ? entry as Record<string, unknown> : {};
         const consultation = cleanText(row.consultation, 8000);
         return {
           heading: REPORT_SECTION_HEADINGS[scope][index],
           consultation,
           evidence: cleanEvidenceList(programReport.sections[index]?.evidence || []),
-          ...(scope === 'complete' && index === 8 ? { timeline: forecastTimeline } : {}),
+          ...(includeForecast && index === 8 ? { timeline: forecastTimeline } : {}),
         } satisfies VedicReportSection;
       })
       : [];
-    const invalidGeneratedSections = sections.some((section, index) => !validStructuredSection(section, index))
-      || sections.filter((_, index) => !(scope === 'complete' && index === 8)).some((section) => !consultationHasDepth(section.consultation, scope === 'complete' ? 650 : 400))
-      || (scope === 'complete' && forecastTimeline.some((period) => !consultationHasDepth(period.interpretation.consultation, 300, 'period')))
+    const invalidGeneratedSections = sections.some((section, localIndex) => !validStructuredSection(section, sectionIndexes[localIndex]))
+      || sections.filter((_, localIndex) => sectionIndexes[localIndex] !== 8).some((section) => !consultationHasDepth(section.consultation, scope === 'complete' ? 650 : 400))
+      || (includeForecast && forecastTimeline.some((period) => !consultationHasDepth(period.interpretation.consultation, 300, 'period')))
       || reportHasDuplicateSentences(sections);
-    if (!title || !introduction || sections.length !== REPORT_SECTION_HEADINGS[scope].length || invalidGeneratedSections) {
+    if (!title || !introduction || sections.length !== sectionIndexes.length || invalidGeneratedSections) {
       throw new Error('OpenAI report invalid');
     }
     if (scope === 'complete') console.info('VEDIC_FORECAST_DIAGNOSTICS', {
@@ -1642,7 +1647,7 @@ async function generatePaidReport(
   } catch (error) {
     if (env.OPENAI_API_KEY && generationAttempt < 1) {
       console.warn('VEDIC_REPORT_REGENERATE', { attempt: generationAttempt + 1, reason: error instanceof Error ? error.message : 'unknown' });
-      return generatePaidReport(env, scope, chart, transits, generationAttempt + 1);
+      return generatePaidReportPart(env, scope, chart, transits, generationAttempt + 1, requestedSectionIndexes);
     }
     console.warn('VEDIC_FORECAST_FALLBACK', {
       ...diagnostics,
@@ -1650,10 +1655,56 @@ async function generatePaidReport(
       fallbackUsed: true,
       reason: error instanceof Error ? error.message : 'unknown',
     });
+    if (requestedSectionIndexes) throw error;
     return buildVedicFallbackReport(scope, chart, transits);
   } finally {
     clearTimeout(timer);
   }
+}
+
+class VedicBatchGenerationError extends Error {
+  constructor(readonly generation: Array<{ section: number; heading: string; status: 'completed' | 'failed'; error?: string }>) {
+    super('VEDIC_BATCH_GENERATION_INCOMPLETE');
+  }
+}
+
+async function generatePaidReport(
+  env: Env,
+  scope: VedicReportScope,
+  chart: VedicChartData,
+  transits: VedicTransitSnapshot | null = null,
+): Promise<VedicPaidReport> {
+  if (scope !== 'complete') return generatePaidReportPart(env, scope, chart, transits);
+
+  // Smaller independent requests avoid one 9-section JSON response timing out.
+  // Section 9 remains its own batch and continues to use the existing fixed
+  // forecast skeleton + mergeVedicForecastInterpretations validation.
+  const batches = [[0, 1], [2, 3], [4, 5], [6, 7], [8]];
+  const results = await Promise.allSettled(
+    batches.map((indexes) => generatePaidReportPart(env, scope, chart, transits, 0, indexes)),
+  );
+  const generation = batches.flatMap((indexes, batchIndex) => indexes.map((index) => {
+    const result = results[batchIndex];
+    return result.status === 'fulfilled'
+      ? { section: index + 1, heading: REPORT_SECTION_HEADINGS.complete[index], status: 'completed' as const }
+      : { section: index + 1, heading: REPORT_SECTION_HEADINGS.complete[index], status: 'failed' as const, error: result.reason instanceof Error ? result.reason.message : 'generation_failed' };
+  }));
+  if (results.some((result) => result.status === 'rejected')) throw new VedicBatchGenerationError(generation);
+
+  const reports = results.map((result) => (result as PromiseFulfilledResult<VedicPaidReport>).value);
+  const sections = reports.flatMap((report) => report.sections)
+    .sort((left, right) => REPORT_SECTION_HEADINGS.complete.indexOf(left.heading) - REPORT_SECTION_HEADINGS.complete.indexOf(right.heading));
+  const report: VedicPaidReport = {
+    formatVersion: VEDIC_REPORT_FORMAT_VERSION,
+    title: reports[0].title,
+    introduction: reports[0].introduction,
+    sections,
+    closing: reports[reports.length - 1].closing || reports[0].closing,
+  };
+  if (!validateCompleteVedicReport(report)) throw new VedicBatchGenerationError(
+    generation.map((item) => ({ ...item, status: 'failed' as const, error: 'combined_report_quality_failed' })),
+  );
+  return report;
 }
 
 export async function getVedicPaidReport(req: Request, env: Env): Promise<Response> {
@@ -1718,6 +1769,30 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   try {
     report = await generatePaidReport(env, scope, chart, transits);
   } catch (error) {
+    if (error instanceof VedicBatchGenerationError) {
+      const state = {
+        generationOnly: true,
+        formatVersion: VEDIC_REPORT_FORMAT_VERSION,
+        updatedAt: new Date().toISOString(),
+        generation: error.generation,
+      };
+      if (existing) {
+        await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
+          .bind(JSON.stringify(state), state.updatedAt, orderId).run();
+      } else {
+        await env.DB.prepare(
+          `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`
+        ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(state), state.updatedAt).run();
+      }
+      return json(req, env, {
+        scope,
+        cached: false,
+        transientFallback: true,
+        retryable: true,
+        generation: error.generation,
+      }, { status: 202 });
+    }
     if (error instanceof Error && error.message === 'VEDIC_FORECAST_MISSING_ANTARDASHA') {
       return json(req, env, {
         error: '印度占星時間軸資料暫時不完整，請稍後重新產生星盤',
@@ -1731,7 +1806,25 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
     // A deterministic fallback is useful as a temporary response, but it must
     // never replace or create the premium cached report. The next request can
     // therefore retry AI generation instead of being stuck with brief content.
-    return json(req, env, { scope, report, cached: false, transientFallback: true }, { status: 201 });
+    const audit = scope === 'complete' ? auditCompleteVedicReport(report) : ['report_generation_failed'];
+    const generation = REPORT_SECTION_HEADINGS[scope].map((heading, index) => {
+      const sectionIssues = audit.filter((issue) => issue.startsWith(`section_${index + 1}_`) || issue === `section_${index + 1}`);
+      return {
+        section: index + 1,
+        heading,
+        status: sectionIssues.length ? 'failed' : 'pending',
+        ...(sectionIssues.length ? { error: sectionIssues.join(', ') } : {}),
+      };
+    });
+    // Never send the deterministic fallback as paid report content. It is only
+    // used internally for evidence and diagnostics; the client must retry AI.
+    return json(req, env, {
+      scope,
+      cached: false,
+      transientFallback: true,
+      retryable: true,
+      generation,
+    }, { status: 202 });
   }
   if (existing && existingNeedsRefresh) {
     await env.DB.prepare(
