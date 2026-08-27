@@ -1892,29 +1892,38 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
         };
       }),
     };
-    // Generate the least-attempted missing section first. One stubborn section
-    // must not prevent the remaining paid report sections from being produced.
-    const nextIndex = draft.sections
+    // Generate up to three independent sections per request. Mobile browsers do
+    // not need to remain alive for nine consecutive long HTTP round trips, and
+    // one rejected section cannot discard successful siblings in the same batch.
+    const nextIndexes = draft.sections
       .map((section, index) => ({ section, index, attempts: draft.generation[index].attempts }))
       .filter((item) => !item.section && item.attempts < 6)
-      .sort((left, right) => left.attempts - right.attempts || left.index - right.index)[0]?.index ?? -1;
-    if (nextIndex >= 0) {
-      const state = draft.generation[nextIndex];
-      try {
-        const partial = await generatePaidReportPart(env, scope, chart, transits, 0, [nextIndex]);
-        draft.sections[nextIndex] = partial.sections[0];
-        draft.title ||= partial.title;
-        draft.introduction ||= partial.introduction;
-        draft.closing = partial.closing || draft.closing;
-        draft.generation[nextIndex] = { ...state, status: 'completed', attempts: state.attempts + 1 };
-      } catch (error) {
-        draft.generation[nextIndex] = {
+      .sort((left, right) => left.attempts - right.attempts || left.index - right.index)
+      .slice(0, 3)
+      .map((item) => item.index);
+    if (nextIndexes.length > 0) {
+      const results = await Promise.allSettled(nextIndexes.map((index) =>
+        generatePaidReportPart(env, scope, chart, transits, 0, [index])
+      ));
+      results.forEach((result, batchIndex) => {
+        const index = nextIndexes[batchIndex];
+        const state = draft.generation[index];
+        if (result.status === 'fulfilled') {
+          const partial = result.value;
+          draft.sections[index] = partial.sections[0];
+          draft.title ||= partial.title;
+          draft.introduction ||= partial.introduction;
+          draft.closing = partial.closing || draft.closing;
+          draft.generation[index] = { ...state, status: 'completed', attempts: state.attempts + 1 };
+          return;
+        }
+        draft.generation[index] = {
           ...state,
           status: 'failed',
           attempts: state.attempts + 1,
-          error: error instanceof Error ? error.message : 'generation_failed',
+          error: result.reason instanceof Error ? result.reason.message : 'generation_failed',
         };
-      }
+      });
       draft.updatedAt = new Date().toISOString();
     }
 
