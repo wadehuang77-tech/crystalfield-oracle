@@ -1408,7 +1408,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
       && validStructuredSection(section, index))
     && report.sections.slice(0, 8).every((section) => {
       const length = traditionalChineseLength(section.consultation);
-      return length >= 320 && length <= 800
+      return length >= 320 && length <= 900
         && GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length < 2;
     })
     && (report.sections[8]?.timeline || []).every((period) => {
@@ -1421,7 +1421,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
 export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
   const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index) ? [] : [`section_${index + 1}`]);
   report.sections.slice(0, 8).forEach((section, index) => {
-    for (const issue of consultationQualityIssues(section.consultation, 320, 800)) issues.push(`section_${index + 1}_${issue}`);
+    for (const issue of consultationQualityIssues(section.consultation, 320, 900)) issues.push(`section_${index + 1}_${issue}`);
   });
   report.sections[8]?.timeline?.forEach((period) => {
     for (const issue of consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period')) issues.push(`period_${period.id}_${issue}`);
@@ -1668,7 +1668,7 @@ async function generatePaidReportPart(
         const row = entry && typeof entry === 'object' ? entry as Record<string, unknown> : {};
         const rawConsultation = cleanText(row.consultation, 8000);
         const consultation = scope === 'complete' && index < 8
-          ? trimToChineseLimit(rawConsultation, 650)
+          ? trimToChineseLimit(rawConsultation, 900)
           : rawConsultation;
         return {
           heading: REPORT_SECTION_HEADINGS[scope][index],
@@ -1688,7 +1688,7 @@ async function generatePaidReportPart(
       if (scope === 'complete') {
         const length = traditionalChineseLength(section.consultation);
         if (length < 320) sectionQualityReasons.push(`section_${sectionNumber}_too_short_${length}`);
-        if (length > 800) sectionQualityReasons.push(`section_${sectionNumber}_too_long_${length}`);
+        if (length > 900) sectionQualityReasons.push(`section_${sectionNumber}_too_long_${length}`);
         if (GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2) {
           sectionQualityReasons.push(`section_${sectionNumber}_generic_language`);
         }

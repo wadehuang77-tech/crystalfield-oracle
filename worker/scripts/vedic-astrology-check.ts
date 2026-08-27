@@ -42,7 +42,7 @@ assert.match(source, /loadCurrentTransits/);
 assert.match(source, /current_transits/);
 assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 10/);
 assert.match(source, /①至⑧每篇以350至500個繁體中文字為目標/);
-assert.match(source, /length <= 800/);
+assert.match(source, /length <= 900/);
 assert.match(source, /section_\$\{sectionNumber\}_too_long_\$\{length\}/);
 assert.match(source, /least-attempted missing section/);
 assert.match(source, /一個被說中的深層問題、一個當事人原本沒想到的成因、一個隱藏的心理回報或安全感來源/);
