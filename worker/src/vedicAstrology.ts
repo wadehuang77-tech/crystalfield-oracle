@@ -1388,7 +1388,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
       && validStructuredSection(section, index))
     && report.sections.slice(0, 8).every((section) => {
       const length = traditionalChineseLength(section.consultation);
-      return length >= 320 && length <= 650
+      return length >= 320 && length <= 800
         && GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length < 2;
     })
     && (report.sections[8]?.timeline || []).every((period) => {
@@ -1401,7 +1401,7 @@ export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
 export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
   const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index) ? [] : [`section_${index + 1}`]);
   report.sections.slice(0, 8).forEach((section, index) => {
-    for (const issue of consultationQualityIssues(section.consultation, 320, 650)) issues.push(`section_${index + 1}_${issue}`);
+    for (const issue of consultationQualityIssues(section.consultation, 320, 800)) issues.push(`section_${index + 1}_${issue}`);
   });
   report.sections[8]?.timeline?.forEach((period) => {
     for (const issue of consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period')) issues.push(`period_${period.id}_${issue}`);
@@ -1655,24 +1655,39 @@ async function generatePaidReportPart(
         } satisfies VedicReportSection;
       })
       : [];
-    const invalidGeneratedSections = sections.some((section, localIndex) => !validStructuredSection(section, sectionIndexes[localIndex]))
-      || sections.filter((_, localIndex) => sectionIndexes[localIndex] !== 8).some((section) => {
+    const sectionQualityReasons: string[] = [];
+    sections.forEach((section, localIndex) => {
+      const sectionNumber = sectionIndexes[localIndex] + 1;
+      if (!validStructuredSection(section, sectionIndexes[localIndex])) {
+        sectionQualityReasons.push(`section_${sectionNumber}_invalid_structure`);
+      }
+      if (sectionIndexes[localIndex] === 8) return;
+      if (scope === 'complete') {
         const length = traditionalChineseLength(section.consultation);
-        return scope === 'complete'
-          ? length < 320 || length > 650 || GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2
-          : !consultationHasDepth(section.consultation, 400);
-      })
-      || (includeForecast && forecastTimeline.some((period) => {
-        const length = traditionalChineseLength(period.interpretation.consultation);
-        return length < 250 || length > 1200;
-      }))
-      || reportHasDuplicateSentences(sections);
+        if (length < 320) sectionQualityReasons.push(`section_${sectionNumber}_too_short_${length}`);
+        if (length > 800) sectionQualityReasons.push(`section_${sectionNumber}_too_long_${length}`);
+        if (GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2) {
+          sectionQualityReasons.push(`section_${sectionNumber}_generic_language`);
+        }
+      } else {
+        for (const issue of consultationQualityIssues(section.consultation, 400, 1100)) {
+          sectionQualityReasons.push(`section_${sectionNumber}_${issue}`);
+        }
+      }
+    });
+    if (includeForecast) forecastTimeline.forEach((period) => {
+      const length = traditionalChineseLength(period.interpretation.consultation);
+      if (length < 250) sectionQualityReasons.push(`period_${period.id}_too_short_${length}`);
+      if (length > 1200) sectionQualityReasons.push(`period_${period.id}_too_long_${length}`);
+    });
+    if (reportHasDuplicateSentences(sections)) sectionQualityReasons.push('duplicate_or_high_similarity');
+    const invalidGeneratedSections = sectionQualityReasons.length > 0;
     if (!title || !introduction || sections.length !== sectionIndexes.length || invalidGeneratedSections) {
       const reasons = [
         !title ? 'missing_title' : '',
         !introduction ? 'missing_introduction' : '',
         sections.length !== sectionIndexes.length ? `section_count_${sections.length}_expected_${sectionIndexes.length}` : '',
-        invalidGeneratedSections ? 'section_quality_invalid' : '',
+        invalidGeneratedSections ? `section_quality_invalid:${sectionQualityReasons.join('|')}` : '',
       ].filter(Boolean);
       throw new Error(`OpenAI report invalid: ${reasons.join(',')}`);
     }
@@ -1844,7 +1859,12 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
         };
       }),
     };
-    const nextIndex = draft.sections.findIndex((section) => !section);
+    // Generate the least-attempted missing section first. One stubborn section
+    // must not prevent the remaining paid report sections from being produced.
+    const nextIndex = draft.sections
+      .map((section, index) => ({ section, index, attempts: draft.generation[index].attempts }))
+      .filter((item) => !item.section && item.attempts < 6)
+      .sort((left, right) => left.attempts - right.attempts || left.index - right.index)[0]?.index ?? -1;
     if (nextIndex >= 0) {
       const state = draft.generation[nextIndex];
       try {
@@ -1898,8 +1918,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
          VALUES (?, ?, ?, ?, ?, ?)`
       ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(draft), draft.updatedAt).run();
     }
-    const active = draft.generation.find((item) => item.status === 'failed');
-    const retryable = !active || active.attempts < 3;
+    const retryable = draft.sections.some((section, index) => !section && draft.generation[index].attempts < 6);
     return json(req, env, {
       scope,
       cached: false,
