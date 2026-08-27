@@ -160,6 +160,10 @@ export default function VedicAstrologyPage() {
   const [reportGeneration, setReportGeneration] = useState<VedicReportGenerationStatus[]>([]);
   const [error, setError] = useState('');
   const restoreRef = useRef(false);
+  const returnOrderId = searchParams.get('order_id');
+  const returnOrderToken = searchParams.get('order_token');
+  const currentChartId = chart?.chart_id;
+  const currentChartToken = chart?.chart_token;
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
 
   const updateBirthTime = (hour: string, minute: string) => {
@@ -168,15 +172,15 @@ export default function VedicAstrologyPage() {
 
   useEffect(() => {
     if (restoreRef.current) return;
-    const orderId = searchParams.get('order_id');
-    const orderToken = searchParams.get('order_token');
+    const orderId = returnOrderId;
+    const orderToken = returnOrderToken;
     if (!orderId || !orderToken) return;
     let cancelled = false;
     const loadPaidReport = async (attempt = 0): Promise<void> => {
       try {
         const result = await vedicAstrologyApi.getPaidReport({
-          chart_id: chart?.chart_id,
-          chart_token: chart?.chart_token,
+          chart_id: currentChartId,
+          chart_token: currentChartToken,
           order_id: orderId,
           order_token: orderToken,
         });
@@ -227,7 +231,7 @@ export default function VedicAstrologyPage() {
       cancelled = true;
       window.clearTimeout(startTimer);
     };
-  }, [chart, searchParams]);
+  }, [currentChartId, currentChartToken, returnOrderId, returnOrderToken]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();

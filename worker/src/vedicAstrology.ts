@@ -328,6 +328,26 @@ function cleanText(value: unknown, max: number): string {
     : '';
 }
 
+function trimToChineseLimit(value: string, maxChineseLength: number): string {
+  if (traditionalChineseLength(value) <= maxChineseLength) return value;
+  const sentences = value.match(/[^\n。！？]+[\n。！？]*/g) || [];
+  let result = '';
+  for (const sentence of sentences) {
+    if (traditionalChineseLength(result + sentence) > maxChineseLength) break;
+    result += sentence;
+  }
+  if (traditionalChineseLength(result) >= 320) return result.trim();
+
+  let chineseCount = 0;
+  let end = 0;
+  for (const character of value) {
+    if (/[㐀-䶿一-鿿豈-﫿]/.test(character)) chineseCount += 1;
+    end += character.length;
+    if (chineseCount >= maxChineseLength) break;
+  }
+  return value.slice(0, end).trim().replace(/[，、；：]$/, '') + '。';
+}
+
 function isDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [year, month, day] = value.split('-').map(Number);
@@ -1646,7 +1666,10 @@ async function generatePaidReportPart(
       ? parsed.sections.slice(0, sectionIndexes.length).map((entry, localIndex) => {
         const index = sectionIndexes[localIndex];
         const row = entry && typeof entry === 'object' ? entry as Record<string, unknown> : {};
-        const consultation = cleanText(row.consultation, 8000);
+        const rawConsultation = cleanText(row.consultation, 8000);
+        const consultation = scope === 'complete' && index < 8
+          ? trimToChineseLimit(rawConsultation, 650)
+          : rawConsultation;
         return {
           heading: REPORT_SECTION_HEADINGS[scope][index],
           consultation,
