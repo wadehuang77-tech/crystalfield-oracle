@@ -171,10 +171,6 @@ export default function VedicAstrologyPage() {
     const orderId = searchParams.get('order_id');
     const orderToken = searchParams.get('order_token');
     if (!orderId || !orderToken) return;
-    restoreRef.current = true;
-    setReportLoading(true);
-    setReportError('');
-    setError('');
     let cancelled = false;
     const loadPaidReport = async (attempt = 0): Promise<void> => {
       try {
@@ -215,8 +211,22 @@ export default function VedicAstrologyPage() {
         if (!cancelled) setReportLoading(false);
       }
     };
-    void loadPaidReport();
-    return () => { cancelled = true; };
+    // Defer starting until after React's effect cleanup cycle. In StrictMode the
+    // first effect is mounted and immediately cleaned up; starting synchronously
+    // would let that cancelled request generate one section while the guarded
+    // second effect never continues with the remaining sections.
+    const startTimer = window.setTimeout(() => {
+      if (cancelled || restoreRef.current) return;
+      restoreRef.current = true;
+      setReportLoading(true);
+      setReportError('');
+      setError('');
+      void loadPaidReport();
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(startTimer);
+    };
   }, [chart, searchParams]);
 
   const submit = async (event: FormEvent) => {
