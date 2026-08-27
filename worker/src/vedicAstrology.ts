@@ -1613,6 +1613,7 @@ async function generatePaidReportPart(
     rules: [
       '只回傳 JSON，不得加入 Markdown code fence。',
       '只能使用 chart_facts、program_evidence 與 forecast_periods 的事實；不得猜測或改寫行星、宮位、分盤、大運、次運與日期。',
+      ...(requestedSectionIndexes ? ['這是單一區塊請求：title 最多30字、introduction 最多80字、closing 最多80字；輸出重點只放在本次 consultation，不得擴寫其他欄位。'] : []),
       '①至⑧每節只輸出 heading 與 consultation；不得輸出固定的結論、優點、缺點、範例、建議、方向、信心、評分或卡片欄位。',
       '①至⑧每篇以350至500個繁體中文字為目標，精簡為原篇幅約一半，但仍必須保留個人化判斷、深層原因、現實表現與可執行解法；不可用重複配置、免責、鼓勵話或同義改寫湊字。第九節總論約500字、每個次運時段350至500字，這次不得改變第九節的篇幅與分析規則。',
       '文章內部依「現象→深層機制→吸引或重複模式→代價→真正核心→具體做法→成熟版本」推理，但必須寫成自然文章，絕不可顯示成固定小標或模板。',
@@ -1644,12 +1645,21 @@ async function generatePaidReportPart(
           { role: 'system', content: '你是有多年一對一諮詢經驗的印度占星老師。最高原則：不要問這個星體代表什麼；要問這個人現在真正卡在哪裡，而這張命盤能告訴他什麼解決方法。忠於輸入事實，不套模板，不寫百科或心靈雞湯。' },
           { role: 'user', content: JSON.stringify(prompt) },
         ],
-        text: { format: { type: 'json_object' } },
-        max_output_tokens: requestedSectionIndexes ? (includeForecast ? 14000 : 7000) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
+        reasoning: { effort: 'low' },
+        text: { format: { type: 'json_object' }, verbosity: 'low' },
+        max_output_tokens: requestedSectionIndexes ? (includeForecast ? 18000 : 14000) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
       }),
     });
     if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
-    const text = extractOpenAiText(await response.json());
+    const responsePayload = await response.json() as {
+      status?: string;
+      incomplete_details?: { reason?: string } | null;
+      [key: string]: unknown;
+    };
+    if (responsePayload.status === 'incomplete') {
+      throw new Error(`OpenAI report incomplete: ${responsePayload.incomplete_details?.reason || 'unknown'}`);
+    }
+    const text = extractOpenAiText(responsePayload);
     if (!text) throw new Error('OpenAI report empty');
     const parsed = JSON.parse(text) as Record<string, unknown>;
     aiInterpretationPeriodCount = parsed.forecastInterpretations && typeof parsed.forecastInterpretations === 'object'
