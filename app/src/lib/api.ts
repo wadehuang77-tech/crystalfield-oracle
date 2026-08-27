@@ -4,7 +4,7 @@ const BASE = import.meta.env.VITE_API_BASE
   || (import.meta.env.PROD ? 'https://api.crystalfield101.com' : '');
 
 interface ApiOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   query?: Record<string, string | number | undefined>;
   timeoutMs?: number;
@@ -386,6 +386,28 @@ export interface VedicReportResponse {
   generation?: VedicReportGenerationStatus[];
 }
 
+export interface VedicReview {
+  id: string;
+  rating: number;
+  accuracyRating: string;
+  mostResonantSections: string[];
+  reviewContent: string;
+  allowPublic: boolean;
+  displayName: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  updatedAt: string;
+  user?: string;
+}
+
+export interface VedicReviewStats {
+  total: number;
+  averageRating: number;
+  fiveStarPercent: number;
+  highAccuracyPercent: number;
+  resonance: Array<{ section: string; count: number }>;
+}
+
 export interface VedicChartResponse {
   chart_id: string;
   chart_token: string;
@@ -405,6 +427,11 @@ export const vedicAstrologyApi = {
     req<VedicReportResponse>('/api/vedic-astrology/reports', {
       method: 'POST', body, timeoutMs: 300000,
     }),
+  getReview: (body: { order_id: string; order_token: string }) =>
+    req<{ review: VedicReview | null }>('/api/vedic-astrology/reviews/current', { method: 'POST', body }),
+  saveReview: (body: { order_id: string; order_token: string; rating: number; accuracy_rating: string; most_resonant_sections: string[]; review_content: string; allow_public: boolean }) =>
+    req<{ review: VedicReview }>('/api/vedic-astrology/reviews', { method: 'POST', body }),
+  publicReviews: () => req<{ reviews: VedicReview[] }>('/api/vedic-astrology/reviews/public'),
 };
 
 export const publicApi = {
@@ -623,6 +650,10 @@ export const adminApi = {
   member: (id: string) =>
     req<{ member: AdminMember }>(`/api/admin/members/${encodeURIComponent(id)}`),
   memberStats: () => req<AdminMemberStats>('/api/admin/members/stats'),
+  vedicReviews: (page = 1, status = '') => req<{ reviews: VedicReview[]; pagination: { page: number; total: number; totalPages: number } }>('/api/admin/vedic-reviews', { query: { page, status } }),
+  vedicReviewStats: () => req<VedicReviewStats>('/api/admin/vedic-reviews/stats'),
+  updateVedicReview: (id: string, status: 'pending' | 'approved' | 'rejected') => req<{ ok: true }>(`/api/admin/vedic-reviews/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status } }),
+  deleteVedicReview: (id: string) => req<{ ok: true }>(`/api/admin/vedic-reviews/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   guests: () => req<{ guests: GuestEmail[] }>('/api/admin/guest-emails'),
   admins: () => req<{ admins: AdminRow[] }>('/api/admin/admins'),
   addAdmin:    (email: string) => req<{ ok: true }>('/api/admin/admins', { method: 'POST', body: { email } }),

@@ -32,6 +32,7 @@ import PageHeader from './components/PageHeader';
 import HumanDesignPage from './pages/HumanDesignPage';
 import PrivacyPage from './pages/PrivacyPage';
 import VedicAstrologyPage from './pages/VedicAstrologyPage';
+import AdminVedicReviewsPage from './pages/AdminVedicReviewsPage';
 
 function RouterBody() {
   usePageViewTracking();
@@ -51,6 +52,7 @@ function RouterBody() {
           <Route path="/admin/kpi" element={<ProtectedRoute><AdminKpiPage /></ProtectedRoute>} />
           <Route path="/admin/google-forms" element={<ProtectedRoute><GoogleFormsAdminPage /></ProtectedRoute>} />
           <Route path="/admin/members" element={<ProtectedRoute><AdminMembersPage /></ProtectedRoute>} />
+          <Route path="/admin/vedic-reviews" element={<ProtectedRoute><AdminVedicReviewsPage /></ProtectedRoute>} />
           <Route path="/tarot" element={<TarotPage />} />
           <Route path="/tarot-single" element={<TarotSinglePage />} />
           <Route path="/lightworker" element={<LightworkerPage />} />

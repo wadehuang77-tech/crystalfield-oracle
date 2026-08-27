@@ -23,6 +23,7 @@ import {
   type VedicChartResponse,
   type VedicReport,
   type VedicReportGenerationStatus,
+  type VedicReview,
 } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 
@@ -349,7 +350,8 @@ export default function VedicAstrologyPage() {
 
         {reportLoading && <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-[#070312]/88 px-5 backdrop-blur-md"><div className="w-full max-w-md rounded-[2rem] border border-amber-300/35 bg-slate-950/95 p-8 text-center shadow-[0_0_70px_rgba(217,70,239,0.25)]"><Loader2 className="mx-auto h-10 w-10 animate-spin text-amber-300" /><h2 className="mt-6 font-serif text-2xl text-amber-50">深度指引正在生成／重新生成</h2><p className="mt-4 text-lg leading-8 text-violet-100/80">請等候約 1～2 分鐘</p><p className="mt-2 text-sm leading-6 text-violet-100/50">只有通過完整性檢查的個人化報告才會顯示，暫時備援文字不會冒充付費報告。</p>{reportGeneration.length > 0 && <ul className="mt-5 max-h-40 space-y-1 overflow-y-auto text-left text-xs text-violet-100/60">{reportGeneration.map((item) => <li key={item.section}>第 {item.section} 項：{item.status === 'completed' ? '已完成' : item.status === 'failed' ? '重新生成中' : '生成中'}</li>)}</ul>}</div></div>}
         {reportError && !reportLoading && <div role="alert" className="fixed inset-x-4 top-24 z-50 mx-auto max-w-lg rounded-2xl border border-rose-300/35 bg-slate-950/95 p-6 text-center shadow-2xl"><p className="font-semibold text-rose-100">完整深度指引尚未生成成功</p><p className="mt-2 text-sm leading-6 text-rose-100/70">{reportError}</p>{reportGeneration.length > 0 && <ul className="mt-4 rounded-xl border border-white/10 p-3 text-left text-xs text-rose-100/65">{reportGeneration.filter((item) => item.status !== 'completed').map((item) => <li key={item.section}>第 {item.section} 項：{item.error || '等待重新生成'}</li>)}</ul>}<button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-600 px-5 py-3 font-medium text-white">安全重試已付款報告</button></div>}
-        {report && <PaidReport report={report} />}
+        {report && returnOrderId && returnOrderToken && <PaidReport report={report} orderId={returnOrderId} orderToken={returnOrderToken} />}
+        <PublicVedicReviews />
       </main>
     </div>
   );
@@ -433,7 +435,7 @@ function PaidOption(props: typeof PAID_OPTIONS[number] & { loading: boolean; dis
   return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">主打方案</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><strong className={`text-xl text-white ${props.featured ? 'mt-10 sm:mt-0' : ''}`}>NT${props.price}</strong></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? '前往付款中…' : '解鎖這份指引'}</button></article>;
 }
 
-function PaidReport({ report }: { report: VedicReport }) {
+function PaidReport({ report, orderId, orderToken }: { report: VedicReport; orderId: string; orderToken: string }) {
   return <section id="vedic-paid-report" className="mt-20 scroll-mt-24 rounded-[2rem] border border-amber-300/30 bg-slate-950/65 p-6 shadow-[0_0_60px_rgba(251,191,36,0.1)] sm:p-10">
     <div className="text-center"><MoonStar className="mx-auto h-10 w-10 text-amber-300" /><p className="mt-4 text-sm tracking-[0.3em] text-amber-300/60">已解鎖的深度指引</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{report.title}</h2></div>
     <p className="mx-auto mt-8 max-w-4xl whitespace-pre-line text-lg leading-9 text-violet-50/75">{report.introduction}</p>
@@ -444,7 +446,49 @@ function PaidReport({ report }: { report: VedicReport }) {
       {section.evidence.length ? <EvidenceDetails evidence={section.evidence} /> : null}
     </article>)}</div>
     {report.closing && <p className="mx-auto mt-10 max-w-3xl border-t border-amber-200/15 pt-7 text-center leading-8 text-amber-50/65">{report.closing}</p>}
+    <VedicReviewForm orderId={orderId} orderToken={orderToken} />
   </section>;
+}
+
+const ACCURACY_OPTIONS = [
+  ['very_inaccurate', '很不符合'], ['partly_accurate', '部分符合'], ['mostly_accurate', '大致準確'],
+  ['very_accurate', '非常準確'], ['exactly_me', '像在說我本人'],
+] as const;
+const RESONANCE_OPTIONS = [
+  ['past_karma', '前世業力'], ['life_lesson', '今生人生課題'], ['soul_mission', '靈魂使命'],
+  ['talents', '天賦與能力'], ['relationship', '感情與關係'], ['career', '工作與事業'],
+  ['wealth', '財富與金錢'], ['spiritual_growth', '靈性成長'], ['future_timeline', '未來 3～5 年'],
+] as const;
+
+function VedicReviewForm({ orderId, orderToken }: { orderId: string; orderToken: string }) {
+  const [rating, setRating] = useState(0); const [accuracy, setAccuracy] = useState('');
+  const [sections, setSections] = useState<string[]>([]); const [content, setContent] = useState('');
+  const [allowPublic, setAllowPublic] = useState(false); const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true); const [message, setMessage] = useState('');
+  useEffect(() => { let active = true; vedicAstrologyApi.getReview({ order_id: orderId, order_token: orderToken }).then(({ review }) => {
+    if (!active || !review) return; setRating(review.rating); setAccuracy(review.accuracyRating); setSections(review.mostResonantSections); setContent(review.reviewContent); setAllowPublic(review.allowPublic); setSaved(true);
+  }).catch(() => {}).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [orderId, orderToken]);
+  const submitReview = async (event: FormEvent) => { event.preventDefault(); setMessage('');
+    if (!rating || !accuracy || content.trim().length < 10) { setMessage('請完成星級、精準度與至少 10 字心得。'); return; }
+    setLoading(true); try { await vedicAstrologyApi.saveReview({ order_id: orderId, order_token: orderToken, rating, accuracy_rating: accuracy, most_resonant_sections: sections, review_content: content.trim(), allow_public: allowPublic }); setSaved(true); setMessage('感謝你的回饋 ❤️'); } catch (e) { setMessage(e instanceof Error ? e.message : '送出失敗'); } finally { setLoading(false); }
+  };
+  return <form onSubmit={submitReview} className="mx-auto mt-12 max-w-4xl rounded-2xl border border-fuchsia-300/20 bg-violet-950/30 p-6 sm:p-8">
+    <h3 className="text-center font-serif text-2xl text-amber-50">這份印度占星報告對你有幫助嗎？</h3>
+    <p className="mt-2 text-center text-sm text-violet-100/55">{saved ? '感謝你的回饋 ❤️，你可以隨時修改。' : '歡迎留下真實感受。'}</p>
+    <div className="mt-6 flex justify-center gap-2" role="radiogroup" aria-label="評分">{[1,2,3,4,5].map((star) => <button key={star} type="button" role="radio" aria-checked={rating === star} onClick={() => setRating(star)} className={`text-4xl transition ${star <= rating ? 'text-amber-300' : 'text-white/20'}`}>★</button>)}</div>
+    <label className="mt-7 block text-sm text-amber-100">你覺得這份分析與你的實際人生符合程度如何？<select required value={accuracy} onChange={(e) => setAccuracy(e.target.value)} className="vedic-input mt-2"><option value="">請選擇</option>{ACCURACY_OPTIONS.map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+    <fieldset className="mt-7"><legend className="text-sm text-amber-100">哪一個部分最有共鳴？（可複選）</legend><div className="mt-3 grid gap-2 sm:grid-cols-3">{RESONANCE_OPTIONS.map(([v,l]) => <label key={v} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-violet-100/70"><input type="checkbox" checked={sections.includes(v)} onChange={() => setSections((old) => old.includes(v) ? old.filter((x) => x !== v) : [...old, v])} />{l}</label>)}</div></fieldset>
+    <label className="mt-7 block text-sm text-amber-100">想分享你的心得嗎？<textarea required minLength={10} maxLength={1000} value={content} onChange={(e) => setContent(e.target.value)} placeholder="哪一段最有共鳴？有沒有讓你重新理解自己的業力、人生課題或未來方向？" className="vedic-input mt-2 min-h-36 resize-y" /><span className="mt-1 block text-right text-xs text-white/35">{content.length}/1000</span></label>
+    <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-violet-100/65"><input type="checkbox" checked={allowPublic} onChange={(e) => setAllowPublic(e.target.checked)} className="mt-1" />我同意將此心得匿名顯示於網站印度占星使用者評價區。</label>
+    {message && <p className="mt-4 text-center text-sm text-fuchsia-100">{message}</p>}<button disabled={loading} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{loading ? '處理中…' : saved ? '更新評價' : '送出評價'}</button>
+  </form>;
+}
+
+function PublicVedicReviews() {
+  const [reviews, setReviews] = useState<VedicReview[]>([]);
+  useEffect(() => { vedicAstrologyApi.publicReviews().then((r) => setReviews(r.reviews)).catch(() => {}); }, []);
+  if (!reviews.length) return null;
+  return <section className="mx-auto mt-20 max-w-5xl"><div className="text-center"><p className="text-sm tracking-[0.25em] text-fuchsia-300/60">使用者真實回饋</p><h2 className="mt-3 font-serif text-3xl text-amber-50">他們在報告中看見了自己</h2></div><div className="mt-8 grid gap-5 md:grid-cols-2">{reviews.map((review) => <article key={review.id} className="rounded-2xl border border-violet-300/20 bg-slate-950/55 p-6"><p className="text-amber-300">{'★'.repeat(review.rating)}<span className="text-white/15">{'★'.repeat(5-review.rating)}</span></p><p className="mt-4 whitespace-pre-line leading-7 text-violet-50/75">「{review.reviewContent}」</p><p className="mt-4 text-sm text-fuchsia-200/60">{review.displayName}｜使用者真實回饋</p></article>)}</div></section>;
 }
 
 function EvidenceDetails({ evidence }: { evidence: Array<{ factor: string; value: string; relevance: string }> }) {

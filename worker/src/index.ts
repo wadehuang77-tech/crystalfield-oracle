@@ -74,6 +74,10 @@ import {
 import { validateRegistrationIdentity } from './registration';
 import { createVedicChart, getVedicPaidReport } from './vedicAstrology';
 import {
+  adminDeleteVedicReview, adminListVedicReviews, adminUpdateVedicReview, adminVedicReviewStats,
+  getMyVedicReview, listPublicVedicReviews, upsertVedicReview,
+} from './vedicReviews';
+import {
   badRequest,
   buildClearCookie,
   buildSessionCookie,
@@ -242,6 +246,9 @@ export default {
       if (path === '/api/vedic-astrology/reports' && req.method === 'POST') {
         return await getVedicPaidReport(req, env);
       }
+      if (path === '/api/vedic-astrology/reviews/current' && req.method === 'POST') return await getMyVedicReview(req, env);
+      if (path === '/api/vedic-astrology/reviews' && req.method === 'POST') return await upsertVedicReview(req, env);
+      if (path === '/api/vedic-astrology/reviews/public' && req.method === 'GET') return await listPublicVedicReviews(req, env);
       if (path.startsWith('/api/human-design/charts/') && path.endsWith('/answers') && req.method === 'POST') {
         const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/answers'.length));
         const rl = await rateLimit(env, 'hd-answers-ip', clientIp(req), 30, 3600);
@@ -285,6 +292,10 @@ export default {
       if (path === '/api/admin/users'          && req.method === 'GET')  return await adminListUsers(req, env);
       if (path === '/api/admin/members/stats'  && req.method === 'GET')  return await adminMemberStats(req, env);
       if (path === '/api/admin/members'        && req.method === 'GET')  return await adminListMembers(req, env, url);
+      if (path === '/api/admin/vedic-reviews/stats' && req.method === 'GET') return await adminVedicReviewStats(req, env);
+      if (path === '/api/admin/vedic-reviews' && req.method === 'GET') return await adminListVedicReviews(req, env, url);
+      if (path.startsWith('/api/admin/vedic-reviews/') && req.method === 'PATCH') return await adminUpdateVedicReview(req, env, decodeURIComponent(path.split('/').pop() || ''));
+      if (path.startsWith('/api/admin/vedic-reviews/') && req.method === 'DELETE') return await adminDeleteVedicReview(req, env, decodeURIComponent(path.split('/').pop() || ''));
       if (path.startsWith('/api/admin/members/') && req.method === 'GET') {
         return await adminGetMember(req, env, decodeURIComponent(path.slice('/api/admin/members/'.length)));
       }

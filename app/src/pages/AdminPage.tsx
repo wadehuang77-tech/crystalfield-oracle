@@ -322,6 +322,10 @@ export function AdminPage() {
                   <FileText className="w-4 h-4" strokeWidth={1.4} />
                   Google 表單管理
                 </Link>
+                <Link to="/admin/vedic-reviews" className="inline-flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 !text-xs">
+                  <FileText className="w-4 h-4" strokeWidth={1.4} />
+                  印度占星評價
+                </Link>
               </div>
             </div>
             <div className="flex items-center gap-6 flex-wrap text-sm text-blue-200/85">

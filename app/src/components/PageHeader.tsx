@@ -44,6 +44,7 @@ const ROUTES: Record<string, { title: string; accent: Accent }> = {
   '/admin/settings':             { title: '設定',                 accent: 'slate'   },
   '/admin/kpi':                  { title: 'KPI',                  accent: 'slate'   },
   '/admin/members':              { title: '會員資料',             accent: 'slate'   },
+  '/admin/vedic-reviews':         { title: '印度占星評價',       accent: 'slate'   },
 };
 
 const HIDDEN_ON = new Set(['/auth']);
