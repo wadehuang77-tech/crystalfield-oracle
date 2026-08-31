@@ -5,6 +5,7 @@ import { checkoutApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { saveMembershipCheckoutRedirect, savePendingSingleDraw } from '../lib/pendingDraw';
+import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 
 interface MembershipGateProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
     setError('');
     setIsProcessing(true);
     try {
-      const { ecpay, admin_unlocked } = await checkoutApi.createOrder('membership_monthly');
+      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(TAROT_SUBSCRIPTION.id);
       if (admin_unlocked) {
         window.location.assign(redirectPath);
         return;
@@ -72,16 +73,16 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
             <Crown className="w-7 h-7" strokeWidth={1.4} />
           </div>
           <h2 className="font-serif text-xl text-amber-100 tracking-[0.2em] mb-2">
-            加入月費會員
+            {TAROT_SUBSCRIPTION.name}
           </h2>
-          <p className="text-3xl font-serif text-amber-400 mt-4 tracking-[0.15em]">NT$ 99 / 月</p>
-          <p className="text-xs text-amber-400/60 mt-2">月費會員 NT$99，解鎖所有塔羅單張牌陣不限次數</p>
+          <p className="text-3xl font-serif text-amber-400 mt-4 tracking-[0.15em]">NT$ 600 / 月</p>
+          <p className="text-xs text-amber-400/60 mt-2">付款成功日起 30 天，7 個牌組與全部牌陣不限次數</p>
         </div>
 
         <div className="border-t border-b border-amber-500/15 py-5 mb-6 space-y-3">
-          <Perk>所有塔羅單張牌陣免費，不限次數</Perk>
-          <Perk>7 副牌組單張皆可完整解鎖查看</Perk>
-          <Perk>第 4 次起加入會員後，不用再逐次解鎖</Perk>
+          <Perk>本站 7 個牌組全部納入同一會員權限</Perk>
+          <Perk>所有單張與多張牌陣不限次數</Perk>
+          <Perk>所有完整解讀不限次數</Perk>
         </div>
 
         {error && (
@@ -96,7 +97,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
             {isProcessing ? (
               <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>跳轉至綠界…</>
             ) : (
-              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />{user ? '立即加入 NT$99 / 月' : '登入後加入會員'}</>
+              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />{user ? '立即加入 NT$600 / 月' : '登入後加入會員'}</>
             )}
           </button>
           <button onClick={onClose} disabled={isProcessing}
@@ -106,7 +107,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
         </div>
 
         <p className="mt-5 pt-4 border-t border-amber-500/10 text-center text-xs text-amber-400/50 leading-relaxed">
-          付款由 ECPay 綠界金流安全處理。<br />支援信用卡、ATM、超商代碼。
+          付款由 ECPay 綠界金流安全處理。<br />月費會員以信用卡定期定額付款。
         </p>
       </div>
     </div>

@@ -69,7 +69,7 @@ export function useSingleCardGate({ spreadId, cardKey, reversed = false, enabled
       try {
         if (user) {
           const { profile } = await profileApi.me().catch(() => ({ profile: null }));
-          if (profile?.membership?.is_active || profile?.purchased_spreads?.includes('membership_monthly')) {
+          if (profile?.hasActiveTarotSubscription) {
             const { card } = await cardsApi.freeUnlockSingle(spreadId, cardKey, reversed);
             setUnlockedCard(card);
             setPhase('unlocked');

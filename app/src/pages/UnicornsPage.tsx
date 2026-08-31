@@ -14,9 +14,9 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
+import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
+import { saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
-import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
@@ -45,7 +45,6 @@ const POINTS_LABELS: [keyof UnicornGated, string][] = [
 
 export default function UnicornsPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { cards: deck, error: deckError } = useDeck('unicorns');
   const [searchParams] = useSearchParams();
   const initialSpread: 'single' | 'three' = searchParams.get('spread') === 'three' ? 'three' : 'single';
@@ -95,15 +94,11 @@ export default function UnicornsPage() {
 
   const handleCheckoutThree = async () => {
     if (isCheckingOut) return;
-    const guestEmail = getMultiSpreadCheckoutGuestEmail();
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
-      const checkoutPicks = drawnCards.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
-        SPREAD_ID,
-        checkoutPicks,
-        !user ? { guest_email: guestEmail } : undefined,
+        TAROT_SUBSCRIPTION.id,
       );
       if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
       if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }

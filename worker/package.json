@@ -13,6 +13,7 @@
     "test:registration-profile": "node --experimental-strip-types scripts/registration-profile-check.ts",
     "test:vedic": "node --experimental-strip-types scripts/vedic-astrology-check.ts",
     "test:vedic-report": "tsx scripts/vedic-report-sample.ts",
+    "test:tarot-subscription": "tsx scripts/tarot-subscription-check.ts",
     "types": "wrangler types"
   },
   "devDependencies": {

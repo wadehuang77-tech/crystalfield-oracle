@@ -86,7 +86,7 @@ export default function MembershipPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-amber-500/40 text-amber-300 mb-5">
             <Crown className="w-8 h-8" strokeWidth={1.4} />
           </div>
-          <h1 className="text-3xl font-serif text-amber-100 tracking-[0.2em] mb-3">月費會員管理</h1>
+          <h1 className="text-3xl font-serif text-amber-100 tracking-[0.2em] mb-3">塔羅全館月費會員</h1>
           <p className="text-amber-200/75">查看目前會員狀態、扣款進度與取消後續續扣。</p>
         </div>
 
@@ -107,7 +107,7 @@ export default function MembershipPage() {
               )}
 
               <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                <Info label="方案價格" value={membership ? `NT$ ${membership.amount} / 月` : 'NT$ 99 / 月'} />
+                <Info label="方案價格" value={membership ? `NT$ ${membership.amount} / 月` : 'NT$ 600 / 月'} />
                 <Info label="已成功扣款次數" value={membership ? `${membership.total_success_times} 次` : '0 次'} />
                 <Info label="本期開始" value={formatDate(membership?.current_period_started_at ?? null)} />
                 <Info label="本期到期" value={formatDate(membership?.current_period_ends_at ?? null)} />

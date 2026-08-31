@@ -61,8 +61,12 @@ async function checkFrontend() {
 requireEnv('SMOKE_API_BASE or VITE_API_BASE', apiBase);
 
 await checkJson('Checkout catalog', `${apiBase}/api/checkout/catalog`, 200, (json) => {
-  if (!json.catalog || !json.catalog.tarot_three || typeof json.catalog.tarot_three.amount !== 'number') {
-    throw new Error('Checkout catalog payload is missing expected tarot_three item');
+  if (!json.catalog || json.catalog.tarot_monthly_600?.amount !== 600) {
+    throw new Error('Checkout catalog payload is missing tarot_monthly_600 at NT$600');
+  }
+  const retiredTarotItems = ['tarot_three', 'tarot_celtic', 'tarot_pastlife', 'unicorns_three', 'dragons_three', 'osho_three', 'celtic_cross', 'cosmic_cross', 'egyptian_pastlife', 'three_card_5pack_30d', 'three_pastlife_3plus3_30d', 'deep_spread_5pack_30d', 'membership_monthly'];
+  if (retiredTarotItems.some((id) => json.catalog[id])) {
+    throw new Error('Checkout catalog still exposes a retired tarot payment item');
   }
 });
 await checkCorsPreflight();

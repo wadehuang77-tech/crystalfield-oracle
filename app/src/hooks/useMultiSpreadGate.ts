@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { bundleApi, cardsApi, oracleFreeApi, type UnlockedCard } from '../lib/api';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { cardsApi, oracleFreeApi, profileApi, type UnlockedCard } from '../lib/api';
 import { trackCardDrawComplete, trackFreeReadingView, trackOracleFreeReadingCompleted, trackOraclePaywallViewed } from '../lib/ga4';
 import { clearOracleFreeIntent, getOracleFreeIntent } from '../lib/oracleFreeAccess';
 import { useAuth } from '../contexts/AuthContext';
-import { getSpreadCategory } from '../lib/spread-prices';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'login_gate' | 'paywall';
 interface Pick { card_key: string; position: number; reversed?: boolean; }
@@ -13,7 +12,7 @@ interface UseMultiSpreadGateResult {
   unlockedCards: UnlockedCard[] | null;
   error: string | null;
   onEmailUnlocked: (email: string) => Promise<void>;
-  unlockSource: 'free' | 'bundle' | null;
+  unlockSource: 'free' | 'subscription' | null;
   bundleRemaining: number | null;
 }
 
@@ -22,46 +21,28 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
   const [phase, setPhase] = useState<MultiGatePhase>('idle');
   const [unlockedCards, setUnlockedCards] = useState<UnlockedCard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [unlockSource, setUnlockSource] = useState<'free' | 'bundle' | null>(null);
-  const [bundleRemaining, setBundleRemaining] = useState<number | null>(null);
+  const [unlockSource, setUnlockSource] = useState<'free' | 'subscription' | null>(null);
   const [readingId, setReadingId] = useState<string | null>(null);
   const attemptRef = useRef('');
   const identityRef = useRef('');
   const completionSentRef = useRef('');
   const paywallTrackedRef = useRef(false);
   const [oracleIntent, setOracleIntent] = useState(() => getOracleFreeIntent(spreadId));
-  const category = useMemo(() => getSpreadCategory(spreadId), [spreadId]);
 
   useEffect(() => { setOracleIntent(getOracleFreeIntent(spreadId)); }, [spreadId]);
 
-  const unlockWithBundle = useCallback(async (picksToUnlock: Pick[], picksKey: string): Promise<boolean> => {
-    if (!user || !category) return false;
-    const creditResult = await bundleApi.getCredits();
-    if (!creditResult.credits || creditResult.credits[category] <= 0) return false;
-    const storageKey = `cf_bundle_reading:${spreadId}:${picksKey}`;
-    let bundleReadingId = '';
-    try { bundleReadingId = sessionStorage.getItem(storageKey) ?? ''; } catch { /* unavailable */ }
-    if (!bundleReadingId) {
-      bundleReadingId = crypto.randomUUID();
-      try { sessionStorage.setItem(storageKey, bundleReadingId); } catch { /* unavailable */ }
-    }
-    const result = await bundleApi.unlockSpread(spreadId, picksToUnlock, bundleReadingId);
+  const unlockWithSubscription = useCallback(async (picksToUnlock: Pick[]): Promise<boolean> => {
+    if (!user) return false;
+    const { profile } = await profileApi.me();
+    if (!profile?.hasActiveTarotSubscription) return false;
+    const result = await cardsApi.freeUnlockSpread(spreadId, picksToUnlock);
     setUnlockedCards(result.cards);
-    setBundleRemaining(result.remaining);
-    setUnlockSource('bundle');
+    setUnlockSource('subscription');
     setPhase('unlocked');
     return true;
-  }, [user, category, spreadId]);
+  }, [user, spreadId]);
 
-  const showPaywallOrUseBundle = useCallback(async (picksToUnlock: Pick[], picksKey: string) => {
-    if (user && category) {
-      setPhase('loading');
-      try { if (await unlockWithBundle(picksToUnlock, picksKey)) return; }
-      catch (err) {
-        const apiError = err as Error & { status?: number };
-        if (apiError.status !== 402) setError(apiError.message || '套票解鎖失敗');
-      }
-    }
+  const showPaywall = useCallback(() => {
     setPhase('paywall');
     if (oracleIntent && !paywallTrackedRef.current) {
       paywallTrackedRef.current = true;
@@ -70,7 +51,7 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
         deck_type: oracleIntent.deck_type, spread_type: oracleIntent.spread_type, need_type: oracleIntent.need_type,
       });
     }
-  }, [user, category, unlockWithBundle, oracleIntent]);
+  }, [oracleIntent]);
 
   useEffect(() => {
     if (!enabled || !picks?.length) return;
@@ -93,13 +74,13 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
     if (attemptRef.current === attemptKey) return;
     attemptRef.current = attemptKey;
     setUnlockSource(null);
-    setBundleRemaining(null);
 
     const run = async () => {
       setPhase('loading');
       setError(null);
-      if (oracleIntent?.access_mode === 'paywall_preview') { await showPaywallOrUseBundle(picks, picksKey); return; }
       try {
+        if (await unlockWithSubscription(picks)) return;
+        if (oracleIntent?.access_mode === 'paywall_preview') { showPaywall(); return; }
         const activeReadingId = oracleIntent?.access_mode === 'free'
           ? oracleIntent.reading_id!
           : (await oracleFreeApi.start(spreadId)).reading_id;
@@ -111,13 +92,13 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
       } catch (err) {
         const apiError = err as Error & { status?: number; body?: { code?: string } };
         if (apiError.status === 401 && apiError.body?.code === 'TAROT_LOGIN_REQUIRED') { setPhase('login_gate'); return; }
-        if (apiError.body?.code === 'FREE_GLOBAL_LIMIT_REACHED') { await showPaywallOrUseBundle(picks, picksKey); return; }
+        if (apiError.body?.code === 'FREE_GLOBAL_LIMIT_REACHED') { showPaywall(); return; }
         setError(apiError.message || '解鎖失敗');
-        setPhase('paywall');
+        showPaywall();
       }
     };
     void run();
-  }, [enabled, picks, spreadId, user?.id, oracleIntent, phase, showPaywallOrUseBundle]);
+  }, [enabled, picks, spreadId, user?.id, oracleIntent, phase, showPaywall, unlockWithSubscription]);
 
   useEffect(() => {
     if (phase !== 'unlocked' || !unlockedCards?.length || unlockSource !== 'free') return;
@@ -136,5 +117,5 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
   }, [phase, spreadId, unlockedCards, oracleIntent, unlockSource, readingId]);
 
   const onEmailUnlocked = async () => { /* retained for existing page callback compatibility */ };
-  return { phase, unlockedCards, error, onEmailUnlocked, unlockSource, bundleRemaining };
+  return { phase, unlockedCards, error, onEmailUnlocked, unlockSource, bundleRemaining: null };
 }

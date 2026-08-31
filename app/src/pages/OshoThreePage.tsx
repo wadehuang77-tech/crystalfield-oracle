@@ -10,9 +10,9 @@ import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { type CardPreview, type UnlockedCard, checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
+import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
+import { saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import { useAuth } from '../contexts/AuthContext';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
@@ -42,7 +42,6 @@ interface ThreeCardReading {
 
 export default function OshoThreePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const { cards: deck, error: deckError } = useDeck('osho');
   const [reading, setReading] = useState<ThreeCardReading | null>(null);
@@ -151,19 +150,11 @@ export default function OshoThreePage() {
 
   const handleCheckout = async () => {
     if (!reading || isCheckingOut) return;
-    const guestEmail = getMultiSpreadCheckoutGuestEmail();
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
-      const picks = [
-        { card_key: reading.inner.preview.card_key,       position: 1 },
-        { card_key: reading.outer.preview.card_key,       position: 2 },
-        { card_key: reading.integration.preview.card_key, position: 3 },
-      ];
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
-        SPREAD_ID,
-        picks,
-        !user ? { guest_email: guestEmail } : undefined,
+        TAROT_SUBSCRIPTION.id,
       );
       if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
       if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }

@@ -4,7 +4,8 @@ import { Lock, Sparkles, Check, LogIn } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { checkoutApi, publicApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { getSpreadPrice, formatPrice } from '../lib/spread-prices';
+import { formatPrice } from '../lib/spread-prices';
+import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 
 interface MockPaywallOverlayProps {
   spreadName: string;
@@ -16,7 +17,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const price = spreadId ? getSpreadPrice(spreadId) : null;
+  const price = TAROT_SUBSCRIPTION.price;
 
   const [progress, setProgress] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -55,7 +56,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
         { spread_id: spreadId, spread_name: spreadName },
         user.email,
       ).catch(() => {});
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(spreadId);
+      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(TAROT_SUBSCRIPTION.id);
       if (admin_unlocked) {
         navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
         return;
@@ -100,14 +101,11 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
               <Lock className="w-6 h-6" strokeWidth={1.4} />
             </div>
             <h3 className="font-serif text-xl sm:text-2xl text-blue-100 tracking-[0.3em] mb-2">
-              解 鎖 完 整 牌 陣 解 析
+              塔 羅 全 館 月 費 會 員
             </h3>
             <p className="text-sm sm:text-base text-blue-200/85 mt-3 tracking-wide">{spreadName}</p>
-            {price !== null && (
-              <p className="font-serif text-3xl text-blue-400 mt-5 tracking-[0.15em]">
-                {formatPrice(price)}
-              </p>
-            )}
+            <p className="font-serif text-3xl text-blue-400 mt-5 tracking-[0.15em]">{formatPrice(price)}</p>
+            <p className="mt-2 text-xs text-blue-300/70">30 天・7 個牌組・全部牌陣不限次數</p>
           </div>
 
           <div className="border-t border-b border-blue-500/15 py-5 mb-6 space-y-3">
@@ -143,7 +141,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" strokeWidth={1.4} />
-                  {price !== null ? `${formatPrice(price)} 立即結帳` : '立即結帳'}
+                  {`${formatPrice(price)} 立即加入`}
                 </>
               )}
             </button>

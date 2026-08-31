@@ -1,6 +1,7 @@
 import { verifyOrderToken } from './checkout';
-import { hasActiveMembership } from './subscriptions';
+import { hasActiveTarotSubscription } from './subscriptions';
 import { decideTarotQuota, mergeTarotUsageCounts, TAROT_FREE_READING_LIMIT } from './oracleQuota';
+import { TAROT_SPREADS, type TarotSpreadDef } from './tarotCatalog';
 import {
   badRequest,
   clientIp,
@@ -11,32 +12,6 @@ import {
   readSession,
   unauthorized,
 } from './utils';
-
-interface SpreadDef {
-  deck_id: string;
-  card_count: number;
-  free?: boolean;
-}
-
-const SPREADS: Record<string, SpreadDef> = {
-  tarot_single:           { deck_id: 'tarot',           card_count: 1, free: true },
-  osho_single:            { deck_id: 'osho',            card_count: 1, free: true },
-  lightworker_single:     { deck_id: 'lightworker',     card_count: 1, free: true },
-  unicorns_single:        { deck_id: 'unicorns',        card_count: 1, free: true },
-  egyptian_single:        { deck_id: 'egyptian_gods',   card_count: 1, free: true },
-  dragons_single:         { deck_id: 'dragons',         card_count: 1, free: true },
-  work_your_light_single: { deck_id: 'work_your_light', card_count: 1, free: true },
-
-  tarot_three:            { deck_id: 'tarot',           card_count: 3 },
-  tarot_celtic:           { deck_id: 'tarot',           card_count: 10 },
-  tarot_pastlife:         { deck_id: 'tarot',           card_count: 7 },
-  osho_three:             { deck_id: 'osho',            card_count: 3 },
-  celtic_cross:           { deck_id: 'lightworker',     card_count: 10 },
-  cosmic_cross:           { deck_id: 'work_your_light', card_count: 11 },
-  dragons_three:          { deck_id: 'dragons',         card_count: 3 },
-  unicorns_three:         { deck_id: 'unicorns',        card_count: 3 },
-  egyptian_pastlife:      { deck_id: 'egyptian_gods',   card_count: 7 },
-};
 
 export async function listDecks(req: Request, env: Env): Promise<Response> {
   const result = await env.DB_CARDS.prepare(
@@ -145,14 +120,14 @@ interface SingleUnlockBody {
 
 export async function unlockSingleCard(req: Request, env: Env): Promise<Response> {
   const session = await readSession(req, env);
-  if (!session || !await hasActiveMembership(env, session.id)) {
+  if (!session || !await hasActiveTarotSubscription(env, session.id)) {
     return forbidden(req, env, '此舊版 Email 解鎖入口已停用，請使用免費占卜或既有付費流程');
   }
   const body = await readBody<SingleUnlockBody>(req);
-  if (!body.spread_id || !SPREADS[body.spread_id]) {
+  if (!body.spread_id || !TAROT_SPREADS[body.spread_id]) {
     return badRequest(req, env, 'spread_id invalid');
   }
-  const spread = SPREADS[body.spread_id];
+  const spread = TAROT_SPREADS[body.spread_id];
   if (!spread.free) {
     return badRequest(req, env, 'spread_id is not a free single-card spread');
   }
@@ -217,10 +192,10 @@ export async function unlockSpread(req: Request, env: Env): Promise<Response> {
   const session = await readSession(req, env);
 
   const body = await readBody<SpreadUnlockBody>(req);
-  if (!body.spread_id || !SPREADS[body.spread_id]) {
+  if (!body.spread_id || !TAROT_SPREADS[body.spread_id]) {
     return badRequest(req, env, 'spread_id invalid');
   }
-  const spread = SPREADS[body.spread_id];
+  const spread = TAROT_SPREADS[body.spread_id];
   if (spread.free) {
     return badRequest(req, env, '此 spread 是免費單張,請用 /api/cards/single-unlock');
   }
@@ -331,22 +306,22 @@ function parseJsonArray(s: string | null | undefined): string[] {
   }
 }
 
-export function getSpreadDef(spreadId: string): SpreadDef | undefined {
-  return SPREADS[spreadId];
+export function getSpreadDef(spreadId: string): TarotSpreadDef | undefined {
+  return TAROT_SPREADS[spreadId];
 }
 
 interface FreeUnlockSingleBody { spread_id: string; card_key: string; reversed?: boolean; reading_id?: string; }
 
 export async function freeUnlockSingle(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSingleBody>(req);
-  if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
-  const spread = SPREADS[body.spread_id];
+  if (!body.spread_id || !TAROT_SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
+  const spread = TAROT_SPREADS[body.spread_id];
   if (!spread.free) return badRequest(req, env, 'not a single-card spread');
   if (!body.card_key) return badRequest(req, env, 'card_key required');
   const card = await loadFullCard(env, spread.deck_id, body.card_key);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
   const session = await readSession(req, env);
-  const isMember = session ? await hasActiveMembership(env, session.id) : false;
+  const isMember = session ? await hasActiveTarotSubscription(env, session.id) : false;
   if (!isMember) {
     if (!body.reading_id) return forbidden(req, env, '請先取得免費占卜憑證');
     const access = await verifyOracleReservation(req, env, body.reading_id, body.spread_id);
@@ -480,7 +455,7 @@ export async function oracleFreeReadingStatus(req: Request, env: Env): Promise<R
 
 export async function startOracleFreeReading(req: Request, env: Env): Promise<Response> {
   const body = await readBody<{ spread_id: string }>(req);
-  if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
+  if (!body.spread_id || !TAROT_SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
   const visitorHash = await oracleVisitorHash(req, env);
   if (!visitorHash) return json(req, env, { error: '無法確認免費體驗資格' }, { status: 400 });
   await env.DB.prepare(
@@ -613,8 +588,8 @@ export async function completeOracleFreeReading(req: Request, env: Env): Promise
 
 export async function freeUnlockSpread(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSpreadBody>(req);
-  if (!body.spread_id || !SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
-  const spread = SPREADS[body.spread_id];
+  if (!body.spread_id || !TAROT_SPREADS[body.spread_id]) return badRequest(req, env, 'spread_id invalid');
+  const spread = TAROT_SPREADS[body.spread_id];
   if (spread.free) return badRequest(req, env, 'use free-unlock-single for single cards');
   if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
     return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
@@ -624,6 +599,15 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     const card = await loadFullCard(env, spread.deck_id, pick.card_key);
     if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
+  }
+
+  const session = await readSession(req, env);
+  if (session && await hasActiveTarotSubscription(env, session.id)) {
+    return json(req, env, {
+      spread_id: body.spread_id,
+      cards,
+      access_source: 'tarot_monthly_600',
+    });
   }
 
   if (!body.reading_id) return forbidden(req, env, '請先取得免費占卜憑證');
@@ -661,7 +645,7 @@ export async function bundleUnlockSpread(req: Request, env: Env): Promise<Respon
   if (!session) return unauthorized(req, env, '套票綁定會員帳號，請先登入');
 
   const body = await readBody<BundleUnlockSpreadBody>(req);
-  const spread = SPREADS[body.spread_id];
+  const spread = TAROT_SPREADS[body.spread_id];
   const category = BUNDLE_CATEGORY_BY_SPREAD[body.spread_id];
   if (!spread || spread.free || !category) return badRequest(req, env, 'spread_id invalid');
   if (!body.reading_id || body.reading_id.length > 100) return badRequest(req, env, 'reading_id invalid');

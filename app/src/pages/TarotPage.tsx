@@ -13,13 +13,12 @@ import { MembershipGate } from '../components/MembershipGate';
 import { ResonanceCTA } from '../components/ResonanceCTA';
 import TarotResonanceCTA from '../components/TarotResonanceCTA';
 import { useConversionTracking } from '../hooks/useConversionTracking';
-import { useAuth } from '../contexts/AuthContext';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { checkoutApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { getMultiSpreadCheckoutGuestEmail } from '../lib/multiSpreadEmail';
+import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
@@ -102,7 +101,6 @@ interface DrawnCard {
 function TarotPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
   const { cards: deck } = useDeck('tarot');
   const initialSpread = ((): SpreadType => {
     const q = searchParams.get('spread');
@@ -183,19 +181,11 @@ function TarotPage() {
 
   const handleCheckout = async () => {
     if (isCheckingOut) return;
-    const guestEmail = !user ? getMultiSpreadCheckoutGuestEmail() : '';
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
-      const picks = drawnCards.map((d, i) => ({
-        card_key: d.preview.card_key,
-        position: i + 1,
-        reversed: d.isReversed,
-      }));
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
-        SPREAD_IDS[spreadType],
-        picks,
-        !user ? { guest_email: guestEmail } : undefined,
+        TAROT_SUBSCRIPTION.id,
       );
       if (admin_unlocked) {
         navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);

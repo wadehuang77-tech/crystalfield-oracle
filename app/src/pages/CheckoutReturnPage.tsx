@@ -31,9 +31,6 @@ const SPREAD_HOME: Record<string, string> = {
   vedic_soul_karma:     '/vedic-astrology',
   vedic_life_full:      '/vedic-astrology',
   vedic_complete:       '/vedic-astrology',
-  three_card_5pack_30d: '/oracle',
-  three_pastlife_3plus3_30d: '/oracle',
-  deep_spread_5pack_30d: '/oracle',
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {
@@ -108,7 +105,7 @@ export default function CheckoutReturnPage() {
   const goHome = () => navigate('/');
   const goSpread = () => {
     if (!order) return;
-    if (order.item_id === 'membership_monthly') {
+    if (order.item_id === 'tarot_monthly_600') {
       const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
       navigate(redirect);
       return;
@@ -132,7 +129,7 @@ export default function CheckoutReturnPage() {
     if (order?.status !== 'paid') return;
     const isVedicOrder = order.item_id.startsWith('vedic_');
     const t = setTimeout(() => {
-      if (order.item_id === 'membership_monthly') {
+      if (order.item_id === 'tarot_monthly_600') {
         const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
         navigate(redirect, { replace: true });
         return;

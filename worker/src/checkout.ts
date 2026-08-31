@@ -9,6 +9,7 @@ import {
   createPendingMembershipSubscription,
   markMembershipFirstPaymentPaid,
   rejectDuplicateActiveMembership,
+  TAROT_SUBSCRIPTION_ITEM_ID,
 } from './subscriptions';
 import { validateVedicCheckoutContext } from './vedicAstrology';
 import {
@@ -58,18 +59,6 @@ function sanitizePicks(raw: unknown, expectedCount: number): OrderPick[] | null 
   return out;
 }
 
-const SPREAD_CARD_COUNT: Record<string, number> = {
-  tarot_three:        3,
-  tarot_celtic:       10,
-  tarot_pastlife:     7,
-  celtic_cross:       10,
-  unicorns_three:     3,
-  dragons_three:      3,
-  egyptian_pastlife:  7,
-  cosmic_cross:       11,
-  osho_three:         3,
-};
-
 export async function createOrder(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
   const isAdmin = user ? await requireAdmin(req, env, user) : false;
@@ -87,7 +76,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const isVedicCheckout = item.id.startsWith('vedic_');
   const shouldAdminInstantUnlock = isAdmin;
 
-  const expectedCount = SPREAD_CARD_COUNT[item.id] ?? 0;
+  // 塔羅不再以個別牌陣建立訂單；唯一塔羅商品不綁定抽牌內容。
+  const expectedCount = 0;
   const isGuestSpreadCheckout = !user && expectedCount > 0;
   const isGuestNumerologyCheckout = !user && isNumerologyCheckout;
   const isGuestHumanDesignCheckout = !user && isHumanDesignCheckout;
@@ -95,7 +85,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout && !isGuestHumanDesignCheckout && !isGuestVedicCheckout) {
     return unauthorized(req, env, '請先登入');
   }
-  if (user && item.id === 'membership_monthly') {
+  if (user && item.id === TAROT_SUBSCRIPTION_ITEM_ID) {
     await clearStalePendingMemberships(env, user.id);
     const reason = await rejectDuplicateActiveMembership(env, user.id);
     if (reason) return badRequest(req, env, reason);
@@ -166,7 +156,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
       merchantTradeNo,
       user?.id ?? null,
       user?.email ?? guestEmail,
-      item.id === 'membership_monthly'
+      item.id === TAROT_SUBSCRIPTION_ITEM_ID
         ? 'subscription'
         : (isHumanDesignCheckout ? 'human_design' : (isVedicCheckout ? 'vedic_astrology' : 'spread')),
       item.id,
@@ -175,7 +165,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
       picksPayload,
     ).run();
 
-    if (user && item.id === 'membership_monthly') {
+    if (user && item.id === TAROT_SUBSCRIPTION_ITEM_ID) {
       await createPendingMembershipSubscription(env, {
         userId: user.id,
         orderId,
@@ -207,7 +197,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     ).bind(orderId).run();
 
     // Grant access immediately (mirrors webhook logic) so admins can test unlock flow
-    if (item.id === 'membership_monthly') {
+    if (item.id === TAROT_SUBSCRIPTION_ITEM_ID) {
       await markMembershipFirstPaymentPaid(env, {
         id: orderId,
         user_id: user.id,
@@ -263,14 +253,14 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     returnURL:       `${apiOrigin}/api/ecpay-webhook`,
     clientBackURL:   `${frontendOrigin}/checkout/return?order_id=${orderId}&order_token=${encodeURIComponent(orderToken)}`,
     orderResultURL:  `${apiOrigin}/api/checkout/result`,
-    choosePayment:   item.id === 'membership_monthly' ? 'Credit' : undefined,
-    periodAmount:    item.id === 'membership_monthly' ? item.amount : undefined,
-    periodType:      item.id === 'membership_monthly' ? 'M' : undefined,
-    frequency:       item.id === 'membership_monthly' ? 1 : undefined,
-    execTimes:       item.id === 'membership_monthly' ? 99 : undefined,
-    periodReturnURL: item.id === 'membership_monthly' ? `${apiOrigin}/api/ecpay-webhook` : undefined,
-    customField1:    item.id === 'membership_monthly' ? orderId : undefined,
-    customField2:    item.id === 'membership_monthly' ? (user?.id ?? '') : undefined,
+    choosePayment:   item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 'Credit' : undefined,
+    periodAmount:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? item.amount : undefined,
+    periodType:      item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 'M' : undefined,
+    frequency:       item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 1 : undefined,
+    execTimes:       item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 99 : undefined,
+    periodReturnURL: item.id === TAROT_SUBSCRIPTION_ITEM_ID ? `${apiOrigin}/api/ecpay-webhook` : undefined,
+    customField1:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? orderId : undefined,
+    customField2:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? (user?.id ?? '') : undefined,
   }, env.ECPAY_ENV);
 
   return json(req, env, {

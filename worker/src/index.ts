@@ -8,9 +8,7 @@ import {
   oracleFreeReadingStatus,
   startOracleFreeReading,
   completeOracleFreeReading,
-  bundleUnlockSpread,
   unlockSingleCard,
-  unlockSpread,
 } from './cards';
 import { computeEcpayCheckMac, SPREAD_CATALOG } from './ecpay';
 import { checkoutResult, createOrder, getOrder } from './checkout';
@@ -21,6 +19,7 @@ import {
   handleMembershipRecurringCallback,
   markMembershipFirstPaymentPaid,
   refreshMyMembership,
+  TAROT_SUBSCRIPTION_ITEM_ID,
 } from './subscriptions';
 import {
   requestPasswordReset,
@@ -202,20 +201,10 @@ export default {
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await freeUnlockSpread(req, env);
       }
-      if (path === '/api/cards/bundle-unlock-spread' && req.method === 'POST') {
-        const rl = await rateLimit(env, 'bundle-unlock', clientIp(req), 30, 3600);
-        if (!rl.allowed) return tooManyRequests(req, env, '解鎖要求過於頻繁，請稍後再試');
-        return await bundleUnlockSpread(req, env);
-      }
       if (path === '/api/cards/single-unlock' && req.method === 'POST') {
         const rl = await rateLimit(env, 'cards-unlock', clientIp(req), 30, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env);
         return await unlockSingleCard(req, env);
-      }
-      if (path === '/api/cards/spread-unlock' && req.method === 'POST') {
-        const rl = await rateLimit(env, 'cards-unlock', clientIp(req), 30, 3600);
-        if (!rl.allowed) return await tooManyRequests(req, env);
-        return await unlockSpread(req, env);
       }
 
       if (path === '/api/save-email' && req.method === 'POST') {
@@ -364,10 +353,6 @@ export default {
       }
 
       if (path === '/api/ecpay-webhook' && req.method === 'POST') return await ecpayWebhook(req, env);
-
-      // ── Bundle credits ────────────────────────────────────────────
-      if (path === '/api/bundle-credits' && req.method === 'GET') return await getBundleCredits(req, env);
-      if (path === '/api/bundle-credits/consume' && req.method === 'POST') return await consumeBundleCredit(req, env);
 
       return await json(req, env, { error: 'not found', path }, { status: 404 });
     } catch (err) {
@@ -562,6 +547,7 @@ async function getMyProfile(req: Request, env: Env): Promise<Response> {
       ...row,
       purchased_spreads: parseJsonArray(row.purchased_spreads),
       membership,
+      hasActiveTarotSubscription: membership?.is_active === true,
     },
   });
 }
@@ -1313,7 +1299,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
     return new Response('1|OK', { status: 200, headers: { 'Content-Type': 'text/plain' } });
   }
 
-  if (order.item_id === 'membership_monthly' && params.TotalSuccessTimes) {
+  if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID && params.TotalSuccessTimes) {
     await handleMembershipRecurringCallback(env, params).catch(() => {});
     return new Response('1|OK', {
       status: 200,
@@ -1378,7 +1364,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
       const catalogItem = SPREAD_CATALOG[order.item_id];
       if (catalogItem?.bundle) {
         await grantBundleCredits(env, order.user_id, catalogItem.bundle).catch(() => {});
-      } else if (order.item_id === 'membership_monthly') {
+      } else if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
         await markMembershipFirstPaymentPaid(env, order, params).catch(() => {});
       } else if (order.item_id.startsWith('numerology_')) {
         await env.DB.prepare(`
@@ -1403,7 +1389,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
              updated_at = ?
            WHERE id = ?`
         ).bind(rawCallback, now, order.id).run();
-        if (order.item_id === 'membership_monthly') {
+        if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
           await env.DB.prepare(
             `UPDATE subscriptions
                 SET status = 'failed',

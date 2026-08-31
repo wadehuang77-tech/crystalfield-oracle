@@ -14,12 +14,12 @@ import { useConversionTracking, usePageView } from '../hooks/useConversionTracki
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
 import { checkoutApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { useDeck, pickRandomCards, unlockSpreadCards } from '../hooks/useDeck';
 import { type CardPreview, type UnlockedCard } from '../lib/api';
-import { getMultiSpreadCheckoutGuestEmail, saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
-import { useAuth } from '../contexts/AuthContext';
+import { saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
@@ -164,7 +164,6 @@ function MissionReadingCard({ position, mode }: { position: CardPosition; mode: 
 
 function LightworkerCelticCrossPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const { cards: deck, error: deckError } = useDeck('lightworker');
   const [isShuffling, setIsShuffling] = useState(false);
@@ -288,15 +287,11 @@ function LightworkerCelticCrossPage() {
 
   const handleCheckout = async () => {
     if (isCheckingOut) return;
-    const guestEmail = getMultiSpreadCheckoutGuestEmail();
     setUnlockError(null);
     setIsCheckingOut(true);
     try {
-      const checkoutPicks = selectedCards.filter((c) => c.preview).map((c) => ({ card_key: c.preview!.card_key, position: c.position }));
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
-        SPREAD_ID,
-        checkoutPicks,
-        !user ? { guest_email: guestEmail } : undefined,
+        TAROT_SUBSCRIPTION.id,
       );
       if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
       if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }

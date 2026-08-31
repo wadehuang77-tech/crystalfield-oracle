@@ -1,3 +1,5 @@
+import { TAROT_SUBSCRIPTION } from './tarotCatalog';
+
 export type SpreadBundleCategory = 'three_card' | 'ten_card' | 'pastlife';
 
 export interface BundleGrant {
@@ -16,51 +18,11 @@ export interface SpreadCatalogItem {
 }
 
 export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
-  // ── 三張牌陣 ────────────────────────────────────────────────────
-  tarot_three:       { id: 'tarot_three',       name: '偉特塔羅 三張牌陣',         amount: 299, category: 'three_card' },
-  unicorns_three:    { id: 'unicorns_three',    name: '獨角獸塔羅 三張牌陣',       amount: 250, category: 'three_card' },
-  dragons_three:     { id: 'dragons_three',     name: '龍族塔羅 三張牌陣',         amount: 250, category: 'three_card' },
-  osho_three:        { id: 'osho_three',        name: '奧修禪卡 三張牌陣',         amount: 250, category: 'three_card' },
-  // ── 十張牌陣 ────────────────────────────────────────────────────
-  tarot_celtic:      { id: 'tarot_celtic',      name: '偉特塔羅 凱爾特十字陣',     amount: 599, category: 'ten_card'   },
-  celtic_cross:      { id: 'celtic_cross',      name: '光行者神諭 十字交叉使命陣', amount: 599, category: 'ten_card'   },
-  cosmic_cross:      { id: 'cosmic_cross',      name: '光之訊息 宇宙十字牌陣',     amount: 599, category: 'ten_card'   },
-  // ── 前世因果陣 ─────────────────────────────────────────────────
-  tarot_pastlife:    { id: 'tarot_pastlife',    name: '偉特塔羅 前世因果解鎖陣',   amount: 599, category: 'pastlife'   },
-  egyptian_pastlife: { id: 'egyptian_pastlife', name: '埃及神諭 前世因果解鎖陣',   amount: 599, category: 'pastlife'   },
-  // ── 30 日會員帳號套票 ────────────────────────────────────────
-  three_card_5pack_30d: {
-    id: 'three_card_5pack_30d', name: '所有三張牌陣 5 次方案 (30日)', amount: 600,
-    bundle: { three_card: 5, ten_card: 0, pastlife: 0, days: 30 },
-  },
-  three_pastlife_3plus3_30d: {
-    id: 'three_pastlife_3plus3_30d', name: '三張牌陣 3 次＋前世因果陣 3 次 (30日)', amount: 1200,
-    bundle: { three_card: 3, ten_card: 0, pastlife: 3, days: 30 },
-  },
-  deep_spread_5pack_30d: {
-    id: 'deep_spread_5pack_30d', name: '深度十字牌陣任選 5 次 (30日)', amount: 1800,
-    bundle: { three_card: 0, ten_card: 5, pastlife: 0, days: 30 },
-  },
-  // 舊訂單相容：不再顯示於前台，但付款回傳仍可正確入帳。
-  three_card_3pack_7d: {
-    id: 'three_card_3pack_7d', name: '三張牌陣 3次套票 (7日)', amount: 10,
-    bundle: { three_card: 3, ten_card: 0, pastlife: 0, days: 7 },
-  },
-  ten_card_3pack_7d: {
-    id: 'ten_card_3pack_7d', name: '十張牌陣 3次套票 (7日)', amount: 10,
-    bundle: { three_card: 0, ten_card: 3, pastlife: 0, days: 7 },
-  },
-  pastlife_3pack_7d: {
-    id: 'pastlife_3pack_7d', name: '前世因果陣 3次套票 (7日)', amount: 10,
-    bundle: { three_card: 0, ten_card: 0, pastlife: 3, days: 7 },
-  },
-  bundle_1499_30d: {
-    id: 'bundle_1499_30d', name: '靈魂探索套餐 (30日)', amount: 10,
-    bundle: { three_card: 5, ten_card: 1, pastlife: 2, days: 30 },
-  },
-  bundle_1999_30d: {
-    id: 'bundle_1999_30d', name: '深度靈魂套餐 (30日)', amount: 10,
-    bundle: { three_card: 6, ten_card: 3, pastlife: 3, days: 30 },
+  // ── 塔羅全館唯一付費方案 ──────────────────────────────────────
+  [TAROT_SUBSCRIPTION.id]: {
+    id: TAROT_SUBSCRIPTION.id,
+    name: TAROT_SUBSCRIPTION.name,
+    amount: TAROT_SUBSCRIPTION.amount,
   },
   // ── 生命靈數方案 ────────────────────────────────────────────────
   numerology_basic:    { id: 'numerology_basic',    name: '生命靈數 基礎版',     amount: 199 },
@@ -76,12 +38,10 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   vedic_relationship: { id: 'vedic_relationship', name: '印度占星｜我的感情與婚姻', amount: 399 },
   vedic_karma: { id: 'vedic_karma', name: '印度占星｜我的前世業力', amount: 399 },
   vedic_timeline: { id: 'vedic_timeline', name: '印度占星｜我的未來十年', amount: 399 },
-  vedic_full: { id: 'vedic_full', name: '印度占星｜完整靈魂業力人生地圖', amount: 999 },
+  vedic_full: { id: 'vedic_full', name: '印度占星｜完整靈魂業力人生地圖', amount: 699 },
   vedic_soul_karma: { id: 'vedic_soul_karma', name: '印度占星｜靈魂業力', amount: 499 },
   vedic_life_full: { id: 'vedic_life_full', name: '印度占星｜人生全解', amount: 499 },
-  vedic_complete: { id: 'vedic_complete', name: '印度占星｜完整人生地圖', amount: 999 },
-  // ── 月費會員 ─────────────────────────────────────────────────
-  membership_monthly: { id: 'membership_monthly', name: '月費會員 (所有塔羅單張不限次數)', amount: 99 },
+  vedic_complete: { id: 'vedic_complete', name: '印度占星｜完整人生地圖', amount: 699 },
 };
 
 function phpStyleUrlEncode(s: string): string {

@@ -80,6 +80,7 @@ export interface Profile {
   healing_interest: string | null;
   purchased_spreads: string[];
   membership?: MembershipSubscription | null;
+  hasActiveTarotSubscription: boolean;
   created_at: string;
   updated_at: string;
 }

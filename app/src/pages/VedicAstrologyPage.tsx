@@ -58,7 +58,8 @@ const PAID_OPTIONS = [
     id: 'vedic_complete',
     title: '完整人生地圖',
     subtitle: '9 大印度占星深度解析',
-    price: 999,
+    price: 699,
+    originalPrice: 999,
     icon: Sparkles,
     featured: true,
     description: '一次解鎖前世業力、今生課題、靈魂軸線、愛情婚姻、財富、事業，以及 D9、D10 分盤與未來 3～5 年大運時間軸。',
@@ -432,7 +433,7 @@ function LifeQuestionCard({ number, title, badge, icon: Icon, prompt, descriptio
 
 function PaidOption(props: typeof PAID_OPTIONS[number] & { loading: boolean; disabled: boolean; onClick: () => void }) {
   const Icon = props.icon;
-  return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">主打方案</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><strong className={`text-xl text-white ${props.featured ? 'mt-10 sm:mt-0' : ''}`}>NT${props.price}</strong></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? '前往付款中…' : '解鎖這份指引'}</button></article>;
+  return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">主打方案</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><div className={`text-right ${props.featured ? 'mt-10 sm:mt-0' : ''}`}><span className="block text-xs text-amber-200/70">體驗價</span><strong className="text-xl text-white">NT${props.price}</strong><span className="ml-2 text-sm text-white/35 line-through">原價 NT${props.originalPrice}</span></div></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? '前往付款中…' : '解鎖這份指引'}</button></article>;
 }
 
 function PaidReport({ report, orderId, orderToken }: { report: VedicReport; orderId: string; orderToken: string }) {

@@ -1,83 +1,39 @@
-# 月費會員訂閱上線 Runbook
+# 塔羅全館月費會員上線 Runbook
 
-這份文件是 `membership_monthly` 真正定期定額上線的最低操作手冊。
+本站 7 個牌組只販售一個塔羅會員商品：`tarot_monthly_600`，價格 NT$600。每次成功扣款提供 30 天權益，期間內 7 個牌組與其全部牌陣、完整解讀皆不限次數。
 
-## 1. 先做的事
+## 上線前準備
 
-1. 確認 Worker secrets 已設定：
-   - `ECPAY_MERCHANT_ID`
-   - `ECPAY_HASH_KEY`
-   - `ECPAY_HASH_IV`
-   - `JWT_SECRET`
-2. 確認綠界商店已開通「信用卡定期定額」。
-3. 確認正式站 `api.crystalfield101.com` 能被綠界 webhook 打到。
+1. 確認 Worker secrets：`ECPAY_MERCHANT_ID`、`ECPAY_HASH_KEY`、`ECPAY_HASH_IV`、`JWT_SECRET`。
+2. 確認綠界商店已開通信用卡定期定額。
+3. 確認正式站 `/api/ecpay-webhook` 可由綠界連線。
+4. 套用 `d1/migrations/008_subscriptions.sql`。
 
-## 2. 套用 migration
+## 驗證指令
 
-這次新增：
+```bash
+cd worker
+npm run typecheck
 
-- `d1/migrations/008_subscriptions.sql`
+cd ../app
+npm run typecheck
+npm run build
+```
 
-正式環境至少要先套這支，否則訂閱流程會失敗。
+## 必測流程
 
-## 3. 上線前檢查
+1. 未訂閱帳號用完免費占卜後，7 個牌組的任何單張或多張牌陣都只顯示「塔羅全館月費會員」。
+2. 結帳目錄只有 `tarot_monthly_600`，金額為 NT$600；舊單次牌陣與次數包商品不可建單。
+3. 付款成功後，`/membership` 顯示會員有效，本期到期日為付款成功時間後 30 天。
+4. 同一帳號可不限次數取得 7 個牌組全部 16 個牌陣的完整內容，不扣除任何額度。
+5. 取消後續扣款後，本期權益維持到到期日。
+6. 生命靈數、人類圖、印度占星仍使用各自原有商品與價格。
 
-1. `worker`:
-   ```bash
-   cd worker
-   npm run typecheck
-   ```
-2. `app`:
-   ```bash
-   cd app
-   npm run build
-   ```
+## 綠界週期設定
 
-## 4. 測試環境必測流程
+- `PeriodType = M`
+- `Frequency = 1`
+- `ExecTimes = 99`
+- 每次扣款成功後，本站權益窗固定為 30 天。
 
-### 開通訂閱
-
-1. 登入帳號。
-2. 進入任一單張牌第 4 次會員提示。
-3. 點「加入會員」。
-4. 綠界刷卡成功後，確認回到原頁或 `/membership`。
-5. `/membership` 應看到：
-   - 狀態為「會員有效中」
-   - 本期開始 / 到期時間
-   - 已成功扣款次數至少 1 次
-
-### 同步綠界狀態
-
-1. 進 `/membership`
-2. 點「同步綠界狀態」
-3. 確認畫面可正常更新，不報錯
-
-### 取消續扣
-
-1. 進 `/membership`
-2. 點「取消後續自動扣款」
-3. 成功後狀態應變成「已取消續扣，權益仍有效」
-4. 本期到期前，單張牌會員權益仍應有效
-
-## 5. 現在的系統行為
-
-1. 訂閱透過綠界信用卡定期定額建立。
-2. 週期設定是：
-   - `PeriodType = M`
-   - `Frequency = 1`
-   - `ExecTimes = 99`
-3. 第一次付款走一般 `ReturnURL`。
-4. 第二次以後的續扣走 `PeriodReturnURL`。
-5. 使用者可從前端取消後續扣款。
-
-## 6. 目前已知限制
-
-1. 綠界定期定額不是無限期，它需要固定次數；目前設成 `99` 次。
-2. 目前前端沒有做「扣款失敗後補授權」按鈕。
-3. 舊資料若曾經把 `membership_monthly` 寫進 `purchased_spreads`，前端仍保留相容判斷；等舊會員資料清完可以再移除。
-
-## 7. 建議下一步
-
-1. 加一個 admin / 客服用的訂閱查詢頁。
-2. 加「扣款失敗」通知信。
-3. 規劃 `ExecTimes` 用完前的續約策略。
+取消訂閱只停止後續扣款，不會回收本期已付款權益。

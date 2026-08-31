@@ -10,8 +10,9 @@ import {
   readSession,
   unauthorized,
 } from './utils';
+import { TAROT_SUBSCRIPTION } from './tarotCatalog';
 
-const MEMBERSHIP_ITEM_ID = 'membership_monthly';
+export const TAROT_SUBSCRIPTION_ITEM_ID = TAROT_SUBSCRIPTION.id;
 const MEMBERSHIP_PERIOD_TYPE = 'M';
 const MEMBERSHIP_FREQUENCY = 1;
 const MEMBERSHIP_EXEC_TIMES = 99;
@@ -71,7 +72,8 @@ function addPeriod(startIso: string, periodType: string, frequency: number): str
       break;
     case 'M':
     default:
-      next.setUTCMonth(next.getUTCMonth() + frequency);
+      // 塔羅全館方案的權益定義是付款成功起精確 30 天。
+      next.setUTCDate(next.getUTCDate() + TAROT_SUBSCRIPTION.entitlementDays * frequency);
       break;
   }
   return next.toISOString();
@@ -153,7 +155,7 @@ export async function getLatestMembershipRow(env: Env, userId: string): Promise<
       WHERE user_id = ? AND item_id = ?
       ORDER BY created_at DESC
       LIMIT 1`
-  ).bind(userId, MEMBERSHIP_ITEM_ID).first<SubscriptionRow>();
+  ).bind(userId, TAROT_SUBSCRIPTION_ITEM_ID).first<SubscriptionRow>();
 }
 
 export async function getMembershipSummary(env: Env, userId: string) {
@@ -161,7 +163,7 @@ export async function getMembershipSummary(env: Env, userId: string) {
   return buildSummary(row);
 }
 
-export async function hasActiveMembership(env: Env, userId: string): Promise<boolean> {
+export async function hasActiveTarotSubscription(env: Env, userId: string): Promise<boolean> {
   const row = await getLatestMembershipRow(env, userId);
   return !!row && buildSummary(row)?.is_active === true;
 }
@@ -181,7 +183,7 @@ export async function createPendingMembershipSubscription(env: Env, input: {
     input.userId,
     input.orderId,
     input.merchantTradeNo,
-    MEMBERSHIP_ITEM_ID,
+    TAROT_SUBSCRIPTION_ITEM_ID,
     input.amount,
     MEMBERSHIP_PERIOD_TYPE,
     MEMBERSHIP_FREQUENCY,
@@ -505,5 +507,5 @@ export async function clearStalePendingMemberships(env: Env, userId: string): Pr
         AND item_id = ?
         AND status = 'pending'
         AND created_at < datetime('now', '-30 minutes')`
-  ).bind(userId, MEMBERSHIP_ITEM_ID).run();
+  ).bind(userId, TAROT_SUBSCRIPTION_ITEM_ID).run();
 }
