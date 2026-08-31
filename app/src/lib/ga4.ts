@@ -23,7 +23,7 @@ interface OracleSpreadDefinition {
 export const ORACLE_SPREADS: Record<OracleSpreadId, OracleSpreadDefinition> = {
   tarot_single: { deck_id: 'tarot', deck_name: '偉特塔羅', spread_id: 'tarot_single', spread_name: '單張牌陣', card_count: 1 },
   tarot_three: { deck_id: 'tarot', deck_name: '偉特塔羅', spread_id: 'tarot_three', spread_name: '三張牌陣', card_count: 3 },
-  tarot_celtic: { deck_id: 'tarot', deck_name: '偉特塔羅', spread_id: 'tarot_celtic', spread_name: '凱爾特十字牌陣', card_count: 10 },
+  tarot_celtic: { deck_id: 'tarot', deck_name: '偉特塔羅', spread_id: 'tarot_celtic', spread_name: '凱爾特十字陣', card_count: 10 },
   tarot_pastlife: { deck_id: 'tarot', deck_name: '偉特塔羅', spread_id: 'tarot_pastlife', spread_name: '前世因果解鎖陣', card_count: 7 },
   lightworker_single: { deck_id: 'lightworker', deck_name: '光行者神諭', spread_id: 'lightworker_single', spread_name: '單張牌陣', card_count: 1 },
   celtic_cross: { deck_id: 'lightworker', deck_name: '光行者神諭', spread_id: 'celtic_cross', spread_name: '十字交叉使命陣', card_count: 10 },
@@ -33,8 +33,8 @@ export const ORACLE_SPREADS: Record<OracleSpreadId, OracleSpreadDefinition> = {
   dragons_three: { deck_id: 'dragons', deck_name: '龍族塔羅', spread_id: 'dragons_three', spread_name: '三張牌陣', card_count: 3 },
   egyptian_single: { deck_id: 'egyptian_gods', deck_name: '埃及神諭', spread_id: 'egyptian_single', spread_name: '單張牌陣', card_count: 1 },
   egyptian_pastlife: { deck_id: 'egyptian_gods', deck_name: '埃及神諭', spread_id: 'egyptian_pastlife', spread_name: '前世因果解鎖陣', card_count: 7 },
-  work_your_light_single: { deck_id: 'work_your_light', deck_name: 'Lightworker光之訊息', spread_id: 'work_your_light_single', spread_name: '單張牌陣', card_count: 1 },
-  cosmic_cross: { deck_id: 'work_your_light', deck_name: 'Lightworker光之訊息', spread_id: 'cosmic_cross', spread_name: '宇宙十字牌陣', card_count: 11 },
+  work_your_light_single: { deck_id: 'work_your_light', deck_name: 'Lightworker 光之訊息', spread_id: 'work_your_light_single', spread_name: '單張牌陣', card_count: 1 },
+  cosmic_cross: { deck_id: 'work_your_light', deck_name: 'Lightworker 光之訊息', spread_id: 'cosmic_cross', spread_name: '宇宙十字牌陣', card_count: 11 },
   osho_single: { deck_id: 'osho', deck_name: '奧修禪卡', spread_id: 'osho_single', spread_name: '單張牌陣', card_count: 1 },
   osho_three: { deck_id: 'osho', deck_name: '奧修禪卡', spread_id: 'osho_three', spread_name: '三張牌陣', card_count: 3 },
 };

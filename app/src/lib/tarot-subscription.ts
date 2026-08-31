@@ -1,3 +1,5 @@
+import { ORACLE_SPREADS } from './ga4';
+
 export const TAROT_SUBSCRIPTION = {
   id: 'tarot_monthly_600',
   name: '塔羅全館月費會員',
@@ -5,3 +7,12 @@ export const TAROT_SUBSCRIPTION = {
   durationDays: 30,
 } as const;
 
+const tarotSpreadDefinitions = Object.values(ORACLE_SPREADS);
+
+export const TAROT_SUBSCRIPTION_DECK_NAMES = [
+  ...new Set(tarotSpreadDefinitions.map(({ deck_name }) => deck_name)),
+];
+
+export const TAROT_SUBSCRIPTION_SPREAD_NAMES = [
+  ...new Set(tarotSpreadDefinitions.map(({ spread_name }) => spread_name)),
+];

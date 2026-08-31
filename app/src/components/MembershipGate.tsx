@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { saveMembershipCheckoutRedirect, savePendingSingleDraw } from '../lib/pendingDraw';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
+import { TarotSubscriptionDetails } from './TarotSubscriptionDetails';
 
 interface MembershipGateProps {
   isOpen: boolean;
@@ -61,7 +62,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-amber-500/40 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-slate-800 to-slate-900 p-5 shadow-2xl sm:p-8">
         <button onClick={onClose} disabled={isProcessing}
           className="absolute top-4 right-4 text-amber-400/60 hover:text-amber-300 transition-colors"
           aria-label="關閉">
@@ -75,15 +76,13 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
           <h2 className="font-serif text-xl text-amber-100 tracking-[0.2em] mb-2">
             {TAROT_SUBSCRIPTION.name}
           </h2>
-          <p className="text-3xl font-serif text-amber-400 mt-4 tracking-[0.15em]">NT$ 600 / 月</p>
-          <p className="text-xs text-amber-400/60 mt-2">付款成功日起 30 天，7 個牌組與全部牌陣不限次數</p>
+          <p className="mt-4 font-serif text-3xl tracking-[0.15em] text-amber-400">NT${TAROT_SUBSCRIPTION.price}</p>
+          <p className="mt-2 text-sm leading-relaxed text-amber-100/70">
+            付款成功日起 {TAROT_SUBSCRIPTION.durationDays} 天，可不限次數使用本站 7 大塔羅牌組與全部牌陣。
+          </p>
         </div>
 
-        <div className="border-t border-b border-amber-500/15 py-5 mb-6 space-y-3">
-          <Perk>本站 7 個牌組全部納入同一會員權限</Perk>
-          <Perk>所有單張與多張牌陣不限次數</Perk>
-          <Perk>所有完整解讀不限次數</Perk>
-        </div>
+        <TarotSubscriptionDetails />
 
         {error && (
           <div className="border border-red-500/50 bg-red-600/15 px-4 py-3 mb-4 text-sm text-amber-100 tracking-wide rounded-lg">
@@ -97,7 +96,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
             {isProcessing ? (
               <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>跳轉至綠界…</>
             ) : (
-              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />{user ? '立即加入 NT$600 / 月' : '登入後加入會員'}</>
+              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />NT${TAROT_SUBSCRIPTION.price} 立即加入</>
             )}
           </button>
           <button onClick={onClose} disabled={isProcessing}
@@ -110,15 +109,6 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
           付款由 ECPay 綠界金流安全處理。<br />月費會員以信用卡定期定額付款。
         </p>
       </div>
-    </div>
-  );
-}
-
-function Perk({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-3">
-      <Crown className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" strokeWidth={1.6} />
-      <p className="text-sm text-amber-100/85 leading-relaxed">{children}</p>
     </div>
   );
 }
