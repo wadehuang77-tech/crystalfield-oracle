@@ -88,27 +88,38 @@ export interface Profile {
 export interface MembershipSubscription {
   id: string;
   item_id: string;
+  plan_code: string;
   amount: number;
+  currency: string;
+  billing_type: 'recurring';
   period_type: string;
   frequency: number;
   exec_times: number;
-  status: 'pending' | 'active' | 'cancelling' | 'cancelled' | 'completed' | 'past_due' | 'expired';
+  status: 'pending' | 'active' | 'cancelling' | 'cancelled' | 'ended' | 'payment_failed';
   is_active: boolean;
   cancel_at_period_end: boolean;
   total_success_times: number;
   total_success_amount: number;
   current_period_started_at: string | null;
   current_period_ends_at: string | null;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  started_at: string | null;
+  last_payment_at: string | null;
+  next_billing_at: string | null;
   first_paid_at: string | null;
   last_paid_at: string | null;
   cancel_requested_at: string | null;
   cancelled_at: string | null;
   completed_at: string | null;
+  ended_at: string | null;
   last_charge_status: string | null;
   last_error_message: string | null;
   card_last4: string | null;
   card_first6: string | null;
   merchant_trade_no: string;
+  ecpay_trade_no: string | null;
+  latest_payment_status: string | null;
   last_synced_at: string | null;
 }
 
@@ -124,6 +135,34 @@ export interface GuestEmail {
   source: string;
   created_at: string;
   status?: string;
+}
+
+export interface AdminTarotPayment {
+  id: string;
+  billing_cycle: number;
+  amount: number;
+  status: string;
+  paid_at: string | null;
+  merchant_trade_no: string | null;
+  ecpay_trade_no: string | null;
+}
+
+export interface AdminTarotSubscription {
+  id: string;
+  user_id: string;
+  name: string | null;
+  email: string | null;
+  plan_code: string;
+  status: string;
+  amount: number;
+  started_at: string | null;
+  last_payment_at: string | null;
+  next_billing_at: string | null;
+  current_period_end: string | null;
+  cancelled_at: string | null;
+  merchant_trade_no: string;
+  ecpay_trade_no: string | null;
+  payments: AdminTarotPayment[];
 }
 
 export interface GoogleFormAdmin {
@@ -651,6 +690,10 @@ export const adminApi = {
   member: (id: string) =>
     req<{ member: AdminMember }>(`/api/admin/members/${encodeURIComponent(id)}`),
   memberStats: () => req<AdminMemberStats>('/api/admin/members/stats'),
+  tarotSubscriptions: () => req<{
+    subscriptions: AdminTarotSubscription[];
+    summary: { subscriptions: number; active: number; paid_transactions: number; revenue: number };
+  }>('/api/admin/tarot-subscriptions'),
   vedicReviews: (page = 1, status = '') => req<{ reviews: VedicReview[]; pagination: { page: number; total: number; totalPages: number } }>('/api/admin/vedic-reviews', { query: { page, status } }),
   vedicReviewStats: () => req<VedicReviewStats>('/api/admin/vedic-reviews/stats'),
   updateVedicReview: (id: string, status: 'pending' | 'approved' | 'rejected') => req<{ ok: true }>(`/api/admin/vedic-reviews/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status } }),

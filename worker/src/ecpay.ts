@@ -114,6 +114,37 @@ export interface AioCheckOutInput {
   customField4?: string;
 }
 
+export type PaymentBillingType = 'one_time' | 'recurring';
+
+export interface PaymentBillingConfig {
+  billingType: PaymentBillingType;
+  choosePayment?: string;
+  periodAmount?: number;
+  periodType?: 'D' | 'M' | 'Y';
+  frequency?: number;
+  execTimes?: number;
+  periodReturnURL?: string;
+}
+
+export function paymentBillingConfigForProduct(
+  productId: string,
+  amount: number,
+  periodReturnURL: string,
+): PaymentBillingConfig {
+  if (productId !== TAROT_SUBSCRIPTION.id) return { billingType: 'one_time' };
+  return {
+    billingType: 'recurring',
+    choosePayment: 'Credit',
+    periodAmount: amount,
+    periodType: 'M',
+    frequency: 1,
+    // ECPay requires a finite count. 99 is the documented monthly limit in
+    // its merchant-management guidance (8 years and 3 months at M/1).
+    execTimes: 99,
+    periodReturnURL,
+  };
+}
+
 export interface AioCheckOutForm {
   endpoint: string;
   fields: Record<string, string>;
@@ -295,5 +326,12 @@ export async function creditPeriodAction(input: {
   if (!res.ok) {
     throw new Error(`ECPay action failed: HTTP ${res.status}`);
   }
-  return parseEcpayApiResponse<CreditPeriodActionResult>(res);
+  const result = await parseEcpayApiResponse<CreditPeriodActionResult>(res);
+  if (!result.CheckMacValue) throw new Error('ECPay action response missing CheckMacValue');
+  const responseParams = Object.fromEntries(
+    Object.entries(result).map(([key, value]) => [key, String(value ?? '')]),
+  );
+  const expected = await computeEcpayCheckMac(responseParams, input.hashKey, input.hashIV);
+  if (expected !== result.CheckMacValue) throw new Error('ECPay action response signature invalid');
+  return result;
 }

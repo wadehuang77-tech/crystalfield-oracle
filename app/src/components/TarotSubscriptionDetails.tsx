@@ -6,9 +6,10 @@ import {
 
 const BENEFITS = [
   '7 大塔羅牌組全部解鎖',
-  '前世因果解鎖陣、凱爾特十字陣等全部牌陣',
-  '30 天內不限占卜次數',
-  '完整塔羅解讀不限次數',
+  '所有牌陣不限次數',
+  '完整解讀不限次數',
+  '每月 NT$600 自動續訂',
+  '可取消後續續訂',
 ];
 
 export function TarotSubscriptionDetails() {

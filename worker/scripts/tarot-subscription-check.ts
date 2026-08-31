@@ -31,4 +31,6 @@ assert(SPREAD_CATALOG.vedic_complete?.amount === 699, 'Vedic pricing changed une
 for (const deck of TAROT_DECK_CATALOG) {
   console.log(`${deck.name}: ${deck.spreads.length} spreads`);
 }
-console.log(`PASS: ${TAROT_SUBSCRIPTION.id}, ${TAROT_SUBSCRIPTION.amount} TWD, ${TAROT_SUBSCRIPTION.entitlementDays} days, unlimited access`);
+assert(TAROT_SUBSCRIPTION.billingType === 'recurring', 'Tarot membership must use recurring billing');
+assert(TAROT_SUBSCRIPTION.periodType === 'M' && TAROT_SUBSCRIPTION.frequency === 1, 'Tarot membership must bill monthly');
+console.log(`PASS: ${TAROT_SUBSCRIPTION.id}, ${TAROT_SUBSCRIPTION.amount} TWD/month, recurring, unlimited access`);

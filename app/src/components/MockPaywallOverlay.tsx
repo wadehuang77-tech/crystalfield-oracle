@@ -105,7 +105,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
             </h3>
             <p className="text-sm sm:text-base text-blue-200/85 mt-3 tracking-wide">{spreadName}</p>
             <p className="font-serif text-3xl text-blue-400 mt-5 tracking-[0.15em]">{formatPrice(price)}</p>
-            <p className="mt-2 text-xs text-blue-300/70">30 天・7 個牌組・全部牌陣不限次數</p>
+            <p className="mt-2 text-xs text-blue-300/70">每月自動續訂・7 大塔羅牌組・全部牌陣不限次數</p>
           </div>
 
           <div className="border-t border-b border-blue-500/15 py-5 mb-6 space-y-3">

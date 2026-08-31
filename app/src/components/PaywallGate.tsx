@@ -239,7 +239,7 @@ export function PaywallGate({
                   icon={<Sparkles className="w-4 h-4" strokeWidth={1.4} />}
                   label={TAROT_SUBSCRIPTION.name}
                   price={formatPrice(price)}
-                  sub="付款成功日起 30 天，7 個牌組與全部牌陣不限次數"
+                  sub="信用卡每月自動續訂，7 大塔羅牌組與全部牌陣不限次數"
                   cta={user ? `${formatPrice(price)} 立即加入` : '先登入・再加入'}
                   loading={isCheckingOut}
                   onClick={() => user ? handleCheckout() : handleGoToLogin()}

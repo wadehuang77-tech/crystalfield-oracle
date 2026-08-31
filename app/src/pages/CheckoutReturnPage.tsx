@@ -4,7 +4,7 @@ import { XCircle, Clock, ArrowRight, type LucideProps } from 'lucide-react';
 import { checkoutApi, type Order } from '../lib/api';
 import { consumeMembershipCheckoutRedirect } from '../lib/pendingDraw';
 import { formatPrice } from '../lib/spread-prices';
-import { trackPurchase } from '../lib/ga4';
+import { trackPurchase, trackTarotSubscriptionStart } from '../lib/ga4';
 
 const SPREAD_HOME: Record<string, string> = {
   tarot_three:        '/tarot?spread=three',
@@ -123,6 +123,9 @@ export default function CheckoutReturnPage() {
       order.item_name,
       order.ecpay_payment_type ?? 'unknown',
     );
+    if (order.item_id === 'tarot_monthly_600') {
+      trackTarotSubscriptionStart(order.merchant_trade_no);
+    }
   }, [order]);
 
   useEffect(() => {

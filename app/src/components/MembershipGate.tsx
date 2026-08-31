@@ -1,5 +1,5 @@
 import { X, Crown, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { checkoutApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,6 +7,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import { saveMembershipCheckoutRedirect, savePendingSingleDraw } from '../lib/pendingDraw';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 import { TarotSubscriptionDetails } from './TarotSubscriptionDetails';
+import { trackTarotSubscriptionCheckout, trackTarotSubscriptionView } from '../lib/ga4';
 
 interface MembershipGateProps {
   isOpen: boolean;
@@ -26,9 +27,14 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (isOpen) trackTarotSubscriptionView();
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubscribe = async () => {
+    trackTarotSubscriptionCheckout();
     const redirectPath = resumePath ?? (location.pathname + location.search);
     saveMembershipCheckoutRedirect(redirectPath);
     if (pendingSingleDraw) {
@@ -76,9 +82,10 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
           <h2 className="font-serif text-xl text-amber-100 tracking-[0.2em] mb-2">
             {TAROT_SUBSCRIPTION.name}
           </h2>
-          <p className="mt-4 font-serif text-3xl tracking-[0.15em] text-amber-400">NT${TAROT_SUBSCRIPTION.price}</p>
+          <p className="mt-4 font-serif text-3xl tracking-[0.15em] text-amber-400">NT${TAROT_SUBSCRIPTION.price} / 月</p>
+          <p className="mt-2 text-sm font-medium text-amber-300">信用卡每月自動續訂</p>
           <p className="mt-2 text-sm leading-relaxed text-amber-100/70">
-            付款成功日起 {TAROT_SUBSCRIPTION.durationDays} 天，可不限次數使用本站 7 大塔羅牌組與全部牌陣。
+            會員有效期間可不限次數使用本站 7 大塔羅牌組與全部牌陣。
           </p>
         </div>
 
@@ -96,7 +103,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
             {isProcessing ? (
               <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>跳轉至綠界…</>
             ) : (
-              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />NT${TAROT_SUBSCRIPTION.price} 立即加入</>
+              <><Sparkles className="w-4 h-4" strokeWidth={1.4} />NT${TAROT_SUBSCRIPTION.price} / 月 立即加入</>
             )}
           </button>
           <button onClick={onClose} disabled={isProcessing}
@@ -105,8 +112,12 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
           </button>
         </div>
 
+        <p className="mt-3 text-center text-xs leading-relaxed text-amber-100/55">
+          使用信用卡定期定額付款，每月自動續訂 NT${TAROT_SUBSCRIPTION.price}。
+        </p>
+
         <p className="mt-5 pt-4 border-t border-amber-500/10 text-center text-xs text-amber-400/50 leading-relaxed">
-          付款由 ECPay 綠界金流安全處理。<br />月費會員以信用卡定期定額付款。
+          付款由 ECPay 綠界金流安全處理。<br />可於會員中心取消後續自動續訂。
         </p>
       </div>
     </div>

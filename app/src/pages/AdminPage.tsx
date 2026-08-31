@@ -310,6 +310,10 @@ export function AdminPage() {
                   <Users className="w-4 h-4" strokeWidth={1.4} />
                   會員資料
                 </Link>
+                <Link to="/admin/tarot-subscriptions" className="inline-flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-3 bg-slate-800/60 border-2 border-amber-500/30 rounded-xl hover:bg-slate-700/60 hover:border-amber-400/50 transition-all text-amber-200 !text-xs">
+                  <Receipt className="w-4 h-4" />
+                  Tarot Subscriptions
+                </Link>
                 <Link to="/admin/kpi" className="inline-flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 !text-xs">
                   <BarChart3 className="w-4 h-4" strokeWidth={1.4} />
                   KPI 儀表板

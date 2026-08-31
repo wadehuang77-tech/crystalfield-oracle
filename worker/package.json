@@ -7,20 +7,26 @@
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint src scripts",
     "test:oracle-quota": "node --experimental-strip-types scripts/oracle-quota-check.ts",
     "test:member-metadata": "node scripts/member-metadata-check.mjs",
     "test:admin-members": "node --experimental-strip-types scripts/admin-members-check.ts",
     "test:registration-profile": "node --experimental-strip-types scripts/registration-profile-check.ts",
-    "test:vedic": "node --experimental-strip-types scripts/vedic-astrology-check.ts",
+    "test:vedic": "tsx scripts/vedic-astrology-check.ts",
     "test:vedic-report": "tsx scripts/vedic-report-sample.ts",
     "test:tarot-subscription": "tsx scripts/tarot-subscription-check.ts",
+    "test:ecpay-recurring": "tsx scripts/ecpay-recurring-check.ts",
     "types": "wrangler types"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.1",
     "@cloudflare/workers-types": "^4.20260101.0",
     "@types/tz-lookup": "^6.1.2",
+    "eslint": "^9.9.1",
+    "globals": "^15.9.0",
     "tsx": "^4.21.0",
     "typescript": "^5.5.3",
+    "typescript-eslint": "^8.3.0",
     "wrangler": "^4.105.0"
   },
   "dependencies": {

@@ -7,10 +7,10 @@ const expectedPrices: Record<string, number> = {
   vedic_relationship: 399,
   vedic_karma: 399,
   vedic_timeline: 399,
-  vedic_full: 999,
+  vedic_full: 699,
   vedic_soul_karma: 499,
   vedic_life_full: 499,
-  vedic_complete: 999,
+  vedic_complete: 699,
 };
 
 for (const [productId, price] of Object.entries(expectedPrices)) {

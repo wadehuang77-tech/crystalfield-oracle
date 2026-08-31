@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Crown, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { membershipApi, type MembershipSubscription } from '../lib/api';
+import {
+  trackTarotSubscriptionCancelled,
+  trackTarotSubscriptionPaymentFailed,
+  trackTarotSubscriptionRenewal,
+} from '../lib/ga4';
 
 function formatDate(value: string | null): string {
   if (!value) return '未提供';
@@ -18,13 +24,12 @@ function formatDate(value: string | null): string {
 function statusLabel(membership: MembershipSubscription | null): string {
   if (!membership) return '尚未加入';
   switch (membership.status) {
-    case 'active': return '會員有效中';
-    case 'cancelling': return '已取消續扣，權益仍有效';
+    case 'active': return '使用中';
+    case 'cancelling': return '已取消自動續訂';
     case 'pending': return '付款確認中';
     case 'cancelled': return '已取消';
-    case 'completed': return '方案已完成';
-    case 'past_due': return '扣款失敗';
-    case 'expired': return '已到期';
+    case 'ended': return '會員權益已到期';
+    case 'payment_failed': return '本期信用卡扣款失敗';
     default: return membership.status;
   }
 }
@@ -51,6 +56,18 @@ export default function MembershipPage() {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    if (!membership) return;
+    if (membership.status === 'payment_failed') {
+      trackTarotSubscriptionPaymentFailed(membership.total_success_times + 1);
+    } else if (membership.total_success_times > 1) {
+      trackTarotSubscriptionRenewal(
+        `${membership.merchant_trade_no}-${membership.total_success_times}`,
+        membership.total_success_times,
+      );
+    }
+  }, [membership]);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     setError('');
@@ -72,6 +89,7 @@ export default function MembershipPage() {
     try {
       const { membership } = await membershipApi.cancel();
       setMembership(membership);
+      trackTarotSubscriptionCancelled();
     } catch (err) {
       setError(err instanceof Error ? err.message : '取消訂閱失敗');
     } finally {
@@ -107,12 +125,13 @@ export default function MembershipPage() {
               )}
 
               <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                <Info label="方案價格" value={membership ? `NT$ ${membership.amount} / 月` : 'NT$ 600 / 月'} />
+                <Info label="方案價格" value={membership ? `NT$${membership.amount} / 月` : 'NT$600 / 月'} />
+                <Info label="本期付款" value={membership ? `NT$${membership.amount}` : '尚未付款'} />
                 <Info label="已成功扣款次數" value={membership ? `${membership.total_success_times} 次` : '0 次'} />
-                <Info label="本期開始" value={formatDate(membership?.current_period_started_at ?? null)} />
-                <Info label="本期到期" value={formatDate(membership?.current_period_ends_at ?? null)} />
-                <Info label="首次付款" value={formatDate(membership?.first_paid_at ?? null)} />
-                <Info label="最近一次扣款" value={formatDate(membership?.last_paid_at ?? null)} />
+                <Info label="本期開始" value={formatDate(membership?.current_period_start ?? null)} />
+                <Info label="本期權益至" value={formatDate(membership?.current_period_end ?? null)} />
+                <Info label="最近付款日期" value={formatDate(membership?.last_payment_at ?? null)} />
+                <Info label="下次續訂" value={membership?.cancel_at_period_end ? '已取消後續續訂' : formatDate(membership?.next_billing_at ?? null)} />
                 <Info label="卡號末四碼" value={membership?.card_last4 ? `**** ${membership.card_last4}` : '未提供'} />
                 <Info label="最後同步" value={formatDate(membership?.last_synced_at ?? null)} />
               </div>
@@ -123,7 +142,19 @@ export default function MembershipPage() {
                 </div>
               )}
 
+              {membership?.cancel_at_period_end && membership.current_period_end && (
+                <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                  已取消自動續訂，目前會員權益可使用至 {formatDate(membership.current_period_end)}。
+                </div>
+              )}
+
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/tarot"
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 text-white"
+                >
+                  {membership?.status === 'payment_failed' ? '重新訂閱' : '前往塔羅占卜'}
+                </Link>
                 <button
                   onClick={handleRefresh}
                   disabled={refreshing}

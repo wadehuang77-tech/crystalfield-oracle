@@ -17,9 +17,12 @@ import {
   getMembershipSummary,
   getMyMembership,
   handleMembershipRecurringCallback,
+  markMembershipFirstPaymentFailed,
   markMembershipFirstPaymentPaid,
   refreshMyMembership,
+  tarotPeriodReturn,
   TAROT_SUBSCRIPTION_ITEM_ID,
+  validateTarotRecurringParameters,
 } from './subscriptions';
 import {
   requestPasswordReset,
@@ -70,6 +73,7 @@ import {
   adminListMembers,
   adminMemberStats,
 } from './adminMembers';
+import { adminListTarotSubscriptions } from './adminSubscriptions';
 import { validateRegistrationIdentity } from './registration';
 import { createVedicChart, getVedicPaidReport } from './vedicAstrology';
 import {
@@ -112,7 +116,9 @@ export default {
     const path = url.pathname;
 
     const isMutating = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
-    const isEcpayBack = path === '/api/ecpay-webhook' || path === '/api/checkout/result';
+    const isEcpayBack = path === '/api/ecpay-webhook'
+      || path === '/api/payments/ecpay/tarot-period-return'
+      || path === '/api/checkout/result';
     if (isMutating && !isEcpayBack && !isAllowedOrigin(req, env)) {
       return await forbidden(req, env, 'Bad origin');
     }
@@ -281,6 +287,7 @@ export default {
       if (path === '/api/admin/users'          && req.method === 'GET')  return await adminListUsers(req, env);
       if (path === '/api/admin/members/stats'  && req.method === 'GET')  return await adminMemberStats(req, env);
       if (path === '/api/admin/members'        && req.method === 'GET')  return await adminListMembers(req, env, url);
+      if (path === '/api/admin/tarot-subscriptions' && req.method === 'GET') return await adminListTarotSubscriptions(req, env);
       if (path === '/api/admin/vedic-reviews/stats' && req.method === 'GET') return await adminVedicReviewStats(req, env);
       if (path === '/api/admin/vedic-reviews' && req.method === 'GET') return await adminListVedicReviews(req, env, url);
       if (path.startsWith('/api/admin/vedic-reviews/') && req.method === 'PATCH') return await adminUpdateVedicReview(req, env, decodeURIComponent(path.split('/').pop() || ''));
@@ -353,6 +360,9 @@ export default {
       }
 
       if (path === '/api/ecpay-webhook' && req.method === 'POST') return await ecpayWebhook(req, env);
+      if (path === '/api/payments/ecpay/tarot-period-return' && req.method === 'POST') {
+        return await tarotPeriodReturn(req, env);
+      }
 
       return await json(req, env, { error: 'not found', path }, { status: 404 });
     } catch (err) {
@@ -1252,6 +1262,12 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
   if (expected !== params.CheckMacValue) {
     return new Response('0|Invalid signature', { status: 400, headers: { 'Content-Type': 'text/plain' } });
   }
+  if (env.ECPAY_MERCHANT_ID && params.MerchantID !== env.ECPAY_MERCHANT_ID) {
+    return new Response('0|Merchant mismatch', { status: 400, headers: { 'Content-Type': 'text/plain' } });
+  }
+  if (params.SimulatePaid === '1') {
+    return new Response('1|OK', { status: 200, headers: { 'Content-Type': 'text/plain' } });
+  }
 
   const merchantTradeNo = params.MerchantTradeNo ?? '';
   if (!merchantTradeNo) return new Response('0|Missing MerchantTradeNo', { status: 400, headers: { 'Content-Type': 'text/plain' } });
@@ -1299,12 +1315,28 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
     return new Response('1|OK', { status: 200, headers: { 'Content-Type': 'text/plain' } });
   }
 
-  if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID && params.TotalSuccessTimes) {
-    await handleMembershipRecurringCallback(env, params).catch(() => {});
+  // Compatibility for recurring orders created before the dedicated
+  // PeriodReturnURL route existed. First-payment ReturnURL uses TradeAmt;
+  // periodic callbacks use Amount, so they must not be conflated.
+  if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID
+      && order.status === 'paid'
+      && params.Amount
+      && !params.TradeAmt
+      && params.TotalSuccessTimes) {
+    try {
+      await handleMembershipRecurringCallback(env, params);
+    } catch {
+      return new Response('0|DB write failed', { status: 500, headers: { 'Content-Type': 'text/plain' } });
+    }
     return new Response('1|OK', {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
     });
+  }
+
+  if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
+    const validationError = validateTarotRecurringParameters(params, 'first');
+    if (validationError) return new Response(`0|${validationError}`, { status: 400, headers: { 'Content-Type': 'text/plain' } });
   }
 
   if (params.RtnCode === '1') {
@@ -1313,6 +1345,13 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
     }
 
     if (order.status === 'paid') {
+      if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
+        try {
+          await markMembershipFirstPaymentPaid(env, order, params);
+        } catch {
+          return new Response('0|Subscription write failed', { status: 500, headers: { 'Content-Type': 'text/plain' } });
+        }
+      }
       return new Response('1|OK', { status: 200, headers: { 'Content-Type': 'text/plain' } });
     }
 
@@ -1365,7 +1404,11 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
       if (catalogItem?.bundle) {
         await grantBundleCredits(env, order.user_id, catalogItem.bundle).catch(() => {});
       } else if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
-        await markMembershipFirstPaymentPaid(env, order, params).catch(() => {});
+        try {
+          await markMembershipFirstPaymentPaid(env, order, params);
+        } catch {
+          return new Response('0|Subscription write failed', { status: 500, headers: { 'Content-Type': 'text/plain' } });
+        }
       } else if (order.item_id.startsWith('numerology_')) {
         await env.DB.prepare(`
           UPDATE profiles
@@ -1390,18 +1433,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
            WHERE id = ?`
         ).bind(rawCallback, now, order.id).run();
         if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
-          await env.DB.prepare(
-            `UPDATE subscriptions
-                SET status = 'failed',
-                    last_charge_status = ?,
-                    last_error_message = ?,
-                    updated_at = datetime('now')
-              WHERE merchant_trade_no = ?`
-          ).bind(
-            String(params.RtnCode ?? ''),
-            params.RtnMsg ?? null,
-            merchantTradeNo,
-          ).run().catch(() => {});
+          await markMembershipFirstPaymentFailed(env, order, params);
         }
       } catch {
         return new Response('0|DB write failed', { status: 500, headers: { 'Content-Type': 'text/plain' } });

@@ -2,6 +2,7 @@ import { signJwt, verifyJwt } from './auth';
 import {
   buildAioCheckOutForm,
   makeMerchantTradeNo,
+  paymentBillingConfigForProduct,
   SPREAD_CATALOG,
 } from './ecpay';
 import {
@@ -168,6 +169,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     if (user && item.id === TAROT_SUBSCRIPTION_ITEM_ID) {
       await createPendingMembershipSubscription(env, {
         userId: user.id,
+        email: user.email,
         orderId,
         merchantTradeNo,
         amount: item.amount,
@@ -241,6 +243,11 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
 
   const apiOrigin = new URL(req.url).origin;
   const frontendOrigin = inferFrontendOrigin(env);
+  const billing = paymentBillingConfigForProduct(
+    item.id,
+    item.amount,
+    `${apiOrigin}/api/payments/ecpay/tarot-period-return`,
+  );
 
   const form = await buildAioCheckOutForm({
     merchantId,
@@ -253,12 +260,12 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     returnURL:       `${apiOrigin}/api/ecpay-webhook`,
     clientBackURL:   `${frontendOrigin}/checkout/return?order_id=${orderId}&order_token=${encodeURIComponent(orderToken)}`,
     orderResultURL:  `${apiOrigin}/api/checkout/result`,
-    choosePayment:   item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 'Credit' : undefined,
-    periodAmount:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? item.amount : undefined,
-    periodType:      item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 'M' : undefined,
-    frequency:       item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 1 : undefined,
-    execTimes:       item.id === TAROT_SUBSCRIPTION_ITEM_ID ? 99 : undefined,
-    periodReturnURL: item.id === TAROT_SUBSCRIPTION_ITEM_ID ? `${apiOrigin}/api/ecpay-webhook` : undefined,
+    choosePayment:   billing.choosePayment,
+    periodAmount:    billing.periodAmount,
+    periodType:      billing.periodType,
+    frequency:       billing.frequency,
+    execTimes:       billing.execTimes,
+    periodReturnURL: billing.periodReturnURL,
     customField1:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? orderId : undefined,
     customField2:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? (user?.id ?? '') : undefined,
   }, env.ECPAY_ENV);

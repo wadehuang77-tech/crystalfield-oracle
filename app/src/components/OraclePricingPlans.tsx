@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Crown, LogIn } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,6 +7,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import { saveMembershipCheckoutRedirect } from '../lib/pendingDraw';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 import { TarotSubscriptionDetails } from './TarotSubscriptionDetails';
+import { trackTarotSubscriptionCheckout, trackTarotSubscriptionView } from '../lib/ga4';
 
 interface OraclePricingPlansProps {
   spreadId: string;
@@ -25,7 +26,12 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
   const currentPath = location.pathname + location.search;
   const login = () => navigate(`/auth?redirect=${encodeURIComponent(currentPath)}`);
 
+  useEffect(() => {
+    trackTarotSubscriptionView();
+  }, []);
+
   const subscribe = async () => {
+    trackTarotSubscriptionCheckout();
     saveMembershipCheckoutRedirect(currentPath);
     if (!user) { login(); return; }
     if (isLoading) return;
@@ -57,15 +63,19 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
             <Crown className="h-5 w-5" />
             <h4 className="font-serif text-xl tracking-wider">{TAROT_SUBSCRIPTION.name}</h4>
           </div>
-          <strong className="mt-3 block text-3xl text-white">NT${TAROT_SUBSCRIPTION.price}</strong>
+          <strong className="mt-3 block text-3xl text-white">NT${TAROT_SUBSCRIPTION.price} / 月</strong>
+          <p className="mt-2 text-sm font-medium tracking-wide text-amber-300">信用卡每月自動續訂</p>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-amber-100/75">
-            付款成功日起 {TAROT_SUBSCRIPTION.durationDays} 天，可不限次數使用本站 7 大塔羅牌組與全部牌陣。
+            會員有效期間可不限次數使用本站 7 大塔羅牌組與全部牌陣。
           </p>
         </div>
         <TarotSubscriptionDetails />
         <button type="button" disabled={isLoading} onClick={() => void subscribe()} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:opacity-50">
-          {isLoading ? '跳轉至綠界…' : `NT$${TAROT_SUBSCRIPTION.price} 立即加入`}
+          {isLoading ? '跳轉至綠界…' : `NT$${TAROT_SUBSCRIPTION.price} / 月 立即加入`}
         </button>
+        <p className="mt-3 text-center text-xs leading-relaxed text-amber-100/55">
+          使用信用卡定期定額付款，每月自動續訂 NT${TAROT_SUBSCRIPTION.price}。
+        </p>
         {!user && <button type="button" onClick={login} className="mx-auto mt-4 flex items-center gap-2 text-sm text-amber-200 hover:text-white"><LogIn className="h-4 w-4" />會員權限綁定登入帳號</button>}
       </article>
     </div>

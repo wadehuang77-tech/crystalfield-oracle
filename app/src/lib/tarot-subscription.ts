@@ -1,10 +1,11 @@
-import { ORACLE_SPREADS } from './ga4';
+import { ORACLE_SPREADS } from './oracle-catalog';
 
 export const TAROT_SUBSCRIPTION = {
   id: 'tarot_monthly_600',
   name: '塔羅全館月費會員',
   price: 600,
-  durationDays: 30,
+  billingLabel: 'NT$600 / 月',
+  billingType: 'recurring',
 } as const;
 
 const tarotSpreadDefinitions = Object.values(ORACLE_SPREADS);

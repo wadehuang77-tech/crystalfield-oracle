@@ -104,8 +104,7 @@ assert(count('free_reading_view') === 1, 'Visible free content must send free_re
 
 analytics.trackUnlockClick('tarot_three');
 analytics.trackUnlockClick('tarot_three');
-assert(count('unlock_click') === 1, 'unlock_click must not duplicate for one reading and product');
-assert(typeof event('unlock_click').params.value === 'number', 'unlock value must be numeric');
+assert(count('unlock_click') === 0, 'retired per-spread tarot products must not emit paid unlock events');
 
 assert(count('begin_checkout') === 0, 'No successful order means no begin_checkout');
 analytics.trackBeginCheckout('tarot_three', 'CF202608150001', 199, '偉特塔羅・三張牌陣');
@@ -119,10 +118,34 @@ analytics.trackPurchase('tarot_three', 'CF202608150001', 199, '偉特塔羅・�
 assert(count('purchase') === 1, 'purchase must be persistently deduplicated by transaction_id');
 assert(event('purchase').params.payment_type === 'Credit_CreditCard', 'purchase must include backend payment type');
 
+analytics.trackTarotSubscriptionView();
+analytics.trackTarotSubscriptionView();
+analytics.trackTarotSubscriptionCheckout();
+analytics.trackTarotSubscriptionCheckout();
+analytics.trackTarotSubscriptionStart('CFSUBSCRIPTION001');
+analytics.trackTarotSubscriptionStart('CFSUBSCRIPTION001');
+analytics.trackPurchase('tarot_monthly_600', 'CFSUBSCRIPTION001', 600, '塔羅全館月費會員', 'Credit_CreditCard');
+analytics.trackPurchase('tarot_monthly_600', 'CFSUBSCRIPTION001', 600, '塔羅全館月費會員', 'Credit_CreditCard');
+analytics.trackTarotSubscriptionRenewal('CFSUBSCRIPTION001-2', 2);
+analytics.trackTarotSubscriptionRenewal('CFSUBSCRIPTION001-2', 2);
+analytics.trackTarotSubscriptionPaymentFailed(3);
+analytics.trackTarotSubscriptionPaymentFailed(3);
+analytics.trackTarotSubscriptionCancelled();
+analytics.trackTarotSubscriptionCancelled();
+assert(count('tarot_subscription_view') === 1, 'subscription view must be deduplicated');
+assert(count('tarot_subscription_checkout') === 1, 'subscription checkout must be deduplicated');
+assert(count('tarot_subscription_start') === 1, 'subscription start must be deduplicated by transaction');
+assert(count('tarot_subscription_renewal') === 1, 'subscription renewal must be deduplicated by transaction');
+assert(count('tarot_subscription_payment_failed') === 1, 'subscription failure must be deduplicated by cycle');
+assert(count('tarot_subscription_cancelled') === 1, 'subscription cancellation must be deduplicated');
+assert(count('purchase') === 2, 'subscription purchase must be emitted once with a unique transaction_id');
+const subscriptionPurchase = events.find((sent) => sent.name === 'purchase' && sent.params.plan_id === 'tarot_monthly_600');
+assert(subscriptionPurchase?.params.billing_type === 'recurring', 'subscription purchase must identify recurring billing');
+
 for (const sent of events) {
   assert(!hasSensitiveKey(sent.params), `${sent.name} contains a sensitive parameter key`);
   const items = sent.params.items as Array<Record<string, unknown>> | undefined;
-  if (items) assert(items.every((entry) => entry.item_category === 'oracle_reading'), `${sent.name} item_category is invalid`);
+  if (items) assert(items.every((entry) => entry.item_category === 'oracle_reading' || entry.item_category === 'tarot_subscription'), `${sent.name} item_category is invalid`);
 }
 
 console.log(`GA4 oracle funnel checks passed (${events.length} events).`);
