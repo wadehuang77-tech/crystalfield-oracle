@@ -353,7 +353,7 @@ function HomePage() {
           {remaining === null && '所有牌卡與牌陣共用：第 1 次免登入、第 2 次登入免費，第 3 次起付費。'}
         </p>
 
-        <details className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">
+        <details open className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">
           <summary className="cursor-pointer select-none py-1 text-center text-sm tracking-wide hover:text-blue-100">
             進階選擇：我想自己選擇牌卡
           </summary>
