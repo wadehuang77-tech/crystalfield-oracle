@@ -216,7 +216,6 @@ export default function OshoSinglePage() {
                 <MeaningCard accent="cyan" index="4" title="卡關點解析" body={meanings.blockageAnalysis} />
                 <MeaningCard accent="teal" index="5" title="冥想入口" body={meanings.meditationEntry} />
 
-                <ResonanceCTA />
               </>
             )}
 
@@ -274,6 +273,8 @@ export default function OshoSinglePage() {
             resultComplete: isUnlocked && !!meanings,
           }}
         />
+
+        {isUnlocked && <ResonanceCTA />}
 
         {!isUnlocked && <TarotCourseCTA />}
 

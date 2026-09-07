@@ -65,7 +65,7 @@ export function TarotDeepAnalysisRecommendations({
 
   return (
     <section
-      className="mt-8 overflow-hidden rounded-3xl border border-amber-300/25 bg-gradient-to-br from-slate-950/95 via-indigo-950/85 to-purple-950/80 p-5 shadow-[0_0_50px_rgba(245,158,11,0.12)] sm:p-8"
+      className="my-8 overflow-hidden rounded-3xl border border-amber-300/25 bg-gradient-to-br from-slate-950/95 via-indigo-950/85 to-purple-950/80 p-5 shadow-[0_0_50px_rgba(245,158,11,0.12)] sm:p-8"
       aria-labelledby="tarot-deep-analysis-title"
       data-testid="tarot-deep-analysis-recommendations"
     >

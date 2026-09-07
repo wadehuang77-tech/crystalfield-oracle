@@ -421,7 +421,6 @@ function TarotSinglePage() {
                     </>
                   )}
 
-                  {isUnlocked && <ResonanceCTA />}
                 </div>
               </div>
 
@@ -440,6 +439,8 @@ function TarotSinglePage() {
                   resultComplete: isUnlocked && !!gated && revealed,
                 }}
               />
+
+              {isUnlocked && <ResonanceCTA />}
 
               {!isUnlocked && <TarotCourseCTA />}
 

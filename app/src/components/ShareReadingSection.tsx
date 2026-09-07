@@ -189,6 +189,12 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
   if (data.cards.length === 0) return null;
   return (
     <>
+    {props.deepAnalysis && (
+      <TarotDeepAnalysisRecommendations
+        {...props.deepAnalysis}
+        resultKey={data.cards.map(({ cardKey }) => cardKey).join(':')}
+      />
+    )}
     <section className={`relative overflow-hidden rounded-3xl border border-purple-300/25 bg-gradient-to-br from-purple-950/75 via-slate-950/85 to-indigo-950/80 p-5 shadow-[0_0_50px_rgba(139,92,246,0.16)] sm:p-8 ${className}`} aria-labelledby="share-reading-title">
       <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-purple-500/15 blur-3xl" />
       <div className="relative text-center">
@@ -216,12 +222,6 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
         )}
       </div>
     </section>
-    {props.deepAnalysis && (
-      <TarotDeepAnalysisRecommendations
-        {...props.deepAnalysis}
-        resultKey={data.cards.map(({ cardKey }) => cardKey).join(':')}
-      />
-    )}
     </>
   );
 }

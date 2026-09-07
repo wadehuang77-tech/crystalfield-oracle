@@ -325,7 +325,6 @@ function LightworkerPage() {
                       <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-4">靈 魂 提 問</h3>
                       <p className="text-cyan-100/90 leading-loose italic">{gated.soulQuestion}</p>
                     </div>
-                    <ResonanceCTA />
                   </>
                 )}
               </div>
@@ -343,6 +342,8 @@ function LightworkerPage() {
                 resultComplete: isUnlocked && !!gated,
               }}
             />
+
+            {isUnlocked && <ResonanceCTA />}
 
             {!isUnlocked && <TarotCourseCTA />}
 

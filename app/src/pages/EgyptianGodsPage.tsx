@@ -634,7 +634,6 @@ function EgyptianGodsPage() {
                     </div>
                   );
                 })}
-                <ResonanceCTA />
               </div>
             )}
 
@@ -654,6 +653,8 @@ function EgyptianGodsPage() {
                 resultComplete: isPastlifeUnlocked && pastlifeSlots.length === 7 && pastlifeSlots.every((slot) => slot.full !== null),
               }}
             />
+
+            {isPastlifeUnlocked && <ResonanceCTA />}
 
             <TarotCourseCTA />
 

@@ -490,7 +490,6 @@ function DragonsPage() {
                     );
                   })}
                 </div>
-                <ResonanceCTA />
               </>
             )}
 
@@ -510,6 +509,8 @@ function DragonsPage() {
                 resultComplete: isThreeUnlocked && threeSlots.length === 3 && threeSlots.every((slot) => slot.full !== null),
               }}
             />
+
+            {isThreeUnlocked && <ResonanceCTA />}
 
             <TarotCourseCTA />
 

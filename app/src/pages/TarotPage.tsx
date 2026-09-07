@@ -807,7 +807,6 @@ function TarotPage() {
                               <p className="text-orange-200/60 text-xs mt-3">這是「升維版本」</p>
                             </div>
 
-                            <ResonanceCTA />
                           </>
                         )}
                       </>
@@ -847,7 +846,6 @@ function TarotPage() {
                             }}
                           />
                         )}
-                        {isUnlocked && <ResonanceCTA />}
                       </>
                     )}
 
@@ -1247,11 +1245,13 @@ function TarotPage() {
                 }}
               />
 
-              <TarotCourseCTA />
+              {!isMultiCardSpread && isUnlocked && <ResonanceCTA />}
 
               {isMultiCardSpread && allCardsRevealed && (
                 <TarotResonanceCTA />
               )}
+
+              <TarotCourseCTA />
 
               <div className="flex justify-center gap-4 animate-fade-in">
                 <button

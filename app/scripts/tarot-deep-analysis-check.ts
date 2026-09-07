@@ -54,7 +54,11 @@ for (const text of [
 assert.equal((allPageSource.match(/<ShareReadingSection/g) ?? []).length, 13, 'Expected all 13 result render locations');
 assert.equal((allPageSource.match(/deepAnalysis=\{\{/g) ?? []).length, 13, 'Every result render location must provide trusted state');
 assert.ok(shareSource.indexOf('<ShareReadingSection') === -1);
-assert.ok(shareSource.indexOf('<TarotDeepAnalysisRecommendations') > shareSource.indexOf('</section>'), 'Recommendations must follow sharing');
+assert.ok(shareSource.indexOf('<TarotDeepAnalysisRecommendations') < shareSource.indexOf('<section'), 'Recommendations must precede sharing');
+for (const page of pageSources.filter((pageSource) => pageSource.includes('ResonanceCTA'))) {
+  const resonanceIndex = Math.max(page.lastIndexOf('<ResonanceCTA'), page.lastIndexOf('<TarotResonanceCTA'));
+  assert.ok(page.lastIndexOf('<ShareReadingSection') < resonanceIndex, 'Resonance CTA must follow sharing');
+}
 
 assert.equal(new Set(Object.values(ORACLE_SPREADS).map(({ deck_id }) => deck_id)).size, 7);
 assert.equal(Object.keys(ORACLE_SPREADS).length, 16);
