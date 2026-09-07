@@ -81,6 +81,7 @@ export interface Profile {
   purchased_spreads: string[];
   membership?: MembershipSubscription | null;
   hasActiveTarotSubscription: boolean;
+  tarotEntitlement: TarotEntitlement;
   created_at: string;
   updated_at: string;
 }
@@ -137,6 +138,22 @@ export interface GuestEmail {
   status?: string;
 }
 
+export type TarotEntitlementStatus = 'login_required' | 'trial_available' | 'trialing' | 'active'
+  | 'canceled_active' | 'expired' | 'payment_pending' | 'payment_failed';
+
+export interface TarotEntitlement {
+  status: TarotEntitlementStatus;
+  has_access: boolean;
+  trial_started_at: string | null;
+  trial_ends_at: string | null;
+  trial_used_at: string | null;
+  subscription_started_at: string | null;
+  current_period_end: string | null;
+  access_until: string | null;
+  payment_status: string | null;
+  last_payment_at: string | null;
+}
+
 export interface AdminTarotPayment {
   id: string;
   billing_cycle: number;
@@ -163,6 +180,13 @@ export interface AdminTarotSubscription {
   merchant_trade_no: string;
   ecpay_trade_no: string | null;
   payments: AdminTarotPayment[];
+  trial_started_at: string | null;
+  trial_ends_at: string | null;
+  trial_used_at: string | null;
+  subscription_started_at: string | null;
+  access_until: string | null;
+  payment_status: string | null;
+  created_at: string;
 }
 
 export interface GoogleFormAdmin {
@@ -347,6 +371,13 @@ export const bundleApi = {
     method: 'POST',
     body: { spread_id, picks, reading_id },
   }),
+};
+
+export const tarotEntitlementApi = {
+  me: () => req<{ entitlement: TarotEntitlement }>('/api/tarot/entitlement'),
+  startTrial: () => req<{ entitlement: TarotEntitlement; trial_created: boolean }>(
+    '/api/tarot/trial/start', { method: 'POST' },
+  ),
 };
 
 export interface VedicChartData {
@@ -830,7 +861,7 @@ export const cardsApi = {
     req<{ deck_id: DeckId; cards: CardPreview[] }>(`/api/decks/${encodeURIComponent(deckId)}/preview`),
 
   freeUnlockSingle: (spread_id: string, card_key: string, reversed = false, reading_id?: string) =>
-    req<{ card: UnlockedCard; free_readings_remaining: number | null }>('/api/cards/free-unlock-single', {
+    req<{ card: UnlockedCard; free_readings_remaining: number | null; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-single', {
       method: 'POST',
       body: { spread_id, card_key, reversed, reading_id },
     }),
@@ -841,7 +872,7 @@ export const cardsApi = {
     reading_id?: string,
     email?: string,
   ) =>
-    req<{ spread_id: string; cards: UnlockedCard[]; free_readings_remaining: number }>('/api/cards/free-unlock-spread', {
+    req<{ spread_id: string; cards: UnlockedCard[]; free_readings_remaining: number; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-spread', {
       method: 'POST',
       body: { spread_id, picks, reading_id, email },
     }),
@@ -862,20 +893,6 @@ export const cardsApi = {
       method: 'POST',
       body: { spread_id, picks, order_id, order_token: order_token ?? undefined },
     }),
-};
-
-export const oracleFreeApi = {
-  status: () => req<{ completed_free_readings: number; remaining_free_readings: number }>(
-    '/api/oracle/free-reading-status',
-  ),
-  start: (spread_id: string) => req<{ reading_id: string; remaining_free_readings: number }>(
-    '/api/oracle/free-reading-start', { method: 'POST', body: { spread_id } },
-  ),
-  complete: (reading_id: string) => req<{
-    free_reading_number: 1 | 2;
-    completed_free_readings: number;
-    remaining_free_readings: number;
-  }>('/api/oracle/free-reading-complete', { method: 'POST', body: { reading_id } }),
 };
 
 export interface DailyRow {

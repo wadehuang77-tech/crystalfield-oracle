@@ -277,7 +277,7 @@ function TarotSinglePage() {
                                     <p className="text-slate-950 leading-relaxed">{excerpt}</p>
                                     <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-b from-transparent to-orange-500/10 pointer-events-none"></div>
                                   </div>
-                                  <p className="text-slate-500 text-xs mt-2">前 30% 預覽，登入後可免費解鎖第 2 次占卜</p>
+                                  <p className="text-slate-500 text-xs mt-2">前 30% 預覽，登入後可開始塔羅全館 7 天免費試用</p>
                                 </div>
                               );
                             })()}

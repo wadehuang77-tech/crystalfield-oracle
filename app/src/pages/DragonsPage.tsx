@@ -443,9 +443,9 @@ function DragonsPage() {
                 {threeGate.phase === 'login_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">登入免費解鎖第 2 次占卜</h3>
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">登入並開始塔羅全館 7 天免費試用</h3>
                     <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
-                      完成登入即可免費繼續本次占卜，第 3 次占卜起需付費。
+                      不需要輸入信用卡，也不會自動扣款；試用期間可使用全部 7 套牌卡與所有牌陣。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
@@ -553,7 +553,7 @@ function DragonsPage() {
                         </div>
                       )}
                       <p className="mt-4 text-xs text-emerald-400/70 tracking-wide">
-                        前 30% 預覽 — 登入後可免費解鎖第 2 次占卜
+                        前 30% 預覽 — 登入後可開始塔羅全館 7 天免費試用
                       </p>
                     </div>
                     {singleGate.phase === 'loading' && (

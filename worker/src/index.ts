@@ -5,9 +5,6 @@ import {
   freeUnlockSpread,
   getSpreadDef,
   listDecks,
-  oracleFreeReadingStatus,
-  startOracleFreeReading,
-  completeOracleFreeReading,
   unlockSingleCard,
 } from './cards';
 import { computeEcpayCheckMac, SPREAD_CATALOG } from './ecpay';
@@ -74,6 +71,7 @@ import {
   adminMemberStats,
 } from './adminMembers';
 import { adminListTarotSubscriptions } from './adminSubscriptions';
+import { getMyTarotEntitlement, getTarotEntitlement, startMyTarotTrial } from './tarotEntitlements';
 import { validateRegistrationIdentity } from './registration';
 import { createVedicChart, getVedicPaidReport } from './vedicAstrology';
 import {
@@ -158,6 +156,12 @@ export default {
       if (path === '/api/membership/me'            && req.method === 'GET')  return await getMyMembership(req, env);
       if (path === '/api/membership/refresh'       && req.method === 'POST') return await refreshMyMembership(req, env);
       if (path === '/api/membership/cancel'        && req.method === 'POST') return await cancelMyMembership(req, env);
+      if (path === '/api/tarot/entitlement'        && req.method === 'GET')  return await getMyTarotEntitlement(req, env);
+      if (path === '/api/tarot/trial/start'        && req.method === 'POST') {
+        const rl = await rateLimit(env, 'tarot-trial-start', clientIp(req), 10, 3600);
+        if (!rl.allowed) return await tooManyRequests(req, env);
+        return await startMyTarotTrial(req, env);
+      }
 
       if (path === '/api/decks' && req.method === 'GET') return await listDecks(req, env);
       if (path === '/api/share-results' && req.method === 'POST') return await createShareResult(req, env);
@@ -251,17 +255,13 @@ export default {
         return await updateHumanDesignAnswers(req, env, id);
       }
       if (path === '/api/oracle/free-reading-status' && req.method === 'GET') {
-        return await oracleFreeReadingStatus(req, env);
+        return json(req, env, { error: '舊免費次數制度已停止，請使用塔羅 7 天免費試用', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
       }
       if (path === '/api/oracle/free-reading-start' && req.method === 'POST') {
-        const rl = await rateLimit(env, 'oracle-free-start', clientIp(req), 20, 3600);
-        if (!rl.allowed) return await tooManyRequests(req, env);
-        return await startOracleFreeReading(req, env);
+        return json(req, env, { error: '舊免費次數制度已停止，請使用塔羅 7 天免費試用', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
       }
       if (path === '/api/oracle/free-reading-complete' && req.method === 'POST') {
-        const rl = await rateLimit(env, 'oracle-free-complete', clientIp(req), 20, 3600);
-        if (!rl.allowed) return await tooManyRequests(req, env);
-        return await completeOracleFreeReading(req, env);
+        return json(req, env, { error: '舊免費次數制度已停止，請使用塔羅 7 天免費試用', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
       }
 
       if (path.startsWith('/api/button-links/') && req.method === 'GET') {
@@ -550,7 +550,10 @@ async function getMyProfile(req: Request, env: Env): Promise<Response> {
     display_name: string | null; picture_url: string | null; tarot_usage_count: number;
   }>();
   if (!row) return await json(req, env, { profile: null }, { status: 404 });
-  const membership = await getMembershipSummary(env, user.id);
+  const [membership, tarotEntitlement] = await Promise.all([
+    getMembershipSummary(env, user.id),
+    getTarotEntitlement(env, user.id),
+  ]);
 
   return await json(req, env, {
     profile: {
@@ -558,6 +561,7 @@ async function getMyProfile(req: Request, env: Env): Promise<Response> {
       purchased_spreads: parseJsonArray(row.purchased_spreads),
       membership,
       hasActiveTarotSubscription: membership?.is_active === true,
+      tarotEntitlement,
     },
   });
 }

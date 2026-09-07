@@ -287,7 +287,7 @@ function LightworkerPage() {
                         </div>
                       )}
                       <p className="mt-4 text-xs text-cyan-300/70 tracking-wide">
-                        前 30% 預覽 — 登入後可免費解鎖第 2 次占卜
+                        前 30% 預覽 — 登入後可開始塔羅全館 7 天免費試用
                       </p>
                     </div>
                     {gate.phase === 'loading' && (

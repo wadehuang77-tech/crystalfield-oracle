@@ -44,7 +44,7 @@ function hasSensitiveKey(value: unknown): boolean {
   if (!value || typeof value !== 'object') return false;
   const forbidden = new Set([
     'name', 'email', 'phone', 'birthday', 'birth_date', 'birth_time', 'birth_city', 'city', 'ip',
-    'question', 'full_question', 'interpretation', 'report', 'prompt', 'response', 'payment_data',
+    'question', 'full_question', 'interpretation', 'report', 'prompt', 'response', 'payment_data', 'user_id',
   ]);
   return Object.entries(value).some(([key, child]) => forbidden.has(key.toLowerCase()) || hasSensitiveKey(child));
 }
@@ -141,6 +141,23 @@ assert(count('tarot_subscription_cancelled') === 1, 'subscription cancellation m
 assert(count('purchase') === 2, 'subscription purchase must be emitted once with a unique transaction_id');
 const subscriptionPurchase = events.find((sent) => sent.name === 'purchase' && sent.params.plan_id === 'tarot_monthly_600');
 assert(subscriptionPurchase?.params.billing_type === 'recurring', 'subscription purchase must identify recurring billing');
+
+analytics.trackTarotTrialOffer('login_required');
+analytics.trackLoginForTarotTrial();
+analytics.trackStartTarotTrial();
+analytics.trackTarotTrialStarted();
+analytics.trackUseTarotDuringTrial('tarot_three');
+analytics.trackTarotTrialExpired();
+analytics.trackViewTarotSubscription();
+analytics.trackClickTarotSubscribe();
+analytics.trackTarotPaymentStarted();
+analytics.trackTarotPaymentSuccess('CFSUBSCRIPTION002');
+analytics.trackTarotPaymentFailed();
+for (const name of [
+  'view_tarot_trial_offer', 'login_for_tarot_trial', 'start_tarot_trial', 'tarot_trial_started',
+  'use_tarot_during_trial', 'tarot_trial_expired', 'view_tarot_subscription',
+  'click_tarot_subscribe', 'tarot_payment_started', 'tarot_payment_success', 'tarot_payment_failed',
+]) assert(count(name) === 1, `Missing or duplicated ${name}`);
 
 for (const sent of events) {
   assert(!hasSensitiveKey(sent.params), `${sent.name} contains a sensitive parameter key`);

@@ -17,8 +17,7 @@ import {
   type OracleNeedType,
   type OracleSpreadId,
 } from '../lib/ga4';
-import { oracleFreeApi } from '../lib/api';
-import { saveOracleFreeIntent } from '../lib/oracleFreeAccess';
+import { tarotEntitlementApi, type TarotEntitlement } from '../lib/api';
 import { TarotLoginGate } from '../components/TarotLoginGate';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -162,17 +161,16 @@ function HomePage() {
   const [selectedId, setSelectedId] = useState<NeedOption['id'] | null>(null);
   const [question, setQuestion] = useState('');
   const [error, setError] = useState('');
-  const [remaining, setRemaining] = useState<number | null>(null);
+  const [entitlement, setEntitlement] = useState<TarotEntitlement | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [loginRequired, setLoginRequired] = useState(false);
   const pendingRef = useRef<{ option: NeedOption; question: string } | null>(null);
   const startingRef = useRef(false);
 
   useEffect(() => {
-    void oracleFreeApi.status()
-      .then((status) => setRemaining(status.remaining_free_readings))
-      .catch(() => setRemaining(null));
-  }, []);
+    if (!user) { setEntitlement(null); return; }
+    void tarotEntitlementApi.me().then(({ entitlement: value }) => setEntitlement(value)).catch(() => setEntitlement(null));
+  }, [user]);
 
   const selectNeed = (option: NeedOption) => {
     if (selectedId === option.id) return;
@@ -187,50 +185,32 @@ function HomePage() {
     startingRef.current = true;
     setIsStarting(true);
     try {
-      const access = await oracleFreeApi.start(option.spreadType);
-      saveOracleFreeIntent({
-        access_mode: 'free',
-        need_id: option.id,
-        need_type: option.needType,
-        question: trimmedQuestion,
-        deck_type: option.deckType,
-        spread_type: option.spreadType,
-        reading_id: access.reading_id,
-        created_at: Date.now(),
-      });
-      setRemaining(access.remaining_free_readings);
+      if (!user) {
+        pendingRef.current = { option, question: trimmedQuestion };
+        setLoginRequired(true);
+        return;
+      }
+      let access = (await tarotEntitlementApi.me()).entitlement;
+      if (access.status === 'trial_available') access = (await tarotEntitlementApi.startTrial()).entitlement;
+      setEntitlement(access);
       setLoginRequired(false);
       pendingRef.current = null;
       trackOracleReadingStarted(option.needType, option.spreadType, option.deckType);
       navigate(option.destination);
     } catch (err) {
-      const apiError = err as Error & { status?: number; body?: { code?: string } };
-      if (apiError.status === 401 && apiError.body?.code === 'TAROT_LOGIN_REQUIRED') {
+      const apiError = err as Error & { status?: number };
+      if (apiError.status === 401) {
         pendingRef.current = { option, question: trimmedQuestion };
         setLoginRequired(true);
-        setRemaining(1);
         setError('');
-      } else if (apiError.status === 409 && apiError.body?.code === 'FREE_GLOBAL_LIMIT_REACHED') {
-        setRemaining(0);
-        saveOracleFreeIntent({
-          access_mode: 'paywall_preview',
-          need_id: option.id,
-          need_type: option.needType,
-          question: trimmedQuestion,
-          deck_type: option.deckType,
-          spread_type: option.spreadType,
-          created_at: Date.now(),
-        });
-        trackOracleReadingStarted(option.needType, option.spreadType, option.deckType);
-        navigate(option.destination);
       } else {
-        setError(apiError.message || '免費次數確認失敗，請稍後再試');
+        setError(apiError.message || '塔羅權限確認失敗，請稍後再試');
       }
     } finally {
       startingRef.current = false;
       setIsStarting(false);
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   const startReading = async (event: FormEvent, option: NeedOption) => {
     event.preventDefault();
@@ -335,7 +315,7 @@ function HomePage() {
                         disabled={isStarting}
                         className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3.5 text-base font-bold tracking-widest text-white shadow-lg transition hover:scale-[1.01] active:scale-[0.99] ${styles.button}`}
                       >
-                        {isStarting ? '確認免費次數中…' : '進入牌陣'}
+                        {isStarting ? '確認資格中…' : !user ? '登入並開始免費試用' : entitlement?.status === 'trial_available' ? '開始免費試用 7 天' : '進入牌陣'}
                       </button>
                     </form>
                     {loginRequired && selectedId === option.id && <div className="mt-5"><TarotLoginGate theme="dark" /></div>}
@@ -347,10 +327,11 @@ function HomePage() {
         </section>
 
         <p className="mt-7 text-center text-sm leading-6 text-blue-100/70">
-          {remaining === 2 && '第 1 次占卜可免登入免費體驗；第 2 次登入後仍可免費占卜。'}
-          {remaining === 1 && '你還有第 2 次免費占卜機會，登入即可免費繼續。'}
-          {remaining === 0 && '你的 2 次免費占卜已使用完畢，下一次占卜需要付費解鎖。'}
-          {remaining === null && '所有牌卡與牌陣共用：第 1 次免登入、第 2 次登入免費，第 3 次起付費。'}
+          {!user && '登入 Google 帳號即可免費試用塔羅全館 7 天，不需要信用卡，也不會自動扣款。'}
+          {user && entitlement?.status === 'trial_available' && '你可以開始一次 7 天塔羅全館免費試用。'}
+          {user && entitlement?.status === 'trialing' && '塔羅全館免費試用中：7 套牌卡與所有牌陣皆可不限次數使用。'}
+          {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && '你仍可瀏覽所有牌卡與牌陣介紹；完整解析需訂閱塔羅全館月費會員。'}
+          {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && '塔羅全館會員有效期間，可使用全部 7 套牌卡與所有牌陣。'}
         </p>
 
         <details open className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">

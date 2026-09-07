@@ -34,6 +34,7 @@ import PrivacyPage from './pages/PrivacyPage';
 import VedicAstrologyPage from './pages/VedicAstrologyPage';
 import AdminVedicReviewsPage from './pages/AdminVedicReviewsPage';
 import AdminTarotSubscriptionsPage from './pages/AdminTarotSubscriptionsPage';
+import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
 
 function RouterBody() {
   usePageViewTracking();
@@ -41,6 +42,7 @@ function RouterBody() {
     <div className="flex flex-col min-h-screen bg-ink-950">
       <ScrollToTop />
       <PageHeader />
+      <TarotTrialStatusBanner />
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<LandingPage />} />

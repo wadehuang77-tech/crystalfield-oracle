@@ -16,6 +16,7 @@
     "test:vedic-report": "tsx scripts/vedic-report-sample.ts",
     "test:tarot-subscription": "tsx scripts/tarot-subscription-check.ts",
     "test:ecpay-recurring": "tsx scripts/ecpay-recurring-check.ts",
+    "test:tarot-trial": "tsx scripts/tarot-trial-check.ts",
     "types": "wrangler types"
   },
   "devDependencies": {

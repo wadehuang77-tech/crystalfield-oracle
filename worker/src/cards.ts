@@ -1,5 +1,5 @@
 import { verifyOrderToken } from './checkout';
-import { hasActiveTarotSubscription } from './subscriptions';
+import { getTarotEntitlement, tarotAccessDenied } from './tarotEntitlements';
 import { decideTarotQuota, mergeTarotUsageCounts, TAROT_FREE_READING_LIMIT } from './oracleQuota';
 import { TAROT_SPREADS, type TarotSpreadDef } from './tarotCatalog';
 import {
@@ -120,9 +120,9 @@ interface SingleUnlockBody {
 
 export async function unlockSingleCard(req: Request, env: Env): Promise<Response> {
   const session = await readSession(req, env);
-  if (!session || !await hasActiveTarotSubscription(env, session.id)) {
-    return forbidden(req, env, '此舊版 Email 解鎖入口已停用，請使用免費占卜或既有付費流程');
-  }
+  if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
+  const entitlement = await getTarotEntitlement(env, session.id);
+  if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
   const body = await readBody<SingleUnlockBody>(req);
   if (!body.spread_id || !TAROT_SPREADS[body.spread_id]) {
     return badRequest(req, env, 'spread_id invalid');
@@ -164,7 +164,10 @@ export async function unlockSingleCard(req: Request, env: Env): Promise<Response
     ),
   ]);
 
-  return json(req, env, { card: { ...card, reversed: !!body.reversed } });
+  return json(req, env, {
+    card: { ...card, reversed: !!body.reversed },
+    entitlement_status: entitlement.status,
+  });
 }
 
 interface SpreadUnlockPick {
@@ -318,17 +321,17 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
   const spread = TAROT_SPREADS[body.spread_id];
   if (!spread.free) return badRequest(req, env, 'not a single-card spread');
   if (!body.card_key) return badRequest(req, env, 'card_key required');
+  const session = await readSession(req, env);
+  if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
+  const entitlement = await getTarotEntitlement(env, session.id);
+  if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
   const card = await loadFullCard(env, spread.deck_id, body.card_key);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
-  const session = await readSession(req, env);
-  const isMember = session ? await hasActiveTarotSubscription(env, session.id) : false;
-  if (!isMember) {
-    if (!body.reading_id) return forbidden(req, env, '請先取得免費占卜憑證');
-    const access = await verifyOracleReservation(req, env, body.reading_id, body.spread_id);
-    if (access instanceof Response) return access;
-    await markOracleResultUnlocked(env, access);
-  }
-  return json(req, env, { card: { ...card, reversed: !!body.reversed }, free_readings_remaining: null });
+  return json(req, env, {
+    card: { ...card, reversed: !!body.reversed },
+    free_readings_remaining: null,
+    entitlement_status: entitlement.status,
+  });
 }
 
 interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
@@ -594,6 +597,10 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
   if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
     return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
   }
+  const session = await readSession(req, env);
+  if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
+  const entitlement = await getTarotEntitlement(env, session.id);
+  if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
     const card = await loadFullCard(env, spread.deck_id, pick.card_key);
@@ -601,20 +608,12 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 
-  const session = await readSession(req, env);
-  if (session && await hasActiveTarotSubscription(env, session.id)) {
-    return json(req, env, {
-      spread_id: body.spread_id,
-      cards,
-      access_source: 'tarot_monthly_600',
-    });
-  }
-
-  if (!body.reading_id) return forbidden(req, env, '請先取得免費占卜憑證');
-  const access = await verifyOracleReservation(req, env, body.reading_id, body.spread_id);
-  if (access instanceof Response) return access;
-  await markOracleResultUnlocked(env, access);
-  return json(req, env, { spread_id: body.spread_id, cards });
+  return json(req, env, {
+    spread_id: body.spread_id,
+    cards,
+    access_source: entitlement.status === 'trialing' ? 'tarot_trial' : 'tarot_monthly_600',
+    entitlement_status: entitlement.status,
+  });
 }
 
 interface BundleUnlockSpreadBody {

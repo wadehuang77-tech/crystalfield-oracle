@@ -446,9 +446,9 @@ function LightworkerCelticCrossPage() {
                         <Lock className="w-7 h-7 text-cyan-300" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">登入免費解鎖第 2 次占卜</h3>
+                    <h3 className="text-2xl font-serif text-cyan-100 tracking-wide">登入並開始塔羅全館 7 天免費試用</h3>
                     <p className="text-cyan-200/80 text-base leading-relaxed max-w-md mx-auto">
-                      完成登入即可免費繼續本次占卜，第 3 次占卜起需付費。
+                      不需要輸入信用卡，也不會自動扣款；試用期間可使用全部 7 套牌卡與所有牌陣。
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleEmailUnlock(email); }}

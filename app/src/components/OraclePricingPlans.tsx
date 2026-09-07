@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Crown, LogIn } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Crown, Clock3 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { checkoutApi } from '../lib/api';
+import { checkoutApi, tarotEntitlementApi, type TarotEntitlement } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { saveMembershipCheckoutRedirect } from '../lib/pendingDraw';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 import { TarotSubscriptionDetails } from './TarotSubscriptionDetails';
-import { trackTarotSubscriptionCheckout, trackTarotSubscriptionView } from '../lib/ga4';
+import { TarotLoginGate } from './TarotLoginGate';
+import {
+  trackClickTarotSubscribe, trackStartTarotTrial, trackTarotPaymentStarted,
+  trackTarotTrialExpired, trackTarotTrialOffer, trackTarotTrialStarted, trackViewTarotSubscription,
+} from '../lib/ga4';
 
 interface OraclePricingPlansProps {
   spreadId: string;
@@ -18,67 +22,72 @@ interface OraclePricingPlansProps {
 
 export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
+  const [entitlement, setEntitlement] = useState<TarotEntitlement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
-
   const currentPath = location.pathname + location.search;
-  const login = () => navigate(`/auth?redirect=${encodeURIComponent(currentPath)}`);
 
   useEffect(() => {
-    trackTarotSubscriptionView();
-  }, []);
-
-  const subscribe = async () => {
-    trackTarotSubscriptionCheckout();
-    saveMembershipCheckoutRedirect(currentPath);
-    if (!user) { login(); return; }
-    if (isLoading) return;
-    setCheckoutError('');
-    setIsLoading(true);
-    try {
-      const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(TAROT_SUBSCRIPTION.id);
-      if (admin_unlocked) {
-        navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
-        return;
+    if (!user) return;
+    void tarotEntitlementApi.me().then(({ entitlement: value }) => {
+      setEntitlement(value);
+      if (value.status === 'trial_available') trackTarotTrialOffer('trial_available');
+      else {
+        if (value.status === 'expired') trackTarotTrialExpired();
+        trackViewTarotSubscription();
       }
-      if (!ecpay) throw new Error('結帳資料缺失，請重試');
-      submitToEcpay(ecpay, () => {
-        setCheckoutError('跳轉至綠界失敗，請稍後再試');
-        setIsLoading(false);
-      });
-    } catch (err) {
-      setCheckoutError(err instanceof Error ? err.message : '結帳失敗，請稍後再試');
-      setIsLoading(false);
-    }
+    }).catch((cause) => setCheckoutError(cause instanceof Error ? cause.message : '無法確認塔羅權限'));
+  }, [user]);
+
+  const startTrial = async () => {
+    setIsLoading(true); setCheckoutError(''); trackStartTarotTrial();
+    try {
+      const result = await tarotEntitlementApi.startTrial();
+      setEntitlement(result.entitlement);
+      if (result.trial_created) trackTarotTrialStarted();
+      window.dispatchEvent(new Event('tarot-entitlement-changed'));
+    } catch (cause) { setCheckoutError(cause instanceof Error ? cause.message : '無法開始免費試用'); }
+    finally { setIsLoading(false); }
   };
 
+  const subscribe = async () => {
+    trackClickTarotSubscribe(); saveMembershipCheckoutRedirect(currentPath);
+    setCheckoutError(''); setIsLoading(true);
+    try {
+      const { ecpay, admin_unlocked } = await checkoutApi.createOrder(TAROT_SUBSCRIPTION.id);
+      if (admin_unlocked) { window.location.assign(currentPath); return; }
+      if (!ecpay) throw new Error('結帳資料缺失，請重試');
+      trackTarotPaymentStarted();
+      submitToEcpay(ecpay, () => { setCheckoutError('跳轉至綠界失敗，請稍後再試'); setIsLoading(false); });
+    } catch (cause) { setCheckoutError(cause instanceof Error ? cause.message : '結帳失敗，請稍後再試'); setIsLoading(false); }
+  };
+
+  if (!user || entitlement?.status === 'login_required') return <div className="mt-6"><TarotLoginGate theme="dark" /></div>;
+  if (!entitlement) return <p className="mt-6 text-center text-amber-100">正在確認塔羅資格…</p>;
+  if (entitlement?.status === 'trial_available') return (
+    <article className="mx-auto mt-6 max-w-3xl rounded-2xl border border-amber-300/30 bg-slate-950/45 p-6 text-center">
+      <Clock3 className="mx-auto h-10 w-10 text-amber-300" />
+      <h4 className="mt-3 font-serif text-xl text-amber-100">免費試用塔羅全館 7 天</h4>
+      <p className="mt-3 text-sm leading-6 text-amber-100/75">免費試用期間可使用 7 套塔羅與全部牌陣。不需要綁定信用卡；7 天到期後，您可以自行決定是否訂閱。</p>
+      <button onClick={() => void startTrial()} disabled={isLoading} className="mt-5 w-full rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-4 py-3 font-bold text-white disabled:opacity-50">{isLoading ? '啟用中…' : '開始免費試用 7 天'}</button>
+      <p className="mt-2 text-xs text-amber-100/55">不需要輸入信用卡，也不會自動扣款。</p>
+    </article>
+  );
+
   return (
-    <div className="mt-6 text-left">
+    <article className="mx-auto mt-6 max-w-3xl rounded-2xl border border-amber-300/30 bg-slate-950/45 p-5 sm:p-6">
+      <div className="text-center">
+        <Crown className="mx-auto h-10 w-10 text-amber-300" />
+        <h4 className="mt-3 font-serif text-xl text-amber-100">您的塔羅全館免費試用已結束</h4>
+        <p className="mt-2 text-sm text-amber-100/75">訂閱塔羅全館月費會員，即可繼續使用本站 7 套塔羅／神諭卡與全部牌陣。</p>
+        <strong className="mt-3 block text-3xl text-white">NT$600／月</strong>
+      </div>
+      <TarotSubscriptionDetails />
       {(error || checkoutError) && <p className="mb-4 text-center text-sm text-red-300">{error || checkoutError}</p>}
-      <article className="mx-auto max-w-3xl rounded-2xl border border-amber-300/30 bg-slate-950/45 p-5 shadow-[0_0_28px_rgba(251,191,36,0.09)] sm:p-6">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2 text-amber-100">
-            <Crown className="h-5 w-5" />
-            <h4 className="font-serif text-xl tracking-wider">{TAROT_SUBSCRIPTION.name}</h4>
-          </div>
-          <strong className="mt-3 block text-3xl text-white">NT${TAROT_SUBSCRIPTION.price} / 月</strong>
-          <p className="mt-2 text-sm font-medium tracking-wide text-amber-300">信用卡每月自動續訂</p>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-amber-100/75">
-            會員有效期間可不限次數使用本站 7 大塔羅牌組與全部牌陣。
-          </p>
-        </div>
-        <TarotSubscriptionDetails />
-        <button type="button" disabled={isLoading} onClick={() => void subscribe()} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:opacity-50">
-          {isLoading ? '跳轉至綠界…' : `NT$${TAROT_SUBSCRIPTION.price} / 月 立即加入`}
-        </button>
-        <p className="mt-3 text-center text-xs leading-relaxed text-amber-100/55">
-          使用信用卡定期定額付款，每月自動續訂 NT${TAROT_SUBSCRIPTION.price}。
-        </p>
-        {!user && <button type="button" onClick={login} className="mx-auto mt-4 flex items-center gap-2 text-sm text-amber-200 hover:text-white"><LogIn className="h-4 w-4" />會員權限綁定登入帳號</button>}
-      </article>
-    </div>
+      <button disabled={isLoading || entitlement?.status === 'payment_pending'} onClick={() => void subscribe()} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-4 py-3 font-semibold text-white disabled:opacity-50">{entitlement?.status === 'payment_pending' ? '付款確認中' : isLoading ? '跳轉至綠界…' : '立即訂閱 NT$600／月'}</button>
+      <p className="mt-3 text-center text-xs text-amber-100/55">點擊後將前往綠界完成付款。付款成功後才會開通會員資格。</p>
+    </article>
   );
 }
 

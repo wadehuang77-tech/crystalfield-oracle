@@ -36,6 +36,17 @@ type Ga4EventMap = {
   oracle_reading_started: { need_type: OracleNeedType; spread_type: OracleSpreadId; deck_type: OracleDeckId };
   oracle_free_reading_completed: { free_reading_number: 1 | 2; remaining_free_readings: number; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
   oracle_paywall_viewed: { reason: 'free_limit_reached'; completed_free_readings: 2; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
+  view_tarot_trial_offer: { entitlement_status: 'login_required' | 'trial_available' };
+  login_for_tarot_trial: { method: 'google' };
+  start_tarot_trial: { trial_days: 7 };
+  tarot_trial_started: { trial_days: 7 };
+  use_tarot_during_trial: { spread_id: string };
+  tarot_trial_expired: { plan_id: 'tarot_monthly_600' };
+  view_tarot_subscription: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
+  click_tarot_subscribe: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
+  tarot_payment_started: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
+  tarot_payment_success: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; transaction_id: string };
+  tarot_payment_failed: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
 };
 
 export type Ga4EventName = keyof Ga4EventMap;
@@ -48,7 +59,7 @@ const unlockEvents = new Set<string>();
 const checkoutEvents = new Set<string>();
 const forbiddenParamKeys = new Set([
   'name', 'email', 'phone', 'birthday', 'birth_date', 'birth_time', 'birth_city', 'city', 'ip',
-  'question', 'full_question', 'interpretation', 'report', 'prompt', 'response', 'payment_data',
+  'question', 'full_question', 'interpretation', 'report', 'prompt', 'response', 'payment_data', 'user_id',
 ]);
 
 function sessionGet(key: string): string | null {
@@ -178,6 +189,50 @@ export function trackTarotSubscriptionPaymentFailed(billingCycle: number): void 
     ...TAROT_SUBSCRIPTION_ANALYTICS,
     billing_cycle: Math.max(1, billingCycle),
   })) sessionSet(key, '1');
+}
+
+export function trackTarotTrialOffer(status: 'login_required' | 'trial_available'): void {
+  trackEvent('view_tarot_trial_offer', { entitlement_status: status });
+}
+
+export function trackLoginForTarotTrial(): void {
+  trackEvent('login_for_tarot_trial', { method: 'google' });
+}
+
+export function trackStartTarotTrial(): void {
+  trackEvent('start_tarot_trial', { trial_days: 7 });
+}
+
+export function trackTarotTrialStarted(): void {
+  trackEvent('tarot_trial_started', { trial_days: 7 });
+}
+
+export function trackUseTarotDuringTrial(spreadId: string): void {
+  trackEvent('use_tarot_during_trial', { spread_id: spreadId });
+}
+
+export function trackTarotTrialExpired(): void {
+  trackEvent('tarot_trial_expired', { plan_id: 'tarot_monthly_600' });
+}
+
+export function trackViewTarotSubscription(): void {
+  trackEvent('view_tarot_subscription', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
+}
+
+export function trackClickTarotSubscribe(): void {
+  trackEvent('click_tarot_subscribe', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
+}
+
+export function trackTarotPaymentStarted(): void {
+  trackEvent('tarot_payment_started', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
+}
+
+export function trackTarotPaymentSuccess(transactionId: string): void {
+  if (transactionId) trackEvent('tarot_payment_success', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD', transaction_id: transactionId });
+}
+
+export function trackTarotPaymentFailed(): void {
+  trackEvent('tarot_payment_failed', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
 }
 
 export function trackDeckSelect(deckId: OracleDeckId, deckName: string, destinationPath: string): void {

@@ -19,6 +19,7 @@ export default function AdminTarotSubscriptionsPage() {
   const [summary, setSummary] = useState({ subscriptions: 0, active: 0, paid_transactions: 0, revenue: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     if (!user) {
@@ -48,18 +49,29 @@ export default function AdminTarotSubscriptionsPage() {
           <Stat label="成功扣款" value={summary.paid_transactions} />
           <Stat label="實際營收" value={`NT$${summary.revenue.toLocaleString('zh-TW')}`} />
         </div>
+        <label className="mb-6 block max-w-xs text-sm text-slate-300">資格狀態
+          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="mt-2 w-full rounded-lg border border-amber-500/25 bg-slate-900 px-3 py-2">
+            {['all', 'trial_available', 'trialing', 'active', 'canceled_active', 'expired', 'payment_pending', 'payment_failed'].map((status) => <option key={status} value={status}>{status === 'all' ? '全部' : status}</option>)}
+          </select>
+        </label>
 
         {loading && <Loader2 className="mx-auto h-8 w-8 animate-spin text-amber-300" />}
         {error && <p className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-200">{error}</p>}
 
         <div className="space-y-5">
-          {subscriptions.map((subscription) => (
+          {subscriptions.filter((subscription) => statusFilter === 'all' || subscription.status === statusFilter).map((subscription) => (
             <article key={subscription.id} className="rounded-2xl border border-amber-500/20 bg-slate-900/70 p-5">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Info label="姓名 / Email" value={`${subscription.name || '—'}\n${subscription.email || '—'}`} />
                 <Info label="user_id" value={subscription.user_id} />
                 <Info label="方案 / 狀態" value={`${subscription.plan_code}\n${subscription.status}`} />
                 <Info label="價格" value={`NT$${subscription.amount} / 月`} />
+                <Info label="試用開始 / 到期" value={`${date(subscription.trial_started_at)}\n${date(subscription.trial_ends_at)}`} />
+                <Info label="是否使用過試用" value={subscription.trial_used_at ? `是（${date(subscription.trial_used_at)}）` : '否'} />
+                <Info label="正式訂閱開始" value={date(subscription.subscription_started_at)} />
+                <Info label="資格到期" value={date(subscription.access_until)} />
+                <Info label="付款狀態 / 最近付款" value={`${subscription.payment_status || '—'}\n${date(subscription.last_payment_at)}`} />
+                <Info label="會員建立時間" value={date(subscription.created_at)} />
                 <Info label="開始 / 最近付款" value={`${date(subscription.started_at)}\n${date(subscription.last_payment_at)}`} />
                 <Info label="下次續訂 / 本期結束" value={`${date(subscription.next_billing_at)}\n${date(subscription.current_period_end)}`} />
                 <Info label="MerchantTradeNo" value={subscription.merchant_trade_no} />

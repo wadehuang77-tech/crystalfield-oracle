@@ -24,7 +24,7 @@ export function useSpreadAccess(): SpreadAccessResult {
     setLoadError(null);
     try {
       const { profile } = await profileApi.me();
-      setIsPaid(profile?.hasActiveTarotSubscription === true);
+      setIsPaid(profile?.tarotEntitlement?.has_access === true);
     } catch (error) {
       setIsPaid(false);
       setLoadError(error instanceof Error ? error.message : '無法確認塔羅會員狀態');

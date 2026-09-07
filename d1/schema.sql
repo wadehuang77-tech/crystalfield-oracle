@@ -56,6 +56,9 @@ CREATE TABLE profile_member_metadata (
   display_name       TEXT,
   picture_url        TEXT,
   tarot_usage_count  INTEGER NOT NULL DEFAULT 0 CHECK (tarot_usage_count >= 0),
+  tarot_trial_started_at TEXT,
+  tarot_trial_ends_at TEXT,
+  tarot_trial_used_at TEXT,
   created_at         TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at         TEXT NOT NULL DEFAULT (datetime('now')),
   last_login_at      TEXT,
@@ -65,6 +68,9 @@ CREATE UNIQUE INDEX idx_profile_member_metadata_google_sub
   ON profile_member_metadata(google_sub) WHERE google_sub IS NOT NULL;
 CREATE INDEX idx_profile_member_metadata_last_login
   ON profile_member_metadata(last_login_at DESC);
+CREATE INDEX idx_profile_member_metadata_tarot_trial_end
+  ON profile_member_metadata(tarot_trial_ends_at)
+  WHERE tarot_trial_ends_at IS NOT NULL;
 
 -- ---------------------------------------------------------------------------
 -- admins:管理員(id 對應 profiles.id)
