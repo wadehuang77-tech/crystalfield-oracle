@@ -268,6 +268,11 @@ export default function OshoSinglePage() {
           spreadName="單張牌陣"
           cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
           summary={drawnPreview.preview_excerpt || '放下分析與評斷，答案會在當下自然浮現。'}
+          deepAnalysis={{
+            deckId: 'osho', spreadId: 'osho_single',
+            hasFullAccess: isUnlocked,
+            resultComplete: isUnlocked && !!meanings,
+          }}
         />
 
         {!isUnlocked && <TarotCourseCTA />}

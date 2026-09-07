@@ -562,6 +562,11 @@ function LightworkerCelticCrossPage() {
                 position: card.subtitle,
               }))}
               summary={selectedCards.find((card) => card.preview)?.preview?.preview_excerpt || '光之團隊正在協助你看見靈魂使命與下一步方向。'}
+              deepAnalysis={{
+                deckId: 'lightworker', spreadId: 'celtic_cross',
+                hasFullAccess: isLocallyUnlocked,
+                resultComplete: showFullContent,
+              }}
             />
 
             <TarotCourseCTA />

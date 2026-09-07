@@ -337,6 +337,11 @@ function LightworkerPage() {
               spreadName="單張牌陣"
               cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
               summary={drawnPreview.preview_excerpt || '光之團隊正在提醒你，信任靈魂深處的召喚。'}
+              deepAnalysis={{
+                deckId: 'lightworker', spreadId: 'lightworker_single',
+                hasFullAccess: isUnlocked,
+                resultComplete: isUnlocked && !!gated,
+              }}
             />
 
             {!isUnlocked && <TarotCourseCTA />}

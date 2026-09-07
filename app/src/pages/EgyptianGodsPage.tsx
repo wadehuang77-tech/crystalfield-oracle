@@ -496,6 +496,11 @@ function EgyptianGodsPage() {
               spreadName="單張牌陣"
               cards={[{ cardKey: singlePreview.card_key, name: singlePreview.name }]}
               summary={singlePreview.preview_excerpt || '埃及諸神正在以古老智慧，為你照亮眼前的道路。'}
+              deepAnalysis={{
+                deckId: 'egyptian_gods', spreadId: 'egyptian_single',
+                hasFullAccess: isSingleUnlocked,
+                resultComplete: isSingleUnlocked && !!singleGated,
+              }}
             />
 
             {isSingleUnlocked ? <ResonanceCTA /> : <TarotCourseCTA />}
@@ -643,6 +648,11 @@ function EgyptianGodsPage() {
                 position: slot.position,
               }))}
               summary={pastlifeSlots[0]?.preview.preview_excerpt || '古老神諭正在協助你看見靈魂記憶與今生課題。'}
+              deepAnalysis={{
+                deckId: 'egyptian_gods', spreadId: 'egyptian_pastlife',
+                hasFullAccess: isPastlifeUnlocked,
+                resultComplete: isPastlifeUnlocked && pastlifeSlots.length === 7 && pastlifeSlots.every((slot) => slot.full !== null),
+              }}
             />
 
             <TarotCourseCTA />

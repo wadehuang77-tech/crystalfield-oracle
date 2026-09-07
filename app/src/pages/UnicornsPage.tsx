@@ -579,6 +579,16 @@ export default function UnicornsPage() {
                   position: spreadType === 'three' ? ['過去', '現在', '未來'][index] : undefined,
                 }))}
                 summary={drawnCards[0]?.preview.preview_excerpt || '獨角獸正在提醒你，你本來的樣子就很有力量。'}
+                deepAnalysis={{
+                  deckId: 'unicorns',
+                  spreadId: spreadType === 'three' ? 'unicorns_three' : 'unicorns_single',
+                  hasFullAccess: spreadType === 'three'
+                    ? isLocallyUnlocked
+                    : drawnCards.length === 1 && !!drawnCards[0]?.unlocked,
+                  resultComplete: spreadType === 'three'
+                    ? isLocallyUnlocked && drawnCards.length === 3 && drawnCards.every((slot) => !!slot.unlocked?.gated)
+                    : drawnCards.length === 1 && !!drawnCards[0]?.unlocked?.gated,
+                }}
               />
 
               {spreadType === 'single' && drawnCards.some((s) => s.unlocked) ? <ResonanceCTA /> : <TarotCourseCTA />}

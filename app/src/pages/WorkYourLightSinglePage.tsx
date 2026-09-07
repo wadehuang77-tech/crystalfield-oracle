@@ -340,6 +340,11 @@ function WorkYourLightSinglePage() {
                 spreadName="單張牌陣"
                 cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
                 summary={drawnPreview.preview_excerpt || '宇宙正在提醒你，你本來的樣子就充滿光芒。'}
+                deepAnalysis={{
+                  deckId: 'work_your_light', spreadId: 'work_your_light_single',
+                  hasFullAccess: isUnlocked,
+                  resultComplete: isUnlocked && !!gated && !!deep,
+                }}
               />
 
               {isUnlocked && <ResonanceCTA />}

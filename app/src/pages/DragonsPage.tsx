@@ -504,6 +504,11 @@ function DragonsPage() {
                 position: ['過去', '現在', '未來'][index],
               }))}
               summary={threeSlots[0]?.preview.preview_excerpt || '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。'}
+              deepAnalysis={{
+                deckId: 'dragons', spreadId: 'dragons_three',
+                hasFullAccess: isThreeUnlocked,
+                resultComplete: isThreeUnlocked && threeSlots.length === 3 && threeSlots.every((slot) => slot.full !== null),
+              }}
             />
 
             <TarotCourseCTA />
@@ -598,6 +603,11 @@ function DragonsPage() {
               spreadName="單張牌陣"
               cards={[{ cardKey: singlePreview.card_key, name: singlePreview.name }]}
               summary={singlePreview.preview_excerpt || '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。'}
+              deepAnalysis={{
+                deckId: 'dragons', spreadId: 'dragons_single',
+                hasFullAccess: isSingleUnlocked,
+                resultComplete: isSingleUnlocked && !!singleGated,
+              }}
             />
 
             {isSingleUnlocked ? <ResonanceCTA /> : <TarotCourseCTA />}

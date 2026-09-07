@@ -159,6 +159,18 @@ for (const name of [
   'click_tarot_subscribe', 'tarot_payment_started', 'tarot_payment_success', 'tarot_payment_failed',
 ]) assert(count(name) === 1, `Missing or duplicated ${name}`);
 
+analytics.trackTarotDeepAnalysisRecommendationsView('tarot', 'tarot_three');
+analytics.trackTarotCrossSellClick('numerology', 'tarot', 'tarot_three');
+analytics.trackTarotCrossSellClick('human_design', 'tarot', 'tarot_three');
+analytics.trackTarotCrossSellClick('vedic_astrology', 'tarot', 'tarot_three');
+assert(count('tarot_deep_analysis_recommendations_view') === 1, 'Recommendation view event must be emitted');
+assert(count('tarot_cross_sell_click') === 3, 'Each cross-sell destination must be tracked');
+assert(event('tarot_deep_analysis_recommendations_view').params.source === 'unlocked_tarot_result', 'Recommendation source must be non-personal');
+const destinations = events
+  .filter((sent) => sent.name === 'tarot_cross_sell_click')
+  .map((sent) => sent.params.destination);
+assert(['numerology', 'human_design', 'vedic_astrology'].every((destination) => destinations.includes(destination)), 'Cross-sell destinations must be exact');
+
 for (const sent of events) {
   assert(!hasSensitiveKey(sent.params), `${sent.name} contains a sensitive parameter key`);
   const items = sent.params.items as Array<Record<string, unknown>> | undefined;

@@ -460,6 +460,11 @@ export default function OshoThreePage() {
             { cardKey: reading.integration.preview.card_key, name: reading.integration.preview.name, position: '整合建議' },
           ]}
           summary={reading.integration.preview.preview_excerpt || reading.inner.preview.preview_excerpt || '回到此時此刻，看清內在真正的聲音。'}
+          deepAnalysis={{
+            deckId: 'osho', spreadId: 'osho_three',
+            hasFullAccess: isLocallyUnlocked,
+            resultComplete: !!showFullContent,
+          }}
         />
 
         <TarotCourseCTA />

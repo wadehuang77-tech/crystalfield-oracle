@@ -434,6 +434,11 @@ function TarotSinglePage() {
                   name: `${drawnCard.preview.name}${drawnCard.isReversed ? '（逆位）' : '（正位）'}`,
                 }]}
                 summary={(drawnCard.isReversed ? drawnCard.preview.reversed_excerpt : drawnCard.preview.upright_excerpt) || '宇宙正在為你照亮此刻最重要的訊息。'}
+                deepAnalysis={{
+                  deckId: 'tarot', spreadId: 'tarot_single',
+                  hasFullAccess: isUnlocked,
+                  resultComplete: isUnlocked && !!gated && revealed,
+                }}
               />
 
               {!isUnlocked && <TarotCourseCTA />}

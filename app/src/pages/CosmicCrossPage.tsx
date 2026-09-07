@@ -522,6 +522,11 @@ function CosmicCrossPage() {
                   position: positions[index]?.label,
                 }))}
                 summary={selectedCards[0]?.preview.preview_excerpt || '宇宙正在喚醒你內在的光芒與靈魂天賦。'}
+                deepAnalysis={{
+                  deckId: 'work_your_light', spreadId: 'cosmic_cross',
+                  hasFullAccess: isLocallyUnlocked,
+                  resultComplete: showFullContent,
+                }}
               />
 
               <TarotCourseCTA />

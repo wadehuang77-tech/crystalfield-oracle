@@ -21,7 +21,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
-import { trackReadingStart } from '../lib/ga4';
+import { trackReadingStart, type OracleSpreadId } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 interface TarotCard {
@@ -70,7 +70,7 @@ function buildShim(preview: CardPreview, gated?: TarotGated): TarotCard {
 
 type SpreadType = 'single' | 'three' | 'celtic' | 'pastlife';
 
-const SPREAD_IDS: Record<SpreadType, string> = {
+const SPREAD_IDS: Record<SpreadType, OracleSpreadId> = {
   single: 'tarot_single',
   three: 'tarot_three',
   celtic: 'tarot_celtic',
@@ -1239,6 +1239,12 @@ function TarotPage() {
                 summary={drawnCards[0]?.isReversed
                   ? drawnCards[0]?.preview.reversed_excerpt || '宇宙邀請你放慢腳步，重新看見內在真正的需要。'
                   : drawnCards[0]?.preview.upright_excerpt || '宇宙正在為你照亮眼前最重要的方向。'}
+                deepAnalysis={{
+                  deckId: 'tarot',
+                  spreadId: SPREAD_IDS[spreadType],
+                  hasFullAccess: spreadType === 'single' ? isUnlocked : isLocallyUnlocked,
+                  resultComplete: allCardsRevealed && (spreadType === 'single' ? isUnlocked : isLocallyUnlocked),
+                }}
               />
 
               <TarotCourseCTA />
