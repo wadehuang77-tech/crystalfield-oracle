@@ -1,7 +1,7 @@
 # 晶域心語 — robots.txt
 #
 # 一般搜尋引擎可以收錄首頁與牌組介紹頁
-# 但抽牌頁、解讀內容、後台、認證頁、付費內容不要爬
+# 但抽牌頁、解讀內容、後台、驗證頁、付費內容不要擷取
 
 User-agent: *
 Allow: /
@@ -14,6 +14,15 @@ Allow: /work-your-light
 Allow: /osho
 Allow: /numerology
 Allow: /human-design
+Allow: /human-design/types
+Allow: /human-design/generator
+Allow: /human-design/manifesting-generator
+Allow: /human-design/projector
+Allow: /human-design/manifestor
+Allow: /human-design/reflector
+Allow: /human-design/authority
+Allow: /human-design/profile
+Allow: /human-design/birth-time
 
 # 抽牌與深度解讀頁由頁面 metadata 設定 noindex, follow
 
@@ -21,10 +30,10 @@ Allow: /human-design
 Disallow: /admin
 Disallow: /admin/*
 
-# 認證流程
+# 驗證流程
 Disallow: /auth
 
-# 結帳回傳頁(內含 order_id,不要被搜尋引擎收錄)
+# 結帳回傳頁（內含 order_id，不要被搜尋引擎收錄）
 Disallow: /checkout/*
 
 # 任何 API

@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import humanDesignArticles from '../data/human-design/articles.json';
 
 export type SeoConfig = {
   title: string;
@@ -8,71 +9,72 @@ export type SeoConfig = {
   canonical: string;
   h1: string;
   intro: string;
+  articleSection?: string;
 };
 
-export const PUBLIC_SEO: Record<string, SeoConfig> = {
+const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
   '/oracle': {
-    title: '免费塔罗牌占卜｜7套塔罗与神谕卡线上抽牌｜晶域心语',
-    description: '免费体验7套线上塔罗与神谕卡，包含伟特塔罗、光行者神谕、独角兽塔罗、龙族塔罗、埃及神谕、光之讯息与奥修禅卡，探索感情、事业、前世因果与灵魂指引。',
+    title: '免費塔羅牌占卜｜7套塔羅與神諭卡線上抽牌｜晶域心語',
+    description: '免費體驗7套線上塔羅與神諭卡，包含偉特塔羅、光行者神諭、獨角獸塔羅、龍族塔羅、埃及神諭、光之訊息與奧修禪卡，探索感情、事業、前世因果與靈魂指引。',
     canonical: 'https://www.crystalfield101.com/oracle',
-    h1: '免费塔罗牌占卜：7套塔罗与神谕卡线上抽牌',
-    intro: '晶域心语提供七套塔罗与神谕卡线上抽牌入口，依照你的问题选择牌卡与牌阵，用于自我觉察、整理当下方向与下一步行动。',
+    h1: '免費塔羅牌占卜：7套塔羅與神諭卡線上抽牌',
+    intro: '晶域心語提供七套塔羅與神諭卡線上抽牌入口，依照你的問題選擇牌卡與牌陣，用於自我覺察、整理當下方向與下一步行動。',
   },
   '/tarot': {
-    title: '伟特塔罗线上占卜｜单张、三张与凯尔特十字｜晶域心语',
-    description: '线上体验伟特塔罗牌占卜，可选择单张、三张、凯尔特十字及前世因果解锁阵，探索感情、工作、财运与目前行动方向。',
+    title: '偉特塔羅線上占卜｜單張、三張與凱爾特十字｜晶域心語',
+    description: '線上體驗偉特塔羅牌占卜，可選擇單張、三張、凱爾特十字及前世因果解鎖陣，探索感情、工作、財運與目前行動方向。',
     canonical: 'https://www.crystalfield101.com/tarot',
-    h1: '伟特塔罗',
-    intro: '伟特塔罗以清楚的图像象征整理现实处境，适合思考感情发展、工作与事业、财运方向和目前的行动选择。本站提供单张、三张、凯尔特十字与前世因果解锁阵。',
+    h1: '偉特塔羅',
+    intro: '偉特塔羅以清楚的圖像象徵整理現實處境，適合思考感情發展、工作與事業、財運方向和目前的行動選擇。本網站提供單張、三張、凱爾特十字與前世因果解鎖陣。',
   },
   '/lightworker': {
-    title: '光行者神谕卡占卜｜探索灵魂使命与内在指引｜晶域心语',
-    description: '透过光行者神谕卡接收灵魂使命与内在成长指引，使用单张牌及十字交叉使命阵，探索天赋、卡点与下一步方向。',
+    title: '光行者神諭卡占卜｜探索靈魂使命與內在指引｜晶域心語',
+    description: '透過光行者神諭卡接收靈魂使命與內在成長指引，使用單張牌及十字交叉使命陣，探索天賦、卡點與下一步方向。',
     canonical: 'https://www.crystalfield101.com/lightworker',
-    h1: '光行者神谕',
-    intro: '光行者神谕适合在寻找灵魂使命、个人天赋或内在成长方向时使用。你可以选择单张牌，或使用十字交叉使命阵，从当下的卡点与资源整理下一步方向。',
+    h1: '光行者神諭',
+    intro: '光行者神諭適合在尋找靈魂使命、個人天賦或內在成長方向時使用。你可以選擇單張牌，或使用十字交叉使命陣，從當下的卡點與資源整理下一步方向。',
   },
   '/unicorns': {
-    title: '独角兽塔罗线上占卜｜感情疗愈与温柔指引｜晶域心语',
-    description: '线上抽取独角兽塔罗与神谕卡，透过单张或三张牌探索感情、人际关系、自我价值及过去、现在与未来的能量变化。',
+    title: '獨角獸塔羅線上占卜｜感情療癒與溫柔指引｜晶域心語',
+    description: '線上抽取獨角獸塔羅與神諭卡，透過單張或三張牌探索感情、人際關係、自我價值及過去、現在與未來的能量變化。',
     canonical: 'https://www.crystalfield101.com/unicorns',
-    h1: '独角兽塔罗',
-    intro: '独角兽塔罗以温柔、鼓励的语气陪伴自我探索，适合整理感情、人际关系与自我价值。单张牌可聚焦当下提醒，三张牌则可观察过去、现在与未来的能量变化。',
+    h1: '獨角獸塔羅',
+    intro: '獨角獸塔羅以溫柔、鼓勵的語氣陪伴自我探索，適合整理感情、人際關係與自我價值。單張牌可聚焦當下提醒，三張牌則可觀察過去、現在與未來的能量變化。',
   },
   '/dragons': {
-    title: '龙族塔罗线上占卜｜关系清理、突破与行动力量｜晶域心语',
-    description: '透过龙族塔罗单张及三张牌阵，探索关系消耗、能量清理、行动勇气与突破方向，找回属于自己的力量。',
+    title: '龍族塔羅線上占卜｜關係清理、突破與行動力量｜晶域心語',
+    description: '透過龍族塔羅單張及三張牌陣，探索關係消耗、能量清理、行動勇氣與突破方向，找回屬於自己的力量。',
     canonical: 'https://www.crystalfield101.com/dragons',
-    h1: '龙族塔罗',
-    intro: '龙族塔罗适合面对关系消耗、界线整理与行动上的突破。你可以用单张牌确认当下需要看见的力量，也可以用三张牌整理能量清理、阻碍与行动方向。',
+    h1: '龍族塔羅',
+    intro: '龍族塔羅適合面對關係消耗、界線整理與行動上的突破。你可以用單張牌確認當下需要看見的力量，也可以用三張牌整理能量清理、阻礙與行動方向。',
   },
   '/egyptian-gods': {
-    title: '埃及神谕卡占卜｜前世因果与人生课题解析｜晶域心语',
-    description: '线上体验埃及神谕卡，透过单张指引及七张前世因果解锁阵，探索前世今生的连结、人生课题与灵魂成长方向。',
+    title: '埃及神諭卡占卜｜前世因果與人生課題解析｜晶域心語',
+    description: '線上體驗埃及神諭卡，透過單張指引及七張前世因果解鎖陣，探索前世今生的連結、人生課題與靈魂成長方向。',
     canonical: 'https://www.crystalfield101.com/egyptian-gods',
-    h1: '埃及神谕',
-    intro: '埃及神谕卡适合探索前世今生的连结、反复出现的人生课题与灵魂成长方向。单张指引适合聚焦一个问题，七张前世因果解锁阵则用来分层整理相关主题。',
+    h1: '埃及神諭',
+    intro: '埃及神諭卡適合探索前世今生的連結、反覆出現的人生課題與靈魂成長方向。單張指引適合聚焦一個問題，七張前世因果解鎖陣則用來分層整理相關主題。',
   },
   '/work-your-light': {
-    title: '光之讯息卡占卜｜宇宙十字与灵魂蓝图指引｜晶域心语',
-    description: '线上抽取Lightworker光之讯息卡，透过单张牌及宇宙十字牌阵，探索灵魂任务、内在潜能、能量状态与行动指引。',
+    title: '光之訊息卡占卜｜宇宙十字與靈魂藍圖指引｜晶域心語',
+    description: '線上抽取Lightworker光之訊息卡，透過單張牌及宇宙十字牌陣，探索靈魂任務、內在潛能、能量狀態與行動指引。',
     canonical: 'https://www.crystalfield101.com/work-your-light',
-    h1: '光之讯息',
-    intro: 'Lightworker 光之讯息卡适合在整理灵魂任务、内在潜能与能量状态时使用。单张牌提供聚焦的讯息，宇宙十字牌阵则从多个角度整理灵魂蓝图与行动指引。',
+    h1: '光之訊息',
+    intro: 'Lightworker 光之訊息卡適合在整理靈魂任務、內在潛能與能量狀態時使用。單張牌提供聚焦的訊息，宇宙十字牌陣則從多個角度整理靈魂藍圖與行動指引。',
   },
   '/osho': {
-    title: '奥修禅卡线上占卜｜觉察情绪与内在状态｜晶域心语',
-    description: '透过奥修禅卡单张与三张牌阵，觉察目前情绪、内在卡点及生命状态，从当下意识中找到更清楚的行动方向。',
+    title: '奧修禪卡線上占卜｜覺察情緒與內在狀態｜晶域心語',
+    description: '透過奧修禪卡單張與三張牌陣，覺察目前情緒、內在卡點及生命狀態，從當下意識中找到更清楚的行動方向。',
     canonical: 'https://www.crystalfield101.com/osho',
-    h1: '奥修禅卡',
-    intro: '奥修禅卡把注意力带回当下，适合觉察目前情绪、内在卡点与生命状态。单张牌用于即时观察，三张牌可从过去、现在、未来或身心灵角度整理意识。',
+    h1: '奧修禪卡',
+    intro: '奧修禪卡把注意力帶回當下，適合覺察目前情緒、內在卡點與生命狀態。單張牌用於即時觀察，三張牌可從過去、現在、未來或身心靈角度整理意識。',
   },
   '/numerology': {
-    title: '免费生命灵数｜生日数字、缺失数与流年解析｜晶域心语',
-    description: '输入生日，免费查看生命灵数、生日数字与基础天赋解析，进一步探索缺失数字、感情模式、事业方向、个人流年及适合的水晶能量。',
+    title: '免費生命靈數｜生日數字、缺失數與流年解析｜晶域心語',
+    description: '輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，進一步探索缺失數字、感情模式、事業方向、個人流年及適合的水晶能量。',
     canonical: 'https://www.crystalfield101.com/numerology',
-    h1: '免费生命灵数计算：从生日探索天赋、缺失数字与人生方向',
-    intro: '输入出生日期进行生命灵数计算，了解生日数字、基础天赋、缺失数字与个人流年，并将数字自我探索与水晶能量建议整合参考。',
+    h1: '免費生命靈數計算：從生日探索天賦、缺失數字與人生方向',
+    intro: '輸入出生日期進行生命靈數計算，了解生日數字、基礎天賦、缺失數字與個人流年，並將數字自我探索與水晶能量建議整合參考。',
   },
   '/human-design': {
     title: '免費人類圖計算｜能量類型、人生角色與內在權威｜晶域心語',
@@ -83,6 +85,25 @@ export const PUBLIC_SEO: Record<string, SeoConfig> = {
   },
 };
 
+const HUMAN_DESIGN_ARTICLE_SEO: Record<string, SeoConfig> = Object.fromEntries(
+  Object.entries(humanDesignArticles).map(([slug, article]) => [
+    `/human-design/${slug}`,
+    {
+      title: article.title,
+      description: article.description,
+      canonical: `https://www.crystalfield101.com/human-design/${slug}`,
+      h1: article.h1,
+      intro: article.intro,
+      articleSection: article.section,
+    },
+  ]),
+);
+
+export const PUBLIC_SEO: Record<string, SeoConfig> = {
+  ...BASE_PUBLIC_SEO,
+  ...HUMAN_DESIGN_ARTICLE_SEO,
+};
+
 const noindexPaths = new Set([
   '/tarot-single', '/lightworker/celtic-cross', '/work-your-light-single',
   '/cosmic-cross', '/osho/single', '/osho/three', '/auth', '/checkout/return',
@@ -90,7 +111,7 @@ const noindexPaths = new Set([
   '/admin/members', '/admin/tarot-subscriptions', '/admin/vedic-reviews',
 ]);
 
-const SITE_NAME = '晶域心语';
+const SITE_NAME = '晶域心語';
 const SITE_URL = 'https://www.crystalfield101.com';
 
 function setMeta(name: string, content: string) {
@@ -111,6 +132,10 @@ function setProperty(property: string, content: string) {
     document.head.appendChild(meta);
   }
   meta.content = content;
+}
+
+function removeProperty(property: string) {
+  document.head.querySelector(`meta[property="${property}"]`)?.remove();
 }
 
 function setCanonical(href: string) {
@@ -141,19 +166,19 @@ function buildStructuredData(pathname: string, seo: SeoConfig) {
   ];
   if (pathname === '/numerology') {
     const faq = [
-      ['生命灵数怎么算？', '将出生年月日的每个数字相加，再持续加总至个位数；本系统会保留 11、22、33 等大师数字。'],
-      ['生命灵数可以看什么？', '可以作为观察天赋与性格、工作与事业方向、感情互动模式、个人流年、缺失数字与水晶能量的自我探索参考。'],
-      ['缺失数字代表不好吗？', '不代表好坏或缺陷，而是出生日期中较少出现的数字主题，可作为性格、学习方向与自我觉察的参考。'],
-      ['生命灵数和个人流年有什么不同？', '生命灵数以出生日期为基础，个人流年则用来观察某一年度的主题与能量侧重。'],
-      ['出生时间不确定也能计算吗？', '可以；生命灵数计算使用出生日期，不需要出生时间。'],
-      ['生命灵数结果会随时间改变吗？', '生命灵数本身不会因为时间改变；个人流年与人生经验则会随着年度和处境变化。'],
-      ['生命灵数分析可以代替专业医疗或心理咨询吗？', '不可以。生命灵数适合自我觉察与方向整理，医疗或心理问题请寻求合格专业人士协助。'],
+      ['生命靈數怎麼算？', '將出生年月日的每個數字相加，再持續加總至個位數；本系統會保留 11、22、33 等大師數字。'],
+      ['生命靈數可以看什麼？', '可以作為觀察天賦與性格、工作與事業方向、感情互動模式、個人流年、缺失數字與水晶能量的自我探索參考。'],
+      ['缺失數字代表不好嗎？', '不代表好壞或缺陷，而是出生日期中較少出現的數字主題，可作為性格、學習方向與自我覺察的參考。'],
+      ['生命靈數和個人流年有什麼不同？', '生命靈數以出生日期為基礎，個人流年則用來觀察某一年度的主題與能量側重。'],
+      ['出生時間不確定也能計算嗎？', '可以；生命靈數計算使用出生日期，不需要出生時間。'],
+      ['生命靈數結果會隨時間改變嗎？', '生命靈數本身不會因為時間改變；個人流年與人生經驗則會隨著年度和處境變化。'],
+      ['生命靈數分析可以代替專業醫療或心理諮詢嗎？', '不可以。生命靈數適合自我覺察與方向整理，醫療或心理問題請尋求合格專業人士協助。'],
     ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
     return [
       { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
-      { '@context': 'https://schema.org', '@type': 'Person', name: '韦德老师', description: '水晶疗愈老师与身心灵系统设计者，拥有十年以上塔罗、水晶疗愈及命理实务经验。' },
+      { '@context': 'https://schema.org', '@type': 'Person', name: '韋德老師', description: '水晶療癒老師與身心靈系統設計者，擁有十年以上塔羅、水晶療癒及命理實務經驗。' },
     ];
   }
   if (pathname === '/human-design') {
@@ -175,8 +200,45 @@ function buildStructuredData(pathname: string, seo: SeoConfig) {
       { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
-      { '@context': 'https://schema.org', '@type': 'Person', name: '韦德老师', description: '水晶疗愈老师与身心灵系统设计者，拥有十年以上塔罗、水晶疗愈及命理实务经验。' },
+      { '@context': 'https://schema.org', '@type': 'Person', name: '韋德老師', description: '水晶療癒老師與身心靈系統設計者，擁有十年以上塔羅、水晶療癒及命理實務經驗。' },
     ];
+  }
+  if (seo.articleSection) {
+    const slug = pathname.replace('/human-design/', '');
+    const article = humanDesignArticles[slug as keyof typeof humanDesignArticles];
+    if (article) {
+      const faq = article.faq.map(([name, text]) => ({
+        '@type': 'Question',
+        name,
+        acceptedAnswer: { '@type': 'Answer', text },
+      }));
+      const author = {
+        '@type': 'Person',
+        '@id': `${SITE_URL}/#author`,
+        name: '韋德老師',
+        description: '水晶療癒老師與身心靈系統設計者，整合人類圖、生命靈數、塔羅、印度占星與水晶能量。',
+      };
+      return [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: seo.h1,
+          description: seo.description,
+          url: seo.canonical,
+          inLanguage: 'zh-Hant',
+          articleSection: seo.articleSection,
+          datePublished: '2026-09-17',
+          dateModified: '2026-09-17',
+          image: `${SITE_URL}/20260315_164545.jpg`,
+          mainEntityOfPage: { '@type': 'WebPage', '@id': seo.canonical },
+          author: { '@id': `${SITE_URL}/#author`, '@type': 'Person', name: '韋德老師' },
+          publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+        },
+        { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
+        { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
+        { '@context': 'https://schema.org', ...author },
+      ];
+    }
   }
   if (pathname !== '/oracle') {
     return [
@@ -188,22 +250,22 @@ function buildStructuredData(pathname: string, seo: SeoConfig) {
     '@type': 'ListItem', position: index + 1, name: item.h1, url: item.canonical, item: { '@type': 'Thing', name: item.h1, url: item.canonical },
   }));
   const faq = [
-    ['线上塔罗牌占卜准确吗？', '塔罗与神谕卡适合用来整理当下感受与可能方向，不保证固定结果，也不取代专业判断。'],
-    ['塔罗牌可以问哪些问题？', '可以围绕感情发展、工作与事业、财运方向、人际关系、目前卡点、前世因果、灵魂使命、内在成长与下一步行动提问。'],
-    ['同一个问题可以重复占卜吗？', '建议先让自己沉淀并观察现实变化，再在问题或情境有新发展时重新整理。'],
-    ['单张牌和三张牌有什么不同？', '单张牌聚焦一个当下提醒；三张牌可用来观察时间变化、不同面向或行动脉络。'],
-    ['凯尔特十字牌阵适合什么问题？', '适合希望从多个角度深入整理复杂处境、影响因素与行动方向的问题。'],
-    ['前世因果解锁阵是什么？', '这是七张牌的探索牌阵，用来分层观察前世今生连结与人生课题，作为自我觉察参考。'],
-    ['不知道该选哪一组牌怎么办？', '可以先从首页依照问题主题选择，也可以浏览七组牌卡介绍后凭直觉决定。'],
-    ['塔罗占卜结果可以代替专业意见吗？', '不可以；医疗、心理、法律或投资问题请咨询合格专业人士。'],
-    ['7组牌卡是否都包含在塔罗全馆月费会员中？', '依目前方案设定，塔罗全馆月费会员为 NT$600／月，会员有效期间可使用全部 7 套牌卡与所有牌阵。'],
+    ['線上塔羅牌占卜準確嗎？', '塔羅與神諭卡適合用來整理當下感受與可能方向，不保證固定結果，也不取代專業判斷。'],
+    ['塔羅牌可以問哪些問題？', '可以圍繞感情發展、工作與事業、財運方向、人際關係、目前卡點、前世因果、靈魂使命、內在成長與下一步行動提問。'],
+    ['同一個問題可以重複占卜嗎？', '建議先讓自己沉澱並觀察現實變化，再在問題或情境有新發展時重新整理。'],
+    ['單張牌和三張牌有什麼不同？', '單張牌聚焦一個當下提醒；三張牌可用來觀察時間變化、不同面向或行動脈絡。'],
+    ['凱爾特十字牌陣適合什麼問題？', '適合希望從多個角度深入整理複雜處境、影響因素與行動方向的問題。'],
+    ['前世因果解鎖陣是什麼？', '這是七張牌的探索牌陣，用來分層觀察前世今生連結與人生課題，作為自我覺察參考。'],
+    ['不知道該選哪一組牌怎麼辦？', '可以先從首頁依照問題主題選擇，也可以瀏覽七組牌卡介紹後憑直覺決定。'],
+    ['塔羅占卜結果可以代替專業意見嗎？', '不可以；醫療、心理、法律或投資問題請諮詢合格專業人士。'],
+    ['7組牌卡是否都包含在塔羅全館月費會員中？', '依目前方案設定，塔羅全館月費會員為 NT$600／月，會員有效期間可使用全部 7 套牌卡與所有牌陣。'],
   ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
   return [
     { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
-    { '@context': 'https://schema.org', '@type': 'ItemList', name: '七套塔罗与神谕卡', itemListElement: items },
+    { '@context': 'https://schema.org', '@type': 'ItemList', name: '七套塔羅與神諭卡', itemListElement: items },
     { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
-    { '@context': 'https://schema.org', '@type': 'Person', name: '韦德老师', description: '水晶疗愈老师、身心灵系统设计者，拥有十年以上塔罗、水晶疗愈及命理实务经验。' },
+    { '@context': 'https://schema.org', '@type': 'Person', name: '韋德老師', description: '水晶療癒老師、身心靈系統設計者，擁有十年以上塔羅、水晶療癒及命理實務經驗。' },
   ];
 }
 
@@ -213,19 +275,30 @@ export default function SeoMetadata() {
   useEffect(() => {
     const seo = PUBLIC_SEO[pathname];
     const title = seo?.title ?? SITE_NAME;
-    const description = seo?.description ?? '晶域心语提供塔罗、神谕卡与自我探索服务。';
+    const description = seo?.description ?? '晶域心語提供塔羅、神諭卡與自我探索服務。';
     const canonical = seo?.canonical ?? `${SITE_URL}${pathname}`;
     const robots = noindexPaths.has(pathname) || Boolean(search) ? 'noindex, follow' : seo ? 'index, follow' : 'noindex, follow';
     document.title = title;
     setMeta('description', description);
     setMeta('robots', robots);
-    setProperty('og:type', 'website');
+    setProperty('og:type', seo?.articleSection ? 'article' : 'website');
     setProperty('og:locale', 'zh_TW');
     setProperty('og:site_name', SITE_NAME);
     setProperty('og:title', title);
     setProperty('og:description', description);
     setProperty('og:url', canonical);
     setProperty('og:image', `${SITE_URL}/20260315_164545.jpg`);
+    if (seo?.articleSection) {
+      setProperty('article:section', seo.articleSection);
+      setProperty('article:author', '韋德老師');
+      setProperty('article:published_time', '2026-09-17');
+      setProperty('article:modified_time', '2026-09-17');
+    } else {
+      removeProperty('article:section');
+      removeProperty('article:author');
+      removeProperty('article:published_time');
+      removeProperty('article:modified_time');
+    }
     setMeta('twitter:card', 'summary_large_image');
     setMeta('twitter:title', title);
     setMeta('twitter:description', description);

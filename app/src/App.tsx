@@ -36,6 +36,7 @@ import AdminVedicReviewsPage from './pages/AdminVedicReviewsPage';
 import AdminTarotSubscriptionsPage from './pages/AdminTarotSubscriptionsPage';
 import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
 import SeoMetadata from './components/SeoMetadata';
+import HumanDesignArticlePage from './pages/human-design/HumanDesignArticlePage';
 
 function RouterBody() {
   usePageViewTracking();
@@ -76,6 +77,15 @@ function RouterBody() {
           <Route path="/membership" element={<ProtectedRoute><MembershipPage /></ProtectedRoute>} />
           <Route path="/numerology" element={<NumerologyPage />} />
           <Route path="/human-design" element={<HumanDesignPage />} />
+          <Route path="/human-design/types" element={<HumanDesignArticlePage slug="types" />} />
+          <Route path="/human-design/generator" element={<HumanDesignArticlePage slug="generator" />} />
+          <Route path="/human-design/manifesting-generator" element={<HumanDesignArticlePage slug="manifesting-generator" />} />
+          <Route path="/human-design/projector" element={<HumanDesignArticlePage slug="projector" />} />
+          <Route path="/human-design/manifestor" element={<HumanDesignArticlePage slug="manifestor" />} />
+          <Route path="/human-design/reflector" element={<HumanDesignArticlePage slug="reflector" />} />
+          <Route path="/human-design/authority" element={<HumanDesignArticlePage slug="authority" />} />
+          <Route path="/human-design/profile" element={<HumanDesignArticlePage slug="profile" />} />
+          <Route path="/human-design/birth-time" element={<HumanDesignArticlePage slug="birth-time" />} />
           <Route path="/vedic-astrology" element={<VedicAstrologyPage />} />
         </Routes>
       </div>

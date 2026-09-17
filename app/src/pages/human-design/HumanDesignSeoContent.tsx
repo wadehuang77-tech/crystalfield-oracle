@@ -32,6 +32,22 @@ export default function HumanDesignSeoContent() {
     <div><h2 className="mb-3 text-2xl font-semibold text-white">什麼是人生角色？</h2><p className="leading-8">人生角色由兩條線組合，例如 1/3、2/4、4/6，反映學習方式、關係互動及人生經驗，實際角色以計算結果為準。</p></div>
     <div><h2 className="mb-3 text-2xl font-semibold text-white">為什麼選擇晶域心語人類圖？</h2><p className="leading-8">晶域心語由韋德老師建立。韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，整合人類圖、生命靈數、塔羅、印度占星與水晶能量。</p></div>
     <div><h2 className="mb-4 text-2xl font-semibold text-white">人類圖常見問題</h2><div className="space-y-3">{faqs.map(([question, answer]) => <details key={question} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"><summary className="cursor-pointer font-semibold text-cyan-100">{question}</summary><p className="mt-2 leading-7">{answer}</p></details>)}</div></div>
+    <nav className="border-t border-white/10 pt-5 text-sm" aria-label="人類圖延伸閱讀">
+      <h2 className="mb-3 text-2xl font-semibold text-white">人類圖延伸閱讀</h2>
+      <div className="flex flex-wrap gap-x-5 gap-y-2">
+        {[
+          ['五大能量類型', '/human-design/types'],
+          ['生產者 Generator', '/human-design/generator'],
+          ['顯示生產者', '/human-design/manifesting-generator'],
+          ['投射者 Projector', '/human-design/projector'],
+          ['顯示者 Manifestor', '/human-design/manifestor'],
+          ['反映者 Reflector', '/human-design/reflector'],
+          ['內在權威', '/human-design/authority'],
+          ['人生角色 Profile', '/human-design/profile'],
+          ['出生時間與計算', '/human-design/birth-time'],
+        ].map(([label, href]) => <a key={href} className="text-cyan-300 underline" href={href}>{label}</a>)}
+      </div>
+    </nav>
     <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-sm"><a className="text-cyan-300 underline" href="/numerology">查看生命靈數分析</a><a className="text-cyan-300 underline" href="/vedic-astrology">探索印度占星</a><a className="text-cyan-300 underline" href="/oracle">體驗塔羅與神諭卡</a></nav>
   </section>;
 }
