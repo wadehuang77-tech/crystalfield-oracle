@@ -26,6 +26,7 @@ import {
   type VedicReview,
 } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import VedicAstrologySeoContent from './VedicAstrologySeoContent';
 
 const SESSION_KEY = 'cf_vedic_chart_session';
 
@@ -168,6 +169,12 @@ export default function VedicAstrologyPage() {
   const currentChartToken = chart?.chart_token;
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
 
+  useEffect(() => {
+    if (chart) {
+      document.querySelector('meta[name="robots"]')?.setAttribute('content', 'noindex, follow');
+    }
+  }, [chart]);
+
   const updateBirthTime = (hour: string, minute: string) => {
     setForm({ ...form, birthTime: `${hour}:${minute}` });
   };
@@ -294,10 +301,10 @@ export default function VedicAstrologyPage() {
       <CosmicBackground />
       <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6">
         <section className="mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-sm font-medium tracking-[0.28em] text-amber-200/75">印度占星 · 靈魂業力人生地圖</p>
-          <h1 className="font-serif text-4xl leading-tight text-amber-50 sm:text-6xl">印度占星｜靈魂業力人生地圖</h1>
+          <p className="mb-4 text-sm font-medium tracking-[0.28em] text-amber-200/75">印度占星｜靈魂業力人生地圖</p>
+          <h1 className="font-serif text-4xl leading-tight text-amber-50 sm:text-6xl">免費印度占星命盤：探索前世業力、人生使命與未來趨勢</h1>
           <p className="mx-auto mt-7 max-w-3xl text-lg leading-9 text-violet-100/80">
-            為什麼有些事情，你明明很努力，卻一直重複發生？印度占星從出生星盤，看見今生天賦、感情模式、財富道路，以及正在經歷的人生週期。
+            輸入出生年月日、準確出生時間與出生地點，建立你的印度占星出生盤，查看上升、行星、月宿與人生週期，從前世業力、今生課題、感情、財富、事業及未來趨勢理解自己的生命方向。
           </p>
         </section>
 
@@ -334,6 +341,8 @@ export default function VedicAstrologyPage() {
           </form>
           <p className="mt-5 text-center text-xs leading-5 text-white/35">本服務用於自我探索與娛樂參考，不代替醫療、法律、財務或心理專業意見。</p>
         </section>
+
+        <VedicAstrologySeoContent />
 
         {chart && <FreeResults chart={chart} />}
 

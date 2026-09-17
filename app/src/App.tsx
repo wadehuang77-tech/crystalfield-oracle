@@ -32,6 +32,7 @@ import PageHeader from './components/PageHeader';
 import HumanDesignPage from './pages/HumanDesignPage';
 import PrivacyPage from './pages/PrivacyPage';
 import VedicAstrologyPage from './pages/VedicAstrologyPage';
+import VedicAstrologyArticlePage from './pages/VedicAstrologyArticlePage';
 import AdminVedicReviewsPage from './pages/AdminVedicReviewsPage';
 import AdminTarotSubscriptionsPage from './pages/AdminTarotSubscriptionsPage';
 import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
@@ -87,6 +88,16 @@ function RouterBody() {
           <Route path="/human-design/profile" element={<HumanDesignArticlePage slug="profile" />} />
           <Route path="/human-design/birth-time" element={<HumanDesignArticlePage slug="birth-time" />} />
           <Route path="/vedic-astrology" element={<VedicAstrologyPage />} />
+          <Route path="/vedic-astrology/what-is-vedic-astrology" element={<VedicAstrologyArticlePage slug="what-is-vedic-astrology" />} />
+          <Route path="/vedic-astrology/vedic-vs-western" element={<VedicAstrologyArticlePage slug="vedic-vs-western" />} />
+          <Route path="/vedic-astrology/rahu-ketu" element={<VedicAstrologyArticlePage slug="rahu-ketu" />} />
+          <Route path="/vedic-astrology/dasha" element={<VedicAstrologyArticlePage slug="dasha" />} />
+          <Route path="/vedic-astrology/nakshatra" element={<VedicAstrologyArticlePage slug="nakshatra" />} />
+          <Route path="/vedic-astrology/d9-navamsa" element={<VedicAstrologyArticlePage slug="d9-navamsa" />} />
+          <Route path="/vedic-astrology/d10-dasamsa" element={<VedicAstrologyArticlePage slug="d10-dasamsa" />} />
+          <Route path="/vedic-astrology/birth-time" element={<VedicAstrologyArticlePage slug="birth-time" />} />
+          <Route path="/vedic-astrology/love-marriage" element={<VedicAstrologyArticlePage slug="love-marriage" />} />
+          <Route path="/vedic-astrology/career-wealth" element={<VedicAstrologyArticlePage slug="career-wealth" />} />
         </Routes>
       </div>
       <SiteFooter />
