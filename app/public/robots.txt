@@ -23,6 +23,8 @@ Allow: /human-design/reflector
 Allow: /human-design/authority
 Allow: /human-design/profile
 Allow: /human-design/birth-time
+Allow: /vedic-astrology
+Allow: /vedic-astrology/*
 
 # 抽牌與深度解讀頁由頁面 metadata 設定 noindex, follow
 

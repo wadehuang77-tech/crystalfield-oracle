@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import humanDesignArticles from '../data/human-design/articles.json';
+import vedicArticles from '../data/vedic-astrology/articles.json';
 
 export type SeoConfig = {
   title: string;
@@ -83,6 +84,13 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     h1: '免費人類圖計算：看懂你的能量類型、人生角色與內在權威',
     intro: '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。',
   },
+  '/vedic-astrology': {
+    title: '免費印度占星命盤｜前世業力、人生使命與未來運勢｜晶域心語',
+    description: '輸入出生年月日、時間與地點，免費查看印度占星出生盤、上升、行星、月宿與大運指引，進一步探索前世業力、人生使命、感情、財富、事業及未來3～5年趨勢。',
+    canonical: 'https://www.crystalfield101.com/vedic-astrology',
+    h1: '免費印度占星命盤：探索前世業力、人生使命與未來趨勢',
+    intro: '輸入出生年月日、準確出生時間與出生地點，建立你的印度占星出生盤，查看上升、行星、月宿與人生週期，從前世業力、今生課題、感情、財富、事業及未來趨勢理解自己的生命方向。',
+  },
 };
 
 const HUMAN_DESIGN_ARTICLE_SEO: Record<string, SeoConfig> = Object.fromEntries(
@@ -99,9 +107,24 @@ const HUMAN_DESIGN_ARTICLE_SEO: Record<string, SeoConfig> = Object.fromEntries(
   ]),
 );
 
+const VEDIC_ARTICLE_SEO: Record<string, SeoConfig> = Object.fromEntries(
+  Object.entries(vedicArticles).map(([slug, article]) => [
+    `/vedic-astrology/${slug}`,
+    {
+      title: article.title,
+      description: article.description,
+      canonical: `https://www.crystalfield101.com/vedic-astrology/${slug}`,
+      h1: article.h1,
+      intro: article.summary,
+      articleSection: '印度占星知識專區',
+    },
+  ]),
+);
+
 export const PUBLIC_SEO: Record<string, SeoConfig> = {
   ...BASE_PUBLIC_SEO,
   ...HUMAN_DESIGN_ARTICLE_SEO,
+  ...VEDIC_ARTICLE_SEO,
 };
 
 const noindexPaths = new Set([
@@ -203,7 +226,42 @@ function buildStructuredData(pathname: string, seo: SeoConfig) {
       { '@context': 'https://schema.org', '@type': 'Person', name: '韋德老師', description: '水晶療癒老師與身心靈系統設計者，擁有十年以上塔羅、水晶療癒及命理實務經驗。' },
     ];
   }
+  if (pathname === '/vedic-astrology') {
+    const faq = [
+      ['印度占星是什麼？', '印度占星也常稱為吠陀占星或 Vedic Astrology，是以出生日期、時間與地點建立星盤，整理生命週期與自我探索方向的文化性占星系統。'],
+      ['印度占星和西洋占星有什麼不同？', '兩者使用的黃道系統、星座位置與判讀方法可能不同；印度占星通常也重視月宿、羅喉與計都、大運週期，以及 D9、D10 分盤。'],
+      ['印度占星需要哪些出生資料？', '需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響上升、宮位與分盤。'],
+      ['不知道準確出生時間可以計算嗎？', '可以先整理可確認的資料，但結果應保留不確定性；請查閱出生證明或戶籍資料，不要自行捏造出生時間。'],
+      ['什麼是羅喉與計都？', '計都可作為熟悉模式與過去慣性的象徵，羅喉可作為今生成長方向的象徵；兩者需要放在完整星盤中一起觀察。'],
+      ['什麼是印度占星大運？', '大運用來整理不同人生階段的主題，次週期提供更細的時間層次，仍需結合本命盤與當下行運，不代表事件必然發生。'],
+      ['什麼是月宿 Nakshatra？', '月宿 Nakshatra 是將黃道細分後觀察月亮位置的系統，可作為理解情緒反應、傾向與生命節奏的參考。'],
+      ['D9 九分盤可以看什麼？', 'D9 九分盤可用來觀察婚姻、承諾、價值與生命成熟度，但需要可靠出生時間，並與 D1 本命盤一起判讀。'],
+      ['D10 十分盤可以看什麼？', 'D10 十分盤可用來觀察職涯、社會角色、責任與專業發展，不應脫離 D1 本命盤單獨下結論。'],
+      ['印度占星可以看前世嗎？', '前世業力是占星象徵與自我探索的語言，不能當成已被證實的歷史事實。'],
+      ['印度占星可以預測未來嗎？', '印度占星可用來整理週期與可能的主題，不能保證特定事件一定發生，也不取代現實判斷。'],
+      ['晶域心語有哪些印度占星內容可以免費查看？', '入口會先建立星盤並提供免費指引；完整深度解析的內容範圍依網站現有解鎖設定顯示。'],
+      ['我的出生資料會被公開嗎？', '出生資料不會放入公開 SEO 內容或 Sitemap；實際保存與分享依網站登入、授權及隱私政策機制處理。'],
+      ['印度占星可以代替醫療、心理、法律或財務建議嗎？', '不可以。印度占星適合自我覺察與生命週期整理，相關專業問題請尋求合格專業人士協助。'],
+    ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
+    return [
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
+      { '@context': 'https://schema.org', '@type': 'Person', name: '韋德老師', description: '水晶療癒老師與身心靈系統設計者，擁有十年以上塔羅、水晶療癒及命理實務經驗。' },
+    ];
+  }
   if (seo.articleSection) {
+    const vedicSlug = pathname.replace('/vedic-astrology/', '');
+    const vedicArticle = vedicArticles[vedicSlug as keyof typeof vedicArticles];
+    if (vedicArticle) {
+      const faq = vedicArticle.faq.map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
+      return [
+        { '@context': 'https://schema.org', '@type': 'Article', headline: seo.h1, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant', articleSection: seo.articleSection, datePublished: '2026-09-17', dateModified: '2026-09-17', image: `${SITE_URL}/20260315_164545.jpg`, mainEntityOfPage: { '@type': 'WebPage', '@id': seo.canonical }, author: { '@type': 'Person', '@id': `${SITE_URL}/#author`, name: '韋德老師' }, publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL } },
+        { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/oracle` }, { '@type': 'ListItem', position: 2, name: '印度占星', item: `${SITE_URL}/vedic-astrology` }, { '@type': 'ListItem', position: 3, name: seo.h1, item: seo.canonical }] },
+        { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
+        { '@context': 'https://schema.org', '@type': 'Person', '@id': `${SITE_URL}/#author`, name: '韋德老師', description: '水晶療癒老師與身心靈系統設計者，持續整合印度占星、生命靈數、人類圖、塔羅與水晶能量，協助使用者進行自我探索。' },
+      ];
+    }
     const slug = pathname.replace('/human-design/', '');
     const article = humanDesignArticles[slug as keyof typeof humanDesignArticles];
     if (article) {
@@ -277,7 +335,8 @@ export default function SeoMetadata() {
     const title = seo?.title ?? SITE_NAME;
     const description = seo?.description ?? '晶域心語提供塔羅、神諭卡與自我探索服務。';
     const canonical = seo?.canonical ?? `${SITE_URL}${pathname}`;
-    const robots = noindexPaths.has(pathname) || Boolean(search) ? 'noindex, follow' : seo ? 'index, follow' : 'noindex, follow';
+    const hasVedicResult = pathname === '/vedic-astrology' && Boolean(sessionStorage.getItem('cf_vedic_chart_session'));
+    const robots = noindexPaths.has(pathname) || Boolean(search) || hasVedicResult ? 'noindex, follow' : seo ? 'index, follow' : 'noindex, follow';
     document.title = title;
     setMeta('description', description);
     setMeta('robots', robots);
