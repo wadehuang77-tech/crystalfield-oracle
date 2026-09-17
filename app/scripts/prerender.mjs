@@ -15,6 +15,7 @@ const pages = [
   ['work-your-light', '光之讯息卡占卜｜宇宙十字与灵魂蓝图指引｜晶域心语', '线上抽取Lightworker光之讯息卡，透过单张牌及宇宙十字牌阵，探索灵魂任务、内在潜能、能量状态与行动指引。', '光之讯息', 'Lightworker 光之讯息卡适合在整理灵魂任务、内在潜能与能量状态时使用。单张牌提供聚焦的讯息，宇宙十字牌阵则从多个角度整理灵魂蓝图与行动指引。'],
   ['osho', '奥修禅卡线上占卜｜觉察情绪与内在状态｜晶域心语', '透过奥修禅卡单张与三张牌阵，觉察目前情绪、内在卡点及生命状态，从当下意识中找到更清楚的行动方向。', '奥修禅卡', '奥修禅卡把注意力带回当下，适合觉察目前情绪、内在卡点与生命状态。单张牌用于即时观察，三张牌可从过去、现在、未来或身心灵角度整理意识。'],
   ['numerology', '免费生命灵数｜生日数字、缺失数与流年解析｜晶域心语', '输入生日，免费查看生命灵数、生日数字与基础天赋解析，进一步探索缺失数字、感情模式、事业方向、个人流年及适合的水晶能量。', '免费生命灵数计算：从生日探索天赋、缺失数字与人生方向', '输入出生日期进行生命灵数计算，了解生日数字、基础天赋、缺失数字与个人流年，并将数字自我探索与水晶能量建议整合参考。'],
+  ['human-design', '免費人類圖計算｜能量類型、人生角色與內在權威｜晶域心語', '輸入出生年月日、出生時間與地點，免費查看人類圖能量類型、人生角色、策略、內在權威與定義，探索適合自己的決策方式、天賦及生命節奏。', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。'],
 ];
 
 const escapeHtml = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
@@ -45,6 +46,18 @@ for (const [path, title, description, h1, intro] of pages) {
       { '@context': 'https://schema.org', '@type': 'Person', name: '韦德老师', description: '水晶疗愈老师与身心灵系统设计者，拥有十年以上塔罗、水晶疗愈及命理实务经验。' },
     );
   }
+  if (path === 'human-design') {
+    const faq = [
+      ['人类图是什麼？', '人类图是一套用于自我观察的系统，可以从出生资料产生个人能量图，探索能量类型、策略、内在权威、人生角色、定义与能量中心。'],
+      ['人类图怎么计算？', '系统会依照出生年月日、时间与出生城市建立人类图，并产生入口页可查看的能量蓝图与后续报告内容。'],
+      ['计算人类图需要哪些出生资料？', '需要出生年月日、尽量准确的出生时间，以及出生城市或地点。出生时间可能影响计算结果。'],
+      ['人类图分析可以代替医疗或心理咨询吗？', '不可以。人类图适合自我觉察与生活实验，医疗或心理问题请寻求合格专业人士协助。'],
+    ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
+    jsonLd.push(
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
+      { '@context': 'https://schema.org', '@type': 'Person', name: '韦德老师', description: '水晶疗愈老师与身心灵系统设计者，拥有十年以上塔罗、水晶疗愈及命理实务经验。' },
+    );
+  }
   const head = `
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
@@ -64,12 +77,14 @@ for (const [path, title, description, h1, intro] of pages) {
     <script type="application/ld+json">${escapeJson(jsonLd)}</script>`;
   const numerologyContent = path === 'numerology'
     ? `<section><h2>什么是生命灵数？</h2><p>生命灵数是以出生日期中的数字进行整理的自我探索工具，可以从数字象征观察个人倾向、天赋与需要练习的方向。它不是对人生的固定预测。</p><h2>如何计算生命灵数？</h2><p>例如生日为 1990 年 12 月 31 日，可将 1+9+9+0+1+2+3+1 相加，得到 26，再将 2+6 相加得到 8。本系统会保留 11、22、33 等大师数字。</p><h2>什么是缺失数字？</h2><p>缺失数字是出生日期中没有出现的 1 到 9 数字，可作为性格、学习方向与自我觉察的参考。</p><h2>生命灵数常见问题</h2><details><summary>生命灵数怎么算？</summary><p>将出生年月日的每个数字相加，再持续加总至个位数；本系统会保留 11、22、33 等大师数字。</p></details><details><summary>生命灵数可以看什么？</summary><p>可以作为观察天赋、工作、感情、个人流年、缺失数字与水晶能量的自我探索参考。</p></details><details><summary>生命灵数分析可以代替专业医疗或心理咨询吗？</summary><p>不可以；医疗或心理问题请寻求合格专业人士协助。</p></details><p><a href="${siteUrl}/oracle">探索塔罗与神谕卡</a> · <a href="${siteUrl}/human-design">深入探索人类图</a> · <a href="${siteUrl}/vedic-astrology">查看印度占星分析</a></p></section>`
-    : '';
-  const body = `<main id="seo-prerendered" lang="zh-Hant"><h1>${escapeHtml(h1)}</h1><p>${escapeHtml(intro)}</p>${numerologyContent}<p><a href="${siteUrl}/oracle">返回塔罗与神谕卡首页</a></p></main>`;
+    : path === 'human-design'
+      ? `<section><h2>什麼是人類圖？</h2><p>人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。它適合作為自我探索與生活實驗工具，不取代專業諮詢。</p><h2>人類圖的5種能量類型</h2><h3>生產者 Generator</h3><p>觀察生命力與回應，等待身體對人事物的真實回應。</p><h3>顯示生產者 Manifesting Generator</h3><p>觀察多元興趣與快速節奏，先回應再行動並允許修正。</p><h3>投射者 Projector</h3><p>探索洞察與引導，重要方向可等待正確邀請。</p><h3>顯示者 Manifestor</h3><p>觀察啟動力，行動前告知相關的人以減少阻力。</p><h3>反映者 Reflector</h3><p>觀察環境與週期，給重要決定足夠時間。</p><h2>人類圖常見問題</h2><details><summary>人類圖是什麼？</summary><p>人類圖適合作為自我覺察與生活實驗的參考。</p></details><details><summary>人類圖分析可以代替醫療或心理諮詢嗎？</summary><p>不可以；醫療或心理問題請尋求合格專業人士協助。</p></details></section>`
+      : '';
+  const body = `<main id="seo-prerendered" lang="zh-Hant"><h1>${escapeHtml(h1)}</h1><p>${escapeHtml(intro)}</p>${numerologyContent}<p><a href="${siteUrl}/oracle">返回塔羅與神諭卡首頁</a></p></main>`;
   const cleanTemplate = template
     .replace(/<title>[\s\S]*?<\/title>/, '')
     .replace(/<meta name="description"[^>]*\/>/g, '')
-    .replace(/<meta property="og-(title|description)"[^>]*\/>/g, '');
+    .replace(/<meta property="og:(title|description)"[^>]*>/g, '');
   const output = cleanTemplate
     .replace('</head>', `${head}\n  </head>`)
     .replace(/^\s*<div id="root"><\/div>\s*$/gm, `<div id="root">${body}</div>`);

@@ -74,6 +74,13 @@ export const PUBLIC_SEO: Record<string, SeoConfig> = {
     h1: '免费生命灵数计算：从生日探索天赋、缺失数字与人生方向',
     intro: '输入出生日期进行生命灵数计算，了解生日数字、基础天赋、缺失数字与个人流年，并将数字自我探索与水晶能量建议整合参考。',
   },
+  '/human-design': {
+    title: '免費人類圖計算｜能量類型、人生角色與內在權威｜晶域心語',
+    description: '輸入出生年月日、出生時間與地點，免費查看人類圖能量類型、人生角色、策略、內在權威與定義，探索適合自己的決策方式、天賦及生命節奏。',
+    canonical: 'https://www.crystalfield101.com/human-design',
+    h1: '免費人類圖計算：看懂你的能量類型、人生角色與內在權威',
+    intro: '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。',
+  },
 };
 
 const noindexPaths = new Set([
@@ -149,6 +156,28 @@ function buildStructuredData(pathname: string, seo: SeoConfig) {
       { '@context': 'https://schema.org', '@type': 'Person', name: '韦德老师', description: '水晶疗愈老师与身心灵系统设计者，拥有十年以上塔罗、水晶疗愈及命理实务经验。' },
     ];
   }
+  if (pathname === '/human-design') {
+    const faq = [
+      ['人類圖是什麼？', '人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。'],
+      ['人類圖怎麼計算？', '系統會依照出生年月日、時間與出生城市建立人類圖，並產生入口頁可查看的能量藍圖與後續報告內容。'],
+      ['計算人類圖需要哪些出生資料？', '需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響計算結果。'],
+      ['不知道準確出生時間怎麼辦？', '可以查閱出生證明或戶籍資料；不應自行捏造時間，也不應把估計時間產生的結果當成完全準確。'],
+      ['人類圖有哪5種能量類型？', '包括生產者、顯示生產者、投射者、顯示者與反映者。'],
+      ['人類圖的策略是什麼？', '策略是減少阻力的觀察方向，不是強迫自己遵守的規定；不同能量類型會有不同的策略重點。'],
+      ['什麼是內在權威？', '本系統實際支援情緒、薦骨、脾臟、意志力、自我投射與月亮週期等類型。'],
+      ['什麼是人生角色？', '人生角色由兩條線組合，例如 1/3、2/4、4/6，反映學習方式、關係互動與人生經驗。'],
+      ['人類圖結果會隨著時間改變嗎？', '出生資料產生的基本圖表不會因時間改變；你對圖表的理解會隨經驗累積而深化。'],
+      ['人類圖分析可以代替醫療或心理諮詢嗎？', '不可以。人類圖適合自我覺察與生活實驗，醫療或心理問題請尋求合格專業人士協助。'],
+      ['晶域心語的人類圖有哪些內容可以免費查看？', '入口會先建立人類圖並提供免費報告入口；完整內容依網站現有解鎖與會員設定顯示。'],
+      ['我的出生資料會公開嗎？', '出生資料不會放入公開 SEO 內容或 Sitemap；實際保存與分享依網站登入、授權及隱私政策機制處理。'],
+    ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
+    return [
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
+      { '@context': 'https://schema.org', '@type': 'Person', name: '韦德老师', description: '水晶疗愈老师与身心灵系统设计者，拥有十年以上塔罗、水晶疗愈及命理实务经验。' },
+    ];
+  }
   if (pathname !== '/oracle') {
     return [
       { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },
@@ -179,14 +208,14 @@ function buildStructuredData(pathname: string, seo: SeoConfig) {
 }
 
 export default function SeoMetadata() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
     const seo = PUBLIC_SEO[pathname];
     const title = seo?.title ?? SITE_NAME;
     const description = seo?.description ?? '晶域心语提供塔罗、神谕卡与自我探索服务。';
     const canonical = seo?.canonical ?? `${SITE_URL}${pathname}`;
-    const robots = noindexPaths.has(pathname) ? 'noindex, follow' : seo ? 'index, follow' : 'noindex, follow';
+    const robots = noindexPaths.has(pathname) || Boolean(search) ? 'noindex, follow' : seo ? 'index, follow' : 'noindex, follow';
     document.title = title;
     setMeta('description', description);
     setMeta('robots', robots);
@@ -203,7 +232,7 @@ export default function SeoMetadata() {
     setMeta('twitter:image', `${SITE_URL}/20260315_164545.jpg`);
     setCanonical(canonical);
     if (seo) setJsonLd(buildStructuredData(pathname, seo));
-  }, [pathname]);
+  }, [pathname, search]);
 
   return null;
 }

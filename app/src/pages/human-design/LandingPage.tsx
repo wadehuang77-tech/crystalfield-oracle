@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, MapPin, Calendar, Clock } from 'lucide-react';
+import HumanDesignSeoContent from './HumanDesignSeoContent';
 
 interface LandingPageProps {
   onCalculate: (birthDate: string, birthTime: string, birthCity: string) => void;
@@ -68,14 +69,9 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-3">
-            發現你的<br />
-            <span className="bg-gradient-to-r from-blue-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
-              人類圖能量設計
-            </span>
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-3">免費人類圖計算：看懂你的能量類型、人生角色與內在權威</h1>
           <p className="text-white/40 text-sm leading-relaxed">
-            輸入你的出生資料，<br />看見靈魂選擇的能量節奏與生命方向。
+            輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。
           </p>
         </div>
 
@@ -175,6 +171,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
               </button>
             </form>
           </div>
+          <HumanDesignSeoContent />
         </div>
 
         {/* Trust signals */}

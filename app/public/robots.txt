@@ -13,6 +13,7 @@ Allow: /egyptian-gods
 Allow: /work-your-light
 Allow: /osho
 Allow: /numerology
+Allow: /human-design
 
 # 抽牌與深度解讀頁由頁面 metadata 設定 noindex, follow
 
