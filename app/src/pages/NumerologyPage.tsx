@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Gem, Star, Sparkles, ChevronRight, Check, Minus } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Gem, Star, Sparkles, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
 import { NumerologyShareProvider } from '../components/numerology/NumerologyShare';
@@ -570,17 +570,15 @@ export default function NumerologyPage() {
               className="font-serif text-4xl md:text-5xl leading-tight"
               style={{ filter: 'drop-shadow(0 0 16px rgba(251,191,36,0.3)) drop-shadow(0 0 36px rgba(196,181,253,0.18))' }}
             >
-              <span className="text-gradient-gold">你的專屬靈魂藍圖</span>
+              <span className="text-gradient-gold">免費生命靈數計算：從生日探索天賦、缺失數字與人生方向</span>
               <br />
-              <span style={{ color: '#e9d5ff' }}>與能量對齊指南</span>
             </h1>
             <p
               className="font-serif text-sm leading-relaxed max-w-sm mx-auto"
               style={{ color: 'rgba(196,181,253,0.65)', fontSize: 15, lineHeight: 1.85 }}
             >
-              以生命靈數為核心導航，結合單張薩滿牌卡指引、<br />
-              客製化水晶排列與冥想儀式，<br />
-              為您量身打造全方位的心靈支持。
+              輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，<br />
+              再依需求探索缺失數字、個人流年與水晶能量。
             </p>
           </div>
 
@@ -650,10 +648,7 @@ export default function NumerologyPage() {
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-2 text-sm" style={{ color: 'rgba(167,139,139,0.3)' }}>
-            <ChevronRight className="w-3.5 h-3.5" />
-            <span>已有 2,847 人完成靈魂能量解析</span>
-          </div>
+          <NumerologySeoContent />
         </section>
 
       ) : (
@@ -782,5 +777,69 @@ export default function NumerologyPage() {
       )}
 
     </div>
+  );
+}
+
+function NumerologySeoContent() {
+  const faqs = [
+    ['生命靈數怎麼算？', '將出生年月日的每個數字相加，再持續加總至個位數；本系統會保留 11、22、33 等大師數字。'],
+    ['生命靈數可以看什麼？', '可以作為觀察天賦與性格、工作與事業方向、感情互動模式、個人流年、缺失數字與水晶能量的自我探索參考。'],
+    ['缺失數字代表不好嗎？', '不代表好壞或缺陷，而是出生日期中較少出現的數字主題，可作為性格、學習方向與自我覺察的參考。'],
+    ['生命靈數和個人流年有什麼不同？', '生命靈數以出生日期為基礎，個人流年則用來觀察某一年度的主題與能量側重。'],
+    ['出生時間不確定也能計算嗎？', '可以；生命靈數計算使用出生日期，不需要出生時間。'],
+    ['生命靈數結果會隨時間改變嗎？', '生命靈數本身不會因為時間改變；個人流年與人生經驗則會隨著年度和處境變化。'],
+    ['生命靈數分析可以代替專業醫療或心理諮詢嗎？', '不可以。生命靈數適合自我覺察與方向整理，醫療或心理問題請尋求合格專業人士協助。'],
+  ];
+  const numbers = [
+    ['1', '獨立與開創', '1號常被用來觀察主動性、領導與自我決定。它提醒你在啟動新計畫時相信自己的判斷，也練習在堅持方向與接納協助之間取得平衡。'],
+    ['2', '合作與感受', '2號象徵協調、傾聽與細膩感受。它適合用來思考關係中的溝通方式，以及如何在照顧他人時保留自己的界線與需要。'],
+    ['3', '表達與創意', '3號常連結表達、想像力與分享。它可以提供創作、溝通與社交的觀察角度，也提醒你讓真實想法有適合的出口。'],
+    ['4', '結構與實踐', '4號代表秩序、耐心與把想法落地。它適合思考工作方法、長期規畫與穩定感，也提醒你在可靠與彈性之間找到節奏。'],
+    ['5', '變化與自由', '5號帶有探索、適應與多元經驗的主題。它可以協助你觀察自己如何面對改變，並在追求自由時同時安排足夠的責任與根基。'],
+    ['6', '照顧與平衡', '6號常被用來整理家庭、責任、美感與關係中的付出。它提醒你關心他人的同時，也要讓自己有被照顧、休息與接收支持的空間。'],
+    ['7', '內省與理解', '7號連結研究、沉澱與內在探索。它適合用來理解自己需要的獨處與學習方式，並將直覺與實際觀察放在一起思考。'],
+    ['8', '資源與承擔', '8號常涉及目標、管理、資源與影響力。它可以提供工作與財務規畫的反思角度，提醒你讓成果、責任與價值觀保持一致。'],
+    ['9', '整合與完成', '9號象徵同理、整合與階段性完成。它適合思考如何整理經驗、放下不再適合的模式，並把累積的理解轉化為新的方向。'],
+  ];
+  return (
+    <section className="mt-12 space-y-10 text-left" style={{ color: 'rgba(233,213,255,0.82)' }}>
+      <div>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">什麼是生命靈數？</h2>
+        <p className="leading-8">生命靈數是以出生日期中的數字進行整理的自我探索工具，可以從數字象徵觀察個人傾向、天賦與需要練習的方向。它不是對人生的固定預測，而是協助你整理經驗、理解自己與思考選擇的其中一種方法。</p>
+      </div>
+      <div>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">如何計算生命靈數？</h2>
+        <p className="leading-8">例如生日為 1990 年 12 月 31 日，可將 1+9+9+0+1+2+3+1 相加，得到 26，再將 2+6 相加得到 8。本系統會依現有計算規則保留 11、22、33 等大師數字，不將它們繼續化為個位數。</p>
+      </div>
+      <div>
+        <h2 className="mb-4 font-serif text-2xl text-purple-100">生命靈數1到9代表什麼？</h2>
+        <div className="grid gap-3 md:grid-cols-2">
+          {numbers.map(([number, label, text]) => <article key={number} className="rounded-2xl border border-purple-200/10 bg-white/[0.03] p-4"><h3 className="mb-1 text-lg text-purple-100">{number}號｜{label}</h3><p className="text-sm leading-7">{text}</p></article>)}
+        </div>
+      </div>
+      <div>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">什麼是缺失數字？</h2>
+        <p className="leading-8">缺失數字是出生日期中沒有出現的 1 到 9 數字。它不代表好壞或缺陷，而是可以作為性格、學習方向與自我覺察的參考，幫助你留意較少使用的能力與需要培養的生活面向。</p>
+      </div>
+      <div>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">生命靈數可以看哪些人生主題？</h2>
+        <p className="leading-8">生命靈數可用於整理天賦與性格、工作與事業方向、感情互動模式、個人流年、缺失數字、適合的水晶能量，以及與人類圖等工具進行靈魂藍圖交叉分析。這些內容適合作為自我理解與方向整理，不代表絕對結果。</p>
+      </div>
+      <div>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">為什麼選擇晶域心語？</h2>
+        <p className="leading-8">韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，將生命靈數、自我探索與水晶能量建議整合在晶域心語的服務中。</p>
+      </div>
+      <div>
+        <h2 className="mb-4 font-serif text-2xl text-purple-100">生命靈數常見問題</h2>
+        <div className="space-y-3">
+          {faqs.map(([question, answer]) => <details key={question} className="rounded-xl border border-purple-200/10 bg-white/[0.03] px-4 py-3"><summary className="cursor-pointer font-semibold text-purple-100">{question}</summary><p className="mt-2 leading-7">{answer}</p></details>)}
+        </div>
+      </div>
+      <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-purple-200/10 pt-5 text-sm">
+        <Link className="text-purple-300 underline" to="/oracle">探索塔羅與神諭卡</Link>
+        <Link className="text-purple-300 underline" to="/human-design">深入探索人類圖</Link>
+        <Link className="text-purple-300 underline" to="/vedic-astrology">查看印度占星分析</Link>
+      </nav>
+    </section>
   );
 }

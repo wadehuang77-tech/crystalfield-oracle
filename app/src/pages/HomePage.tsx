@@ -242,7 +242,7 @@ function HomePage() {
         <header className="mb-7 max-w-3xl text-center sm:mb-10">
           <Sparkles className="mx-auto mb-3 h-11 w-11 animate-pulse text-blue-300/80 sm:h-14 sm:w-14" />
           <h1 className="mb-3 font-serif text-3xl tracking-wide text-blue-100 drop-shadow-lg sm:text-5xl">
-            你現在最想獲得哪一種指引？
+            免费塔罗牌占卜：7套塔罗与神谕卡线上抽牌
           </h1>
           <p className="text-sm leading-relaxed text-blue-200/80 sm:text-lg">
             選擇需求、寫下問題，系統會自動為你連結合適的牌卡與牌陣
@@ -352,6 +352,80 @@ function HomePage() {
             ))}
           </div>
         </details>
+
+        <section className="mt-12 w-full max-w-5xl space-y-10 text-blue-100/85">
+          <div>
+            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心语提供哪7种塔罗与神谕卡？</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                ['伟特塔罗', '经典图像适合整理感情、工作、财运与行动选择，提供单张、三张、凯尔特十字及前世因果解锁阵。', '/tarot'],
+                ['光行者神谕', '以灵魂使命与内在成长为主题，适合探索天赋、卡点与下一步方向，可选择单张牌及十字交叉使命阵。', '/lightworker'],
+                ['独角兽塔罗', '以温柔而鼓励的讯息陪伴感情疗愈、自我价值与人际关系探索，提供单张与三张牌阵。', '/unicorns'],
+                ['龙族塔罗', '适合观察关系清理、能量消耗、突破与行动勇气，使用单张或三张牌阵整理自己的力量。', '/dragons'],
+                ['埃及神谕', '从象征与神话主题探索前世今生连结、人生课题与灵魂成长，可选择单张及七张前世因果解锁阵。', '/egyptian-gods'],
+                ['Lightworker光之讯息', '适合整理灵魂任务、内在潜能与能量状态，提供单张牌及宇宙十字牌阵作为蓝图与行动参考。', '/work-your-light'],
+                ['奥修禅卡', '把注意力带回当下，适合觉察情绪、内在卡点与生命状态，可使用单张或三张牌阵。', '/osho'],
+              ].map(([name, text, path]) => (
+                <article key={path} className="rounded-2xl border border-blue-300/15 bg-slate-950/35 p-5">
+                  <h3 className="mb-2 text-lg font-semibold text-blue-50">{name}</h3>
+                  <p className="mb-3 text-sm leading-7">{text}</p>
+                  <Link className="text-sm font-semibold text-blue-300 underline-offset-4 hover:underline" to={path}>查看{name}介绍与牌阵</Link>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">如何选择适合自己的牌卡？</h2>
+            <p className="mb-4 leading-7">以下是依照主题整理的选择建议，不代表绝对结果；你也可以浏览牌卡介绍后，选择当下最有共鸣的一组：</p>
+            <ul className="grid gap-2 sm:grid-cols-2 leading-7">
+              <li>感情、工作、财运：<Link className="text-blue-300 underline" to="/tarot">伟特塔罗</Link></li>
+              <li>灵魂使命与天赋：<Link className="text-blue-300 underline" to="/lightworker">光行者神谕</Link></li>
+              <li>温柔疗愈与自我价值：<Link className="text-blue-300 underline" to="/unicorns">独角兽塔罗</Link></li>
+              <li>关系清理与突破：<Link className="text-blue-300 underline" to="/dragons">龙族塔罗</Link></li>
+              <li>前世因果与人生课题：<Link className="text-blue-300 underline" to="/egyptian-gods">埃及神谕</Link></li>
+              <li>高维指引与灵魂蓝图：<Link className="text-blue-300 underline" to="/work-your-light">光之讯息</Link></li>
+              <li>情绪觉察与活在当下：<Link className="text-blue-300 underline" to="/osho">奥修禅卡</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心语有哪些塔罗牌阵？</h2>
+            <p className="leading-7">不同牌卡提供不同牌阵：单张牌阵适合聚焦一个提醒；三张牌阵适合观察时间或多个面向；伟特塔罗提供凯尔特十字阵与前世因果解锁阵；光行者神谕提供十字交叉使命阵；埃及神谕提供前世因果解锁阵；Lightworker光之讯息提供宇宙十字牌阵。实际可用牌阵以各牌卡页面显示为准。</p>
+          </div>
+
+          <div>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">线上塔罗占卜可以问什么？</h2>
+            <p className="leading-7">你可以围绕感情发展、工作与事业、财运方向、人际关系、目前卡点、前世因果、灵魂使命、内在成长与下一步行动来整理问题。塔罗与神谕卡用于自我觉察与方向整理，不代替医疗、心理、法律或投资专业意见。</p>
+          </div>
+
+          <div>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">关于韦德老师与晶域心语</h2>
+            <p className="leading-7">韦德老师拥有十年以上塔罗、水晶疗愈及命理实务经验，是水晶疗愈老师与身心灵系统设计者，整合塔罗、生命灵数、人类图、印度占星与水晶能量，设计晶域心语的自我探索系统。你也可以继续了解<Link className="mx-1 text-blue-300 underline" to="/numerology">生命灵数</Link>、<Link className="mx-1 text-blue-300 underline" to="/human-design">人类图</Link>与<Link className="mx-1 text-blue-300 underline" to="/vedic-astrology">印度占星</Link>。</p>
+          </div>
+
+          <div>
+            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">常见问题</h2>
+            <div className="space-y-3">
+              {[
+                ['线上塔罗牌占卜准确吗？', '塔罗与神谕卡适合用来整理当下感受与可能方向，不保证固定结果。'],
+                ['塔罗牌可以问哪些问题？', '可以询问感情、工作、财运、人际关系、目前卡点、前世因果、灵魂使命、内在成长与下一步行动。'],
+                ['同一个问题可以重复占卜吗？', '建议先沉淀并观察现实变化，在问题或情境有新发展时再重新整理。'],
+                ['单张牌和三张牌有什么不同？', '单张牌聚焦一个当下提醒；三张牌可观察时间变化、不同面向或行动脉络。'],
+                ['凯尔特十字牌阵适合什么问题？', '适合希望从多个角度深入整理复杂处境、影响因素与行动方向的问题。'],
+                ['前世因果解锁阵是什么？', '这是七张牌的探索牌阵，用来分层观察前世今生连结与人生课题。'],
+                ['不知道该选哪一组牌怎么办？', '可依首页主题建议选择，也可以浏览七组牌卡介绍后凭直觉决定。'],
+                ['塔罗占卜结果可以代替专业意见吗？', '不可以；医疗、心理、法律或投资问题请咨询合格专业人士。'],
+                ['7组牌卡是否都包含在塔罗全馆月费会员中？', '依目前方案设定，塔罗全馆月费会员为 NT$600／月，会员有效期间可使用全部7套牌卡与所有牌阵。'],
+              ].map(([questionText, answer]) => (
+                <details key={questionText} className="rounded-xl border border-blue-300/15 bg-slate-950/30 px-4 py-3">
+                  <summary className="cursor-pointer font-semibold text-blue-50">{questionText}</summary>
+                  <p className="mt-2 leading-7">{answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
 
         <footer className="mt-12 text-center text-sm italic text-blue-200/45">
           願你的內在智慧，照亮前行的道路

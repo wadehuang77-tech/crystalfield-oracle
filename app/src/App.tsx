@@ -35,12 +35,14 @@ import VedicAstrologyPage from './pages/VedicAstrologyPage';
 import AdminVedicReviewsPage from './pages/AdminVedicReviewsPage';
 import AdminTarotSubscriptionsPage from './pages/AdminTarotSubscriptionsPage';
 import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
+import SeoMetadata from './components/SeoMetadata';
 
 function RouterBody() {
   usePageViewTracking();
   return (
     <div className="flex flex-col min-h-screen bg-ink-950">
       <ScrollToTop />
+      <SeoMetadata />
       <PageHeader />
       <TarotTrialStatusBanner />
       <div className="flex-1">

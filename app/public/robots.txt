@@ -12,14 +12,9 @@ Allow: /dragons
 Allow: /egyptian-gods
 Allow: /work-your-light
 Allow: /osho
+Allow: /numerology
 
-# 不要爬抽牌結果與付費頁面
-Disallow: /tarot-single
-Disallow: /work-your-light-single
-Disallow: /osho/single
-Disallow: /osho/three
-Disallow: /lightworker/celtic-cross
-Disallow: /cosmic-cross
+# 抽牌與深度解讀頁由頁面 metadata 設定 noindex, follow
 
 # 後台
 Disallow: /admin
@@ -77,4 +72,4 @@ Disallow: /
 User-agent: MJ12bot
 Disallow: /
 
-Sitemap: https://crystalfield101.com/sitemap.xml
+Sitemap: https://www.crystalfield101.com/sitemap.xml

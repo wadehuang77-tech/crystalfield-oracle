@@ -615,7 +615,7 @@ export default function UnicornsPage() {
           <div className="flex justify-center text-pink-500 mb-8">
             <DeckSigil />
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl text-pink-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">牌 卡 名 簿</h1>
+          <h2 className="font-serif text-3xl sm:text-5xl text-pink-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">牌 卡 名 簿</h2>
           <p className="text-base text-pink-300/80 leading-loose tracking-wide max-w-md mx-auto mb-8">
             44 張獨角獸神諭卡。<br />
             點選任一張,展開完整訊息。
@@ -797,4 +797,3 @@ function CardBackOrnament() {
     </svg>
   );
 }
-
