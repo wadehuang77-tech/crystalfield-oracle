@@ -242,7 +242,7 @@ function HomePage() {
         <header className="mb-7 max-w-3xl text-center sm:mb-10">
           <Sparkles className="mx-auto mb-3 h-11 w-11 animate-pulse text-blue-300/80 sm:h-14 sm:w-14" />
           <h1 className="mb-3 font-serif text-3xl tracking-wide text-blue-100 drop-shadow-lg sm:text-5xl">
-            免费塔罗牌占卜：7套塔罗与神谕卡线上抽牌
+            免費塔羅牌占卜：7套塔羅與神諭卡線上抽牌
           </h1>
           <p className="text-sm leading-relaxed text-blue-200/80 sm:text-lg">
             選擇需求、寫下問題，系統會自動為你連結合適的牌卡與牌陣
@@ -355,68 +355,68 @@ function HomePage() {
 
         <section className="mt-12 w-full max-w-5xl space-y-10 text-blue-100/85">
           <div>
-            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心语提供哪7种塔罗与神谕卡？</h2>
+            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心語提供哪7種塔羅與神諭卡？</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {[
-                ['伟特塔罗', '经典图像适合整理感情、工作、财运与行动选择，提供单张、三张、凯尔特十字及前世因果解锁阵。', '/tarot'],
-                ['光行者神谕', '以灵魂使命与内在成长为主题，适合探索天赋、卡点与下一步方向，可选择单张牌及十字交叉使命阵。', '/lightworker'],
-                ['独角兽塔罗', '以温柔而鼓励的讯息陪伴感情疗愈、自我价值与人际关系探索，提供单张与三张牌阵。', '/unicorns'],
-                ['龙族塔罗', '适合观察关系清理、能量消耗、突破与行动勇气，使用单张或三张牌阵整理自己的力量。', '/dragons'],
-                ['埃及神谕', '从象征与神话主题探索前世今生连结、人生课题与灵魂成长，可选择单张及七张前世因果解锁阵。', '/egyptian-gods'],
-                ['Lightworker光之讯息', '适合整理灵魂任务、内在潜能与能量状态，提供单张牌及宇宙十字牌阵作为蓝图与行动参考。', '/work-your-light'],
-                ['奥修禅卡', '把注意力带回当下，适合觉察情绪、内在卡点与生命状态，可使用单张或三张牌阵。', '/osho'],
+                ['偉特塔羅', '經典圖像適合整理感情、工作、財運與行動選擇，提供單張、三張、凱爾特十字及前世因果解鎖陣。', '/tarot'],
+                ['光行者神諭', '以靈魂使命與內在成長為主題，適合探索天賦、卡點與下一步方向，可選擇單張牌及十字交叉使命陣。', '/lightworker'],
+                ['獨角獸塔羅', '以溫柔而鼓勵的訊息陪伴感情療癒、自我價值與人際關係探索，提供單張與三張牌陣。', '/unicorns'],
+                ['龍族塔羅', '適合觀察關係清理、能量消耗、突破與行動勇氣，使用單張或三張牌陣整理自己的力量。', '/dragons'],
+                ['埃及神諭', '從象徵與神話主題探索前世今生連結、人生課題與靈魂成長，可選擇單張及七張前世因果解鎖陣。', '/egyptian-gods'],
+                ['Lightworker光之訊息', '適合整理靈魂任務、內在潛能與能量狀態，提供單張牌及宇宙十字牌陣作為藍圖與行動參考。', '/work-your-light'],
+                ['奧修禪卡', '把注意力帶回當下，適合覺察情緒、內在卡點與生命狀態，可使用單張或三張牌陣。', '/osho'],
               ].map(([name, text, path]) => (
                 <article key={path} className="rounded-2xl border border-blue-300/15 bg-slate-950/35 p-5">
                   <h3 className="mb-2 text-lg font-semibold text-blue-50">{name}</h3>
                   <p className="mb-3 text-sm leading-7">{text}</p>
-                  <Link className="text-sm font-semibold text-blue-300 underline-offset-4 hover:underline" to={path}>查看{name}介绍与牌阵</Link>
+                  <Link className="text-sm font-semibold text-blue-300 underline-offset-4 hover:underline" to={path}>查看{name}介紹與牌陣</Link>
                 </article>
               ))}
             </div>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">如何选择适合自己的牌卡？</h2>
-            <p className="mb-4 leading-7">以下是依照主题整理的选择建议，不代表绝对结果；你也可以浏览牌卡介绍后，选择当下最有共鸣的一组：</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">如何選擇適合自己的牌卡？</h2>
+            <p className="mb-4 leading-7">以下是依照主題整理的選擇建議，不代表絕對結果；你也可以瀏覽牌卡介紹後，選擇當下最有共鳴的一組：</p>
             <ul className="grid gap-2 sm:grid-cols-2 leading-7">
-              <li>感情、工作、财运：<Link className="text-blue-300 underline" to="/tarot">伟特塔罗</Link></li>
-              <li>灵魂使命与天赋：<Link className="text-blue-300 underline" to="/lightworker">光行者神谕</Link></li>
-              <li>温柔疗愈与自我价值：<Link className="text-blue-300 underline" to="/unicorns">独角兽塔罗</Link></li>
-              <li>关系清理与突破：<Link className="text-blue-300 underline" to="/dragons">龙族塔罗</Link></li>
-              <li>前世因果与人生课题：<Link className="text-blue-300 underline" to="/egyptian-gods">埃及神谕</Link></li>
-              <li>高维指引与灵魂蓝图：<Link className="text-blue-300 underline" to="/work-your-light">光之讯息</Link></li>
-              <li>情绪觉察与活在当下：<Link className="text-blue-300 underline" to="/osho">奥修禅卡</Link></li>
+              <li>感情、工作、財運：<Link className="text-blue-300 underline" to="/tarot">偉特塔羅</Link></li>
+              <li>靈魂使命與天賦：<Link className="text-blue-300 underline" to="/lightworker">光行者神諭</Link></li>
+              <li>溫柔療癒與自我價值：<Link className="text-blue-300 underline" to="/unicorns">獨角獸塔羅</Link></li>
+              <li>關係清理與突破：<Link className="text-blue-300 underline" to="/dragons">龍族塔羅</Link></li>
+              <li>前世因果與人生課題：<Link className="text-blue-300 underline" to="/egyptian-gods">埃及神諭</Link></li>
+              <li>高維指引與靈魂藍圖：<Link className="text-blue-300 underline" to="/work-your-light">光之訊息</Link></li>
+              <li>情緒覺察與活在當下：<Link className="text-blue-300 underline" to="/osho">奧修禪卡</Link></li>
             </ul>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心语有哪些塔罗牌阵？</h2>
-            <p className="leading-7">不同牌卡提供不同牌阵：单张牌阵适合聚焦一个提醒；三张牌阵适合观察时间或多个面向；伟特塔罗提供凯尔特十字阵与前世因果解锁阵；光行者神谕提供十字交叉使命阵；埃及神谕提供前世因果解锁阵；Lightworker光之讯息提供宇宙十字牌阵。实际可用牌阵以各牌卡页面显示为准。</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心語有哪些塔羅牌陣？</h2>
+            <p className="leading-7">不同牌卡提供不同牌陣：單張牌陣適合聚焦一個提醒；三張牌陣適合觀察時間或多個面向；偉特塔羅提供凱爾特十字陣與前世因果解鎖陣；光行者神諭提供十字交叉使命陣；埃及神諭提供前世因果解鎖陣；Lightworker光之訊息提供宇宙十字牌陣。實際可用牌陣以各牌卡頁面顯示為準。</p>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">线上塔罗占卜可以问什么？</h2>
-            <p className="leading-7">你可以围绕感情发展、工作与事业、财运方向、人际关系、目前卡点、前世因果、灵魂使命、内在成长与下一步行动来整理问题。塔罗与神谕卡用于自我觉察与方向整理，不代替医疗、心理、法律或投资专业意见。</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">線上塔羅占卜可以問什麼？</h2>
+            <p className="leading-7">你可以圍繞感情發展、工作與事業、財運方向、人際關係、目前卡點、前世因果、靈魂使命、內在成長與下一步行動來整理問題。塔羅與神諭卡用於自我覺察與方向整理，不代替醫療、心理、法律或投資專業意見。</p>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">关于韦德老师与晶域心语</h2>
-            <p className="leading-7">韦德老师拥有十年以上塔罗、水晶疗愈及命理实务经验，是水晶疗愈老师与身心灵系统设计者，整合塔罗、生命灵数、人类图、印度占星与水晶能量，设计晶域心语的自我探索系统。你也可以继续了解<Link className="mx-1 text-blue-300 underline" to="/numerology">生命灵数</Link>、<Link className="mx-1 text-blue-300 underline" to="/human-design">人类图</Link>与<Link className="mx-1 text-blue-300 underline" to="/vedic-astrology">印度占星</Link>。</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">關於韋德老師與晶域心語</h2>
+            <p className="leading-7">韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，整合塔羅、生命靈數、人類圖、印度占星與水晶能量，設計晶域心語的自我探索系統。你也可以繼續了解<Link className="mx-1 text-blue-300 underline" to="/numerology">生命靈數</Link>、<Link className="mx-1 text-blue-300 underline" to="/human-design">人類圖</Link>與<Link className="mx-1 text-blue-300 underline" to="/vedic-astrology">印度占星</Link>。</p>
           </div>
 
           <div>
             <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">常见问题</h2>
             <div className="space-y-3">
               {[
-                ['线上塔罗牌占卜准确吗？', '塔罗与神谕卡适合用来整理当下感受与可能方向，不保证固定结果。'],
-                ['塔罗牌可以问哪些问题？', '可以询问感情、工作、财运、人际关系、目前卡点、前世因果、灵魂使命、内在成长与下一步行动。'],
+                ['線上塔羅牌占卜準確嗎？', '塔羅與神諭卡適合用來整理當下感受與可能方向，不保證固定結果。'],
+                ['塔羅牌可以問哪些問題？', '可以詢問感情、工作、財運、人際關係、目前卡點、前世因果、靈魂使命、內在成長與下一步行動。'],
                 ['同一个问题可以重复占卜吗？', '建议先沉淀并观察现实变化，在问题或情境有新发展时再重新整理。'],
                 ['单张牌和三张牌有什么不同？', '单张牌聚焦一个当下提醒；三张牌可观察时间变化、不同面向或行动脉络。'],
                 ['凯尔特十字牌阵适合什么问题？', '适合希望从多个角度深入整理复杂处境、影响因素与行动方向的问题。'],
                 ['前世因果解锁阵是什么？', '这是七张牌的探索牌阵，用来分层观察前世今生连结与人生课题。'],
                 ['不知道该选哪一组牌怎么办？', '可依首页主题建议选择，也可以浏览七组牌卡介绍后凭直觉决定。'],
-                ['塔罗占卜结果可以代替专业意见吗？', '不可以；医疗、心理、法律或投资问题请咨询合格专业人士。'],
-                ['7组牌卡是否都包含在塔罗全馆月费会员中？', '依目前方案设定，塔罗全馆月费会员为 NT$600／月，会员有效期间可使用全部7套牌卡与所有牌阵。'],
+                ['塔羅占卜結果可以代替專業意見嗎？', '不可以；醫療、心理、法律或投資問題請諮詢合格專業人士。'],
+                ['7組牌卡是否都包含在塔羅全館月費會員中？', '依目前方案設定，塔羅全館月費會員為 NT$600／月，會員有效期間可使用全部7套牌卡與所有牌陣。'],
               ].map(([questionText, answer]) => (
                 <details key={questionText} className="rounded-xl border border-blue-300/15 bg-slate-950/30 px-4 py-3">
                   <summary className="cursor-pointer font-semibold text-blue-50">{questionText}</summary>
