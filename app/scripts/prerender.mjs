@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 const appDir = dirname(fileURLToPath(import.meta.url));
 const distDir = join(appDir, '..', 'dist');
 const siteUrl = 'https://www.crystalfield101.com';
+const pageUrl = (path) => `${siteUrl}/${path.replace(/^\/+|\/+$/g, '')}/`;
 const articleData = JSON.parse(await readFile(join(appDir, '..', 'src', 'data', 'human-design', 'articles.json'), 'utf8'));
 const vedicArticleData = JSON.parse(await readFile(join(appDir, '..', 'src', 'data', 'vedic-astrology', 'articles.json'), 'utf8'));
 const pages = [
@@ -38,7 +39,7 @@ const escapeJson = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
 
 const template = await readFile(join(distDir, 'index.html'), 'utf8');
 for (const [path, title, description, h1, intro] of pages) {
-  const canonical = `${siteUrl}/${path}`;
+  const canonical = pageUrl(path);
   const articleSlug = path.startsWith('human-design/') ? path.slice('human-design/'.length) : '';
   const article = articleData[articleSlug];
   const vedicSlug = path.startsWith('vedic-astrology/') ? path.slice('vedic-astrology/'.length) : '';
@@ -46,7 +47,7 @@ for (const [path, title, description, h1, intro] of pages) {
   const jsonLd = [
     { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'zh-Hant' },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: '晶域心語', item: `${siteUrl}/oracle` },
+      { '@type': 'ListItem', position: 1, name: '晶域心語', item: pageUrl('oracle') },
       { '@type': 'ListItem', position: 2, name: h1, item: canonical },
     ] },
   ];
@@ -103,7 +104,7 @@ for (const [path, title, description, h1, intro] of pages) {
     const faq = vedicArticle.faq.map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
     jsonLd.push(
       { '@context': 'https://schema.org', '@type': 'Article', headline: h1, description, url: canonical, inLanguage: 'zh-Hant', articleSection: '印度占星知識專區', datePublished: '2026-09-17', dateModified: '2026-09-17', image: `${siteUrl}/20260315_164545.jpg`, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical }, author: { '@type': 'Person', name: '韋德老師' }, publisher: { '@type': 'Organization', name: '晶域心語', url: siteUrl } },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: '晶域心語', item: `${siteUrl}/oracle` }, { '@type': 'ListItem', position: 2, name: '印度占星', item: `${siteUrl}/vedic-astrology` }, { '@type': 'ListItem', position: 3, name: h1, item: canonical }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: '晶域心語', item: pageUrl('oracle') }, { '@type': 'ListItem', position: 2, name: '印度占星', item: pageUrl('vedic-astrology') }, { '@type': 'ListItem', position: 3, name: h1, item: canonical }] },
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
       { '@context': 'https://schema.org', '@type': 'Person', name: '韋德老師', description: '韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者。' },
     );
@@ -171,7 +172,8 @@ for (const [path, title, description, h1, intro] of pages) {
     .replace(/<meta property="og:(title|description)"[^>]*>/g, '');
   const output = cleanTemplate
     .replace('</head>', `${head}\n  </head>`)
-    .replace(/^\s*<div id="root"><\/div>\s*$/gm, `<div id="root">${body}</div>`);
+    .replace(/^\s*<div id="root"><\/div>\s*$/gm, `<div id="root">${body}</div>`)
+    .replace(/href="(https:\/\/www\.crystalfield101\.com\/[^"#?]*[^/"#?])"/g, 'href="$1/"');
   const target = join(distDir, path, 'index.html');
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, output);
