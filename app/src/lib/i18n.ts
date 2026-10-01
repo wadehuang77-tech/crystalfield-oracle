@@ -357,6 +357,13 @@ export const translations = {
       dateError: 'Choose your date of birth', timeError: 'Enter your birth time', cityError: 'Enter your birth city',
       analyzing: 'Reading your Human Design chart',
       steps: ['Analyzing your chart…', 'Bringing your energy centers together…', 'Preparing personalized insights…', 'Getting your free report ready…'],
+      heroComplete: 'Your Human Design blueprint is ready',
+      typeLabel: 'Your Type',
+      soulMessage: 'Soul purpose message',
+      profile: 'Profile', authority: 'Inner Authority', strategy: 'Strategy', incarnationCross: 'Incarnation Cross',
+      signature: 'Signature', notSelf: 'Not-Self Theme', emailPlaceholder: 'Enter your email',
+      emailInvalid: 'Please enter a valid email address', emailSaving: 'Saving…', emailSaveFailed: 'Could not save your email. Please try again.',
+      unlockFree: 'Enter your email to unlock the free report', channels: 'Key channels detected',
     },
     vedic: {
       eyebrow: 'Vedic Astrology · A Map for Reflection',
@@ -371,6 +378,7 @@ export const translations = {
       deepTitle: 'Nine In-Depth Vedic Astrology Readings', deepEyebrow: 'Full Report',
       deepDescription: 'Explore your birth chart, Rahu and Ketu, planetary periods, the D9 relationship chart, and the D10 career chart in one connected life overview.',
       reportGenerating: 'Your in-depth report is being generated', reportWait: 'This may take about 1–2 minutes.',
+      lagna: 'Ascendant', moon: 'Moon', nakshatra: 'Nakshatra', sun: 'Sun', mahaDasha: 'Current Dasha', antarDasha: 'Sub-period',
     },
     oraclePage: {
       title: 'Free Tarot and Oracle Card Readings',

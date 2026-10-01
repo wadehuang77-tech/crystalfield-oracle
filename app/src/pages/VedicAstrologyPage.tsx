@@ -42,6 +42,11 @@ const PLANET_ZH: Record<string, string> = {
   Venus: '金星', Saturn: '土星', Rahu: '羅喉', Ketu: '計都',
 };
 
+const PLANET_EN: Record<string, string> = {
+  Sun: 'Sun', Moon: 'Moon', Mars: 'Mars', Mercury: 'Mercury', Jupiter: 'Jupiter',
+  Venus: 'Venus', Saturn: 'Saturn', Rahu: 'Rahu', Ketu: 'Ketu',
+};
+
 const SIGN_ORDER = [
   'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
@@ -206,7 +211,7 @@ export default function VedicAstrologyPage() {
             await new Promise((resolve) => window.setTimeout(resolve, 600));
             return loadPaidReport(attempt + 1);
           }
-          setReportError('完整深度報告尚未生成成功。系統沒有顯示備援模板，請使用下方按鈕安全重試。');
+          setReportError(language === 'en' ? 'The in-depth report is not ready yet. No fallback text was shown. Please use the button below to retry safely.' : '完整深度報告尚未生成成功。系統沒有顯示備援模板，請使用下方按鈕安全重試。');
           return;
         }
         setReport(result.report);
@@ -219,11 +224,11 @@ export default function VedicAstrologyPage() {
         // can recover the completed report instead of leaving it hidden.
         if (attempt < 20) {
           setReportLoading(true);
-          setReportError('深度指引正在完成，網路連線中斷後正在自動重新取得…');
+          setReportError(language === 'en' ? 'Your in-depth guidance is still being completed. The report will be retrieved again automatically.' : '深度指引正在完成，網路連線中斷後正在自動重新取得…');
           await new Promise((resolve) => window.setTimeout(resolve, 1500));
           return loadPaidReport(attempt + 1);
         }
-        setReportError(reason instanceof Error ? reason.message : '無法取得已解鎖報告');
+        setReportError(reason instanceof Error ? reason.message : language === 'en' ? 'The unlocked report could not be retrieved.' : '無法取得已解鎖報告');
       } finally {
         if (!cancelled) setReportLoading(false);
       }
@@ -249,11 +254,11 @@ export default function VedicAstrologyPage() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!form.birthPlace.trim()) {
-      setError('未填出生地點');
+      setError(language === 'en' ? 'Enter your birthplace.' : '未填出生地點');
       return;
     }
     if (!form.birthDate || !/^\d{2}:\d{2}$/.test(form.birthTime) || !form.birthPlace.trim()) {
-      setError('請完整填寫出生年月日、出生時間與出生地點');
+      setError(language === 'en' ? 'Complete your date of birth, birth time, and birthplace.' : '請完整填寫出生年月日、出生時間與出生地點');
       return;
     }
     setError('');
@@ -270,7 +275,7 @@ export default function VedicAstrologyPage() {
       saveChart(result);
       window.setTimeout(() => document.getElementById('vedic-free-results')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '星盤計算失敗，請稍後再試');
+      setError(reason instanceof Error ? reason.message : language === 'en' ? 'Chart calculation failed. Please try again later.' : '星盤計算失敗，請稍後再試');
     } finally {
       setIsCalculating(false);
     }
@@ -289,13 +294,13 @@ export default function VedicAstrologyPage() {
         navigate(`/checkout/return?order_id=${encodeURIComponent(result.order_id)}&order_token=${encodeURIComponent(result.order_token || '')}`);
         return;
       }
-      if (!result.ecpay) throw new Error('結帳資料缺失，請重試');
+      if (!result.ecpay) throw new Error(language === 'en' ? 'Checkout details are missing. Please try again.' : '結帳資料缺失，請重試');
       submitToEcpay(result.ecpay, () => {
-        setError('跳轉至付款頁失敗，請稍後再試');
+        setError(language === 'en' ? 'Could not open the payment page. Please try again later.' : '跳轉至付款頁失敗，請稍後再試');
         setCheckoutLoading('');
       });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '無法建立訂單');
+      setError(reason instanceof Error ? reason.message : language === 'en' ? 'Could not create the order.' : '無法建立訂單');
       setCheckoutLoading('');
     }
   };
@@ -348,7 +353,7 @@ export default function VedicAstrologyPage() {
 
         <VedicAstrologySeoContent />
 
-        {chart && <FreeResults chart={chart} />}
+        {chart && <FreeResults chart={chart} language={language} />}
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">
@@ -364,7 +369,7 @@ export default function VedicAstrologyPage() {
 
         {reportLoading && <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-[#070312]/88 px-5 backdrop-blur-md"><div className="w-full max-w-md rounded-[2rem] border border-amber-300/35 bg-slate-950/95 p-8 text-center shadow-[0_0_70px_rgba(217,70,239,0.25)]"><Loader2 className="mx-auto h-10 w-10 animate-spin text-amber-300" /><h2 className="mt-6 font-serif text-2xl text-amber-50">深度指引正在生成／重新生成</h2><p className="mt-4 text-lg leading-8 text-violet-100/80">請等候約 1～2 分鐘</p><p className="mt-2 text-sm leading-6 text-violet-100/50">只有通過完整性檢查的個人化報告才會顯示，暫時備援文字不會冒充付費報告。</p>{reportGeneration.length > 0 && <ul className="mt-5 max-h-40 space-y-1 overflow-y-auto text-left text-xs text-violet-100/60">{reportGeneration.map((item) => <li key={item.section}>第 {item.section} 項：{item.status === 'completed' ? '已完成' : item.status === 'failed' ? '重新生成中' : '生成中'}</li>)}</ul>}</div></div>}
         {reportError && !reportLoading && <div role="alert" className="fixed inset-x-4 top-24 z-50 mx-auto max-w-lg rounded-2xl border border-rose-300/35 bg-slate-950/95 p-6 text-center shadow-2xl"><p className="font-semibold text-rose-100">完整深度指引尚未生成成功</p><p className="mt-2 text-sm leading-6 text-rose-100/70">{reportError}</p>{reportGeneration.length > 0 && <ul className="mt-4 rounded-xl border border-white/10 p-3 text-left text-xs text-rose-100/65">{reportGeneration.filter((item) => item.status !== 'completed').map((item) => <li key={item.section}>第 {item.section} 項：{item.error || '等待重新生成'}</li>)}</ul>}<button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-600 px-5 py-3 font-medium text-white">安全重試已付款報告</button></div>}
-        {report && returnOrderId && returnOrderToken && <PaidReport report={report} orderId={returnOrderId} orderToken={returnOrderToken} />}
+        {report && returnOrderId && returnOrderToken && <PaidReport report={report} orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
         <PublicVedicReviews />
       </main>
     </div>
@@ -375,41 +380,44 @@ function Field({ label, wide, children }: { label: string; wide?: boolean; child
   return <label className={wide ? 'sm:col-span-2' : ''}><span className="mb-2 block text-sm font-medium text-amber-100/80">{label}</span>{children}</label>;
 }
 
-function FreeResults({ chart }: { chart: VedicChartResponse }) {
+function FreeResults({ chart, language }: { chart: VedicChartResponse; language: 'zh-Hant' | 'en' }) {
   const result = chart.free_results;
+  const isEnglish = language === 'en';
+  const translatePlanet = (value: string | undefined) => value ? (isEnglish ? PLANET_EN[value] || value : PLANET_ZH[value] || value) : '';
   return (
     <section id="vedic-free-results" className="mt-20 scroll-mt-24">
-      <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">免費靈魂地圖</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">你的免費印度占星指引</h2><p className="mt-4 text-sm text-violet-100/55">專業星曆計算 · 拉希里恆星黃道</p></div>
+      <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">{isEnglish ? 'Free Soul Map' : '免費靈魂地圖'}</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{isEnglish ? 'Your Free Vedic Astrology Guidance' : '你的免費印度占星指引'}</h2><p className="mt-4 text-sm text-violet-100/55">{isEnglish ? 'Professional ephemeris calculation · Lahiri sidereal zodiac' : '專業星曆計算 · 拉希里恆星黃道'}</p></div>
       <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <ChartBadge label="上升" value={SIGN_ZH[chart.chart.lagna] || chart.chart.lagna} />
-        <ChartBadge label="月亮" value={SIGN_ZH[chart.chart.moonSign] || chart.chart.moonSign} />
-        <ChartBadge label="月宿 Nakshatra" value={formatNakshatra(chart.chart.moonNakshatra)} />
-        <ChartBadge label="太陽" value={SIGN_ZH[chart.chart.sunSign] || chart.chart.sunSign} />
-        <ChartBadge label="目前大運" value={PLANET_ZH[chart.chart.mahaDasha] || chart.chart.mahaDasha} />
-        <ChartBadge label="次週期" value={chart.chart.antarDasha ? (PLANET_ZH[chart.chart.antarDasha] || chart.chart.antarDasha) : '計算中'} />
+        <ChartBadge label={isEnglish ? 'Ascendant' : '上升'} value={isEnglish ? chart.chart.lagna : SIGN_ZH[chart.chart.lagna] || chart.chart.lagna} />
+        <ChartBadge label={isEnglish ? 'Moon' : '月亮'} value={isEnglish ? chart.chart.moonSign : SIGN_ZH[chart.chart.moonSign] || chart.chart.moonSign} />
+        <ChartBadge label={isEnglish ? 'Nakshatra' : '月宿 Nakshatra'} value={formatNakshatra(chart.chart.moonNakshatra, language)} />
+        <ChartBadge label={isEnglish ? 'Sun' : '太陽'} value={isEnglish ? chart.chart.sunSign : SIGN_ZH[chart.chart.sunSign] || chart.chart.sunSign} />
+        <ChartBadge label={isEnglish ? 'Current Dasha' : '目前大運'} value={translatePlanet(chart.chart.mahaDasha)} />
+        <ChartBadge label={isEnglish ? 'Sub-period' : '次週期'} value={chart.chart.antarDasha ? translatePlanet(chart.chart.antarDasha) : isEnglish ? 'Calculating' : '計算中'} />
       </div>
-      <BirthChart chart={chart.chart} />
+      <BirthChart chart={chart.chart} language={language} />
       <div className="mt-9 grid gap-5 lg:grid-cols-3">
-        <ResultCard number="01" eyebrow="人格原型" title={result.archetype.title} body={result.archetype.body} />
-        <ResultCard number="02" eyebrow="今生天賦" title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
-        <ResultCard number="03" eyebrow="行星週期" title={result.currentCycle.title} body={result.currentCycle.body} />
+        <ResultCard number="01" eyebrow={isEnglish ? 'Archetype' : '人格原型'} title={result.archetype.title} body={result.archetype.body} />
+        <ResultCard number="02" eyebrow={isEnglish ? 'Gifts in This Life' : '今生天賦'} title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
+        <ResultCard number="03" eyebrow={isEnglish ? 'Planetary Cycle' : '行星週期'} title={result.currentCycle.title} body={result.currentCycle.body} />
       </div>
     </section>
   );
 }
 
-function formatNakshatra(value: string) {
+function formatNakshatra(value: string, language: 'zh-Hant' | 'en') {
   const name = value.split(/\s+-\s+|\s+Pada\s+/i)[0].trim();
-  return `${NAKSHATRA_ZH[name] || name}月宿`;
+  return language === 'en' ? `${name} Nakshatra` : `${NAKSHATRA_ZH[name] || name}月宿`;
 }
 
-function BirthChart({ chart }: { chart: VedicChartResponse['chart'] }) {
+function BirthChart({ chart, language }: { chart: VedicChartResponse['chart']; language: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
   const lagnaIndex = SIGN_ORDER.indexOf(chart.lagna as typeof SIGN_ORDER[number]);
   return (
     <article className="mx-auto mt-8 max-w-5xl rounded-[1.75rem] border border-amber-300/25 bg-slate-950/55 p-5 shadow-[0_0_45px_rgba(251,191,36,0.08)] sm:p-8">
       <div className="text-center">
-        <p className="text-xs tracking-[0.25em] text-amber-300/55">出生盤 · D1 本命盤</p>
-        <h3 className="mt-2 font-serif text-2xl text-amber-50">你的印度占星出生盤</h3>
+        <p className="text-xs tracking-[0.25em] text-amber-300/55">{isEnglish ? 'Birth Chart · D1 Natal Chart' : '出生盤 · D1 本命盤'}</p>
+        <h3 className="mt-2 font-serif text-2xl text-amber-50">{isEnglish ? 'Your Vedic Birth Chart' : '你的印度占星出生盤'}</h3>
       </div>
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 12 }, (_, index) => {
@@ -417,17 +425,17 @@ function BirthChart({ chart }: { chart: VedicChartResponse['chart'] }) {
           const sign = lagnaIndex >= 0 ? SIGN_ORDER[(lagnaIndex + index) % 12] : '';
           const planets = Object.entries(chart.housePlacements)
             .filter(([, planetHouse]) => planetHouse === house)
-            .map(([planet]) => PLANET_ZH[planet] || planet);
+            .map(([planet]) => isEnglish ? PLANET_EN[planet] || planet : PLANET_ZH[planet] || planet);
           return (
             <div key={house} className="min-h-28 rounded-2xl border border-violet-300/15 bg-violet-950/30 p-4">
-              <div className="flex items-center justify-between text-xs text-violet-200/45"><span>第 {house} 宮</span>{house === 1 && <span className="text-amber-200">上升</span>}</div>
-              <p className="mt-2 font-serif text-lg text-amber-50">{SIGN_ZH[sign] || sign}</p>
-              <p className="mt-3 text-sm leading-6 text-fuchsia-100/70">{planets.length ? planets.join('・') : '—'}</p>
+              <div className="flex items-center justify-between text-xs text-violet-200/45"><span>{isEnglish ? `House ${house}` : `第 ${house} 宮`}</span>{house === 1 && <span className="text-amber-200">{isEnglish ? 'Ascendant' : '上升'}</span>}</div>
+              <p className="mt-2 font-serif text-lg text-amber-50">{isEnglish ? sign : SIGN_ZH[sign] || sign}</p>
+              <p className="mt-3 text-sm leading-6 text-fuchsia-100/70">{planets.length ? planets.join(isEnglish ? ' · ' : '・') : '—'}</p>
             </div>
           );
         })}
       </div>
-      <p className="mt-5 text-center text-xs leading-5 text-white/35">依拉希里恆星黃道計算；宮位與行星位置供自我探索參考。</p>
+      <p className="mt-5 text-center text-xs leading-5 text-white/35">{isEnglish ? 'Calculated with the Lahiri sidereal zodiac; house and planetary positions are provided for self-reflection.' : '依拉希里恆星黃道計算；宮位與行星位置供自我探索參考。'}</p>
     </article>
   );
 }
@@ -449,18 +457,19 @@ function PaidOption(props: typeof PAID_OPTIONS[number] & { loading: boolean; dis
   return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">主打方案</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><div className={`text-right ${props.featured ? 'mt-10 sm:mt-0' : ''}`}><span className="block text-xs text-amber-200/70">體驗價</span><strong className="text-xl text-white">NT${props.price}</strong><span className="ml-2 text-sm text-white/35 line-through">原價 NT${props.originalPrice}</span></div></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? '前往付款中…' : '解鎖這份指引'}</button></article>;
 }
 
-function PaidReport({ report, orderId, orderToken }: { report: VedicReport; orderId: string; orderToken: string }) {
+function PaidReport({ report, orderId, orderToken, language }: { report: VedicReport; orderId: string; orderToken: string; language: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
   return <section id="vedic-paid-report" className="mt-20 scroll-mt-24 rounded-[2rem] border border-amber-300/30 bg-slate-950/65 p-6 shadow-[0_0_60px_rgba(251,191,36,0.1)] sm:p-10">
-    <div className="text-center"><MoonStar className="mx-auto h-10 w-10 text-amber-300" /><p className="mt-4 text-sm tracking-[0.3em] text-amber-300/60">已解鎖的深度指引</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{report.title}</h2></div>
+    <div className="text-center"><MoonStar className="mx-auto h-10 w-10 text-amber-300" /><p className="mt-4 text-sm tracking-[0.3em] text-amber-300/60">{isEnglish ? 'Unlocked In-Depth Guidance' : '已解鎖的深度指引'}</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{report.title}</h2></div>
     <p className="mx-auto mt-8 max-w-4xl whitespace-pre-line text-lg leading-9 text-violet-50/75">{report.introduction}</p>
     <div className="mx-auto mt-10 max-w-5xl space-y-7">{report.sections.map((section, index) => <article key={`${section.heading}-${index}`} className="rounded-2xl border border-violet-300/15 bg-violet-950/25 p-6 sm:p-8">
       <h3 className="font-serif text-2xl text-amber-100">{section.heading}</h3>
       <p className="mt-5 whitespace-pre-line text-base leading-8 text-violet-50/78 sm:text-lg sm:leading-9">{section.consultation}</p>
-      {section.timeline?.length ? <div className="mt-8 space-y-5"><h4 className="font-serif text-xl text-fuchsia-100">未來 3～5 年大運時間軸</h4><ForecastOverview periods={section.timeline} />{section.timeline.map((period) => <ForecastCard key={period.id} period={period} />)}</div> : null}
-      {section.evidence.length ? <EvidenceDetails evidence={section.evidence} /> : null}
+      {section.timeline?.length ? <div className="mt-8 space-y-5"><h4 className="font-serif text-xl text-fuchsia-100">{isEnglish ? 'Three-to-Five-Year Dasha Timeline' : '未來 3～5 年大運時間軸'}</h4><ForecastOverview periods={section.timeline} language={language} />{section.timeline.map((period) => <ForecastCard key={period.id} period={period} language={language} />)}</div> : null}
+      {section.evidence.length ? <EvidenceDetails evidence={section.evidence} language={language} /> : null}
     </article>)}</div>
     {report.closing && <p className="mx-auto mt-10 max-w-3xl border-t border-amber-200/15 pt-7 text-center leading-8 text-amber-50/65">{report.closing}</p>}
-    <VedicReviewForm orderId={orderId} orderToken={orderToken} />
+    <VedicReviewForm orderId={orderId} orderToken={orderToken} language={language} />
   </section>;
 }
 
@@ -474,7 +483,8 @@ const RESONANCE_OPTIONS = [
   ['wealth', '財富與金錢'], ['spiritual_growth', '靈性成長'], ['future_timeline', '未來 3～5 年'],
 ] as const;
 
-function VedicReviewForm({ orderId, orderToken }: { orderId: string; orderToken: string }) {
+function VedicReviewForm({ orderId, orderToken, language }: { orderId: string; orderToken: string; language: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
   const [rating, setRating] = useState(0); const [accuracy, setAccuracy] = useState('');
   const [sections, setSections] = useState<string[]>([]); const [content, setContent] = useState('');
   const [allowPublic, setAllowPublic] = useState(false); const [saved, setSaved] = useState(false);
@@ -483,18 +493,18 @@ function VedicReviewForm({ orderId, orderToken }: { orderId: string; orderToken:
     if (!active || !review) return; setRating(review.rating); setAccuracy(review.accuracyRating); setSections(review.mostResonantSections); setContent(review.reviewContent); setAllowPublic(review.allowPublic); setSaved(true);
   }).catch(() => {}).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [orderId, orderToken]);
   const submitReview = async (event: FormEvent) => { event.preventDefault(); setMessage('');
-    if (!rating || !accuracy || content.trim().length < 10) { setMessage('請完成星級、精準度與至少 10 字心得。'); return; }
-    setLoading(true); try { await vedicAstrologyApi.saveReview({ order_id: orderId, order_token: orderToken, rating, accuracy_rating: accuracy, most_resonant_sections: sections, review_content: content.trim(), allow_public: allowPublic }); setSaved(true); setMessage('感謝你的回饋 ❤️'); } catch (e) { setMessage(e instanceof Error ? e.message : '送出失敗'); } finally { setLoading(false); }
+    if (!rating || !accuracy || content.trim().length < 10) { setMessage(isEnglish ? 'Please complete the rating, accuracy selection, and a review of at least 10 characters.' : '請完成星級、精準度與至少 10 字心得。'); return; }
+    setLoading(true); try { await vedicAstrologyApi.saveReview({ order_id: orderId, order_token: orderToken, rating, accuracy_rating: accuracy, most_resonant_sections: sections, review_content: content.trim(), allow_public: allowPublic }); setSaved(true); setMessage(isEnglish ? 'Thank you for your feedback ❤️' : '感謝你的回饋 ❤️'); } catch (e) { setMessage(e instanceof Error ? e.message : isEnglish ? 'Could not submit your review.' : '送出失敗'); } finally { setLoading(false); }
   };
   return <form onSubmit={submitReview} className="mx-auto mt-12 max-w-4xl rounded-2xl border border-fuchsia-300/20 bg-violet-950/30 p-6 sm:p-8">
-    <h3 className="text-center font-serif text-2xl text-amber-50">這份印度占星報告對你有幫助嗎？</h3>
-    <p className="mt-2 text-center text-sm text-violet-100/55">{saved ? '感謝你的回饋 ❤️，你可以隨時修改。' : '歡迎留下真實感受。'}</p>
-    <div className="mt-6 flex justify-center gap-2" role="radiogroup" aria-label="評分">{[1,2,3,4,5].map((star) => <button key={star} type="button" role="radio" aria-checked={rating === star} onClick={() => setRating(star)} className={`text-4xl transition ${star <= rating ? 'text-amber-300' : 'text-white/20'}`}>★</button>)}</div>
-    <label className="mt-7 block text-sm text-amber-100">你覺得這份分析與你的實際人生符合程度如何？<select required value={accuracy} onChange={(e) => setAccuracy(e.target.value)} className="vedic-input mt-2"><option value="">請選擇</option>{ACCURACY_OPTIONS.map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
-    <fieldset className="mt-7"><legend className="text-sm text-amber-100">哪一個部分最有共鳴？（可複選）</legend><div className="mt-3 grid gap-2 sm:grid-cols-3">{RESONANCE_OPTIONS.map(([v,l]) => <label key={v} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-violet-100/70"><input type="checkbox" checked={sections.includes(v)} onChange={() => setSections((old) => old.includes(v) ? old.filter((x) => x !== v) : [...old, v])} />{l}</label>)}</div></fieldset>
-    <label className="mt-7 block text-sm text-amber-100">想分享你的心得嗎？<textarea required minLength={10} maxLength={1000} value={content} onChange={(e) => setContent(e.target.value)} placeholder="哪一段最有共鳴？有沒有讓你重新理解自己的業力、人生課題或未來方向？" className="vedic-input mt-2 min-h-36 resize-y" /><span className="mt-1 block text-right text-xs text-white/35">{content.length}/1000</span></label>
-    <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-violet-100/65"><input type="checkbox" checked={allowPublic} onChange={(e) => setAllowPublic(e.target.checked)} className="mt-1" />我同意將此心得匿名顯示於網站印度占星使用者評價區。</label>
-    {message && <p className="mt-4 text-center text-sm text-fuchsia-100">{message}</p>}<button disabled={loading} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{loading ? '處理中…' : saved ? '更新評價' : '送出評價'}</button>
+    <h3 className="text-center font-serif text-2xl text-amber-50">{isEnglish ? 'Was this Vedic astrology report helpful?' : '這份印度占星報告對你有幫助嗎？'}</h3>
+    <p className="mt-2 text-center text-sm text-violet-100/55">{saved ? (isEnglish ? 'Thank you for your feedback ❤️ You can update it at any time.' : '感謝你的回饋 ❤️，你可以隨時修改。') : (isEnglish ? 'We welcome your honest reflection.' : '歡迎留下真實感受。')}</p>
+    <div className="mt-6 flex justify-center gap-2" role="radiogroup" aria-label={isEnglish ? 'Rating' : '評分'}>{[1,2,3,4,5].map((star) => <button key={star} type="button" role="radio" aria-checked={rating === star} onClick={() => setRating(star)} className={`text-4xl transition ${star <= rating ? 'text-amber-300' : 'text-white/20'}`}>★</button>)}</div>
+    <label className="mt-7 block text-sm text-amber-100">{isEnglish ? 'How accurately did this reading reflect your life?' : '你覺得這份分析與你的實際人生符合程度如何？'}<select required value={accuracy} onChange={(e) => setAccuracy(e.target.value)} className="vedic-input mt-2"><option value="">{isEnglish ? 'Choose one' : '請選擇'}</option>{ACCURACY_OPTIONS.map(([v,l]) => <option key={v} value={v}>{isEnglish ? ({ very_inaccurate: 'Not at all accurate', partly_accurate: 'Partly accurate', mostly_accurate: 'Mostly accurate', very_accurate: 'Very accurate', exactly_me: 'It felt exactly like me' } as Record<string, string>)[v] : l}</option>)}</select></label>
+    <fieldset className="mt-7"><legend className="text-sm text-amber-100">{isEnglish ? 'Which sections resonated most? (Select all that apply)' : '哪一個部分最有共鳴？（可複選）'}</legend><div className="mt-3 grid gap-2 sm:grid-cols-3">{RESONANCE_OPTIONS.map(([v,l]) => <label key={v} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-violet-100/70"><input type="checkbox" checked={sections.includes(v)} onChange={() => setSections((old) => old.includes(v) ? old.filter((x) => x !== v) : [...old, v])} />{isEnglish ? ({ past_karma: 'Past-life themes', life_lesson: 'Life lessons', soul_mission: 'Soul mission', talents: 'Gifts and abilities', relationship: 'Love and relationships', career: 'Work and career', wealth: 'Wealth and money', spiritual_growth: 'Spiritual growth', future_timeline: 'Three-to-five-year timeline' } as Record<string, string>)[v] : l}</label>)}</div></fieldset>
+    <label className="mt-7 block text-sm text-amber-100">{isEnglish ? 'Would you like to share your experience?' : '想分享你的心得嗎？'}<textarea required minLength={10} maxLength={1000} value={content} onChange={(e) => setContent(e.target.value)} placeholder={isEnglish ? 'Which part resonated most? Did it change how you understand your patterns, life lessons, or direction?' : '哪一段最有共鳴？有沒有讓你重新理解自己的業力、人生課題或未來方向？'} className="vedic-input mt-2 min-h-36 resize-y" /><span className="mt-1 block text-right text-xs text-white/35">{content.length}/1000</span></label>
+    <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-violet-100/65"><input type="checkbox" checked={allowPublic} onChange={(e) => setAllowPublic(e.target.checked)} className="mt-1" />{isEnglish ? 'I agree to display this review anonymously in the Vedic astrology reviews section.' : '我同意將此心得匿名顯示於網站印度占星使用者評價區。'}</label>
+    {message && <p className="mt-4 text-center text-sm text-fuchsia-100">{message}</p>}<button disabled={loading} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-5 py-3 font-semibold text-white disabled:opacity-50">{loading ? (isEnglish ? 'Saving…' : '處理中…') : saved ? (isEnglish ? 'Update review' : '更新評價') : (isEnglish ? 'Submit review' : '送出評價')}</button>
   </form>;
 }
 
@@ -505,24 +515,24 @@ function PublicVedicReviews() {
   return <section className="mx-auto mt-20 max-w-5xl"><div className="text-center"><p className="text-sm tracking-[0.25em] text-fuchsia-300/60">使用者真實回饋</p><h2 className="mt-3 font-serif text-3xl text-amber-50">他們在報告中看見了自己</h2></div><div className="mt-8 grid gap-5 md:grid-cols-2">{reviews.map((review) => <article key={review.id} className="rounded-2xl border border-violet-300/20 bg-slate-950/55 p-6"><p className="text-amber-300">{'★'.repeat(review.rating)}<span className="text-white/15">{'★'.repeat(5-review.rating)}</span></p><p className="mt-4 whitespace-pre-line leading-7 text-violet-50/75">「{review.reviewContent}」</p><p className="mt-4 text-sm text-fuchsia-200/60">{review.displayName}｜使用者真實回饋</p></article>)}</div></section>;
 }
 
-function EvidenceDetails({ evidence }: { evidence: Array<{ factor: string; value: string; relevance: string }> }) {
+function EvidenceDetails({ evidence, language }: { evidence: Array<{ factor: string; value: string; relevance: string }>; language: 'zh-Hant' | 'en' }) {
   const visibleEvidence = evidence.filter((item) => item.factor.trim() && item.value.trim() && item.relevance.trim());
   if (!visibleEvidence.length) return null;
-  return <details className="mt-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/50"><summary className="cursor-pointer text-violet-100/65">本段主要參考星盤配置</summary><ul className="mt-3 space-y-3">{visibleEvidence.map((item, index) => <li key={`${item.factor}-${index}`}><strong className="text-violet-100/75">{item.factor}：{item.value}</strong><p className="mt-1 leading-6">{item.relevance}</p></li>)}</ul></details>;
+  return <details className="mt-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/50"><summary className="cursor-pointer text-violet-100/65">{language === 'en' ? 'Chart factors referenced in this section' : '本段主要參考星盤配置'}</summary><ul className="mt-3 space-y-3">{visibleEvidence.map((item, index) => <li key={`${item.factor}-${index}`}><strong className="text-violet-100/75">{item.factor}：{item.value}</strong><p className="mt-1 leading-6">{item.relevance}</p></li>)}</ul></details>;
 }
 
-function ForecastCard({ period }: { period: NonNullable<VedicReport['sections'][number]['timeline']>[number] }) {
+function ForecastCard({ period, language }: { period: NonNullable<VedicReport['sections'][number]['timeline']>[number]; language: 'zh-Hant' | 'en' }) {
   const { interpretation } = period;
   return <article className="rounded-2xl border border-fuchsia-300/20 bg-slate-950/50 p-5 sm:p-6">
     <p className="text-sm text-amber-200/65">{period.analysisStartDate || period.startDate} ～ {period.analysisEndDate || period.endDate}</p>
     <h5 className="mt-2 font-serif text-2xl text-amber-100">{period.displayLabel}</h5>
     <p className="mt-5 whitespace-pre-line text-base leading-8 text-violet-50/75 sm:text-lg sm:leading-9">{interpretation.consultation}</p>
-    {interpretation.evidence.length ? <EvidenceDetails evidence={interpretation.evidence} /> : null}
+    {interpretation.evidence.length ? <EvidenceDetails evidence={interpretation.evidence} language={language} /> : null}
   </article>;
 }
 
-function ForecastOverview({ periods }: { periods: NonNullable<VedicReport['sections'][number]['timeline']> }) {
-  return <div className="overflow-x-auto rounded-2xl border border-violet-300/15"><table className="min-w-[520px] w-full text-left text-sm"><thead className="bg-violet-400/10 text-violet-100/70"><tr><th className="p-3">時間</th><th className="p-3">大運／次運</th></tr></thead><tbody>{periods.map((period) => <tr key={`overview-${period.id}`} className="border-t border-white/5 text-white/60"><td className="p-3">{period.analysisStartDate || period.startDate} ～ {period.analysisEndDate || period.endDate}</td><td className="p-3 text-amber-100/80">{period.displayLabel}</td></tr>)}</tbody></table></div>;
+function ForecastOverview({ periods, language }: { periods: NonNullable<VedicReport['sections'][number]['timeline']>; language: 'zh-Hant' | 'en' }) {
+  return <div className="overflow-x-auto rounded-2xl border border-violet-300/15"><table className="min-w-[520px] w-full text-left text-sm"><thead className="bg-violet-400/10 text-violet-100/70"><tr><th className="p-3">{language === 'en' ? 'Period' : '時間'}</th><th className="p-3">{language === 'en' ? 'Dasha / Sub-period' : '大運／次運'}</th></tr></thead><tbody>{periods.map((period) => <tr key={`overview-${period.id}`} className="border-t border-white/5 text-white/60"><td className="p-3">{period.analysisStartDate || period.startDate} ～ {period.analysisEndDate || period.endDate}</td><td className="p-3 text-amber-100/80">{period.displayLabel}</td></tr>)}</tbody></table></div>;
 }
 
 function CosmicBackground() {

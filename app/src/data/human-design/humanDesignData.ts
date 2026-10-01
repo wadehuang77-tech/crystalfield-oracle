@@ -243,7 +243,66 @@ function expandCoreExplanation(id: string, chart: HDChart, original: string): st
   return `${original}\n\n${angle}\n\n最後，請把 ${chart.strategy} 與 ${chart.authorityName} 放在一起使用：前者幫你辨認何時適合靠近，後者幫你確認是否真正願意。當選擇讓你更接近「${chart.signature}」，通常表示能量正在順流；若反覆出現「${chart.notSelf}」，那不是失敗，而是靈魂提醒你暫停、調整界線或回到自己的節奏。\n\n閱讀時也請保留自己的判斷。成長背景、家庭責任、身心狀態、經濟條件與所處文化，都會影響能量如何呈現；人類圖提供觀察方向，卻不取代現實資訊與專業協助。連續記錄一段時間，再從反覆出現的模式理解自己，會比用單次感受下結論更完整。`;
 }
 
-export function generateFreeReport(chart: HDChart): ReportSection[] {
+export function generateFreeReport(chart: HDChart, language: 'zh-Hant' | 'en' = 'zh-Hant'): ReportSection[] {
+  return language === 'en' ? generateEnglishFreeReport(chart) : generateTraditionalChineseFreeReport(chart);
+}
+
+function generateEnglishFreeReport(chart: HDChart): ReportSection[] {
+  const typeNames: Record<HDTypeName, string> = {
+    generator: 'Generator',
+    'manifesting-generator': 'Manifesting Generator',
+    projector: 'Projector',
+    manifestor: 'Manifestor',
+    reflector: 'Reflector',
+  };
+  const authorityNames: Record<string, string> = {
+    sacral: 'Sacral Authority', emotional: 'Emotional Authority', splenic: 'Splenic Authority',
+    ego: 'Ego Authority', 'self-projected': 'Self-Projected Authority', lunar: 'Lunar Authority',
+  };
+  const type = typeNames[chart.type];
+  const authority = authorityNames[chart.authority] || chart.authorityName;
+  const strategy: Record<HDTypeName, string> = {
+    generator: 'Wait to respond',
+    'manifesting-generator': 'Respond, then inform',
+    projector: 'Wait for the invitation',
+    manifestor: 'Inform before acting',
+    reflector: 'Wait through a lunar cycle',
+  };
+  const typeGuidance: Record<HDTypeName, string> = {
+    generator: 'Your energy becomes available when life gives you something real to respond to. Notice the body response before committing, and let satisfaction guide the choices that deserve your sustained effort.',
+    'manifesting-generator': 'You are built to explore, create, and change direction when your body responds. You do not need to force yourself into a single straight path; respond first, inform the people affected, and let your speed become a creative strength.',
+    projector: 'Your gift is focused recognition rather than constant output. Let the right people see your insight and invite your contribution, and protect regular rest so your guidance remains clear instead of becoming bitterness or exhaustion.',
+    manifestor: 'You carry initiating energy and may sense a new direction before others do. Inform the people affected before you act, not to ask permission, but to reduce resistance and give your independence room to move peacefully.',
+    reflector: 'Your openness lets you reflect the health of people and environments around you. Give important decisions time, notice how different places affect your body, and choose spaces that leave you feeling surprised, clear, and alive.',
+  };
+  const profileGuidance = `Your ${chart.profile} profile describes a way of learning and being seen. Let experience teach you without demanding perfection, and notice which relationships give your natural gifts enough room to develop. Your profile is a perspective for experimentation, not a fixed identity.`;
+  const authorityGuidance = `Use ${authority} for important choices. Give your decision-making process the time, bodily signal, emotional clarity, or spoken reflection it needs. The mind can organize information, but it does not have to force the final answer.`;
+  const definition = chart.definedCenters.length === 0 ? 'No Definition (Reflector)' : chart.definedCenters.length <= 3 ? 'Single Definition' : chart.definedCenters.length <= 6 ? 'Split Definition' : 'Multiple Definition';
+  const centerNames: Record<CenterName, string> = { head: 'Head', ajna: 'Ajna', throat: 'Throat', g: 'G Center', heart: 'Heart', sacral: 'Sacral', 'solar-plexus': 'Solar Plexus', spleen: 'Spleen', root: 'Root' };
+  const centers = chart.definedCenters.length ? chart.definedCenters.map((center) => centerNames[center]).join(', ') : 'all centers are open';
+  const sections: ReportSection[] = [
+    { id: 'type', title: `Your Type: ${type}`, icon: '✦', free: true, emailUnlock: false, content: () => `${typeGuidance[chart.type]}\n\nYour strategy is to ${strategy[chart.type].toLowerCase()}. Try it with a low-risk decision this week and record what happens in your body before and after you choose.` },
+    { id: 'profile', title: `Profile: ${chart.profile}`, icon: '◈', free: true, emailUnlock: false, content: () => profileGuidance },
+    { id: 'strategy', title: `Strategy: ${strategy[chart.type]}`, icon: '◎', free: true, emailUnlock: false, content: () => `Strategy is a practical experiment, not a rule you must perform perfectly. Before responding, informing, waiting for recognition, or giving yourself time, notice whether the action reduces pressure and creates more room to be yourself.\n\nFor you, ${strategy[chart.type].toLowerCase()} can be practiced through invitations, work choices, relationships, and rest. Small experiments are more useful than trying to change your whole life at once.` },
+    { id: 'authority', title: `Inner Authority: ${authority}`, icon: '⊕', free: true, emailUnlock: false, content: () => authorityGuidance },
+    { id: 'definition', title: `Definition: ${definition}`, icon: '◑', free: true, emailUnlock: false, content: () => `Definition describes how your consistent energy connects within you. Your defined centers are ${centers}. This is not a measure of worth or completeness; it is an invitation to notice what feels reliable and what may be amplified by other people or environments.` },
+    { id: 'ai-summary', title: 'Soul Energy Summary', icon: '◉', free: true, emailUnlock: false, content: () => `Treat this chart as a mirror rather than a verdict. Your recurring signals are most useful when you test them against real choices, relationships, work rhythms, and the way your body feels afterward. Keep what helps you observe yourself with more honesty and freedom.` },
+    { id: 'basic-talent', title: 'Gifts and Strengths', icon: '★', free: true, emailUnlock: false, content: () => `${type} energy can become a gift when it is used in the right setting and at the right pace. Notice what people naturally seek from you, what leaves you with energy after you finish, and where you no longer need to prove your value. Let skill, practice, and boundaries give your potential a practical form.` },
+    { id: 'ai-tip', title: 'Today\'s Energy Guidance', icon: '◇', free: true, emailUnlock: false, content: () => `Choose one small decision today and pause before answering it. Notice your body, your timing, and whether the choice brings you closer to peace or satisfaction. Write down the result without judging yourself; repeated observations are more valuable than one perfect answer.` },
+    { id: 'personality-deep', title: 'Deep Soul Analysis', icon: '◉', free: false, emailUnlock: true, content: () => '' },
+    { id: 'talent', title: 'Talent and Strength Analysis', icon: '★', free: false, emailUnlock: true, content: () => '' },
+    { id: 'centers-overview', title: 'Complete Energy Center Overview', icon: '◈', free: false, emailUnlock: true, content: () => '' },
+    { id: 'wealth', title: 'Wealth Energy Analysis', icon: '◇', free: false, emailUnlock: false, content: () => '' },
+    { id: 'career', title: 'Career Direction Analysis', icon: '◈', free: false, emailUnlock: false, content: () => '' },
+    { id: 'love', title: 'Relationship Patterns', icon: '◉', free: false, emailUnlock: false, content: () => '' },
+    { id: 'shadow', title: 'Shadow Patterns', icon: '◎', free: false, emailUnlock: false, content: () => '' },
+    { id: 'energy-blocks', title: 'Sources of Energy Blocks', icon: '✦', free: false, emailUnlock: false, content: () => '' },
+    { id: 'ai-action', title: 'Soul Action Guidance', icon: '★', free: false, emailUnlock: false, content: () => '' },
+  ];
+  return sections;
+}
+
+function generateTraditionalChineseFreeReport(chart: HDChart): ReportSection[] {
   return [
     {
       id: 'type',

@@ -15,6 +15,12 @@ Make crystalfield101.com available in Traditional Chinese and English while pres
 - Locale is sent with deck preview/unlock requests. The card Worker reads `card_localizations` and `deck_localizations` from the separate cards D1. Missing English payloads no longer return Chinese card preview/gated text: previews are marked unavailable and unlock endpoints return `CARD_TRANSLATION_UNAVAILABLE`.
 - Human Design paid English reports use an independent report version and request all sections in English. English requests do not receive the Chinese fixed fallback. HD full-section sharing reads the locale-specific report version, and core share summary labels have English variants.
 - Vedic report requests carry locale; the existing order row stores locale-specific report/draft JSON. English headings, word-count validation, retry locale propagation, and explicit no-provider behavior are wired.
+- Vedic English free-result UI now localizes the result heading, key chart badges, D1 chart labels, house labels, planet names, and Lahiri calculation note; the Chinese route remains unchanged.
+- Vedic paid-report fixed UI, timeline/evidence labels, loading states, and review form now switch between Traditional Chinese and English; locale-specific report prose continues to come from the Worker report version.
+- Human Design full-report loading/error states now switch between Traditional Chinese and English, while the report page keeps the locale-aware Worker report request.
+- Human Design local free-report content now has an English generator for the eight free core sections and English locked-section titles; the Traditional Chinese generator remains unchanged.
+- Human Design now has a separate English dataset and `/en` article selection for all 9 article slugs; the original Traditional Chinese article dataset remains unchanged.
+- Vedic Astrology now has a separate English dataset and `/en` article selection for all 10 article slugs; the original Traditional Chinese article dataset remains unchanged.
 - Added an audit at `docs/i18n-translation-audit.md` and an additive cards-D1 migration at `d1/cards-migrations/001_card_localizations.sql`.
 
 ## Card Translation Progress
@@ -42,7 +48,8 @@ The full translations are in `d1/card-localizations-en.json`. `d1/build-card-loc
 - Complete Oracle/Tarot spread/result/restore/error/paywall/share screens; only entry copy and selected result labels are localized.
 - Numerology calculated reports, daily energy, forecast, crystal and oracle readings, AI advisor, checkout/unlock/share states.
 - Human Design fixed knowledge, chart labels/free report, article content, checkout states, and public share-page content.
-- Vedic free chart labels/results, paid report loading/review UI, timeline evidence labels, article content, and end-to-end English report generation.
+- Human Design paid-report prose fallback/content audit and checkout/share states.
+- Vedic free chart result prose, paid report body content, and end-to-end English report generation.
 - Human Design and Vedic article JSON datasets remain Traditional Chinese. Authentication, membership, checkout, emails, and other transactional screens need a full locale audit.
 - English prerender currently contains only heading/intro content for the 11 listed routes; `prerender.mjs` and sitemap do not yet include English article pages.
 - Full English search/content scan and end-to-end checks for every deck, spread, and paid report remain outstanding.

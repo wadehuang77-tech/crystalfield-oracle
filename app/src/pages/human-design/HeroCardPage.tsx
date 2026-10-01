@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Mail, Sparkles } from 'lucide-react';
 import { publicApi } from '../../lib/api';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
+import { getLanguageFromPath, t } from '../../lib/i18n';
 
 interface HeroCardPageProps {
   chart: HDChart;
@@ -36,6 +37,8 @@ function CenterDot({ defined }: { defined: boolean }) {
 }
 
 export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, onEmailUnlocked }: HeroCardPageProps) {
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`humanDesign.${key}`, language) : fallback;
   const [visible, setVisible] = useState(false);
   const [cardVisible, setCardVisible] = useState(false);
   const [email, setEmail] = useState('');
@@ -50,24 +53,24 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
   }, []);
 
   const centerGroups = [
-    { label: '頭頂', key: 'head' as const },
-    { label: '邏輯', key: 'ajna' as const },
-    { label: '喉嚨', key: 'throat' as const },
-    { label: 'G 中心', key: 'g' as const },
-    { label: '心臟', key: 'heart' as const },
-    { label: '薦骨', key: 'sacral' as const },
-    { label: '情緒', key: 'solar-plexus' as const },
-    { label: '脾臟', key: 'spleen' as const },
-    { label: '根部', key: 'root' as const },
+    { label: language === 'en' ? 'Head' : '頭頂', key: 'head' as const },
+    { label: language === 'en' ? 'Ajna' : '邏輯', key: 'ajna' as const },
+    { label: language === 'en' ? 'Throat' : '喉嚨', key: 'throat' as const },
+    { label: 'G', key: 'g' as const },
+    { label: language === 'en' ? 'Heart' : '心臟', key: 'heart' as const },
+    { label: language === 'en' ? 'Sacral' : '薦骨', key: 'sacral' as const },
+    { label: language === 'en' ? 'Solar Plexus' : '情緒', key: 'solar-plexus' as const },
+    { label: language === 'en' ? 'Spleen' : '脾臟', key: 'spleen' as const },
+    { label: language === 'en' ? 'Root' : '根部', key: 'root' as const },
   ];
 
   const metaRows = [
-    { label: '人生角色', value: `${chart.profile}  ${chart.profileName}` },
-    { label: '內在權威', value: chart.authorityName },
-    { label: '策略', value: chart.strategy },
-    { label: '本命十字', value: chart.incarnationCross },
-    { label: '最高狀態', value: chart.signature },
-    { label: '非自我主題', value: chart.notSelf },
+    { label: copy('profile', '人生角色'), value: `${chart.profile}  ${chart.profileName}` },
+    { label: copy('authority', '內在權威'), value: chart.authorityName },
+    { label: copy('strategy', '策略'), value: chart.strategy },
+    { label: copy('incarnationCross', '本命十字'), value: chart.incarnationCross },
+    { label: copy('signature', '最高狀態'), value: chart.signature },
+    { label: copy('notSelf', '非自我主題'), value: chart.notSelf },
   ];
 
   const handleEmailUnlock = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -75,7 +78,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
     const trimmed = email.trim().toLowerCase();
 
     if (!isValidEmail(trimmed)) {
-      setEmailError('請先輸入有效的 Email');
+      setEmailError(copy('emailInvalid', '請先輸入有效的 Email'));
       return;
     }
 
@@ -87,12 +90,12 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
     try {
       const result = await publicApi.saveEmail(trimmed, 'human_design_free_report');
       if (!result.success) {
-        setEmailError(result.message || 'Email 寫入失敗，請稍後再試');
+        setEmailError(result.message || copy('emailSaveFailed', 'Email 寫入失敗，請稍後再試'));
         return;
       }
       onEmailUnlocked(trimmed);
     } catch (err) {
-      setEmailError(err instanceof Error ? err.message : 'Email 寫入失敗，請稍後再試');
+      setEmailError(err instanceof Error ? err.message : copy('emailSaveFailed', 'Email 寫入失敗，請稍後再試'));
     } finally {
       setIsUnlocking(false);
     }
@@ -109,7 +112,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-400/25 bg-cyan-400/5 mb-4">
             <Sparkles className="w-3 h-3 text-cyan-400" />
             <span className="text-xs text-cyan-400 tracking-widest font-medium uppercase">
-              你的人類圖能量藍圖已完成
+              {copy('heroComplete', '你的人類圖能量藍圖已完成')}
             </span>
           </div>
           <div className="text-white/30 text-xs">
@@ -133,7 +136,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
             <div className="flex items-start justify-between mb-6">
               <div>
                 <p className="text-white/35 text-xs mb-1.5 font-medium tracking-widest uppercase">
-                  你的類型
+                  {copy('typeLabel', '你的類型')}
                 </p>
                 <div className="flex items-center gap-3">
                   <div className={`inline-flex px-4 py-1.5 rounded-full bg-gradient-to-r ${colors.badge} shadow-lg`}>
@@ -173,7 +176,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
                 <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-2.5 h-2.5 text-white" />
                 </div>
-                <span className="text-white/30 text-xs font-medium">靈魂使命訊息</span>
+                <span className="text-white/30 text-xs font-medium">{copy('soulMessage', '靈魂使命訊息')}</span>
               </div>
               <p className="text-white/75 text-sm leading-[1.8] pl-7 italic">
                 "{chart.aiIntro}"
@@ -196,7 +199,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
                   setEmail(event.target.value);
                   if (emailError) setEmailError('');
                 }}
-                placeholder="輸入 Email"
+                placeholder={copy('emailPlaceholder', '輸入 Email')}
                 className="w-full h-14 rounded-2xl border border-cyan-400/25 bg-slate-950/50 pl-11 pr-4 text-sm font-medium text-white placeholder:text-white/30 outline-none transition-all focus:border-cyan-300/70 focus:bg-slate-950/70"
                 disabled={isUnlocking}
                 required
@@ -216,12 +219,12 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
                 {isUnlocking ? (
                   <>
                     <div className="w-4 h-4 rounded-full border-2 border-white/45 border-t-white animate-spin" />
-                    寫入中...
+                    {copy('emailSaving', '寫入中...')}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    輸入email 解鎖免費報告
+                    {copy('unlockFree', '輸入email 解鎖免費報告')}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
@@ -234,7 +237,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
         <div
           className={`mt-6 transition-all duration-700 delay-500 ease-out ${cardVisible ? 'opacity-100' : 'opacity-0'}`}
         >
-          <p className="text-white/20 text-xs text-center mb-3">偵測到的主要通道</p>
+          <p className="text-white/20 text-xs text-center mb-3">{copy('channels', '偵測到的主要通道')}</p>
           <div className="flex flex-wrap justify-center gap-2">
             {chart.keyChannels.map(ch => (
               <span key={ch} className="px-2.5 py-1 rounded-full text-xs text-white/30 border border-white/8 bg-white/3">

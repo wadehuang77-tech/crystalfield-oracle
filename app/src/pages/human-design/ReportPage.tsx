@@ -5,6 +5,7 @@ import { humanDesignApi, type HumanDesignFullReportSection } from '../../lib/api
 import { generateFreeReport } from '../../data/human-design/humanDesignData';
 import HumanDesignShareButton from '../../components/human-design/HumanDesignShare';
 import { getHumanDesignShareCapabilities, getHumanDesignShareProofs } from '../../lib/humanDesignShareAuth';
+import { getLanguageFromPath } from '../../lib/i18n';
 
 interface ReportPageProps {
   chart: HDChart;
@@ -285,6 +286,8 @@ export default function ReportPage({
   onEnsureChartSaved,
   onNavigate,
 }: ReportPageProps) {
+  const language = getLanguageFromPath(window.location.pathname);
+  const isEnglish = language === 'en';
   const [visible, setVisible] = useState(false);
   const [fullReportSections, setFullReportSections] = useState<HumanDesignFullReportSection[] | null>(null);
   const [fullReportLoading, setFullReportLoading] = useState(false);
@@ -314,7 +317,7 @@ export default function ReportPage({
       const timeoutId = window.setTimeout(() => {
         if (cancelled) return;
         setFullReportLoading(false);
-        setFullReportError('人類圖資料尚未成功建立，無法讀取完整版報告。請重新計算一次。');
+        setFullReportError(isEnglish ? 'Your Human Design chart was not saved. Please calculate it again.' : '人類圖資料尚未成功建立，無法讀取完整版報告。請重新計算一次。');
       }, 25000);
 
       const savePromise = onEnsureChartSaved?.() ?? Promise.resolve(false);
@@ -326,14 +329,14 @@ export default function ReportPage({
           }
           window.clearTimeout(timeoutId);
           setFullReportLoading(false);
-          setFullReportError('人類圖資料尚未成功建立，無法讀取完整版報告。請重新計算一次。');
+          setFullReportError(isEnglish ? 'Your Human Design chart was not saved. Please calculate it again.' : '人類圖資料尚未成功建立，無法讀取完整版報告。請重新計算一次。');
         })
         .catch((err) => {
           if (cancelled) return;
           console.error('HD chart save before full report failed:', err);
           window.clearTimeout(timeoutId);
           setFullReportLoading(false);
-          setFullReportError('人類圖資料建立失敗，無法讀取完整版報告。請稍後再試。');
+          setFullReportError(isEnglish ? 'The chart could not be saved, so the full report is unavailable. Please try again later.' : '人類圖資料建立失敗，無法讀取完整版報告。請稍後再試。');
         });
 
       return () => {
@@ -354,7 +357,7 @@ export default function ReportPage({
       .then(({ sections, report_version }) => {
         if (cancelled) return;
         if (!sections.length) {
-          setFullReportError('完整版資料庫報告沒有回傳內容，請稍後再試。');
+          setFullReportError(isEnglish ? 'The full report returned no content. Please try again later.' : '完整版資料庫報告沒有回傳內容，請稍後再試。');
           setFullReportSections(null);
           setReportVersion('');
           return;
@@ -392,7 +395,7 @@ export default function ReportPage({
   // All free sections — computed entirely from local Human Design Engine, no API
   let freeSections: ReturnType<typeof generateFreeReport> = [];
   try {
-    freeSections = generateFreeReport(chart);
+    freeSections = generateFreeReport(chart, language);
   } catch (err) {
     console.error('generateFreeReport error:', err);
   }
@@ -430,6 +433,8 @@ export default function ReportPage({
             {basicUnlocked ? chart.authorityName : 'Email 免費解鎖：先查看你的類型'}
           </p>
 
+            const language = getLanguageFromPath(window.location.pathname);
+            const isEnglish = language === 'en';
           {/* Quick-glance chips */}
           <div className="flex flex-wrap justify-center gap-2 mt-5">
             {(basicUnlocked ? [
@@ -451,7 +456,6 @@ export default function ReportPage({
             ))}
           </div>
         </div>
-
         {/* ── Free sections (fully local, no API) ── */}
         {visibleSections.length > 0 ? (
           <div className="space-y-3 mb-8">

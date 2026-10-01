@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import articles from '../../data/human-design/articles.json';
+import englishArticles from '../../data/human-design/articles.en.json';
+import { getLanguageFromPath } from '../../lib/i18n';
 
 export type HumanDesignArticle = {
   title: string;
@@ -14,13 +16,16 @@ export type HumanDesignArticle = {
 };
 
 export const HUMAN_DESIGN_ARTICLES = articles as unknown as Record<string, HumanDesignArticle>;
+const HUMAN_DESIGN_ARTICLES_EN = englishArticles as unknown as Record<string, HumanDesignArticle>;
 
 type HumanDesignArticlePageProps = {
   slug: keyof typeof articles;
 };
 
 export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageProps) {
-  const article = HUMAN_DESIGN_ARTICLES[slug];
+  const language = getLanguageFromPath(window.location.pathname);
+  const isEnglish = language === 'en';
+  const article = (isEnglish ? HUMAN_DESIGN_ARTICLES_EN[slug] : HUMAN_DESIGN_ARTICLES[slug]) ?? HUMAN_DESIGN_ARTICLES[slug];
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#0A0E17] px-5 py-14 text-white sm:px-8">
@@ -30,7 +35,7 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
       </div>
       <article className="relative mx-auto max-w-4xl">
         <nav aria-label="麵包屑" className="mb-8 flex flex-wrap items-center gap-2 text-sm text-cyan-200/60">
-          <Link className="transition hover:text-cyan-100" to="/human-design">人類圖</Link>
+          <Link className="transition hover:text-cyan-100" to={isEnglish ? '/en/human-design' : '/human-design'}>{isEnglish ? 'Human Design' : '人類圖'}</Link>
           <span aria-hidden="true">/</span>
           <span className="text-white/80">{article.section}</span>
         </nav>
@@ -38,7 +43,7 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
         <header className="rounded-3xl border border-cyan-200/15 bg-slate-950/55 p-7 shadow-2xl shadow-cyan-950/20 backdrop-blur sm:p-12">
           <div className="mb-5 flex items-center gap-2 text-sm tracking-[0.18em] text-cyan-200/75">
             <BookOpen className="h-4 w-4" aria-hidden="true" />
-            <span>{article.section}・閱讀指南</span>
+            <span>{isEnglish ? `${article.section} · Reading Guide` : `${article.section}・閱讀指南`}</span>
           </div>
           <h1 className="text-3xl font-semibold leading-tight text-white sm:text-5xl">{article.h1}</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-slate-200/80 sm:text-lg">{article.intro}</p>
@@ -46,19 +51,19 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-200">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
             </span>
-            <span>作者：韋德老師｜供自我覺察與生活實驗參考</span>
+            <span>{isEnglish ? 'By Wade Huang | For self-reflection and practical experimentation' : '作者：韋德老師｜供自我覺察與生活實驗參考'}</span>
           </div>
-          <p className="mt-3 text-sm text-slate-300/60">更新日期：2026 年 9 月 17 日</p>
+          <p className="mt-3 text-sm text-slate-300/60">{isEnglish ? 'Updated: September 17, 2026' : '更新日期：2026 年 9 月 17 日'}</p>
         </header>
 
         <div className="mt-10 space-y-10">
           <nav aria-label="文章目錄" className="rounded-2xl border border-white/10 bg-white/[0.035] p-6">
-            <h2 className="text-xl font-semibold text-white">文章目錄</h2>
+            <h2 className="text-xl font-semibold text-white">{isEnglish ? 'Contents' : '文章目錄'}</h2>
             <ol className="mt-3 grid gap-2 text-cyan-300 sm:grid-cols-2">
               {article.sections.map((section, index) => (
                 <li key={section.heading}><a className="underline decoration-cyan-300/40 underline-offset-4" href={`#section-${index + 1}`}>{section.heading}</a></li>
               ))}
-              <li><a className="underline decoration-cyan-300/40 underline-offset-4" href="#article-faq">常見問題</a></li>
+              <li><a className="underline decoration-cyan-300/40 underline-offset-4" href="#article-faq">{isEnglish ? 'FAQ' : '常見問題'}</a></li>
             </ol>
           </nav>
           {article.sections.map((section) => (
@@ -71,7 +76,7 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
           ))}
 
           <section aria-labelledby="article-faq" className="rounded-2xl border border-cyan-200/15 bg-cyan-950/20 p-6 sm:p-8">
-            <h2 id="article-faq" className="text-2xl font-semibold text-white sm:text-3xl">常見問題</h2>
+            <h2 id="article-faq" className="text-2xl font-semibold text-white sm:text-3xl">{isEnglish ? 'FAQ' : '常見問題'}</h2>
             <div className="mt-5 space-y-3">
               {article.faq.map(([question, answer]) => (
                 <details key={question} className="rounded-xl border border-white/10 bg-black/10 px-4 py-3">
@@ -83,22 +88,22 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
           </section>
 
           <section className="rounded-2xl border border-blue-300/20 bg-gradient-to-br from-blue-950/70 to-cyan-950/50 p-7 sm:p-9">
-            <h2 className="text-2xl font-semibold text-white">把閱讀變成一次生活實驗</h2>
+            <h2 className="text-2xl font-semibold text-white">{isEnglish ? 'Turn Reading into a Practical Experiment' : '把閱讀變成一次生活實驗'}</h2>
             <p className="mt-3 max-w-2xl leading-8 text-slate-200/80">
-              了解概念後，輸入自己的出生資料建立人類圖，從類型、內在權威和人生角色開始觀察。請保留判斷空間，讓結果服務於你的生活，而不是限制你的選擇。
+              {isEnglish ? 'After learning the concepts, enter your birth details to create a chart and begin observing your type, inner authority, and profile. Keep room for your own judgment so the result supports your life instead of restricting your choices.' : '了解概念後，輸入自己的出生資料建立人類圖，從類型、內在權威和人生角色開始觀察。請保留判斷空間，讓結果服務於你的生活，而不是限制你的選擇。'}
             </p>
             <Link className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-3 font-semibold text-white transition hover:from-blue-400 hover:to-cyan-400" to="/human-design">
-              免費計算我的人類圖
+              {isEnglish ? 'Calculate My Human Design Chart' : '免費計算我的人類圖'}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </section>
 
           <aside className="rounded-2xl border border-amber-200/15 bg-amber-950/20 p-6 text-sm leading-7 text-slate-200/75">
-            人類圖適合作為自我探索與生活實驗的參考，不代表科學、醫療或心理診斷，也不能取代醫療、心理、法律、財務或其他專業意見。請結合自己的真實經驗及現實情況進行判斷。
+            {isEnglish ? 'Human Design is provided as a self-reflection and practical experimentation tool. It is not a scientific, medical, or psychological diagnosis and does not replace professional medical, psychological, legal, financial, or other advice. Combine the material with your lived experience and real-world circumstances.' : '人類圖適合作為自我探索與生活實驗的參考，不代表科學、醫療或心理診斷，也不能取代醫療、心理、法律、財務或其他專業意見。請結合自己的真實經驗及現實情況進行判斷。'}
           </aside>
 
           <nav aria-label="延伸閱讀" className="border-t border-white/10 pt-7">
-            <h2 className="text-xl font-semibold text-white">延伸閱讀</h2>
+            <h2 className="text-xl font-semibold text-white">{isEnglish ? 'Related Reading' : '延伸閱讀'}</h2>
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-3">
               {article.related.map(([label, href]) => (
                 <Link key={href} className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition hover:text-white" to={href}>{label}</Link>
