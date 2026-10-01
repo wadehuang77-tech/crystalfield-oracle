@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getLanguageFromPath } from '../lib/i18n';
 
 const faq = [
   ['印度占星是什麼？', '印度占星也常稱為吠陀占星或 Vedic Astrology，是以出生日期、時間與地點建立星盤，整理生命週期與自我探索方向的文化性占星系統。'],
@@ -18,9 +19,32 @@ const faq = [
 ] as const;
 
 export default function VedicAstrologySeoContent() {
+  const isEnglish = getLanguageFromPath(window.location.pathname) === 'en';
   const knowledgeLinks = [
     ['印度占星是什麼？', 'what-is-vedic-astrology'], ['印度占星與西洋占星', 'vedic-vs-western'], ['羅喉計都與前世業力', 'rahu-ketu'], ['印度占星大運', 'dasha'], ['月宿 Nakshatra', 'nakshatra'], ['D9 九分盤', 'd9-navamsa'], ['D10 十分盤', 'd10-dasamsa'], ['出生時間怎麼辦？', 'birth-time'], ['感情與婚姻', 'love-marriage'], ['事業與財富', 'career-wealth'],
   ];
+  if (isEnglish) {
+    const englishFaq = [
+      ['What is Vedic Astrology?', 'Vedic Astrology, also called Jyotish, uses birth date, time, and place to create a chart and organize symbolic life-cycle themes.'],
+      ['How is it different from Western Astrology?', 'The systems may use different zodiac coordinates, chart techniques, and timing methods. Keep their calculations distinct when comparing them.'],
+      ['What birth details are needed?', 'Use your birth date, the most accurate birth time available, and your birth city or place.'],
+      ['What are Rahu and Ketu?', 'They are lunar nodes often used as symbolic perspectives on familiar patterns and developmental direction.'],
+      ['What is Dasha?', 'Dasha and sub-periods organize broader and smaller life-cycle themes. They do not guarantee specific events.'],
+      ['Can astrology replace professional advice?', 'No. Astrology is for reflection and does not replace medical, psychological, legal, financial, or other professional advice.'],
+    ];
+    const englishLinks = [
+      ['What is Vedic Astrology?', 'what-is-vedic-astrology'], ['Vedic vs Western Astrology', 'vedic-vs-western'], ['Rahu and Ketu', 'rahu-ketu'], ['Planetary periods', 'dasha'], ['Nakshatra', 'nakshatra'], ['D9 Navamsa', 'd9-navamsa'], ['D10 Dasamsa', 'd10-dasamsa'], ['Birth time', 'birth-time'], ['Love and marriage', 'love-marriage'], ['Career and wealth', 'career-wealth'],
+    ];
+    return <section className="mx-auto mt-16 max-w-4xl space-y-12 text-violet-100/80" aria-labelledby="vedic-seo-heading">
+      <div><h2 id="vedic-seo-heading" className="font-serif text-3xl text-amber-50">What Is Vedic Astrology?</h2><p className="mt-4 leading-8">Vedic Astrology, also called Jyotish, uses your birth date, time, and place to create a chart. Crystal Field uses a sidereal zodiac and stated calculation settings to organize life cycles and self-reflection. It is a cultural and symbolic tool, not a scientifically verified prediction system or a substitute for professional advice.</p></div>
+      <div><h2 className="font-serif text-3xl text-amber-50">Vedic and Western Astrology</h2><p className="mt-4 leading-8">The two traditions may differ in zodiac coordinates, sign positions, chart methods, and timing techniques. Vedic Astrology often emphasizes the Moon, Nakshatra, Rahu and Ketu, planetary periods, and D9 and D10 divisional charts. Understanding the difference helps you choose a consistent way to observe your experience.</p></div>
+      <div><h2 className="font-serif text-3xl text-amber-50">What Can a Vedic Chart Include?</h2><ul className="mt-4 grid gap-2 sm:grid-cols-2"><li>Ascendant, Sun, and Moon</li><li>Planetary signs and houses</li><li>Nakshatra</li><li>Rahu and Ketu</li><li>Dasha and sub-periods</li><li>D1, D9, and D10 charts</li></ul></div>
+      <div><h2 className="font-serif text-3xl text-amber-50">Nine In-Depth Vedic Astrology Readings</h2><div className="mt-4 grid gap-3 sm:grid-cols-2">{['Past-life themes and life lessons', 'Rahu and Ketu soul axis', 'Love and marriage', 'Wealth and money', 'Gifts and career direction', 'D9 relationship and maturity', 'D10 career chart', 'Three-to-five-year planetary timeline', 'Life purpose and direction'].map((item) => <h3 key={item} className="rounded-xl border border-white/10 bg-white/5 p-4 text-lg text-amber-100">{item}</h3>)}</div></div>
+      <div><h2 className="font-serif text-3xl text-amber-50">Knowledge Library</h2><div className="mt-4 grid gap-3 sm:grid-cols-2">{englishLinks.map(([label, slug]) => <Link key={slug} className="rounded-xl border border-white/10 bg-white/5 p-4 text-amber-200 underline" to={`/en/vedic-astrology/${slug}`}>{label}</Link>)}</div></div>
+      <div><h2 className="font-serif text-3xl text-amber-50">FAQ</h2><div className="mt-4 space-y-3">{englishFaq.map(([question, answer]) => <details key={question} className="rounded-xl border border-white/10 bg-white/5 p-4"><summary className="cursor-pointer font-medium text-amber-100">{question}</summary><p className="mt-3 leading-7">{answer}</p></details>)}</div></div>
+      <nav className="border-t border-white/10 pt-6 text-sm"><Link className="mr-5 text-amber-300 underline" to="/en/numerology">Explore Numerology</Link><Link className="mr-5 text-amber-300 underline" to="/en/human-design">Calculate Human Design</Link><Link className="text-amber-300 underline" to="/en/oracle">Explore Tarot and Oracle</Link></nav>
+    </section>;
+  }
   return (
     <section className="mx-auto mt-16 max-w-4xl space-y-12 text-violet-100/80" aria-labelledby="vedic-seo-heading">
       <div><h2 id="vedic-seo-heading" className="font-serif text-3xl text-amber-50">什麼是印度占星？</h2><p className="mt-4 leading-8">印度占星也常稱為吠陀占星或 Vedic Astrology，透過出生日期、時間與地點建立星盤。晶域心語以實際系統支援的恆星黃道與歲差設定，整理生命週期與自我觀察方向；它是文化性占星與自我探索工具，不是科學證實的預測，也不取代專業諮詢。</p></div>
