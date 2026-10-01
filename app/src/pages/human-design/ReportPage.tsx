@@ -423,14 +423,14 @@ export default function ReportPage({
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-400/25 bg-cyan-400/5 mb-5">
             <Sparkles className="w-3 h-3 text-cyan-400" />
             <span className="text-xs text-cyan-400 tracking-widest uppercase font-medium">
-              你的人類圖免費報告
+              {isEnglish ? 'Your Human Design Free Report' : '你的人類圖免費報告'}
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
             {basicUnlocked ? `${chart.typeName} · ${chart.profile}` : chart.typeName}
           </h1>
           <p className="text-white/35 text-sm">
-            {basicUnlocked ? chart.authorityName : 'Email 免費解鎖：先查看你的類型'}
+            {basicUnlocked ? chart.authorityName : isEnglish ? 'Enter your email to unlock the free report' : 'Email 免費解鎖：先查看你的類型'}
           </p>
 
             const language = getLanguageFromPath(window.location.pathname);
@@ -439,12 +439,12 @@ export default function ReportPage({
           <div className="flex flex-wrap justify-center gap-2 mt-5">
             {(basicUnlocked ? [
               { label: '類型',     value: chart.typeName },
-              { label: '策略',     value: chart.strategy },
-              { label: '內在權威', value: chart.authorityName },
-              { label: '定義',     value: definitionLabel },
-              { label: '人生角色', value: `${chart.profile} ${chart.profileName}` },
+              { label: isEnglish ? 'Strategy' : '策略', value: chart.strategy },
+              { label: isEnglish ? 'Inner Authority' : '內在權威', value: chart.authorityName },
+              { label: isEnglish ? 'Definition' : '定義', value: isEnglish ? definitionLabel.replace('無定義（反映者）', 'No Definition (Reflector)').replace('單一定義', 'Single Definition').replace('雙重定義', 'Split Definition').replace('多重定義', 'Multiple Definition') : definitionLabel },
+              { label: isEnglish ? 'Profile' : '人生角色', value: `${chart.profile} ${chart.profileName}` },
             ] : [
-              { label: '類型', value: chart.typeName },
+              { label: isEnglish ? 'Type' : '類型', value: chart.typeName },
             ]).map(chip => (
               <div
                 key={chip.label}
@@ -496,11 +496,11 @@ export default function ReportPage({
             ref={fullReportRef}
             className={`mb-8 transition-all duration-600 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
           >
-          <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
-            專屬靈魂能量藍圖
+            <p className="text-white/20 text-xs text-center mb-3 tracking-wider uppercase">
+            {isEnglish ? 'Your Personal Energy Blueprint' : '專屬靈魂能量藍圖'}
           </p>
           {isFullUnlocked && fullReportLoading && (
-            <p className="text-cyan-300/60 text-xs text-center mb-3">報告生成中，完成後會自動顯示</p>
+            <p className="text-cyan-300/60 text-xs text-center mb-3">{isEnglish ? 'Report is being generated and will appear when ready.' : '報告生成中，完成後會自動顯示'}</p>
           )}
           {isFullUnlocked && reportVersion && (
             <p className="text-white/20 text-[11px] text-center mb-3">資料版本：{reportVersion}</p>
@@ -514,7 +514,7 @@ export default function ReportPage({
             ) : fullReportError && paidContent.length === 0 ? (
               <div className="px-6 py-8 text-center">
                 <p className="text-amber-200/75 text-sm leading-loose">
-                  完整版能量指引暫時沒有成功載入。請稍後重新整理；若仍無法顯示，請聯絡我們協助確認。
+                  {isEnglish ? 'The full energy guidance could not be loaded. Refresh later, and contact us if it remains unavailable.' : '完整版能量指引暫時沒有成功載入。請稍後重新整理；若仍無法顯示，請聯絡我們協助確認。'}
                 </p>
               </div>
             ) : (
@@ -554,9 +554,9 @@ export default function ReportPage({
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/8">
               <Lock className="h-4 w-4 text-white/45" />
             </div>
-            <p className="mb-2 text-center text-sm font-semibold text-white/80">專屬靈魂能量藍圖</p>
+            <p className="mb-2 text-center text-sm font-semibold text-white/80">{isEnglish ? 'Your Personal Energy Blueprint' : '專屬靈魂能量藍圖'}</p>
             <p className="mb-4 text-center text-xs leading-relaxed text-white/45">
-              解鎖後查看以下 9 項完整說明
+              {isEnglish ? 'Unlock all 9 in-depth sections' : '解鎖後查看以下 9 項完整說明'}
             </p>
             <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
               {FULL_REPORT_TITLES.map((title) => (
@@ -575,7 +575,7 @@ export default function ReportPage({
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Lock className="h-4 w-4" />
-              {checkoutLoading ? '前往付款中...' : '解鎖你的專屬靈魂能量藍圖 NT$399'}
+              {checkoutLoading ? (isEnglish ? 'Opening checkout...' : '前往付款中...') : isEnglish ? 'Unlock your personal energy blueprint NT$399' : '解鎖你的專屬靈魂能量藍圖 NT$399'}
             </button>
             <button
               type="button"
@@ -583,7 +583,7 @@ export default function ReportPage({
               disabled={checkoutLoading}
               className="mt-3 inline-flex w-full flex-col items-center justify-center rounded-xl border border-yellow-100/60 bg-gradient-to-r from-yellow-200 via-amber-100 to-cyan-200 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/15 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <span>{checkoutLoading ? '前往付款中...' : '解鎖人類圖核心解析 + 專屬靈魂能量藍圖 NT$489 省100'}</span>
+              <span>{checkoutLoading ? (isEnglish ? 'Opening checkout...' : '前往付款中...') : isEnglish ? 'Unlock Human Design core + personal energy blueprint NT$489' : '解鎖人類圖核心解析 + 專屬靈魂能量藍圖 NT$489 省100'}</span>
             </button>
           </div>
         )}

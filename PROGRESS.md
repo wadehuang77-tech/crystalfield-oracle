@@ -20,6 +20,7 @@ Make crystalfield101.com available in Traditional Chinese and English while pres
 - Human Design full-report loading/error states now switch between Traditional Chinese and English, while the report page keeps the locale-aware Worker report request.
 - Human Design local free-report content now has an English generator for the eight free core sections and English locked-section titles; the Traditional Chinese generator remains unchanged.
 - Human Design now has a separate English dataset and `/en` article selection for all 9 article slugs; the original Traditional Chinese article dataset remains unchanged.
+- `/en` audit fixes now cover Human Design SEO/FAQ content and report-shell labels, plus Vedic paid-option cards, life-map cards, and public review headings; Chinese routes remain unchanged.
 - Vedic Astrology now has a separate English dataset and `/en` article selection for all 10 article slugs; the original Traditional Chinese article dataset remains unchanged.
 - Added an audit at `docs/i18n-translation-audit.md` and an additive cards-D1 migration at `d1/cards-migrations/001_card_localizations.sql`.
 

@@ -1,3 +1,5 @@
+import { getLanguageFromPath } from '../../lib/i18n';
+
 const faqs = [
   ['人類圖是什麼？', '人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。'],
   ['人類圖怎麼計算？', '系統會依照出生年月日、時間與出生城市建立人類圖，並產生入口頁可查看的能量藍圖與後續報告內容。'],
@@ -15,7 +17,34 @@ const faqs = [
 
 export const HUMAN_DESIGN_FAQS = faqs;
 
+const englishFaqs = [
+  ['What is Human Design?', 'Human Design is a self-reflection system that uses birth data to create an energy chart and explore type, strategy, inner authority, profile, definition, and energy centers.'],
+  ['How is a Human Design chart calculated?', 'The chart uses your birth date, time, and city. Birth time can affect the result, so use the most reliable information available.'],
+  ['What are the five energy types?', 'The five commonly used types are Generator, Manifesting Generator, Projector, Manifestor, and Reflector.'],
+  ['What is inner authority?', 'Inner authority is a way to observe your decision-making process through emotional clarity, bodily response, intuition, will, voice, or time.'],
+  ['Can Human Design replace medical or psychological care?', 'No. It is a self-reflection and experimentation tool and does not replace qualified professional support.'],
+  ['Is my birth data public?', 'Birth data is not placed in public SEO content or the sitemap. Storage and sharing follow the site authentication, authorization, and privacy systems.'],
+];
+
 export default function HumanDesignSeoContent() {
+  const isEnglish = getLanguageFromPath(window.location.pathname) === 'en';
+  if (isEnglish) {
+    const types = [
+      ['Generator', 'Observe what life places in front of you and notice whether your body has a genuine response before committing.'],
+      ['Manifesting Generator', 'Respond first, then let curiosity and speed guide exploration while informing people affected by your changes.'],
+      ['Projector', 'Protect your energy and share insight where you are genuinely recognized and invited to contribute.'],
+      ['Manifestor', 'Initiate from a clear impulse and inform the people affected without giving away your autonomy.'],
+      ['Reflector', 'Notice how people and environments affect you, and give important decisions enough time to become clear.'],
+    ];
+    return <section className="relative mt-12 w-full max-w-3xl space-y-10 text-left text-white/75">
+      <div><h2 className="mb-3 text-2xl font-semibold text-white">What is Human Design?</h2><p className="leading-8">Human Design is a self-reflection system that creates an energy chart from birth data. It offers prompts about type, strategy, inner authority, profile, definition, and energy centers. Use it as a practical experiment, not as a fixed prediction or a replacement for professional care.</p></div>
+      <div><h2 className="mb-4 text-2xl font-semibold text-white">The five energy types</h2><div className="space-y-4">{types.map(([title, text]) => <div key={title}><h3 className="text-lg font-semibold text-cyan-200">{title}</h3><p className="mt-1 leading-7">{text}</p></div>)}</div></div>
+      <div><h2 className="mb-3 text-2xl font-semibold text-white">What can a Human Design report include?</h2><p className="leading-8">A report may cover type, profile, strategy, inner authority, definition, energy centers, gifts, relationships, career direction, and practical reflection prompts. Free and paid sections depend on the site's access settings.</p></div>
+      <div><h2 className="mb-3 text-2xl font-semibold text-white">How should I use a chart?</h2><p className="leading-8">Choose one low-risk situation and observe your body, emotions, timing, and boundaries before and after a decision. Keep what helps you understand yourself more clearly and set aside anything that does not match your lived experience.</p></div>
+      <div><h2 className="mb-4 text-2xl font-semibold text-white">FAQ</h2><div className="space-y-3">{englishFaqs.map(([question, answer]) => <details key={question} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"><summary className="cursor-pointer font-semibold text-cyan-100">{question}</summary><p className="mt-2 leading-7">{answer}</p></details>)}</div></div>
+      <nav className="border-t border-white/10 pt-5 text-sm" aria-label="Related Human Design reading"><h2 className="mb-3 text-2xl font-semibold text-white">Related Human Design reading</h2><div className="flex flex-wrap gap-x-5 gap-y-2">{[['The five energy types', '/en/human-design/types'], ['Generator', '/en/human-design/generator'], ['Inner authority', '/en/human-design/authority'], ['Profile', '/en/human-design/profile'], ['Birth time', '/en/human-design/birth-time']].map(([label, href]) => <a key={href} className="text-cyan-300 underline" href={href}>{label}</a>)}</div></nav>
+    </section>;
+  }
   return <section className="relative mt-12 w-full max-w-3xl space-y-10 text-left text-white/75">
     <div><h2 className="mb-3 text-2xl font-semibold text-white">什麼是人類圖？</h2><p className="leading-8">人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，並從能量類型、策略、內在權威、人生角色、定義及能量中心等方向進行探索。它適合作為自我探索、生活實驗與覺察工具，不宣稱能決定命運，也不取代醫療或其他專業諮詢。</p></div>
     <div><h2 className="mb-3 text-2xl font-semibold text-white">人類圖計算需要哪些資料？</h2><p className="leading-8">需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響計算結果；如果不確定，可以查閱出生證明或戶籍資料，不應讓系統假裝估計結果完全準確，也不要自行捏造出生時間。</p></div>
