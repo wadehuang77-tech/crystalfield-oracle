@@ -23,22 +23,22 @@ The actual seeded inventory was verified from `d1/cards-seed.sql` in an isolated
 
 | Deck | Cards | Fully translated English payloads |
 | --- | ---: | ---: |
-| `tarot` | 22 | 2 |
+| `tarot` | 22 | 4 |
 | `osho` | 45 | 0 |
 | `lightworker` | 43 | 0 |
 | `unicorns` | 44 | 0 |
 | `egyptian_gods` | 36 | 0 |
 | `work_your_light` | 44 | 0 |
 | `dragons` | 44 | 0 |
-| **Total** | **278** | **2** |
+| **Total** | **278** | **4** |
 
-Translated stable IDs: `tarot:0-fool` and `tarot:1-magician`. The next card to translate is `tarot:2-high-priestess`.
+Translated stable IDs: `tarot:0-fool`, `tarot:1-magician`, `tarot:2-high-priestess`, and `tarot:3-empress`. The next card to translate is `tarot:4-emperor`.
 
-The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql`. The remaining 276 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
+The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql`. The remaining 274 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
 
 ## Still Incomplete
 
-- 276 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
+- 274 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
 - Complete Oracle/Tarot spread/result/restore/error/paywall/share screens; only entry copy and selected result labels are localized.
 - Numerology calculated reports, daily energy, forecast, crystal and oracle readings, AI advisor, checkout/unlock/share states.
 - Human Design fixed knowledge, chart labels/free report, article content, checkout states, and public share-page content.
@@ -65,18 +65,18 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 
 - App TypeScript check: passed.
 - Worker TypeScript check: passed.
-- Card seed generator: passed for 2 translations; repeated upsert was idempotent.
+- Card seed generator: passed for 4 translations; repeated upsert was idempotent.
 - Isolated local cards D1: base schema, 278-card seed, and localization migration executed successfully. Inventory query confirmed 278 rows, 278 unique IDs, zero blank required names/keys, and declared per-deck counts match actual counts.
 - Local Worker API smoke test: the English Fool payload was returned in English; untranslated cards returned empty previews, `content_locale: "zh-Hant"`, and `translation_available: false`.
 - Sitemap XML browser parse: valid; 42 URL entries and 44 hreflang alternate links.
-- Vite build: Vite/prerender success output was observed earlier, including generated English prerender output. The latest complete command exit status after all later edits was not reliably captured; rerun `npm.cmd --prefix app run build` and record the exit code before treating it as verified. Existing Vite warning: the main JS chunk exceeds 500 kB.
+- Vite build: `npm.cmd --prefix app run build` completed successfully with exit code `0`, including generated English prerender output. Existing Vite warning: the main JS chunk exceeds 500 kB.
 - Production D1 migration: **not executed**.
 - Production deployment: **not performed**.
 - Paid AI translation/report-generation calls: **none**.
 
 ## Next Steps
 
-1. Translate `tarot:2-high-priestess` and continue the remaining Tarot IDs in stable `card_key` order. Preserve all source fields and structure; regenerate `cards-localizations-seed.sql` after each reviewed batch and validate with the generator.
+1. Translate `tarot:4-emperor` and continue the remaining Tarot IDs in stable `card_key` order. Preserve all source fields and structure; regenerate `cards-localizations-seed.sql` after each reviewed batch and validate with the generator.
 2. Add translations for the other six decks in seed order, keeping original IDs and Chinese rows unchanged.
 3. Run the repeatable seed against a local/test cards D1, verify all 278 translated rows and field completeness, and smoke-test both preview and unlock APIs for translated and untranslated cards.
 4. Continue route-by-route UI localization for all spread, report, auth, membership, checkout, sharing, and error states. Add missing English Human Design/Vedic article content.

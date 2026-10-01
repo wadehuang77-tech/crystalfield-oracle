@@ -90,5 +90,97 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "2-high-priestess",
+    "locale": "en",
+    "name": "The High Priestess",
+    "name_secondary": "女祭司",
+    "preview_payload": {
+      "keywords": ["Intuition", "Wisdom", "Mystery", "Subconscious", "Inner Knowing"],
+      "arcana": "major",
+      "number": 2
+    },
+    "gated_payload": {
+      "uprightMeaning": "The High Priestess embodies wisdom and intuition, guarding the realms of hidden knowledge and the subconscious. When this card appears, it reminds you to listen to your inner voice and trust your intuition. This is not a time to rely only on logical analysis; go deeper and explore the wisdom within. The High Priestess encourages meditation and a connection with your spiritual self so that you can find answers inwardly. This period may support the study of esoteric subjects, spiritual practice, or a deeper understanding of your subconscious. Remain patient and receptive, because some things need time to be revealed. The High Priestess also represents secrets and hidden knowledge, reminding you that some information may not yet be fully visible.",
+      "reversedMeaning": "The reversed High Priestess suggests that you may be ignoring your intuition or allowing external noise to drown out your inner voice. You may be relying too heavily on rational thought while suppressing your emotional and spiritual sides. This card can also suggest that a secret is being withheld or that you are refusing to see important information. You may feel disconnected from your inner wisdom and unable to access a deeper understanding. Rebuild your connection with intuition through time alone and honest reflection. The reversed High Priestess also asks you to face yourself truthfully rather than hiding the truth or avoiding deep feelings. Balance reason and feeling so that you can make the wisest decision.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Intuition", "Inner Wisdom", "Mystery", "Waiting", "Receiving Messages"],
+          "reversed": ["Ignoring Intuition", "Overthinking", "Hidden Secrets", "Disconnection from Self", "Unclear Information"],
+          "uprightExplanation": "Upright, the High Priestess is a gateway to subconscious and spiritual wisdom. Seated between the black and white pillars, she guards hidden knowledge and symbolizes the balance of opposites behind a veil of mystery. This card asks you to stop searching outward and turn inward instead. Your intuition may be more reliable than logic right now, and your dreams may reveal more than your waking thoughts. The High Priestess does not offer answers immediately; she waits until you are ready to receive them. This is a quiet, inward, receptive energy, better suited to observing, waiting, and listening than taking action. The answer will emerge naturally at the right time.",
+          "reversedExplanation": "The reversed High Priestess shows that your connection with inner wisdom may have been severed. The noise of the outside world may be so loud that you cannot hear your inner voice. You may be relying on rational analysis to calculate every step while ignoring intuitive guidance. This card can also indicate a hidden secret or a truth you have chosen not to see. You may be afraid to face what lies within, using busyness to avoid being alone. The High Priestess reminds you that the truth does not disappear because you refuse to look at it. Be honest with yourself and rebuild your inner connection. Turn down the outside noise so that you can hear your own wisdom."
+        },
+        "energyFlow": {
+          "direction": "Inward",
+          "type": "Receptive",
+          "description": "The High Priestess carries an inward, receptive energy that waits rather than pushes forward. Seated between the black and white pillars, she guards the doorway to the subconscious. This is the energy of stillness, observation, and receiving spiritual messages."
+        },
+        "timing": {
+          "speed": "Slow",
+          "description": "This situation needs time to develop, so do not rush. The High Priestess suggests that the timing is not yet right and may bring a waiting period of one to three months. The answer will appear naturally at the right time; forcing it will only make things harder."
+        },
+        "advice": {
+          "upright": "Do not make a decision yet. Quiet yourself and listen to your intuition. Spend time meditating, being alone, and observing. The answer is already within you, even if it has not reached your conscious mind. Stay patient and let the message come to you.",
+          "reversed": "Reconnect with your intuition. Reduce external noise, step away from social media, and give yourself a quiet space. If there is a secret, face it honestly. Do not keep avoiding your inner voice; it has been trying to tell you the truth."
+        },
+        "chakra": {
+          "primary": "Third Eye Chakra",
+          "issue": "Your intuition may feel blocked, making it difficult to receive spiritual insight, or you may be relying too heavily on logical thinking.",
+          "healingNote": "The High Priestess is closely connected with the Third Eye Chakra, a center commonly associated with intuition and inner vision. If you feel disconnected from intuition or unable to receive insight, you may benefit from practices that create quiet and reflection. Crystals such as amethyst or labradorite can be used as personal ritual objects, but they are not medical treatment; consult a qualified professional for health concerns."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that the answer is not outside you, but within you. The wisdom you have been seeking is something you already know. Stop searching outward and return to inner stillness. In that silence, you may hear what the universe has been saying to you all along.",
+          "reversed": "Your soul is reminding you that you have drifted too far from yourself. The noise of the outside world has drowned out what is true within you. It is time to face honestly the truth you have been avoiding. Your intuition is still there; you have simply chosen not to listen. Come back to yourself."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "3-empress",
+    "locale": "en",
+    "name": "The Empress",
+    "name_secondary": "皇后",
+    "preview_payload": {
+      "keywords": ["Abundance", "Nurturing", "Creativity", "Beauty", "Plenty"],
+      "arcana": "major",
+      "number": 3
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Empress embodies the energy of abundance, nourishment, and creativity. She represents the richness of nature and the loving care of the mother, bringing growth and prosperity to life. When this card appears, it can point to a harvest season approaching, whether through material plenty or emotional and spiritual fulfillment. The Empress encourages you to connect with nature, enjoy life's beautiful offerings, and treat yourself and others with love and care. This is an excellent time to nurture a creative project, build a home, or tend to relationships. The Empress also represents sensual pleasure and artistic beauty, reminding you to appreciate harmony and the loveliness around you. Her energy is gentle yet powerful, bringing healing and growth so that everything can thrive when nourished by love.",
+      "reversedMeaning": "The reversed Empress may show blocked creativity or a lack of nourishment. You may be relying too heavily on others, or caring for everyone else while neglecting your own needs. This card can also point to overprotection or a suffocating relationship, whether you are controlling someone or being controlled. You may feel disconnected from your creativity or feminine energy, or experience material and emotional scarcity. The reversed Empress asks you to restore the balance of self-care and learn to set healthy boundaries. Do not let responsibility for others overwhelm you, and do not control people out of fear of losing them. Reconnect with nature and your body, and cultivate self-love and self-worth so that you can genuinely offer love and support.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Abundance", "Nourishment", "Creativity", "Feminine Energy", "Harvest"],
+          "reversed": ["Scarcity", "Overgiving", "Blocked Creativity", "Imbalance", "Suffocating Relationship"],
+          "uprightExplanation": "Upright, the Empress represents the abundance of the Earth Mother: creation, nourishment, and unconditional love. She sits in nature among ripe fields and flowing water, symbols of life's fullness and growth. This card brings the accepting, gentle, patient strength that allows things to flourish. The Empress does not force anything to grow; she provides the best environment and lets life develop in its own time. This is feminine energy expressed not through conquest or control, but through love and care. The upright Empress reminds you that abundance is part of your nature, not something you must struggle to earn. When you care for yourself well, plenty can flow toward you naturally.",
+          "reversedExplanation": "The reversed Empress shows that nourishing energy has become unbalanced. You may care for others so intensely that you forget yourself and become an exhausted giver. Or you may have completely ignored your creativity and your need to be loved. Feminine energy can turn into suffocation and overprotection, leading you to control someone in the name of doing what is best for them. This card can also point to a lost connection with your body and the natural world, leaving you feeling empty and deprived. The reversed Empress reminds you that you cannot pour from an empty cup. Stop overgiving and give love to yourself first. True abundance comes from inner fullness, not external accumulation."
+        },
+        "energyFlow": {
+          "direction": "Outward expansion",
+          "type": "Nourishing expression",
+          "description": "The Empress flows like the generous energy of the Earth Mother. She nourishes and supports growth, allowing everything to thrive in love. This is creative energy, but it is not hurried; it patiently waits for the fruit to ripen."
+        },
+        "timing": {
+          "speed": "Natural pace",
+          "description": "Things will develop at a natural pace, like a seed that needs time to sprout. You may see results within one to two months. Do not rush the process; let it grow in its own time."
+        },
+        "advice": {
+          "upright": "Take good care of your body, mind, and spirit. Spend time in nature and enjoy beautiful things. This is a good time to create and nurture something, but be patient. Love yourself well so that your love can flow freely to others.",
+          "reversed": "Stop overgiving. You are not responsible for being everyone's parent, so care for yourself first. If you feel deprived, look at whether you have been ignoring your own needs. Learn to say no and set clear boundaries."
+        },
+        "chakra": {
+          "primary": "Heart Chakra and Sacral Chakra",
+          "issue": "Overgiving may be draining your Heart Chakra, or creative energy may be blocked in the Sacral Chakra.",
+          "healingNote": "The Empress connects the Heart Chakra, associated with love and giving, with the Sacral Chakra, associated with creativity. If overgiving has left you exhausted, your heart needs replenishment. If creativity feels stuck, gentle creative practices may help restore movement. Crystals such as rose quartz or moonstone can be used as personal ritual objects, but they are not medical treatment; consult a qualified professional for health concerns."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that you deserve to be nourished and to enjoy beautiful things. Life is not only about giving and working; it also includes receiving and enjoying. Allow yourself to be loved and allow abundance to flow toward you. You are a child of the Earth, and fullness is part of your nature.",
+          "reversed": "Your soul is reminding you that you have forgotten how to receive. You are used to being the giver, but do not know how to accept. This imbalance is draining your energy. It is time to stop and give love to yourself first. You do not need to prove your worth through constant giving."
+        }
+      }
+    }
   }
 ]
