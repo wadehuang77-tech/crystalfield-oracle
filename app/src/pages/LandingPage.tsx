@@ -252,7 +252,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mx-auto mt-10 max-w-6xl px-6 sm:mt-14">
-            <VedicEntryCard />
+            <VedicEntryCard language={language} />
           </div>
         </section>
       </main>
@@ -522,11 +522,12 @@ function HumanDesignArtwork() {
 }
 
 // ─── Vedic Astrology featured entry ─────────────────────────────────────────
-function VedicEntryCard() {
+function VedicEntryCard({ language }: { language: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
   return (
     <Link
-      to="/vedic-astrology"
-      aria-label="進入印度占星靈魂業力人生地圖"
+      to={getLocalizedPath('/vedic-astrology', language)}
+      aria-label={isEnglish ? 'Open the Vedic Astrology life map' : '進入印度占星靈魂業力人生地圖'}
       className="group relative block min-h-[340px] overflow-hidden rounded-[2rem] border border-amber-300/35 bg-[#10071d] no-underline shadow-[0_18px_70px_rgba(180,83,9,0.18)] transition duration-500 hover:-translate-y-1 hover:border-amber-200/65 hover:shadow-[0_26px_90px_rgba(217,119,6,0.30)] sm:min-h-[320px]"
     >
       <VedicArtwork />
@@ -534,14 +535,14 @@ function VedicEntryCard() {
       <div className="relative z-10 flex min-h-[340px] flex-col justify-center px-7 py-10 sm:min-h-[320px] sm:px-12 lg:max-w-[68%] lg:px-16">
         <div className="flex items-center gap-3 text-sm font-medium uppercase tracking-[0.24em] text-amber-200/75">
           <span className="text-xl" aria-hidden>🪷</span>
-          印度占星 · 靈魂業力解析
+          {isEnglish ? 'Vedic Astrology · Soul and Life Patterns' : '印度占星 · 靈魂業力解析'}
         </div>
-        <h3 className="mt-5 font-serif text-3xl font-bold text-amber-50 sm:text-5xl">印度占星｜靈魂業力人生地圖</h3>
+        <h3 className="mt-5 font-serif text-3xl font-bold text-amber-50 sm:text-5xl">{isEnglish ? 'Vedic Astrology | Your Life Map' : '印度占星｜靈魂業力人生地圖'}</h3>
         <p className="mt-4 max-w-2xl text-base leading-8 text-violet-100/72 sm:text-lg">
-          從你的出生星盤，看見今生天賦、感情模式、財富道路，以及正在經歷的人生週期與未來轉折。
+          {isEnglish ? 'Explore your birth chart, gifts, relationship patterns, wealth path, current life cycle, and possible turning points ahead.' : '從你的出生星盤，看見今生天賦、感情模式、財富道路，以及正在經歷的人生週期與未來轉折。'}
         </p>
         <div className="mt-7 inline-flex w-fit items-center gap-3 rounded-full border border-amber-200/30 bg-gradient-to-r from-amber-600/80 to-fuchsia-700/75 px-7 py-3.5 font-semibold text-white shadow-[0_0_28px_rgba(245,158,11,0.22)] transition group-hover:scale-[1.03] group-hover:brightness-110">
-          開啟我的人生地圖
+          {isEnglish ? 'Open My Life Map' : '開啟我的人生地圖'}
           <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" aria-hidden>
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
