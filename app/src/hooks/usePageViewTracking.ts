@@ -4,20 +4,40 @@ import { trackEvent } from '../lib/tracking';
 
 export function usePageViewTracking() {
   const location = useLocation();
-  const isInitialPageView = useRef(true);
+  const hasMountedRef = useRef(false);
+  const lastPageKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
+    const pageKey = `${location.pathname}${location.search}`;
+
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      lastPageKeyRef.current = pageKey;
+      return;
+    }
+
+    if (lastPageKeyRef.current === pageKey) {
+      return;
+    }
+
+    lastPageKeyRef.current = pageKey;
+
+    const pagePath = `${location.pathname}${location.search}`;
+
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: pagePath,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
+    }
+
     trackEvent('page_view', {
       path: location.pathname,
       search: location.search,
       referrer: document.referrer || null,
     });
 
-    // The initial PageView is sent by index.html. Track subsequent SPA navigations here.
-    if (isInitialPageView.current) {
-      isInitialPageView.current = false;
-    } else {
-      window.fbq?.('track', 'PageView');
-    }
-  }, [location.hash, location.pathname, location.search]);
+    window.fbq?.('track', 'PageView');
+  }, [location.pathname, location.search]);
 }
