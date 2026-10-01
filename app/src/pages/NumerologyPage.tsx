@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Gem, Star, Sparkles, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
@@ -15,6 +15,7 @@ import { checkoutApi, numerologyShareApi } from '../lib/api';
 import type { NumerologyShareAccess } from '../lib/api';
 import { getNumerologyShareCapabilities, getNumerologyShareProofs, mergeNumerologyShareCapabilities, saveNumerologyShareProof } from '../lib/numerologyShareAuth';
 import { submitToEcpay } from '../lib/ecpayRedirect';
+import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
 
 type Tab = 'report' | 'daily' | 'ai';
 
@@ -68,6 +69,9 @@ function getTierFromSku(sku: string): PlanTier {
 
 export default function NumerologyPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const language = getLanguageFromPath(location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`numerology.${key}`, language) : fallback;
   const { user } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
@@ -570,15 +574,14 @@ export default function NumerologyPage() {
               className="font-serif text-4xl md:text-5xl leading-tight"
               style={{ filter: 'drop-shadow(0 0 16px rgba(251,191,36,0.3)) drop-shadow(0 0 36px rgba(196,181,253,0.18))' }}
             >
-              <span className="text-gradient-gold">免費生命靈數計算：從生日探索天賦、缺失數字與人生方向</span>
+              <span className="text-gradient-gold">{copy('title', '免費生命靈數計算：從生日探索天賦、缺失數字與人生方向')}</span>
               <br />
             </h1>
             <p
               className="font-serif text-sm leading-relaxed max-w-sm mx-auto"
               style={{ color: 'rgba(196,181,253,0.65)', fontSize: 15, lineHeight: 1.85 }}
             >
-              輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，<br />
-              再依需求探索缺失數字、個人流年與水晶能量。
+              {copy('intro', '輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，再依需求探索缺失數字、個人流年與水晶能量。')}
             </p>
           </div>
 
@@ -596,7 +599,7 @@ export default function NumerologyPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-8">
-            {features.map(f => (
+            {features.map((f, index) => (
               <div
                 key={f.title}
                 className="rounded-2xl p-4 space-y-2 transition-all duration-300 hover:scale-[1.02] cursor-default"
@@ -609,8 +612,8 @@ export default function NumerologyPage() {
                 }}
               >
                 <span style={{ color: f.color, fontSize: 18 }}>{f.icon}</span>
-                <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{f.title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: 'rgba(196,181,253,0.5)' }}>{f.desc}</p>
+                <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{language === 'en' ? t(`numerology.features.${index}.title`, language) : f.title}</h3>
+                <p className="text-xs leading-relaxed" style={{ color: 'rgba(196,181,253,0.5)' }}>{language === 'en' ? t(`numerology.features.${index}.description`, language) : f.desc}</p>
               </div>
             ))}
           </div>
@@ -625,7 +628,7 @@ export default function NumerologyPage() {
             }}
           >
             <p className="text-xs uppercase tracking-widest text-center" style={{ color: 'rgba(167,139,250,0.45)' }}>
-              九大數字水晶對應
+              {language === 'en' ? 'Nine Numbers and Crystal Associations' : '九大數字水晶對應'}
             </p>
             <div className="flex justify-center gap-2.5 flex-wrap">
               {[
@@ -679,7 +682,7 @@ export default function NumerologyPage() {
                 }}
               >
                 {tab.icon}
-                {tab.label}
+                {language === 'en' ? t(`numerology.tabs.${tab.id}`, language) : tab.label}
               </button>
             ))}
           </div>
@@ -781,7 +784,16 @@ export default function NumerologyPage() {
 }
 
 function NumerologySeoContent() {
-  const faqs = [
+  const language = getLanguageFromPath(window.location.pathname);
+  const faqs = language === 'en' ? [
+    ['How is a life path number calculated?', 'Add the digits in your date of birth and continue reducing the total. This calculator preserves master numbers 11, 22, and 33.'],
+    ['What can numerology help me explore?', 'Use it as a reflection tool for strengths, work, relationships, personal-year themes, missing numbers, and crystal associations.'],
+    ['Are missing numbers bad?', 'No. They are not defects or judgments. They can be prompts for noticing skills or life areas you may want to develop.'],
+    ['What is the difference between a life path number and a personal year?', 'Your life path number is based on your birth date. A personal year is used to reflect on themes associated with a particular year.'],
+    ['Can I calculate my number without a birth time?', 'Yes. Numerology here uses your date of birth, not your time of birth.'],
+    ['Does my life path number change over time?', 'The number calculated from your birth date stays the same. Your personal-year themes and life experiences can change over time.'],
+    ['Can numerology replace professional medical or mental health advice?', 'No. Numerology is for self-reflection and direction-setting. Consult a qualified professional for medical or mental health concerns.'],
+  ] : [
     ['生命靈數怎麼算？', '將出生年月日的每個數字相加，再持續加總至個位數；本系統會保留 11、22、33 等大師數字。'],
     ['生命靈數可以看什麼？', '可以作為觀察天賦與性格、工作與事業方向、感情互動模式、個人流年、缺失數字與水晶能量的自我探索參考。'],
     ['缺失數字代表不好嗎？', '不代表好壞或缺陷，而是出生日期中較少出現的數字主題，可作為性格、學習方向與自我覺察的參考。'],
@@ -790,7 +802,17 @@ function NumerologySeoContent() {
     ['生命靈數結果會隨時間改變嗎？', '生命靈數本身不會因為時間改變；個人流年與人生經驗則會隨著年度和處境變化。'],
     ['生命靈數分析可以代替專業醫療或心理諮詢嗎？', '不可以。生命靈數適合自我覺察與方向整理，醫療或心理問題請尋求合格專業人士協助。'],
   ];
-  const numbers = [
+  const numbers = language === 'en' ? [
+    ['1', 'Independence and Initiative', 'Number 1 is often associated with initiative, leadership, and self-direction. It can prompt you to trust your judgment while balancing independence with receiving support.'],
+    ['2', 'Cooperation and Sensitivity', 'Number 2 is associated with cooperation, listening, and sensitivity. Reflect on communication in relationships and how to care for others while keeping your own boundaries.'],
+    ['3', 'Expression and Creativity', 'Number 3 is linked with expression, imagination, and sharing. It offers a perspective on creativity and communication, and a reminder to give your ideas room to be heard.'],
+    ['4', 'Structure and Practice', 'Number 4 represents order, patience, and turning ideas into practice. Reflect on routines and long-term plans while leaving room for flexibility.'],
+    ['5', 'Change and Freedom', 'Number 5 carries themes of exploration, adaptability, and variety. Notice how you respond to change and how to pair freedom with a steady foundation.'],
+    ['6', 'Care and Balance', 'Number 6 is often associated with family, responsibility, beauty, and care. Remember to make room for rest and support while caring for others.'],
+    ['7', 'Reflection and Understanding', 'Number 7 connects with study, contemplation, and inner exploration. Consider the solitude and learning that help you, alongside practical observation.'],
+    ['8', 'Resources and Responsibility', 'Number 8 often relates to goals, management, resources, and influence. Reflect on how your work, responsibilities, results, and values align.'],
+    ['9', 'Integration and Completion', 'Number 9 symbolizes empathy, integration, and completion. Consider what to carry forward, what no longer fits, and how experience can inform a new direction.'],
+  ] : [
     ['1', '獨立與開創', '1號常被用來觀察主動性、領導與自我決定。它提醒你在啟動新計畫時相信自己的判斷，也練習在堅持方向與接納協助之間取得平衡。'],
     ['2', '合作與感受', '2號象徵協調、傾聽與細膩感受。它適合用來思考關係中的溝通方式，以及如何在照顧他人時保留自己的界線與需要。'],
     ['3', '表達與創意', '3號常連結表達、想像力與分享。它可以提供創作、溝通與社交的觀察角度，也提醒你讓真實想法有適合的出口。'],
@@ -804,41 +826,41 @@ function NumerologySeoContent() {
   return (
     <section className="mt-12 space-y-10 text-left" style={{ color: 'rgba(233,213,255,0.82)' }}>
       <div>
-        <h2 className="mb-3 font-serif text-2xl text-purple-100">什麼是生命靈數？</h2>
-        <p className="leading-8">生命靈數是以出生日期中的數字進行整理的自我探索工具，可以從數字象徵觀察個人傾向、天賦與需要練習的方向。它不是對人生的固定預測，而是協助你整理經驗、理解自己與思考選擇的其中一種方法。</p>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">{language === 'en' ? 'What Is Numerology?' : '什麼是生命靈數？'}</h2>
+        <p className="leading-8">{language === 'en' ? 'Numerology uses the numbers in a birth date as a tool for self-reflection. Number symbolism can offer ways to consider personal tendencies, strengths, and areas to practice. It is not a fixed prediction, but one way to organize experience and think about choices.' : '生命靈數是以出生日期中的數字進行整理的自我探索工具，可以從數字象徵觀察個人傾向、天賦與需要練習的方向。它不是對人生的固定預測，而是協助你整理經驗、理解自己與思考選擇的其中一種方法。'}</p>
       </div>
       <div>
-        <h2 className="mb-3 font-serif text-2xl text-purple-100">如何計算生命靈數？</h2>
-        <p className="leading-8">例如生日為 1990 年 12 月 31 日，可將 1+9+9+0+1+2+3+1 相加，得到 26，再將 2+6 相加得到 8。本系統會依現有計算規則保留 11、22、33 等大師數字，不將它們繼續化為個位數。</p>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">{language === 'en' ? 'How Is a Life Path Number Calculated?' : '如何計算生命靈數？'}</h2>
+        <p className="leading-8">{language === 'en' ? 'For example, for December 31, 1990, add 1+9+9+0+1+2+3+1 to get 26, then add 2+6 to get 8. This calculator preserves master numbers such as 11, 22, and 33 according to its calculation rules.' : '例如生日為 1990 年 12 月 31 日，可將 1+9+9+0+1+2+3+1 相加，得到 26，再將 2+6 相加得到 8。本系統會依現有計算規則保留 11、22、33 等大師數字，不將它們繼續化為個位數。'}</p>
       </div>
       <div>
-        <h2 className="mb-4 font-serif text-2xl text-purple-100">生命靈數1到9代表什麼？</h2>
+        <h2 className="mb-4 font-serif text-2xl text-purple-100">{language === 'en' ? 'What Do Numbers 1–9 Represent?' : '生命靈數1到9代表什麼？'}</h2>
         <div className="grid gap-3 md:grid-cols-2">
-          {numbers.map(([number, label, text]) => <article key={number} className="rounded-2xl border border-purple-200/10 bg-white/[0.03] p-4"><h3 className="mb-1 text-lg text-purple-100">{number}號｜{label}</h3><p className="text-sm leading-7">{text}</p></article>)}
+          {numbers.map(([number, label, text]) => <article key={number} className="rounded-2xl border border-purple-200/10 bg-white/[0.03] p-4"><h3 className="mb-1 text-lg text-purple-100">{language === 'en' ? `${number} · ${label}` : `${number}號｜${label}`}</h3><p className="text-sm leading-7">{text}</p></article>)}
         </div>
       </div>
       <div>
-        <h2 className="mb-3 font-serif text-2xl text-purple-100">什麼是缺失數字？</h2>
-        <p className="leading-8">缺失數字是出生日期中沒有出現的 1 到 9 數字。它不代表好壞或缺陷，而是可以作為性格、學習方向與自我覺察的參考，幫助你留意較少使用的能力與需要培養的生活面向。</p>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">{language === 'en' ? 'What Are Missing Numbers?' : '什麼是缺失數字？'}</h2>
+        <p className="leading-8">{language === 'en' ? 'Missing numbers are digits from 1 to 9 that do not appear in your birth date. They are not good or bad and do not indicate a flaw. They can be prompts for noticing less-used skills and areas you may wish to develop.' : '缺失數字是出生日期中沒有出現的 1 到 9 數字。它不代表好壞或缺陷，而是可以作為性格、學習方向與自我覺察的參考，幫助你留意較少使用的能力與需要培養的生活面向。'}</p>
       </div>
       <div>
-        <h2 className="mb-3 font-serif text-2xl text-purple-100">生命靈數可以看哪些人生主題？</h2>
-        <p className="leading-8">生命靈數可用於整理天賦與性格、工作與事業方向、感情互動模式、個人流年、缺失數字、適合的水晶能量，以及與人類圖等工具進行靈魂藍圖交叉分析。這些內容適合作為自我理解與方向整理，不代表絕對結果。</p>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">{language === 'en' ? 'What Life Themes Can Numerology Explore?' : '生命靈數可以看哪些人生主題？'}</h2>
+        <p className="leading-8">{language === 'en' ? 'Numerology can offer reflection prompts about strengths, work, relationships, personal-year themes, missing numbers, and crystal associations. These ideas can support self-understanding and direction-setting, but they are not definitive outcomes.' : '生命靈數可用於整理天賦與性格、工作與事業方向、感情互動模式、個人流年、缺失數字、適合的水晶能量，以及與人類圖等工具進行靈魂藍圖交叉分析。這些內容適合作為自我理解與方向整理，不代表絕對結果。'}</p>
       </div>
       <div>
-        <h2 className="mb-3 font-serif text-2xl text-purple-100">為什麼選擇晶域心語？</h2>
-        <p className="leading-8">韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，將生命靈數、自我探索與水晶能量建議整合在晶域心語的服務中。</p>
+        <h2 className="mb-3 font-serif text-2xl text-purple-100">{language === 'en' ? 'About Crystal Field' : '為什麼選擇晶域心語？'}</h2>
+        <p className="leading-8">{language === 'en' ? 'Crystal Field brings numerology, self-reflection, and crystal suggestions together in one place, drawing on more than ten years of tarot, crystal healing, and metaphysical practice.' : '韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，將生命靈數、自我探索與水晶能量建議整合在晶域心語的服務中。'}</p>
       </div>
       <div>
-        <h2 className="mb-4 font-serif text-2xl text-purple-100">生命靈數常見問題</h2>
+        <h2 className="mb-4 font-serif text-2xl text-purple-100">{language === 'en' ? 'Numerology FAQs' : '生命靈數常見問題'}</h2>
         <div className="space-y-3">
           {faqs.map(([question, answer]) => <details key={question} className="rounded-xl border border-purple-200/10 bg-white/[0.03] px-4 py-3"><summary className="cursor-pointer font-semibold text-purple-100">{question}</summary><p className="mt-2 leading-7">{answer}</p></details>)}
         </div>
       </div>
       <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-purple-200/10 pt-5 text-sm">
-        <Link className="text-purple-300 underline" to="/oracle">探索塔羅與神諭卡</Link>
-        <Link className="text-purple-300 underline" to="/human-design">深入探索人類圖</Link>
-        <Link className="text-purple-300 underline" to="/vedic-astrology">查看印度占星分析</Link>
+        <Link className="text-purple-300 underline" to={getLocalizedPath('/oracle', language)}>{language === 'en' ? 'Explore Tarot and Oracle Cards' : '探索塔羅與神諭卡'}</Link>
+        <Link className="text-purple-300 underline" to={getLocalizedPath('/human-design', language)}>{language === 'en' ? 'Explore Human Design' : '深入探索人類圖'}</Link>
+        <Link className="text-purple-300 underline" to={getLocalizedPath('/vedic-astrology', language)}>{language === 'en' ? 'Explore Vedic Astrology' : '查看印度占星分析'}</Link>
       </nav>
     </section>
   );

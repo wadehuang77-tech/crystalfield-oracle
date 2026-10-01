@@ -20,6 +20,7 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
+import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -44,6 +45,8 @@ const POINTS_LABELS: [keyof UnicornGated, string][] = [
 ];
 
 export default function UnicornsPage() {
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.unicorns.${key}`, language) : fallback;
   const navigate = useNavigate();
   const { cards: deck, error: deckError } = useDeck('unicorns');
   const [searchParams] = useSearchParams();
@@ -268,25 +271,20 @@ export default function UnicornsPage() {
             <div className="flex justify-center text-pink-500 mb-8">
               <DeckSigil />
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl text-pink-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">獨角獸塔羅</h1>
+            <h1 className="font-serif text-3xl sm:text-5xl text-pink-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">{copy('title', '獨角獸塔羅')}</h1>
             {drawnCards.length === 0 && !showCardLayout && !isDrawing && (
               <div className="max-w-3xl mx-auto mb-8 rounded-2xl border border-pink-400/35 bg-gradient-to-br from-fuchsia-500/10 via-slate-900/80 to-rose-500/10 px-5 py-6 sm:px-8 sm:py-7 shadow-[0_0_30px_rgba(244,114,182,0.14)]">
                 <p className="text-left text-base sm:text-lg leading-loose text-pink-50/95">
-                  「獨角獸」的能量非常特別，祂代表著
-                  <strong className="font-semibold text-pink-200">純潔、無條件的愛、高頻療癒與奇蹟</strong>
-                  。如果說一般塔羅牌像是一位「直言不諱的客觀智者」，那
-                  <strong className="font-semibold text-pink-200">獨角獸塔羅</strong>
-                  就像是一位「溫柔擁抱你、告訴你你已經做得很好的靈魂守護者」。
+                  {copy('about', '「獨角獸」象徵純潔、無條件的愛、療癒與奇蹟。這副牌以溫柔的方式陪你探索關係、自我價值，以及你需要的照顧。')}
                 </p>
               </div>
             )}
             <p className="text-base text-pink-300/80 leading-loose tracking-wide max-w-md mx-auto mb-8">
-              純淨能量,神聖之光。<br />
-              一張牌,即是一道魔法的指引。
+              {copy('tagline', '純淨能量,神聖之光。\n一張牌,即是一道魔法的指引。')}
             </p>
             <button onClick={() => setShowDrawPage(false)} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
               <BookOpen className="w-4 h-4" strokeWidth={1.4} />
-              查 看 所 有 牌
+              {copy('library', '查 看 所 有 牌')}
             </button>
           </section>
 
@@ -294,13 +292,13 @@ export default function UnicornsPage() {
 
           {searchParams.get('order_id') && restoreState === 'pending' && drawnCards.length === 0 && (
             <div className="max-w-md mx-auto bg-slate-800/60 border-2 border-pink-500/30 rounded-2xl p-6 mb-6 text-center">
-              <p className="text-pink-200 tracking-wide">正在還原你的牌陣...</p>
+              <p className="text-pink-200 tracking-wide">{language === 'en' ? 'Restoring your spread...' : '正在還原你的牌陣...'}</p>
             </div>
           )}
 
           {searchParams.get('order_id') && restoreState === 'error' && drawnCards.length === 0 && (
             <div className="max-w-2xl mx-auto bg-red-900/20 border-2 border-red-500/40 rounded-2xl p-6 mb-6 text-center">
-              <p className="text-red-200 tracking-wide mb-2">無法還原此訂單的牌陣</p>
+              <p className="text-red-200 tracking-wide mb-2">{language === 'en' ? 'Could not restore this order’s spread' : '無法還原此訂單的牌陣'}</p>
               <p className="text-red-300/70 text-xs tracking-wide leading-relaxed">
                 order_id: <span className="font-mono">{searchParams.get('order_id')}</span>
                 <br />
@@ -312,8 +310,8 @@ export default function UnicornsPage() {
           {drawnCards.length === 0 && !showCardLayout && !isDrawing && (
             <section className="max-w-3xl mx-auto">
               <div className="bg-gradient-to-br from-fuchsia-900/60 to-rose-900/60 backdrop-blur-sm border-2 border-fuchsia-400/30 rounded-2xl shadow-2xl p-6 sm:p-8">
-                <h2 className="text-2xl font-bold text-fuchsia-100 mb-3 text-center">靜心抽牌</h2>
-                <p className="text-fuchsia-200/80 text-center mb-8 text-sm sm:text-base">靜心片刻，專注於你的問題，讓獨角獸的智慧指引你</p>
+                <h2 className="text-2xl font-bold text-fuchsia-100 mb-3 text-center">{copy('meditationTitle', '靜心抽牌')}</h2>
+                <p className="text-fuchsia-200/80 text-center mb-8 text-sm sm:text-base">{copy('meditationBody', '靜心片刻，專注於你的問題，讓獨角獸的智慧指引你')}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
                   <button
                     onClick={() => handleSpreadTypeChange('single')}
@@ -323,8 +321,8 @@ export default function UnicornsPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-400 to-rose-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
                     <div className="relative h-full min-h-[8rem] sm:min-h-[9rem] px-6 py-5 sm:py-6 bg-gradient-to-r from-fuchsia-600 to-rose-600 group-hover:from-fuchsia-500 group-hover:to-rose-500 rounded-2xl shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
                       <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
-                        <span>單張神諭</span>
-                        <span className="text-sm sm:text-base opacity-90">今日的靈性指引</span>
+                        <span>{copy('singleTitle', '單張神諭')}</span>
+                        <span className="text-sm sm:text-base opacity-90">{copy('singleDescription', '今日的靈性指引')}</span>
                       </h3>
                     </div>
                   </button>
@@ -336,8 +334,8 @@ export default function UnicornsPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-400 to-rose-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
                     <div className="relative h-full min-h-[8rem] sm:min-h-[9rem] px-6 py-5 sm:py-6 bg-gradient-to-r from-fuchsia-600 to-rose-600 group-hover:from-fuchsia-500 group-hover:to-rose-500 rounded-2xl shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
                       <h3 className="text-lg sm:text-xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
-                        <span>三張牌陣</span>
-                        <span className="text-sm sm:text-base opacity-90">過去・現在・未來</span>
+                        <span>{copy('threeTitle', '三張牌陣')}</span>
+                        <span className="text-sm sm:text-base opacity-90">{copy('threeDescription', '過去・現在・未來')}</span>
                       </h3>
                     </div>
                   </button>
@@ -739,11 +737,12 @@ export default function UnicornsPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const language = getLanguageFromPath(window.location.pathname);
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">
         <ArrowRight className="w-3 h-3 text-pink-500" strokeWidth={1.6} />
-        <h4 className="text-pink-200 text-sm tracking-[0.4em] uppercase">{title}</h4>
+        <h4 className="text-pink-200 text-sm tracking-[0.4em] uppercase">{localizeCardLabel(title, language)}</h4>
       </div>
       <p className="text-pink-100/90 leading-loose whitespace-pre-line pl-6">{children}</p>
     </div>

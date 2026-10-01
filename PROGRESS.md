@@ -1,0 +1,84 @@
+# Bilingual Rollout Progress
+
+Last updated: 2026-10-01
+Current branch at handoff: `main`
+
+## Goal
+
+Make crystalfield101.com available in Traditional Chinese and English while preserving existing Chinese URLs, prices, trial limits, membership entitlements, ECPay payments, Google sign-in, and access controls. Work in this handoff is local-only: do not deploy production or run a production database migration. Do not call paid AI translation/generation services for bulk translation.
+
+## Completed
+
+- Route locale detection, `/en` route variants, language switcher, document `lang`, shared header/footer, and translation dictionary scaffolding.
+- English copy for the landing entry, Oracle directory flow and long page, privacy policy, Tarot entry and some result labels, and the main introductions/forms for Lightworker, Unicorn, Dragon, Egyptian, Osho, Work Your Light, Numerology, Human Design, and Vedic Astrology.
+- Runtime English SEO metadata for selected service pages; untranslated article routes are `noindex`. `sitemap.xml` now has 42 URLs and 44 reciprocal language alternate links covering 11 English service routes. `prerender.mjs` generates English metadata and a minimal English heading/intro for those 11 routes.
+- Locale is sent with deck preview/unlock requests. The card Worker reads `card_localizations` and `deck_localizations` from the separate cards D1. Missing English payloads no longer return Chinese card preview/gated text: previews are marked unavailable and unlock endpoints return `CARD_TRANSLATION_UNAVAILABLE`.
+- Human Design paid English reports use an independent report version and request all sections in English. English requests do not receive the Chinese fixed fallback. HD full-section sharing reads the locale-specific report version, and core share summary labels have English variants.
+- Vedic report requests carry locale; the existing order row stores locale-specific report/draft JSON. English headings, word-count validation, retry locale propagation, and explicit no-provider behavior are wired.
+- Added an audit at `docs/i18n-translation-audit.md` and an additive cards-D1 migration at `d1/cards-migrations/001_card_localizations.sql`.
+
+## Card Translation Progress
+
+The actual seeded inventory was verified from `d1/cards-seed.sql` in an isolated local Wrangler D1 database:
+
+| Deck | Cards | Fully translated English payloads |
+| --- | ---: | ---: |
+| `tarot` | 22 | 2 |
+| `osho` | 45 | 0 |
+| `lightworker` | 43 | 0 |
+| `unicorns` | 44 | 0 |
+| `egyptian_gods` | 36 | 0 |
+| `work_your_light` | 44 | 0 |
+| `dragons` | 44 | 0 |
+| **Total** | **278** | **2** |
+
+Translated stable IDs: `tarot:0-fool` and `tarot:1-magician`. The next card to translate is `tarot:2-high-priestess`.
+
+The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql`. The remaining 276 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
+
+## Still Incomplete
+
+- 276 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
+- Complete Oracle/Tarot spread/result/restore/error/paywall/share screens; only entry copy and selected result labels are localized.
+- Numerology calculated reports, daily energy, forecast, crystal and oracle readings, AI advisor, checkout/unlock/share states.
+- Human Design fixed knowledge, chart labels/free report, article content, checkout states, and public share-page content.
+- Vedic free chart labels/results, paid report loading/review UI, timeline evidence labels, article content, and end-to-end English report generation.
+- Human Design and Vedic article JSON datasets remain Traditional Chinese. Authentication, membership, checkout, emails, and other transactional screens need a full locale audit.
+- English prerender currently contains only heading/intro content for the 11 listed routes; `prerender.mjs` and sitemap do not yet include English article pages.
+- Full English search/content scan and end-to-end checks for every deck, spread, and paid report remain outstanding.
+
+Do not describe the site as fully bilingual until these gaps are closed.
+
+## Files Changed
+
+- Root: `.gitignore`, `PROGRESS.md`
+- App routing/shared UI: `app/src/App.tsx`, `app/src/components/LanguageSwitcher.tsx`, `app/src/components/PageHeader.tsx`, `app/src/components/SiteFooter.tsx`, `app/src/components/SeoMetadata.tsx`, `app/src/lib/i18n.ts`, `app/src/lib/api.ts`, `app/src/hooks/useDeck.ts`
+- App pages: `app/src/pages/LandingPage.tsx`, `HomePage.tsx`, `PrivacyPage.tsx`, `TarotPage.tsx`, `LightworkerPage.tsx`, `UnicornsPage.tsx`, `DragonsPage.tsx`, `EgyptianGodsPage.tsx`, `WorkYourLightPage.tsx`, `OshoPage.tsx`, `NumerologyPage.tsx`, `HumanDesignPage.tsx`, `VedicAstrologyPage.tsx`, `app/src/pages/human-design/LandingPage.tsx`, `app/src/components/numerology/BirthDateForm.tsx`
+- Static output: `app/public/sitemap.xml`, `app/scripts/prerender.mjs`
+- Worker: `worker/src/cards.ts`, `humanDesign.ts`, `humanDesignReport.ts`, `humanDesignShareResults.ts`, `index.ts`, `vedicAstrology.ts`
+- D1/localization: `d1/migrations/023_i18n_content.sql`, `d1/cards-migrations/001_card_localizations.sql`, `d1/card-localizations-en.json`, `d1/build-card-localizations-seed.ts`, `d1/cards-localizations-seed.sql`
+- Docs: `docs/i18n-translation-audit.md`
+
+No `.env`, API key, password, or credential file is intended for the commit. The isolated local Wrangler test database lives under ignored `worker/.wrangler-i18n-test/` and is not committed.
+
+## Checks And Operations
+
+- App TypeScript check: passed.
+- Worker TypeScript check: passed.
+- Card seed generator: passed for 2 translations; repeated upsert was idempotent.
+- Isolated local cards D1: base schema, 278-card seed, and localization migration executed successfully. Inventory query confirmed 278 rows, 278 unique IDs, zero blank required names/keys, and declared per-deck counts match actual counts.
+- Local Worker API smoke test: the English Fool payload was returned in English; untranslated cards returned empty previews, `content_locale: "zh-Hant"`, and `translation_available: false`.
+- Sitemap XML browser parse: valid; 42 URL entries and 44 hreflang alternate links.
+- Vite build: Vite/prerender success output was observed earlier, including generated English prerender output. The latest complete command exit status after all later edits was not reliably captured; rerun `npm.cmd --prefix app run build` and record the exit code before treating it as verified. Existing Vite warning: the main JS chunk exceeds 500 kB.
+- Production D1 migration: **not executed**.
+- Production deployment: **not performed**.
+- Paid AI translation/report-generation calls: **none**.
+
+## Next Steps
+
+1. Translate `tarot:2-high-priestess` and continue the remaining Tarot IDs in stable `card_key` order. Preserve all source fields and structure; regenerate `cards-localizations-seed.sql` after each reviewed batch and validate with the generator.
+2. Add translations for the other six decks in seed order, keeping original IDs and Chinese rows unchanged.
+3. Run the repeatable seed against a local/test cards D1, verify all 278 translated rows and field completeness, and smoke-test both preview and unlock APIs for translated and untranslated cards.
+4. Continue route-by-route UI localization for all spread, report, auth, membership, checkout, sharing, and error states. Add missing English Human Design/Vedic article content.
+5. Complete locale-aware report/share end-to-end checks, scan `/en` flows for residual Chinese, and align English prerender, canonical/hreflang, and sitemap with actually translated routes.
+6. Rerun app/Worker TypeScript checks and the Vite production build with explicit exit codes. Only after review should production operators separately apply the cards-D1 migration/seed and deploy; neither has been done here.

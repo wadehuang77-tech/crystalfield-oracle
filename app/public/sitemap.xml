@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url><loc>https://www.crystalfield101.com/</loc></url>
-  <url><loc>https://www.crystalfield101.com/oracle/</loc></url>
-  <url><loc>https://www.crystalfield101.com/tarot/</loc></url>
-  <url><loc>https://www.crystalfield101.com/lightworker/</loc></url>
-  <url><loc>https://www.crystalfield101.com/unicorns/</loc></url>
-  <url><loc>https://www.crystalfield101.com/dragons/</loc></url>
-  <url><loc>https://www.crystalfield101.com/egyptian-gods/</loc></url>
-  <url><loc>https://www.crystalfield101.com/work-your-light/</loc></url>
-  <url><loc>https://www.crystalfield101.com/osho/</loc></url>
-  <url><loc>https://www.crystalfield101.com/numerology/</loc></url>
-  <url><loc>https://www.crystalfield101.com/human-design/</loc></url>
+  <url><loc>https://www.crystalfield101.com/oracle/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/oracle/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/oracle/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/oracle/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/oracle/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/oracle/"/></url>
+  <url><loc>https://www.crystalfield101.com/tarot/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/tarot/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/tarot/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/tarot/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/tarot/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/tarot/"/></url>
+  <url><loc>https://www.crystalfield101.com/lightworker/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/lightworker/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/lightworker/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/lightworker/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/lightworker/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/lightworker/"/></url>
+  <url><loc>https://www.crystalfield101.com/unicorns/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/unicorns/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/unicorns/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/unicorns/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/unicorns/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/unicorns/"/></url>
+  <url><loc>https://www.crystalfield101.com/dragons/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/dragons/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/dragons/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/dragons/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/dragons/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/dragons/"/></url>
+  <url><loc>https://www.crystalfield101.com/egyptian-gods/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/egyptian-gods/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/egyptian-gods/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/egyptian-gods/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/egyptian-gods/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/egyptian-gods/"/></url>
+  <url><loc>https://www.crystalfield101.com/work-your-light/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/work-your-light/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/work-your-light/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/work-your-light/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/work-your-light/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/work-your-light/"/></url>
+  <url><loc>https://www.crystalfield101.com/osho/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/osho/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/osho/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/osho/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/osho/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/osho/"/></url>
+  <url><loc>https://www.crystalfield101.com/numerology/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/numerology/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/numerology/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/numerology/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/numerology/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/numerology/"/></url>
+  <url><loc>https://www.crystalfield101.com/human-design/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/human-design/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/human-design/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/human-design/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/human-design/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/human-design/"/></url>
   <url><loc>https://www.crystalfield101.com/human-design/types/</loc></url>
   <url><loc>https://www.crystalfield101.com/human-design/generator/</loc></url>
   <url><loc>https://www.crystalfield101.com/human-design/manifesting-generator/</loc></url>
@@ -20,7 +30,8 @@
   <url><loc>https://www.crystalfield101.com/human-design/authority/</loc></url>
   <url><loc>https://www.crystalfield101.com/human-design/profile/</loc></url>
   <url><loc>https://www.crystalfield101.com/human-design/birth-time/</loc></url>
-  <url><loc>https://www.crystalfield101.com/vedic-astrology/</loc></url>
+  <url><loc>https://www.crystalfield101.com/vedic-astrology/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/vedic-astrology/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/vedic-astrology/"/></url>
+  <url><loc>https://www.crystalfield101.com/en/vedic-astrology/</loc><xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.crystalfield101.com/vedic-astrology/"/><xhtml:link rel="alternate" hreflang="en" href="https://www.crystalfield101.com/en/vedic-astrology/"/></url>
   <url><loc>https://www.crystalfield101.com/vedic-astrology/what-is-vedic-astrology/</loc></url>
   <url><loc>https://www.crystalfield101.com/vedic-astrology/vedic-vs-western/</loc></url>
   <url><loc>https://www.crystalfield101.com/vedic-astrology/rahu-ketu/</loc></url>

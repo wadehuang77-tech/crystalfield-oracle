@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, MapPin, Calendar, Clock } from 'lucide-react';
 import HumanDesignSeoContent from './HumanDesignSeoContent';
+import { getLanguageFromPath, t } from '../../lib/i18n';
 
 interface LandingPageProps {
   onCalculate: (birthDate: string, birthTime: string, birthCity: string) => void;
 }
 
 export default function LandingPage({ onCalculate }: LandingPageProps) {
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`humanDesign.${key}`, language) : fallback;
   const [visible, setVisible] = useState(false);
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthCity: '' });
   const [timeParts, setTimeParts] = useState({ hour: '', minute: '' });
@@ -21,9 +24,9 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.birthDate) e.birthDate = '請選擇出生日期';
-    if (!timeParts.hour || !timeParts.minute) e.birthTime = '請輸入出生時間';
-    if (!form.birthCity.trim()) e.birthCity = '請輸入出生城市';
+    if (!form.birthDate) e.birthDate = copy('dateError', '請選擇出生日期');
+    if (!timeParts.hour || !timeParts.minute) e.birthTime = copy('timeError', '請輸入出生時間');
+    if (!form.birthCity.trim()) e.birthCity = copy('cityError', '請輸入出生城市');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -69,9 +72,9 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-3">免費人類圖計算：看懂你的能量類型、人生角色與內在權威</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-3">{copy('title', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威')}</h1>
           <p className="text-white/40 text-sm leading-relaxed">
-            輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。
+            {copy('description', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。')}
           </p>
         </div>
 
@@ -88,7 +91,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
               <div>
                 <label className="flex items-center gap-2 text-xs text-white/40 font-medium mb-2">
                   <Calendar className="w-3.5 h-3.5" />
-                  出生日期
+                  {copy('birthDate', '出生日期')}
                 </label>
                 <input
                   type="date"
@@ -106,7 +109,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
               <div>
                 <label className="flex items-center gap-2 text-xs text-white/40 font-medium mb-2">
                   <Clock className="w-3.5 h-3.5" />
-                  出生時間
+                  {copy('birthTime', '出生時間')}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <select
@@ -114,7 +117,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
                     onChange={e => updateBirthTime('hour', e.target.value)}
                     className={`${inputBase} ${errors.birthTime ? 'border-rose-400/50' : ''}`}
                   >
-                    <option value="">時</option>
+                    <option value="">{copy('hour', '時')}</option>
                     {hourOptions.map(hour => (
                       <option key={hour} value={hour}>{hour}</option>
                     ))}
@@ -124,7 +127,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
                     onChange={e => updateBirthTime('minute', e.target.value)}
                     className={`${inputBase} ${errors.birthTime ? 'border-rose-400/50' : ''}`}
                   >
-                    <option value="">分</option>
+                    <option value="">{copy('minute', '分')}</option>
                     {minuteOptions.map(minute => (
                       <option key={minute} value={minute}>{minute}</option>
                     ))}
@@ -134,7 +137,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
                   <p className="text-rose-400/80 text-xs mt-1.5">{errors.birthTime}</p>
                 )}
                 <p className="text-white/20 text-xs mt-1.5">
-                  請使用 24 小時制，例：上午 8 點為 08:00，晚上 8 點為 20:00
+                  {copy('timeHint', '請使用 24 小時制，例：上午 8 點為 08:00，晚上 8 點為 20:00')}
                 </p>
               </div>
 
@@ -142,11 +145,11 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
               <div>
                 <label className="flex items-center gap-2 text-xs text-white/40 font-medium mb-2">
                   <MapPin className="w-3.5 h-3.5" />
-                  出生城市
+                  {copy('birthCity', '出生城市')}
                 </label>
                 <input
                   type="text"
-                  placeholder="例：台北市、Tokyo、New York"
+                  placeholder={copy('cityPlaceholder', '例：台北市、Tokyo、New York')}
                   value={form.birthCity}
                   onChange={e => setForm({ ...form, birthCity: e.target.value })}
                   className={`w-full border rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-white/30 transition-all duration-200 bg-[#6B7280] text-white placeholder-white/50 ${errors.birthCity ? 'border-rose-400/50' : 'border-white/10'}`}
@@ -165,7 +168,7 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />
                 <div className="relative flex items-center justify-center gap-2 text-white">
                   <Sparkles className="w-4 h-4" />
-                  立即計算我的人類圖
+                  {copy('calculate', '立即計算我的人類圖')}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
@@ -178,10 +181,10 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
         <div
           className={`mt-6 flex justify-center gap-6 transition-all duration-700 delay-400 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
         >
-          {['即時計算', '5 種能量類型', '靈魂能量解析'].map(t => (
-            <div key={t} className="flex items-center gap-1.5 text-white/25 text-xs">
+          {(language === 'en' ? ['Instant chart calculation', '5 energy types', 'Personal energy insights'] : ['即時計算', '5 種能量類型', '靈魂能量解析']).map((signal) => (
+            <div key={signal} className="flex items-center gap-1.5 text-white/25 text-xs">
               <div className="w-1 h-1 rounded-full bg-cyan-400/50" />
-              {t}
+              {signal}
             </div>
           ))}
         </div>

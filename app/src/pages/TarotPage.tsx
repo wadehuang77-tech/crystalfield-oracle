@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -23,6 +23,7 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart, type OracleSpreadId } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
+import { getLanguageFromPath, localizeCardLabel, t, translations } from '../lib/i18n';
 
 interface TarotCard {
   id: string;
@@ -100,8 +101,12 @@ interface DrawnCard {
 
 function TarotPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { cards: deck } = useDeck('tarot');
+  const language = getLanguageFromPath(location.pathname);
+  const copy = translations[language].tarot;
+  const cardLabel = (label: string) => localizeCardLabel(label, language);
+  const { cards: deck, error: deckError } = useDeck('tarot');
   const initialSpread = ((): SpreadType => {
     const q = searchParams.get('spread');
     return q === 'three' || q === 'celtic' || q === 'pastlife' || q === 'single' ? q : 'single';
@@ -387,22 +392,20 @@ function TarotPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-900 text-white">
 
       <div className="relative max-w-[1100px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
+        {deckError && <p role="status" className="mb-5 text-center text-sm text-amber-200/80">{deckError}</p>}
         <section className="text-center pb-12">
           <div className="flex justify-center text-orange-500 mb-8">
             <DeckSigil />
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl text-orange-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">偉特塔羅</h1>
-          <p className="text-base sm:text-lg text-orange-300/80 leading-loose tracking-wide max-w-md mx-auto">
-            經典符碼的深度解讀。<br />
-            正逆位皆有其聲,牌陣決定深度。
-          </p>
+          <h1 className="font-serif text-3xl sm:text-5xl text-orange-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">{t('tarot.title', language)}</h1>
+          <p className="whitespace-pre-line text-base sm:text-lg text-orange-300/80 leading-loose tracking-wide max-w-md mx-auto">{t('tarot.tagline', language)}</p>
         </section>
 
         <div className="max-w-6xl mx-auto">
           {!hasDrawn && !isDrawing && !showCardLayout && (
             <>
               <div className="mb-12">
-                <p className="text-center text-xs sm:text-sm tracking-[0.6em] text-orange-400/80 mb-2">選 擇 牌 陣</p>
+                <p className="text-center text-xs sm:text-sm tracking-[0.6em] text-orange-400/80 mb-2">{t('tarot.chooseSpread', language)}</p>
                 <div className="ornamental-divider mb-10">
                   <svg viewBox="-8 -8 16 16" className="w-3 h-3" fill="currentColor">
                     <path d="M 0 -6 L 6 0 L 0 6 L -6 0 Z" />
@@ -411,10 +414,10 @@ function TarotPage() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 max-w-5xl mx-auto">
                   {([
-                    { key: 'single',   Icon: Layers,    name: '單張牌',         desc: '快速指引' },
-                    { key: 'three',    Icon: Columns3,  name: '三張牌陣',       desc: '過去 · 現在 · 未來' },
-                    { key: 'celtic',   Icon: Compass,   name: '凱爾特十字',     desc: '深度全面解讀' },
-                    { key: 'pastlife', Icon: Hourglass, name: '前世因果解鎖陣', desc: '揭開前世今生的因果' },
+                    { key: 'single', Icon: Layers },
+                    { key: 'three', Icon: Columns3 },
+                    { key: 'celtic', Icon: Compass },
+                    { key: 'pastlife', Icon: Hourglass },
                   ] as const).map((s) => (
                     <button
                       key={s.key}
@@ -422,8 +425,8 @@ function TarotPage() {
                       className={`spread-choice ${spreadType === s.key ? 'spread-choice-active' : ''}`}
                     >
                       <s.Icon className="w-7 h-7 mb-4 text-orange-400" strokeWidth={1.3} />
-                      <h3 className="font-serif text-base sm:text-lg text-orange-100 mb-2 tracking-[0.18em]">{s.name}</h3>
-                      <p className="text-xs sm:text-sm text-orange-300/75 leading-relaxed">{s.desc}</p>
+                      <h3 className="font-serif text-base sm:text-lg text-orange-100 mb-2 tracking-[0.18em]">{t(`tarot.spreads.${s.key}.title`, language)}</h3>
+                      <p className="text-xs sm:text-sm text-orange-300/75 leading-relaxed">{t(`tarot.spreads.${s.key}.description`, language)}</p>
                     </button>
                   ))}
                 </div>
@@ -431,31 +434,16 @@ function TarotPage() {
 
               <div className="grid md:grid-cols-2 gap-6 mt-16">
                 <div className="bg-slate-800 border-2 border-orange-500/20 rounded-2xl p-6 shadow-lg">
-                  <h3 className="text-orange-200 text-xl font-medium mb-4 tracking-wide">關於偉特塔羅</h3>
+                  <h3 className="text-orange-200 text-xl font-medium mb-4 tracking-wide">{t('tarot.aboutTitle', language)}</h3>
                   <p className="text-orange-100/80 leading-relaxed">
-                    偉特塔羅牌是世界上最廣為人知的塔羅牌系統,由亞瑟·愛德華·偉特設計,帕梅拉·科爾曼·史密斯繪製。這套牌包含22張大阿爾克那牌,代表生命的重要階段和靈性旅程。
+                    {t('tarot.aboutDescription', language)}
                   </p>
                 </div>
 
                 <div className="bg-slate-800 border-2 border-orange-500/20 rounded-2xl p-6 shadow-lg">
-                  <h3 className="text-orange-200 text-xl font-medium mb-4 tracking-wide">如何使用</h3>
+                  <h3 className="text-orange-200 text-xl font-medium mb-4 tracking-wide">{t('tarot.howToUse', language)}</h3>
                   <ul className="space-y-2 text-orange-100/80">
-                    <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">•</span>
-                      <span>深呼吸,讓心靈平靜</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">•</span>
-                      <span>在心中清楚地想著你的問題</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">•</span>
-                      <span>點擊按鈕,接收塔羅的指引</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">•</span>
-                      <span>用心感受卡片的訊息與智慧</span>
-                    </li>
+                    {copy.steps.map((step) => <li key={step} className="flex items-start gap-2"><span className="text-orange-400 mt-1">•</span><span>{step}</span></li>)}
                   </ul>
                 </div>
               </div>
@@ -465,8 +453,8 @@ function TarotPage() {
           {showCardLayout && !hasDrawn && !isDrawing && spreadType === 'single' && (
             <div className="max-w-4xl mx-auto animate-fade-in">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-serif text-orange-100 mb-4">準備抽牌</h2>
-                <p className="text-orange-200/80 text-lg">靜心感受,當你準備好時點擊下方按鈕</p>
+                <h2 className="text-3xl font-serif text-orange-100 mb-4">{t('tarot.prepareTitle', language)}</h2>
+                <p className="text-orange-200/80 text-lg">{t('tarot.prepareDescription', language)}</p>
               </div>
 
               <div className="bg-slate-900 border-2 border-orange-500/30 rounded-2xl p-12 mb-8 flex items-center justify-center">
@@ -478,11 +466,11 @@ function TarotPage() {
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button onClick={drawSingleCard} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-xl shadow-lg hover:shadow-orange-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                   <Sparkles className="w-5 h-5" strokeWidth={1.4} />
-                  抽 牌
+                  {t('tarot.draw', language)}
                 </button>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-orange-500/30 rounded-xl hover:bg-slate-700/60 hover:border-orange-400/50 transition-all text-orange-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                  重 選 牌 陣
+                  {t('tarot.chooseAgain', language)}
                 </button>
               </div>
             </div>
@@ -495,7 +483,7 @@ function TarotPage() {
                 <h2 className="text-3xl font-serif text-orange-100 mb-3">
                   {spreadType === 'three' && '三張牌陣'}
                   {spreadType === 'celtic' && '凱爾特十字牌陣'}
-                  {spreadType === 'pastlife' && '前世因果解鎖陣'}
+                  {spreadType === 'pastlife' && cardLabel('前世因果解鎖陣')}
                 </h2>
                 <p className="text-orange-200/80">
                   {spreadType === 'three' && '探索過去、現在與未來的時間軸'}
@@ -601,7 +589,7 @@ function TarotPage() {
                     <div className="inline-block mb-4">
                       {drawnCards[0].isReversed && (
                         <div className="inline-block px-4 py-2 bg-orange-600/80 rounded-full text-sm border border-orange-400/50">
-                          逆位 (Reversed)
+                          {cardLabel('逆位')}
                         </div>
                       )}
                     </div>
@@ -613,7 +601,7 @@ function TarotPage() {
                     </p>
                     {drawnCards[0].card.number !== undefined && (
                       <p className="text-orange-300/60 text-sm tracking-wider">
-                        {drawnCards[0].card.arcana === 'major' ? '大阿爾克那' : '小阿爾克那'} • 第 {drawnCards[0].card.number} 號牌
+                        {cardLabel(drawnCards[0].card.arcana === 'major' ? '大阿爾克那' : '小阿爾克那')} • {language === 'en' ? `Card ${drawnCards[0].card.number}` : `第 ${drawnCards[0].card.number} 號牌`}
                       </p>
                     )}
                   </div>
@@ -624,7 +612,7 @@ function TarotPage() {
                         {!isUnlocked && <div className="bg-slate-800 rounded-xl p-6 border-2 border-orange-400/50">
                           <h3 className="text-orange-100 text-xl font-medium mb-4 tracking-wide flex items-center gap-2">
                             <span className="font-serif text-xl text-orange-400 mr-1 tracking-[0.1em]">一</span>
-                            牌面核心關鍵字（{drawnCards[0].isReversed ? '逆位' : '正位'}）
+                            {cardLabel('牌面核心關鍵字')}（{cardLabel(drawnCards[0].isReversed ? '逆位' : '正位')}）
                           </h3>
                           <div className="flex flex-wrap gap-2 mb-4">
                             {(drawnCards[0].isReversed
@@ -645,11 +633,11 @@ function TarotPage() {
                             </p>
                             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none rounded-b-lg"></div>
                           </div>
-                          <p className="text-orange-200/60 text-xs mt-3">前 30% 預覽，登入後可開始塔羅全館 7 天免費試用</p>
+                          <p className="text-orange-200/60 text-xs mt-3">{cardLabel('前 30% 預覽，登入後可開始塔羅全館 7 天免費試用')}</p>
                         </div>}
 
                         {!isUnlocked && singleGate.phase === 'loading' && (
-                          <div className="text-center text-orange-300/70 py-4 tracking-wider">解鎖中…</div>
+                          <div className="text-center text-orange-300/70 py-4 tracking-wider">{cardLabel('解鎖中…')}</div>
                         )}
                         {!isUnlocked && singleGate.phase === 'login_gate' && (
                           <InlineEmailUnlock
@@ -683,13 +671,13 @@ function TarotPage() {
                           <>
                             <div className="bg-slate-900/30 rounded-xl p-4 border border-orange-400/40">
                               <p className="text-sm font-medium text-orange-300 flex items-center gap-2">
-                                <span>✨</span> 完整解析已解鎖
+                                <span>✨</span> {cardLabel('完整解析已解鎖')}
                               </p>
                             </div>
 
                             <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-400/30">
                               <h3 className="text-orange-100 text-lg font-medium mb-3 tracking-wide">
-                                {drawnCards[0].isReversed ? '逆位完整含義' : '正位完整含義'}
+                                {`${cardLabel(drawnCards[0].isReversed ? '逆位' : '正位')} ${cardLabel('完整含義')}`}
                               </h3>
                               <p className="text-orange-100/90 leading-relaxed">
                                 {drawnCards[0].isReversed ? drawnCards[0].card.reversedMeaning : drawnCards[0].card.uprightMeaning}
@@ -699,20 +687,20 @@ function TarotPage() {
                             <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20">
                               <h3 className="text-orange-300 text-lg font-medium mb-4 tracking-wide flex items-center gap-2">
                                 <span className="font-serif text-xl text-orange-400 mr-1 tracking-[0.1em]">二</span>
-                                能量流動（很少人教，但超強）
+                                {cardLabel('能量流動')}
                               </h3>
                               <div className="space-y-3">
                                 <div className="flex items-start gap-3">
                                   <span className="text-orange-400 font-bold text-lg">•</span>
                                   <p className="text-orange-100/90 flex-1">
-                                    <span className="text-orange-200 font-medium">方向：</span>
+                                    <span className="text-orange-200 font-medium">{cardLabel('方向')}:</span>
                                     <span className="ml-2">{drawnCards[0].card.detailedInterpretation.energyFlow.direction}</span>
                                   </p>
                                 </div>
                                 <div className="flex items-start gap-3">
                                   <span className="text-orange-400 font-bold text-lg">•</span>
                                   <p className="text-orange-100/90 flex-1">
-                                    <span className="text-orange-200 font-medium">類型：</span>
+                                    <span className="text-orange-200 font-medium">{cardLabel('類型')}:</span>
                                     <span className="ml-2">{drawnCards[0].card.detailedInterpretation.energyFlow.type}</span>
                                   </p>
                                 </div>
@@ -727,13 +715,13 @@ function TarotPage() {
                             <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20">
                               <h3 className="text-orange-300 text-lg font-medium mb-4 tracking-wide flex items-center gap-2">
                                 <span className="font-serif text-xl text-orange-400 mr-1 tracking-[0.1em]">三</span>
-                                時間感（很多人忽略）
+                                {cardLabel('時機')}
                               </h3>
                               <div className="space-y-3">
                                 <div className="flex items-start gap-3">
                                   <span className="text-orange-400 font-bold text-lg">•</span>
                                   <p className="text-orange-100/90 flex-1">
-                                    <span className="text-orange-200 font-medium">速度：</span>
+                                    <span className="text-orange-200 font-medium">{cardLabel('速度')}:</span>
                                     <span className="ml-2">{drawnCards[0].card.detailedInterpretation.timing.speed}</span>
                                   </p>
                                 </div>
@@ -749,7 +737,7 @@ function TarotPage() {
                             <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl border-l-2 border-l-red-500/70">
                               <h3 className="text-orange-200 text-lg font-medium mb-4 tracking-wide flex items-center gap-2">
                                 <span className="font-serif text-xl text-orange-400 mr-1 tracking-[0.1em]">四</span>
-                                建議行動（最重要！）
+                                {cardLabel('建議')}
                               </h3>
                               <div className="bg-slate-900 p-5 border border-orange-500/20">
                                 <p className="text-orange-100/90 leading-relaxed">
@@ -759,26 +747,26 @@ function TarotPage() {
                                   }
                                 </p>
                               </div>
-                              <p className="text-orange-200/60 text-xs mt-3">不給建議 = 客人覺得不準</p>
+                              <p className="text-orange-200/60 text-xs mt-3">{language === 'en' ? 'A practical next step can help turn insight into action.' : '讓洞察回到生活中的可行下一步。'}</p>
                             </div>
 
                             <div className="bg-gradient-to-br from-orange-900/20 to-orange-900/20 rounded-xl p-6 border border-orange-500/30">
                               <h3 className="text-orange-200 text-lg font-medium mb-4 tracking-wide flex items-center gap-2">
                                 <span className="font-serif text-xl text-orange-400 mr-1 tracking-[0.1em]">五</span>
-                                脈輪 / 能量解讀
+                                {cardLabel('脈輪 / 能量解讀')}
                               </h3>
                               <div className="space-y-3">
                                 <div className="flex items-start gap-3">
                                   <span className="text-orange-400 font-bold text-lg">•</span>
                                   <p className="text-orange-100/90 flex-1">
-                                    <span className="text-orange-200 font-medium">對應脈輪：</span>
+                                    <span className="text-orange-200 font-medium">{cardLabel('對應脈輪')}:</span>
                                     <span className="ml-2">{drawnCards[0].card.detailedInterpretation.chakra.primary}</span>
                                   </p>
                                 </div>
                                 <div className="flex items-start gap-3">
                                   <span className="text-orange-400 font-bold text-lg">•</span>
                                   <p className="text-orange-100/90 flex-1">
-                                    <span className="text-orange-200 font-medium">能量問題：</span>
+                                    <span className="text-orange-200 font-medium">{cardLabel('能量問題')}:</span>
                                     <span className="ml-2">{drawnCards[0].card.detailedInterpretation.chakra.issue}</span>
                                   </p>
                                 </div>
@@ -788,13 +776,13 @@ function TarotPage() {
                                   </p>
                                 </div>
                               </div>
-                              <p className="text-orange-200/60 text-xs mt-3">脈輪問題直接找韋德老師水晶療癒</p>
+                              <p className="text-orange-200/60 text-xs mt-3">{language === 'en' ? 'For crystal-healing support, consult a qualified practitioner.' : '如有脈輪或療癒需求，請洽合格專業人士。'}</p>
                             </div>
 
                             <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
                               <h3 className="text-orange-200 text-lg font-medium mb-4 tracking-wide flex items-center gap-2">
                                 <span className="font-serif text-xl text-orange-400 mr-1 tracking-[0.1em]">六</span>
-                                高我訊息 / 靈魂提醒
+                                {cardLabel('高我訊息 / 靈魂提醒')}
                               </h3>
                               <div className="bg-slate-900/40 rounded-lg p-5 border border-orange-500/30">
                                 <p className="text-orange-100/90 leading-relaxed italic">
@@ -804,7 +792,7 @@ function TarotPage() {
                                   }
                                 </p>
                               </div>
-                              <p className="text-orange-200/60 text-xs mt-3">這是「升維版本」</p>
+                              <p className="text-orange-200/60 text-xs mt-3">{language === 'en' ? 'A reflective message to consider.' : '給自己一段靜心思考的訊息。'}</p>
                             </div>
 
                           </>
@@ -814,7 +802,7 @@ function TarotPage() {
                       <>
                         <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20 relative">
                           <h3 className="text-orange-300 text-lg font-medium mb-3 tracking-wide">
-                            {drawnCards[0].isReversed ? '逆位含義' : '正位含義'}
+                            {cardLabel(drawnCards[0].isReversed ? '逆位含義' : '正位含義')}
                           </h3>
                           <p className="leading-relaxed text-orange-100/90">
                             {isUnlocked
@@ -827,7 +815,7 @@ function TarotPage() {
                           )}
                         </div>
                         {!isUnlocked && singleGate.phase === 'loading' && (
-                          <div className="text-center text-orange-300/70 py-4 tracking-wider">解鎖中…</div>
+                          <div className="text-center text-orange-300/70 py-4 tracking-wider">{cardLabel('解鎖中…')}</div>
                         )}
                         {!isUnlocked && singleGate.phase === 'login_gate' && (
                           <InlineEmailUnlock
@@ -858,8 +846,8 @@ function TarotPage() {
                 <div className="space-y-8">
 
                   <div className="text-center mb-8 animate-fade-in">
-                    <h2 className="text-3xl font-serif text-orange-100 mb-2">三張牌陣解讀</h2>
-                    <p className="text-orange-200/70">過去 - 現在 - 未來</p>
+                    <h2 className="text-3xl font-serif text-orange-100 mb-2">{language === 'en' ? 'Three-Card Reading' : '三張牌陣解讀'}</h2>
+                    <p className="text-orange-200/70">{['過去', '現在', '未來'].map(cardLabel).join(' · ')}</p>
                   </div>
 
                   <>
@@ -872,8 +860,8 @@ function TarotPage() {
                       <div className="grid md:grid-cols-3 gap-6">
                         {drawnCards.map((drawn, index) => (
                           <div key={index} className="bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl">
-                            <h3 className="text-center text-xl font-serif text-orange-200 mb-4">{index === 0 ? '過去' : index === 1 ? '現在' : '未來'}</h3>
-                            {drawn.isReversed && <div className="text-center mb-3"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
+                            <h3 className="text-center text-xl font-serif text-orange-200 mb-4">{cardLabel(index === 0 ? '過去' : index === 1 ? '現在' : '未來')}</h3>
+                            {drawn.isReversed && <div className="text-center mb-3"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">{cardLabel('逆位')}</span></div>}
                             <h4 className="text-lg font-serif text-orange-100 text-center mb-2">{drawn.card.nameChinese}</h4>
                             <p className="text-sm text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
                             <div className="bg-slate-900/30 rounded-lg p-4 border border-orange-500/20">
@@ -898,9 +886,9 @@ function TarotPage() {
                             <Lock className="w-7 h-7 text-orange-300" />
                           </div>
                         </div>
-                        <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">解鎖完整三張牌陣解讀</h3>
+                        <h3 className="text-2xl font-serif text-orange-100 mb-3 tracking-wide">{cardLabel('解鎖完整三張牌陣解讀')}</h3>
                         <p className="text-orange-200/80 text-base leading-relaxed mb-4 max-w-md mx-auto">
-                          過去、現在、未來三張牌的深度靈魂訊息，幫助你看見完整的能量流動。
+                          {language === 'en' ? 'Explore how the past, present, and future cards connect, and consider the patterns that may shape your next step.' : '過去、現在、未來三張牌的深度靈魂訊息，幫助你看見完整的能量流動。'}
                         </p>
                         <OraclePricingPlans spreadId="tarot_three" onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
                       </div>
@@ -911,8 +899,8 @@ function TarotPage() {
                         <div className="grid md:grid-cols-3 gap-6">
                           {drawnCards.map((drawn, index) => (
                             <div key={index} className={`bg-slate-900 border-2 border-orange-500/40 rounded-2xl p-6 shadow-xl transition-all duration-500 ${drawn.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                              <h3 className="text-center text-xl font-serif text-orange-200 mb-4">{index === 0 ? '過去' : index === 1 ? '現在' : '未來'}</h3>
-                              {drawn.isReversed && <div className="text-center mb-3"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">逆位</span></div>}
+                              <h3 className="text-center text-xl font-serif text-orange-200 mb-4">{cardLabel(index === 0 ? '過去' : index === 1 ? '現在' : '未來')}</h3>
+                              {drawn.isReversed && <div className="text-center mb-3"><span className="inline-block px-3 py-1 bg-orange-600/80 rounded-full text-xs border border-orange-400/50">{cardLabel('逆位')}</span></div>}
                               <h4 className="text-lg font-serif text-orange-100 text-center mb-2">{drawn.card.nameChinese}</h4>
                               <p className="text-sm text-orange-200/60 text-center mb-3">{drawn.card.name}</p>
                               <div className="bg-slate-900/30 rounded-lg p-4 border border-orange-500/20">
@@ -924,18 +912,18 @@ function TarotPage() {
 
                         {allCardsRevealed && (
                           <div className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-8 shadow-2xl">
-                            <h3 className="text-2xl font-serif text-orange-100 mb-6 text-center">整體解讀</h3>
+                            <h3 className="text-2xl font-serif text-orange-100 mb-6 text-center">{cardLabel('整體解讀')}</h3>
                             <div className="space-y-6">
                               <div className="bg-slate-900/30 rounded-xl p-6 border border-orange-500/20">
-                                <h4 className="text-orange-200 font-semibold mb-3">時間軸能量流動</h4>
+                                <h4 className="text-orange-200 font-semibold mb-3">{cardLabel('時間軸能量流動')}</h4>
                                 <p className="text-orange-100/90 leading-relaxed mb-4">
                                   從過去到未來的能量流動顯示了你生命的重要轉折。過去的{drawnCards[0].card.nameChinese}帶來的經驗與學習，正在現在的{drawnCards[1].card.nameChinese}中展現，而未來的{drawnCards[2].card.nameChinese}則指引著你前進的方向。
                                 </p>
                                 <p className="text-orange-100/90 leading-relaxed">這三張牌共同訴說著一個完整的故事，提醒你如何從過去的經驗中學習，在當下做出最佳選擇，並為未來創造你想要的可能性。</p>
                               </div>
                               <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-orange-500/30 rounded-2xl p-6 shadow-xl">
-                                <h4 className="text-orange-200 font-semibold mb-3">行動建議</h4>
-                                <p className="text-orange-100/90 leading-relaxed">接納過去的自己，活在當下的覺知中，同時保持對未來的開放態度。讓這三個時間點的智慧在你心中整合，引導你走向更完整的自己。</p>
+                                <h4 className="text-orange-200 font-semibold mb-3">{cardLabel('行動建議')}</h4>
+                                <p className="text-orange-100/90 leading-relaxed">{language === 'en' ? 'Accept what the past has taught you, stay present with your choices, and remain open to what may come. Let these three perspectives inform the way you move forward.' : '接納過去的自己，活在當下的覺知中，同時保持對未來的開放態度。讓這三個時間點的智慧在你心中整合，引導你走向更完整的自己。'}</p>
                               </div>
                             </div>
                           </div>
@@ -949,7 +937,7 @@ function TarotPage() {
               {spreadType === 'pastlife' && (
                 <div className="space-y-10 animate-fade-in">
                   <div className="text-center mb-8">
-                    <h2 className="text-3xl md:text-4xl font-serif text-orange-100 mb-3 tracking-wide">前世因果解鎖陣</h2>
+                    <h2 className="text-3xl md:text-4xl font-serif text-orange-100 mb-3 tracking-wide">{cardLabel('前世因果解鎖陣')}</h2>
                     <p className="text-orange-200/80 text-lg leading-relaxed max-w-3xl mx-auto">你的靈魂記得所有的故事。<br/>這些牌卡將為你揭開前世今生的因果連結，帶你走向真正的釋放與療癒。</p>
                   </div>
 

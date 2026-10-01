@@ -20,6 +20,7 @@ import { saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 interface DragonGated {
@@ -34,6 +35,8 @@ interface ThreeSlot {
 }
 
 function DragonsPage() {
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.dragons.${key}`, language) : fallback;
   const navigate = useNavigate();
   const { cards: deck, error: deckError } = useDeck('dragons');
   const [singlePreview, setSinglePreview] = useState<CardPreview | null>(null);
@@ -276,56 +279,46 @@ function DragonsPage() {
               <div className="flex justify-center text-emerald-500 mb-8">
                 <DeckSigil />
               </div>
-              <h1 className="font-serif text-3xl sm:text-5xl text-emerald-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">龍族塔羅</h1>
+              <h1 className="font-serif text-3xl sm:text-5xl text-emerald-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">{copy('title', '龍族塔羅')}</h1>
               <div className="max-w-3xl mx-auto mb-8 rounded-2xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-slate-900/85 to-emerald-500/10 px-5 py-6 sm:px-8 sm:py-8 text-left shadow-[0_0_34px_rgba(251,146,60,0.14)]">
                 <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-amber-100">
-                  🐉 龍族能量清理｜斷除消耗，拿回你的力量
+                  {copy('heroTitle', '🐉 龍族能量清理｜斷除消耗，拿回你的力量')}
                 </h2>
                 <div className="space-y-4 text-base sm:text-lg leading-loose text-emerald-50/90">
-                  <p>你是否正忍受著讓你委屈、內耗的關係或僵局？</p>
-                  <p>
-                    龍族代表最純粹的<strong className="font-semibold text-amber-200">破局之火</strong>與
-                    <strong className="font-semibold text-amber-200">神聖防護</strong>。祂們不說空話，只以強大能量為你燒盡負面連結、斬斷毒性關係。
-                  </p>
-                  <p className="font-semibold text-amber-100">
-                    是時候停止委屈自己，讓龍族烈火為你開道！
-                  </p>
+                  <p>{copy('intro1', '你是否正忍受著讓你委屈、內耗的關係或僵局？')}</p>
+                  <p>{copy('intro2', '龍族象徵勇氣、轉化與守護。透過牌卡整理界線、反覆模式，以及你可以選擇的下一步。')}</p>
+                  <p className="font-semibold text-amber-100">{copy('intro3', '停止委屈自己，為更清晰的前進方向留出空間。')}</p>
                 </div>
 
                 <div className="mt-7 border-t border-amber-400/20 pt-6">
                   <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-amber-100">
-                    【龍族斷除與淨化 3 步驟】
+                    {copy('stepsTitle', '【龍族斷除與淨化 3 步驟】')}
                   </h3>
                   <ol className="space-y-4 text-sm sm:text-base leading-loose text-emerald-50/90">
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">1</span>
-                      <p><strong className="text-amber-100">扎根</strong>：挺直脊椎深呼吸，感受內在的堅定。</p>
+                      <p>{copy('step1', '扎根：挺直脊椎深呼吸，感受內在的堅定。')}</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">2</span>
-                      <p><strong className="text-amber-100">默想</strong>：「請龍族協助我清理（關係/焦慮），賜予我斬斷與突破的勇氣。」</p>
+                      <p>{copy('step2', '默想：「請龍族協助我清理關係或焦慮，賜予我突破的勇氣。」')}</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300/50 bg-amber-500/15 font-semibold text-amber-200">3</span>
-                      <p><strong className="text-amber-100">抽牌</strong>：憑直覺抽牌，接收專屬於你的龍族聖火與防護指引</p>
+                      <p>{copy('step3', '抽牌：憑直覺抽牌，接收專屬於你的龍族指引。')}</p>
                     </li>
                   </ol>
                 </div>
               </div>
               <p className="text-base sm:text-lg text-emerald-300/80 leading-loose tracking-wide max-w-md mx-auto">
-                古老龍族的智慧與火焰。<br />
-                召喚轉化與突破的勇氣。
+                {copy('tagline', '古老龍族的智慧與火焰。\n召喚轉化與突破的勇氣。')}
               </p>
             </section>
 
             <section className="max-w-3xl mx-auto">
               <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl">
-                <h2 className="text-2xl sm:text-3xl font-serif text-emerald-100 mb-4 sm:mb-6 text-center">召喚龍族的指引</h2>
-                <p className="text-emerald-200/70 mb-8 leading-relaxed text-sm sm:text-base text-center">
-                  閉上眼睛，深呼吸三次。<br />
-                  感受龍族強大的能量環繞著你，賦予你力量與勇氣。<br />
-                  當你準備好時，選擇你的牌陣方式。
-                </p>
+                <h2 className="text-2xl sm:text-3xl font-serif text-emerald-100 mb-4 sm:mb-6 text-center">{copy('guidanceTitle', '召喚龍族的指引')}</h2>
+                <p className="whitespace-pre-line text-emerald-200/70 mb-8 leading-relaxed text-sm sm:text-base text-center">{copy('guidanceBody', '閉上眼睛，深呼吸三次。\n感受龍族強大的能量環繞著你，賦予你力量與勇氣。\n當你準備好時，選擇你的牌陣方式。')}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
                   <button
                     onClick={handleSingleCardClick}
@@ -335,8 +328,8 @@ function DragonsPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
                     <div className="relative h-full min-h-[8rem] sm:min-h-[9rem] px-6 py-5 sm:py-6 bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:from-emerald-500 group-hover:to-teal-500 rounded-2xl shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
                       <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
-                        <span>單張神諭</span>
-                        <span className="text-sm sm:text-base opacity-90">召喚龍族訊息</span>
+                        <span>{copy('singleTitle', '單張神諭')}</span>
+                        <span className="text-sm sm:text-base opacity-90">{copy('singleDescription', '召喚龍族訊息')}</span>
                       </h3>
                     </div>
                   </button>
@@ -348,8 +341,8 @@ function DragonsPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
                     <div className="relative h-full min-h-[8rem] sm:min-h-[9rem] px-6 py-5 sm:py-6 bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:from-emerald-500 group-hover:to-teal-500 rounded-2xl shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
                       <h3 className="text-lg sm:text-xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
-                        <span>三張牌陣</span>
-                        <span className="text-sm sm:text-base opacity-90">過去・現在・未來</span>
+                        <span>{copy('threeTitle', '三張牌陣')}</span>
+                        <span className="text-sm sm:text-base opacity-90">{copy('threeDescription', '過去・現在・未來')}</span>
                       </h3>
                     </div>
                   </button>
@@ -631,11 +624,12 @@ function DragonsPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const language = getLanguageFromPath(window.location.pathname);
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
         <ArrowRight className="w-3 h-3 text-emerald-500" strokeWidth={1.6} />
-        <h3 className="text-emerald-200 text-sm tracking-[0.4em] uppercase">{title}</h3>
+        <h3 className="text-emerald-200 text-sm tracking-[0.4em] uppercase">{localizeCardLabel(title, language)}</h3>
       </div>
       <p className="text-emerald-100/90 leading-loose whitespace-pre-line pl-6">{children}</p>
     </div>
@@ -643,9 +637,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function ThreeSection({ title, children }: { title: string; children: React.ReactNode }) {
+  const language = getLanguageFromPath(window.location.pathname);
   return (
     <div>
-      <h4 className="text-xs text-emerald-400/85 mb-1.5 tracking-[0.18em] font-semibold">{title}</h4>
+      <h4 className="text-xs text-emerald-400/85 mb-1.5 tracking-[0.18em] font-semibold">{localizeCardLabel(title, language)}</h4>
       <p className="text-xs text-emerald-200/85 leading-loose">{children}</p>
     </div>
   );

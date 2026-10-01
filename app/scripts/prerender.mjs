@@ -178,3 +178,61 @@ for (const [path, title, description, h1, intro] of pages) {
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, output);
 }
+
+const englishPages = [
+  ['oracle', 'Free Tarot and Oracle Card Readings | Crystal Field', 'Explore seven tarot and oracle decks, choose a spread, and reflect on your question and possible next steps.', 'Free Tarot and Oracle Card Readings', 'Choose a topic, write down your question, and explore a deck and spread selected for reflection.'],
+  ['tarot', 'Online Rider-Waite Tarot Reading | Crystal Field', 'Choose a single card, three-card spread, Celtic Cross, or past-life pattern spread for reflection on relationships, work, and life direction.', 'Rider-Waite Tarot', 'Use Rider-Waite imagery and symbolism to reflect on your circumstances and choices.'],
+  ['lightworker', 'Lightworker Oracle Reading | Crystal Field', 'Explore a single-card reading or Celtic Cross spread to reflect on your gifts, purpose, and direction.', 'Lightworker Oracle', 'Choose a spread and use its prompts to reflect on your purpose and next steps.'],
+  ['unicorns', 'Unicorn Oracle Reading | Crystal Field', 'Explore a gentle single-card or three-card oracle reading for reflection on relationships, self-worth, and personal growth.', 'Unicorn Oracle', 'Use these cards as gentle prompts for reflecting on relationships, self-worth, and care.'],
+  ['dragons', 'Dragon Oracle Reading | Crystal Field', 'Use single-card and three-card spreads to reflect on boundaries, difficult patterns, courage, and possible next steps.', 'Dragon Oracle', 'Reflect on boundaries, recurring patterns, and the next step you can choose.'],
+  ['egyptian-gods', 'Egyptian Oracle Reading | Crystal Field', 'Explore an Egyptian oracle card or seven-card spread inspired by ancient symbols and stories.', 'Egyptian Oracle', 'Use stories and symbols as prompts for reflecting on choices and life themes.'],
+  ['work-your-light', 'Work Your Light Oracle Reading | Crystal Field', 'Explore a single card or Cosmic Cross spread with prompts for intuition, reflection, and personal growth.', 'Work Your Light', 'Use these cards to reconnect with your experience and consider what may help you move forward.'],
+  ['osho', 'Osho Zen Tarot Reading | Crystal Field', 'Choose a single-card or three-card Osho Zen Tarot spread to reflect on your present state of mind.', 'Osho Zen Tarot', 'Reflect on the present moment, your inner state, and the choices available to you.'],
+  ['numerology', 'Free Numerology Reading | Crystal Field', 'Enter your birth date to explore your life path number, strengths, missing numbers, personal-year themes, and crystal associations.', 'Free Numerology Reading', 'Explore your numbers as prompts for reflecting on strengths, life themes, and direction.'],
+  ['human-design', 'Free Human Design Chart | Crystal Field', 'Create a Human Design chart from your birth date, time, and place. Explore your Type, Profile, Strategy, and Inner Authority.', 'Free Human Design Chart', 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.'],
+  ['vedic-astrology', 'Free Vedic Astrology Birth Chart | Crystal Field', 'Create a Vedic astrology birth chart and explore your ascendant, planetary placements, lunar mansion, and life cycles.', 'Free Vedic Astrology Chart', 'Explore chart placements and life cycles as perspectives for self-reflection.'],
+];
+
+for (const [slug, title, description, h1, intro] of englishPages) {
+  const path = `en/${slug}`;
+  const canonical = pageUrl(path);
+  const chineseCanonical = pageUrl(slug);
+  const jsonLd = [
+    { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'en' },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Crystal Field', item: pageUrl('en/oracle') },
+      { '@type': 'ListItem', position: 2, name: h1, item: canonical },
+    ] },
+  ];
+  const head = `
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="${canonical}" />
+    <link rel="alternate" hreflang="zh-Hant" href="${chineseCanonical}" />
+    <link rel="alternate" hreflang="en" href="${canonical}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Crystal Field" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:url" content="${canonical}" />
+    <meta property="og:image" content="${siteUrl}/20260315_164545.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${siteUrl}/20260315_164545.jpg" />
+    <script type="application/ld+json">${escapeJson(jsonLd)}</script>`;
+  const body = `<main id="seo-prerendered" lang="en"><h1>${escapeHtml(h1)}</h1><p>${escapeHtml(intro)}</p></main>`;
+  const cleanTemplate = template
+    .replace(/<title>[\s\S]*?<\/title>/, '')
+    .replace(/<meta name="description"[^>]*\/>/g, '')
+    .replace(/<meta property="og:(title|description)"[^>]*>/g, '')
+    .replace(/<html lang="[^"]*"/, '<html lang="en"');
+  const output = cleanTemplate
+    .replace('</head>', `${head}\n  </head>`)
+    .replace(/^\s*<div id="root"><\/div>\s*$/gm, `<div id="root">${body}</div>`);
+  const target = join(distDir, path, 'index.html');
+  await mkdir(dirname(target), { recursive: true });
+  await writeFile(target, output);
+}

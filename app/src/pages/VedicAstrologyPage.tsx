@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
   CircleDollarSign,
@@ -27,6 +27,7 @@ import {
 } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import VedicAstrologySeoContent from './VedicAstrologySeoContent';
+import { getLanguageFromPath, t } from '../lib/i18n';
 
 const SESSION_KEY = 'cf_vedic_chart_session';
 
@@ -152,6 +153,9 @@ function loadChart(): VedicChartResponse | null {
 
 export default function VedicAstrologyPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const language = getLanguageFromPath(location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`vedic.${key}`, language) : fallback;
   const [searchParams] = useSearchParams();
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthPlace: '' });
   const [chart, setChart] = useState<VedicChartResponse | null>(() => loadChart());
@@ -301,45 +305,45 @@ export default function VedicAstrologyPage() {
       <CosmicBackground />
       <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6">
         <section className="mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-sm font-medium tracking-[0.28em] text-amber-200/75">印度占星｜靈魂業力人生地圖</p>
-          <h1 className="font-serif text-4xl leading-tight text-amber-50 sm:text-6xl">免費印度占星命盤：探索前世業力、人生使命與未來趨勢</h1>
+          <p className="mb-4 text-sm font-medium tracking-[0.28em] text-amber-200/75">{copy('eyebrow', '印度占星｜靈魂業力人生地圖')}</p>
+          <h1 className="font-serif text-4xl leading-tight text-amber-50 sm:text-6xl">{copy('title', '免費印度占星命盤：探索前世業力、人生使命與未來趨勢')}</h1>
           <p className="mx-auto mt-7 max-w-3xl text-lg leading-9 text-violet-100/80">
-            輸入出生年月日、準確出生時間與出生地點，建立你的印度占星出生盤，查看上升、行星、月宿與人生週期，從前世業力、今生課題、感情、財富、事業及未來趨勢理解自己的生命方向。
+            {copy('description', '輸入出生年月日、準確出生時間與出生地點，建立你的印度占星出生盤，查看上升、行星、月宿與人生週期，從前世業力、今生課題、感情、財富、事業及未來趨勢理解自己的生命方向。')}
           </p>
         </section>
 
         <section className="mx-auto mt-12 max-w-3xl rounded-[2rem] border border-amber-300/25 bg-slate-950/55 p-6 shadow-[0_0_70px_rgba(168,85,247,0.16)] backdrop-blur-xl sm:p-10">
           <div className="mb-7 flex items-center gap-3">
             <span className="rounded-2xl border border-amber-300/30 bg-amber-300/10 p-3 text-amber-200"><Orbit /></span>
-            <div><h2 className="font-serif text-2xl text-amber-50">輸入你的出生座標</h2><p className="mt-1 text-sm text-violet-200/55">出生時間越準確，上升與宮位判讀越可靠。</p></div>
+            <div><h2 className="font-serif text-2xl text-amber-50">{copy('formTitle', '輸入你的出生座標')}</h2><p className="mt-1 text-sm text-violet-200/55">{copy('accuracy', '出生時間越準確，上升與宮位判讀越可靠。')}</p></div>
           </div>
           <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
-            <Field label="出生年月日">
+            <Field label={copy('birthDate', '出生年月日')}>
               <input type="date" required value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="vedic-input" />
             </Field>
-            <Field label="出生時間">
+            <Field label={copy('birthTime', '出生時間')}>
               <div className="grid grid-cols-2 gap-3">
-                <select required aria-label="出生小時（24 小時制）" value={birthHour} onChange={(e) => updateBirthTime(e.target.value, birthMinute)} className="vedic-input">
-                  <option value="">小時</option>
-                  {Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, '0')).map((hour) => <option key={hour} value={hour}>{hour} 時</option>)}
+                <select required aria-label={copy('birthHour', '出生小時（24 小時制）')} value={birthHour} onChange={(e) => updateBirthTime(e.target.value, birthMinute)} className="vedic-input">
+                  <option value="">{copy('birthHour', '小時')}</option>
+                  {Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, '0')).map((hour) => <option key={hour} value={hour}>{language === 'en' ? `${hour} hr` : `${hour} 時`}</option>)}
                 </select>
-                <select required aria-label="出生分鐘" value={birthMinute} onChange={(e) => updateBirthTime(birthHour, e.target.value)} className="vedic-input">
-                  <option value="">分鐘</option>
-                  {Array.from({ length: 60 }, (_, minute) => String(minute).padStart(2, '0')).map((minute) => <option key={minute} value={minute}>{minute} 分</option>)}
+                <select required aria-label={copy('birthMinute', '出生分鐘')} value={birthMinute} onChange={(e) => updateBirthTime(birthHour, e.target.value)} className="vedic-input">
+                  <option value="">{copy('birthMinute', '分鐘')}</option>
+                  {Array.from({ length: 60 }, (_, minute) => String(minute).padStart(2, '0')).map((minute) => <option key={minute} value={minute}>{language === 'en' ? `${minute} min` : `${minute} 分`}</option>)}
                 </select>
               </div>
-              <p className="mt-2 text-xs text-violet-200/45">24 小時制，例如晚上 8:30 請選擇 20 時 30 分。</p>
+              <p className="mt-2 text-xs text-violet-200/45">{copy('timeHint', '24 小時制，例如晚上 8:30 請選擇 20 時 30 分。')}</p>
             </Field>
-            <Field label="出生地點" wide>
-              <div className="relative"><MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-200/55" /><input type="text" required aria-required="true" aria-invalid={error === '未填出生地點'} maxLength={160} placeholder="例如：台北市, 台灣" value={form.birthPlace} onInvalid={(event) => { event.currentTarget.setCustomValidity('未填出生地點'); setError('未填出生地點'); }} onInput={(event) => event.currentTarget.setCustomValidity('')} onChange={(e) => { setForm({ ...form, birthPlace: e.target.value }); if (error === '未填出生地點') setError(''); }} className="vedic-input pl-12" /></div>
-              <p className={`mt-2 text-xs ${error === '未填出生地點' ? 'text-rose-200' : 'text-violet-200/45'}`}>必填，請輸入城市與國家／地區。</p>
+            <Field label={copy('birthPlace', '出生地點')} wide>
+              <div className="relative"><MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-200/55" /><input type="text" required aria-required="true" aria-invalid={error === '未填出生地點'} maxLength={160} placeholder={copy('placePlaceholder', '例如：台北市, 台灣')} value={form.birthPlace} onInvalid={(event) => { event.currentTarget.setCustomValidity(copy('cityError', '未填出生地點')); setError(copy('cityError', '未填出生地點')); }} onInput={(event) => event.currentTarget.setCustomValidity('')} onChange={(e) => { setForm({ ...form, birthPlace: e.target.value }); if (error === '未填出生地點') setError(''); }} className="vedic-input pl-12" /></div>
+              <p className={`mt-2 text-xs ${error === '未填出生地點' ? 'text-rose-200' : 'text-violet-200/45'}`}>{copy('placeRequired', '必填，請輸入城市與國家／地區。')}</p>
             </Field>
             {error && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 sm:col-span-2">{error}</p>}
             <button type="submit" disabled={isCalculating} aria-disabled={isCalculating || !form.birthPlace.trim()} className={`flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-6 py-4 font-semibold shadow-[0_0_32px_rgba(217,70,239,0.28)] transition disabled:opacity-60 sm:col-span-2 ${!form.birthPlace.trim() ? 'cursor-not-allowed opacity-55' : 'hover:brightness-110'}`}>
-              {isCalculating ? <><Loader2 className="animate-spin" />正在連結出生星盤…</> : <><Stars />開啟我的靈魂業力地圖</>}
+              {isCalculating ? <><Loader2 className="animate-spin" />{copy('calculating', '正在連結出生星盤…')}</> : <><Stars />{copy('calculate', '開啟我的靈魂業力地圖')}</>}
             </button>
           </form>
-          <p className="mt-5 text-center text-xs leading-5 text-white/35">本服務用於自我探索與娛樂參考，不代替醫療、法律、財務或心理專業意見。</p>
+          <p className="mt-5 text-center text-xs leading-5 text-white/35">{copy('disclaimer', '本服務用於自我探索與娛樂參考，不代替醫療、法律、財務或心理專業意見。')}</p>
         </section>
 
         <VedicAstrologySeoContent />
@@ -348,7 +352,7 @@ export default function VedicAstrologyPage() {
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">
-            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">完整深度解析</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">9 大印度占星深度解析</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">從本命盤、羅喉計都、大運一路深入 D9 婚姻成熟分盤與 D10 事業分盤，建立有別於一般西方占星的完整人生地圖。</p></div>
+            <div className="text-center"><p className="text-sm tracking-[0.3em] text-fuchsia-300/60">{copy('deepEyebrow', '完整深度解析')}</p><h2 id="vedic-deep-heading" className="mt-3 font-serif text-3xl text-white sm:text-5xl">{copy('deepTitle', '9 大印度占星深度解析')}</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-violet-100/60">{copy('deepDescription', '從本命盤、羅喉計都、大運一路深入 D9 婚姻成熟分盤與 D10 事業分盤，建立有別於一般西方占星的完整人生地圖。')}</p></div>
             <div className="mt-10 grid gap-5 md:grid-cols-2">
               {LIFE_QUESTIONS.map((question) => <LifeQuestionCard key={question.number} {...question} />)}
             </div>

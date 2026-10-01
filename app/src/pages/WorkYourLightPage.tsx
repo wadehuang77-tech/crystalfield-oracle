@@ -3,13 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
+import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
 
 function WorkYourLightPage() {
   const navigate = useNavigate();
-  const { cards: deck } = useDeck('work_your_light');
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.workYourLight.${key}`, language) : fallback;
+  const { cards: deck, error: deckError } = useDeck('work_your_light');
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
-  const drawCard = () => navigate('/work-your-light-single');
+  const drawCard = () => navigate(getLocalizedPath('/work-your-light-single', language));
 
   const deckReady = !!deck && deck.length > 0;
 
@@ -18,8 +21,10 @@ function WorkYourLightPage() {
       <LoginPromptModal
         isOpen={showLoginPrompt}
         onClose={() => setShowLoginPrompt(false)}
-        redirectTo="/cosmic-cross"
+          redirectTo={getLocalizedPath('/cosmic-cross', language)}
       />
+
+      {deckError && <p role="status" className="mx-auto max-w-3xl px-4 pt-4 text-center text-sm text-amber-200/80">{deckError}</p>}
 
 
       <section className="max-w-[1100px] mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-10 text-center">
@@ -27,10 +32,7 @@ function WorkYourLightPage() {
           <DeckSigil />
         </div>
         <h1 className="font-serif text-3xl sm:text-5xl text-violet-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">光之訊息</h1>
-        <p className="text-base sm:text-lg text-violet-300/80 leading-loose tracking-wide max-w-md mx-auto">
-          靈魂任務的啟動。<br />
-          選一個牌陣,讓光交還給你的手。
-        </p>
+        <p className="whitespace-pre-line text-base sm:text-lg text-violet-300/80 leading-loose tracking-wide max-w-md mx-auto">{copy('tagline', '靈魂任務的啟動。\n選一個牌陣,讓光交還給你的手。')}</p>
       </section>
 
       <section className="max-w-4xl mx-auto px-4 sm:px-10 pb-12">
@@ -39,15 +41,9 @@ function WorkYourLightPage() {
             ✨ Work Your Light 啟動光芒神諭卡｜你就是自己的解答
           </h2>
           <div className="space-y-4 text-base sm:text-lg leading-loose text-violet-50/90">
-            <p>我們總習慣向外尋求答案，卻忘了最了解你的人，永遠是你自己。</p>
-            <p>
-              這不是預測命運的牌卡，而是一把
-              <strong className="font-semibold text-fuchsia-200">開啟你內在智慧的鑰匙</strong>
-              。溫柔剝開焦慮與討好，連結你最強大的直覺——你現在的樣子，就充滿了光芒。
-            </p>
-            <p className="font-semibold text-fuchsia-100">
-              深呼吸，將手放在心口，聆聽你內心最真實的聲音。
-            </p>
+            <p>{copy('intro1', '我們總習慣向外尋求答案，卻忘了最了解你的人，永遠是你自己。')}</p>
+            <p>{copy('intro2', '這不是預測命運的牌卡，而是開啟內在智慧、重新連結直覺的提示。')}</p>
+            <p className="font-semibold text-fuchsia-100">{copy('intro3', '深呼吸，將手放在心口，聆聽你內心最真實的聲音。')}</p>
           </div>
 
           <div className="mt-7 border-t border-violet-400/20 pt-6">
@@ -57,7 +53,9 @@ function WorkYourLightPage() {
             <ol className="space-y-4 text-sm sm:text-base leading-loose text-violet-50/90">
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-300/50 bg-violet-500/15 font-semibold text-violet-200">1</span>
-                <p><strong className="text-violet-100">靜心</strong>：閉上眼放鬆，感受心口溫柔的粉紫色光芒擴散。</p>
+                <p>{copy('step1', '靜心：閉上眼放鬆，感受心口溫柔的粉紫色光芒擴散。')}</p>
+                              <p>{copy('step2', '默想：「此刻，我的內心想提醒我什麼？我該如何啟動光芒？」')}</p>
+                              <p>{copy('step3', '抽牌：憑直覺抽取卡片，領取專屬於你的內在智慧指引。')}</p>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-300/50 bg-violet-500/15 font-semibold text-violet-200">2</span>
@@ -84,7 +82,13 @@ function WorkYourLightPage() {
               <div className="relative h-full min-h-[8rem] sm:min-h-[9rem] px-6 py-5 sm:py-6 bg-gradient-to-r from-violet-600 to-purple-600 group-hover:from-violet-500 group-hover:to-purple-500 rounded-2xl shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
                 <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
                   <span>{deckReady ? '單張牌' : '卡片資料準備中'}</span>
-                  <span className="text-sm sm:text-base opacity-90">接收宇宙訊息</span>
+                  <span>{deckReady ? copy('singleTitle', '單張牌') : copy('loading', '卡片資料準備中')}</span>
+                  <span className="text-sm sm:text-base opacity-90">{copy('singleDescription', '接收宇宙訊息')}</span>
+                            <p className="text-violet-200/60 text-xs tracking-wider text-center">{copy('prompt', '靜下心來,專注於你的問題')}</p>
+                                  <span>{copy('cosmicTitle', '宇宙十字牌陣')}</span>
+                              to={getLocalizedPath('/cosmic-cross', language)}
+                            <h3 className="text-violet-200 text-sm tracking-[0.4em] uppercase mb-4">{copy('aboutTitle', '關 於 此 牌')}</h3>
+                              {copy('aboutBody', '這副神諭卡承載靈魂的訊息,連結內在的光與宇宙智慧。每張卡都是引導,讓你走向覺醒與自我實現。')}
                 </h3>
               </div>
             </button>
@@ -117,11 +121,9 @@ function WorkYourLightPage() {
           </div>
           <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-violet-500/30 rounded-2xl p-6 shadow-xl">
             <h3 className="text-violet-200 text-sm tracking-[0.4em] uppercase mb-4">使 用 之 法</h3>
+            <h3 className="text-violet-200 text-sm tracking-[0.4em] uppercase mb-4">{copy('usageTitle', '使 用 之 法')}</h3>
             <ul className="space-y-2 text-sm text-violet-200/85 leading-loose">
-              <li>放鬆身心,深呼吸三次</li>
-              <li>在心中默想你的問題</li>
-              <li>抽牌,接收來自光的訊息</li>
-              <li>靜心感受卡片的智慧與啟發</li>
+              {(language === 'en' ? ['Relax and take three slow breaths.', 'Hold your question in mind.', 'Draw a card and reflect on its message.', 'Take your time with the insight that emerges.'] : ['放鬆身心,深呼吸三次', '在心中默想你的問題', '抽牌,接收來自光的訊息', '靜心感受卡片的智慧與啟發']).map((step) => <li key={step}>{step}</li>)}
             </ul>
           </div>
         </div>

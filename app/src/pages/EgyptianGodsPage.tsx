@@ -22,6 +22,7 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
+import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -96,6 +97,8 @@ function EgyptianPastlifePreviewCard({ slot, index }: { slot: PastlifeSlot; inde
 
 function EgyptianGodsPage() {
   const navigate = useNavigate();
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.egyptian.${key}`, language) : fallback;
   const { cards: deck, error: deckError } = useDeck('egyptian_gods');
   const [searchParams] = useSearchParams();
   const initialSpread: SpreadType = searchParams.get('spread') === 'pastlife' ? 'pastlife' : 'single';
@@ -323,42 +326,39 @@ function EgyptianGodsPage() {
               <div className="flex justify-center text-yellow-500 mb-8">
                 <DeckSigil />
               </div>
-              <h1 className="font-serif text-3xl sm:text-5xl text-yellow-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">埃及神諭</h1>
+              <h1 className="font-serif text-3xl sm:text-5xl text-yellow-100 tracking-[0.25em] sm:tracking-[0.4em] mb-5">{copy('title', '埃及神諭')}</h1>
               <div className="max-w-3xl mx-auto mb-8 rounded-2xl border border-yellow-400/35 bg-gradient-to-br from-yellow-500/10 via-slate-900/85 to-amber-500/10 px-5 py-6 sm:px-8 sm:py-8 text-left shadow-[0_0_34px_rgba(250,204,21,0.14)]">
                 <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-yellow-100">
-                  🏛️ 埃及神諭殿堂｜連結千年的神聖智慧與能量
+                  {copy('heroTitle', '🏛️ 埃及神諭殿堂｜連結千年的神聖智慧與能量')}
                 </h2>
                 <div className="space-y-4 text-base sm:text-lg leading-loose text-yellow-50/90">
-                  <p>歡迎來到古老而神聖的埃及神宮。</p>
-                  <p>當你心懷迷惘、渴望突破，埃及諸神早已在此等候。祂們將以太陽神的光芒驅散黑暗，以 Isis 女神的羽翼撫平創傷，為你照亮靈魂最真實的模樣。</p>
-                  <p className="font-semibold text-amber-100">
-                    靜下心來，踏上階梯，領取來自尼羅河畔的神諭指引。
-                  </p>
+                  <p>{copy('intro1', '歡迎來到古老而神聖的埃及神宮。')}</p>
+                  <p>{copy('intro2', '當你感到不確定或準備改變，透過故事與象徵整理你的選擇，以及想前往的方向。')}</p>
+                  <p className="font-semibold text-amber-100">{copy('intro3', '靜下心來，踏上階梯，開始你的神諭探索。')}</p>
                 </div>
 
                 <div className="mt-7 border-t border-yellow-400/20 pt-6">
                   <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-yellow-100">
-                    【神殿靜心 3 步驟】
+                    {copy('stepsTitle', '【神殿靜心 3 步驟】')}
                   </h3>
                   <ol className="space-y-4 text-sm sm:text-base leading-loose text-yellow-50/90">
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-yellow-300/50 bg-yellow-500/15 font-semibold text-yellow-200">1</span>
-                      <p><strong className="text-yellow-100">靜心</strong>：挺直脊椎深呼吸三次，感受太陽般的溫暖能量注入全身。</p>
+                      <p>{copy('step1', '靜心：挺直脊椎，深呼吸三次。')}</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-yellow-300/50 bg-yellow-500/15 font-semibold text-yellow-200">2</span>
-                      <p><strong className="text-yellow-100">默想</strong>：「懇請埃及諸神，為我指引此刻（感情 / 事業 / 人生）的最佳方向。」</p>
+                      <p>{copy('step2', '默想：此刻在感情、工作或人生方向上，我需要看見什麼？')}</p>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-yellow-300/50 bg-yellow-500/15 font-semibold text-yellow-200">3</span>
-                      <p><strong className="text-yellow-100">抽牌</strong>：點擊進入神殿，領取專屬於你的埃及神聖力量與祝福。</p>
+                      <p>{copy('step3', '抽牌：進入神殿，思考出現的象徵對你有何意義。')}</p>
                     </li>
                   </ol>
                 </div>
               </div>
               <p className="text-base sm:text-lg text-yellow-300/80 leading-loose tracking-wide max-w-md mx-auto">
-                古文明的智慧迴響。<br />
-                連結尼羅河彼岸的神聖指引。
+                {copy('tagline', '古文明的智慧迴響。\n連結尼羅河彼岸的神聖指引。')}
               </p>
             </section>
 
@@ -367,16 +367,16 @@ function EgyptianGodsPage() {
                 <SpreadChoice
                   onClick={() => handleSpreadTypeChange('single')}
                   sigil={<SingleSpreadSigil />}
-                  title="單張神諭"
-                  body="一張牌,直接的神性指引。"
-                  cta="抽 牌"
+                  title={copy('singleTitle', '單張神諭')}
+                  body={copy('singleDescription', '一張牌,直接的神性指引。')}
+                  cta={copy('singleAction', '抽 牌')}
                 />
                 <SpreadChoice
                   onClick={() => handleSpreadTypeChange('pastlife')}
                   sigil={<PastlifeSigil />}
-                  title="前世因果解鎖陣"
-                  body="七張牌交疊,揭開前世今生的因果連結。"
-                  cta="展 陣"
+                  title={copy('pastlifeTitle', '前世因果解鎖陣')}
+                  body={copy('pastlifeDescription', '七張牌交疊,揭開前世今生的因果連結。')}
+                  cta={copy('pastlifeAction', '展 陣')}
                 />
               </div>
             </section>
@@ -385,11 +385,11 @@ function EgyptianGodsPage() {
 
         {showCardLayout && !isDrawing && !hasDrawn && (
           <section className="max-w-2xl mx-auto text-center py-8">
-            <h2 className="font-serif text-3xl text-yellow-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
+            <h2 className="font-serif text-3xl text-yellow-100 tracking-[0.3em] mb-5">{copy('prepareTitle', '準 備 抽 牌')}</h2>
             <p className={`text-sm sm:text-base text-yellow-300/85 leading-loose ${spreadType === 'pastlife' ? 'mb-8' : 'mb-12'}`}>
               {spreadType === 'pastlife'
-                ? '七張牌將為你揭開前世今生的因果連結'
-                : '閉上眼睛,專注於你的問題'}
+                ? copy('preparePastlife', '七張牌將為你揭開前世今生的因果連結')
+                : copy('prepareSingle', '閉上眼睛,專注於你的問題')}
             </p>
 
             <div className="flex justify-center mb-12 gap-3">
@@ -676,11 +676,12 @@ function EgyptianGodsPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const language = getLanguageFromPath(window.location.pathname);
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">
         <ArrowRight className="w-3 h-3 text-yellow-500" strokeWidth={1.6} />
-        <h3 className="text-yellow-200 text-sm tracking-[0.4em] uppercase">{title}</h3>
+        <h3 className="text-yellow-200 text-sm tracking-[0.4em] uppercase">{localizeCardLabel(title, language)}</h3>
       </div>
       <p className="text-yellow-100/90 leading-loose whitespace-pre-line pl-6">{children}</p>
     </div>

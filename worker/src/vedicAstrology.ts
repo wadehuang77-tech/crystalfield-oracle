@@ -128,6 +128,36 @@ interface VedicReportDraft {
   }>;
 }
 
+function readLocalizedVedicReport(contentJson: string, language: 'zh-Hant' | 'en'): unknown | null {
+  try {
+    const parsed = JSON.parse(contentJson) as Record<string, unknown>;
+    const reports = parsed.localized_reports;
+    if (reports && typeof reports === 'object' && !Array.isArray(reports)) {
+      return (reports as Record<string, unknown>)[language] ?? null;
+    }
+    return language === 'zh-Hant' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalizedVedicReport(existingJson: string | undefined, language: 'zh-Hant' | 'en', value: unknown): string {
+  let reports: Record<string, unknown> = {};
+  if (existingJson) {
+    try {
+      const parsed = JSON.parse(existingJson) as Record<string, unknown>;
+      const localized = parsed.localized_reports;
+      if (localized && typeof localized === 'object' && !Array.isArray(localized)) {
+        reports = { ...(localized as Record<string, unknown>) };
+      } else {
+        reports['zh-Hant'] = parsed;
+      }
+    } catch {}
+  }
+  reports[language] = value;
+  return JSON.stringify({ localized_reports: reports });
+}
+
 interface VedAstroEnvelope {
   Status?: string;
   Payload?: unknown;
@@ -627,7 +657,7 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
   const limit = await rateLimit(env, 'vedic-chart', clientIp(req), env.VEDASTRO_API_KEY ? 12 : 4, 3600);
   if (!limit.allowed) return tooManyRequests(req, env, '印度占星計算過於頻繁，請稍後再試');
 
-  const body = await readBody<{ birth_date?: string; birth_time?: string; birth_place?: string; consent?: boolean }>(req);
+  const body = await readBody<{ birth_date?: string; birth_time?: string; birth_place?: string; consent?: boolean; language?: 'zh-Hant' | 'en' }>(req);
   const birthDate = cleanText(body.birth_date, 10);
   const birthTime = cleanText(body.birth_time, 5);
   const birthPlace = cleanText(body.birth_place, 160);
@@ -715,6 +745,7 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       chart_id: id,
       chart_token: chartToken,
       chart: publicChartData(chart),
+        language: body.language === 'en' ? 'en' : 'zh-Hant',
       free_results: freeResults,
       expires_at: expiresAt,
       calculation: { provider: 'VedAstro', ayanamsa: 'Lahiri' },
@@ -784,6 +815,34 @@ const REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
     '⑨ 未來 3～5 年大運時間軸',
   ],
 };
+
+const EN_SCOPE_NAMES: Record<VedicReportScope, string> = {
+  career: 'My Career and Wealth', relationship: 'My Relationships and Marriage', karma: 'My Past-Life Themes',
+  timeline: 'My Next Ten Years', full: 'Complete Vedic Astrology Life Reading',
+  soul_karma: 'Soul Themes | Past-Life Patterns and Present Lessons',
+  life_full: 'Life Overview | Purpose, Relationships, and Career',
+  complete: 'Complete Life Map | Nine In-Depth Vedic Astrology Readings',
+};
+
+const EN_REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
+  career: ['Sources of Wealth and Natural Gifts', 'Career Direction and Work Style', 'Current Obstacles', 'Practical Next Steps'],
+  relationship: ['Relationship Patterns', 'Lessons in Relationships', 'Compatible Partner Qualities', 'Communication and Commitment'],
+  karma: ['Themes You Carry into This Life', 'Recurring Patterns', 'Growth and Change in This Life'],
+  timeline: ['Current Life Cycle', 'The Next Ten Years', 'Preparing for Transitions'],
+  full: ['Past-Life Themes', 'Present-Life Lessons', 'Relationships', 'Career and Wealth', 'The Next Ten Years', 'Soul Reflection'],
+  soul_karma: ['Themes You Carry into This Life', 'Recurring Past Patterns', 'Growth and Change in This Life'],
+  life_full: ['Past-Life Themes and Patterns', 'Core Lessons in This Life', 'Relationships', 'Career and Wealth'],
+  complete: [
+    '1. Past-Life Patterns', '2. Lessons in This Life', '3. Rahu and Ketu: Growth Axis',
+    '4. Love and Marriage', '5. Wealth Patterns', '6. Career Strengths',
+    '7. D9: Relationships and Maturity', '8. D10: Career and Public Role',
+    '9. Vimshottari Timeline: The Next 3–5 Years',
+  ],
+};
+
+function reportHeadings(scope: VedicReportScope, language: 'zh-Hant' | 'en'): string[] {
+  return language === 'en' ? EN_REPORT_SECTION_HEADINGS[scope] : REPORT_SECTION_HEADINGS[scope];
+}
 
 const COMPLETE_SECTION_BLUEPRINTS = [
   ['核心舊模式', '為什麼如此熟悉', '過去如何保護你', '現在為何成為限制', '最容易重複的情境', '不改變的代價', '鬆動方法'],
@@ -1339,12 +1398,13 @@ function sentenceSimilarity(a: string, b: string): number {
   return intersection / (left.size + right.size - intersection);
 }
 
-function reportHasDuplicateSentences(sections: any[]): boolean {
+function reportHasDuplicateSentences(sections: any[], language: 'zh-Hant' | 'en' = 'zh-Hant'): boolean {
   const consultationTexts = sections.flatMap((section) => [
     section.consultation,
     ...(section.timeline || []).map((period: VedicForecastPeriod) => period.interpretation.consultation),
   ]).filter((value): value is string => typeof value === 'string' && value.length >= 40)
-    .flatMap((value) => value.split(/[。！？\n]+/).map((sentence) => sentence.trim()).filter((sentence) => traditionalChineseLength(sentence) >= 24));
+    .flatMap((value) => value.split(/[。！？.!?\n]+/).map((sentence) => sentence.trim())
+      .filter((sentence) => language === 'en' ? sentence.split(/\s+/).length >= 6 : traditionalChineseLength(sentence) >= 24));
   for (let left = 0; left < consultationTexts.length; left += 1) {
     for (let right = left + 1; right < consultationTexts.length; right += 1) {
       if (normalizeForDuplicateCheck(consultationTexts[left]) === normalizeForDuplicateCheck(consultationTexts[right])) return true;
@@ -1363,12 +1423,37 @@ function traditionalChineseLength(value: string): number {
   return (value.match(/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) || []).length;
 }
 
-function consultationQualityIssues(value: string, minimumChineseLength: number, maximumChineseLength: number, kind: 'section' | 'period' = 'section'): string[] {
+function qualityLength(value: string, language: 'zh-Hant' | 'en'): number {
+  return language === 'en' ? value.trim().split(/\s+/).filter(Boolean).length : traditionalChineseLength(value);
+}
+
+function consultationQualityIssues(
+  value: string,
+  minimumLength: number,
+  maximumLength: number,
+  kind: 'section' | 'period' = 'section',
+  language: 'zh-Hant' | 'en' = 'zh-Hant',
+): string[] {
   const text = value.trim();
-  const length = traditionalChineseLength(text);
+  const length = qualityLength(text, language);
   const issues: string[] = [];
-  if (length < minimumChineseLength) issues.push('too_short');
-  if (length > maximumChineseLength) issues.push('too_long');
+  if (length < minimumLength) issues.push('too_short');
+  if (length > maximumLength) issues.push('too_long');
+  if (language === 'en') {
+    const requirements = [
+      { name: 'deep_problem', pattern: /core issue|underlying problem|deeper issue|central tension/i },
+      { name: 'unexpected_cause', pattern: /because|root cause|underlying reason|stems from|may be driven by/i },
+      { name: 'real_scenarios', pattern: /for example|at work|in a relationship|with a partner|with a colleague/i },
+      { name: 'wrong_decision', pattern: /risk|cost|trade-?off|avoid|misjudge|common mistake/i },
+      { name: 'executable_solution', pattern: /next time|write down|set a|within \d+|step by step|try this/i },
+      ...(kind === 'section' ? [
+        { name: 'talent_shadow', pattern: /strength|gift|talent/i },
+        { name: 'mature_outcome', pattern: /mature|when used well|over time|healthier pattern/i },
+      ] : []),
+    ];
+    for (const requirement of requirements) if (!requirement.pattern.test(text)) issues.push(requirement.name);
+    return issues;
+  }
   const requirements = [
     { name: 'deep_problem', pattern: /真正|核心|問題不是|表面.+(?:其實|而是)|最深/ },
     { name: 'unexpected_cause', pattern: /因為|源自|背後|安全感|確認自己|之所以|根源/ },
@@ -1385,14 +1470,14 @@ function consultationQualityIssues(value: string, minimumChineseLength: number, 
   return issues;
 }
 
-function validStructuredSection(section: any, index: number): boolean {
+function validStructuredSection(section: any, index: number, language: 'zh-Hant' | 'en' = 'zh-Hant'): boolean {
   const consultation = typeof section.consultation === 'string' ? section.consultation.trim() : '';
   const evidence = Array.isArray(section.evidence) ? section.evidence : [];
-  if (!consultation || consultation.length < 180 || evidence.length < 2
+  if (!consultation || qualityLength(consultation, language) < (language === 'en' ? 180 : 180) || evidence.length < 2
     || evidence.some((item: VedicEvidence) => !item?.factor || !item?.value || !item?.relevance)) return false;
   if (index === 8) return Array.isArray(section.timeline) && section.timeline.length > 0
     && section.timeline.every((period: VedicForecastPeriod) => period.id && period.startDate && period.endDate
-      && period.interpretation.consultation.length >= 180 && period.interpretation.evidence.length >= 2);
+      && qualityLength(period.interpretation.consultation, language) >= (language === 'en' ? 180 : 180) && period.interpretation.evidence.length >= 2);
   return true;
 }
 
@@ -1401,32 +1486,32 @@ function consultationHasDepth(value: string, minimumLength: number, kind: 'secti
   return consultationQualityIssues(value, minimumLength, maximumLength, kind).length === 0;
 }
 
-export function validateCompleteVedicReport(report: VedicPaidReport): boolean {
+export function validateCompleteVedicReport(report: VedicPaidReport, language: 'zh-Hant' | 'en' = 'zh-Hant'): boolean {
   return report.formatVersion === VEDIC_REPORT_FORMAT_VERSION
-    && report.sections.length === REPORT_SECTION_HEADINGS.complete.length
-    && report.sections.every((section, index) => section.heading === REPORT_SECTION_HEADINGS.complete[index]
-      && validStructuredSection(section, index))
+    && report.sections.length === reportHeadings('complete', language).length
+    && report.sections.every((section, index) => section.heading === reportHeadings('complete', language)[index]
+      && validStructuredSection(section, index, language))
     && report.sections.slice(0, 8).every((section) => {
-      const length = traditionalChineseLength(section.consultation);
+      const length = qualityLength(section.consultation, language);
       return length >= 320 && length <= 900
-        && GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length < 2;
+        && (language === 'en' || GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length < 2);
     })
     && (report.sections[8]?.timeline || []).every((period) => {
-      const length = traditionalChineseLength(period.interpretation.consultation);
+      const length = qualityLength(period.interpretation.consultation, language);
       return length >= 250 && length <= 1200;
     })
-    && !reportHasDuplicateSentences(report.sections);
+    && !reportHasDuplicateSentences(report.sections, language);
 }
 
-export function auditCompleteVedicReport(report: VedicPaidReport): string[] {
-  const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index) ? [] : [`section_${index + 1}`]);
+export function auditCompleteVedicReport(report: VedicPaidReport, language: 'zh-Hant' | 'en' = 'zh-Hant'): string[] {
+  const issues = report.sections.flatMap((section, index) => validStructuredSection(section, index, language) ? [] : [`section_${index + 1}`]);
   report.sections.slice(0, 8).forEach((section, index) => {
-    for (const issue of consultationQualityIssues(section.consultation, 320, 900)) issues.push(`section_${index + 1}_${issue}`);
+    for (const issue of consultationQualityIssues(section.consultation, 320, 900, 'section', language)) issues.push(`section_${index + 1}_${issue}`);
   });
   report.sections[8]?.timeline?.forEach((period) => {
-    for (const issue of consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period')) issues.push(`period_${period.id}_${issue}`);
+    for (const issue of consultationQualityIssues(period.interpretation.consultation, 300, 600, 'period', language)) issues.push(`period_${period.id}_${issue}`);
   });
-  if (reportHasDuplicateSentences(report.sections)) issues.push('duplicate_or_high_similarity');
+  if (reportHasDuplicateSentences(report.sections, language)) issues.push('duplicate_or_high_similarity');
   return issues;
 }
 
@@ -1437,8 +1522,10 @@ async function generatePaidReportPart(
   transits: VedicTransitSnapshot | null = null,
   generationAttempt = 0,
   requestedSectionIndexes?: number[],
+  language: 'zh-Hant' | 'en' = 'zh-Hant',
 ) {
-  const sectionIndexes = requestedSectionIndexes || REPORT_SECTION_HEADINGS[scope].map((_, index) => index);
+  const sectionHeadings = reportHeadings(scope, language);
+  const sectionIndexes = requestedSectionIndexes || sectionHeadings.map((_, index) => index);
   const includeForecast = scope === 'complete' && sectionIndexes.includes(8);
   const forecastPeriods = includeForecast ? buildVedicForecastPeriods(chart) : [];
   const diagnostics = {
@@ -1448,6 +1535,7 @@ async function generatePaidReportPart(
     forecastPeriodCount: forecastPeriods.length,
   };
   if (!env.OPENAI_API_KEY) {
+    if (language === 'en') throw new Error('VEDIC_ENGLISH_REPORT_UNAVAILABLE');
     if (requestedSectionIndexes) throw new Error('OPENAI_API_KEY_MISSING');
     if (scope === 'complete') console.warn('VEDIC_FORECAST_FALLBACK', { ...diagnostics, aiInterpretationPeriodCount: 0, fallbackUsed: true, reason: 'OPENAI_API_KEY_MISSING' });
     return buildVedicFallbackReport(scope, chart, transits);
@@ -1456,7 +1544,8 @@ async function generatePaidReportPart(
   const legacyPrompt = {
     task: '像有經驗的印度占星老師面對面解盤：把占星配置翻成現實人生結論與可執行建議。',
     scope,
-    scope_name: SCOPE_NAMES[scope],
+    language,
+    scope_name: language === 'en' ? EN_SCOPE_NAMES[scope] : SCOPE_NAMES[scope],
     analysis_inputs: {
       d1_birth_chart: {
         lagna: chart.lagna,
@@ -1481,7 +1570,7 @@ async function generatePaidReportPart(
       id, mahaDasha, antarDasha, startDate, endDate, displayLabel, analysisStartDate, analysisEndDate,
     })),
     karma_foundation_chinese: karmaFoundation(chart),
-    required_section_headings: REPORT_SECTION_HEADINGS[scope],
+    required_section_headings: sectionHeadings,
     section_blueprints: scope === 'complete' ? COMPLETE_SECTION_BLUEPRINTS : [],
     output_schema: {
       formatVersion: VEDIC_REPORT_FORMAT_VERSION,
@@ -1522,7 +1611,9 @@ async function generatePaidReportPart(
     },
     rules: [
       '只使用提供的星盤資料，不杜撰行星位置、日期、月份或事件。',
-      '使用一般人看得懂的繁體中文，像資深老師當面說明；占星配置是證據，白話人生解讀才是答案。',
+      language === 'en'
+        ? 'Use clear, natural English as if speaking to a client in a personalized consultation; the chart is evidence, and the life interpretation is the answer.'
+        : '使用一般人看得懂的繁體中文，像資深老師當面說明；占星配置是證據，白話人生解讀才是答案。',
       '每個配置都必須回答「這對這個人的現實人生代表什麼」，不可只解釋術語。',
       '每一區先給結論；共用 strengths/risks/examples/actions 是摘要資料，但 analysisBlocks 必須嚴格依該區專屬標籤寫對應語意，不得以陣列索引猜內容。',
       '優勢、弱點與建議必須由此人的配置推導，不得使用固定人格模板。',
@@ -1572,7 +1663,8 @@ async function generatePaidReportPart(
   const prompt = {
     task: '撰寫一份像資深印度占星老師面對面解盤的一對一諮詢。最高原則：不要問這個星體代表什麼；要問這個人現在真正卡在哪裡，而這張命盤能告訴他什麼解決方法。',
     scope,
-    scope_name: SCOPE_NAMES[scope],
+    language,
+    scope_name: language === 'en' ? EN_SCOPE_NAMES[scope] : SCOPE_NAMES[scope],
     consultation_question: null,
     chart_facts: {
       d1: { lagna: chart.lagna, sunSign: chart.sunSign, moonSign: chart.moonSign, moonNakshatra: chart.moonNakshatra, planets: chart.planets, housePlacements: chart.housePlacements, houseLords: chart.houseLords, karmaAspects: chart.karmaAspects },
@@ -1581,7 +1673,7 @@ async function generatePaidReportPart(
       dasha: { mahaDasha: chart.mahaDasha, antarDasha: chart.antarDasha, timeline: chart.dashaTimeline },
       transits,
     },
-    sections: REPORT_SECTION_HEADINGS[scope].map((heading, index) => ({
+    sections: sectionHeadings.map((heading, index) => ({
       heading,
       program_evidence: cleanEvidenceList(programReport.sections[index]?.evidence || []),
       special_instruction: [
@@ -1612,10 +1704,15 @@ async function generatePaidReportPart(
     },
     rules: [
       '只回傳 JSON，不得加入 Markdown code fence。',
+      language === 'en'
+        ? 'Write every user-facing title, heading, introduction, consultation, forecast interpretation, and closing in fluent English. Do not include Chinese prose.'
+        : '只回傳繁體中文，不要混用英文。',
       '只能使用 chart_facts、program_evidence 與 forecast_periods 的事實；不得猜測或改寫行星、宮位、分盤、大運、次運與日期。',
       ...(requestedSectionIndexes ? ['這是單一區塊請求：title 最多30字、introduction 最多80字、closing 最多80字；輸出重點只放在本次 consultation，不得擴寫其他欄位。'] : []),
       '①至⑧每節只輸出 heading 與 consultation；不得輸出固定的結論、優點、缺點、範例、建議、方向、信心、評分或卡片欄位。',
-      '①至⑧每篇以350至500個繁體中文字為目標，精簡為原篇幅約一半，但仍必須保留個人化判斷、深層原因、現實表現與可執行解法；不可用重複配置、免責、鼓勵話或同義改寫湊字。第九節總論約500字、每個次運時段350至500字，這次不得改變第九節的篇幅與分析規則。',
+      language === 'en'
+        ? 'For sections 1–8, target 350–500 English words each. Keep the ninth overview and each timeline period equally detailed. Preserve individualized judgment, underlying causes, real-life examples, and actionable steps; never pad with repetition.'
+        : '①至⑧每篇以350至500個繁體中文字為目標，精簡為原篇幅約一半，但仍必須保留個人化判斷、深層原因、現實表現與可執行解法；不可用重複配置、免責、鼓勵話或同義改寫湊字。第九節總論約500字、每個次運時段350至500字，這次不得改變第九節的篇幅與分析規則。',
       '文章內部依「現象→深層機制→吸引或重複模式→代價→真正核心→具體做法→成熟版本」推理，但必須寫成自然文章，絕不可顯示成固定小標或模板。',
       '①至⑧每篇至少要交付：一個被說中的深層問題、一個當事人原本沒想到的成因、一個隱藏的心理回報或安全感來源、一個最細微但反覆發生的行為訊號、一個長期代價，以及一個下週就能執行的解法。任何一項缺少就重寫，不得以字數取代洞察。',
       '像印度占星大師面對面追問到問題背後：本人為什麼明知不舒服仍重複、這個模式曾經保護了什麼、本人從中換得被需要、可控制、可預測或不必冒險等哪種隱性好處，以及真正害怕失去的是什麼。這些判斷必須來自本盤，不得套用固定童年或創傷故事。',
@@ -1642,7 +1739,9 @@ async function generatePaidReportPart(
       body: JSON.stringify({
         model: env.OPENAI_MODEL || 'gpt-5.4',
         input: [
-          { role: 'system', content: '你是有多年一對一諮詢經驗的印度占星老師。最高原則：不要問這個星體代表什麼；要問這個人現在真正卡在哪裡，而這張命盤能告訴他什麼解決方法。忠於輸入事實，不套模板，不寫百科或心靈雞湯。' },
+          { role: 'system', content: language === 'en'
+            ? 'You are an experienced Vedic astrology consultant. Write in English only. Focus on the client’s real-life situation and actionable options, not encyclopedia-style planet definitions. Use only the supplied chart facts; do not invent placements, events, or deterministic predictions.'
+            : '你是有多年一對一諮詢經驗的印度占星老師。最高原則：不要問這個星體代表什麼；要問這個人現在真正卡在哪裡，而這張命盤能告訴他什麼解決方法。忠於輸入事實，不套模板，不寫百科或心靈雞湯。' },
           { role: 'user', content: JSON.stringify(prompt) },
         ],
         reasoning: { effort: 'low' },
@@ -1677,11 +1776,11 @@ async function generatePaidReportPart(
         const index = sectionIndexes[localIndex];
         const row = entry && typeof entry === 'object' ? entry as Record<string, unknown> : {};
         const rawConsultation = cleanText(row.consultation, 8000);
-        const consultation = scope === 'complete' && index < 8
+        const consultation = language === 'zh-Hant' && scope === 'complete' && index < 8
           ? trimToChineseLimit(rawConsultation, 900)
           : rawConsultation;
         return {
-          heading: REPORT_SECTION_HEADINGS[scope][index],
+          heading: sectionHeadings[index],
           consultation,
           evidence: cleanEvidenceList(programReport.sections[index]?.evidence || []),
           ...(includeForecast && index === 8 ? { timeline: forecastTimeline } : {}),
@@ -1691,29 +1790,29 @@ async function generatePaidReportPart(
     const sectionQualityReasons: string[] = [];
     sections.forEach((section, localIndex) => {
       const sectionNumber = sectionIndexes[localIndex] + 1;
-      if (!validStructuredSection(section, sectionIndexes[localIndex])) {
+      if (!validStructuredSection(section, sectionIndexes[localIndex], language)) {
         sectionQualityReasons.push(`section_${sectionNumber}_invalid_structure`);
       }
       if (sectionIndexes[localIndex] === 8) return;
       if (scope === 'complete') {
-        const length = traditionalChineseLength(section.consultation);
+        const length = qualityLength(section.consultation, language);
         if (length < 320) sectionQualityReasons.push(`section_${sectionNumber}_too_short_${length}`);
         if (length > 900) sectionQualityReasons.push(`section_${sectionNumber}_too_long_${length}`);
-        if (GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2) {
+        if (language === 'zh-Hant' && GENERIC_VEDIC_PHRASES.filter((phrase) => section.consultation.includes(phrase)).length >= 2) {
           sectionQualityReasons.push(`section_${sectionNumber}_generic_language`);
         }
       } else {
-        for (const issue of consultationQualityIssues(section.consultation, 400, 1100)) {
+        for (const issue of consultationQualityIssues(section.consultation, 400, 1100, 'section', language)) {
           sectionQualityReasons.push(`section_${sectionNumber}_${issue}`);
         }
       }
     });
     if (includeForecast) forecastTimeline.forEach((period) => {
-      const length = traditionalChineseLength(period.interpretation.consultation);
+      const length = qualityLength(period.interpretation.consultation, language);
       if (length < 250) sectionQualityReasons.push(`period_${period.id}_too_short_${length}`);
       if (length > 1200) sectionQualityReasons.push(`period_${period.id}_too_long_${length}`);
     });
-    if (reportHasDuplicateSentences(sections)) sectionQualityReasons.push('duplicate_or_high_similarity');
+    if (reportHasDuplicateSentences(sections, language)) sectionQualityReasons.push('duplicate_or_high_similarity');
     const invalidGeneratedSections = sectionQualityReasons.length > 0;
     if (!title || !introduction || sections.length !== sectionIndexes.length || invalidGeneratedSections) {
       const reasons = [
@@ -1733,7 +1832,7 @@ async function generatePaidReportPart(
   } catch (error) {
     if (env.OPENAI_API_KEY && generationAttempt < 1) {
       console.warn('VEDIC_REPORT_REGENERATE', { attempt: generationAttempt + 1, reason: error instanceof Error ? error.message : 'unknown' });
-      return generatePaidReportPart(env, scope, chart, transits, generationAttempt + 1, requestedSectionIndexes);
+      return generatePaidReportPart(env, scope, chart, transits, generationAttempt + 1, requestedSectionIndexes, language);
     }
     console.warn('VEDIC_FORECAST_FALLBACK', {
       ...diagnostics,
@@ -1741,7 +1840,7 @@ async function generatePaidReportPart(
       fallbackUsed: true,
       reason: error instanceof Error ? error.message : 'unknown',
     });
-    if (requestedSectionIndexes) throw error;
+    if (requestedSectionIndexes || language === 'en') throw error;
     return buildVedicFallbackReport(scope, chart, transits);
   } finally {
     clearTimeout(timer);
@@ -1759,13 +1858,15 @@ async function generatePaidReport(
   scope: VedicReportScope,
   chart: VedicChartData,
   transits: VedicTransitSnapshot | null = null,
+  language: 'zh-Hant' | 'en' = 'zh-Hant',
 ): Promise<VedicPaidReport> {
-  if (scope !== 'complete') return generatePaidReportPart(env, scope, chart, transits);
+  if (scope !== 'complete') return generatePaidReportPart(env, scope, chart, transits, 0, undefined, language);
 
   // Smaller independent requests avoid one 9-section JSON response timing out.
   // Section 9 remains its own batch and continues to use the existing fixed
   // forecast skeleton + mergeVedicForecastInterpretations validation.
-  const batches = REPORT_SECTION_HEADINGS.complete.map((_, index) => [index]);
+  const headings = reportHeadings('complete', language);
+  const batches = headings.map((_, index) => [index]);
   const results: PromiseSettledResult<VedicPaidReport>[] = new Array(batches.length);
   // Three workers keep latency reasonable without flooding the model with all
   // nine long generations at once. Each section has its own retry boundary.
@@ -1775,7 +1876,7 @@ async function generatePaidReport(
       const batchIndex = nextBatch;
       nextBatch += 1;
       try {
-        const value = await generatePaidReportPart(env, scope, chart, transits, 0, batches[batchIndex]);
+        const value = await generatePaidReportPart(env, scope, chart, transits, 0, batches[batchIndex], language);
         results[batchIndex] = { status: 'fulfilled', value };
       } catch (reason) {
         results[batchIndex] = { status: 'rejected', reason };
@@ -1786,14 +1887,14 @@ async function generatePaidReport(
   const generation = batches.flatMap((indexes, batchIndex) => indexes.map((index) => {
     const result = results[batchIndex];
     return result.status === 'fulfilled'
-      ? { section: index + 1, heading: REPORT_SECTION_HEADINGS.complete[index], status: 'completed' as const }
-      : { section: index + 1, heading: REPORT_SECTION_HEADINGS.complete[index], status: 'failed' as const, error: result.reason instanceof Error ? result.reason.message : 'generation_failed' };
+      ? { section: index + 1, heading: headings[index], status: 'completed' as const }
+      : { section: index + 1, heading: headings[index], status: 'failed' as const, error: result.reason instanceof Error ? result.reason.message : 'generation_failed' };
   }));
   if (results.some((result) => result.status === 'rejected')) throw new VedicBatchGenerationError(generation);
 
   const reports = results.map((result) => (result as PromiseFulfilledResult<VedicPaidReport>).value);
   const sections = reports.flatMap((report) => report.sections)
-    .sort((left, right) => REPORT_SECTION_HEADINGS.complete.indexOf(left.heading) - REPORT_SECTION_HEADINGS.complete.indexOf(right.heading));
+    .sort((left, right) => headings.indexOf(left.heading) - headings.indexOf(right.heading));
   const report: VedicPaidReport = {
     formatVersion: VEDIC_REPORT_FORMAT_VERSION,
     title: reports[0].title,
@@ -1801,7 +1902,7 @@ async function generatePaidReport(
     sections,
     closing: reports[reports.length - 1].closing || reports[0].closing,
   };
-  if (!validateCompleteVedicReport(report)) throw new VedicBatchGenerationError(
+  if (!validateCompleteVedicReport(report, language)) throw new VedicBatchGenerationError(
     generation.map((item) => ({ ...item, status: 'failed' as const, error: 'combined_report_quality_failed' })),
   );
   return report;
@@ -1809,12 +1910,13 @@ async function generatePaidReport(
 
 export async function getVedicPaidReport(req: Request, env: Env): Promise<Response> {
   const body = await readBody<{
-    chart_id?: string; chart_token?: string; order_id?: string; order_token?: string;
+    chart_id?: string; chart_token?: string; order_id?: string; order_token?: string; language?: 'zh-Hant' | 'en';
   }>(req);
   const chartId = cleanText(body.chart_id, 80);
   const chartToken = cleanText(body.chart_token, 2400);
   const orderId = cleanText(body.order_id, 80);
   const orderToken = cleanText(body.order_token, 2400);
+  const language = body.language === 'en' ? 'en' : 'zh-Hant';
   if (!orderId || !orderToken) return badRequest(req, env, '缺少報告授權資料');
 
   await ensureVedicSchema(env);
@@ -1852,14 +1954,26 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   let existingDraft: Partial<VedicReportDraft> | null = null;
   if (existing) {
     try {
-      const existingReport = JSON.parse(existing.content_json) as Partial<VedicPaidReport> & Partial<VedicReportDraft>;
-      if (existingReport.generationOnly) existingDraft = existingReport;
-      existingNeedsRefresh = scope === 'complete'
-        && !validateCompleteVedicReport(existingReport as VedicPaidReport);
-      if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
+      const cachedContent = readLocalizedVedicReport(existing.content_json, language);
+      if (!cachedContent || typeof cachedContent !== 'object') {
+        existingNeedsRefresh = true;
+      } else {
+        const existingReport = cachedContent as Partial<VedicPaidReport> & Partial<VedicReportDraft>;
+        if (existingReport.generationOnly) existingDraft = existingReport;
+        existingNeedsRefresh = scope === 'complete'
+          && !validateCompleteVedicReport(existingReport as VedicPaidReport, language);
+        if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
+      }
     } catch {
       existingNeedsRefresh = true;
     }
+  }
+
+  if (language === 'en' && !env.OPENAI_API_KEY) {
+    return json(req, env, {
+      error: 'English Vedic reports are temporarily unavailable. Please try again later.',
+      code: 'VEDIC_ENGLISH_REPORT_UNAVAILABLE',
+    }, { status: 503 });
   }
 
   const chartRow = await env.DB.prepare('SELECT * FROM vedic_charts WHERE id = ?')
@@ -1869,7 +1983,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   const transits = scope === 'complete' ? await loadCurrentTransits(env) : null;
 
   if (scope === 'complete') {
-    const headings = REPORT_SECTION_HEADINGS.complete;
+    const headings = reportHeadings('complete', language);
     const previousGeneration = Array.isArray(existingDraft?.generation) ? existingDraft.generation : [];
     const previousSections = Array.isArray(existingDraft?.sections) ? existingDraft.sections : [];
     const draft: VedicReportDraft = {
@@ -1903,7 +2017,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
       .map((item) => item.index);
     if (nextIndexes.length > 0) {
       const results = await Promise.allSettled(nextIndexes.map((index) =>
-        generatePaidReportPart(env, scope, chart, transits, 0, [index])
+        generatePaidReportPart(env, scope, chart, transits, 0, [index], language)
       ));
       results.forEach((result, batchIndex) => {
         const index = nextIndexes[batchIndex];
@@ -1931,20 +2045,20 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
     if (complete) {
       const completedReport: VedicPaidReport = {
         formatVersion: VEDIC_REPORT_FORMAT_VERSION,
-        title: draft.title || '完整人生地圖｜9 大印度占星深度解析',
+        title: draft.title || (language === 'en' ? EN_SCOPE_NAMES.complete : '完整人生地圖｜9 大印度占星深度解析'),
         introduction: draft.introduction,
         sections: draft.sections as VedicReportSection[],
         closing: draft.closing,
       };
-      if (validateCompleteVedicReport(completedReport)) {
+      if (validateCompleteVedicReport(completedReport, language)) {
         if (existing) {
           await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
-            .bind(JSON.stringify(completedReport), draft.updatedAt, orderId).run();
+            .bind(writeLocalizedVedicReport(existing?.content_json, language, completedReport), draft.updatedAt, orderId).run();
         } else {
           await env.DB.prepare(
             `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
              VALUES (?, ?, ?, ?, ?, ?)`
-          ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(completedReport), draft.updatedAt).run();
+          ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, writeLocalizedVedicReport(undefined, language, completedReport), draft.updatedAt).run();
         }
         return json(req, env, { scope, report: completedReport, cached: false }, { status: 201 });
       }
@@ -1953,12 +2067,12 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
 
     if (existing) {
       await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
-        .bind(JSON.stringify(draft), draft.updatedAt, orderId).run();
+        .bind(writeLocalizedVedicReport(existing?.content_json, language, draft), draft.updatedAt, orderId).run();
     } else {
       await env.DB.prepare(
         `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
          VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(draft), draft.updatedAt).run();
+      ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, writeLocalizedVedicReport(undefined, language, draft), draft.updatedAt).run();
     }
     const retryable = draft.sections.some((section, index) => !section && draft.generation[index].attempts < 6);
     return json(req, env, {
@@ -1972,7 +2086,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
 
   let report: VedicPaidReport;
   try {
-    report = await generatePaidReport(env, scope, chart, transits);
+    report = await generatePaidReport(env, scope, chart, transits, language);
   } catch (error) {
     if (error instanceof VedicBatchGenerationError) {
       const state = {
@@ -1983,12 +2097,12 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
       };
       if (existing) {
         await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
-          .bind(JSON.stringify(state), state.updatedAt, orderId).run();
+          .bind(writeLocalizedVedicReport(existing?.content_json, language, state), state.updatedAt, orderId).run();
       } else {
         await env.DB.prepare(
           `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
            VALUES (?, ?, ?, ?, ?, ?)`
-        ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(state), state.updatedAt).run();
+        ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, writeLocalizedVedicReport(undefined, language, state), state.updatedAt).run();
       }
       return json(req, env, {
         scope,
@@ -2009,12 +2123,12 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   if (existing && existingNeedsRefresh) {
     await env.DB.prepare(
       'UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?'
-    ).bind(JSON.stringify(report), new Date().toISOString(), orderId).run();
+    ).bind(writeLocalizedVedicReport(existing?.content_json, language, report), new Date().toISOString(), orderId).run();
   } else {
     await env.DB.prepare(
       `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
        VALUES (?, ?, ?, ?, ?, ?)`
-    ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, JSON.stringify(report), new Date().toISOString()).run();
+    ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, writeLocalizedVedicReport(undefined, language, report), new Date().toISOString()).run();
   }
   return json(req, env, { scope, report, cached: false }, { status: 201 });
 }

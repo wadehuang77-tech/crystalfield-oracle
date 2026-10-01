@@ -1,0 +1,94 @@
+[
+  {
+    "deck_id": "tarot",
+    "card_key": "0-fool",
+    "locale": "en",
+    "name": "The Fool",
+    "name_secondary": "愚者",
+    "preview_payload": {
+      "keywords": ["New Beginnings", "Adventure", "Innocence", "Freedom", "Trust"],
+      "arcana": "major",
+      "number": 0
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Fool symbolizes a fresh beginning and limitless possibility. This card suggests that you may be about to set out on an adventurous journey, meeting the unknown with an open mind and a sense of curiosity. It may be time to put down old baggage and welcome new experiences without assuming you already know how they will turn out. The Fool encourages you to take a first step even when the road ahead is uncertain. This is an energy of freedom and spontaneity, well suited to trying something new, learning a skill, or beginning a project. Stay lighthearted rather than becoming consumed by the outcome, and allow life to unfold as you move forward.",
+      "reversedMeaning": "The reversed Fool invites you to be more careful and thoughtful. You may be making a rushed choice without considering its risks or consequences. This card can point to a lack of planning, an unclear direction, or an overly naive attitude that could make things harder for you. This may not be the moment to leap blindly; pause, assess the situation, and prepare what you need. You might be hesitating because you fear failure, or acting with so much confidence that you overlook important details. The reversed Fool suggests building a steadier foundation before you act and asking whether this choice truly fits you.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["New Beginnings", "Adventure", "Freedom", "Innocence", "Trust"],
+          "reversed": ["Recklessness", "Indecision", "Lack of Planning", "Naivety", "Fear"],
+          "uprightExplanation": "Upright, the Fool marks the beginning of a life journey and a willingness to explore without being ruled by prejudice or fear. As card zero, it holds many possibilities and has not yet been narrowed by experience. Its energy is light, free, and hopeful, like a child meeting the world with fresh curiosity. You do not need every answer at this stage; openness and flexibility may serve you better. The Fool’s step toward the cliff can look dangerous, yet it also represents trust in what cannot be seen. This is a leap-of-faith moment: you are invited to believe that the path can appear as you take your first steps.",
+          "reversedExplanation": "The reversed Fool can show you wavering between two extremes: being so cautious that you miss an opportunity, or acting so impulsively that you are unprepared. Innocence may become naivety, while freedom may become a lack of direction. Past pain may make you afraid to take another chance, or overconfidence may keep you from seeing practical risks. Wisdom does not mean never taking a leap; it means looking at the situation before you do. Sometimes this card appears when you are ready but fear is keeping you in place. In that case, what you need may not be more preparation, but the courage to face the fear."
+        },
+        "energyFlow": {
+          "direction": "Forward",
+          "type": "Outgoing and exploratory",
+          "description": "This is an outward-moving energy that explores the unknown. The Fool is curious and lively, taking steps without being bound by the past. Its flow is open and spontaneous rather than tightly controlled."
+        },
+        "timing": {
+          "speed": "Fast",
+          "description": "Things may begin to unfold quickly, and an opportunity may arrive with little warning. This card favors taking a timely first step rather than waiting indefinitely. A noticeable beginning or change may appear within one to three weeks, though timing is never guaranteed."
+        },
+        "advice": {
+          "upright": "Set fear aside, listen to your intuition, and take one first step. Your plan does not have to be perfect before you begin. Stay open to what you learn along the way and make room for the unexpected.",
+          "reversed": "Pause to assess the risks and make a basic plan before acting. Do not let an impulse make the decision for you; give yourself time to think it through. Ask someone you trust for another perspective and check for details you may have missed."
+        },
+        "chakra": {
+          "primary": "Crown Chakra and Root Chakra",
+          "issue": "You may feel disconnected from a sense of meaning or direction (crown), or lack the grounding and security needed to move forward (root).",
+          "healingNote": "If you feel afraid or stuck, grounding practices may help you reconnect with steadiness and safety. If you are acting recklessly, consider balancing reflection with practical planning. Crystal practices can be used as a personal ritual, but they are not medical treatment; consult a qualified professional for health concerns."
+        },
+        "soulMessage": {
+          "upright": "Your inner voice may be calling you toward a new journey. This does not have to mean acting carelessly; it can be an invitation to trust your own wisdom and take the first step. You do not need to know the entire route before you begin. Many meaningful journeys start with one brave choice.",
+          "reversed": "This card invites you to practice wise courage. It is not asking you to remain still, but to connect with your inner judgment before you act. Freedom comes from clear awareness rather than a blind leap. Give yourself enough time to prepare, while noticing whether fear is keeping you from moving forward."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "1-magician",
+    "locale": "en",
+    "name": "The Magician",
+    "name_secondary": "魔術師",
+    "preview_payload": {
+      "keywords": ["Manifestation", "Action", "Focus", "Creation", "Resources"],
+      "arcana": "major",
+      "number": 1
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Magician suggests that you already have many of the tools and resources needed to pursue your goal. This card is associated with creativity and the ability to turn an idea into something tangible. You may have the skills, knowledge, and determination to take initiative and influence your surroundings. The Magician brings focus and action together: it is not only about imagining what could be, but also about choosing how to begin. Make use of the opportunities available to you, trust the abilities you have developed, and let your work speak for itself. Whether you are focused on a career, learning, or personal growth, a clear intention paired with practical effort can help you make meaningful progress.",
+      "reversedMeaning": "The reversed Magician asks you to look carefully at how you are using your abilities and resources. You may be doubting your skills or struggling to put your ideas into practice. The card can also point to manipulation, dishonesty, or a temptation to take a shortcut, whether that behavior is coming from you or someone around you. Your effort may not be producing the outcome you expected, or you may feel unable to make use of what you have. Reconsider your motives and methods, and make sure your actions are honest and aligned with your values. Avoid trying to force an outcome through deception or misuse of influence; those approaches tend to create further problems.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Manifestation", "Initiative", "Focus", "Creativity", "Resources at Hand"],
+          "reversed": ["Manipulation", "Self-Doubt", "Misused Ability", "Deception", "Blocked Action"],
+          "uprightExplanation": "Upright, the Magician represents the ability to work with what is already available to you. The card’s central idea is, “I have something I can begin with.” You do not necessarily need to wait for perfect conditions or endless preparation; the skills and resources you have gathered can be put to use now. The Magician’s gesture between sky and ground is a symbol of connecting vision with practical action. When this energy is balanced, your attention is clear and your efforts have direction: you know what you are trying to make and can identify a next step. This is a moment to act thoughtfully rather than staying in planning mode. Let your intention guide your tools, while remaining open to feedback from the real world.",
+          "reversedExplanation": "The reversed Magician can indicate that your abilities are being blocked or used in a way that does not reflect your values. You may have useful tools but feel unqualified to use them, or you may be attempting to control an outcome through pressure, deception, or a shortcut. The creative energy of the Magician can turn into cleverness used to avoid an honest conversation. You might feel like an impostor, or you might overestimate your ability to control circumstances and other people. This card invites you to look at the difference between influence and manipulation. Real capability includes recognizing limits, asking for help, and being truthful about what you can offer. If your efforts are not working, return to honesty and humility, then choose a more grounded approach."
+        },
+        "energyFlow": {
+          "direction": "From vision into action",
+          "type": "Focused expression and transformation",
+          "description": "The Magician connects an idea with a practical form. Attention gathers around a clear intention and moves toward concrete action. This is active, creative energy: instead of waiting for every opportunity to arrive, you can make a deliberate opening for one."
+        },
+        "timing": {
+          "speed": "Fast-moving",
+          "description": "A situation may begin to move quickly once you take action. The Magician favors getting started and making timely use of an opportunity. Early signs of progress may appear within one or two weeks, though this is a reflective timing cue rather than a guarantee."
+        },
+        "advice": {
+          "upright": "Begin with the resources you already have. You do not need to wait for a perfect moment. Choose a clear goal, focus on the next practical step, and trust yourself enough to try. Let your actions show what you can do.",
+          "reversed": "Pause and review your motives before acting. Do not rely on pressure, manipulation, or misleading promises to get the result you want. Rebuild confidence by being honest about both your strengths and the areas you still need to develop."
+        },
+        "chakra": {
+          "primary": "Solar Plexus Chakra",
+          "issue": "You may feel unsure of your personal agency, struggle to express confidence, or try to control too much when you do not feel secure.",
+          "healingNote": "The Solar Plexus is commonly associated with agency and self-confidence. If you feel powerless or overly controlling, grounding routines and realistic goals may help you reconnect with your sense of choice. Crystals such as citrine or tiger’s eye can be used as personal ritual objects, but they are not medical treatment; consult a qualified professional for health concerns."
+        },
+        "soulMessage": {
+          "upright": "Your inner wisdom may be reminding you that you already have a place to begin. This is less about collecting one more tool and more about using what you have learned. You can choose how to direct your attention and effort. As you take a thoughtful step, notice what becomes possible through your own participation.",
+          "reversed": "The reversed Magician invites you to remember that lasting influence comes from integrity, not control. If you gain something by misleading someone, trust may be damaged and the result may not last. Be willing to look honestly at the parts of yourself you would rather hide, acknowledge what you still need to learn, and rebuild your confidence from a more truthful foundation."
+        }
+      }
+    }
+  }
+]

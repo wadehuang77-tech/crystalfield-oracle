@@ -3,6 +3,8 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { adminApi } from '../lib/api';
+import { getLanguageFromPath, getLocalizedPath, t, translations } from '../lib/i18n';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const ACCENTS = {
   orange:  { border: 'rgba(249,115,22,0.30)',  text: '#fb923c' },
@@ -70,19 +72,30 @@ export default function PageHeader() {
   const location = useLocation();
   const { user, signOut, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const language = getLanguageFromPath(location.pathname);
+  const copy = translations[language];
+  const copyT = (key: string) => t(key, language);
 
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     adminApi.check().then(({ isAdmin }) => setIsAdmin(isAdmin)).catch(() => {});
   }, [user]);
 
-  if (HIDDEN_ON.has(location.pathname)) return null;
+  const normalizedPath = location.pathname.replace(/^\/en/, '') || '/';
 
-  const isHome = location.pathname === '/';
-  const route = ROUTES[location.pathname] ?? { title: '', accent: 'slate' as Accent };
+  if (HIDDEN_ON.has(normalizedPath)) return null;
+
+  const isHome = normalizedPath === '/';
+  const route = ROUTES[normalizedPath] ?? { title: '', accent: 'slate' as Accent };
+  const translatedTitle = copyT(`routeTitles.${normalizedPath}`);
+  const pageTitle = translatedTitle.startsWith('routeTitles.')
+    ? (normalizedPath.startsWith('/human-design/') ? copyT('routeTitles./human-design/article')
+      : normalizedPath.startsWith('/vedic-astrology/') ? copyT('routeTitles./vedic-astrology/article')
+        : route.title)
+    : translatedTitle;
   const { border, text } = ACCENTS[route.accent];
-  const backTarget = ORACLE_BACK_ROUTES.has(location.pathname) ? '/oracle' : '/';
-  const backLabel = ORACLE_BACK_ROUTES.has(location.pathname) ? '塔羅主頁' : '首頁';
+  const backTarget = ORACLE_BACK_ROUTES.has(normalizedPath) ? getLocalizedPath('/oracle', language) : getLocalizedPath('/', language);
+  const backLabel = ORACLE_BACK_ROUTES.has(normalizedPath) ? copy.tarotHome : copy.home;
 
   return (
     <header style={{
@@ -120,19 +133,20 @@ export default function PageHeader() {
 
         {/* Center: page title — always truly centered */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          {route.title && (
+          {pageTitle && (
             <span style={{ fontFamily: 'serif', fontSize: 15, letterSpacing: '0.25em', color: text, whiteSpace: 'nowrap' }}>
-              {route.title}
+              {pageTitle}
             </span>
           )}
         </div>
 
         {/* Right: admin link + auth */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
+          <LanguageSwitcher />
           {isAdmin && (
             <Link
               to="/admin"
-              title="管理後台"
+              title={copyT('admin')}
               style={{ color: text, opacity: 0.6, display: 'flex', alignItems: 'center', flexShrink: 0 }}
             >
               <Shield style={{ width: 14, height: 14 }} />
@@ -140,11 +154,11 @@ export default function PageHeader() {
           )}
           {user && (
             <Link
-              to="/membership"
-              title="月費會員"
+              to={getLocalizedPath('/membership', language)}
+              title={copy.member}
               style={{ color: text, opacity: 0.75, fontSize: 11, textDecoration: 'none', flexShrink: 0 }}
             >
-              會員
+              {copy.member}
             </Link>
           )}
           {!loading && (
@@ -161,15 +175,15 @@ export default function PageHeader() {
                   {user.email?.split('@')[0]}
                 </span>
                 <button onClick={signOut} style={{ padding: '4px 10px 4px 6px', background: 'none', border: 'none', borderLeft: '1px solid rgba(255,255,255,0.10)', color: 'rgba(226,232,240,0.50)', fontSize: 11, cursor: 'pointer' }}>
-                  登出
+                  {copyT('logout')}
                 </button>
               </div>
             ) : (
               <button
-                onClick={() => navigate('/auth?redirect=' + encodeURIComponent(location.pathname))}
+                onClick={() => navigate(`${getLocalizedPath('/auth', language)}?redirect=${encodeURIComponent(location.pathname)}`)}
                 style={{ padding: '4px 14px', background: `${text}1a`, border: `1px solid ${border}`, borderRadius: 999, color: text, fontSize: 12, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}
               >
-                登入
+                {copyT('login')}
               </button>
             )
           )}

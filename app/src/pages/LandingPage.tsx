@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { MouseEvent } from 'react';
+import { getLanguageFromPath, getLocalizedPath, translations } from '../lib/i18n';
 
 // ─── Card definitions ────────────────────────────────────────────────────────
 const CARDS = [
@@ -98,6 +99,9 @@ const STARS = Array.from({ length: 80 }, (_, i) => ({
 export default function LandingPage() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const location = useLocation();
+  const language = getLanguageFromPath(location.pathname);
+  const copy = translations[language];
 
   const scrollToCard = useCallback((index: number) => {
     const carousel = carouselRef.current;
@@ -155,16 +159,16 @@ export default function LandingPage() {
         <section className="px-6 pt-16 pb-4 text-center" aria-labelledby="brand-heading">
           <div className="mx-auto max-w-4xl rounded-[2rem] border border-purple-400/20 bg-purple-950/20 px-6 py-10 shadow-[0_20px_80px_rgba(88,28,135,0.18)] backdrop-blur-sm sm:px-10 sm:py-14">
             <p className="mb-4 text-sm font-medium uppercase tracking-[0.35em] text-amber-200/75">
-              Crystal Field 101
+              {copy.landingBrand}
             </p>
             <h1 id="brand-heading" className="mb-5 font-serif text-4xl font-bold tracking-[0.16em] text-white sm:text-6xl">
-              晶域心語
+              {copy.landingHeading}
             </h1>
             <p className="mx-auto max-w-3xl text-base leading-8 text-purple-100/80 sm:text-lg">
-              晶域心語是一個結合塔羅牌占卜、生命靈數、人類圖與印度占星的自我探索平台，協助使用者理解當下課題、個人天賦、能量特質與人生方向。
+              {copy.landingIntro}
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-purple-200/60 sm:text-base">
-              首頁與服務介紹皆可免登入瀏覽；只有在使用會員專屬或需要保存個人結果的功能時，才會請你登入帳戶。
+              {copy.landingSupport}
             </p>
           </div>
         </section>
@@ -173,10 +177,10 @@ export default function LandingPage() {
         <section className="pt-12 pb-32">
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-14">
-              <p className="text-purple-400/60 text-sm uppercase tracking-[0.3em] font-medium mb-4">靈魂探索工具</p>
-              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-5 tracking-tight">探索你的靈魂藍圖</h2>
+              <p className="text-purple-400/60 text-sm uppercase tracking-[0.3em] font-medium mb-4">{language === 'en' ? 'Soul Exploration Tools' : '靈魂探索工具'}</p>
+              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-5 tracking-tight">{copy.exploreTitle}</h2>
               <p className="text-purple-200/55 text-lg max-w-lg mx-auto leading-relaxed">
-                透過塔羅牌、生命靈數、人類圖與印度占星，深入了解你的天賦、課題與人生方向。
+                {copy.exploreDescription}
               </p>
             </div>
           </div>
@@ -189,6 +193,7 @@ export default function LandingPage() {
                   key={card.id}
                   card={card}
                   index={i}
+                  language={language}
                 />
               ))}
             </div>
@@ -215,6 +220,7 @@ export default function LandingPage() {
                   <PortalCard
                     card={card}
                     index={i}
+                    language={language}
                   />
                 </div>
               ))}
@@ -242,7 +248,7 @@ export default function LandingPage() {
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             }}>{CARDS[activeIndex].title}</p>
 
-            <p className="text-center mt-2 text-purple-500/40 text-xs tracking-wider swipe-hint">左右滑動探索</p>
+            <p className="text-center mt-2 text-purple-500/40 text-xs tracking-wider swipe-hint">{language === 'en' ? 'Swipe to explore' : '左右滑動探索'}</p>
           </div>
 
           <div className="mx-auto mt-10 max-w-6xl px-6 sm:mt-14">
@@ -256,8 +262,14 @@ export default function LandingPage() {
 }
 
 // ─── Portal Card ──────────────────────────────────────────────────────────────
-function PortalCard({ card, index, onClick }: { card: Card; index: number; onClick?: () => void }) {
+function PortalCard({ card, index, onClick, language }: { card: Card; index: number; onClick?: () => void; language: 'zh-Hant' | 'en' }) {
   const sharedClass = "group relative block rounded-3xl overflow-hidden cursor-pointer no-underline";
+  const copy = translations[language];
+  const cardCopy =
+    card.id === 'tarot' ? copy.cards.tarot :
+    card.id === 'numerology' ? copy.cards.numerology :
+    copy.cards.humanDesign;
+  const localizedHref = getLocalizedPath(card.href, language);
   const sharedStyle: React.CSSProperties = {
     minHeight: '520px',
     border: `1px solid ${card.borderGlow}`,
@@ -302,18 +314,18 @@ function PortalCard({ card, index, onClick }: { card: Card; index: number; onCli
             boxShadow: `0 0 16px ${card.glow}`,
           }}>
           <span className="text-base leading-none">{card.icon}</span>
-          <span className="text-xs text-white/60 font-medium tracking-widest uppercase">靈魂工具</span>
+          <span className="text-xs text-white/60 font-medium tracking-widest uppercase">{language === 'en' ? 'Soul Tool' : '靈魂工具'}</span>
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: card.glowSolid }} />
         </div>
 
-        <h3 className="text-2xl font-bold text-white tracking-tight mb-1.5 drop-shadow-lg">{card.title}</h3>
+        <h3 className="text-2xl font-bold text-white tracking-tight mb-1.5 drop-shadow-lg">{cardCopy.title}</h3>
 
         <p className="text-sm font-semibold mb-3" style={{
           background: 'linear-gradient(90deg, #e2c4ff, #fcd34d)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-        }}>{card.tagline}</p>
+        }}>{cardCopy.tagline}</p>
 
-        <p className="text-sm text-white/55 leading-relaxed mb-6">{card.description}</p>
+        <p className="text-sm text-white/55 leading-relaxed mb-6">{cardCopy.description}</p>
 
         <div className="relative inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold text-white overflow-hidden"
           style={{
@@ -321,7 +333,7 @@ function PortalCard({ card, index, onClick }: { card: Card; index: number; onCli
             boxShadow: `0 4px 20px ${card.glow}, 0 0 0 1px rgba(255,255,255,0.08)`,
             transition: 'box-shadow 0.3s ease, transform 0.3s ease',
           }}>
-          <span className="relative z-10">{card.button}</span>
+          <span className="relative z-10">{cardCopy.button}</span>
           <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -335,7 +347,7 @@ function PortalCard({ card, index, onClick }: { card: Card; index: number; onCli
       {inner}
     </div>
   ) : (
-    <Link to={card.href} className={sharedClass} style={sharedStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+    <Link to={localizedHref} className={sharedClass} style={sharedStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       {inner}
     </Link>
   );

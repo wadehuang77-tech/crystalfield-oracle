@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
+import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
 
 export default function OshoPage() {
   const navigate = useNavigate();
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.osho.${key}`, language) : fallback;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
@@ -22,42 +25,38 @@ export default function OshoPage() {
           </div>
           <div>
             <h1 className="text-4xl sm:text-5xl font-serif bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent leading-tight tracking-[0.08em]">
-              奧修禪卡
+              {copy('title', '奧修禪卡')}
             </h1>
-            <p className="text-teal-200/75 text-base sm:text-lg mt-2 tracking-wide">不是預測未來，而是照見此刻的真相</p>
+            <p className="text-teal-200/75 text-base sm:text-lg mt-2 tracking-wide">{copy('tagline', '不是預測未來，而是照見此刻的真相')}</p>
           </div>
         </div>
 
         <section className="max-w-4xl mx-auto mb-12 rounded-2xl border border-teal-400/30 bg-gradient-to-br from-teal-500/10 via-slate-900/85 to-cyan-500/10 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_0_32px_rgba(45,212,191,0.12)]">
           <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-cyan-100">
-            🧘 奧修禪卡｜回到當下，看清內在真相
+            {copy('heroTitle', '🧘 奧修禪卡｜回到當下，看清內在真相')}
           </h2>
           <div className="space-y-4 text-base sm:text-lg leading-loose text-teal-50/90">
-            <p>生命中許多痛苦，不是因為問題太難，而是腦袋抓著過去不放、或對未來充滿恐懼。</p>
-            <p>
-              奧修禪卡不預測未來，祂是一面
-              <strong className="font-semibold text-teal-100">無比清晰的內在鏡子</strong>
-              。祂照出你此刻的心境、潛意識的制約，以及你一直忽視的力量。
-            </p>
-            <p className="font-semibold text-cyan-100">當你不再與當下抗衡，答案自然浮現。</p>
+            <p>{copy('intro1', '生命中許多痛苦，不是因為問題太難，而是腦袋抓著過去不放、或對未來充滿恐懼。')}</p>
+            <p>{copy('intro2', '把奧修禪卡視為一面映照當下心境、潛意識模式，以及你可能忽略的力量的鏡子。')}</p>
+            <p className="font-semibold text-cyan-100">{copy('intro3', '當你不再與當下抗衡，新的答案也許會更容易浮現。')}</p>
           </div>
 
           <div className="mt-7 border-t border-teal-400/20 pt-6">
             <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-teal-100">
-              【當下覺察 3 步驟】
+              {copy('stepsTitle', '【當下覺察 3 步驟】')}
             </h3>
             <ol className="space-y-4 text-sm sm:text-base leading-loose text-teal-50/90">
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">1</span>
-                <p><strong className="text-teal-100">靜心</strong>：將注意力收回呼吸，放下對未來的擔憂與過去的執著。</p>
+                <p>{copy('step1', '靜心：將注意力收回呼吸，放下對未來的擔憂與過去的執著。')}</p>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">2</span>
-                <p><strong className="text-teal-100">默想</strong>：「此刻，我的腦袋被什麼幻相卡住了？我需要看清什麼真相？」</p>
+                <p>{copy('step2', '默想：此刻，我的思緒被什麼困住了？我需要看清什麼？')}</p>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">3</span>
-                <p><strong className="text-teal-100">抽牌</strong>：憑直覺抽取卡片，照見你此刻最真實的內在狀態。</p>
+                <p>{copy('step3', '抽牌：選一張牌，觀察它映照出什麼。')}</p>
               </li>
             </ol>
           </div>
@@ -65,9 +64,9 @@ export default function OshoPage() {
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <SpreadCard
-            onClick={() => navigate('/osho/single')}
-            title="單張牌陣"
-            body="一張牌，即是一道光。當下的指引，直入內心。"
+            onClick={() => navigate(getLocalizedPath('/osho/single', language))}
+            title={copy('singleTitle', '單張牌陣')}
+            body={copy('singleDescription', '一張牌，即是一道光。當下的指引，直入內心。')}
             icon={
               <div className="w-20 h-20 bg-gradient-to-br from-teal-500/20 to-cyan-500/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Sparkles className="w-10 h-10 text-teal-300" />
@@ -75,9 +74,9 @@ export default function OshoPage() {
             }
           />
           <SpreadCard
-            onClick={() => navigate('/osho/three')}
-            title="三張牌陣"
-            body="過去・現在・未來，或身・心・靈。深度冥想之選。"
+            onClick={() => navigate(getLocalizedPath('/osho/three', language))}
+            title={copy('threeTitle', '三張牌陣')}
+            body={copy('threeDescription', '過去・現在・未來，或身・心・靈。深度冥想之選。')}
             icon={
               <div className="w-20 h-20 bg-gradient-to-br from-teal-500/20 to-cyan-500/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                 <div className="flex gap-1">

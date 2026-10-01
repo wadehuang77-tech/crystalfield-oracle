@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { getLanguageFromPath, t } from '../../lib/i18n';
 
 interface Props {
   onSubmit: (date: string, useOracle: boolean) => void;
@@ -20,6 +21,8 @@ function isValidDate(y: string, m: string, d: string): boolean {
 }
 
 export default function BirthDateForm({ onSubmit, loading }: Props) {
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`numerology.${key}`, language) : fallback;
   const [year, setYear]   = useState('');
   const [month, setMonth] = useState('');
   const [day, setDay]     = useState('');
@@ -30,9 +33,9 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
   function validateField(field: 'year' | 'month' | 'day', val: string) {
     const n = parseInt(val);
     if (!val) return '';
-    if (field === 'year')  return (n < 1900 || n > currentYear) ? `請輸入 1900–${currentYear}` : '';
-    if (field === 'month') return (n < 1 || n > 12) ? '請輸入 1–12' : '';
-    if (field === 'day')   return (n < 1 || n > 31) ? '請輸入 1–31' : '';
+    if (field === 'year')  return (n < 1900 || n > currentYear) ? copy('yearError', `請輸入 1900–${currentYear}`) : '';
+    if (field === 'month') return (n < 1 || n > 12) ? copy('monthError', '請輸入 1–12') : '';
+    if (field === 'day')   return (n < 1 || n > 31) ? copy('dayError', '請輸入 1–31') : '';
     return '';
   }
 
@@ -83,9 +86,9 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
           fontFamily: 'Playfair Display, serif', fontSize: 22, marginBottom: 8,
           background: 'linear-gradient(135deg, #a78bfa, #c4b5fd, #fbbf24)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-        }}>解碼你的靈魂數字</h2>
+        }}>{copy('formTitle', '解碼你的靈魂數字')}</h2>
         <p style={{ color: 'rgba(196,181,253,0.55)', fontSize: 14, lineHeight: 1.6 }}>
-          輸入你的生日，AI 將為你揭示生命靈數密碼
+          {copy('formDescription', '輸入你的生日，AI 將為你揭示生命靈數密碼')}
         </p>
       </div>
 
@@ -96,12 +99,12 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
           <div style={{
             fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase',
             color: 'rgba(167,139,250,0.45)', marginBottom: 10, paddingLeft: 2,
-          }}>出生日期</div>
+          }}>{copy('birthDate', '出生日期')}</div>
 
           <NumberInput
-            label="年份（如：1990）"
+            label={copy('year', '年份（如：1990）')}
             value={year}
-            placeholder="西元年（如 1990）"
+            placeholder={copy('yearPlaceholder', '西元年（如 1990）')}
             min={1900}
             max={currentYear}
             error={errors.year}
@@ -111,9 +114,9 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
             <NumberInput
-              label="月份（1–12）"
+              label={copy('month', '月份（1–12）')}
               value={month}
-              placeholder="月（1–12）"
+              placeholder={copy('monthPlaceholder', '月（1–12）')}
               min={1}
               max={12}
               error={errors.month}
@@ -121,9 +124,9 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
               onChange={v => { setMonth(v); setErrors(e => ({ ...e, month: validateField('month', v) })); }}
             />
             <NumberInput
-              label="日期（1–31）"
+              label={copy('day', '日期（1–31）')}
               value={day}
-              placeholder="日（1–31）"
+              placeholder={copy('dayPlaceholder', '日（1–31）')}
               min={1}
               max={31}
               error={errors.day}
@@ -167,12 +170,12 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
                 border: '2px solid rgba(243,232,255,0.25)', borderTopColor: '#f3e8ff',
                 animation: 'spin 0.7s linear infinite', flexShrink: 0,
               }} />
-              解析靈魂密碼與神諭卡中...
+              {copy('loading', '解析靈魂密碼與神諭卡中...')}
             </>
           ) : (
             <>
               <Sparkles style={{ width: 16, height: 16, flexShrink: 0 }} />
-              探索我的靈數藍圖
+              {copy('submit', '探索我的靈數藍圖')}
             </>
           )}
         </button>

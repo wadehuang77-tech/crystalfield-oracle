@@ -13,6 +13,7 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
+import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
 
 interface LightworkerGated {
   cosmicMessage: string;
@@ -25,6 +26,8 @@ interface LightworkerGated {
 
 function LightworkerPage() {
   const navigate = useNavigate();
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.lightworker.${key}`, language) : fallback;
   const { cards: deck, error: deckError } = useDeck('lightworker');
   const [drawnPreview, setDrawnPreview] = useState<CardPreview | null>(null);
   const [unlocked, setUnlocked] = useState<UnlockedCard | null>(null);
@@ -122,44 +125,39 @@ function LightworkerPage() {
                 <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-cyan-300 opacity-80 animate-pulse" />
               </div>
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif mb-4 tracking-wide text-cyan-100 drop-shadow-lg">
-                光行者神諭
+                {copy('title', '光行者神諭')}
               </h1>
               <p className="text-cyan-200/80 text-base sm:text-lg font-light tracking-wider max-w-2xl mx-auto leading-loose">
-                靈魂使命的方向，落在當下的腳步。<br />
-                選一個牌陣，接收高我的指引。
+                {copy('tagline', '靈魂使命的方向，落在當下的腳步。\n選一個牌陣，接收高我的指引。')}
               </p>
             </section>
 
             <section className="max-w-4xl mx-auto mb-12 rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-cyan-500/10 via-slate-900/85 to-blue-500/10 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_0_34px_rgba(34,211,238,0.13)]">
               <h2 className="mb-6 text-center font-serif text-2xl sm:text-3xl leading-relaxed text-cyan-100">
-                🌟 光行者神諭卡｜回應召喚，解鎖你的靈魂使命
+                {copy('heroTitle', '🌟 光行者神諭卡｜回應召喚，解鎖你的靈魂使命')}
               </h2>
               <div className="space-y-4 text-base sm:text-lg leading-loose text-cyan-50/90">
-                <p>你是否曾覺得自己與這世界有些隔閡？</p>
-                <p className="font-semibold text-cyan-100">你並非迷路，你只是在等待覺醒。</p>
-                <p>
-                  「光行者神諭卡」將為你連結高維度智慧，點亮沉睡的
-                  <strong className="font-semibold text-cyan-200">靈魂天賦與神聖藍圖</strong>
-                  ，陪你跨越焦慮，活出本真自我。
-                </p>
+                <p>{copy('intro1', '你是否曾覺得自己與這世界有些隔閡？')}</p>
+                <p className="font-semibold text-cyan-100">{copy('intro2', '你並非迷路，你只是在等待覺醒。')}</p>
+                <p>{copy('intro3', '「光行者神諭卡」陪你探索靈魂天賦與生命方向，跨越焦慮，活出本真自我。')}</p>
               </div>
 
               <div className="mt-7 border-t border-cyan-400/20 pt-6">
                 <h3 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-cyan-100">
-                  【靈魂覺醒 3 步驟】
+                  {copy('stepsTitle', '【靈魂覺醒 3 步驟】')}
                 </h3>
                 <ol className="space-y-4 text-sm sm:text-base leading-loose text-cyan-50/90">
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 bg-cyan-500/15 font-semibold text-cyan-200">1</span>
-                    <p><strong className="text-cyan-100">靜心</strong>：深呼吸，將注意力收回心輪。</p>
+                    <p>{copy('step1', '靜心：深呼吸，將注意力收回心輪。')}</p>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 bg-cyan-500/15 font-semibold text-cyan-200">2</span>
-                    <p><strong className="text-cyan-100">默想</strong>：「請光之團隊指引我，我此刻的靈魂使命是什麼？」</p>
+                    <p>{copy('step2', '默想：「請光之團隊指引我，我此刻的靈魂使命是什麼？」')}</p>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 bg-cyan-500/15 font-semibold text-cyan-200">3</span>
-                    <p><strong className="text-cyan-100">抽牌</strong>：憑直覺抽取卡片，解鎖你的靈魂藍圖。</p>
+                    <p>{copy('step3', '抽牌：憑直覺抽取卡片，解鎖你的靈魂藍圖。')}</p>
                   </li>
                 </ol>
               </div>
@@ -175,12 +173,12 @@ function LightworkerPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
                     <div className="relative h-full min-h-[8rem] sm:min-h-[9rem] px-6 py-5 sm:py-6 bg-gradient-to-r from-cyan-600 to-blue-600 group-hover:from-cyan-500 group-hover:to-blue-500 rounded-2xl shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
                       <h3 className="text-xl sm:text-2xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
-                        <span>單張牌</span>
-                        <span className="text-sm sm:text-base opacity-90">接收宇宙訊息</span>
+                        <span>{copy('singleTitle', '單張牌')}</span>
+                        <span className="text-sm sm:text-base opacity-90">{copy('singleDescription', '接收宇宙訊息')}</span>
                       </h3>
                     </div>
                   </button>
-                  <p className="text-cyan-200/60 text-xs tracking-wider text-center">靜下心來,專注於你的問題</p>
+                  <p className="text-cyan-200/60 text-xs tracking-wider text-center">{copy('prompt', '靜下心來,專注於你的問題')}</p>
                 </div>
 
                 <div className="flex flex-col items-center gap-4">
@@ -191,22 +189,18 @@ function LightworkerPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
                     <div className="relative h-full min-h-[8rem] sm:min-h-[9rem] px-6 py-5 sm:py-6 bg-gradient-to-r from-cyan-600 to-blue-600 group-hover:from-cyan-500 group-hover:to-blue-500 rounded-2xl shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
                       <h3 className="text-lg sm:text-xl font-serif text-white text-center tracking-wide flex flex-col items-center leading-relaxed">
-                        <span>十字交叉使命陣</span>
+                        <span>{copy('spreadTitle', '十字交叉使命陣')}</span>
                         <span className="text-sm sm:text-base opacity-90">(Celtic Cross)</span>
                       </h3>
                     </div>
                   </button>
-                  <p className="text-cyan-200/60 text-xs tracking-wider text-center">深度探索靈魂使命與人生道路</p>
+                  <p className="text-cyan-200/60 text-xs tracking-wider text-center">{copy('spreadDescription', '深度探索靈魂使命與人生道路')}</p>
                 </div>
               </div>
 
               <div className="mt-12 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-cyan-500/30 rounded-3xl p-8 sm:p-12 shadow-2xl text-center">
-                <h2 className="text-cyan-200 text-sm tracking-[0.4em] mb-5">使 用 之 法</h2>
-                <p className="text-center text-sm text-cyan-200/85 leading-loose">
-                  閉上眼睛，深呼吸三次。<br />
-                  將意圖專注在你想尋求指引的問題，<br />
-                  選擇上方牌陣，開始你的靈性探索。
-                </p>
+                <h2 className="text-cyan-200 text-sm tracking-[0.4em] mb-5">{copy('usageTitle', '使 用 之 法')}</h2>
+                <p className="text-center text-sm text-cyan-200/85 leading-loose whitespace-pre-line">{copy('usageBody', '閉上眼睛，深呼吸三次。\n將意圖專注在你想尋求指引的問題，\n選擇上方牌陣，開始你的靈性探索。')}</p>
               </div>
             </section>
           </>
@@ -214,9 +208,9 @@ function LightworkerPage() {
 
         {showDrawPage && !isShuffling && !hasDrawn && (
           <section className="max-w-2xl mx-auto text-center py-8">
-            <h2 className="text-3xl font-serif text-cyan-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
+            <h2 className="text-3xl font-serif text-cyan-100 tracking-[0.3em] mb-5">{copy('prepareTitle', '準 備 抽 牌')}</h2>
             <p className="text-sm sm:text-base text-cyan-200/85 mb-12 leading-loose">
-              閉上眼睛，專注於你的問題，當你準備好時點擊下方按鈕
+              {copy('prepareBody', '閉上眼睛，專注於你的問題，當你準備好時點擊下方按鈕')}
             </p>
 
             <div className="flex justify-center mb-12">
@@ -365,9 +359,10 @@ function LightworkerPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const language = getLanguageFromPath(window.location.pathname);
   return (
     <div className="bg-slate-900/40 border border-cyan-500/20 rounded-xl p-5">
-      <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-3">{title}</h3>
+      <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-3">{localizeCardLabel(title, language)}</h3>
       <p className="text-cyan-100/90 leading-loose whitespace-pre-line">{children}</p>
     </div>
   );

@@ -1,5 +1,5 @@
 import { verifyOrderToken } from './checkout';
-import { REPORT_VERSION } from './humanDesignReport';
+import { getHumanDesignReportVersion } from './humanDesignReport';
 import {
   badRequest, clientIp, Env, forbidden, json, rateLimit, readBody, readSession, tooManyRequests,
 } from './utils';
@@ -13,7 +13,7 @@ const ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9
 
 type Group = 'identity' | 'core' | 'full' | 'summary';
 type Proof = { order_id?: unknown; order_token?: unknown };
-type AccessBody = { chart_id?: unknown; proofs?: unknown; capabilities?: unknown };
+type AccessBody = { chart_id?: unknown; proofs?: unknown; capabilities?: unknown; language?: unknown };
 type Item = { orderId: string; itemId: string };
 
 interface ChartRow {
@@ -218,14 +218,37 @@ function firstSentence(value: string, max = 190): string {
   return sentence.length > max ? `${sentence.slice(0, max - 1)}…` : sentence;
 }
 
-function coreContent(sectionKey: string, row: ChartRow, chart: Record<string, unknown>) {
-  const typeName = safeType(row);
+function coreContent(sectionKey: string, row: ChartRow, chart: Record<string, unknown>, language: 'zh-Hant' | 'en' = 'zh-Hant') {
+  const typeName = language === 'en'
+    ? ({ generator: 'Generator', 'manifesting-generator': 'Manifesting Generator', projector: 'Projector', manifestor: 'Manifestor', reflector: 'Reflector' } as Record<string, string>)[row.hd_type] ?? 'Human Design type'
+    : safeType(row);
   const profile = safeProfile(row);
-  const profileName = PROFILE_LABELS[profile] ?? '';
-  const authorityName = safeAuthority(row);
-  const strategy = TYPE_STRATEGIES[row.hd_type] ?? '依循你的正確策略';
+  const profileName = language === 'en'
+    ? ({ '1/3': 'Investigator / Martyr', '1/4': 'Investigator / Opportunist', '2/4': 'Hermit / Opportunist', '2/5': 'Hermit / Heretic', '3/5': 'Martyr / Heretic', '3/6': 'Martyr / Role Model', '4/6': 'Opportunist / Role Model', '4/1': 'Opportunist / Investigator', '5/1': 'Heretic / Investigator', '5/2': 'Heretic / Hermit', '6/2': 'Role Model / Hermit', '6/3': 'Role Model / Martyr' } as Record<string, string>)[profile] ?? ''
+    : PROFILE_LABELS[profile] ?? '';
+  const authorityName = language === 'en'
+    ? ({ sacral: 'Sacral Authority', emotional: 'Emotional Authority', splenic: 'Splenic Authority', ego: 'Ego Authority', 'self-projected': 'Self-Projected Authority', lunar: 'Lunar Authority' } as Record<string, string>)[row.hd_authority] ?? 'Inner Authority'
+    : safeAuthority(row);
+  const strategy = language === 'en'
+    ? ({ generator: 'Wait to Respond', 'manifesting-generator': 'Wait to Respond, Then Inform', projector: 'Wait for the Invitation', manifestor: 'Inform Before Initiating', reflector: 'Wait Through a Lunar Cycle' } as Record<string, string>)[row.hd_type] ?? 'Follow your Strategy'
+    : TYPE_STRATEGIES[row.hd_type] ?? '依循你的正確策略';
   const centers = Array.isArray(chart.definedCenters) ? chart.definedCenters.length : 0;
-  const definition = centers === 0 ? '無定義（反映者）' : centers <= 3 ? '單一定義' : centers <= 6 ? '雙重定義' : '多重定義';
+  const definition = language === 'en'
+    ? centers === 0 ? 'No Definition (Reflector)' : centers <= 3 ? 'Single Definition' : centers <= 6 ? 'Split Definition' : 'Multiple Definition'
+    : centers === 0 ? '無定義（反映者）' : centers <= 3 ? '單一定義' : centers <= 6 ? '雙重定義' : '多重定義';
+  if (language === 'en') {
+    const map: Record<string, { name: string; result: string; summary: string; guidance: string }> = {
+      core_type: { name: 'Energy Type', result: typeName, summary: `Your Type is ${typeName}. Notice how your energy responds when you engage with life at your own pace.`, guidance: `Practice your Strategy: ${strategy}.` },
+      core_profile: { name: 'Profile', result: `${profile}${profileName ? ` ${profileName}` : ''}`, summary: `Profile ${profile} offers a lens on how you learn, relate, and influence the world.`, guidance: 'Let your Profile unfold through experience rather than trying to match someone else’s path.' },
+      core_strategy: { name: 'Strategy', result: strategy, summary: `${strategy} can be a useful way to notice where resistance eases and decisions become clearer.`, guidance: 'Return to your Strategy before taking your next step.' },
+      core_authority: { name: 'Inner Authority', result: authorityName, summary: `${authorityName} points you toward a decision process that is personal to you.`, guidance: 'Give yourself enough space for your decision to become clear.' },
+      core_definition: { name: 'Definition', result: definition, summary: `${definition} describes how your defined energy centers connect and process information.`, guidance: 'Honor your own rhythm for integrating information.' },
+      'core_ai-summary': { name: 'Energy Summary', result: typeName, summary: `As a ${typeName}, your energy may feel more natural when you follow ${strategy}.`, guidance: 'Understanding your design can be a starting point for self-observation.' },
+      'core_basic-talent': { name: 'Gifts and Strengths', result: typeName, summary: `As a ${typeName}, your strengths may emerge naturally in supportive environments and interactions.`, guidance: 'Save your energy for what feels genuinely aligned.' },
+      'core_ai-tip': { name: 'A Next Step', result: strategy, summary: `Return to ${strategy} today, then notice which next action feels worth your energy.`, guidance: 'You do not need to prove yourself; pause and choose when you feel aligned.' },
+    };
+    return map[sectionKey] ?? null;
+  }
   const map: Record<string, { name: string; result: string; summary: string; guidance: string }> = {
     core_type: { name: '能量類型 Type', result: typeName, summary: `你的能量類型是${typeName}，適合以符合自身節奏的方式投入生命。`, guidance: strategy ? `記得運用「${strategy}」回應生活。` : '信任你的自然能量節奏。' },
     core_profile: { name: '人生角色 Profile', result: `${profile}${profileName ? ` ${profileName}` : ''}`, summary: `人生角色 ${profile} 描繪了你學習、互動與影響世界的自然方式。`, guidance: '允許自己按照真實角色成長，不必迎合別人的生命腳本。' },
@@ -239,13 +262,13 @@ function coreContent(sectionKey: string, row: ChartRow, chart: Record<string, un
   return map[sectionKey] ?? null;
 }
 
-async function fullContent(env: Env, chartId: string, sectionKey: string) {
+async function fullContent(env: Env, chartId: string, sectionKey: string, language: 'zh-Hant' | 'en') {
   const sectionId = sectionKey.slice('full_'.length);
   const row = await env.DB.prepare(
     `SELECT s.title, s.body, r.birth_date, r.birth_time, r.birth_city, r.user_email FROM hd_full_report_sections s
      JOIN hd_full_reports r ON r.id = s.report_id
      WHERE r.chart_id = ? AND r.report_version = ? AND s.section_id = ? LIMIT 1`,
-  ).bind(chartId, REPORT_VERSION, sectionId).first<{ title: string; body: string; birth_date: string; birth_time: string; birth_city: string; user_email: string }>();
+  ).bind(chartId, getHumanDesignReportVersion(language), sectionId).first<{ title: string; body: string; birth_date: string; birth_time: string; birth_city: string; user_email: string }>();
   if (!row) return null;
   const guidance: Record<string, string> = {
     centers: '照顧開放中心的界線，也信任已定義中心的穩定力量。', gates: '讓天賦成熟展現，而不必被陰影模式定義。', channels: '你的穩定能量迴路，是獨一無二的生命資源。',
@@ -256,13 +279,13 @@ async function fullContent(env: Env, chartId: string, sectionKey: string) {
   return { name: row.title.replace(/^AI\s+/, ''), result: sectionId, summary: firstSentence(publicBody), guidance: guidance[sectionId] ?? '信任你的獨特設計，讓這份指引落實在日常。' };
 }
 
-async function fullSummaryHighlights(env: Env, chartId: string): Promise<string[]> {
+async function fullSummaryHighlights(env: Env, chartId: string, language: 'zh-Hant' | 'en'): Promise<string[]> {
   const rows = await env.DB.prepare(
     `SELECT s.title, s.body, r.birth_date, r.birth_time, r.birth_city, r.user_email FROM hd_full_report_sections s
      JOIN hd_full_reports r ON r.id = s.report_id
      WHERE r.chart_id = ? AND r.report_version = ?
      ORDER BY s.sort_order ASC LIMIT 3`,
-  ).bind(chartId, REPORT_VERSION).all<{ title: string; body: string; birth_date: string; birth_time: string; birth_city: string; user_email: string }>();
+  ).bind(chartId, getHumanDesignReportVersion(language)).all<{ title: string; body: string; birth_date: string; birth_time: string; birth_city: string; user_email: string }>();
   return (rows.results ?? []).map((row) => {
     const publicBody = stripPrivate(row.body, [row.birth_date, row.birth_time, row.birth_city, row.user_email]);
     return `${row.title.replace(/^AI\s+/, '')}：${firstSentence(publicBody, 72)}`;
@@ -283,6 +306,7 @@ export async function createHumanDesignShareResult(req: Request, env: Env): Prom
   const limit = await rateLimit(env, 'hd-share-create', clientIp(req), 30, 3600);
   if (!limit.allowed) return tooManyRequests(req, env, '分享建立次數過多，請稍後再試');
   const body = await readBody<Record<string, unknown>>(req, 2_300_000);
+  const language = body.language === 'en' ? 'en' : 'zh-Hant';
   const chartId = clean(body.chart_id, 80);
   const sectionKey = clean(body.section_key, 80);
   const chartRow = await getChart(env, chartId);
@@ -296,12 +320,12 @@ export async function createHumanDesignShareResult(req: Request, env: Env): Prom
   })[0];
   if (!matching) return forbidden(req, env, '此解析尚未完成付款解鎖');
   const chart = parseChart(chartRow);
-  let content = group === 'full' ? await fullContent(env, chartId, sectionKey) : coreContent(sectionKey === 'report_summary' ? 'core_type' : sectionKey, chartRow, chart);
+  let content = group === 'full' ? await fullContent(env, chartId, sectionKey, language) : coreContent(sectionKey === 'report_summary' ? 'core_type' : sectionKey, chartRow, chart, language);
   let highlights: string[] = [];
   if (sectionKey === 'report_summary') {
-    content = coreContent('core_type', chartRow, chart);
+    content = coreContent('core_type', chartRow, chart, language);
     const hasFull = access.items.some((item) => PLAN_GROUPS[item.itemId]?.includes('full'));
-    highlights = hasFull ? await fullSummaryHighlights(env, chartId) : [];
+    highlights = hasFull ? await fullSummaryHighlights(env, chartId, language) : [];
     if (!highlights.length) {
       highlights = [
         `人生角色 ${safeProfile(chartRow)}`,

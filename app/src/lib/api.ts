@@ -3,6 +3,10 @@ import { trackBeginCheckout, trackUnlockClick } from './ga4';
 const BASE = import.meta.env.VITE_API_BASE
   || (import.meta.env.PROD ? 'https://api.crystalfield101.com' : '');
 
+function activeContentLanguage(): 'zh-Hant' | 'en' {
+  return typeof window !== 'undefined' && /^\/en(?:\/|$)/.test(window.location.pathname) ? 'en' : 'zh-Hant';
+}
+
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
@@ -491,12 +495,12 @@ export interface VedicChartResponse {
 export const vedicAstrologyApi = {
   createChart: (body: { birth_date: string; birth_time: string; birth_place: string; consent: boolean }) =>
     req<VedicChartResponse>('/api/vedic-astrology/charts', {
-      method: 'POST', body, timeoutMs: 45000,
+      method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 45000,
     }),
 
   getPaidReport: (body: { chart_id?: string; chart_token?: string; order_id: string; order_token: string }) =>
     req<VedicReportResponse>('/api/vedic-astrology/reports', {
-      method: 'POST', body, timeoutMs: 300000,
+      method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 300000,
     }),
   getReview: (body: { order_id: string; order_token: string }) =>
     req<{ review: VedicReview | null }>('/api/vedic-astrology/reviews/current', { method: 'POST', body }),
@@ -603,6 +607,7 @@ export interface HumanDesignChartInput {
   chart_data: unknown;
   user_name?: string;
   user_email?: string;
+  language?: 'zh-Hant' | 'en';
 }
 
 export interface HumanDesignFullReportSection {
@@ -616,7 +621,7 @@ export const humanDesignApi = {
   saveChart: (body: HumanDesignChartInput) =>
     req<{ chart_id: string; session_id: string }>('/api/human-design/charts', {
       method: 'POST',
-      body,
+      body: { ...body, language: body.language ?? activeContentLanguage() },
       timeoutMs: 20000,
     }),
 
@@ -629,7 +634,7 @@ export const humanDesignApi = {
   getFullReport: (chart_id: string, auth: { proofs: HumanDesignShareProof[]; capabilities: string[] }) =>
     req<{ report_version: string; sections: HumanDesignFullReportSection[]; cached: boolean }>(
       `/api/human-design/charts/${encodeURIComponent(chart_id)}/full-report`,
-      { method: 'POST', body: auth, timeoutMs: 70000 },
+      { method: 'POST', body: { ...auth, language: activeContentLanguage() }, timeoutMs: 70000 },
     ),
 };
 
@@ -809,7 +814,7 @@ export interface HumanDesignShareAccess {
 
 export const humanDesignShareApi = {
   access: (body: { chart_id: string; proofs: HumanDesignShareProof[]; capabilities: string[] }) =>
-    req<HumanDesignShareAccess>('/api/human-design-share-access', { method: 'POST', body }),
+    req<HumanDesignShareAccess>('/api/human-design-share-access', { method: 'POST', body: { ...body, language: activeContentLanguage() } }),
   create: (body: {
     chart_id: string;
     section_key: string;
@@ -817,7 +822,7 @@ export const humanDesignShareApi = {
     proofs: HumanDesignShareProof[];
     capabilities: string[];
   }) => req<{ id: string; url: string; revoke_token: string; expires_at: string; issued_capabilities: string[] }>(
-    '/api/human-design-share-results', { method: 'POST', body, timeoutMs: 30000 },
+    '/api/human-design-share-results', { method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 30000 },
   ),
   revoke: (id: string, revokeToken: string) =>
     req<{ ok: true }>(`/api/human-design-share-results/${encodeURIComponent(id)}`, {
@@ -843,6 +848,8 @@ export interface CardPreview {
   name: string;
   name_secondary: string | null;
   image: string | null;
+  content_locale?: 'zh-Hant' | 'en';
+  translation_available?: boolean;
   preview: Record<string, unknown>;
   preview_excerpt?: string;
   upright_excerpt?: string;
@@ -855,15 +862,15 @@ export interface UnlockedCard extends CardPreview {
 }
 
 export const cardsApi = {
-  decks: () => req<{ decks: DeckSummary[] }>('/api/decks'),
+  decks: () => req<{ decks: DeckSummary[] }>(`/api/decks?language=${activeContentLanguage()}`),
 
   deckPreview: (deckId: DeckId) =>
-    req<{ deck_id: DeckId; cards: CardPreview[] }>(`/api/decks/${encodeURIComponent(deckId)}/preview`),
+    req<{ deck_id: DeckId; cards: CardPreview[] }>(`/api/decks/${encodeURIComponent(deckId)}/preview?language=${activeContentLanguage()}`),
 
   freeUnlockSingle: (spread_id: string, card_key: string, reversed = false, reading_id?: string) =>
     req<{ card: UnlockedCard; free_readings_remaining: number | null; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-single', {
       method: 'POST',
-      body: { spread_id, card_key, reversed, reading_id },
+      body: { spread_id, card_key, reversed, reading_id, language: activeContentLanguage() },
     }),
 
   freeUnlockSpread: (
@@ -874,13 +881,13 @@ export const cardsApi = {
   ) =>
     req<{ spread_id: string; cards: UnlockedCard[]; free_readings_remaining: number; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-spread', {
       method: 'POST',
-      body: { spread_id, picks, reading_id, email },
+      body: { spread_id, picks, reading_id, email, language: activeContentLanguage() },
     }),
 
   unlockSingle: (spread_id: string, card_key: string, email: string, reversed = false) =>
     req<{ card: UnlockedCard }>('/api/cards/single-unlock', {
       method: 'POST',
-      body: { spread_id, card_key, email, reversed },
+      body: { spread_id, card_key, email, reversed, language: activeContentLanguage() },
     }),
 
   unlockSpread: (
@@ -891,7 +898,7 @@ export const cardsApi = {
   ) =>
     req<{ spread_id: string; cards: UnlockedCard[] }>('/api/cards/spread-unlock', {
       method: 'POST',
-      body: { spread_id, picks, order_id, order_token: order_token ?? undefined },
+      body: { spread_id, picks, order_id, order_token: order_token ?? undefined, language: activeContentLanguage() },
     }),
 };
 

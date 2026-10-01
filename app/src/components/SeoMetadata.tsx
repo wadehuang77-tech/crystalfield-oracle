@@ -127,6 +127,23 @@ export const PUBLIC_SEO: Record<string, SeoConfig> = {
   ...VEDIC_ARTICLE_SEO,
 };
 
+const ENGLISH_PUBLIC_SEO: Record<string, Pick<SeoConfig, 'title' | 'description' | 'h1' | 'intro'>> = {
+  '/': { title: 'Crystal Field | Tarot, Numerology, Human Design and Vedic Astrology', description: 'Explore tarot readings, numerology, Human Design, and Vedic astrology as tools for reflection and self-discovery.', h1: 'Crystal Field', intro: 'Explore tarot, numerology, Human Design, and Vedic astrology to reflect on your strengths, questions, and next steps.' },
+  '/oracle': { title: 'Free Tarot and Oracle Card Readings | Crystal Field', description: 'Explore seven tarot and oracle decks, including Rider-Waite, Lightworker, Unicorn, Dragon, Egyptian, Work Your Light, and Osho Zen Tarot.', h1: 'Free Tarot and Oracle Card Readings', intro: 'Choose a deck and spread to reflect on your question, current circumstances, and possible next steps.' },
+  '/privacy': { title: 'Privacy Policy | Crystal Field', description: 'Learn how Crystal Field collects, uses, retains, and protects information when you use our website and services.', h1: 'Crystal Field Privacy Policy', intro: 'This policy explains how we handle information when you use Crystal Field.' },
+  '/tarot': { title: 'Online Rider-Waite Tarot Reading | Crystal Field', description: 'Choose a single card, three-card spread, Celtic Cross, or past-life pattern spread for reflection on relationships, work, and life direction.', h1: 'Rider-Waite Tarot', intro: 'Use the imagery and symbolism of Rider-Waite Tarot to reflect on your circumstances and choices.' },
+  '/lightworker': { title: 'Lightworker Oracle Reading | Crystal Field', description: 'Explore a single-card reading or Celtic Cross spread to reflect on your gifts, purpose, and direction.', h1: 'Lightworker Oracle', intro: 'Choose a spread and use its prompts to reflect on your purpose and next steps.' },
+  '/unicorns': { title: 'Unicorn Oracle Reading | Crystal Field', description: 'Explore a gentle single-card or three-card oracle reading for reflection on relationships, self-worth, and personal growth.', h1: 'Unicorn Oracle', intro: 'Use these cards as gentle prompts for reflecting on relationships, self-worth, and care.' },
+  '/dragons': { title: 'Dragon Oracle Reading | Crystal Field', description: 'Use single-card and three-card spreads to reflect on boundaries, difficult patterns, courage, and possible next steps.', h1: 'Dragon Oracle', intro: 'Reflect on boundaries, recurring patterns, and the next step you can choose.' },
+  '/egyptian-gods': { title: 'Egyptian Oracle Reading | Crystal Field', description: 'Explore an Egyptian oracle card or seven-card spread inspired by ancient symbols and stories.', h1: 'Egyptian Oracle', intro: 'Use stories and symbols as prompts for reflecting on choices and life themes.' },
+  '/work-your-light': { title: 'Work Your Light Oracle Reading | Crystal Field', description: 'Explore a single card or Cosmic Cross spread with prompts for intuition, reflection, and personal growth.', h1: 'Work Your Light', intro: 'Use these cards to reconnect with your own experience and consider what may help you move forward.' },
+  '/cosmic-cross': { title: 'Cosmic Cross Tarot Spread | Crystal Field', description: 'Explore an eleven-card spread across several aspects of life and personal reflection.', h1: 'Cosmic Cross Spread', intro: 'Use the Cosmic Cross spread to reflect on several dimensions of your life.' },
+  '/osho': { title: 'Osho Zen Tarot Reading | Crystal Field', description: 'Choose a single-card or three-card Osho Zen Tarot spread to reflect on your present state of mind.', h1: 'Osho Zen Tarot', intro: 'Reflect on the present moment, your inner state, and the choices available to you.' },
+  '/numerology': { title: 'Free Numerology Reading | Crystal Field', description: 'Enter your birth date to explore your life path number, strengths, missing numbers, personal-year themes, and crystal associations.', h1: 'Free Numerology Reading', intro: 'Explore your numbers as prompts for reflecting on strengths, life themes, and direction.' },
+  '/human-design': { title: 'Free Human Design Chart | Crystal Field', description: 'Create a Human Design chart from your birth date, time, and place. Explore your Type, Profile, Strategy, and Inner Authority.', h1: 'Free Human Design Chart', intro: 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.' },
+  '/vedic-astrology': { title: 'Free Vedic Astrology Birth Chart | Crystal Field', description: 'Create a Vedic astrology birth chart and explore your ascendant, planetary placements, lunar mansion, and life cycles.', h1: 'Free Vedic Astrology Chart', intro: 'Explore chart placements and life cycles as perspectives for self-reflection.' },
+};
+
 const noindexPaths = new Set([
   '/tarot-single', '/lightworker/celtic-cross', '/work-your-light-single',
   '/cosmic-cross', '/osho/single', '/osho/three', '/auth', '/checkout/return',
@@ -136,6 +153,31 @@ const noindexPaths = new Set([
 
 const SITE_NAME = '晶域心語';
 const SITE_URL = 'https://www.crystalfield101.com';
+
+function getCurrentLanguage(pathname: string): 'zh-Hant' | 'en' {
+  return pathname.startsWith('/en') ? 'en' : 'zh-Hant';
+}
+
+function buildAlternateCanonicals(pathname: string): Record<'zh-Hant' | 'en', string> {
+  const routePath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
+  const normalizedBase = routePath.startsWith('/en') ? routePath.replace(/^\/en(?=\/|$)/, '') || '/' : routePath;
+  const zh = `${SITE_URL}${normalizedBase === '/' ? '' : normalizedBase}/`;
+  const en = `${SITE_URL}/en${normalizedBase === '/' ? '' : normalizedBase}/`;
+  return { 'zh-Hant': zh, en };
+}
+
+function setHreflang(pathname: string, hasEnglishContent: boolean) {
+  const variants = buildAlternateCanonicals(pathname);
+  Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel="alternate"][hreflang]')).forEach((link) => link.remove());
+  if (!hasEnglishContent) return;
+  Object.entries(variants).forEach(([lang, href]) => {
+    const link = document.createElement('link');
+    link.rel = 'alternate';
+    link.href = href;
+    link.hreflang = lang === 'en' ? 'en' : 'zh-Hant';
+    document.head.appendChild(link);
+  });
+}
 
 function setMeta(name: string, content: string) {
   let meta = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
@@ -329,22 +371,27 @@ function buildStructuredData(pathname: string, seo: SeoConfig) {
 
 export default function SeoMetadata() {
   const { pathname, search } = useLocation();
+  const language = getCurrentLanguage(pathname);
 
   useEffect(() => {
     const routePath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
-    const seo = PUBLIC_SEO[routePath];
-    const title = seo?.title ?? SITE_NAME;
-    const description = seo?.description ?? '晶域心語提供塔羅、神諭卡與自我探索服務。';
-    const normalizedPath = routePath === '/' ? '/' : `${routePath}/`;
-    const canonical = seo?.canonical ?? `${SITE_URL}${normalizedPath}`;
+    const normalizedBase = routePath.startsWith('/en') ? routePath.replace(/^\/en(?=\/|$)/, '') || '/' : routePath;
+    const seo = PUBLIC_SEO[normalizedBase] ?? PUBLIC_SEO[routePath];
+    const englishSeo = language === 'en' ? ENGLISH_PUBLIC_SEO[normalizedBase] : undefined;
+    const title = englishSeo?.title ?? seo?.title ?? (language === 'en' ? 'Crystal Field' : SITE_NAME);
+    const description = englishSeo?.description ?? seo?.description ?? (language === 'en' ? 'Crystal Field offers tarot, oracle cards, and self-discovery services.' : '晶域心語提供塔羅、神諭卡與自我探索服務。');
+    const canonicalVariants = buildAlternateCanonicals(pathname);
+    const canonical = canonicalVariants[language];
     const hasVedicResult = routePath === '/vedic-astrology' && Boolean(sessionStorage.getItem('cf_vedic_chart_session'));
-    const robots = noindexPaths.has(routePath) || Boolean(search) || hasVedicResult ? 'noindex, follow' : seo ? 'index, follow' : 'noindex, follow';
+    const robots = noindexPaths.has(routePath) || Boolean(search) || hasVedicResult || (language === 'en' && !englishSeo)
+      ? 'noindex, follow'
+      : seo ? 'index, follow' : 'noindex, follow';
     document.title = title;
     setMeta('description', description);
     setMeta('robots', robots);
     setProperty('og:type', seo?.articleSection ? 'article' : 'website');
-    setProperty('og:locale', 'zh_TW');
-    setProperty('og:site_name', SITE_NAME);
+    setProperty('og:locale', language === 'en' ? 'en_US' : 'zh_TW');
+    setProperty('og:site_name', language === 'en' ? 'Crystal Field' : SITE_NAME);
     setProperty('og:title', title);
     setProperty('og:description', description);
     setProperty('og:url', canonical);
@@ -365,8 +412,9 @@ export default function SeoMetadata() {
     setMeta('twitter:description', description);
     setMeta('twitter:image', `${SITE_URL}/20260315_164545.jpg`);
     setCanonical(canonical);
-    if (seo) setJsonLd(buildStructuredData(routePath, seo));
-  }, [pathname, search]);
+    setHreflang(pathname, Boolean(englishSeo));
+    if (seo) setJsonLd(buildStructuredData(normalizedBase, englishSeo ? { ...seo, ...englishSeo, canonical } : seo));
+  }, [pathname, search, language]);
 
   return null;
 }

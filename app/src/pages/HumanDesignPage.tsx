@@ -10,6 +10,7 @@ import { calculateHDChart, type HDChart } from '../lib/human-design/humanDesignC
 import { checkoutApi, humanDesignApi, humanDesignShareApi, type HumanDesignShareAccess } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { useAuth } from '../contexts/AuthContext';
+import { getLanguageFromPath, t } from '../lib/i18n';
 import {
   getHumanDesignShareCapabilities,
   getHumanDesignShareProofs,
@@ -75,12 +76,13 @@ function clearCheckoutReturn() {
 
 function AnalysingScreen() {
   const [step, setStep] = useState(0);
+  const language = getLanguageFromPath(window.location.pathname);
   const steps = useMemo(() => [
-    '正在解析你的人類圖設計...',
-    '整合你的能量中心狀態...',
-    '生成個人化洞察...',
-    '準備你的免費報告...',
-  ], []);
+    language === 'en' ? t('humanDesign.steps.0', language) : '正在解析你的人類圖設計...',
+    language === 'en' ? t('humanDesign.steps.1', language) : '整合你的能量中心狀態...',
+    language === 'en' ? t('humanDesign.steps.2', language) : '生成個人化洞察...',
+    language === 'en' ? t('humanDesign.steps.3', language) : '準備你的免費報告...',
+  ], [language]);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -99,7 +101,7 @@ function AnalysingScreen() {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
         </div>
-        <h2 className="text-white font-semibold text-lg mb-2">正在分析你的人類圖能量</h2>
+        <h2 className="text-white font-semibold text-lg mb-2">{language === 'en' ? t('humanDesign.analyzing', language) : '正在分析你的人類圖能量'}</h2>
         <p className="text-cyan-400/70 text-sm animate-pulse min-h-[20px]">{steps[step]}</p>
         <div className="mt-6 w-48 mx-auto h-0.5 bg-white/8 rounded-full overflow-hidden">
           <div

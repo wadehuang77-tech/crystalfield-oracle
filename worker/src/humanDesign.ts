@@ -17,7 +17,12 @@ interface SaveChartBody {
   hd_type?: string;
   hd_profile?: string;
   hd_authority?: string;
+  language?: 'zh-Hant' | 'en';
   chart_data?: unknown;
+}
+
+function normalizeReportLanguage(value: unknown): 'zh-Hant' | 'en' {
+  return value === 'en' ? 'en' : 'zh-Hant';
 }
 
 function cleanString(value: unknown, max = 200): string {
@@ -47,6 +52,7 @@ function humanDesignDbError(req: Request, env: Env, err: unknown, fallback: stri
 export async function saveHumanDesignChart(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
   const body = await readBody<SaveChartBody>(req, 96 * 1024);
+  const language = normalizeReportLanguage(body.language);
 
   const birthDate = cleanString(body.birth_date, 20);
   if (!birthDate || !validDate(birthDate)) return badRequest(req, env, '出生日期格式錯誤');
@@ -77,7 +83,7 @@ export async function saveHumanDesignChart(req: Request, env: Env): Promise<Resp
       cleanString(body.hd_type, 80),
       cleanString(body.hd_profile, 80),
       cleanString(body.hd_authority, 80),
-      JSON.stringify(body.chart_data ?? {}),
+      JSON.stringify({ ...(typeof body.chart_data === 'object' && body.chart_data ? body.chart_data as Record<string, unknown> : {}), language }),
       now,
       now,
     ).run();

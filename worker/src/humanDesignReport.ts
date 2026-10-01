@@ -8,6 +8,34 @@ export const REPORT_VERSION = 'professional-v12';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 const MIN_AI_BODY_CHARS = 300;
 
+type ReportLanguage = 'zh-Hant' | 'en';
+
+function normalizeReportLanguage(value: unknown): ReportLanguage {
+  return value === 'en' ? 'en' : 'zh-Hant';
+}
+
+export function getHumanDesignReportVersion(language: ReportLanguage = 'zh-Hant'): string {
+  return language === 'en' ? `${REPORT_VERSION}-en` : REPORT_VERSION;
+}
+
+const ENGLISH_SECTION_TITLES: Record<string, { title: string; focus: string }> = {
+  centers: { title: 'Energy Centers: Consistency and Openness', focus: 'Explain stable energy and sensitivity to external influences in everyday terms.' },
+  gates: { title: 'Gates: Gifts and Life Themes', focus: 'Explore gifts, triggers, and growth themes associated with key gates.' },
+  channels: { title: 'Channels: Paths of Natural Expression', focus: 'Describe how key channels may appear in daily life, relationships, and communication.' },
+  personality: { title: 'Your Energy at a Glance', focus: 'Integrate Type, Strategy, Authority, Profile, and Incarnation Cross into an accessible reading.' },
+  prescription: { title: 'A Seven-Day Reset Practice', focus: 'Offer practical breathing, decision-making, boundaries, and environment exercises.' },
+  career: { title: 'Gifts and Career', focus: 'Explore nourishing work through gifts, bodily responses, and collaboration rhythms.' },
+  love: { title: 'Relationships and Boundaries', focus: 'Explore needs, emotional amplification, boundaries, and honest communication.' },
+  wealth: { title: 'Resources and Value', focus: 'Reflect on money choices, values, boundaries, and sustainable exchange.' },
+  mission: { title: 'Purpose and Direction', focus: 'Integrate recurring life themes, inner motivation, and directions for growth.' },
+};
+
+function localizeSectionDefs(defs: SectionDef[], language: ReportLanguage): SectionDef[] {
+  return language === 'en'
+    ? defs.map((def) => ({ ...def, ...(ENGLISH_SECTION_TITLES[def.id] ?? {}) }))
+    : defs;
+}
+
 type CenterName =
   | 'head' | 'ajna' | 'throat' | 'g' | 'heart'
   | 'sacral' | 'solar-plexus' | 'spleen' | 'root';
@@ -307,7 +335,13 @@ const SECTION_DETAIL_APPENDICES: Record<string, string> = {
   mission: '使命也可以從三條線索理解：哪些主題一再回到生命中、哪些經驗讓你即使辛苦仍感到值得，以及別人經常因什麼而被你幫助。它可能透過職業呈現，也可能存在於關係、創作、照顧或選擇活法之中。不要因尚未找到明確名稱就否定自己；使命往往不是突然揭曉，而是在一次次忠於內在的選擇中，逐漸長出清楚形狀。',
 };
 
-function ensureDetailedBody(sectionId: string, body: string): string {
+function ensureDetailedBody(sectionId: string, body: string, language: ReportLanguage = 'zh-Hant'): string {
+  if (language === 'en') {
+    if (body.trim().split(/\s+/).filter(Boolean).length < 250) {
+      throw new Error('HD_ENGLISH_REPORT_INCOMPLETE');
+    }
+    return body;
+  }
   if (sectionId === 'centers' || visibleCharCount(body) >= 300) return body;
   const appendix = SECTION_DETAIL_APPENDICES[sectionId] ?? '請把這份內容放回真實生活驗證，從身體感受、情緒變化、關係互動、工作節奏與環境影響等角度交叉觀察。人類圖不是替你下結論，而是提供一套更細緻的自我理解方式；當文字和實際經驗不同時，先尊重身體與長期觀察，再慢慢找到真正適合自己的解讀。';
   return `${body}\n\n${appendix}`;
@@ -371,11 +405,13 @@ async function generateOpenAiSections(
   chart: HDChart,
   defs: SectionDef[],
   knowledge: Map<string, KnowledgeRow>,
+  language: ReportLanguage = 'zh-Hant',
 ): Promise<Record<string, string> | null> {
   if (!env.OPENAI_API_KEY) return null;
 
-  const aiDefs = defs.filter((def) => OPENAI_SECTION_IDS.has(def.id));
+  const aiDefs = defs.filter((def) => language === 'en' || OPENAI_SECTION_IDS.has(def.id));
   if (aiDefs.length === 0) return {};
+  const languageLabel = language === 'en' ? 'English' : '繁體中文';
 
   const prompt = {
     fixed_human_design_context: fixedContext(chart, row, knowledge),
@@ -385,9 +421,10 @@ async function generateOpenAiSections(
       focus: def.focus,
     })),
     writing_rules: [
-      '使用繁體中文。',
-      '每個 section 的 value 必須至少 300 個中文字，少於 300 個中文字視為錯誤。',
-      '建議每個 section 產出 300 到 400 個中文字，分成 3 到 5 段。',
+      `使用${languageLabel}，不可混用其他語言。`,
+      ...(language === 'en'
+        ? ['Write at least 300 English words for each section, in 3 to 5 paragraphs.', 'Translate the fixed Human Design context accurately into natural English before interpreting it.']
+        : ['每個 section 的 value 必須至少 300 個中文字，少於 300 個中文字視為錯誤。', '建議每個 section 產出 300 到 400 個中文字，分成 3 到 5 段。']),
       '先從使用者可能熟悉的生活感受切入，再解釋人類圖含義。',
       '語言比例約為六成日常易懂、四成靈性與能量視角；讓讀者感到被理解，也知道可以怎麼做。',
       '專有名詞一次只解釋一個，出現 Type、Authority、Profile、中心、通道或閘門時，立刻用白話或身體感受說明。',
@@ -419,7 +456,9 @@ async function generateOpenAiSections(
         input: [
           {
             role: 'system',
-            content: '你是一位懂得把 Human Design 人類圖說成日常語言的靈性陪伴者。你尊重身體智慧、能量界線與靈魂成長，也嚴守個案 chart 與固定知識，不杜撰資料、不做命定預言。文字像一場溫柔而清楚的對話，不像機器產生的說明書。',
+            content: language === 'en'
+              ? 'You are a thoughtful Human Design guide. Write in natural English only. Respect bodily wisdom, boundaries, and personal growth. Use only the supplied chart and fixed knowledge; do not invent facts or make deterministic predictions.'
+              : '你是一位懂得把 Human Design 人類圖說成日常語言的靈性陪伴者。你尊重身體智慧、能量界線與靈魂成長，也嚴守個案 chart 與固定知識，不杜撰資料、不做命定預言。文字像一場溫柔而清楚的對話，不像機器產生的說明書。',
           },
           {
             role: 'user',
@@ -476,10 +515,10 @@ async function getSectionDefs(env: Env): Promise<SectionDef[]> {
   }
 }
 
-async function readSavedReport(env: Env, chartId: string): Promise<ReportSection[] | null> {
+async function readSavedReport(env: Env, chartId: string, reportVersion: string): Promise<ReportSection[] | null> {
   const report = await env.DB.prepare(
     `SELECT id FROM hd_full_reports WHERE chart_id = ? AND report_version = ? ORDER BY created_at DESC LIMIT 1`
-  ).bind(chartId, REPORT_VERSION).first<{ id: string }>();
+  ).bind(chartId, reportVersion).first<{ id: string }>();
   if (!report) return null;
 
   const sections = await env.DB.prepare(
@@ -498,20 +537,29 @@ async function saveReport(
   chart: HDChart,
   defs: SectionDef[],
   aiBodies: Record<string, string> | null = null,
+  language: ReportLanguage = 'zh-Hant',
 ): Promise<ReportSection[]> {
+  if (language === 'en') {
+    const incomplete = defs.some((def) => {
+      const body = aiBodies?.[def.id] ?? '';
+      return body.trim().split(/\s+/).length < 250;
+    });
+    if (incomplete) throw new Error('HD_ENGLISH_REPORT_INCOMPLETE');
+  }
+  const reportVersion = getHumanDesignReportVersion(language);
   const now = new Date().toISOString();
   const reportId = crypto.randomUUID();
   const knowledge = knowledgeLookup(await getKnowledgeRows(env));
   const sections = defs.map((def) => {
-    const isOpenAi = (def.generation_mode === 'openai') || OPENAI_SECTION_IDS.has(def.id);
+    const isOpenAi = language === 'en' || (def.generation_mode === 'openai') || OPENAI_SECTION_IDS.has(def.id);
     const body = isOpenAi
-      ? normalizeAiBody(def.id, aiBodies?.[def.id], chart, row)
+      ? (language === 'en' ? (aiBodies?.[def.id] ?? '').trim() : normalizeAiBody(def.id, aiBodies?.[def.id], chart, row))
       : buildFixedSectionBody(def.id, chart, row, knowledge);
     return {
       id: def.id,
       title: def.title,
       icon: def.icon,
-      body: ensureDetailedBody(def.id, body),
+      body: ensureDetailedBody(def.id, body, language),
     };
   });
 
@@ -542,7 +590,7 @@ async function saveReport(
     row.birth_city ?? '',
     row.hd_type,
     row.hd_profile,
-    REPORT_VERSION,
+    reportVersion,
     row.chart_data || '{}',
     now,
     now,
@@ -550,7 +598,7 @@ async function saveReport(
 
   const saved = await env.DB.prepare(
     `SELECT id FROM hd_full_reports WHERE chart_id = ? AND report_version = ? ORDER BY updated_at DESC LIMIT 1`
-  ).bind(row.id, REPORT_VERSION).first<{ id: string }>();
+  ).bind(row.id, reportVersion).first<{ id: string }>();
   const finalReportId = saved?.id ?? reportId;
 
   for (let i = 0; i < sections.length; i += 1) {
@@ -587,12 +635,13 @@ async function enhanceSavedReport(
   row: ChartRow,
   chart: HDChart,
   defs: SectionDef[],
+  language: ReportLanguage = 'zh-Hant',
 ): Promise<void> {
   try {
     const knowledge = knowledgeLookup(await getKnowledgeRows(env));
-    const aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge);
+    const aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge, language);
     if (aiBodies && Object.keys(aiBodies).length > 0) {
-      await saveReport(env, row, chart, defs, aiBodies);
+      await saveReport(env, row, chart, defs, aiBodies, language);
     }
   } catch (err) {
     // The complete deterministic report is already stored. AI enhancement failure
@@ -606,7 +655,9 @@ export async function getHumanDesignFullReport(
   env: Env,
   chartId: string,
   ctx?: ExecutionContext,
+  language: ReportLanguage = 'zh-Hant',
 ): Promise<Response> {
+  const reportVersion = getHumanDesignReportVersion(language);
   try {
     await ensureHumanDesignSchema(env);
   } catch (err) {
@@ -631,18 +682,27 @@ export async function getHumanDesignFullReport(
   }
 
   try {
-    const saved = await readSavedReport(env, chartId);
+    const saved = await readSavedReport(env, chartId, reportVersion);
     if (saved) {
-      return json(req, env, { report_version: REPORT_VERSION, sections: saved, cached: true });
+      return json(req, env, { report_version: reportVersion, sections: saved, cached: true });
     }
 
-    const defs = await getSectionDefs(env);
+    const defs = localizeSectionDefs(await getSectionDefs(env), language);
     const chart = parseChart(row);
+    if (language === 'en') {
+      if (!env.OPENAI_API_KEY) {
+        return json(req, env, { error: 'English report generation is unavailable right now.', code: 'HD_ENGLISH_REPORT_UNAVAILABLE' }, { status: 503 });
+      }
+      const knowledge = knowledgeLookup(await getKnowledgeRows(env));
+      const aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge, language);
+      const sections = await saveReport(env, row, chart, defs, aiBodies, language);
+      return json(req, env, { report_version: reportVersion, sections, cached: false });
+    }
     // Save and return a complete nine-section report first. AI enhancement happens
     // after the response so a slow or unavailable model cannot block paid content.
-    const sections = await saveReport(env, row, chart, defs);
-    if (ctx) ctx.waitUntil(enhanceSavedReport(env, row, chart, defs));
-    return json(req, env, { report_version: REPORT_VERSION, sections, cached: false });
+    const sections = await saveReport(env, row, chart, defs, null, language);
+    if (ctx) ctx.waitUntil(enhanceSavedReport(env, row, chart, defs, language));
+    return json(req, env, { report_version: reportVersion, sections, cached: false });
   } catch (err) {
     return fullReportDbError(req, env, err, '人類圖完整版報告產生失敗');
   }

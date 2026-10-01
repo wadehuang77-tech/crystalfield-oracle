@@ -13,11 +13,65 @@ import {
   unauthorized,
 } from './utils';
 
+type ContentLanguage = 'zh-Hant' | 'en';
+
+function contentLanguage(value: unknown): ContentLanguage {
+  return value === 'en' ? 'en' : 'zh-Hant';
+}
+
+interface CardLocalizationRow {
+  name: string | null;
+  name_secondary: string | null;
+  preview_payload: string | null;
+  gated_payload: string | null;
+}
+
+async function loadCardLocalization(
+  env: Env,
+  deckId: string,
+  cardKey: string,
+  language: ContentLanguage,
+): Promise<CardLocalizationRow | null> {
+  if (language !== 'en') return null;
+  try {
+    return await env.DB_CARDS.prepare(
+      `SELECT name, name_secondary, preview_payload, gated_payload
+         FROM card_localizations
+        WHERE deck_id = ? AND card_key = ? AND locale = ?`,
+    ).bind(deckId, cardKey, language).first<CardLocalizationRow>();
+  } catch {
+    return null;
+  }
+}
+
+function cardTranslationUnavailable(req: Request, env: Env): Response {
+  return json(req, env, {
+    error: 'This card is not available in English yet.',
+    code: 'CARD_TRANSLATION_UNAVAILABLE',
+  }, { status: 406 });
+}
+
 export async function listDecks(req: Request, env: Env): Promise<Response> {
   const result = await env.DB_CARDS.prepare(
     `SELECT id, name, card_count FROM decks ORDER BY id`,
   ).all();
-  return json(req, env, { decks: result.results ?? [] });
+  const language = contentLanguage(new URL(req.url).searchParams.get('language'));
+  if (language !== 'en') return json(req, env, { decks: result.results ?? [] });
+  const localizations = await env.DB_CARDS.prepare(
+    `SELECT deck_id, name FROM deck_localizations WHERE locale = ?`,
+  ).bind(language).all<{ deck_id: string; name: string }>().catch(() => ({ results: [] }));
+  const names = new Map((localizations.results ?? []).map((row) => [row.deck_id, row.name]));
+  const englishNames: Record<string, string> = {
+    tarot: 'Rider-Waite Tarot', osho: 'Osho Zen Tarot', lightworker: 'Lightworker Oracle',
+    unicorns: 'Unicorn Oracle', egyptian_gods: 'Egyptian Oracle',
+    work_your_light: 'Work Your Light Oracle', dragons: 'Dragon Oracle',
+  };
+  return json(req, env, {
+    decks: (result.results ?? []).map((deck) => ({
+      ...deck,
+      name: names.get(String(deck.id)) ?? englishNames[String(deck.id)] ?? deck.name,
+    })),
+  });
 }
 
 export async function getDeckPreview(
@@ -25,6 +79,7 @@ export async function getDeckPreview(
   env: Env,
   deckId: string,
 ): Promise<Response> {
+  const language = contentLanguage(new URL(req.url).searchParams.get('language'));
   const result = await env.DB_CARDS.prepare(
     `SELECT id, deck_id, card_key, position, name, name_secondary, image,
             preview_payload, gated_payload
@@ -39,18 +94,41 @@ export async function getDeckPreview(
     return json(req, env, { error: 'deck not found', deck_id: deckId }, { status: 404 });
   }
 
+  let localizations = new Map<string, CardLocalizationRow>();
+  if (language === 'en') {
+    try {
+      const localizedRows = await env.DB_CARDS.prepare(
+        `SELECT card_key, name, name_secondary, preview_payload, gated_payload
+           FROM card_localizations
+          WHERE deck_id = ? AND locale = ?`,
+      ).bind(deckId, language).all<CardLocalizationRow & { card_key: string }>();
+      localizations = new Map((localizedRows.results ?? []).map((localized) => [localized.card_key, localized]));
+    } catch {
+      localizations = new Map();
+    }
+  }
   const cards = result.results.map((row) => {
-    const gated = parseJson(row.gated_payload);
+    const localized = localizations.get(row.card_key);
+    const translationAvailable = language !== 'en'
+      || Boolean(localized?.name && localized.preview_payload && localized.gated_payload);
+    const previewPayload = localized?.preview_payload
+      ? parseJson(localized.preview_payload)
+      : language === 'en' ? {} : parseJson(row.preview_payload);
+    const gatedPayload = localized?.gated_payload
+      ? parseJson(localized.gated_payload)
+      : language === 'en' ? {} : parseJson(row.gated_payload);
     return {
       id: row.id,
       deck_id: row.deck_id,
       card_key: row.card_key,
       position: row.position,
-      name: row.name,
-      name_secondary: row.name_secondary,
+      name: localized?.name ?? (language === 'en' ? row.name_secondary ?? row.name : row.name),
+      name_secondary: localized?.name_secondary ?? (language === 'en' ? row.name : row.name_secondary),
       image: row.image,
-      preview: parseJson(row.preview_payload),
-      ...buildExcerpts(row.deck_id, gated),
+      content_locale: translationAvailable ? language : 'zh-Hant',
+      translation_available: translationAvailable,
+      preview: previewPayload,
+      ...(translationAvailable ? buildExcerpts(row.deck_id, gatedPayload) : {}),
     };
   });
   return json(req, env, { deck_id: deckId, cards });
@@ -116,6 +194,7 @@ interface SingleUnlockBody {
   card_key: string;
   email: string;
   reversed?: boolean;
+  language?: ContentLanguage;
 }
 
 export async function unlockSingleCard(req: Request, env: Env): Promise<Response> {
@@ -137,8 +216,10 @@ export async function unlockSingleCard(req: Request, env: Env): Promise<Response
   if (!body.card_key) return badRequest(req, env, 'card_key required');
 
   const email = session.email;
-  const card = await loadFullCard(env, spread.deck_id, body.card_key);
+  const language = contentLanguage(body.language);
+  const card = await loadFullCard(env, spread.deck_id, body.card_key, language);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
+  if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
 
   const now = new Date().toISOString();
   await env.DB.batch([
@@ -181,6 +262,7 @@ interface SpreadUnlockBody {
   picks: SpreadUnlockPick[];
   order_id?: string;
   order_token?: string;
+  language?: ContentLanguage;
 }
 
 function picksMatch(a: SpreadUnlockPick[], b: SpreadUnlockPick[]): boolean {
@@ -237,10 +319,12 @@ export async function unlockSpread(req: Request, env: Env): Promise<Response> {
 
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
-    const card = await loadFullCard(env, spread.deck_id, pick.card_key);
+    const language = contentLanguage(body.language);
+    const card = await loadFullCard(env, spread.deck_id, pick.card_key, language);
     if (!card) {
       return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
     }
+    if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 
@@ -265,6 +349,7 @@ async function loadFullCard(
   env: Env,
   deckId: string,
   cardKey: string,
+  language: ContentLanguage = 'zh-Hant',
 ): Promise<Record<string, unknown> | null> {
   const row = await env.DB_CARDS.prepare(
     `SELECT id, deck_id, card_key, position, name, name_secondary, image,
@@ -276,16 +361,21 @@ async function loadFullCard(
     preview_payload: string; gated_payload: string;
   }>();
   if (!row) return null;
+  const localized = await loadCardLocalization(env, deckId, cardKey, language);
+  const translationAvailable = language !== 'en'
+    || Boolean(localized?.name && localized.preview_payload && localized.gated_payload);
   return {
     id: row.id,
     deck_id: row.deck_id,
     card_key: row.card_key,
     position: row.position,
-    name: row.name,
-    name_secondary: row.name_secondary,
+    name: localized?.name ?? (language === 'en' ? row.name_secondary ?? row.name : row.name),
+    name_secondary: localized?.name_secondary ?? (language === 'en' ? row.name : row.name_secondary),
     image: row.image,
-    preview: parseJson(row.preview_payload),
-    gated: parseJson(row.gated_payload),
+    content_locale: translationAvailable ? language : 'zh-Hant',
+    translation_available: translationAvailable,
+    preview: localized?.preview_payload ? parseJson(localized.preview_payload) : language === 'en' ? {} : parseJson(row.preview_payload),
+    gated: localized?.gated_payload ? parseJson(localized.gated_payload) : language === 'en' ? {} : parseJson(row.gated_payload),
   };
 }
 
@@ -313,7 +403,7 @@ export function getSpreadDef(spreadId: string): TarotSpreadDef | undefined {
   return TAROT_SPREADS[spreadId];
 }
 
-interface FreeUnlockSingleBody { spread_id: string; card_key: string; reversed?: boolean; reading_id?: string; }
+interface FreeUnlockSingleBody { spread_id: string; card_key: string; reversed?: boolean; reading_id?: string; language?: ContentLanguage; }
 
 export async function freeUnlockSingle(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSingleBody>(req);
@@ -325,8 +415,10 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
   if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
   const entitlement = await getTarotEntitlement(env, session.id);
   if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
-  const card = await loadFullCard(env, spread.deck_id, body.card_key);
+  const language = contentLanguage(body.language);
+  const card = await loadFullCard(env, spread.deck_id, body.card_key, language);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
+  if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
   return json(req, env, {
     card: { ...card, reversed: !!body.reversed },
     free_readings_remaining: null,
@@ -335,7 +427,7 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
 }
 
 interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
-interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; reading_id?: string; email?: string; }
+interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; reading_id?: string; email?: string; language?: ContentLanguage; }
 
 async function hmacSha256Hex(secret: string, value: string): Promise<string> {
   const key = await crypto.subtle.importKey(
@@ -603,8 +695,10 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
   if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
-    const card = await loadFullCard(env, spread.deck_id, pick.card_key);
+    const language = contentLanguage(body.language);
+    const card = await loadFullCard(env, spread.deck_id, pick.card_key, language);
     if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
+    if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 
@@ -620,6 +714,7 @@ interface BundleUnlockSpreadBody {
   spread_id: string;
   picks: SpreadUnlockPick[];
   reading_id: string;
+  language?: ContentLanguage;
 }
 
 const BUNDLE_CATEGORY_BY_SPREAD: Record<string, 'three_card' | 'ten_card' | 'pastlife'> = {
@@ -654,8 +749,10 @@ export async function bundleUnlockSpread(req: Request, env: Env): Promise<Respon
 
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
-    const card = await loadFullCard(env, spread.deck_id, pick.card_key);
+    const language = contentLanguage(body.language);
+    const card = await loadFullCard(env, spread.deck_id, pick.card_key, language);
     if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
+    if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 

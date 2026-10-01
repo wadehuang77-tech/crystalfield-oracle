@@ -276,10 +276,11 @@ export default {
         const rl = await rateLimit(env, 'hd-full-report-ip', clientIp(req), 30, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env);
         const accessBody = await readBody<Record<string, unknown>>(req, 64 * 1024);
+        const language = accessBody && typeof accessBody.language === 'string' && accessBody.language === 'en' ? 'en' : 'zh-Hant';
         if (!await hasHumanDesignPaidGroup(req, env, id, accessBody, 'full')) {
           return forbidden(req, env, '此完整版報告尚未完成付款解鎖');
         }
-        return await getHumanDesignFullReport(req, env, id, ctx);
+        return await getHumanDesignFullReport(req, env, id, ctx, language);
       }
 
       if (path === '/api/admin/check'          && req.method === 'GET')  return await adminCheck(req, env);

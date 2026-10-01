@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getLanguageFromPath, getLocalizedPath, t, translations } from '../lib/i18n';
 import {
   trackDeckSelect,
   trackOracleNeedSelected,
@@ -157,6 +158,8 @@ const ADVANCED_DECKS: Array<{ id: OracleDeckId; name: string; path: string }> = 
 
 function HomePage() {
   const navigate = useNavigate();
+  const language = getLanguageFromPath(window.location.pathname);
+  const copy = (key: string, fallback: string) => language === 'en' ? t(`oraclePage.${key}`, language) : fallback;
   const { user } = useAuth();
   const [selectedId, setSelectedId] = useState<NeedOption['id'] | null>(null);
   const [question, setQuestion] = useState('');
@@ -196,7 +199,7 @@ function HomePage() {
       setLoginRequired(false);
       pendingRef.current = null;
       trackOracleReadingStarted(option.needType, option.spreadType, option.deckType);
-      navigate(option.destination);
+      navigate(getLocalizedPath(option.destination, language));
     } catch (err) {
       const apiError = err as Error & { status?: number };
       if (apiError.status === 401) {
@@ -204,18 +207,18 @@ function HomePage() {
         setLoginRequired(true);
         setError('');
       } else {
-        setError(apiError.message || '塔羅權限確認失敗，請稍後再試');
+        setError(apiError.message || copy('accessError', '塔羅權限確認失敗，請稍後再試'));
       }
     } finally {
       startingRef.current = false;
       setIsStarting(false);
     }
-  }, [navigate, user]);
+  }, [navigate, user, language]);
 
   const startReading = async (event: FormEvent, option: NeedOption) => {
     event.preventDefault();
     const trimmedQuestion = question.trim();
-    if (!trimmedQuestion) { setError('請先輸入你想詢問的問題'); return; }
+    if (!trimmedQuestion) { setError(copy('askQuestion', '請先輸入你想詢問的問題')); return; }
     await beginReading(option, trimmedQuestion);
   };
 
@@ -241,19 +244,18 @@ function HomePage() {
       <main className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-14 pt-7 sm:px-6 sm:pt-12">
         <header className="mb-7 max-w-3xl text-center sm:mb-10">
           <Sparkles className="mx-auto mb-3 h-11 w-11 animate-pulse text-blue-300/80 sm:h-14 sm:w-14" />
-          <h1 className="mb-3 font-serif text-3xl tracking-wide text-blue-100 drop-shadow-lg sm:text-5xl">
-            免費塔羅牌占卜：7套塔羅與神諭卡線上抽牌
-          </h1>
+          <h1 className="mb-3 font-serif text-3xl tracking-wide text-blue-100 drop-shadow-lg sm:text-5xl">{copy('title', '免費塔羅牌占卜：7套塔羅與神諭卡線上抽牌')}</h1>
           <p className="text-sm leading-relaxed text-blue-200/80 sm:text-lg">
-            選擇需求、寫下問題，系統會自動為你連結合適的牌卡與牌陣
+            {copy('intro', '選擇需求、寫下問題，系統會自動為你連結合適的牌卡與牌陣')}
           </p>
         </header>
 
-        <section className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2" aria-label="占卜需求選擇">
+        <section className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2" aria-label={language === 'en' ? 'Choose a reading topic' : '占卜需求選擇'}>
           {NEED_OPTIONS.map((option, index) => {
             const selected = selectedId === option.id;
             const styles = COLOR_STYLES[option.color];
             const Icon = option.icon;
+            const translated = language === 'en' ? translations.en.oraclePage.needs[option.id] : null;
 
             return (
               <article
@@ -272,10 +274,10 @@ function HomePage() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className={`mb-1 block text-xs font-bold tracking-[0.22em] ${styles.accent}`}>
-                      選項 {index + 1}
+                      {language === 'en' ? `${copy('needLabel', 'OPTION')} ${index + 1}` : `選項 ${index + 1}`}
                     </span>
                     <span className="block font-serif text-xl tracking-wide text-white sm:text-2xl">
-                      {option.shortLabel}
+                      {translated?.shortLabel ?? option.shortLabel}
                     </span>
                   </span>
                   <ChevronDown className={`h-6 w-6 shrink-0 text-blue-200/70 transition-transform duration-300 ${selected ? 'rotate-180' : ''}`} />
@@ -283,19 +285,19 @@ function HomePage() {
 
                 {selected && (
                   <div id={`need-content-${option.id}`} className="border-t border-white/10 px-5 pb-6 pt-5 sm:px-6">
-                    <h2 className="mb-3 font-serif text-xl text-blue-50 sm:text-2xl">{option.title}</h2>
-                    <p className="mb-5 leading-7 text-blue-100/80">{option.description}</p>
+                    <h2 className="mb-3 font-serif text-xl text-blue-50 sm:text-2xl">{translated?.title ?? option.title}</h2>
+                    <p className="mb-5 leading-7 text-blue-100/80">{translated?.description ?? option.description}</p>
 
                     <div className="mb-5 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-                      <h3 className={`mb-3 text-sm font-bold tracking-wider ${styles.accent}`}>適用問題</h3>
+                      <h3 className={`mb-3 text-sm font-bold tracking-wider ${styles.accent}`}>{copy('questionExamples', '適用問題')}</h3>
                       <ul className="space-y-2 text-sm leading-6 text-blue-100/75 sm:text-base">
-                        {option.questions.map((item) => <li key={item}>・{item}</li>)}
+                        {(translated?.questions ?? option.questions).map((item) => <li key={item}>・{item}</li>)}
                       </ul>
                     </div>
 
                     <form onSubmit={(event) => startReading(event, option)}>
                       <label htmlFor={`question-${option.id}`} className="mb-2 block text-sm font-bold text-blue-100">
-                        你想詢問的問題
+                        {copy('questionLabel', '你想詢問的問題')}
                       </label>
                       <textarea
                         id={`question-${option.id}`}
@@ -306,7 +308,7 @@ function HomePage() {
                         }}
                         maxLength={300}
                         rows={3}
-                        placeholder="請寫下一個你此刻最想得到指引的問題……"
+                        placeholder={copy('questionPlaceholder', '請寫下一個你此刻最想得到指引的問題……')}
                         className="w-full resize-none rounded-2xl border border-blue-300/20 bg-slate-950/65 px-4 py-3 text-base leading-6 text-white outline-none transition placeholder:text-blue-200/35 focus:border-blue-300/60 focus:ring-2 focus:ring-blue-400/20"
                       />
                       {error && <p className="mt-2 text-sm text-rose-300" role="alert">{error}</p>}
@@ -315,7 +317,7 @@ function HomePage() {
                         disabled={isStarting}
                         className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3.5 text-base font-bold tracking-widest text-white shadow-lg transition hover:scale-[1.01] active:scale-[0.99] ${styles.button}`}
                       >
-                        {isStarting ? '確認資格中…' : !user ? '登入並開始免費試用' : entitlement?.status === 'trial_available' ? '開始免費試用 7 天' : '進入牌陣'}
+                        {isStarting ? copy('checking', '確認資格中…') : !user ? copy('loginTrial', '登入並開始免費試用') : entitlement?.status === 'trial_available' ? copy('startTrial', '開始免費試用 7 天') : copy('enterSpread', '進入牌陣')}
                       </button>
                     </form>
                     {loginRequired && selectedId === option.id && <div className="mt-5"><TarotLoginGate theme="dark" /></div>}
@@ -327,27 +329,27 @@ function HomePage() {
         </section>
 
         <p className="mt-7 text-center text-sm leading-6 text-blue-100/70">
-          {!user && '登入 Google 帳號即可免費試用塔羅全館 7 天，不需要信用卡，也不會自動扣款。'}
-          {user && entitlement?.status === 'trial_available' && '你可以開始一次 7 天塔羅全館免費試用。'}
-          {user && entitlement?.status === 'trialing' && '塔羅全館免費試用中：7 套牌卡與所有牌陣皆可不限次數使用。'}
-          {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && '你仍可瀏覽所有牌卡與牌陣介紹；完整解析需訂閱塔羅全館月費會員。'}
-          {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && '塔羅全館會員有效期間，可使用全部 7 套牌卡與所有牌陣。'}
+          {!user && copy('guestInfo', '登入 Google 帳號即可免費試用塔羅全館 7 天，不需要信用卡，也不會自動扣款。')}
+          {user && entitlement?.status === 'trial_available' && copy('availableTrial', '你可以開始一次 7 天塔羅全館免費試用。')}
+          {user && entitlement?.status === 'trialing' && copy('trialing', '塔羅全館免費試用中：7 套牌卡與所有牌陣皆可不限次數使用。')}
+          {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && copy('browseOnly', '你仍可瀏覽所有牌卡與牌陣介紹；完整解析需訂閱塔羅全館月費會員。')}
+          {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && copy('memberInfo', '塔羅全館會員有效期間，可使用全部 7 套牌卡與所有牌陣。')}
         </p>
 
         <details open className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">
           <summary className="cursor-pointer select-none py-1 text-center text-sm tracking-wide hover:text-blue-100">
-            進階選擇：我想自己選擇牌卡
+            {copy('advanced', '進階選擇：我想自己選擇牌卡')}
           </summary>
           <div className="mt-4 grid grid-cols-2 gap-2 border-t border-blue-300/10 pt-4 sm:grid-cols-3" onClick={handleAdvancedDeckSelect}>
-            {ADVANCED_DECKS.map((deck) => (
+            {ADVANCED_DECKS.map((deck, index) => (
               <Link
                 key={deck.id}
-                to={deck.path}
+                to={getLocalizedPath(deck.path, language)}
                 data-deck-id={deck.id}
-                data-deck-name={deck.name}
+                data-deck-name={language === 'en' ? translations.en.oraclePage.deckNames[index] : deck.name}
                 className="rounded-xl border border-blue-300/15 bg-blue-950/30 px-3 py-3 text-center text-sm text-blue-100/75 transition hover:border-blue-300/40 hover:text-blue-50"
               >
-                {deck.name}
+                {language === 'en' ? translations.en.oraclePage.deckNames[index] : deck.name}
               </Link>
             ))}
           </div>
@@ -355,9 +357,9 @@ function HomePage() {
 
         <section className="mt-12 w-full max-w-5xl space-y-10 text-blue-100/85">
           <div>
-            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心語提供哪7種塔羅與神諭卡？</h2>
+            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">{copy('articleTitle', '晶域心語提供哪7種塔羅與神諭卡？')}</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {[
+              {(language === 'en' ? translations.en.oraclePage.deckDescriptions : [
                 ['偉特塔羅', '經典圖像適合整理感情、工作、財運與行動選擇，提供單張、三張、凱爾特十字及前世因果解鎖陣。', '/tarot'],
                 ['光行者神諭', '以靈魂使命與內在成長為主題，適合探索天賦、卡點與下一步方向，可選擇單張牌及十字交叉使命陣。', '/lightworker'],
                 ['獨角獸塔羅', '以溫柔而鼓勵的訊息陪伴感情療癒、自我價值與人際關係探索，提供單張與三張牌陣。', '/unicorns'],
@@ -365,49 +367,45 @@ function HomePage() {
                 ['埃及神諭', '從象徵與神話主題探索前世今生連結、人生課題與靈魂成長，可選擇單張及七張前世因果解鎖陣。', '/egyptian-gods'],
                 ['Lightworker光之訊息', '適合整理靈魂任務、內在潛能與能量狀態，提供單張牌及宇宙十字牌陣作為藍圖與行動參考。', '/work-your-light'],
                 ['奧修禪卡', '把注意力帶回當下，適合覺察情緒、內在卡點與生命狀態，可使用單張或三張牌陣。', '/osho'],
-              ].map(([name, text, path]) => (
+              ]).map(([name, text, path]) => (
                 <article key={path} className="rounded-2xl border border-blue-300/15 bg-slate-950/35 p-5">
                   <h3 className="mb-2 text-lg font-semibold text-blue-50">{name}</h3>
                   <p className="mb-3 text-sm leading-7">{text}</p>
-                  <Link className="text-sm font-semibold text-blue-300 underline-offset-4 hover:underline" to={path}>查看{name}介紹與牌陣</Link>
+                  <Link className="text-sm font-semibold text-blue-300 underline-offset-4 hover:underline" to={getLocalizedPath(path, language)}>{language === 'en' ? copy('deckLink', 'Explore deck and spreads') : `查看${name}介紹與牌陣`}</Link>
                 </article>
               ))}
             </div>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">如何選擇適合自己的牌卡？</h2>
-            <p className="mb-4 leading-7">以下是依照主題整理的選擇建議，不代表絕對結果；你也可以瀏覽牌卡介紹後，選擇當下最有共鳴的一組：</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">{copy('howToChoose', '如何選擇適合自己的牌卡？')}</h2>
+            <p className="mb-4 leading-7">{copy('chooseIntro', '以下是依照主題整理的選擇建議，不代表絕對結果；你也可以瀏覽牌卡介紹後，選擇當下最有共鳴的一組：')}</p>
             <ul className="grid gap-2 sm:grid-cols-2 leading-7">
-              <li>感情、工作、財運：<Link className="text-blue-300 underline" to="/tarot">偉特塔羅</Link></li>
-              <li>靈魂使命與天賦：<Link className="text-blue-300 underline" to="/lightworker">光行者神諭</Link></li>
-              <li>溫柔療癒與自我價值：<Link className="text-blue-300 underline" to="/unicorns">獨角獸塔羅</Link></li>
-              <li>關係清理與突破：<Link className="text-blue-300 underline" to="/dragons">龍族塔羅</Link></li>
-              <li>前世因果與人生課題：<Link className="text-blue-300 underline" to="/egyptian-gods">埃及神諭</Link></li>
-              <li>高維指引與靈魂藍圖：<Link className="text-blue-300 underline" to="/work-your-light">光之訊息</Link></li>
-              <li>情緒覺察與活在當下：<Link className="text-blue-300 underline" to="/osho">奧修禪卡</Link></li>
+              {(['感情、工作、財運', '靈魂使命與天賦', '溫柔療癒與自我價值', '關係清理與突破', '前世因果與人生課題', '高維指引與靈魂藍圖', '情緒覺察與活在當下']).map((theme, index) => (
+                <li key={theme}>{language === 'en' ? translations.en.oraclePage.themes[index] : theme}：<Link className="text-blue-300 underline" to={getLocalizedPath(ADVANCED_DECKS[index].path, language)}>{language === 'en' ? translations.en.oraclePage.deckNames[index] : ADVANCED_DECKS[index].name}</Link></li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">晶域心語有哪些塔羅牌陣？</h2>
-            <p className="leading-7">不同牌卡提供不同牌陣：單張牌陣適合聚焦一個提醒；三張牌陣適合觀察時間或多個面向；偉特塔羅提供凱爾特十字陣與前世因果解鎖陣；光行者神諭提供十字交叉使命陣；埃及神諭提供前世因果解鎖陣；Lightworker光之訊息提供宇宙十字牌陣。實際可用牌陣以各牌卡頁面顯示為準。</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">{copy('spreadsTitle', '晶域心語有哪些塔羅牌陣？')}</h2>
+            <p className="leading-7">{copy('spreadsBody', '不同牌卡提供不同牌陣：單張牌陣適合聚焦一個提醒；三張牌陣適合觀察時間或多個面向；實際可用牌陣以各牌卡頁面顯示為準。')}</p>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">線上塔羅占卜可以問什麼？</h2>
-            <p className="leading-7">你可以圍繞感情發展、工作與事業、財運方向、人際關係、目前卡點、前世因果、靈魂使命、內在成長與下一步行動來整理問題。塔羅與神諭卡用於自我覺察與方向整理，不代替醫療、心理、法律或投資專業意見。</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">{copy('questionsTitle', '線上塔羅占卜可以問什麼？')}</h2>
+            <p className="leading-7">{copy('questionsBody', '你可以圍繞感情發展、工作與事業、財運方向、人際關係、目前卡點、前世因果、靈魂使命、內在成長與下一步行動來整理問題。塔羅與神諭卡用於自我覺察與方向整理，不代替醫療、心理、法律或投資專業意見。')}</p>
           </div>
 
           <div>
-            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">關於韋德老師與晶域心語</h2>
-            <p className="leading-7">韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，整合塔羅、生命靈數、人類圖、印度占星與水晶能量，設計晶域心語的自我探索系統。你也可以繼續了解<Link className="mx-1 text-blue-300 underline" to="/numerology">生命靈數</Link>、<Link className="mx-1 text-blue-300 underline" to="/human-design">人類圖</Link>與<Link className="mx-1 text-blue-300 underline" to="/vedic-astrology">印度占星</Link>。</p>
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">{copy('aboutTitle', '關於韋德老師與晶域心語')}</h2>
+            <p className="leading-7">{language === 'en' ? translations.en.oraclePage.aboutBody : '韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，整合塔羅、生命靈數、人類圖、印度占星與水晶能量，設計晶域心語的自我探索系統。'}{['numerology', 'human-design', 'vedic-astrology'].map((path, index) => <Link key={path} className="mx-1 text-blue-300 underline" to={getLocalizedPath(`/${path}`, language)}>{language === 'en' ? translations.en.oraclePage.services[index] : ['生命靈數', '人類圖', '印度占星'][index]}</Link>)}</p>
           </div>
 
           <div>
-            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">常见问题</h2>
+            <h2 className="mb-4 font-serif text-2xl text-blue-50 sm:text-3xl">{copy('faqTitle', '常見問題')}</h2>
             <div className="space-y-3">
-              {[
+              {(language === 'en' ? translations.en.oraclePage.faqs : [
                 ['線上塔羅牌占卜準確嗎？', '塔羅與神諭卡適合用來整理當下感受與可能方向，不保證固定結果。'],
                 ['塔羅牌可以問哪些問題？', '可以詢問感情、工作、財運、人際關係、目前卡點、前世因果、靈魂使命、內在成長與下一步行動。'],
                 ['同一个问题可以重复占卜吗？', '建议先沉淀并观察现实变化，在问题或情境有新发展时再重新整理。'],
@@ -417,7 +415,7 @@ function HomePage() {
                 ['不知道该选哪一组牌怎么办？', '可依首页主题建议选择，也可以浏览七组牌卡介绍后凭直觉决定。'],
                 ['塔羅占卜結果可以代替專業意見嗎？', '不可以；醫療、心理、法律或投資問題請諮詢合格專業人士。'],
                 ['7組牌卡是否都包含在塔羅全館月費會員中？', '依目前方案設定，塔羅全館月費會員為 NT$600／月，會員有效期間可使用全部7套牌卡與所有牌陣。'],
-              ].map(([questionText, answer]) => (
+              ]).map(([questionText, answer]) => (
                 <details key={questionText} className="rounded-xl border border-blue-300/15 bg-slate-950/30 px-4 py-3">
                   <summary className="cursor-pointer font-semibold text-blue-50">{questionText}</summary>
                   <p className="mt-2 leading-7">{answer}</p>
@@ -428,7 +426,7 @@ function HomePage() {
         </section>
 
         <footer className="mt-12 text-center text-sm italic text-blue-200/45">
-          願你的內在智慧，照亮前行的道路
+          {copy('closing', '願你的內在智慧，照亮前行的道路')}
         </footer>
       </main>
     </div>

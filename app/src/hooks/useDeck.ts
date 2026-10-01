@@ -8,7 +8,14 @@ export function useDeck(deckId: DeckId) {
   useEffect(() => {
     let cancelled = false;
     cardsApi.deckPreview(deckId)
-      .then((res) => { if (!cancelled) setCards(res.cards); })
+      .then((res) => {
+        if (cancelled) return;
+        setCards(res.cards);
+        if (/^\/en(?:\/|$)/.test(window.location.pathname)
+          && res.cards.some((card) => card.translation_available === false)) {
+          setError('English card translations are not available for every card yet. Untranslated card text is withheld.');
+        }
+      })
       .catch((err) => {
         if (!cancelled) setError(err instanceof Error ? err.message : '無法載入牌組');
       });
