@@ -78,7 +78,7 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 - Sitemap XML browser parse: valid; 42 URL entries and 44 hreflang alternate links.
 - Vite build: `npm.cmd --prefix app run build` completed successfully with exit code `0`, including generated English prerender output. Existing Vite warning: the main JS chunk exceeds 500 kB.
 - Production D1 migration: **not executed**.
-- Production deployment: **not performed**.
+- Production Worker deployment: completed for commit `53f7461`; frontend deployment is triggered by the `main` push workflow.
 - Paid AI translation/report-generation calls: **none**.
 
 ## Next Steps
@@ -88,4 +88,4 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 3. Run the repeatable seed against a local/test cards D1, verify all 278 translated rows and field completeness, and smoke-test both preview and unlock APIs for translated and untranslated cards.
 4. Continue route-by-route UI localization for all spread, report, auth, membership, checkout, sharing, and error states. Add missing English Human Design/Vedic article content.
 5. Complete locale-aware report/share end-to-end checks, scan `/en` flows for residual Chinese, and align English prerender, canonical/hreflang, and sitemap with actually translated routes.
-6. Rerun app/Worker TypeScript checks and the Vite production build with explicit exit codes. Only after review should production operators separately apply the cards-D1 migration/seed and deploy; neither has been done here.
+6. Apply the cards-D1 migration/seed separately only after review; it remains **not executed**. Continue `/en` browser-flow verification and review the frontend deployment result.
