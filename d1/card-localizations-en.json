@@ -4102,5 +4102,65 @@
       "questions": "What responsibility do I need to take? Is there an issue I am avoiding? Am I being honest with myself? What mask might I be wearing? Do my actions reflect my values? Is there harm I can repair? Am I ready to face a difficult truth? What would a more genuine choice look like?",
       "energyFocus": "Focus on honesty and accountability. Face the consequences of your actions without evasion or self-condemnation. If you have caused harm, consider a sincere apology or a practical repair, respecting the other person's boundaries. Examine any pretense in your life and decide what no longer fits. Return to what feels genuine, even if that means letting go of an old identity. Let responsibility, honesty, and care guide the process."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "28",
+    "locale": "en",
+    "name": "Apep - Serpent of Chaos",
+    "name_secondary": "阿佩普 - 混沌之蛇",
+    "preview_payload": {
+      "titleEn": "Apep - Serpent of Chaos",
+      "symbol": "Vast serpent of chaos trying to swallow the sun"
+    },
+    "gated_payload": {
+      "godStory": "Apep is a vast serpent of chaos who, in myth, tries each night to swallow the solar barque of Ra and prevent the sun from rising. He represents primordial disorder, darkness, and obstacles to renewal. In ancient stories, the gods struggle against him to maintain order and the sun's journey. In this reading, Apep can symbolize a difficult challenge or force that seems to disrupt your progress. The myth also reminds us that confronting obstacles can require courage, persistence, and support.",
+      "coreMeaning": "Apep represents serious challenges, uncertainty, and the effort required to move through darkness. This card acknowledges that some obstacles are real and need practical attention. Apep's myth suggests that light and order may require ongoing care; progress is not always permanent or effortless. It invites you to recognize what you are facing, gather support, and keep going where possible, without assuming that every challenge has a simple victory waiting at the end.",
+      "coreEnergy": "Challenge, darkness, disorder, persistence, courage, and the work of overcoming obstacles. Apep's energy is confrontational and difficult. It can symbolize a threat or barrier that asks you to respond with care and resolve. Like the serpent opposing the sun, this image can represent a recurring struggle. Remember that not every obstacle can be defeated by willpower alone; strategy, allies, rest, and changing course may also be necessary.",
+      "guidance": "Face a challenge with courage, but first assess what it requires. Do not minimize the difficulty or let it overwhelm you. Gather the resources, skills, and support you need; you do not have to face it alone. Some problems return and need ongoing attention, while others may call for boundaries, help, or a different route. After making progress, keep caring for the conditions that support it. Balance vigilance with rest so the struggle does not consume your whole life.",
+      "soulReminder": "You may be more capable than you feel, and persistence can help you through a difficult period. You do not have to treat every recurring challenge as a battle or believe that victory is guaranteed. Progress may be gradual, and asking for help is part of strength. Let the image of dawn offer hope without demanding that you overcome everything alone. Face darkness with care, and remember to seek light, allies, and rest along the way.",
+      "questions": "What real challenge am I facing? What do I need to work through? Do I have the support and resources I need? Am I underestimating the difficulty or letting it overwhelm me? Where can persistence help, and where might another approach be wiser? What has helped me face darkness before? How can I protect my energy while addressing this?",
+      "energyFocus": "Identify the obstacle clearly rather than denying or minimizing it. Gather the people, resources, and information that can help. Develop resilience, while recognizing that the challenge may require sustained effort or a different strategy. Stay attentive without becoming consumed by fear. Celebrate progress and rest when you need to recover. Keep choosing actions that support clarity and hope, without treating each day as a battle you must win."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "29",
+    "locale": "en",
+    "name": "Meretseger - Mountain Goddess",
+    "name_secondary": "梅瑞特瑟爾 - 山神",
+    "preview_payload": {
+      "titleEn": "Meretseger - Mountain Goddess",
+      "symbol": "Cobra goddess associated with the mountain and silence"
+    },
+    "gated_payload": {
+      "godStory": "Meretseger, whose name is often translated as “She Who Loves Silence,” was associated with the pyramid-shaped peak above the Theban necropolis. A cobra goddess, she could be understood as both compassionate and stern. In the beliefs of the community that honored her, she protected the burial grounds and was connected with justice. Her mountain suggests stillness, solitude, and a steady presence. This card evokes the wisdom that can come from quiet reflection, without requiring you to withdraw from people who care about you.",
+      "coreMeaning": "Meretseger represents silence, solitude, reflection, insight, steadiness, and integrity. This card invites you to find a quiet place amid the noise of the world and listen to your own thoughts. Not every answer comes from outside; sometimes reflection helps you discover what you already know or what questions you still need to ask. Meretseger encourages solitude as a chosen space for clarity, balanced with connection and support.",
+      "coreEnergy": "Silence, solitude, reflection, the mountain, stability, depth, integrity, and inner listening. Meretseger's energy is quiet, steady, and profound. It does not need outside validation or constant activity. Like a mountain, it evokes a stable place from which to observe. Quiet can help you hear yourself, though being alone is not always wise or healing; choose the amount of solitude that supports your well-being.",
+      "guidance": "Seek some quiet and time alone if you need it. Step away from noise and find a peaceful place, whether outdoors or within your home. In stillness, you may notice something that was obscured by distraction. This may be a time for reflection rather than more social activity, but do not isolate yourself if you need support. Meditation, a solitary walk, or journaling may help you reconnect. You do not need to explain or defend every choice; sometimes a pause is enough. Stay steady without closing yourself off.",
+      "soulReminder": "Quiet can hold strength, and solitude can create room for insight. Being alone by choice is not the same as being isolated or unsupported. You do not need to continually prove or explain who you are. Like a mountain, you can seek steadiness while still allowing yourself to change. Listening can bring wisdom, and reaching out can also be wise. Find the balance between inner silence and the connection you need.",
+      "questions": "Do I have enough quiet in my life? Am I making room for solitude? What do I notice when things are quiet? What is my inner voice saying? What inner challenge am I ready to explore? Is there too much noise or stimulation? What can silence teach me? How can I feel more steady?",
+      "energyFocus": "Make intentional space for silence and reflection. Reduce stimulation for a while and spend time alone in a way that feels restorative. Try quiet meditation or a solo walk in nature. Listen inwardly without demanding that a truth appear immediately. Practice steadiness by returning to one meaningful value or task. You do not need to explain every feeling or decision, but stay connected to people who support you. Let solitude nourish rather than isolate you."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "30",
+    "locale": "en",
+    "name": "Imhotep - Architect Sage",
+    "name_secondary": "伊姆霍特普 - 建築聖賢",
+    "preview_payload": {
+      "titleEn": "Imhotep - Architect Sage",
+      "symbol": "Architect and sage holding a design instrument"
+    },
+    "gated_payload": {
+      "godStory": "Imhotep was a historical official, architect, and healer who was later revered as a god. He is associated with the Step Pyramid of Djoser at Saqqara, an early monumental stone structure. His legacy represents human learning, innovation, and the possibility of making lasting contributions through skill and service. Imhotep's story links knowledge with practical application, problem-solving, and work that benefits others.",
+      "coreMeaning": "Imhotep represents human potential, applied wisdom, innovation, healing arts, and meaningful contribution through effort. This card reminds you that knowledge and skill can be used to make a difference. Imhotep encourages you to apply what you have learned to create, care, build, or solve a real problem. Lasting value need not be monumental; it can come from work done thoughtfully and in service of others.",
+      "coreEnergy": "Wisdom, innovation, healing, practice, contribution, skill, problem-solving, and human potential. Imhotep's energy is wise, practical, and inventive. It applies knowledge to real situations and builds useful solutions. Like an architect, this energy turns a vision into a structure through planning and execution. This is human potential expressed through work, not a guarantee that effort alone will make someone famous or immortal.",
+      "guidance": "Use your knowledge and skills. You can contribute through what you know, what you practice, and how you serve. Do not underestimate your potential, but set goals suited to your experience and circumstances. This may be a good time to build, heal, or create using what you have learned. If you are developing a skill, continue practicing. If your work involves caring for others, let your expertise guide you while respecting professional limits. Be willing to innovate and test a new approach when the old one is not working.",
+      "soulReminder": "You are human, and you can still do meaningful work. Wisdom, effort, and service can create something valuable without turning you into a deity or requiring a grand legacy. You do not need to be unusually gifted before you begin. Do not only dream—practice. Do not only study—apply what you learn. Build with your hands, use your knowledge with care, and solve problems one step at a time. Your contribution is found in the actions you take now.",
+      "questions": "How can I apply what I know? How might my skills serve others? What am I building that could be useful? Am I making use of my potential? Where could I innovate? What contribution do I want to make? Am I ready to keep practicing? How can I make my ideas more practical?",
+      "energyFocus": "Focus on practical application rather than theory alone. Use your knowledge and skills to address real needs. Develop creative solutions without dismissing established methods that work. Deepen a professional or craft skill through practice. Aim for lasting value rather than only short-term recognition. Let service inform your work while maintaining appropriate boundaries. Keep learning and recognize each useful contribution you make."
+    }
   }
 ]
