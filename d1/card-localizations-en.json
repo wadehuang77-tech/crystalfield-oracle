@@ -5430,5 +5430,53 @@
       "guidance": "Write down a belief that limits you and consider whether it is always true. Replace it with a more balanced thought if that feels useful. Practice expressing yourself in a low-stakes situation: name a preference, share a feeling, or ask for what you need. You do not have to share everything with everyone. Stay curious about different perspectives and notice when a thought is only a thought, rather than a fact. Allow yourself to learn and change your mind.",
       "energy": "Lapis lazuli may serve as a symbolic reminder of honest communication, while blue kyanite may represent clarity. Carry a meaningful stone or place it nearby if that supports your reflection. Take a few comfortable breaths outdoors and imagine breathing in spaciousness and releasing tension. Singing, reading aloud, journaling, or speaking with someone trustworthy can help you practice expression. Essential oils such as mint or eucalyptus may be used if safe and pleasant for you. Let these be reflective practices, not claims that crystals or aromas produce a specific outcome."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "4",
+    "locale": "en",
+    "name": "Earth Dragon Stability",
+    "name_secondary": "地龍穩定",
+    "preview_payload": {
+      "keywords": ["Stability", "Abundance", "Grounding"],
+      "nameEn": "Earth Dragon Stability"
+    },
+    "gated_payload": {
+      "message": "The Earth Dragon symbolizes patience, grounding, and care for the foundations of life. In a rapidly changing world, it invites you to tend to your body, practical needs, relationships, and home. Dreams can benefit from a steady base, and abundance is not only a miracle or a sudden windfall; it may grow through planning, support, and meaningful action. You deserve care and security, while circumstances and resources vary for everyone.",
+      "guidance": "Review the foundations of your life: finances, health, home, and important relationships. Choose one practical issue to address, and make a realistic plan with manageable steps. Care for your body through rest, nourishment, and appropriate health support. Notice what you appreciate and remain open to receiving help, without denying real constraints. Spend time in nature if possible. Slow down enough to enjoy the process rather than rushing immediately toward the next goal.",
+      "energy": "Obsidian or smoky quartz may serve as symbolic reminders of grounding and steadiness. You can hold a stone during a quiet reflection if that feels meaningful. Imagine roots extending from your feet into the earth as a calming visualization. Gardening, cooking, and other hands-on activities can also help you feel present. Choose financial practices that fit your circumstances; crystals and visualizations do not guarantee wealth. Ground yourself in practical steps and care for the resources you have."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "5",
+    "locale": "en",
+    "name": "Golden Dragon Abundance",
+    "name_secondary": "金龍豐盛",
+    "preview_payload": {
+      "keywords": ["Abundance", "Wealth", "Success"],
+      "nameEn": "Golden Dragon Abundance"
+    },
+    "gated_payload": {
+      "message": "The Golden Dragon symbolizes prosperity, success, and the ability to create value. This card invites you to examine beliefs about money and what you deserve, while remembering that material resources are affected by many factors, not just mindset. Money is a tool for exchange; it is not inherently good or evil. Abundance can also include health, relationships, opportunity, creativity, and time. Consider how you might build security and share what you can without promising that wealth will inevitably arrive.",
+      "guidance": "Notice beliefs about money or success that may be limiting your choices, and question them with curiosity rather than self-blame. Set a clear financial or personal goal, make a realistic plan, and take an achievable step. You might use an affirmation such as “I can build stability and make thoughtful choices.” Give generously only within your means. Explore work that uses your strengths and offers value, while remembering that passion alone does not guarantee financial success.",
+      "energy": "Citrine or golden rutilated quartz may be symbolic reminders of confidence and prosperity. You might place a meaningful object on your desk as a cue to review your goals and take action. A written intention or gratitude practice can help clarify what abundance means to you. Use visualization to imagine the choices and support involved in reaching a goal, not as a guarantee of income. If you have financial concerns, consider a practical budget or advice from a qualified financial professional."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "6",
+    "locale": "en",
+    "name": "Silver Dragon Intuition",
+    "name_secondary": "銀龍直覺",
+    "preview_payload": {
+      "keywords": ["Intuition", "Moon", "Mystery"],
+      "nameEn": "Silver Dragon Intuition"
+    },
+    "gated_payload": {
+      "message": "The Silver Dragon symbolizes intuition, reflection, and the mystery of the moon. In a world that often prizes logic, this card invites you to notice quieter impressions and feelings. Intuition can offer useful information, but it is not always accurate or separate from fear, hope, and past experience. Make room for quiet, listen inwardly, and consider your impressions alongside facts and trusted perspectives. The card also invites balance between receptive and active ways of meeting life, whatever your gender.",
+      "guidance": "Make a little quiet time each day so you can notice your thoughts and feelings. When making a decision, gather relevant information, then pause and ask how the options feel to you. Treat bodily sensations as clues, not automatic yes-or-no answers; stress, illness, and context can affect them. Keep a dream journal if it interests you, and reflect on dreams rather than assuming they predict the future. Start by listening to intuition in low-stakes situations, and remain open to revising your view.",
+      "energy": "Moonstone may symbolize reflection and change, while labradorite can serve as a personal reminder of curiosity. Use a meaningful stone during meditation if you wish. At night or under the moon, take a quiet moment to notice how you feel, without expecting lunar phases to determine your emotions. A calm breathing practice or journaling can create space for reflection. Keep sleep and wellness practices safe and comfortable; crystals do not enhance intuition or predict events."
+    }
   }
 ]
