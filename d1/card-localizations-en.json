@@ -4042,5 +4042,65 @@
       "questions": "What in my life feels harmful or draining? Am I avoiding a difficult issue? What support would help me face it safely? What have my experiences taught me, if anything? How can I protect myself while seeking healing? Am I ready to explore this, or do I need more time? What boundaries are needed?",
       "energyFocus": "Notice what feels harmful and respond with care. Consider support from a therapist, doctor, or trusted person for difficult experiences. Treat pain as information, not as an enemy or a teacher you must obey. Protect yourself with clear boundaries and distance when needed. If you choose a reflective practice, keep it gentle and grounded. Healing may involve patience, practical care, and support. You can face what happened without exposing yourself to further harm."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "25",
+    "locale": "en",
+    "name": "Bes - Dwarf God",
+    "name_secondary": "貝斯 - 侏儒神",
+    "preview_payload": {
+      "titleEn": "Bes - Dwarf God",
+      "symbol": "Dwarf deity shown making a playful face and wearing a lion skin"
+    },
+    "gated_payload": {
+      "godStory": "Bes is a protective household deity, often depicted with a distinctive face, playful expression, and lion skin. He is associated with the protection of homes, children, and women, and with music, dance, and humor. In ancient Egyptian life, images of Bes could offer comfort and protection in everyday settings. His story reminds us not to judge by appearance: kindness and strength can be found in unexpected forms. He guards ordinary but meaningful parts of life.",
+      "coreMeaning": "Bes represents joy, humor, household protection, simple pleasures, inner kindness, and the magic of everyday life. This card is about noticing small happiness instead of overlooking it. Bes teaches that magic need not be grand; it can be found in laughter, music, and affection. He invites you to care for the playful, curious part of yourself and to look beyond appearances when judging people or situations.",
+      "coreEnergy": "Joy, humor, protection, simplicity, family, laughter, music, dance, open-mindedness, and everyday wonder. Bes's energy is cheerful, protective, and unpretentious. It finds strength in humor and small pleasures. Like Bes's unexpected appearance paired with kindness, this energy reminds you that outward impressions do not tell the whole story. Ordinary life can hold sacred meaning.",
+      "guidance": "Make room for joy and simple pleasures. Have you been so serious that fun has disappeared? Do something playful: sing, dance, joke, or enjoy a favorite activity. Humor can help shift a heavy mood, though it does not replace addressing a real problem. Also tend to your home and the people you care about; create a space that feels warm and safe. Protect your inner child—the curious, playful part of you. Do not judge yourself or others by appearance; character is shown in care and action.",
+      "soulReminder": "Your worth is not determined by appearance or by meeting someone else's standard. Kindness, humor, and care matter. Life is short, so leave room for play and laughter. Simple joys can be deeply meaningful, and warmth at home may matter more than outside recognition. Nurture your inner child, the part of you that knows how to be curious and enjoy a moment. Look beyond appearances, in yourself and others, and notice the goodness that may be there.",
+      "questions": "Do I allow myself to feel joy? Is there enough laughter in my life? How do I care for my home and loved ones? Am I judging someone by appearance? Is my inner child getting room to play? Do I notice wonder in ordinary life? Have I become too serious? How could I bring more humor into a challenge?",
+      "energyFocus": "Notice simple pleasures and do something that makes you smile. Bring more music, dance, or humor into your daily routine. Make your home feel welcoming and safe. Nourish your inner child with play and curiosity. Look for kindness and character beyond appearances. Use laughter to create connection when appropriate, not to dismiss someone's pain. Celebrate small moments; they are part of what makes life meaningful."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "26",
+    "locale": "en",
+    "name": "Taweret - Hippo Goddess",
+    "name_secondary": "塔沃瑞特 - 河馬女神",
+    "preview_payload": {
+      "titleEn": "Taweret - Hippo Goddess",
+      "symbol": "Protective hippo goddess, fierce yet nurturing"
+    },
+    "gated_payload": {
+      "godStory": "Taweret is a hippo goddess associated with protecting pregnant people and newborns. Her composite form draws on powerful animals, and she can look fierce while acting as a guardian. Female hippos are known to defend their young, making the animal a vivid symbol of protective care. Taweret represents fierce, nurturing protection and the resolve to care for those you love. Her image honors guardianship, while reminding us that care can take many forms.",
+      "coreMeaning": "Taweret represents protective care, nurturing, new life, fierce love, and creative abundance. This card invites you to protect and nurture something that is growing, whether a child, a creative project, or a new part of yourself. Care can be both tender and strong. Taweret encourages you to create a supportive environment for what matters to you, without assuming that protecting it means controlling every outcome.",
+      "coreEnergy": "Nurturing, protection, fierce love, creativity, care, strength, and guardianship. Taweret's energy combines power with tenderness. It represents standing up for someone or something you care about while also providing nourishment and steadiness. This protective instinct can be valuable, and it works best when guided by judgment, respect, and attention to everyone's needs.",
+      "guidance": "Protect and nurture what you are bringing into being. Are you developing a project, idea, relationship, or new sense of self? Give it a supportive space in which to grow, without feeling pressured to reveal it before you are ready. Connect with your nurturing capacity, regardless of gender. It includes tenderness and a willingness to protect, but does not require self-sacrifice. Care for your own body and needs, too. If pregnancy or fertility is personally relevant, seek qualified medical care rather than relying on a spiritual reading.",
+      "soulReminder": "You have the capacity to create and protect what matters to you. You do not need to apologize for having protective instincts, and you can stand up for people you love. Creativity can bring new things into your life, whether or not they are children. Nurturing is not weakness, and strong protection need not become control. Guard your boundaries, care for your own needs, and let your heart remain tender as you support what is growing.",
+      "questions": "Am I protecting what I am creating? What new thing needs nurturing? How do I express my caring or maternal side? Where do I need both gentleness and strength? Am I making room for something new to grow? Do I care for my own body and needs? How can I balance protection with trust?",
+      "energyFocus": "Create a supportive environment for something that is developing. Give a project, relationship, or new aspect of yourself room to grow. Connect with nurturing energy in a way that feels authentic to you, regardless of gender. Protect your boundaries and what you care about, while remaining open to other people's autonomy. Be gentle where care is needed and firm where protection is appropriate. Look after your own well-being as part of the process."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "27",
+    "locale": "en",
+    "name": "Ammit - Devourer",
+    "name_secondary": "阿米特 - 吞噬者",
+    "preview_payload": {
+      "titleEn": "Ammit - Devourer",
+      "symbol": "Composite being with crocodile head, lion forequarters, and hippo hindquarters"
+    },
+    "gated_payload": {
+      "godStory": "Ammit is a composite being, combining the head of a crocodile, the forequarters of a lion, and the hindquarters of a hippopotamus. In Egyptian funerary belief, she waits near the judgment of the dead and devours the heart of a person who fails the weighing against Ma'at's feather. She is not simply a symbol of evil; she represents the serious consequences of judgment in that religious tradition. In this reading, her image can prompt reflection on accountability and the truths we may avoid.",
+      "coreMeaning": "Ammit represents consequences, truth, accountability, and the parts of a false image we may need to release. This card invites you to recognize that actions can affect other people and that avoiding responsibility may deepen harm. Ammit's myth is a reminder to examine yourself honestly, take responsibility where appropriate, and let go of a mask that no longer reflects you. This is not a claim that the universe punishes every mistake or that you should condemn yourself; accountability can include repair and change.",
+      "coreEnergy": "Consequences, truth, justice, transformation, honesty, responsibility, and release of pretense. Ammit's energy is stern and direct, asking for genuine reflection. Like the devourer in myth, it can symbolize letting an untrue self-presentation fall away so that what remains is more honest. No one is exempt from consequences, but consequences are not always fair or predictable. Use this energy to face reality, not to threaten or shame yourself.",
+      "guidance": "Face a truth and consider the consequences of your actions. If you have acted dishonestly or hurt someone, take responsibility and consider what repair is possible. Do not evade the issue or rationalize harm, but also avoid defining yourself only by a mistake. Ammit invites you to examine where you wear a mask or act against your values. You can choose a more honest way forward. Let go of a role that no longer feels genuine, but do not make a drastic change without considering your safety and responsibilities.",
+      "soulReminder": "You can face consequences and still be worthy of care and change. You do not need to hide from what happened, and you do not need to reduce yourself to your worst choice. Accountability can include listening, making amends where possible, and changing future behavior. Be honest without becoming cruel to yourself. Let go of pretense and keep what is genuine. When something needs clearing, take responsibility at a pace that is safe and constructive.",
+      "questions": "What responsibility do I need to take? Is there an issue I am avoiding? Am I being honest with myself? What mask might I be wearing? Do my actions reflect my values? Is there harm I can repair? Am I ready to face a difficult truth? What would a more genuine choice look like?",
+      "energyFocus": "Focus on honesty and accountability. Face the consequences of your actions without evasion or self-condemnation. If you have caused harm, consider a sincere apology or a practical repair, respecting the other person's boundaries. Examine any pretense in your life and decide what no longer fits. Return to what feels genuine, even if that means letting go of an old identity. Let responsibility, honesty, and care guide the process."
+    }
   }
 ]
