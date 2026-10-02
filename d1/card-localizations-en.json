@@ -3862,5 +3862,65 @@
       "questions": "Do I feel stable in the foundations of my life? How are my finances and daily routines? Am I caring for my body? Do I feel connected to the earth? What practical issue needs attention? Have I been too focused on ideas and not enough on implementation? How can I feel more grounded? Where do I find support?",
       "energyFocus": "Give attention to concrete, tangible things. Make one practical step on finances, health, or your living space. Spend time outside, garden, or touch soil if that is available to you. Try a grounding practice by noticing your feet and the support beneath you. Attend to bodily needs with nourishing food, hydration, rest, and appropriate care. Build a stable routine that can flex when life changes. Bring your values into the material world through everyday choices."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "16",
+    "locale": "en",
+    "name": "Sobek - Crocodile God",
+    "name_secondary": "索貝克 - 鱷魚之神",
+    "preview_payload": {
+      "titleEn": "Sobek - Crocodile God",
+      "symbol": "Crocodile-headed deity with an alert gaze and powerful jaws"
+    },
+    "gated_payload": {
+      "godStory": "Sobek is a strong crocodile-headed deity, often shown with powerful jaws and an alert gaze. He is associated with the Nile, a force that could nourish and sustain life as well as carry danger. The crocodile waits in the water, ready to respond; this image can evoke instinctive awareness and survival wisdom. Sobek is connected with protection, territory, and vigilance in the face of risk. His power is formidable, and it calls for discernment in how it is used.",
+      "coreMeaning": "Sobek represents boundaries, protection, instinct, alertness, survival wisdom, and personal territory. This card invites you to make your boundaries clear, protect your space and energy, and pay attention to your instincts. Sobek reminds you that you can be direct when a limit is crossed. Notice a feeling of unease, then consider what may be causing it and what practical information you have before deciding how to respond.",
+      "coreEnergy": "Protection, boundaries, instinct, alertness, ancient wisdom, territory, strength, survival, and wildness. Sobek's energy is watchful, protective, and instinctive. It may symbolize being prepared to protect your space without assuming that every unfamiliar person or situation is a threat. Like a crocodile alert in the water, this energy calls for noticing your surroundings, responding thoughtfully, and protecting yourself when needed.",
+      "guidance": "Protect your boundaries and personal space. Has someone crossed a limit or taken advantage of your kindness? This may be a good time to state your needs clearly. You do not have to apologize for protecting your time, privacy, or energy. Also listen to your instincts: if someone or something makes you uneasy, take that feeling seriously and look for context, even if you cannot explain it immediately. You can step away, seek advice, or gather more information. Your boundaries express your right to choose what access others have to you.",
+      "soulReminder": "You have the right to protect your space, and your boundaries deserve respect. You do not have to let someone cross them to avoid being seen as unfriendly. Trust your instincts as signals worth noticing, while allowing for the possibility that you may need more information. Stay alert without becoming fearful or aggressive. Protect yourself without attacking others. Knowing when to make a boundary clear is one form of strength and self-respect.",
+      "questions": "Are my boundaries clear? Has someone crossed one? Do I listen to my instincts? What situations make me uneasy? How do I protect my time and energy? Am I too open in a way that feels uncomfortable? What helps me stay alert without becoming fearful? Where do I need more space?",
+      "energyFocus": "Practice setting and maintaining clear boundaries. Say no when needed, even if someone is disappointed. Notice instinctive signals and explore them rather than dismissing or treating them as proof. Protect your time, space, and energy; be thoughtful about who you let close. Consider creating more distance from a relationship or situation that consistently depletes or disrespects you. Practice watchfulness without suspicion. Like a crocodile, know when to wait and when to act."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "17",
+    "locale": "en",
+    "name": "Khnum - Creator Potter",
+    "name_secondary": "庫努姆 - 造物陶匠",
+    "preview_payload": {
+      "titleEn": "Khnum - Creator Potter",
+      "symbol": "Ram-headed deity shaping a figure at a potter's wheel"
+    },
+    "gated_payload": {
+      "godStory": "Khnum is a ram-headed creator god, shown at a potter's wheel shaping human forms from clay. As an ancient maker deity, he embodies creation as a process that takes time, patience, and skill. In his hands, raw material takes shape. The potter's wheel is an image of transformation from substance to form, and of the care involved in making something. Khnum's work is gradual and precise, honoring the process as much as the finished creation.",
+      "coreMeaning": "Khnum represents patient creation, craftsmanship, time, and attention to detail. This card is about understanding that meaningful work cannot always be rushed. Khnum's image invites you to treat your life and projects as works in progress, shaped through repeated effort and adjustment. Each person is unique, but you do not have to believe that every detail of life was designed in advance. Cultivate what you are making layer by layer, and allow it time to develop.",
+      "coreEnergy": "Patience, craft, creation, shaping, detail, time, skill, precision, process, and art. Khnum's energy is patient, focused, and attentive. It understands that substantial work takes time and does not panic because progress is gradual. Like a potter shaping clay, this energy attends to each step and detail. Perfection is not required; care, practice, and revision help the work become what it can be.",
+      "guidance": "Shape your creation patiently. Do not give up just because results are not immediate. Like pottery, a project or goal may need layers of work, adjustment, and refinement. Focus on the craft and on what you can learn from the process, not only the final result. You can also reshape parts of your life that no longer fit by making small, deliberate changes. You are not required to redesign everything at once. Remember: your efforts shape your path, while many factors remain outside your control.",
+      "soulReminder": "Your life is still taking shape, and change can require time, patience, and care. Do not compare your pace with someone else's; people work with different circumstances and timelines. Meaningful work is rarely completed in one stroke. Value each step, including the ones that teach you what to adjust. You can begin again and make changes more than once. Create with your hands, give yourself time to practice, and bring care to what you are making.",
+      "questions": "What am I creating or developing? Am I giving it enough time? Do I respect the process? Where could more attention to detail help? What would I like to reshape in my life? Am I becoming impatient with gradual progress? How can I enjoy the act of making? What skills am I developing?",
+      "energyFocus": "Focus on the process rather than only the outcome, and find value in each step. Practice patience with yourself and the work. Pay attention to craft and details without demanding perfection. Make something tangible with your hands: write, draw, sculpt, weave, cook, or repair. Change an area of life gradually, one adjustment at a time. Respect the time things need, avoid forcing quick results, and care for what you are creating."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "18",
+    "locale": "en",
+    "name": "Tefnut - Goddess of Moisture",
+    "name_secondary": "泰芙努特 - 濕氣女神",
+    "preview_payload": {
+      "titleEn": "Tefnut - Goddess of Moisture",
+      "symbol": "Lioness-headed goddess associated with moisture and dew"
+    },
+    "gated_payload": {
+      "godStory": "Tefnut is a lioness-headed goddess associated with moisture, dew, and the water essential to life. As a daughter of Ra in Egyptian mythology, she brings moisture and vitality to the dry landscape. In this reading, water can symbolize emotional movement, tears, and the need for nourishment. Just as living things depend on water, people need ways to feel and express emotion. Tefnut's moistening energy evokes care for a heart that has felt dry or overextended.",
+      "coreMeaning": "Tefnut represents emotional flow, emotional well-being, tears, nourishment, softness, and permission to feel and express emotion. This card invites you to let feelings move rather than suppressing or accumulating them. Tefnut reminds you that tears are not weakness; they can be one natural response to what you are experiencing. She encourages you to bring care to areas of life that feel dry, rigid, or neglected, and to make room for more flexibility and emotional expression.",
+      "coreEnergy": "Flow, feeling, nourishment, softness, tears, release, healing, water, and care. Tefnut's energy is fluid, nourishing, and gentle. It allows emotions to be noticed and expressed rather than bottled up. Like rain on dry land, this image can suggest bringing softness to a guarded heart. Emotional well-being can include many responses, not only crying; find forms of expression that feel safe and supportive for you.",
+      "guidance": "Let yourself feel emotions without judging them. If you need to cry, you may allow it; if you feel sadness, anger, or something else, find a safe and healthy way to express it. You do not have to lock feelings away. Like rain nourishing the earth, tears can be one part of processing an experience, but they are not required for healing. Notice areas of life that feel dry or rigid and consider bringing in more rest, connection, flexibility, or care. Attend to ordinary needs such as drinking water, without expecting it to resolve emotional distress.",
+      "soulReminder": "Your tears are a natural human response, and you do not need to feel ashamed of crying. Emotions are not your enemies, though they can be hard to carry. With support, you can let a feeling move through you without needing to obey it or be overwhelmed by it. Like water, feelings may seek expression; writing, art, movement, conversation, or rest can offer a safe outlet. Softness can be a strength. Give your inner life care and let it move at its own pace.",
+      "questions": "Am I suppressing feelings? Do I allow myself to cry if I need to? How is my emotional well-being? Which parts of life feel dry or rigid? What feeling might need expression? How do I relate to water and nature? Where could I be more flexible? What helps me feel emotionally supported?",
+      "energyFocus": "Support healthy emotional expression without suppressing feelings or becoming overwhelmed by them. Let tears come if they do, without judging them. Try journaling, art, movement, or conversation as ways to process what you feel. Spend time near water, bathe, swim, or listen to rainfall if those experiences soothe you. Care for your body's basic needs, including hydration and rest. Bring more flexibility into routines that feel rigid. Like water, adapt and flow while honoring your needs and limits."
+    }
   }
 ]
