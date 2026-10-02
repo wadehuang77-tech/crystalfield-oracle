@@ -5622,5 +5622,53 @@
       "guidance": "Review your relationships and community connections. Do you have people you can rely on? If you feel isolated, take a practical step: join a class, interest group, support group, or online community, or invite someone you trust to meet. Practice authentic connection by sharing at a pace that feels safe and listening in return. Offer support as well as asking for it, within your capacity. Volunteering or helping organize an activity can be one way to contribute, but connection does not require constant giving.",
       "energy": "Coral imagery can serve as a symbolic reminder of interdependence; if choosing coral objects, avoid products that harm living reefs and seek ethical alternatives. Rose quartz may be a personal symbol of care. A heart-centered visualization can help you imagine connection extending from loved ones to a wider community, but collective meditation does not guarantee measurable group effects. Attend a group gathering or create a shared space for conversation if that feels right. Empathy can deepen understanding while respecting each person's distinct experience."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "16",
+    "locale": "en",
+    "name": "Lava Dragon Passion",
+    "name_secondary": "熔岩龍激情",
+    "preview_payload": {
+      "keywords": ["Passion", "Creativity", "Vitality"],
+      "nameEn": "Lava Dragon Passion"
+    },
+    "gated_payload": {
+      "message": "The Lava Dragon rises from the depths of a volcano, carrying the heat of creativity and the force of unrestrained passion. It symbolizes vitality, creative energy, and the desire to be fully engaged with life. Social expectations, practical concerns, or fear may lead you to set aside what excites you. Passion can point toward something worth exploring, though excitement alone is not proof that a choice is right. Let this card invite you to notice what you care about and make room for it in a thoughtful, sustainable way.",
+      "guidance": "Notice what genuinely interests you, rather than what you feel you are supposed to love. It might be art, music, writing, dance, nature, sports, teaching, or another pursuit. Recall what absorbs your attention, then try giving it some regular time, even as a hobby. You do not need perfect conditions or expert skills to begin, and not every passion needs to become a career. If you are considering a major change, make a practical plan and account for your responsibilities. Care for your body and respect your boundaries as you explore what makes you feel alive.",
+      "energy": "Carnelian, red jasper, or garnet can serve as symbolic reminders of creativity and vitality. Dance, make art, or do another form of movement that feels enjoyable and appropriate for your body. A candle or warm colors may help set a creative mood; use open flames safely. Try creating without judging the result, or make a sound that feels comfortable rather than forcing a release. An affirmation such as 'I make room for what I love' can help you remember your intention, but no stone or ritual can guarantee a particular outcome."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "17",
+    "locale": "en",
+    "name": "Frost Dragon Stillness",
+    "name_secondary": "霜龍沉靜",
+    "preview_payload": {
+      "keywords": ["Stillness", "Rest", "Reflection"],
+      "nameEn": "Frost Dragon Stillness"
+    },
+    "gated_payload": {
+      "message": "The Frost Dragon comes from a quiet, wintry landscape and symbolizes stillness, rest, and inward reflection. In a world that often rewards constant activity, this card is a reminder that rest has value in its own right. Like winter in the natural cycle, a quieter season need not mean failure or an end; it can be a time to pause and take stock. You may need to set a boundary or let go of a commitment, but the choice is yours. Its coldness represents space to breathe, not a need to shut people out.",
+      "guidance": "Give yourself permission to rest without measuring your worth by productivity. Set aside some quiet time to meditate, journal, take a gentle walk, or simply be. If you feel tired, consider whether you can postpone, delegate, or decline a commitment, and reach out for support when needed. Try reducing the news or social media you consume if it leaves you overstimulated. Stillness may help you notice your thoughts and needs, but it is not a substitute for practical care. Welcome the quieter parts of a day or year without forcing yourself into isolation.",
+      "energy": "Clear quartz, selenite, or blue lace agate may serve as symbolic reminders of calm. Create a peaceful corner with simple colors, comfortable lighting, and sounds you enjoy. A guided visualization of a snowy landscape or a few minutes of comfortable silence can mark time for reflection. Avoid unneeded cold exposure, ice baths, or prolonged time outdoors in unsafe weather; these are not required for rest or insight. If silence feels unsettling, choose a gentle activity instead. An affirmation such as 'I allow myself time to rest' can help reinforce a kinder pace."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "18",
+    "locale": "en",
+    "name": "Amber Dragon Time",
+    "name_secondary": "琥珀龍時間",
+    "preview_payload": {
+      "keywords": ["Time", "Memory", "History"],
+      "nameEn": "Amber Dragon Time"
+    },
+    "gated_payload": {
+      "message": "Amber forms from ancient tree resin and can preserve traces of life from long ago. The Amber Dragon uses this image to invite reflection on memory, history, and patience. The past can shape the stories and habits we carry, while imagining a future self can help us consider what matters now. Ideas about past lives, ancestral messages, or non-linear time are spiritual beliefs, not established facts; you can explore them as personal or cultural meaning without treating them as proof. Some changes take time, but that does not mean every event happens for a perfect reason.",
+      "guidance": "If you are curious about family history, ask relatives about their memories or explore records with care. Notice which stories and values you want to carry forward, and which patterns you would prefer to change. You can reflect on a past version of yourself with compassion by writing what you wish you could tell them, without promising that everything will be all right. Imagine yourself years from now and ask what advice that person might offer. Bring attention back to the present as well: consider what is within your influence today. If painful memories are affecting your well-being, a qualified mental health professional can offer support.",
+      "energy": "Amber can be a tactile symbol of memory and patience; hold a piece or place it beside a journal if you like. Write a letter to your past self or to the person you hope to become, and keep it as a reflection rather than a prediction. You might light a candle to mark the practice, following fire safety. Family photos, heirlooms, or a record of family stories can also prompt reflection, while respecting relatives' privacy and complicated histories. Treat prayers, guided imagery, or rituals for ancestral connection as expressions of belief, not as guaranteed communication or healing."
+    }
   }
 ]
