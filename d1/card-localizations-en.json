@@ -458,5 +458,143 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "10-wheel",
+    "locale": "en",
+    "name": "Wheel of Fortune",
+    "name_secondary": "命運之輪",
+    "preview_payload": {
+      "keywords": ["Change", "Fate", "Cycles", "Luck", "Turning Point"],
+      "arcana": "major",
+      "number": 10
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Wheel of Fortune represents life's cycles, change, and turning points. It reminds you that everything is in motion and nothing stays the same forever. When the Wheel appears, an important change may be approaching, bringing good fortune or a new opportunity. The card encourages you to accept life's highs and lows as natural parts of a larger cycle. It also speaks to karma and cause and effect, reminding you that past actions can shape the present and future. This is a time to move with changing circumstances and make use of opportunities. Stay open and flexible, because change can bring growth and progress. Trust the unfolding of events, and keep faith through difficult moments: the Wheel continues to turn.",
+      "reversedMeaning": "The reversed Wheel of Fortune suggests that you may be going through a difficult period or resisting a change that needs to happen. You may feel out of control, as though fate is directing your life without your input. This card can also point to bad luck or an unfavorable turn that leaves you discouraged or powerless. Even in difficulty, however, you can choose how to respond. Rather than becoming trapped in a victim mindset, look for ways to create change. This may be a time to reassess your circumstances and learn from what is challenging you. Remember that the Wheel does not stay at its lowest point forever; difficult periods pass. Be patient and resilient, and trust that circumstances can improve in time.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Turning Point", "Karmic Cycle", "Good Fortune", "Timing for Change", "Universal Order"],
+          "reversed": ["A Difficult Cycle", "Resistance to Change", "Bad Luck", "Loss of Control", "Karmic Reckoning"],
+          "uprightExplanation": "Upright, the Wheel of Fortune symbolizes life's natural cycles and the arrival of a turning point. The Wheel keeps moving, reminding you that nothing lasts forever: highs pass, and so do lows. This card often signals good fortune and positive change, as circumstances may be turning in a more favorable direction. It can represent the results of past choices beginning to unfold. The Wheel encourages you to move with life's flow rather than resist every change. When opportunity comes around, make use of it; when circumstances shift away, keep faith and allow another cycle to arrive. This card teaches you to accept life's ups and downs as part of a larger pattern.",
+          "reversedExplanation": "Reversed, the Wheel of Fortune suggests a low point or strong resistance to necessary change. The Wheel is still turning, but you may feel controlled by circumstances and unable to influence your life. This can be a period when past actions bring difficult consequences. Yet even at a low point, the Wheel will turn again. You are not powerless to choose your response. The reversed Wheel asks you to accept the circumstances you cannot immediately change and trust that they will also pass. Sometimes it is a prompt to create change actively instead of waiting passively."
+        },
+        "energyFlow": {
+          "direction": "Cyclical movement",
+          "type": "Transformation and change",
+          "description": "The Wheel of Fortune moves in cycles, like the changing seasons and rising and falling tides. This is the natural rhythm of the universe: you cannot control it entirely, but you can learn to understand and move with it. Energy shifts between highs and lows."
+        },
+        "timing": {
+          "speed": "Sudden change",
+          "description": "The Wheel of Fortune points to an unexpected turning point. A change may occur suddenly within one to four weeks, often in a way that is difficult to predict. Timing may depend on circumstances beyond your control."
+        },
+        "advice": {
+          "upright": "Move with changing circumstances and make use of the good fortune or opportunity available now. Stay open and flexible. Remember that every phase is temporary: appreciate what is here without clinging to it, and give thanks for what your past actions have made possible.",
+          "reversed": "Accept that a difficult period is temporary. Do not resist every change or become trapped in a victim mindset. Reflect on the results of your past choices and what you can learn from them. This is a time for learning and growth; keep faith that the Wheel will turn again."
+        },
+        "chakra": {
+          "primary": "All Chakras, especially the Crown and Root Chakras",
+          "issue": "Difficulty accepting life's cycles and changes, or feeling disconnected from a larger sense of order.",
+          "healingNote": "The Wheel of Fortune can be understood in relation to the whole energy system, especially the Crown Chakra, associated with connection to a larger order, and the Root Chakra, associated with grounding and surrender. If change feels impossible to accept or you feel out of control, grounding and balancing practices may help. Crystal practices can serve as a way to reconnect with a sense of rhythm. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that this turning point is part of a larger timing. The good you have done may be opening new possibilities. Enjoy this moment of change, while remembering that the Wheel will keep turning. Learn to stay centered as things move and steady within yourself as circumstances change.",
+          "reversed": "Your soul is reminding you that a low point is not a punishment; it is part of life's natural cycles. You may be working through the consequences of past choices and learning from them. The Wheel does not remain at its lowest point forever, but it can take patience to keep faith through difficulty. This challenge may be one step on the way toward a new high point."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "11-justice",
+    "locale": "en",
+    "name": "Justice",
+    "name_secondary": "正義",
+    "preview_payload": {
+      "keywords": ["Fairness", "Truth", "Cause and Effect", "Balance", "Law"],
+      "arcana": "major",
+      "number": 11
+    },
+    "gated_payload": {
+      "uprightMeaning": "Justice represents fairness, truth, and karmic balance. It reminds you that actions have consequences. When this card appears, it may be time to make a fair decision, or to face the results of past actions. Justice encourages honesty and integrity, and choices that align with your conscience and ethics. It can also relate to legal matters, contracts, and agreements, reminding you to make sure that terms are fair and transparent. This is a time to take responsibility, face the facts, and seek balance. The figure of Justice holds scales and a sword, symbols of objective judgment and decisive action. She asks you to think clearly, view matters without bias, and make the fairest decision you can.",
+      "reversedMeaning": "Reversed, Justice may point to unfairness, bias, or dishonesty. You may be treated unjustly, or you may not be acting with integrity yourself. This card can also indicate avoiding responsibility, refusing to admit a mistake, or struggling to judge a situation fairly. Bias may be making it difficult to see the truth objectively. The reversed Justice asks you to be honest about your actions and motives. If you have caused harm, take responsibility and make amends. If you are being treated unfairly, do not stay silent; speak up for yourself. The card can also point to legal or contractual disputes where professional guidance may be helpful. Begin restoring balance and fairness with honesty and accountability.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Fair Judgment", "Truth and Consequences", "Accountability", "Balance", "Honesty and Integrity"],
+          "reversed": ["Unfairness", "Avoiding Responsibility", "Bias", "Dishonesty", "Imbalance"],
+          "uprightExplanation": "Upright, Justice represents balance and the principle of cause and effect. The scales and sword symbolize careful consideration followed by decisive action. This card reminds you that choices have consequences: what you set in motion can shape what follows. Justice asks you to look honestly at your decisions and behavior and accept your share of responsibility. It can also refer to legal matters, contracts, or important choices that call for objectivity and fairness. Justice is not revenge; it is the restoration of balance. Acting with honesty and integrity helps you make decisions you can stand behind. The card encourages you to trust that truth can come to light and fairness can be pursued.",
+          "reversedExplanation": "Reversed, Justice points to unfairness, bias, or an unwillingness to take responsibility. You may be treated unfairly, or you may be reluctant to acknowledge where your own actions have lacked integrity. The scales are out of balance: facts may be obscured and responsibility shifted elsewhere. You may be judging yourself or others through bias rather than looking objectively at what happened. This card can indicate avoiding consequences or refusing to admit a mistake. Avoidance can make a problem harder to resolve. Face the facts honestly and take responsibility for your part to begin restoring balance. If you are being treated unfairly, speak up for yourself. Truth may be hidden for a time, but it can still come to light."
+        },
+        "energyFlow": {
+          "direction": "Symmetrical balance",
+          "type": "Evaluation and adjustment",
+          "description": "Justice seeks a point of balance, like the two sides of a scale. Its energy is rational, objective, and measured rather than driven by emotion. It looks for fairness and truth by finding a center between opposing positions."
+        },
+        "timing": {
+          "speed": "Governed by due process",
+          "description": "Justice reflects cause and effect, and timing may depend on when circumstances are ready to resolve. A fair outcome may become visible within one to three months, though it can take longer. Justice is not rushed, but resolution can come in time."
+        },
+        "advice": {
+          "upright": "Act honestly and with integrity. Make a fair decision without favoring one side unfairly. Accept your responsibilities and expect others to accept theirs. Trust careful fact-finding and fairness. If you have a legal matter, seek appropriate professional advice about your situation.",
+          "reversed": "Look honestly at your behavior: are you avoiding responsibility? If you are being treated unfairly, speak up for yourself. Set aside bias and judgment so you can see the facts clearly. Acknowledge mistakes, make amends where appropriate, and work toward restoring balance."
+        },
+        "chakra": {
+          "primary": "Solar Plexus Chakra and Throat Chakra",
+          "issue": "Difficulty speaking up for yourself (Throat Chakra), or lacking the confidence to take responsibility (Solar Plexus Chakra).",
+          "healingNote": "Justice connects the Solar Plexus Chakra, associated with personal power and responsibility, and the Throat Chakra, associated with speaking truth. If it is difficult to tell the truth or take responsibility, these centers may need balance. Citrine and blue kyanite can be included in personal grounding or reflection practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that fairness begins with the choices you make. You are now in a position to see the results of acting with integrity. Continue treating yourself and others honestly and fairly, and let your actions reflect what you believe. Truth is one of your greatest strengths.",
+          "reversed": "Your soul is reminding you that consequences cannot be avoided forever. What you set in motion will eventually have results. Be honest about your actions and take responsibility for your part. If you are being treated unfairly, do not stay silent; speak up for yourself. Restoring inner integrity is part of creating greater fairness in your life."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "12-hanged",
+    "locale": "en",
+    "name": "The Hanged Man",
+    "name_secondary": "倒吊者",
+    "preview_payload": {
+      "keywords": ["Pause", "New Perspective", "Letting Go", "Sacrifice", "Waiting"],
+      "arcana": "major",
+      "number": 12
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Hanged Man represents a pause, letting go, and the wisdom of seeing things from a new perspective. It reminds you that sometimes stopping and changing your point of view is more valuable than pushing ahead. The Hanged Man willingly hangs from a tree, symbolizing a temporary sacrifice or devotion in service of a larger purpose. This is a period for reflection and waiting, not for forcing action. You may need to see a problem from a different angle to understand it. The Hanged Man encourages you to accept the present situation, even when it feels uncomfortable or counterintuitive. This period may suit spiritual practice, meditation, and inner exploration. By loosening your need for control and accepting uncertainty, you can gain new insight and wisdom. Sometimes letting go is the best way to move forward.",
+      "reversedMeaning": "The reversed Hanged Man suggests that you may be resisting a necessary pause or a change in perspective. You may feel stuck while also being unwilling to make a change that could shift the situation. This card can point to procrastination, needless sacrifice, or feeling trapped and unable to move forward. You may be attached to old ways of thinking and unwilling to look at the problem from a new angle. The reversed Hanged Man asks you to consider taking action to break the stalemate. If you have been waiting indefinitely, it may be time to do something. At the same time, the card cautions against changing merely for the sake of change or making a rushed decision. Look at what you are resisting and why you may be reluctant to shift your perspective. Sometimes accepting the present and waiting patiently is the wiser choice.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Surrender and Wait", "Shift in Perspective", "Pause and Reflect", "Devotion", "Release of Control"],
+          "reversed": ["Resistance and Stagnation", "Procrastination", "Needless Sacrifice", "Rigid Thinking", "Unwillingness to Change"],
+          "uprightExplanation": "Upright, the Hanged Man represents a profound pause and a change in perspective. He hangs from a tree with a peaceful expression, symbolizing the wisdom that can come from surrendering and loosening control. This card asks you to stop struggling against circumstances you cannot change right now. This is not passive resignation, but an intentional choice to look at the situation differently. The Hanged Man reminds you that seeing the world upside down can reveal what you could not see before. This may be a time to set aside something smaller in service of a more meaningful insight. The waiting period has a purpose, and impatience may only prolong the process. The Hanged Man teaches growth in stillness and transformation through waiting.",
+          "reversedExplanation": "Reversed, the Hanged Man suggests that you may be resisting a necessary pause or caught in an unproductive standstill. You may refuse to change your perspective and cling rigidly to old ways of thinking. The pause can become procrastination, and sacrifice can become needless suffering. You may feel trapped while being unwilling to make a change that could break the stalemate. This card can also mean that you have waited long enough and it is time to act. Waiting has value, but waiting indefinitely can become avoidance. Ask whether you are waiting patiently or postponing action out of fear. Sometimes meaningful change begins with being willing to consider another possibility."
+        },
+        "energyFlow": {
+          "direction": "Stillness and pause",
+          "type": "Internalization and transformation",
+          "description": "The Hanged Man's energy pauses and turns inward, like a pupa transforming inside a cocoon. The surface may appear still while deep inner change is taking place. This is the energy of surrender, acceptance, and turning your perspective around."
+        },
+        "timing": {
+          "speed": "A period of delay and waiting",
+          "description": "The Hanged Man points to a clear waiting period. Matters may not move quickly and can call for two to six months of pause and reflection. This is an opportunity to practice patience; rushing may not change what needs time."
+        },
+        "advice": {
+          "upright": "Stop struggling against the situation for now. Accept what is present and try looking at the problem from a different angle. This pause may be necessary, and patient reflection can bring deeper insight. Ask yourself what you may need to release.",
+          "reversed": "Ask whether you are waiting or procrastinating. If fear is keeping you from acting, consider taking a practical next step. If you have been resisting a different perspective, try turning the problem around and looking again. Breaking a stalemate may require a willingness to change how you think."
+        },
+        "chakra": {
+          "primary": "Crown Chakra and Root Chakra",
+          "issue": "Difficulty surrendering to a higher perspective (Crown Chakra), or an excessive need for control and security (Root Chakra).",
+          "healingNote": "The Hanged Man calls for balance between the Crown Chakra, associated with spiritual surrender, and the Root Chakra, associated with grounded security. If it is difficult to release control or tolerate waiting, grounding and reflective practices may help. Crystal practices can be used as personal reminders to build trust and patience. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that this pause is not a punishment; it can be a gift. During this period of waiting, deep inner change may be taking place. Look at things from a different angle and you may notice a truth you had overlooked. Surrender is not giving up; it can be a deeper kind of wisdom. Trust the process and allow transformation to unfold.",
+          "reversed": "Your soul is reminding you that you may have waited long enough, or may be unwilling to wait at all. If you have waited long enough, it may be time to act; if you are resisting the pause, practice surrender. Resistance can prolong discomfort. Sometimes the bravest step is to stop, become still, and look at everything with fresh eyes."
+        }
+      }
+    }
   }
 ]
