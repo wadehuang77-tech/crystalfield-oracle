@@ -734,5 +734,143 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "16-tower",
+    "locale": "en",
+    "name": "The Tower",
+    "name_secondary": "高塔",
+    "preview_payload": {
+      "keywords": ["Sudden Change", "Upheaval", "Revelation", "Destruction", "Awakening"],
+      "arcana": "major",
+      "number": 16
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Tower represents sudden change, disruption, and moments of awakening. The lightning-struck tower symbolizes structures built on unstable foundations beginning to collapse. When this card appears, a dramatic shift may be approaching, perhaps through a startling revelation, an unexpected event, or problems that have been building over time finally surfacing. Although the change may be painful and unsettling, it can clear away what no longer serves you and make room for something more genuine and stable. The Tower reminds you that sometimes a system needs a complete reset before it can be rebuilt on firmer ground. This is a moment of awakening and truth coming to light. Even when the process is difficult, it can create room for release and growth. Accept what needs to be dismantled and remain open to new possibilities emerging from the ruins.",
+      "reversedMeaning": "The reversed Tower suggests that you may be avoiding or delaying a necessary change or breakdown. You may sense a major shift coming and try to prevent or control it. Fear of change may be so strong that you would rather maintain an unhealthy status quo. The reversed Tower reminds you that resistance can make matters more difficult. When a foundation is unstable, continuing to build on it can make an eventual collapse more severe. This card can also represent recovering from upheaval or trauma: the process may be slow, but rebuilding has begun. The reversed Tower encourages you not to fear necessary change and to accept that some things need to end. Rather than resist what cannot be avoided, you may choose to make changes proactively and transform things in a more manageable way.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Sudden Collapse", "Shocking Revelation", "Destruction and Rebuilding", "False Structures Falling", "Liberation and Awakening"],
+          "reversed": ["Avoiding Upheaval", "Slow Breakdown", "Fear of Change", "Recovery and Rebuilding", "Resisting the Truth"],
+          "uprightExplanation": "Upright, the Tower represents sudden upheaval and a startling moment of awakening. Lightning strikes the tower, symbolizing a forceful break through false structures and illusions. Your world may be shaken as beliefs, relationships, or systems built on unstable foundations begin to fall apart. This can be painful, but it may also be necessary. The Tower does not destroy what is genuine; it exposes what is false or unstable. This can feel like a forced awakening when change has been resisted for too long. The Tower reminds you that sometimes an entire system needs to be dismantled and rebuilt. In the ruins, you may see truths that were hidden. The breakdown can be the beginning of release.",
+          "reversedExplanation": "Reversed, the Tower suggests that you may be avoiding or delaying a necessary breakdown. You sense the foundations shaking, yet try to prevent or control what is happening. The disruption may unfold more slowly or less dramatically, or you may already be recovering from a painful upheaval. Fear of change may be keeping you attached to a status quo that is barely holding together. The reversed Tower reminds you that delay can make an eventual collapse more difficult. Continuing to build on an unstable foundation carries risks. Sometimes the braver choice is to dismantle what is not working before it falls on its own. This card can also mark gradual progress as you rebuild after a difficult experience."
+        },
+        "energyFlow": {
+          "direction": "Forceful downward impact",
+          "type": "Destruction and clearing",
+          "description": "The Tower's energy is explosive and disruptive, like a sudden flash of lightning. It breaks down old structures and clears obstacles. Though startling, this energy can also bring release, striking forcefully from above."
+        },
+        "timing": {
+          "speed": "Sudden and rapid",
+          "description": "The Tower points to a sudden event that may unfold within one to two weeks, though its timing cannot be predicted with certainty. The disruption may happen quickly, while rebuilding can take longer—often three to six months or more."
+        },
+        "advice": {
+          "upright": "Do not cling to a structure that is no longer stable. Release your attachment to what is falling away and face the change. Look for truth and new possibilities amid the disruption. This is not necessarily the end; it can be the beginning of rebuilding. Give yourself time to recover without defining yourself only by what happened.",
+          "reversed": "If you sense a breakdown coming, consider facing the situation proactively instead of resisting it. Examine whether your foundations are sound; if they are not, making a deliberate change may be better than waiting for a collapse. If you are already rebuilding, keep moving one step at a time. Do not try to restore a structure that has already fallen if it no longer serves you."
+        },
+        "chakra": {
+          "primary": "Whole-system reset",
+          "issue": "Your entire energy system may feel shaken and in need of rebuilding and realignment.",
+          "healingNote": "The Tower represents a deep reset that can affect the whole energy system. After upheaval, you may need time and support to regain your footing, starting with a sense of safety and grounding. Crystal practices can be used as personal reminders while rebuilding stability. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that this collapse may be a necessary blessing. The tower that held you back for so long may need to come down. In the ruins, you may discover a more authentic version of yourself. Do not assume that losing an old structure means losing everything; you can rebuild with greater honesty and stability. This can be a forceful release—meet it with courage.",
+          "reversed": "Your soul is reminding you that collapse cannot always be prevented, and delay can make it more difficult. If the foundation is unstable, it may be wiser to dismantle and rebuild intentionally. Or perhaps your soul is saying: you have been through upheaval, and you are still here. Now you can rebuild. Do not recreate the old tower; build something more honest and real."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "17-star",
+    "locale": "en",
+    "name": "The Star",
+    "name_secondary": "星星",
+    "preview_payload": {
+      "keywords": ["Hope", "Faith", "Inspiration", "Serenity", "Renewal"],
+      "arcana": "major",
+      "number": 17
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Star represents hope, faith, and spiritual renewal. Often appearing after the Tower, it symbolizes finding light and direction again after darkness and upheaval. When the Star appears, it brings an energy of calm, healing, and optimism. This can be a time to reconnect with your spirituality, restore confidence, and look toward the future. The Star encourages you to trust your sense of guidance and hold on to hope through difficult moments. It also represents inspiration, creativity, and connection with your higher self. Its energy is clear and peaceful, reminding you that quiet moments can hold strength. This may be a time to tend to old wounds, regain vitality, and become open to a brighter future. The Star illuminates the path ahead and reminds you not to give up hope; dawn can follow even a long night.",
+      "reversedMeaning": "The reversed Star suggests that you may be going through a period of hopelessness, shaken faith, or lack of direction. You may feel discouraged and unable to see light ahead. This card can also point to feeling disconnected from your spirituality or losing a sense of meaning. Self-doubt and negative thoughts may be making it hard to recognize your potential and worth. The reversed Star reminds you that hope can still exist in dark moments. Do not let a temporary setback destroy your faith in yourself. This is a time to reconnect with your inner light. Seek out what inspires and uplifts you, whether that is nature, art, or spiritual practice. Losing hope can be temporary; you can take steps to rekindle it. Keep faith that light can return.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Renewed Hope", "Spiritual Healing", "Clear Faith", "Guiding Inspiration", "Peaceful Renewal"],
+          "reversed": ["Lost Hope", "Shaken Faith", "Spiritual Exhaustion", "Self-Doubt", "Feeling Directionless"],
+          "uprightExplanation": "Upright, the Star represents finding hope again after a period of darkness. Often following the Tower, it suggests that calm and healing may come after disruption and confusion. The Star brings clear hope, spiritual renewal, and renewed confidence in the future. This can be a time to reconnect with your spirituality and rebuild your faith. Its energy is gentle and restorative, like fresh water tending to a wound. The card reminds you that starlight can still be seen after the darkest night. The Star points to an authentic part of you that remains open, hopeful, and connected to a larger whole. It encourages you to keep faith and remain open to what may unfold. This may also be a period when inspiration and creativity begin to return. Your healing process can begin one small step at a time.",
+          "reversedExplanation": "Reversed, the Star suggests hopelessness, shaken faith, or spiritual exhaustion. The darkness may feel so heavy that you cannot see any light. Hope can seem obscured, leaving you without direction or a sense of meaning. You may be overwhelmed by self-doubt and negative thoughts, unable to believe that things can improve. This card can also point to feeling spiritually disconnected, empty, or lost. The reversed Star reminds you that the light may be obscured without being gone. Even if you cannot see hope right now, it may still be there. This is a time to rebuild faith and look for meaning in small ways. Begin with simple steps that help you reconnect with your inner light. The reversed Star can also caution against optimism that is detached from practical reality."
+        },
+        "energyFlow": {
+          "direction": "Healing flow from above",
+          "type": "Receiving and renewal",
+          "description": "The Star's energy is like healing water flowing down from the sky: gentle, nourishing, and renewing. It is clear, peaceful, and hopeful, soft yet enduring like starlight. Energy flows from the larger universe toward the earth, offering spiritual nourishment."
+        },
+        "timing": {
+          "speed": "Slow healing",
+          "description": "The Star represents a period of healing and recovery that cannot be rushed. Renewal takes time and may unfold over two to six months. Allow yourself a quiet period to recover and let hope return gradually."
+        },
+        "advice": {
+          "upright": "Keep room for hope and faith. This is a time for healing, so give yourself space to recover. Reconnect with your spirituality and seek out what inspires you. Remain open to a brighter future, and spend time in nature if it helps you feel restored.",
+          "reversed": "Do not let hopelessness consume you. Light may still be present even when you cannot see it. Rebuild faith through small things: a moment of gratitude or a beautiful experience. Seek support; you do not have to face the dark alone. Reconnect with your spirituality in ways that feel genuine to you."
+        },
+        "chakra": {
+          "primary": "Crown Chakra and Throat Chakra",
+          "issue": "Feeling disconnected from a larger source of meaning (Crown Chakra), or unable to express your authentic self (Throat Chakra).",
+          "healingNote": "The Star relates to the Crown Chakra, associated with spiritual connection, and the Throat Chakra, associated with authentic expression. If you have lost hope or cannot express yourself, these centers may need care. Selenite and aquamarine can be included in personal reflective practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that the darkest part of the night may be behind you. Starlight can help illuminate your path, and healing may already be underway. You do not have to force anything; stay open and allow hope to return in its own time. Your essential nature can still be clear and full of light. Remember this when you feel lost.",
+          "reversed": "Your soul is reminding you that despair can pass and hope can return. Not feeling the starlight does not mean it is gone. Loosen your grip on doubt and make room to believe that good things are still possible. The darkness you are experiencing is not all that you are; there is light within you too. Take your time, let hope return gradually, and do not give up."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "18-moon",
+    "locale": "en",
+    "name": "The Moon",
+    "name_secondary": "月亮",
+    "preview_payload": {
+      "keywords": ["Illusion", "Intuition", "Subconscious", "Fear", "Mystery"],
+      "arcana": "major",
+      "number": 18
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Moon represents illusion, the subconscious, and the realm of inner fears. Its hazy moonlit scene suggests that things may not be as they appear. When this card appears, you may be in a period of uncertainty and confusion, with some truths hidden or distorted. The Moon encourages you to explore your subconscious and face fears and shadow parts within. It also represents intuition, dreams, and deeper layers of the mind. Its energy is mysterious and powerful, drawing attention to what is hidden or unknown. This is a time to listen to your intuition and find the courage to face inner fears. Do not be misled by appearances; look carefully for what is real. The Moon reminds you that some things need to develop in the dark before they can be revealed at the right time.",
+      "reversedMeaning": "The reversed Moon suggests that illusions may be fading and the truth beginning to emerge. You may be moving out of confusion and gradually seeing what is really happening. This card can also indicate that you are releasing long-suppressed fears and anxiety and beginning to face your shadow. However, the reversed Moon may also mean that fear still has a hold on you or that you are avoiding messages from your subconscious. You may be suppressing emotions and intuition while trying to control everything with reason. The reversed Moon asks you not to ignore your inner voice and feelings. Give yourself time and space to process complicated emotions instead of demanding immediate clarity. Sometimes accepting uncertainty and ambiguity is necessary. As time passes, more may become clear. Trust your intuition as one source of guidance through the fog.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Fog of Illusion", "Subconscious Exploration", "Intuitive Guidance", "Emerging Fears", "Hidden Mysteries"],
+          "reversed": ["Truth Coming to Light", "Finding a Way Through the Fog", "Releasing Fear", "Growing Clarity", "Avoiding Intuition"],
+          "uprightExplanation": "Upright, the Moon leads into the mysterious realm of the subconscious, where illusion can obscure what is real. The moonlit scene is unclear, reflecting a period of uncertainty or confusion. This card reminds you that appearances may not tell the whole story and that deeper exploration may be needed. The Moon represents the subconscious, dreams, intuition, and also the fears and shadows within. This is a time to face the unknown and listen to your intuition. The Moon may not provide clear answers; it asks you to move carefully through ambiguity, using your felt sense as well as reason. It can also point to deception, illusion, or projections. The Moon reminds you that what is forming in darkness may need time to emerge. Do not force clarity before it is ready; allow some mystery to remain.",
+          "reversedExplanation": "Reversed, the Moon often suggests that illusions are beginning to fade and the truth is becoming clearer. You may be finding your way out of confusion and releasing fears or anxiety that have been suppressed for a long time. This can be a constructive shift toward greater awareness. However, the reversed Moon can also point to avoiding or denying messages from your subconscious. You may use reason to suppress intuition or refuse to face your fears. The card reminds you that clarity can come from facing the darkness rather than avoiding it. Sometimes it is wiser to accept uncertainty than to force an answer. The Moon's wisdom is not always about understanding everything; it can also be about learning to trust your perception while you wait for more to emerge."
+        },
+        "energyFlow": {
+          "direction": "Tidal ebb and flow",
+          "type": "Subconscious fluctuation",
+          "description": "The Moon's energy fluctuates like tides responding to the lunar cycle. It is mysterious, ambiguous, and emotional, not easily grasped through reason alone. Energy moves between conscious and subconscious states, bringing dreams, feelings, and shifting perceptions."
+        },
+        "timing": {
+          "speed": "Unclear and shifting",
+          "description": "The Moon represents uncertain timing, with matters still hidden or confusing. It may take one to three months for the fog to clear. Avoid rushing into a decision; allow more information and understanding to emerge over time."
+        },
+        "advice": {
+          "upright": "Trust your intuition even when you cannot see the whole picture. Do not rush a decision; give yourself time to observe and feel. Write down your dreams if that helps you reflect on your subconscious. Face your fears rather than letting them grow unseen, and make room for uncertainty.",
+          "reversed": "If the truth is emerging, allow yourself to acknowledge it, even if it is uncomfortable. If you have been avoiding your intuition, pause and listen inwardly. Make room for fears and emotions you have been suppressing. As the fog lifts, rebuild trust in your own perceptions."
+        },
+        "chakra": {
+          "primary": "Third Eye Chakra and Sacral Chakra",
+          "issue": "Fear may cloud intuition (Third Eye Chakra), or emotions may feel difficult to regulate (Sacral Chakra).",
+          "healingNote": "The Moon relates to the Third Eye Chakra, associated with intuition, and the Sacral Chakra, associated with emotion. If you feel confused or overwhelmed by fear, these centers may need balance. Moonstone and labradorite can be included in personal practices for reflection and grounding. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that not every truth can be understood immediately. Some things need to develop in darkness and take shape amid uncertainty. Your fear is not necessarily an enemy; it may be a message waiting to be understood. Trust your intuition, even when it leads you into unfamiliar territory. The Moon's light may be faint, but it can still help you notice the next part of the path.",
+          "reversed": "Your soul is celebrating as the fog begins to lift and you start to see more clearly. Or your soul may be reminding you to stop avoiding what you already know. Your intuition may have been pointing toward the truth, even if you have not wanted to hear it. Face your fears and move beyond denial. Clarity can come from having the courage to see what is there, including what you would rather not see."
+        }
+      }
+    }
   }
 ]
