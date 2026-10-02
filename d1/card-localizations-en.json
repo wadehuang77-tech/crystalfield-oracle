@@ -5182,5 +5182,80 @@
         "suitableQuestions": "This card may resonate when you feel called to care for nature or seek a deeper relationship with a place. Ask: “What can I learn about the land where I live?” “How can I support local environmental work?” “Whose knowledge should I listen to?” “How can I act respectfully?” “What practical contribution is within my capacity?” “How might I honor ancestors or elders without claiming traditions that are not mine?” Let your care become a grounded action."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "37",
+    "locale": "en",
+    "name": "Rainbow Bridge",
+    "name_secondary": "彩虹橋",
+    "preview_payload": {
+      "titleEn": "Rainbow Bridge",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You can be a bridge between spiritual values and everyday life. The wisdom you seek may be found through reflection, experience, and connection with others. This card invites you to bring what matters to you into ordinary choices, rather than seeing yourself as more than human or responsible for channeling cosmic energy. Let spiritual meaning help you live with care and grounded purpose.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I welcome the memories, wisdom, and strengths I have gathered. May I bring them into my life with care and grounded purpose.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card uses the rainbow bridge as a symbol of connection between the sacred and the everyday. You may feel that your life has a spiritual dimension while remaining rooted in your body, relationships, and responsibilities. A contemplative practice can help you reflect on what you value and how to live it. You do not need to believe in multiple dimensions or dormant cellular codes to access wisdom; your experiences, learning, and compassion are also sources of insight. Let meaning become visible through how you live.",
+        "higherSelfMessage": "You may sometimes feel limited by an ordinary identity or want to express more of your imagination and spiritual perspective. This card invites you to explore that expansiveness while remembering that being human is not something you need to transcend. Your heart can be a place of reflection and connection, but it is not a portal proven to contain every dimension or possibility. Let your spiritual beliefs support your presence and relationships, and share them in ways that respect other people's beliefs.",
+        "spiritualGuidance": "Try a daily practice that helps you feel both grounded and connected, such as quiet breathing, journaling, prayer, or time in nature. You might visualize roots reaching into the earth and a rainbow rising through you as a symbol of integration. Use the activation prayer as a personal affirmation, not a claim that genetic codes are being switched on. Let your heart guide reflection while remaining open to reason and outside support. Ask how you can bring your values into the next ordinary task or relationship.",
+        "energyQualities": "This card evokes connection and integration, like a bridge joining two landscapes. It may help you consider how spiritual insight can coexist with daily life. The rainbow symbolizes many colors held together without losing their differences. You can integrate different parts of yourself—practical and reflective, private and connected—without needing to be a multidimensional being. Let this image encourage wholeness, humility, and grounded care.",
+        "suitableQuestions": "This card may resonate when you feel disconnected from purpose or want to bring more meaning into daily life. Ask: “How can my values show up in ordinary choices?” “What helps me feel both grounded and inspired?” “What does the rainbow bridge symbolize for me?” “How can I stay connected to my body and responsibilities?” “What wisdom have I already gained?” Use the image to support reflection rather than to prove a cosmic identity."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "38",
+    "locale": "en",
+    "name": "Protection",
+    "name_secondary": "保護",
+    "preview_payload": {
+      "titleEn": "Protection",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "This card invites you to reclaim your attention and energy by strengthening boundaries and letting go of connections that no longer feel healthy. You may choose to end contact, change a pattern, or create more space. If imagining “soul fragments” or energy cords is meaningful to you, use it as a symbolic reflection practice, not a literal diagnosis. Each night, a brief wind-down can help you close the day and return your attention to yourself.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I welcome back my attention, strength, and sense of self. I release connections and commitments that no longer serve my well-being, with care and discernment.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card reminds you that your time, attention, and emotional capacity deserve care. If you are sensitive to others or often give too much, you may feel depleted or unsure where your own needs end and someone else's begin. This can happen through ordinary emotional and social dynamics, not necessarily through literal energy leakage. The card invites you to reclaim your focus, set boundaries, and let go of commitments or patterns that no longer support you. Protection does not mean closing your heart; it means caring for your capacity so you can connect sustainably.",
+        "higherSelfMessage": "Your empathy and wish to help are valuable, but you do not have to be constantly available. Consider where your energy goes and whether a relationship or obligation feels mutual. You can step back or change the terms of a connection without denying your care for someone. If visualization helps, imagine gathering your attention back from past situations; you do not need to believe that literal soul fragments are scattered across timelines. Your sense of self belongs to you, and you can return to it through boundaries, rest, and reflection.",
+        "spiritualGuidance": "Create a simple daily routine for checking in with yourself. In the morning, decide what you have capacity for; during the day, take breaks from people or media that overwhelm you; at night, reflect on what you want to set down before resting. You might visualize a comfortable boundary or use a calming phrase. If a relationship feels unhealthy, consider a clear conversation, distance, or professional support as appropriate. Do not cut off important connections solely because a reading labels them energetic cords. Choose practices that help you feel calm, not fearful.",
+        "energyQualities": "This card evokes boundaries and reclaiming your attention, like gathering scattered belongings back into one place. It carries a firm but caring quality, reminding you that you can choose what you engage with. Protection is not isolation or suspicion; it is maintaining enough space to feel safe and present. You can be compassionate while limiting access to your time, attention, and body.",
+        "suitableQuestions": "This card may resonate when you feel depleted, overwhelmed, or caught in an unhealthy dynamic. Ask: “Where is my attention going?” “What boundary would help?” “Which commitments feel mutual?” “What can I step back from?” “How can I protect my rest and privacy?” “What would help me feel more like myself?” Use these questions to support practical self-care without assuming that unseen forces are draining you."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "39",
+    "locale": "en",
+    "name": "Transformation",
+    "name_secondary": "轉化",
+    "preview_payload": {
+      "titleEn": "Transformation",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be going through a deep change in how you think, feel, or live. This card invites you to notice old patterns and stress responses that you may want to shift. Transformation can be gradual and supported by reflection, relationships, and practical care. It does not mean that your cells or DNA are being rewritten by spiritual energy. If you have physical symptoms or ongoing distress, consult an appropriate health professional.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I am open to healing and change at a pace that feels safe. May I release unhelpful patterns and welcome support as I grow.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card announces a deep process of change—not necessarily at a cellular level, but in how you understand yourself and respond to life. You may be working through old habits, beliefs, painful experiences, or family patterns. Such work can be intense and uncomfortable, but change does not require a dramatic spiritual experience. If you are often in a state of fear or stress, support from a qualified mental-health professional may help. The goal is not to cover symptoms with positive thinking, but to care for the causes and needs involved.",
+        "higherSelfMessage": "You may have been trying to change through thought alone, while other parts of your life need attention too. Body-based practices, supportive relationships, rest, and professional care can all be part of change. You are not to blame for stress responses or trauma, and you do not have to force yourself to feel safe. Take your time. If you feel persistently on edge or physically unwell, talk with a healthcare professional. You deserve care that is evidence-informed and suited to your situation.",
+        "spiritualGuidance": "Explore practices that help you feel safer and more present, such as gentle movement, comfortable breathing, journaling, or time outdoors. Work with a qualified clinician or therapist for trauma or ongoing distress; approaches such as trauma-focused therapy may be appropriate depending on your needs. Avoid intense practices that worsen symptoms, and do not assume discomfort is a necessary detox or spiritual upgrade. Check in with your body, take breaks, and let change happen gradually. You can use an affirmation as encouragement while also seeking practical care.",
+        "energyQualities": "This card evokes deep transformation, like a caterpillar changing into a butterfly. It symbolizes old patterns loosening and new possibilities taking form. Change can feel unstable, but it does not mean your DNA or cells are being spiritually altered. Let the image encourage patience and support while you work through difficult material. Real change often involves small repeated choices, relationships, and care over time.",
+        "suitableQuestions": "This card may resonate during a significant life change or when you want to shift an old pattern. Ask: “What habit or belief am I ready to reconsider?” “What support would help me feel safe?” “How can I care for my body and mind during this process?” “What change can I approach gradually?” “Should I speak with a professional about these symptoms or distress?” Let transformation include practical support and self-compassion."
+      }
+    }
   }
 ]
