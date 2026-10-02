@@ -6054,5 +6054,37 @@
       "guidance": "Notice what helps you feel respected and secure in a relationship. You can share something personal gradually with someone you trust, or choose not to share until you are ready. Practice speaking to yourself with the patience you would offer a friend. Set boundaries when needed; saying no can coexist with compassion. If a past hurt continues to affect you, support from a qualified therapist or counselor may help. Look for relationships with mutual care rather than expecting yourself to give endlessly. Accept help or appreciation when it feels comfortable, and express gratitude to people you value.",
       "energy": "Jade or rose quartz may serve as symbolic reminders of compassion, but they do not heal emotional or physical conditions. A loving-kindness meditation can be adapted to include yourself and others, and you may leave out anyone who does not feel safe to include. Try placing a hand over your chest only if that feels comfortable; breathe normally and stop if the exercise feels distressing. A meaningful photograph, note, or green object can remind you of care and boundaries. Use rose or other scents only if safe for you. An affirmation such as 'I deserve care, and I can choose where I place my trust' honors both connection and self-protection."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "43",
+    "locale": "en",
+    "name": "Cosmic Dragon Infinity",
+    "name_secondary": "宇宙龍無限",
+    "preview_payload": {
+      "keywords": ["Infinity", "Cosmos", "Connection"],
+      "nameEn": "Cosmic Dragon Infinity"
+    },
+    "gated_payload": {
+      "message": "The Cosmic Dragon contains galaxies, nebulae, and stars in an image of vastness and connection. This card invites you to consider how your life is linked with other people and the natural world. Ideas about universal consciousness or oneness belong to spiritual and philosophical traditions; they are not proof that individual boundaries or differences are unreal. You can feel connected while recognizing that each person has a distinct experience. Looking at the scale of the cosmos may offer perspective, but it does not make your everyday concerns unimportant or guarantee unlimited possibilities.",
+      "guidance": "Try a brief visualization in which your attention expands from your immediate surroundings to the wider world, then return to the room and notice where you are. Ask what connection means to you in practical terms: perhaps caring for a relationship, learning about nature, or contributing to your community. Consider possibilities beyond your current routine, then choose steps that fit your resources and responsibilities. Study astronomy or cosmology if you are curious about the universe, and distinguish scientific knowledge from spiritual interpretation. Reflection can broaden perspective without requiring you to believe you have access to cosmic answers.",
+      "energy": "Labradorite, amethyst, or a star chart can serve as visual reminders of the night sky, not portals to other dimensions or sources of cosmic energy. Spend a few moments stargazing from a safe, comfortable place or look at a space image and journal about what it brings to mind. Try a gentle visualization of connection, then ground yourself by naming what you can see and hear. Prayer or meditation may fit your own beliefs. An affirmation such as 'I am part of a wider world, and my choices still matter' balances connection with personal agency."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "44",
+    "locale": "en",
+    "name": "Eternal Dragon Completion",
+    "name_secondary": "永恆龍圓滿",
+    "preview_payload": {
+      "keywords": ["Completion", "Integration", "New Beginning"],
+      "nameEn": "Eternal Dragon Completion"
+    },
+    "gated_payload": {
+      "message": "The Eternal Dragon coils into a circle, an image of cycles, completion, and renewal. This card invites you to recognize a chapter you have reached the end of and acknowledge the effort, learning, or change it involved. Completion does not mean that everything is resolved or that you must feel proud or grateful. Endings can bring relief, uncertainty, and grief at the same time. You do not need to become a different person to deserve love or happiness, and you can still choose to keep learning. A new beginning can start with one small next step.",
+      "guidance": "Look back on a recent chapter and note what you want to remember, what you are ready to leave behind, and what remains unfinished. Mark an ending in a way that feels right to you: a conversation, a journal entry, or a simple pause. If a ritual helps, choose a safe option such as folding or recycling a written note rather than burning it. Consider one intention for the next chapter, keeping it flexible as circumstances change. Make room for mixed feelings and seek support if an ending is difficult. Recognize your effort without insisting that every challenge had a purpose or gift.",
+      "energy": "A circle, clear stone, or meaningful keepsake can symbolize completion and continuity. Arrange a few objects that remind you of what you have learned, then choose one to carry forward. A quiet moment, prayer, or meditation may help you mark the transition if it fits your beliefs. You do not need a prescribed number of crystals or a special ceremony. An affirmation such as 'I can honor what has ended and decide what comes next' centers your agency. Let the circle represent a transition in your own story, not a guarantee of destiny or eternal consciousness."
+    }
   }
 ]
