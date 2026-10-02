@@ -5961,6 +5961,54 @@
   },
   {
     "deck_id": "dragons",
+    "card_key": "40",
+    "locale": "en",
+    "name": "Amethyst Dragon Awakening",
+    "name_secondary": "紫晶龍覺醒",
+    "preview_payload": {
+      "keywords": ["Awareness", "Spirituality", "Reflection"],
+      "nameEn": "Amethyst Dragon Awakening"
+    },
+    "gated_payload": {
+      "message": "The Amethyst Dragon symbolizes questioning old beliefs and exploring what gives life meaning. A period of spiritual or personal change can feel inspiring, uncertain, or both. People make sense of unusual experiences in many ways; this card offers a spiritual lens, not proof of a supernatural awakening or special abilities. Stay connected to everyday responsibilities and to people you trust. If experiences or beliefs are frightening, disrupt sleep, or make it hard to function, consider speaking with a qualified health professional. Curiosity and discernment can belong together.",
+      "guidance": "Explore practices that feel grounding and manageable, such as quiet reflection, gentle movement, or reading across different perspectives. Consistency matters more than intensity; a short practice is enough if it suits you. Keep a record of questions and experiences, and revisit your interpretations over time instead of treating every coincidence or dream as a message. Seek community that welcomes questions and respects boundaries; be cautious of teachers who demand money, obedience, or isolation from loved ones. Balance spiritual interests with sleep, relationships, work, and physical care. You may accept or set aside any belief as you learn more.",
+      "energy": "Amethyst can be a personal symbol of reflection, but it does not open a third eye, protect an energy field, or provide supernatural guidance. Try a brief meditation in comfortable surroundings, keeping your attention on ordinary sights and sounds if that helps you stay grounded. Prayer or ritual may be meaningful within your own tradition. Use scents or candles only if safe and pleasant. Choose spiritual images and texts that support reflection without treating them as proof. An affirmation such as 'I can stay curious, grounded, and thoughtful as I explore' leaves room for both belief and discernment."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "41",
+    "locale": "en",
+    "name": "Obsidian Dragon Shadow",
+    "name_secondary": "黑耀龍陰影",
+    "preview_payload": {
+      "keywords": ["Self-Reflection", "Integration", "Depth"],
+      "nameEn": "Obsidian Dragon Shadow"
+    },
+    "gated_payload": {
+      "message": "The Obsidian Dragon draws on the idea of a 'shadow' as a metaphor for traits or feelings we may find difficult to acknowledge. Self-reflection can help you understand your reactions and make choices that better fit your values. But a strong reaction to another person does not prove that you secretly share the trait you dislike, and you do not need to accept blame for someone else's behavior. The aim is not to label yourself good or bad, but to approach complexity with honesty and compassion. This work can be emotionally demanding, so moving slowly and seeking support are valid choices.",
+      "guidance": "When you notice a strong reaction, pause and ask what you are feeling and what need or boundary may be involved. Consider several explanations rather than assuming it reveals a hidden flaw in you. Journaling or a conversation with a trusted person may help you reflect; stop if it becomes overwhelming. If you want to explore painful memories or trauma, consider working with a qualified therapist. You do not need to confront every difficult feeling alone or all at once. Focus on practical ways to act in line with your values, such as expressing anger safely or making room for a strength you have been hesitant to show.",
+      "energy": "Obsidian or smoky quartz may serve as personal symbols of reflection, but stones do not reveal hidden truths or protect you during intense emotional work. Write a question in a journal and answer only what feels manageable. A mirror exercise is optional; you can skip it if it feels uncomfortable. Avoid prolonged staring, sensory deprivation, or sitting alone in darkness to provoke an experience. Keep the room comfortable and stay connected to the present. An affirmation such as 'I can learn about myself with care and respect my limits' supports reflection without demanding that you uncover or integrate everything at once."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "42",
+    "locale": "en",
+    "name": "Diamond Dragon Immortality",
+    "name_secondary": "鑽石龍不朽",
+    "preview_payload": {
+      "keywords": ["Endurance", "Clarity", "Integrity"],
+      "nameEn": "Diamond Dragon Immortality"
+    },
+    "gated_payload": {
+      "message": "The Diamond Dragon's brilliance and durability evoke clarity and integrity under pressure. Some spiritual traditions describe an immortal soul or enduring consciousness; these are matters of belief rather than established facts. You do not need to deny fear of death or claim that suffering made you stronger in order to live meaningfully. Hardship is not a test you were meant to pass. This card invites you to consider what you want to stand for, what helps you feel grounded, and how your choices can reflect your values in the life you have now.",
+      "guidance": "If questions about mortality or meaning are on your mind, give yourself space to explore them through conversation, writing, philosophy, or a spiritual tradition that feels supportive. Notice what values you want to express in daily decisions, and choose one action that reflects them. Pressure can be difficult without being transformative; seek support rather than telling yourself you must endure it alone. Review commitments or routines that no longer fit, and keep what matters to you. If thoughts about death become distressing or affect your well-being, reach out to a trusted person or qualified professional.",
+      "energy": "A diamond, clear stone, or another meaningful object can serve as a symbol of clarity, but no crystal makes a person immortal, indestructible, or pure. Try a simple visualization of light as a reflection exercise, stopping whenever it feels uncomfortable. A journal or personal keepsake can remind you of values you want to carry forward. Prayer or ritual may offer meaning within your beliefs, without requiring certainty about an afterlife. Avoid fasting or other deprivation as a purification practice. An affirmation such as 'I can live by my values and seek support when I need it' centers the present without promising what cannot be known."
+    }
+  },
+  {
+    "deck_id": "dragons",
     "card_key": "37",
     "locale": "en",
     "name": "Dawn Dragon Hope",
