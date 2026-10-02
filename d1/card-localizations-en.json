@@ -4957,5 +4957,80 @@
         "suitableQuestions": "This card may resonate when you feel lonely or misunderstood, want deeper connection, or are seeking community. Ask: “Where might people with shared interests gather?” “How can I show up more authentically?” “What connections feel mutual and supportive?” “Which relationships need a boundary or more care?” “How can I build trust gradually?” “What kind of community would help me feel belonging?” Let your answers guide a real next step."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "28",
+    "locale": "en",
+    "name": "Take a Break",
+    "name_secondary": "休息一下",
+    "preview_payload": {
+      "titleEn": "Take a Break",
+      "suit": "Action Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Before rushing into the next thing, pause to acknowledge what you have completed or what you have let go of. An ending or transition may need time for reflection and recovery. Rest is part of a healthy cycle, not a reward you must earn. A short pause can help you notice what you learned and what you need next.",
+      "actionGuidance": "Take a few comfortable breaths and rest. If possible, make some room in your schedule to pause and recover.",
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card is a reminder to pause. In a culture that prizes busyness and productivity, it is easy to finish one thing and immediately move to the next without breathing, integrating, or celebrating. Endings and accomplishments can benefit from a transition period: a chance to recognize how far you have come, process your experience, and prepare for what follows. Stop, breathe, and rest—not because you are lazy or avoiding life, but because rest supports well-being. Like land that lies fallow between growing seasons, you may need space between effort and the next commitment.",
+        "higherSelfMessage": "You may have been pushing forward even though your body and mind are asking for rest. What you completed or released may have taken considerable energy, even if it looked small from the outside. Give yourself time to integrate the change. Acknowledge your effort and courage, then rest without guilt where you can. Rest is not wasted time; it can support your health and help you return with more clarity. When you feel ready, the next step may become easier to see.",
+        "spiritualGuidance": "Make space for genuine rest. If possible, clear some time in your schedule or reduce optional commitments. This does not need to become another “productive” task. Let yourself sleep, daydream, take a walk, bathe, read for pleasure, or watch something that makes you laugh. Spend time in nature if that feels restorative. You might mark an accomplishment with a small ritual or gratitude note. During the pause, notice how you feel and what you need. Do not rush to end the break; resume activity when your responsibilities and capacity allow.",
+        "energyQualities": "This card evokes pause and restoration, like lying in the grass after exertion and letting the body recover. It carries a gentle, nourishing quality that gives permission to stop striving for a moment. Rest can help you integrate change and replenish energy. The card also invites quiet acknowledgment of what you have done, not only celebration of large achievements. A pause can hold gratitude, but it does not need to feel special to be valuable.",
+        "suitableQuestions": "This card may resonate after completing a major project or transition, or when you feel exhausted or pressured to move immediately to the next thing. Ask: “What do I need to rest?” “What have I completed that deserves acknowledgment?” “What is still integrating in me?” “How can I give myself some grace?” “Why is it hard for me to pause?” Let the answers support a restorative break that fits your real responsibilities."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "29",
+    "locale": "en",
+    "name": "The Age of Light",
+    "name_secondary": "光之時代",
+    "preview_payload": {
+      "titleEn": "The Age of Light",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "This card uses “the Age of Light” as an image of a cultural shift toward greater connection, compassion, and empowerment. It invites you to express what you value rather than hide out of fear. You do not need to believe that you have trained across past lifetimes or that a new spiritual era is an established fact. You can ask what gifts, experience, and perspective you want to bring to the present moment.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "May I draw on the wisdom, skills, and gifts I have cultivated. May I share them with courage, care, and discernment.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card announces the Age of Light as a spiritual metaphor for moving from separation, fear, and control toward connection, care, and shared agency. Such change can happen through many individual and collective choices; it is not a guaranteed global event. You are part of the present, with experiences and abilities you may choose to share. You do not need to prove a spiritual mission or stop learning before contributing. Show up in a way that is authentic, useful, and sustainable.",
+        "higherSelfMessage": "You may carry wisdom from experiences, study, relationships, and practices you have cultivated. A feeling of familiarity or connection to certain subjects can be meaningful without proving a past-life history. Your perspective may be useful, and your voice deserves room. You do not need to wait until you feel fully qualified to contribute within your abilities, and you do not need to claim expertise you do not have. Share what you know honestly and remain open to learning from others.",
+        "spiritualGuidance": "Notice the gifts and interests you want to bring forward. What are you naturally drawn to? What skills or experiences could serve your community? Whether your work involves healing, teaching, art, technology, or social change, develop it thoughtfully and take a practical next step. If sharing publicly feels right, begin at a manageable scale. Seek collaborators rather than assuming this work must be done alone. Let go of any fear that requires you to hide, while keeping appropriate boundaries and humility.",
+        "energyQualities": "This card evokes awakening and empowerment, like dawn after a long night. It may help you recognize your capacities and feel connected with others who want to contribute. The language of ascension or a new age can be a spiritual framework, not a measurable global fact. Let a sense of collective possibility motivate care and action without creating pressure or urgency. The transition you seek is built through choices, relationships, and work in the present.",
+        "suitableQuestions": "This card may resonate when you feel called to contribute but hesitate or wonder whether you are qualified. Ask: “What do I want to offer?” “What skills or experience can I share?” “What holds me back?” “How can I serve in a grounded way?” “What support or collaboration would help?” “How can I contribute without overextending?” Use these questions to clarify a next step rather than define your cosmic purpose."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "30",
+    "locale": "en",
+    "name": "Anna, Grandmother of Jesus",
+    "name_secondary": "安娜，耶穌的祖母",
+    "preview_payload": {
+      "titleEn": "Anna, Grandmother of Jesus",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Anna evokes quiet devotion and the value of work done behind the scenes. Not everyone is called to public leadership; caring, supporting, creating, or making space for others can also matter. This card invites you to consider your place in a larger community without deciding that a divine plan has assigned you a fixed role. Your contribution can be meaningful even when it is not widely recognized.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "May the light and care within me become visible. May I find a meaningful way to contribute within the wider community of life.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card draws on Anna as an image of quiet devotion, work behind the scenes, and trust that an unseen contribution can matter. The card's title calls her the grandmother of Jesus; in the New Testament, Anna is described as a prophetess who recognizes the infant Jesus, not as his grandmother. The archetype here invites you to value forms of service that may be overlooked: nurturing, supporting, prayer, creating a welcoming space, or helping someone else succeed. There are no “small” roles when care is freely chosen, but your worth is not dependent on serving a larger plan.",
+        "higherSelfMessage": "Your work does not have to be dramatic or public to be meaningful. You may be called to support a child, help someone one-on-one, pray or reflect, or make room for another person's dream. These roles can be valuable, and so can visible leadership. Cultural messages may equate recognition with worth, but quiet work also matters. Do not underestimate small acts of care, and do not let a spiritual ideal pressure you to give more than you can. Your presence and boundaries both deserve respect.",
+        "spiritualGuidance": "Consider the role you have now, whether caregiving, supporting a friend, community work, or a quieter spiritual practice. If it feels meaningful, let yourself value it. You might make time for prayer or reflection, support someone's project, or create a peaceful environment at home. You can hold an intention such as, “May I find a meaningful way to contribute,” without assuming that a specific divine plan will be revealed. Release the need for constant recognition, but also ask for acknowledgment or help when you need it. Connect with others who value mutual support.",
+        "energyQualities": "This card evokes quiet, steady devotion, like tending a seed and trusting it will grow in its own time. It is a grounding, nurturing quality that supports rather than seeks the spotlight. The humility described here is not self-erasure; it is awareness that we depend on one another. Patience, care, and meaningful service can be powerful in many forms. Let this energy guide contribution that respects your needs and dignity.",
+        "suitableQuestions": "This card may resonate when you wonder whether your contribution is important enough, or when you are drawn to a quieter way of serving. Ask: “What role feels meaningful to me?” “How can I contribute without neglecting myself?” “What quiet work do I value?” “Do I need recognition or support?” “What am I helping make possible?” “How can I trust my path without assuming a fixed divine plan?” Let your answers honor both your contribution and your needs."
+      }
+    }
   }
 ]

@@ -36,28 +36,28 @@ The actual seeded inventory was verified from `d1/cards-seed.sql` in an isolated
 | `lightworker` | 光行者神諭卡 | Lightworker Oracle | 43 | 43 | 0 |
 | `unicorns` | 獨角獸神諭卡 | Unicorn Oracle | 44 | 44 | 0 |
 | `egyptian_gods` | 埃及神諭卡 | Egyptian Oracle | 36 | 36 | 0 |
-| `work_your_light` | Work Your Light 神諭卡 | Work Your Light Oracle | 44 | 27 | 17 |
+| `work_your_light` | Work Your Light 神諭卡 | Work Your Light Oracle | 44 | 30 | 14 |
 | `dragons` | 龍族神諭卡 | Dragon Oracle | 44 | 0 | 44 |
-| **Total** |  |  | **278** | **217** | **61** |
+| **Total** |  |  | **278** | **220** | **58** |
 
 - Total cards: 278
-- English completed: 217
-- Remaining: 61
+- English completed: 220
+- Remaining: 58
 - Current deck: `work_your_light`
-- Last completed: `work_your_light:27`
-- Next: `work_your_light:28`
+- Last completed: `work_your_light:30`
+- Next: `work_your_light:31`
 - Last verification time: 2026-10-02
 - Validator: PASS
 - TypeScript: PASS (frontend and Worker)
 - Build: PASS (Vite and prerender; existing large-chunk warning)
 
-Translated stable IDs: all 22 `tarot` cards, from `tarot:0-fool` through `tarot:21-world`, all 45 `osho` cards, from `osho:1` through `osho:45`, all `lightworker:1` through `lightworker:43`, all `unicorns:1` through `unicorns:44`, all `egyptian_gods:1` through `egyptian_gods:36`, and `work_your_light:1` through `work_your_light:27`.
+Translated stable IDs: all 22 `tarot` cards, from `tarot:0-fool` through `tarot:21-world`, all 45 `osho` cards, from `osho:1` through `osho:45`, all `lightworker:1` through `lightworker:43`, all `unicorns:1` through `unicorns:44`, all `egyptian_gods:1` through `egyptian_gods:36`, and `work_your_light:1` through `work_your_light:30`.
 
-The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates source IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql` and lists untranslated stable IDs. The remaining 61 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
+The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates source IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql` and lists untranslated stable IDs. The remaining 58 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
 
 ## Still Incomplete
 
-- 61 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
+- 58 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
 - Complete Oracle/Tarot spread/result/restore/error/paywall/share screens; only entry copy and selected result labels are localized.
 - Numerology calculated reports, daily energy, forecast, crystal and oracle readings, AI advisor, checkout/unlock/share states.
 - Human Design fixed knowledge, chart labels/free report, article content, checkout states, and public share-page content.
@@ -85,7 +85,7 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 
 - App TypeScript check: passed.
 - Worker TypeScript check: passed.
-- Card localization generator/validator: passed for 217 complete translations; verified all IDs against the 278-card seed, rejected unknown IDs, regenerated the SQL upserts, and listed the 61 remaining stable IDs.
+- Card localization generator/validator: passed for 220 complete translations; verified all IDs against the 278-card seed, rejected unknown IDs, regenerated the SQL upserts, and listed the 58 remaining stable IDs.
 - Frontend TypeScript check: passed.
 - Worker TypeScript check: passed.
 - Vite production build and prerender: passed; existing main bundle exceeds the 500 kB advisory threshold.
