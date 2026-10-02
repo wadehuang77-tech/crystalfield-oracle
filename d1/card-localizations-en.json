@@ -4882,5 +4882,80 @@
         "suitableQuestions": "This card may resonate when life feels heavy, you are tired, or you have lost touch with joy. Ask: “What would be fun for me?” “Where have I become too serious?” “How can I loosen my grip on the result?” “What does my inner child need?” “How can I celebrate this journey?” Let the answers guide you toward a little more play and ease."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "25",
+    "locale": "en",
+    "name": "Share Your Voice",
+    "name_secondary": "分享你的聲音",
+    "preview_payload": {
+      "titleEn": "Share Your Voice",
+      "suit": "Action Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Expressing your perspective through speech, writing, song, or another form can help you understand and share what matters to you. Your voice may offer something valuable to people who are ready to hear it. You do not have to share everything publicly or believe that your expression will heal the world. Choose a way and an audience that feel right, and let your truth move at a pace that respects your privacy and safety.",
+      "actionGuidance": "Express yourself in a way that feels authentic, with people who are willing to listen. Start small if sharing publicly feels like too much.",
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card invites you to express yourself. Your voice—through speaking, writing, singing, or another medium—can carry your perspective and experience. When you suppress an opinion or feeling, you may lose an opportunity to communicate something meaningful. Expression can help you process and connect, but it is not automatically therapeutic and does not make you responsible for healing others. Not everyone will understand or appreciate your message; choose how and with whom you share.",
+        "higherSelfMessage": "You may have something worth saying, even if you are waiting to feel qualified, polished, or completely ready. Your experience and perspective can matter without being perfect. Sharing honestly can help you clarify your own thoughts and may help someone else feel less alone. You do not need to become an expert or disclose painful details. Expression can be a genuine need, but you can choose a private journal, a trusted conversation, or a public platform based on what feels right.",
+        "spiritualGuidance": "Begin expressing yourself in a small way. If public sharing feels daunting, write privately about what you think and feel without editing. When ready, consider a format that suits you: a blog, social post, podcast, video, song, or conversation. Do not wait for perfection, but do consider your audience, privacy, and purpose. Focus on communicating something useful or honest rather than trying to control how you will be judged. Practice speaking up in everyday life by naming a boundary, sharing an opinion, or expressing a need.",
+        "energyQualities": "This card evokes expression and release, like a song finally being heard. It can invite you to communicate feelings, ideas, or creativity that have been held inside. Speaking or writing may help some people process emotion, though it is not a substitute for care when needed. Courage is not the absence of fear; it can be choosing how to express yourself even when you feel vulnerable. Sharing can also create connection when others meet your words with respect.",
+        "suitableQuestions": "This card may resonate when you have been holding something back, feel unheard, or want to share your work. Ask: “What do I want to express?” “What makes it difficult to speak?” “What is a safe way to share this?” “Who is the right audience?” “What is my perspective?” “How can I communicate honestly and clearly?” Let expression be a choice, not an obligation to reveal more than you want."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "26",
+    "locale": "en",
+    "name": "Sisterhood of the Rose",
+    "name_secondary": "玫瑰姊妹會",
+    "preview_payload": {
+      "titleEn": "Sisterhood of the Rose",
+      "suit": "Action Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "This card evokes a lineage of people devoted to beauty, love, and spiritual practice. You are invited to notice beauty in nature and listen to what the earth means to you. The rose can symbolize care, reverence, and connection with the sacred feminine. You may explore these images through the traditions that resonate with you, while honoring their distinct histories and avoiding the assumption that every path shares one origin.",
+      "actionGuidance": "Create beauty in your life and spend time with things that feel beautiful to you. Let nature be part of your reflection.",
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card uses the rose as an image of beauty, love, reverence, and connection with nature. It may evoke figures and traditions such as Mary Magdalene, the Virgin Mary, Isis, or Aphrodite, each with distinct histories and meanings. Rather than assuming a literal lineage, you can explore what these stories symbolize for you. The path offered here values beauty that moves the heart, attention to the natural world, and qualities often described as sacred feminine—receptivity, nurture, cycles, and intuition. These qualities are available to people of any gender.",
+        "higherSelfMessage": "You may feel drawn to beauty, nature, roses, crystals, or ritual. Those interests can be meaningful without proving memories of a past life or a specific spiritual ancestry. Let them guide you toward practices that feel nourishing and authentic. You might create a welcoming space, spend time in a garden, or bring moments of reverence into daily life. Spirituality does not have to mean fighting the world; care, creativity, and love can also be ways to contribute. Your path is yours to shape.",
+        "spiritualGuidance": "Spend time in nature with attention rather than rushing through it. Notice wind, trees, birds, and water. If possible, tend a garden or a plant and feel the soil. Bring beauty into your surroundings with flowers, art, or natural objects that you enjoy. Create a small altar or reflective space if it is meaningful to you. Explore traditions respectfully, learning their contexts rather than blending them as if they were interchangeable. You may connect with others through a circle, class, or community, while honoring your own beliefs and boundaries.",
+        "energyQualities": "This card evokes gentleness, nourishment, beauty, and care, like a rose unfolding. The rose is often associated with the heart and devotion. This energy is grounded and relational, inviting connection with the earth and other living things. It can be sensual without being sexual, reverent without being solemn, and strong without being forceful. It represents one way to bring love and beauty into the world, not the only spiritual path.",
+        "suitableQuestions": "This card may resonate when you long for a deeper connection with nature, beauty, or a spiritual practice that feels meaningful. Ask: “How can I connect with care and reverence?” “What does beauty mean to me?” “What does the sacred feminine symbolize in my life?” “How can I bring more beauty into daily routines?” “What traditions or communities do I want to learn about respectfully?” Let curiosity and respect guide your exploration."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "27",
+    "locale": "en",
+    "name": "Soul Family",
+    "name_secondary": "靈魂家人",
+    "preview_payload": {
+      "titleEn": "Soul Family",
+      "suit": "Action Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be ready to seek people who understand and resonate with you. A sense of belonging can grow through honest, mutual connection. This does not have to mean a literal soul group or past-life connection; it can simply be a community where you feel seen and respected. You do not need to dim yourself to find connection. Let yourself be known gradually, and notice who responds with care.",
+      "actionGuidance": "Reach out to people who support you, and take a small step toward a community that shares your interests or values.",
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card is about finding people with whom you feel understood, accepted, and connected. They may not be biological family or childhood friends; they can be people you meet through shared interests, values, or mutual care. Some spiritual traditions describe such bonds as soul family or connections across lifetimes. You can hold that as a personal belief without needing to prove it. The central invitation is to be more authentic so you can build relationships that recognize who you are, while accepting that connection takes time and reciprocity.",
+        "higherSelfMessage": "You are not alone in wanting connection. You may already have supportive people in your life, and others may enter through communities or shared work. Hiding interests or parts of yourself can make it harder to find those who appreciate them, but you do not need to reveal everything to everyone. Some relationships may fade as people change, and that can be sad. It does not mean those people were never meant for you. Make space for new connections while treating existing relationships with care.",
+        "spiritualGuidance": "Show more of yourself in settings that feel safe. Share an interest, join a workshop, book group, yoga class, community space, or online group, and notice where conversation feels mutual. When meeting someone new, reveal your thoughts gradually and see how they respond. You can step back from relationships that no longer feel reciprocal without making a dramatic break. Consider creating a regular gathering with friends for conversation or support. If you pray or set intentions, let that practice complement concrete ways of meeting people.",
+        "energyQualities": "This card evokes connection and belonging, like the warmth of a reunion. It can invite you to be authentic and courageous enough to seek your people. That openness may help you notice resonance, but it does not guarantee that a perfect community will appear. You may need to try different groups, allow trust to build, and maintain boundaries. Release relationships that no longer fit thoughtfully, not because the card says someone is not part of your destiny.",
+        "suitableQuestions": "This card may resonate when you feel lonely or misunderstood, want deeper connection, or are seeking community. Ask: “Where might people with shared interests gather?” “How can I show up more authentically?” “What connections feel mutual and supportive?” “Which relationships need a boundary or more care?” “How can I build trust gradually?” “What kind of community would help me feel belonging?” Let your answers guide a real next step."
+      }
+    }
   }
 ]
