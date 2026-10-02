@@ -1,9 +1,10 @@
-import { ArrowLeft, Shield } from 'lucide-react';
+import { ArrowLeft, Menu, Shield, X } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { adminApi } from '../lib/api';
 import { getLanguageFromPath, getLocalizedPath, t, translations } from '../lib/i18n';
+import { authUrlFor } from '../lib/authLocale';
 import LanguageSwitcher from './LanguageSwitcher';
 
 const ACCENTS = {
@@ -49,7 +50,7 @@ const ROUTES: Record<string, { title: string; accent: Accent }> = {
   '/admin/vedic-reviews':         { title: '印度占星評價',       accent: 'slate'   },
 };
 
-const HIDDEN_ON = new Set(['/auth']);
+const HIDDEN_ON = new Set(['/auth', '/login', '/register']);
 
 const ORACLE_BACK_ROUTES = new Set([
   '/tarot',
@@ -72,6 +73,7 @@ export default function PageHeader() {
   const location = useLocation();
   const { user, signOut, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const language = getLanguageFromPath(location.pathname);
   const copy = translations[language];
   const copyT = (key: string) => t(key, language);
@@ -80,6 +82,8 @@ export default function PageHeader() {
     if (!user) { setIsAdmin(false); return; }
     adminApi.check().then(({ isAdmin }) => setIsAdmin(isAdmin)).catch(() => {});
   }, [user]);
+
+  useEffect(() => { setMobileMenuOpen(false); }, [location.pathname, location.search]);
 
   const normalizedPath = location.pathname.replace(/^\/en/, '') || '/';
 
@@ -96,6 +100,10 @@ export default function PageHeader() {
   const { border, text } = ACCENTS[route.accent];
   const backTarget = ORACLE_BACK_ROUTES.has(normalizedPath) ? getLocalizedPath('/oracle', language) : getLocalizedPath('/', language);
   const backLabel = ORACLE_BACK_ROUTES.has(normalizedPath) ? copy.tarotHome : copy.home;
+  const returnTo = `${location.pathname}${location.search}${location.hash}`;
+  const loginUrl = authUrlFor(location.pathname, 'login', returnTo);
+  const signupUrl = authUrlFor(location.pathname, 'signup', returnTo);
+  const authReturnState = { returnState: location.state };
 
   return (
     <header style={{
@@ -132,7 +140,7 @@ export default function PageHeader() {
         </div>
 
         {/* Center: page title — always truly centered */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div className="hidden sm:flex" style={{ justifyContent: 'center' }}>
           {pageTitle && (
             <span style={{ fontFamily: 'serif', fontSize: 15, letterSpacing: '0.25em', color: text, whiteSpace: 'nowrap' }}>
               {pageTitle}
@@ -140,54 +148,62 @@ export default function PageHeader() {
           )}
         </div>
 
-        {/* Right: admin link + auth */}
+        {/* Right: locale switcher and responsive account actions */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
           <LanguageSwitcher />
           {isAdmin && (
-            <Link
-              to="/admin"
-              title={copyT('admin')}
-              style={{ color: text, opacity: 0.6, display: 'flex', alignItems: 'center', flexShrink: 0 }}
-            >
+            <Link to="/admin" title={copyT('admin')} className="hidden sm:flex" style={{ color: text, opacity: 0.6, alignItems: 'center', flexShrink: 0 }}>
               <Shield style={{ width: 14, height: 14 }} />
             </Link>
           )}
           {user && (
-            <Link
-              to={getLocalizedPath('/membership', language)}
-              title={copy.member}
-              style={{ color: text, opacity: 0.75, fontSize: 11, textDecoration: 'none', flexShrink: 0 }}
-            >
-              {copy.member}
+            <Link to={getLocalizedPath('/membership', language)} title={copy.member} className="hidden sm:block" style={{ color: text, opacity: 0.75, fontSize: 11, textDecoration: 'none', flexShrink: 0 }}>
+              {language === 'en' ? 'My Account' : copy.member}
             </Link>
           )}
-          {!loading && (
-            user ? (
-              <div style={{
-                display: 'flex', alignItems: 'center',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 999,
-                overflow: 'hidden',
-                flexShrink: 0,
-              }}>
-                <span style={{ padding: '4px 8px 4px 12px', color: 'rgba(226,232,240,0.70)', fontSize: 11, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.email?.split('@')[0]}
-                </span>
-                <button onClick={signOut} style={{ padding: '4px 10px 4px 6px', background: 'none', border: 'none', borderLeft: '1px solid rgba(255,255,255,0.10)', color: 'rgba(226,232,240,0.50)', fontSize: 11, cursor: 'pointer' }}>
-                  {copyT('logout')}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => navigate(`${getLocalizedPath('/auth', language)}?redirect=${encodeURIComponent(location.pathname)}`)}
-                style={{ padding: '4px 14px', background: `${text}1a`, border: `1px solid ${border}`, borderRadius: 999, color: text, fontSize: 12, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}
-              >
-                {copyT('login')}
+          {!loading && (user ? (
+            <div className="hidden sm:flex" style={{
+              alignItems: 'center', background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.12)', borderRadius: 999,
+              overflow: 'hidden', flexShrink: 0,
+            }}>
+              <span style={{ padding: '4px 8px 4px 12px', color: 'rgba(226,232,240,0.70)', fontSize: 11, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user.email?.split('@')[0]}
+              </span>
+              <button onClick={signOut} style={{ padding: '4px 10px 4px 6px', background: 'none', border: 'none', borderLeft: '1px solid rgba(255,255,255,0.10)', color: 'rgba(226,232,240,0.50)', fontSize: 11, cursor: 'pointer' }}>
+                {language === 'en' ? 'Sign Out' : copyT('logout')}
               </button>
-            )
-          )}
+            </div>
+          ) : (
+            <div className="hidden sm:flex items-center gap-2">
+              <button onClick={() => navigate(loginUrl, { state: authReturnState })} style={{ padding: '4px 14px', background: `${text}1a`, border: `1px solid ${border}`, borderRadius: 999, color: text, fontSize: 12, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
+                {language === 'en' ? 'Sign In' : copyT('login')}
+              </button>
+              <Link to={signupUrl} state={authReturnState} style={{ color: text, fontSize: 12, fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap', padding: '4px 2px' }}>
+                {language === 'en' ? 'Sign Up' : '註冊'}
+              </Link>
+            </div>
+          ))}
+          <button type="button" className="inline-flex sm:hidden items-center justify-center rounded-full border border-white/15 p-2 text-slate-100" aria-label={mobileMenuOpen ? (language === 'en' ? 'Close menu' : '關閉選單') : (language === 'en' ? 'Open menu' : '開啟選單')} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen((open) => !open)}>
+            {mobileMenuOpen ? <X style={{ width: 18, height: 18 }} /> : <Menu style={{ width: 18, height: 18 }} />}
+          </button>
         </div>
+        {mobileMenuOpen && (
+          <nav className="sm:hidden absolute right-4 top-[52px] z-50 flex min-w-44 flex-col gap-1 rounded-lg border border-white/15 bg-slate-950 p-2 shadow-xl" aria-label={language === 'en' ? 'Account menu' : '帳戶選單'}>
+            {isAdmin && <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="rounded px-3 py-2 text-sm text-blue-200">{copyT('admin')}</Link>}
+            {user ? (
+              <>
+                <Link to={getLocalizedPath('/membership', language)} onClick={() => setMobileMenuOpen(false)} className="rounded px-3 py-2 text-sm text-blue-200">{language === 'en' ? 'My Account' : copy.member}</Link>
+                <button onClick={() => { setMobileMenuOpen(false); void signOut(); }} className="rounded px-3 py-2 text-left text-sm text-blue-200">{language === 'en' ? 'Sign Out' : copyT('logout')}</button>
+              </>
+            ) : (
+              <>
+                <Link to={loginUrl} state={authReturnState} onClick={() => setMobileMenuOpen(false)} className="rounded px-3 py-2 text-sm text-blue-200">{language === 'en' ? 'Sign In' : copyT('login')}</Link>
+                <Link to={signupUrl} state={authReturnState} onClick={() => setMobileMenuOpen(false)} className="rounded px-3 py-2 text-sm text-blue-200">{language === 'en' ? 'Sign Up' : '註冊'}</Link>
+              </>
+            )}
+          </nav>
+        )}
 
       </div>
     </header>

@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { formatPrice } from '../lib/spread-prices';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
+import { authUrlFor } from '../lib/authLocale';
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -31,8 +32,7 @@ export function PaywallModal({
   if (!isOpen) return null;
 
   const handleGoToLogin = () => {
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    navigate(`/auth?redirect=${redirect}`);
+    navigate(authUrlFor(location.pathname, 'login', `${location.pathname}${location.search}${location.hash}`), { state: { returnState: location.state } });
   };
 
   const handleCheckout = async () => {

@@ -6,6 +6,7 @@ import { checkoutApi, publicApi } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { formatPrice } from '../lib/spread-prices';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
+import { authUrlFor } from '../lib/authLocale';
 
 interface MockPaywallOverlayProps {
   spreadName: string;
@@ -41,8 +42,7 @@ export function MockPaywallOverlay({ spreadName, spreadId }: MockPaywallOverlayP
   }, []);
 
   const handleGoToLogin = () => {
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    navigate(`/auth?redirect=${redirect}`);
+    navigate(authUrlFor(location.pathname, 'login', `${location.pathname}${location.search}${location.hash}`), { state: { returnState: location.state } });
   };
 
   const handleCheckout = async () => {

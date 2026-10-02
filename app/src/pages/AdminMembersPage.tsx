@@ -21,6 +21,7 @@ import {
   type AdminMemberStats,
 } from '../lib/api';
 import { parseDbDate } from '../lib/dateFormat';
+import { authUrlFor } from '../lib/authLocale';
 
 const PAGE_SIZE = 20;
 
@@ -93,7 +94,7 @@ export function AdminMembersPage() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth?redirect=%2Fadmin%2Fmembers');
+      navigate(authUrlFor(window.location.pathname, 'login', `${window.location.pathname}${window.location.search}${window.location.hash}`));
       return;
     }
     let cancelled = false;

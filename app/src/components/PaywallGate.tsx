@@ -17,6 +17,7 @@ import {
   freeReadsLeft,
 } from '../lib/freeReadings';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
+import { authUrlFor } from '../lib/authLocale';
 
 interface PaywallGateProps {
   spreadName: string;
@@ -103,8 +104,7 @@ export function PaywallGate({
 
   const handleGoToLogin = () => {
     if (spreadId && picks && picks.length > 0) savePendingDraw(spreadId, picks);
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    navigate(`/auth?redirect=${redirect}`);
+    navigate(authUrlFor(location.pathname, 'login', `${location.pathname}${location.search}${location.hash}`), { state: { returnState: location.state } });
   };
 
   const handleCheckout = async () => {

@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { authUrlFor } from '../lib/authLocale';
 import { useAuth } from '../contexts/AuthContext';
 import {
   adminApi,
@@ -92,7 +93,7 @@ export function GoogleFormsAdminPage() {
 
   const initialize = useCallback(async () => {
     if (!user) {
-      navigate('/auth');
+      navigate(authUrlFor(window.location.pathname, 'login', `${window.location.pathname}${window.location.search}${window.location.hash}`));
       return;
     }
     try {

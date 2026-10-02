@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { authApi } from '../lib/api';
+import { getLanguageFromPath } from '../lib/i18n';
+import { googleButtonLocale, localizeAuthError } from '../lib/authLocale';
 
 interface GoogleCredentialResponse {
   credential: string;
@@ -22,7 +25,7 @@ declare global {
 
 let googleScriptPromise: Promise<void> | null = null;
 
-function loadGoogleIdentityScript(): Promise<void> {
+function loadGoogleIdentityScript(locale: 'en' | 'zh_TW'): Promise<void> {
   if (window.google?.accounts.id) return Promise.resolve();
   if (googleScriptPromise) return googleScriptPromise;
 
@@ -35,7 +38,7 @@ function loadGoogleIdentityScript(): Promise<void> {
     }
 
     const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client?hl=zh-TW';
+    script.src = `https://accounts.google.com/gsi/client?hl=${locale === 'en' ? 'en' : 'zh-TW'}`;
     script.async = true;
     script.defer = true;
     script.dataset.googleIdentity = 'true';
@@ -51,6 +54,11 @@ export function GoogleSignInButton({
 }: {
   onCredential: (credential: string, csrfToken: string) => Promise<void>;
 }) {
+  const location = useLocation();
+  const language = getLanguageFromPath(location.pathname);
+  const gsiLocale = googleButtonLocale(location.pathname);
+  const isEnglish = language === 'en';
+  const fallback = isEnglish ? 'Google sign-in is temporarily unavailable.' : 'Google 登入服務暫時無法使用';
   const buttonRef = useRef<HTMLDivElement>(null);
   const onCredentialRef = useRef(onCredential);
   const [busy, setBusy] = useState(true);
@@ -67,25 +75,25 @@ export function GoogleSignInButton({
       try {
         const config = await authApi.googleConfig();
         if (!config.client_id) {
-          if (!cancelled) setMessage('Google 登入尚未完成設定');
+          if (!cancelled) setMessage(isEnglish ? 'Google sign-in is not configured yet.' : 'Google 登入尚未完成設定');
           return;
         }
 
-        await loadGoogleIdentityScript();
+        await loadGoogleIdentityScript(gsiLocale);
         if (cancelled || !buttonRef.current || !window.google?.accounts.id) return;
 
         window.google.accounts.id.initialize({
           client_id: config.client_id,
           callback: (response) => {
             if (!response.credential) {
-              setMessage('Google 未回傳登入資料，請重試');
+              setMessage(isEnglish ? 'Google did not return sign-in credentials. Please try again.' : 'Google 未回傳登入資料，請重試');
               return;
             }
             setBusy(true);
             setMessage('');
             void onCredentialRef.current(response.credential, config.csrf_token)
               .catch((error: unknown) => {
-                setMessage(error instanceof Error ? error.message : 'Google 登入失敗，請稍後再試');
+                setMessage(localizeAuthError(error instanceof Error ? error.message : '', language, isEnglish ? 'Google sign-in failed. Please try again.' : 'Google 登入失敗，請稍後再試'));
               })
               .finally(() => setBusy(false));
           },
@@ -101,11 +109,11 @@ export function GoogleSignInButton({
           shape: 'rectangular',
           logo_alignment: 'left',
           width: String(width),
-          locale: 'zh_TW',
+          locale: gsiLocale,
         });
       } catch (error) {
         if (!cancelled) {
-          setMessage(error instanceof Error ? error.message : 'Google 登入服務暫時無法使用');
+          setMessage(localizeAuthError(error instanceof Error ? error.message : '', language, fallback));
         }
       } finally {
         if (!cancelled) setBusy(false);
@@ -116,13 +124,13 @@ export function GoogleSignInButton({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fallback, gsiLocale, isEnglish, language]);
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3" aria-hidden="true">
         <span className="h-px flex-1 bg-blue-500/20" />
-        <span className="text-xs text-blue-200/55">或</span>
+        <span className="text-xs text-blue-200/55">{isEnglish ? 'or' : '或'}</span>
         <span className="h-px flex-1 bg-blue-500/20" />
       </div>
       <div className="relative flex min-h-11 items-center justify-center">
@@ -130,7 +138,7 @@ export function GoogleSignInButton({
         {busy && (
           <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-slate-900/75 text-sm text-blue-200">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            載入 Google 登入…
+            {isEnglish ? 'Loading Google sign-in…' : '載入 Google 登入…'}
           </div>
         )}
       </div>

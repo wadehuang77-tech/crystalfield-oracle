@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { adminApi, type VedicReview, type VedicReviewStats } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { authUrlFor } from '../lib/authLocale';
 
 const LABELS: Record<string,string> = { past_karma:'前世業力',life_lesson:'今生人生課題',soul_mission:'靈魂使命',talents:'天賦與能力',relationship:'感情與關係',career:'工作與事業',wealth:'財富與金錢',spiritual_growth:'靈性成長',future_timeline:'未來 3～5 年' };
 const ACCURACY: Record<string,string> = { very_inaccurate:'很不符合',partly_accurate:'部分符合',mostly_accurate:'大致準確',very_accurate:'非常準確',exactly_me:'像在說我本人' };
@@ -11,7 +12,7 @@ export default function AdminVedicReviewsPage() {
   const [reviews,setReviews]=useState<VedicReview[]>([]); const [stats,setStats]=useState<VedicReviewStats|null>(null);
   const [page,setPage]=useState(1); const [pages,setPages]=useState(1); const [status,setStatus]=useState(''); const [message,setMessage]=useState('');
   const load=useCallback(async()=>{ const [list,s]=await Promise.all([adminApi.vedicReviews(page,status),adminApi.vedicReviewStats()]); setReviews(list.reviews); setPages(list.pagination.totalPages); setStats(s); },[page,status]);
-  useEffect(()=>{ if(!user){navigate('/auth?redirect=%2Fadmin%2Fvedic-reviews');return;} adminApi.check().then((x)=>x.isAdmin?load():navigate('/admin')).catch(()=>navigate('/admin')); },[load,navigate,user]);
+  useEffect(()=>{ if(!user){navigate(authUrlFor(window.location.pathname,'login',`${window.location.pathname}${window.location.search}${window.location.hash}`));return;} adminApi.check().then((x)=>x.isAdmin?load():navigate('/admin')).catch(()=>navigate('/admin')); },[load,navigate,user]);
   const update=async(id:string,next:'pending'|'approved'|'rejected')=>{await adminApi.updateVedicReview(id,next);setMessage('狀態已更新');await load();};
   const remove=async(id:string)=>{if(!window.confirm('確定刪除這則評價？'))return;await adminApi.deleteVedicReview(id);await load();};
   return <main className="min-h-screen bg-slate-950 px-4 py-10 text-blue-100"><div className="mx-auto max-w-7xl"><Link to="/admin" className="text-sm text-blue-300">← 返回管理後台</Link><h1 className="mt-4 font-serif text-3xl">印度占星評價</h1>

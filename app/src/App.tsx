@@ -39,13 +39,15 @@ import AdminTarotSubscriptionsPage from './pages/AdminTarotSubscriptionsPage';
 import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
 import SeoMetadata from './components/SeoMetadata';
 import HumanDesignArticlePage from './pages/human-design/HumanDesignArticlePage';
-import { getLanguageFromPath } from './lib/i18n';
+import { getLanguageFromPath, getLocalizedPath } from './lib/i18n';
 
 const routeConfig = [
   { path: '/', element: <LandingPage /> },
   { path: '/oracle', element: <HomePage /> },
   { path: '/home', element: <Navigate to="/oracle" replace /> },
-  { path: '/auth', element: <AuthPage /> },
+  { path: '/auth', element: <LegacyAuthRedirect /> },
+  { path: '/login', element: <AuthPage /> },
+  { path: '/register', element: <AuthPage /> },
   { path: '/privacy', element: <PrivacyPage /> },
   { path: '/admin', element: <ProtectedRoute><AdminPage /></ProtectedRoute> },
   { path: '/admin/settings', element: <ProtectedRoute><AdminSettingsPage /></ProtectedRoute> },
@@ -102,6 +104,13 @@ function DocumentLanguage() {
   }, [location.pathname]);
 
   return null;
+}
+
+function LegacyAuthRedirect() {
+  const location = useLocation();
+  const language = getLanguageFromPath(location.pathname);
+  const mode = new URLSearchParams(location.search).get('mode') === 'signup' ? 'register' : 'login';
+  return <Navigate to={`${getLocalizedPath(`/${mode}`, language)}${location.search}${location.hash}`} replace state={location.state} />;
 }
 
 function RouterBody() {

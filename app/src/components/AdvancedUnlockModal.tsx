@@ -1,5 +1,7 @@
 import { X, Lock, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getLanguageFromPath } from '../lib/i18n';
+import { authUrlFor } from '../lib/authLocale';
 
 interface AdvancedUnlockModalProps {
   isOpen: boolean;
@@ -11,12 +13,14 @@ export function AdvancedUnlockModal({
   onClose
 }: AdvancedUnlockModalProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isEnglish = getLanguageFromPath(location.pathname) === 'en';
 
   if (!isOpen) return null;
 
   const handleLoginClick = () => {
     onClose();
-    navigate('/auth');
+    navigate(authUrlFor(location.pathname, 'login', `${location.pathname}${location.search}${location.hash}`), { state: { returnState: location.state } });
   };
 
   return (
@@ -39,16 +43,16 @@ export function AdvancedUnlockModal({
           </div>
 
           <h2 className="text-2xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-400">
-            這是進階牌陣解析
+            {isEnglish ? 'Advanced Reading' : '這是進階牌陣解析'}
           </h2>
 
           <div className="bg-slate-800/60 border-2 border-blue-400/30 rounded-xl p-6 mb-6 space-y-4">
             <div className="flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-blue-200 font-semibold mb-1">更深層的解讀</h3>
+                <h3 className="text-blue-200 font-semibold mb-1">{isEnglish ? 'Deeper Interpretation' : '更深層的解讀'}</h3>
                 <p className="text-gray-300 text-sm">
-                  多張牌陣能更精準看出你的問題根源與未來走向
+                  {isEnglish ? 'Explore the themes and possible directions in your question through a multi-card spread.' : '多張牌陣能更精準看出你的問題根源與未來走向'}
                 </p>
               </div>
             </div>
@@ -56,9 +60,9 @@ export function AdvancedUnlockModal({
             <div className="flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-blue-200 font-semibold mb-1">完整的靈性指引</h3>
+                <h3 className="text-blue-200 font-semibold mb-1">{isEnglish ? 'Complete Guidance' : '完整的靈性指引'}</h3>
                 <p className="text-gray-300 text-sm">
-                  提供完整的療癒建議與實踐步驟
+                  {isEnglish ? 'Explore the full guidance and practical next steps.' : '提供完整的療癒建議與實踐步驟'}
                 </p>
               </div>
             </div>
@@ -66,9 +70,9 @@ export function AdvancedUnlockModal({
             <div className="flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-blue-200 font-semibold mb-1">個人化的解析</h3>
+                <h3 className="text-blue-200 font-semibold mb-1">{isEnglish ? 'Personalized Reading' : '個人化的解析'}</h3>
                 <p className="text-gray-300 text-sm">
-                  針對你當下的狀態提供專屬的建議
+                  {isEnglish ? 'Receive guidance shaped around the situation you are exploring.' : '針對你當下的狀態提供專屬的建議'}
                 </p>
               </div>
             </div>
@@ -79,22 +83,22 @@ export function AdvancedUnlockModal({
               onClick={handleLoginClick}
               className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 text-blue-100 font-semibold rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
             >
-              登入後解鎖完整內容
+              {isEnglish ? 'Sign In to Unlock the Full Reading' : '登入後解鎖完整內容'}
             </button>
 
             <button
               onClick={onClose}
               className="w-full py-3 bg-slate-800 hover:bg-slate-600 text-blue-100 font-medium rounded-xl transition-all duration-300"
             >
-              稍後再說
+              {isEnglish ? 'Maybe Later' : '稍後再說'}
             </button>
           </div>
 
           <div className="mt-6 pt-6 border-t border-blue-700">
             <p className="text-gray-400 text-xs text-center leading-relaxed">
-              此牌陣為進階解析，需要登入後才能查看完整內容
+              {isEnglish ? 'This advanced reading requires an account to view the full content.' : '此牌陣為進階解析，需要登入後才能查看完整內容'}
               <br />
-              未來將提供付費進階解析服務
+              {isEnglish ? 'Paid advanced readings may be available in the future.' : '未來將提供付費進階解析服務'}
             </p>
           </div>
         </div>

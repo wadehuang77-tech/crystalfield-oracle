@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ReactNode } from 'react';
+import { authUrlFor } from '../lib/authLocale';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -14,11 +15,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!loading && !user) {
-      const target = location.pathname + location.search;
-      const redirect = target === '/auth' ? '' : `?redirect=${encodeURIComponent(target)}`;
-      navigate(`/auth${redirect}`);
+      const target = location.pathname + location.search + location.hash;
+      navigate(authUrlFor(location.pathname, 'login', target), { state: { returnState: location.state } });
     }
-  }, [user, loading, navigate, location.pathname, location.search]);
+  }, [user, loading, navigate, location.pathname, location.search, location.hash, location.state]);
 
   if (loading) {
     return (

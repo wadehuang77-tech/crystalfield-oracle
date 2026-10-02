@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { X, Sparkles, Star, Lock } from 'lucide-react';
+import { getLanguageFromPath } from '../lib/i18n';
+import { authUrlFor } from '../lib/authLocale';
 
 interface FreeReadingModalProps {
   isOpen: boolean;
@@ -10,6 +12,7 @@ interface FreeReadingModalProps {
 export function FreeReadingModal({ isOpen, onClose }: FreeReadingModalProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isEnglish = getLanguageFromPath(location.pathname) === 'en';
   const [closing, setClosing] = useState(false);
 
   if (!isOpen) return null;
@@ -20,14 +23,12 @@ export function FreeReadingModal({ isOpen, onClose }: FreeReadingModalProps) {
   };
 
   const handleRegister = () => {
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    navigate(`/auth?redirect=${redirect}&mode=signup`);
+    navigate(authUrlFor(location.pathname, 'signup', `${location.pathname}${location.search}${location.hash}`), { state: { returnState: location.state } });
     onClose();
   };
 
   const handleLogin = () => {
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    navigate(`/auth?redirect=${redirect}`);
+    navigate(authUrlFor(location.pathname, 'login', `${location.pathname}${location.search}${location.hash}`), { state: { returnState: location.state } });
     onClose();
   };
 
@@ -43,7 +44,7 @@ export function FreeReadingModal({ isOpen, onClose }: FreeReadingModalProps) {
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-blue-300/60 hover:text-blue-400 transition-colors"
-          aria-label="關閉"
+          aria-label={isEnglish ? 'Close' : '關閉'}
         >
           <X className="w-5 h-5" strokeWidth={1.4} />
         </button>
@@ -62,23 +63,23 @@ export function FreeReadingModal({ isOpen, onClose }: FreeReadingModalProps) {
 
         {/* Heading */}
         <h2 className="font-serif text-center text-xl text-blue-100 tracking-[0.2em] mb-2">
-          您已體驗過專屬占卜！
+          {isEnglish ? 'You have used your personal reading!' : '您已體驗過專屬占卜！'}
         </h2>
         <p className="text-center text-sm text-blue-200/70 leading-relaxed mb-1">
-          立即免費註冊會員
+          {isEnglish ? 'Create a free account' : '立即免費註冊會員'}
         </p>
         <p className="text-center text-base text-blue-300 font-medium tracking-wide mb-6">
-          即可解鎖剩餘{' '}
+          {isEnglish ? 'Unlock your remaining ' : '即可解鎖剩餘 '}
           <span className="text-yellow-400 font-bold text-lg">2</span>
-          {' '}次免費額度
+          {isEnglish ? ' free readings' : ' 次免費額度'}
         </p>
 
         {/* Benefits */}
         <div className="border border-blue-500/20 bg-blue-500/5 rounded-xl px-5 py-4 mb-6 space-y-2.5">
           {[
-            '解鎖剩餘 2 次免費完整占卜',
-            '儲存您的占卜紀錄',
-            '專屬會員優惠價格',
+            ...(isEnglish
+              ? ['Unlock 2 more full readings', 'Save your reading history', 'Member-only pricing']
+              : ['解鎖剩餘 2 次免費完整占卜', '儲存您的占卜紀錄', '專屬會員優惠價格']),
           ].map(b => (
             <div key={b} className="flex items-center gap-3">
               <div className="w-5 h-5 rounded-full bg-blue-500/20 border border-blue-400/40 flex items-center justify-center flex-shrink-0">
@@ -96,19 +97,19 @@ export function FreeReadingModal({ isOpen, onClose }: FreeReadingModalProps) {
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg transition-all duration-300"
           >
             <Sparkles className="w-4 h-4" strokeWidth={1.5} />
-            免費註冊・立即解鎖
+            {isEnglish ? 'Create Account and Unlock' : '免費註冊・立即解鎖'}
           </button>
           <button
             onClick={handleLogin}
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-800/60 border border-blue-500/30 rounded-xl hover:bg-slate-700/60 transition-all text-blue-200 text-sm"
           >
-            已有帳號？登入
+            {isEnglish ? 'Already have an account? Sign In' : '已有帳號？登入'}
           </button>
           <button
             onClick={handleClose}
             className="w-full text-center text-xs text-blue-400/40 hover:text-blue-400/60 transition-colors py-1"
           >
-            稍後再說
+            {isEnglish ? 'Maybe Later' : '稍後再說'}
           </button>
         </div>
       </div>

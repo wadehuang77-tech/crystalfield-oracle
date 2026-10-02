@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { adminApi } from '../lib/api';
 import { Shield, UserPlus, Trash2, Loader2, Mail, Check, X, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { authUrlFor } from '../lib/authLocale';
 
 interface Admin {
   id: string;
@@ -32,7 +33,7 @@ export function AdminSettingsPage() {
 
   const checkAdminStatus = useCallback(async () => {
     if (!user) {
-      navigate('/auth');
+      navigate(authUrlFor(window.location.pathname, 'login', `${window.location.pathname}${window.location.search}${window.location.hash}`));
       return;
     }
 

@@ -6,6 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { OrderReadingModal } from '../components/OrderReadingModal';
 import { formatDateTimeTW } from '../lib/dateFormat';
 import { formatOrderStatus, formatPaymentType } from '../lib/orderFormat';
+import { authUrlFor } from '../lib/authLocale';
 
 type UserProfile = Profile;
 
@@ -80,7 +81,7 @@ export function AdminPage() {
 
   const checkAdminStatus = useCallback(async () => {
     if (!user) {
-      navigate('/auth');
+      navigate(authUrlFor(window.location.pathname, 'login', `${window.location.pathname}${window.location.search}${window.location.hash}`));
       return;
     }
 

@@ -146,7 +146,7 @@ const ENGLISH_PUBLIC_SEO: Record<string, Pick<SeoConfig, 'title' | 'description'
 
 const noindexPaths = new Set([
   '/tarot-single', '/lightworker/celtic-cross', '/work-your-light-single',
-  '/cosmic-cross', '/osho/single', '/osho/three', '/auth', '/checkout/return',
+  '/cosmic-cross', '/osho/single', '/osho/three', '/auth', '/login', '/register', '/checkout/return',
   '/membership', '/admin', '/admin/settings', '/admin/kpi', '/admin/google-forms',
   '/admin/members', '/admin/tarot-subscriptions', '/admin/vedic-reviews',
 ]);

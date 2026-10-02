@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Loader2 } from 'lucide-react';
 import { adminApi, type AdminTarotSubscription } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { authUrlFor } from '../lib/authLocale';
 
 function date(value: string | null): string {
   if (!value) return '—';
@@ -23,7 +24,7 @@ export default function AdminTarotSubscriptionsPage() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth?redirect=%2Fadmin%2Ftarot-subscriptions');
+      navigate(authUrlFor(window.location.pathname, 'login', `${window.location.pathname}${window.location.search}${window.location.hash}`));
       return;
     }
     Promise.all([adminApi.check(), adminApi.tarotSubscriptions()])
