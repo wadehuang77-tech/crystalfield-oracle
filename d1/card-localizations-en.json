@@ -3982,5 +3982,65 @@
       "questions": "What patterns am I creating or repeating? What choices could shape the future I want? Am I responding actively or passively? Is my life design intentional? What pattern would I like to change? How could strategy help me? Where does my creativity show up? What story am I weaving?",
       "energyFocus": "Make choices with intention and consider their longer-term effects. Notice your recurring patterns and decide which to keep or change. Think strategically before acting, and allow yourself to revise a plan. Try a practical creative activity such as weaving, sewing, or another craft. Connect different ideas and see how they might work together. Hold a clear vision while building it thread by thread. You are the artist of your choices, and your life remains a work in progress."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "22",
+    "locale": "en",
+    "name": "Khonsu - Moon God",
+    "name_secondary": "孔蘇 - 月神",
+    "preview_payload": {
+      "titleEn": "Khonsu - Moon God",
+      "symbol": "Young moon deity, associated with the waxing and full moon"
+    },
+    "gated_payload": {
+      "godStory": "Khonsu is a youthful moon god, often shown with lunar symbols that evoke the passage of time and its cycles. In myth and imagery, he travels across the night sky and offers light in the darkness. The moon waxes and wanes, suggesting natural rhythms and change. Khonsu is also associated with healing and timekeeping. His gentle light may be enough to help you find a path through a dark moment, even when it does not illuminate everything at once.",
+      "coreMeaning": "Khonsu represents cycles, timing, rhythm, change, the moon, and light in darkness. This card invites you to respect life's changing phases and recognize that different times may call for planting, growth, harvest, or rest. Khonsu encourages you to work with your own rhythms rather than against them. When you feel lost, a small source of hope or support can help you find the next step.",
+      "coreEnergy": "Cycles, timing, rhythm, change, the moon, time, patience, healing, and light in darkness. Khonsu's energy is cyclical and responsive. It reminds you that circumstances and energy can change, and that no single phase lasts forever. This is the wisdom of allowing time and choosing when to act, wait, or rest, rather than assuming every moment is suited to the same effort.",
+      "guidance": "Work with the rhythm of your life. Not every moment is right for action; sometimes you need rest, reflection, or patience. Notice what phase you may be in: beginning, growing, gathering results, or letting go. Respond to that phase instead of forcing a step that does not fit. You can use moon phases as a reflective framework if it resonates—perhaps setting intentions at a new moon or reviewing what you are ready to release at a full moon. If you feel lost, seek a small source of light, support, or information to guide your next step.",
+      "soulReminder": "Everything changes, and no single phase lasts forever. Like the moon, your energy and circumstances may shift. Do not demand that you shine at full brightness all the time; quieter phases can also have value. Darkness does not guarantee that light will return on a specific schedule, but it need not be the whole story. Be patient while staying attentive to choices and support available to you. Respect your rhythms and the rhythms of life around you.",
+      "questions": "What phase am I in right now? Is this a time for action or rest? Am I respecting my natural rhythm? Do lunar cycles hold meaning for me? Am I forcing something before it is ready? Can I be patient with change? What is shifting in my life? How can I respond more flexibly to timing?",
+      "energyFocus": "Pay attention to timing and rhythm. Notice the natural cycles in your energy and routine. If moon phases are meaningful to you, use them as reminders for reflection rather than rules. Respect changes in your capacity instead of demanding constant productivity. Identify the phase you are in and choose a fitting action, or rest when needed. Practice patience while remaining engaged with your life. Work with changing conditions instead of fighting them."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "23",
+    "locale": "en",
+    "name": "Meskhenet - Birth Goddess",
+    "name_secondary": "梅斯肯特 - 誕生女神",
+    "preview_payload": {
+      "titleEn": "Meskhenet - Birth Goddess",
+      "symbol": "Birth bricks representing the moment a new life begins"
+    },
+    "gated_payload": {
+      "godStory": "Meskhenet is a goddess associated with childbirth and the beginning of life. In ancient Egyptian imagery, she is connected with birth bricks used during delivery and is described as present at a child's birth, sometimes determining or speaking to that child's fate. Her image honors beginnings: the moment something comes into being, from a child to an idea or a new version of oneself. It evokes potential and the first breath of a new chapter.",
+      "coreMeaning": "Meskhenet represents beginnings, potential, birth, hope, and new possibilities. Something new may be taking shape in your life. Each beginning carries uncertainty as well as promise. Meskhenet invites you to treat new projects, relationships, or identities gently, allowing time for them to develop. A beginning can be meaningful without being destined or guaranteed to succeed. Trust the process enough to take a first step, and give it care as it grows.",
+      "coreEnergy": "New life, beginnings, potential, hope, possibility, vulnerability, freshness, and wonder. Meskhenet's energy is new and full of promise. It celebrates a start and the care needed to protect it. Like a newborn, a new idea may be vulnerable and benefit from time and support. A fresh beginning can open options, though it does not reveal the whole future at once.",
+      "guidance": "Welcome a new beginning. Something may be forming in your life—a project, relationship, identity, or understanding. Treat it gently and allow it time to develop. Do not expect immediate maturity; just as learning to walk takes time, a new start needs room to grow. If you are developing an idea or plan, take a small, supportive step. Trust the process enough to keep exploring, even when it includes uncertainty or effort. Celebrate a beginning without assuming you know its final shape.",
+      "soulReminder": "You may be witnessing or experiencing a meaningful beginning. New things can be vulnerable and need patience and care. Do not rush growth; allow time and space. Every great creation began small. A new start holds potential, even if you cannot see the whole picture yet. Give it attention and let your understanding develop. Welcome beginnings as invitations to explore, not promises about what fate has already decided.",
+      "questions": "What is beginning in my life? Am I ready to explore a new start? Am I treating something new with care? Have I allowed enough time? What potential is waiting to unfold? Do I trust this process enough to take a first step? How can I celebrate a beginning? What direction might this new chapter take?",
+      "energyFocus": "Notice what is beginning and offer it gentle care. Give a new project, relationship, or part of yourself time, space, and nourishment. Avoid rushing for results; celebrate small milestones and the learning along the way. Protect a vulnerable idea from premature criticism if that helps, while remaining open to thoughtful feedback. Trust that potential can unfold gradually. Honor the beginning without needing to know its entire future."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "24",
+    "locale": "en",
+    "name": "Serket - Scorpion Goddess",
+    "name_secondary": "塞爾凱特 - 蠍子女神",
+    "preview_payload": {
+      "titleEn": "Serket - Scorpion Goddess",
+      "symbol": "Scorpion associated with the goddess and protective power"
+    },
+    "gated_payload": {
+      "godStory": "Serket is a scorpion goddess associated with protection and healing. The scorpion's venom can harm, while some venoms have also been studied or used in medicine; this contrast makes it an image of danger and healing held together. Serket was invoked for protection from venomous creatures and other dangers. Her story can symbolize the courage to face what feels poisonous or difficult, while remembering that healing requires care and appropriate support, not exposure to harm.",
+      "coreMeaning": "Serket represents protection, courage, transformation, and the work of facing pain. This card invites you to notice what feels harmful in your life—perhaps a relationship dynamic, a recurring thought, or an unresolved hurt—and consider how to respond. Serket teaches that healing may require courage to acknowledge pain rather than avoid it. Pain itself is not medicine, and you do not need to remain in a harmful situation to transform it. Boundaries and support can be part of healing.",
+      "coreEnergy": "Protection, courage, deep reflection, transformation, and the complexity of healing. Serket's energy is profound and brave. It faces difficult material carefully rather than turning away. Like venom that can have different effects depending on context and use, painful experiences can leave lasting effects and may also inform what support you need. This card does not promise that every wound becomes wisdom; it honors the courage of tending to what hurts.",
+      "guidance": "Notice what feels harmful and consider a safe way to address it. Avoiding a problem can sometimes let it grow, but confronting it does not mean putting yourself in danger. Ask whether a relationship or situation needs a boundary, more support, or distance. If you are dealing with trauma, intense distress, or a health concern, seek help from a qualified professional rather than trying to treat it through spiritual work alone. You can protect yourself while beginning to understand what has happened.",
+      "soulReminder": "Your pain matters, and you deserve support in facing it. You do not have to turn suffering into a lesson or prove your strength by handling it alone. With time and care, you may learn from what happened, but healing is not guaranteed to follow a specific path. A wound can inform your wisdom without defining your worth. Serket symbolizes protection as well as courage; let both guide you as you decide what to face and what help you need.",
+      "questions": "What in my life feels harmful or draining? Am I avoiding a difficult issue? What support would help me face it safely? What have my experiences taught me, if anything? How can I protect myself while seeking healing? Am I ready to explore this, or do I need more time? What boundaries are needed?",
+      "energyFocus": "Notice what feels harmful and respond with care. Consider support from a therapist, doctor, or trusted person for difficult experiences. Treat pain as information, not as an enemy or a teacher you must obey. Protect yourself with clear boundaries and distance when needed. If you choose a reflective practice, keep it gentle and grounded. Healing may involve patience, practical care, and support. You can face what happened without exposing yourself to further harm."
+    }
   }
 ]
