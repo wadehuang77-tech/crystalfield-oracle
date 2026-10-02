@@ -34,30 +34,30 @@ The actual seeded inventory was verified from `d1/cards-seed.sql` in an isolated
 | `tarot` | 韋特塔羅 | Rider-Waite Tarot | 22 | 22 | 0 |
 | `osho` | 奧修禪卡 | Osho Zen Tarot | 45 | 45 | 0 |
 | `lightworker` | 光行者神諭卡 | Lightworker Oracle | 43 | 43 | 0 |
-| `unicorns` | 獨角獸神諭卡 | Unicorn Oracle | 44 | 6 | 38 |
+| `unicorns` | 獨角獸神諭卡 | Unicorn Oracle | 44 | 9 | 35 |
 | `egyptian_gods` | 埃及神諭卡 | Egyptian Oracle | 36 | 0 | 36 |
 | `work_your_light` | Work Your Light 神諭卡 | Work Your Light Oracle | 44 | 0 | 44 |
 | `dragons` | 龍族神諭卡 | Dragon Oracle | 44 | 0 | 44 |
-| **Total** |  |  | **278** | **116** | **162** |
+| **Total** |  |  | **278** | **119** | **159** |
 
 - Total cards: 278
-- English completed: 116
-- Remaining: 162
+- English completed: 119
+- Remaining: 159
 - Current deck: `unicorns`
-- Last completed: `unicorns:6`
-- Next: `unicorns:7`
+- Last completed: `unicorns:9`
+- Next: `unicorns:10`
 - Last verification time: 2026-10-02
 - Validator: PASS
 - TypeScript: PASS (frontend and Worker)
 - Build: PASS (Vite and prerender; existing large-chunk warning)
 
-Translated stable IDs: all 22 `tarot` cards, from `tarot:0-fool` through `tarot:21-world`, all 45 `osho` cards, from `osho:1` through `osho:45`, all `lightworker:1` through `lightworker:43`, and `unicorns:1` through `unicorns:6`.
+Translated stable IDs: all 22 `tarot` cards, from `tarot:0-fool` through `tarot:21-world`, all 45 `osho` cards, from `osho:1` through `osho:45`, all `lightworker:1` through `lightworker:43`, and `unicorns:1` through `unicorns:9`.
 
-The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates source IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql` and lists untranslated stable IDs. The remaining 162 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
+The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates source IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql` and lists untranslated stable IDs. The remaining 159 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
 
 ## Still Incomplete
 
-- 162 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
+- 159 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
 - Complete Oracle/Tarot spread/result/restore/error/paywall/share screens; only entry copy and selected result labels are localized.
 - Numerology calculated reports, daily energy, forecast, crystal and oracle readings, AI advisor, checkout/unlock/share states.
 - Human Design fixed knowledge, chart labels/free report, article content, checkout states, and public share-page content.
@@ -85,7 +85,7 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 
 - App TypeScript check: passed.
 - Worker TypeScript check: passed.
-- Card localization generator/validator: passed for 116 complete translations; verified all IDs against the 278-card seed, rejected unknown IDs, regenerated the SQL upserts, and listed the 162 remaining stable IDs.
+- Card localization generator/validator: passed for 119 complete translations; verified all IDs against the 278-card seed, rejected unknown IDs, regenerated the SQL upserts, and listed the 159 remaining stable IDs.
 - Frontend TypeScript check: passed.
 - Worker TypeScript check: passed.
 - Vite production build and prerender: passed; existing main bundle exceeds the 500 kB advisory threshold.
