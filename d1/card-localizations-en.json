@@ -5814,5 +5814,53 @@
       "guidance": "Try a short information break by limiting news or social media for a set period. Pick one small space or digital folder to organize rather than attempting to clear everything at once. For a decision, write down the options, tradeoffs, and values that matter to you, then give yourself time to consider them. Focus on one task for a manageable interval and take a break before continuing. A quick brain dump of worries and tasks may help you decide what to address next. Turn off notifications when possible, and remember that asking for help is also a practical way to reduce overload.",
       "energy": "Fluorite or clear quartz may serve as visual reminders of focus, but neither crystal clears thoughts or improves concentration on its own. Place a meaningful object on your desk if it helps you mark a work area. Try a comfortable breathing pause or picture cloudy water settling as a reflection exercise. Peppermint or rosemary may be used as a scent if safe and pleasant for you. A clean, well-lit workspace can help some tasks feel easier; adapt it to your needs instead of pursuing perfection. Before an important task, write down the single next action you want to take."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "28",
+    "locale": "en",
+    "name": "Desert Dragon Endurance",
+    "name_secondary": "沙漠龍耐力",
+    "preview_payload": {
+      "keywords": ["Endurance", "Survival", "Perseverance"],
+      "nameEn": "Desert Dragon Endurance"
+    },
+    "gated_payload": {
+      "message": "The Desert Dragon draws on desert life to symbolize endurance, adaptation, and the ability to notice what is essential when resources are limited. If you are facing a difficult period, it can help to name the constraints honestly and look for available support. Hardship is not proof that you need to handle everything alone, and it may not be temporary without outside help or changed circumstances. This card honors the steady effort it takes to get through a demanding time. Rest, assistance, and practical resources are part of perseverance, not signs of weakness.",
+      "guidance": "Take stock of the challenge in front of you and separate urgent needs from what can wait. Consider who or what could help: a trusted person, community service, financial counselor, or other qualified support. Simplifying a routine or postponing nonessential tasks may conserve energy, but do not deprive yourself of food, water, medicine, or other necessities as a test of endurance. Set a small, realistic goal for today and acknowledge the effort it takes. If you are isolated, look for a safe way to connect with someone. You deserve help even when circumstances are outside your control.",
+      "energy": "A desert rose stone, jasper, or another meaningful object may serve as a symbol of patience and endurance. Picture an oasis as a reminder to look for rest and support, not as a promise that relief will arrive on its own. Spend time in a calm natural setting if it is comfortable and safe. Do not restrict food, water, sleep, or comfort to build resilience, and avoid heat exposure or travel to harsh environments for a ritual. Write down one resource you can use and one person you can contact. Let the image of the desert remind you that care and adaptation can coexist."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "29",
+    "locale": "en",
+    "name": "Cloud Dragon Dreams",
+    "name_secondary": "雲龍夢想",
+    "preview_payload": {
+      "keywords": ["Dreams", "Imagination", "Possibility"],
+      "nameEn": "Cloud Dragon Dreams"
+    },
+    "gated_payload": {
+      "message": "The Cloud Dragon drifts among changing clouds, an image of imagination and possibility. Dreams can inspire creativity and offer material for personal reflection, though they do not reliably predict the future or provide universal instructions. This card invites you to make room for daydreams and nighttime dreams alike, then connect imagination with practical action. A creative idea does not need to be realistic at first; you can explore it freely and later consider what is possible, useful, or important to you.",
+      "guidance": "Ask what you might create if you gave yourself permission to imagine beyond your usual routine. Try drawing, free-writing, or making time for a project without judging the first result. If you want to remember nighttime dreams, keep a notebook nearby and write down any details you recall after waking; dream recall varies, and remembering nothing is normal. Explore what a dream means to you by noticing your own associations rather than relying on a fixed symbol guide. Choose one small, practical step toward a goal that matters to you, and share it with someone supportive if that feels helpful.",
+      "energy": "Moonstone or amethyst may serve as personal symbols for imagination, but they do not control dreams or make them prophetic. A calming bedtime routine, a comfortable room, or a few lines in a dream journal may support reflection. Try visualizing clouds changing shape, then write or sketch what comes to mind. A dream board can gather images of hopes and interests; revisit it as your priorities change. Lavender or chamomile scents may feel relaxing if they are safe and pleasant. Treat affirmations as encouragement, not as guarantees that every idea will become reality."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "30",
+    "locale": "en",
+    "name": "Iron Dragon Will",
+    "name_secondary": "鐵龍意志",
+    "preview_payload": {
+      "keywords": ["Willpower", "Determination", "Discipline"],
+      "nameEn": "Iron Dragon Will"
+    },
+    "gated_payload": {
+      "message": "The Iron Dragon symbolizes determination, structure, and the ability to keep returning to a goal. Willpower is not about controlling every impulse or suppressing your needs; useful routines and supportive surroundings can make valued choices easier. Discipline need not be harsh or rigid. It can mean setting a realistic direction, building habits gradually, and allowing rest or adjustment when your needs change. This card invites you to notice where a little structure would help and where you may be demanding too much of yourself.",
+      "guidance": "Choose one clear, manageable goal and write down why it matters to you. Break it into steps small enough to fit your real schedule, and make the first one easy to begin. Set up reminders or prepare your environment so you do not have to rely on motivation alone. Notice what interrupts your plan without treating a missed day as failure; adjust and begin again. Sleep, nourishment, breaks, and support can make sustained effort more possible. An accountability partner may help if you both find it encouraging. Build consistency in a way that leaves room for changing circumstances and self-compassion.",
+      "energy": "Hematite or black jasper may serve as symbolic reminders of steadiness, but stones do not create willpower. Keep a meaningful object nearby or use a written habit tracker to mark actions you choose. A comfortable pause before beginning a task can help you focus; avoid forceful breathing or cold showers as tests of discipline. A rosemary or mint scent may be pleasant if safe for you. Try a simple ritual of starting at a regular time, then review whether it is helping. An affirmation such as 'I can take one steady step and adjust when I need to' supports determination without demanding perfection."
+    }
   }
 ]
