@@ -4432,5 +4432,80 @@
         "suitableQuestions": "This card may resonate when you feel an inner desire but are unsure how to act. Ask: “What do I want to explore?” “What is one step I can take?” “How can I address my fear while staying safe?” “What practical considerations matter?” “Does this desire fit my values?” “What would help me learn whether this path suits me?” Let the questions support discernment rather than assume the universe has issued an instruction."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "7",
+    "locale": "en",
+    "name": "Boundaries",
+    "name_secondary": "邊界",
+    "preview_payload": {
+      "titleEn": "Boundaries",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Saying no and setting boundaries can be acts of self-respect and care. People who are compassionate can still have clear limits. Pay attention to how a request feels, including bodily signals, while also considering the context. This card invites you to notice what is and is not okay for you and to communicate your limits with kindness and clarity.",
+      "actionGuidance": null,
+      "inquiryPrompt": "Where in my life would clearer boundaries help?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card highlights a spiritual truth: boundaries are not coldness or selfishness; they can express self-respect and care. People who give generously also need to notice their own capacity. Your body may offer useful signals about what feels comfortable or uncomfortable, but no single sensation is an infallible answer. Without healthy limits, you may become depleted or lose track of your needs. Taking responsibility for your energy begins with noticing what you can genuinely offer.",
+        "higherSelfMessage": "You can say no without becoming a bad person; it may simply be an honest answer. You do not have to rescue everyone, attend every event, or respond to every request. Your time and energy are valuable. Clear boundaries can teach people how you wish to be treated and create healthier space in relationships. Caring for yourself helps make care for others more sustainable, though you are not obligated to serve anyone beyond your capacity. Learning to say no can also mean saying yes to your own needs.",
+        "spiritualGuidance": "Review your boundaries: Where are you giving more than you want? When do you say yes while feeling no? Who or what leaves you depleted? Notice your response to requests and invitations, including any bodily sensations, then consider what is behind them. A moment of calm or tension can be information, not a definitive instruction. Start with a small boundary: decline an event, ask for space, or state a preference. Each time you respect your limits, you practice self-respect. If setting a boundary could put you at risk, seek support and plan for safety.",
+        "energyQualities": "This card evokes protection and sovereignty, like a light boundary around your personal space. It can help you distinguish your responsibilities from what belongs to someone else. This may feel like reclaiming time and attention from overgiving or unhealthy dynamics. Boundaries create room for your genuine self to thrive; they are not walls meant to isolate you. You can decide who has access to your time and energy without assuming that everyone who asks is harmful.",
+        "suitableQuestions": "This card may resonate when you feel intruded upon, overburdened, or disconnected from your own needs. Ask: “Where would a boundary help?” “How can I say no clearly?” “What or who is draining my energy?” “How can I protect my time and space?” “What does a healthy boundary look like here?” “How can I respect my own needs while treating others fairly?” Use these questions to explore self-protection without guilt or isolation."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "8",
+    "locale": "en",
+    "name": "The Crumbling",
+    "name_secondary": "崩解",
+    "preview_payload": {
+      "titleEn": "The Crumbling",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "When something feels unstable or no longer true for you, it may be time to examine it rather than trying to preserve it at any cost. Change can make room for something more fitting, but not every loss is a blessing or proof that the universe is clearing space. Consider what is happening, what you can influence, and what needs care. This card invites you to loosen your grip where it is safe and make room for a more honest foundation.",
+      "actionGuidance": null,
+      "inquiryPrompt": "What am I holding onto because I fear there may be no alternative?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card points to a possible process of change: something unstable, outdated, or misaligned may be coming apart. It can feel like failure or crisis, yet it may also reveal what needs attention. You might have been trying to maintain a relationship, job, or way of living that no longer fits, but you do not have to assume that everything must collapse. Look at the facts and your options. A change can be painful and still open possibilities, but you deserve support and practical stability as you navigate it.",
+        "higherSelfMessage": "You may be holding onto something familiar because you fear what would come next. Ask what the situation provides and what it costs. Letting go can create room, but it does not guarantee that something better will arrive automatically. You can grieve what is ending, seek support, and make practical plans. If something is truly unsafe or harmful, you do not have to remain in it to prove trust. Build on what is real and stable, one step at a time.",
+        "spiritualGuidance": "Pause before trying to keep a situation together at any cost. Ask why you are afraid to release it and what you fear losing—security, identity, belonging, or a hoped-for future. Some things may need a boundary, conversation, or repair rather than an ending. Give yourself permission to grieve and feel uncertain without forcing an interpretation. If circumstances are changing quickly, seek trusted support and attend to immediate needs. You can allow change while still protecting your safety and stability.",
+        "energyQualities": "This card evokes dismantling and release, like a storm revealing which structures need repair. It may represent letting go of old patterns, attachments, or a false sense of security. Change can be cleansing, but it can also be disruptive and painful. Let what is revealed inform a thoughtful next step. You do not need to surrender to chaos or treat every loss as spiritually necessary. Honesty and care can help you rebuild on firmer ground.",
+        "suitableQuestions": "This card may resonate during a significant loss, ending, or transition, or when you feel exhausted from trying to maintain something. Ask: “What is changing, and what can I influence?” “What am I holding onto, and why?” “What would help me stay safe and supported?” “Does this need to end, or does it need repair?” “What can I learn from this without calling the pain a blessing?” Let the questions bring clarity amid uncertainty."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "9",
+    "locale": "en",
+    "name": "Don't Dim to Fit in",
+    "name_secondary": "不要為了融入而黯淡",
+    "preview_payload": {
+      "titleEn": "Don't Dim to Fit in",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Growth and change are part of life. You do not have to hide your values or strengths just to fit someone else's expectations. This card invites you to notice where you might be making yourself smaller and to express more of who you are. If a person or setting consistently makes you feel unsafe or diminished, consider what boundaries or distance would help; you do not need to decide all at once.",
+      "actionGuidance": null,
+      "inquiryPrompt": "Where am I dimming my own light in order to fit in?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card affirms your individuality and invites you to express yourself more fully. Growth is natural, and you can change without shrinking to accommodate every expectation around you. When you hide your perspective or strengths because you fear criticism, you may feel less connected to yourself. Your gifts do not need to please everyone; they can help you find people and settings where you feel respected. At the same time, being authentic includes listening and making room for others.",
+        "higherSelfMessage": "You do not have to hide to belong. Your perspective, abilities, and experiences may offer something valuable, but you are not responsible for fulfilling a cosmic mission or fixing the world. Belonging can grow from accepting yourself and finding people who respect you, rather than from pleasing everyone. Let yourself take up appropriate space and speak honestly. Your light can be shared without being louder than everyone else's.",
+        "spiritualGuidance": "Notice where you compromise your values or hide a quality because you fear judgment. Ask what you are protecting and whether that setting feels safe enough for greater honesty. Begin with small steps: share a real opinion, wear something that feels like you, or make time for an interest you have set aside. Some people may respond poorly, while others may appreciate your honesty. You do not have to remain in a relationship or environment that harms you, but assess the situation thoughtfully and seek support when needed.",
+        "energyQualities": "This card evokes liberation and empowerment, like loosening a constraint. It may help soften shame or the feeling that you are not allowed to be yourself. It invites confidence, expression, and a stronger connection to your values. Taking up space does not mean ignoring other people or treating their discomfort as proof they need healing. Shine in ways that feel genuine and considerate, and let your self-respect guide the change.",
+        "suitableQuestions": "This card may resonate when you feel pressure to hide, shrink, or compromise yourself. Ask: “Where am I dimming my light?” “What am I afraid to show?” “Whose approval am I seeking?” “How could I express myself more safely and honestly?” “Which people help me feel accepted?” “How can I respond to criticism while staying true to my values?” Use the answers to choose a grounded next step toward authenticity."
+      }
+    }
   }
 ]
