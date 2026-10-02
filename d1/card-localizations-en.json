@@ -1808,5 +1808,62 @@
         "meditationEntry": "Imagine a garden where every flower is trying to look the same. Roses try to look like lilies; sunflowers try to look like tulips. The garden feels confused and lifeless because each flower is twisting itself into another shape. Now imagine another garden where every flower is fully itself: the rose is proudly red, the lily is graceful and white, and the sunflower is boldly yellow. This garden feels alive and beautiful because each flower honors its own nature. You are like that too. When you stop trying to be another flower, your own beauty can unfold."
       }
     }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "43",
+    "locale": "en",
+    "name": "Friendship",
+    "name_secondary": "友誼",
+    "preview_payload": {
+      "subtitle": "Friendship"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "A genuine friendship may be appearing in your life or asking for your attention. This is not only a surface connection or convenient company, but a deeper meeting. A true friend sees you, accepts you, and can challenge you to grow. They celebrate your successes, support you through setbacks, and remind you who you are when you lose your way. This card says that such friendship is rare and precious. If you have it, honor it. If you are looking for it, become the kind of friend you hope to find. Friendship is not about finding a perfect person, but about being imperfect together with care.",
+        "dailyGuidance": "Connect with a friend who matters to you today. Go beyond a surface-level “How are you?” and reach out sincerely. You might call, meet, or send a heartfelt message saying what you appreciate about them and the friendship. Do not wait for a perfect occasion; connection does not need a reason. If you feel that deep friendship is missing, ask yourself whether you offer what you hope to receive: are you vulnerable, genuine, and present? Friendship goes both ways. To have a deep connection, you need to be willing to show up deeply too.",
+        "emotionalInsight": "You may carry hurts from friendship: betrayal, disappointment, or a gradual drifting apart. Those experiences may make you cautious, guarded, or inclined to keep relationships on the surface. Or you may have one-sided friendships where you are always giving and supporting but do not feel equally met. Both patterns can be tended with care. Real friendship needs vulnerability and reciprocity. You need to be willing to be seen and to receive support, not only give it. You can also choose people who are willing and able to invest in the friendship. Not everyone can be a close friend, and that is all right. Quality matters more than quantity.",
+        "blockageAnalysis": "You may feel stuck because of unspoken expectations or unmet needs in a friendship. The deeper block may be expecting people to know what you need or how you want to be treated without telling them. Or you may notice an imbalance but never bring it up. Silence can create resentment and distance. Real friendship needs communication: say what you need, how you feel, and what is or is not working for you. This can feel uncomfortable, but it is part of a healthy relationship. Some friendships may deepen through honest conversation; others may end. Either outcome can bring greater truth.",
+        "meditationEntry": "Imagine two trees growing close together. At first, each grows independently, with its own roots and branches. Over time, their roots intertwine beneath the ground and their branches touch in the air. They do not become one tree; each keeps its own identity while supporting the other. One shelters the other from the wind, and they share nourishment. If one is struggling, the other's roots may help. This is a picture of friendship: two independent beings choosing to support, honor, and grow alongside one another without losing their uniqueness."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "44",
+    "locale": "en",
+    "name": "Turning Point",
+    "name_secondary": "轉折點",
+    "preview_payload": {
+      "subtitle": "Turning Point"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You are at a turning point, an important crossroads. Old ways, patterns, or identities may be ending while the new direction is not yet clear. This can be a powerful and vulnerable moment. You can return to what is familiar, even if it no longer serves you, or move toward the unknown. This card suggests that a turning point can be a gift, even when it feels uncomfortable: an opportunity to choose again, redefine yourself, and begin anew. Trust the significance of this moment. Having a choice can be a source of power, even when things feel unstable.",
+        "dailyGuidance": "Take time today to look honestly at this turning point. What is ending, and what wants to begin? Do not rush into a decision, but do not postpone it indefinitely either. Make space to feel fear, excitement, grief, and hope; all of these feelings are valid. Then ask yourself deeply: which choice feels aligned with what is true for me? Not simply the easiest, safest, or most pleasing to others, but the most authentic. Notice how your body responds when you imagine each choice. Does it feel expansive or constricted? Let that response inform you, alongside practical judgment.",
+        "emotionalInsight": "Turning points often bring emotional swings: one day you may feel excited and clear, and the next doubtful and afraid. This is normal. You are letting go of what is known and facing what is not, one of life's harder transitions. Allow the emotional process without judging your fear or forcing yourself to think positively. Fear can be understandable when you are taking a risk. At the same time, do not let fear make the entire decision for you. Feel it, honor it, and then ask what you genuinely want beyond the fear. Courage means choosing growth while fear is present.",
+        "blockageAnalysis": "You may feel stuck because you want guarantees. You want to know what will happen if you choose one path, whether it will succeed, or whether you will regret it. The deeper block may be expecting certainty at a turning point. Often, you have to choose without knowing the outcome. That is what makes it a real choice rather than a calculation. If you wait for guarantees, the opportunity may pass and circumstances may choose by default. Instead, acknowledge the uncertainty and make the choice that feels most aligned with your values and practical needs. Even if you later adjust, you are actively shaping your life rather than only reacting.",
+        "meditationEntry": "Imagine walking along a familiar path through a forest. It is safe and predictable, though perhaps narrow and dim. Then you reach a fork. One path continues as before; another turns in a different direction, through denser trees, but you can see light in the distance. You do not know where the new path leads or what is there. Part of you wants the familiar road, while another part is drawn to the light. This is a turning point. There may be no perfect choice—only a choice you make, and the life you create as you walk it."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "45",
+    "locale": "en",
+    "name": "The Journey",
+    "name_secondary": "旅程",
+    "preview_payload": {
+      "subtitle": "The Journey"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You are on a journey, not only a physical one but an unfolding within. It may not have a fixed destination or timetable. The journey is also about what you learn along the way, who you become, and what you experience. This card reminds you not to focus so much on arriving that you miss the journey itself. Destinations can change and goals can evolve, but the step you take now, the view you see now, and who you are now are real. Live the journey rather than postponing life until you reach a destination.",
+        "dailyGuidance": "Instead of asking “When will I arrive?” ask “What am I experiencing now?” Whatever you are pursuing—a goal, a dream, or a change—give some attention to the journey happening today. What are you learning, experiencing, and noticing? Celebrate small progress and the beauty of this moment rather than waiting only for a big result. Each step has value when you are present to receive it. Allow your route to change too. The best journeys can include surprises, detours, and unexpected discoveries. Rigidity can limit the adventure.",
+        "emotionalInsight": "You may feel impatient, frustrated, or tired along the way. You want to be there already; you are tired of moving, striving, and waiting. These feelings are normal, but they may signal that you are treating the journey as an obstacle to overcome instead of an experience to live. Shifting from an arrival mindset to a present mindset can change how the journey feels. When you enjoy the process, the destination can become an added joy rather than the condition for your happiness. You may also discover that what you thought was the destination is only the beginning of another journey.",
+        "blockageAnalysis": "You may feel stuck because you are attached to one particular outcome or route. You have a clear picture of how it should look, when it should happen, and how you will get there. But life may have other plans, and rigidity can create suffering. The deeper block may be trying to control what cannot be fully controlled. A journey has its own rhythm and direction. When you loosen your grip and allow it to unfold, it may take you somewhere different from—and perhaps richer than—what you planned. This is not about abandoning your intention, but staying flexible about how and when you get there. Trust the process while remaining engaged in your choices.",
+        "meditationEntry": "Imagine climbing a mountain. You have a map and a goal: the summit. As you walk, you discover a beautiful waterfall, a hidden cave, and a breathtaking view. If you focus only on the goal, you may miss them. Or the weather may change and your original route may become unsafe, so you need another way. If you rigidly insist on your plan, you may have difficulty adapting. But if you stay open, a new route may hold its own beauty and lessons. A journey is not a straight line from A to B. It is exploration, discovery, and adaptation. The summit can be wonderful, but there is also magic in the climb."
+      }
+    }
   }
 ]
