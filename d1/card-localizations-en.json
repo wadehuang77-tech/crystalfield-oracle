@@ -274,5 +274,51 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "6-lovers",
+    "locale": "en",
+    "name": "The Lovers",
+    "name_secondary": "戀人",
+    "preview_payload": {
+      "keywords": ["Love", "Choice", "Harmony", "Partnership", "Union"],
+      "arcana": "major",
+      "number": 6
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Lovers represents deep connection, harmony in relationships, and important choices. It symbolizes not only romantic love, but also deep bonds and partnerships of many kinds. When this card appears, it may point to an important decision that calls for you to stay true to your values and beliefs. The Lovers encourages you to seek harmony and balance, and to build mutual respect and understanding in your relationships. This can be a time to deepen intimacy, form an important partnership, or make a choice aligned with your values. The card also represents inner integration, bringing opposing parts together into a harmonious whole. The Lovers reminds you that love begins with self-acceptance: only when you can be authentically yourself can you build a truly deep and meaningful connection.",
+      "reversedMeaning": "The reversed Lovers may point to imbalance, misunderstanding, or conflicting values in a relationship. You may be going through difficulties and feeling out of harmony with a partner or someone important to you. This card can also reflect confusion around an important decision, difficulty choosing, or a choice that does not align with your deepest wishes. You may have compromised your values or lost a sense of yourself in a relationship. The reversed Lovers asks you to reconsider your relationships and choices and make sure they reflect your core values. Do not sacrifice your authenticity just to please someone else. This is also a time to reflect on inner conflict and disharmony, practice self-love, and make choices that genuinely fit who you are.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["True Love", "Soulmate", "Aligned Values", "Important Choice", "Inner Integration"],
+          "reversed": ["Conflicting Values", "Relationship Imbalance", "Difficulty Choosing", "Self-Betrayal", "Disharmony"],
+          "uprightExplanation": "Upright, the Lovers represents a soul-level connection and a meaningful choice. This is not only about romantic love, but about alignment: with another person, with your values, and with a higher purpose. In the imagery, the angel Raphael blesses the scene from above, symbolizing a sacred union. The upright card emphasizes choosing in a way that is true to yourself. Whether you are choosing a relationship, a job, or a direction in life, ask whether it aligns with your core values. The Lovers is not about compromise for its own sake; it is about two whole people choosing to walk together. The upright Lovers reminds you that real love helps you become more fully yourself rather than lose yourself.",
+          "reversedExplanation": "Reversed, the Lovers points to conflicting values or imbalance in a relationship. You may be sacrificing your values to keep a relationship, or be caught in a connection where you cannot be yourself. In the imagery, the angel's blessing is blocked, suggesting that the connection lacks a sense of sacred alignment. You may face a difficult choice and feel unable to decide because every option seems to betray part of you. Or you may have already chosen while knowing inwardly that the choice is not right for you. The reversed Lovers reminds you that if a relationship requires you to give yourself up in order to keep it, it is not true love. Be honest with yourself: do your choices reflect who you really are?"
+        },
+        "energyFlow": {
+          "direction": "Mutual exchange",
+          "type": "Union and integration",
+          "description": "The Lovers' energy is mutual, equal, and flows in both directions. It is not one person giving while the other receives; it is two currents meeting, integrating, and creating a new harmony. This is the energy of yin and yang and the unity of dualities."
+        },
+        "timing": {
+          "speed": "A pivotal moment",
+          "description": "The Lovers signals that the time to decide is now. This is not a gradual process but a clear point of choice. Within the coming weeks, you may face or already be facing an important decision."
+        },
+        "advice": {
+          "upright": "Make choices that stay true to your values. Do not compromise your core beliefs just to please others. If the question is about a relationship, make sure your values are aligned. Real love helps you become more fully yourself rather than lose yourself.",
+          "reversed": "Look at your relationship or choice: are you betraying yourself? Do not sacrifice your authenticity just to keep a relationship. If you cannot decide, ask yourself which choice helps you feel more like your true self."
+        },
+        "chakra": {
+          "primary": "Heart Chakra",
+          "issue": "Heart Chakra imbalance: you may be so open that you lose your boundaries, or so closed off that genuine connection feels difficult.",
+          "healingNote": "The Lovers centers on the Heart Chakra and the balance of giving and receiving love. If a relationship leaves you feeling depleted, your boundaries may need attention. If you find it difficult to connect deeply, you may want to explore what would help you feel safer opening up. Rose quartz and green aventurine can be used as personal reflection and grounding practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that true love is a recognition between souls. When you meet the right person or face the right choice, your soul will know. Do not analyze everything with your mind; listen to your heart. Real love does not require you to change who you are; it allows you to be your most authentic self.",
+          "reversed": "Your soul is reminding you that if you have to pretend in order to be loved, it is not true love. You deserve a relationship that lets you be freely yourself. Stop compromising your soul to maintain a connection that is not right for you. Sometimes the most loving choice you can make for yourself is to leave."
+        }
+      }
+    }
   }
 ]
