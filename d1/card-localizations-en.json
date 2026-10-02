@@ -1583,6 +1583,63 @@
   },
   {
     "deck_id": "osho",
+    "card_key": "34",
+    "locale": "en",
+    "name": "Sharing",
+    "name_secondary": "分享",
+    "preview_payload": {
+      "subtitle": "Sharing"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may have abundance to share—not only materially, but also in emotion, wisdom, and experience. This card invites you to share not because you should or because you expect something in return, but because sharing can be a joyful expression of what you have. Giving can enrich you too. This is not necessarily sacrifice or loss, but a cycle: you have received, and now you can pass something on. This movement keeps energy alive and allows abundance to circulate. Holding on too tightly can make energy feel stuck, while sharing can help it flourish.",
+        "dailyGuidance": "Look for an opportunity to share today. It could be your time, a smile, your knowledge, or a resource. Notice how sharing feels. Genuine sharing is light and not driven by expectation or resentment. If you feel resentful, it may be an obligation rather than a gift; pause and reconsider. Share only what you truly want to give. Practice receiving too. Sharing moves in both directions, and allowing others to give to you is part of the cycle. Some people are comfortable giving but not receiving, which can interrupt that flow. Today, practice being both a giver and a receiver.",
+        "emotionalInsight": "Your relationship with sharing may reflect what you believe about worthiness. If it is difficult to give, you may be acting from scarcity and believing there is not enough. If it is difficult to receive, you may doubt that you deserve to. Genuine sharing can come from a sense of abundance: I have enough to give, and I am worthy of receiving. You can cultivate that inner sense even when material resources are limited. Abundance can begin as an inner state and shape how you relate to what is around you. When you feel more resourced, sharing may become more natural and joyful.",
+        "blockageAnalysis": "You may be stuck in a pattern of giving too much or too little. Overgiving can be an attempt to buy love or avoid rejection; withholding can be an attempt to protect yourself from loss or being used. The deeper block may be that you are not in a balanced flow of giving and receiving. Examine your motives. Are you giving because you genuinely want to, or because of fear or expectation? Are you holding back because you truly have nothing to give, or because of fear? Balanced sharing comes from a cup that is full: give from what overflows rather than depleting yourself. Care for your own needs, then share freely when you choose.",
+        "meditationEntry": "Imagine standing beside a river. Water keeps flowing from upstream to downstream; it does not hoard itself. Because it moves, the river stays fresh, alive, and abundant. If it built a dam, the water would become stagnant. You are also like a river, with energy and resources moving through your life. When you allow them to flow—receiving as well as giving—you can stay connected and alive. When you hoard or close yourself off, things may feel stuck. Flow is part of life. You are not only a container waiting to be filled; you can also be a channel through which abundance passes."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "35",
+    "locale": "en",
+    "name": "Compromise",
+    "name_secondary": "妥協",
+    "preview_payload": {
+      "subtitle": "Compromise"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may be facing a choice between holding your position and compromising. This card does not say that compromise is always right or wrong; it invites you to examine why you are considering it. If you are seeking peace and understanding or can recognize value in another perspective, compromise may be wise. But if you are acting from fear of conflict, a desire to please, or a loss of your center, it may feel like betraying yourself. The key question is whether you can keep your integrity while compromising, or whether you are giving up something true to you.",
+        "dailyGuidance": "When you face a situation that calls for compromise today, slow down and notice how your body responds. A genuine compromise may feel open, like being willing to see the other side and find a middle way. An unhealthy concession may feel constricted, like “I do not want this, but I have no choice.” If it is the latter, you may need to set a boundary, even if that feels uncomfortable. Remember the difference: compromise seeks a solution that can work for both sides; submission leaves one side feeling they have lost. Do not confuse the two.",
+        "emotionalInsight": "You may have a pattern of always compromising, giving way, and putting other people's needs ahead of your own. This can come from believing that conflict is dangerous and pleasing others is safer, but it may leave you resentful and disconnected from yourself. Or you may have the opposite pattern: never compromising and seeing any concession as weakness. That can come from believing that yielding is failure and control is strength, but it may leave you isolated and rigid. Wisdom can lie between these extremes: knowing when to bend and when to stand firm.",
+        "blockageAnalysis": "You may feel stuck in all-or-nothing thinking: either I win or you win. The deeper block may be not believing that a solution can benefit both sides. If you see relationships as zero-sum, every compromise can feel like a loss. Yet there may be a third option that neither of you has considered—one that respects both people's needs. Finding it takes creativity, communication, and a willingness to set aside the need to be right. When you shift from who is right to how both of you can get what you need, a breakthrough may become possible.",
+        "meditationEntry": "Imagine two people pulling on opposite ends of a rope. Each is using all their strength and neither wants to yield. They are tired and frustrated, but letting go feels like losing. Now imagine one person suggesting: what if we put down the rope and look for a direction we both want to go? At first the other person may be unsure, but then they try. They discover that when they stop fighting and start cooperating, they can travel much farther. Compromise does not have to weaken your strength; it can bring strengths together."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "36",
+    "locale": "en",
+    "name": "Conservativeness",
+    "name_secondary": "保守",
+    "preview_payload": {
+      "subtitle": "Conservativeness"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may be holding tightly to what is known, familiar, and safe. Change is knocking, but you may be answering, “No, thank you. I am fine.” This conservativeness can come from fear: fear of losing what you have, fear of the unknown, or fear of making a mistake. Yet holding on so tightly can leave you stagnant. Life moves, and trying to freeze it can feel more like a prison than safety. This card is not telling you to be reckless or irresponsible. It asks you to examine whether your caution is protecting you or limiting you.",
+        "dailyGuidance": "Notice moments today when you say no out of habit rather than genuine preference. It may be a new suggestion, a different approach, or a small change. Ask yourself: am I refusing because this truly does not suit me, or because it is unfamiliar? Try saying yes to one small change today. It could be taking a different route home, tasting a new food, or doing a familiar task in a new way. Notice the freshness, even if it feels a little uncomfortable. Discomfort does not always mean danger.",
+        "emotionalInsight": "Your conservativeness may have roots in past loss or betrayal. Perhaps you trusted, opened up, or took a risk and were hurt. You learned to withdraw and build a wall, telling yourself it would never happen again. That protection is understandable, but it may also cost you vitality and possibility. Healing is not necessarily about staying guarded forever; it can involve rebuilding your capacity to trust: trusting yourself to respond and recognizing that life can hold both hurt and beauty. When you feel ready, open a small window in the wall and let in some fresh air.",
+        "blockageAnalysis": "You may feel stuck because you confuse safety with keeping everything unchanged. The deeper block may be believing that if you preserve the status quo, you can avoid pain. But change can happen whether you resist it or accept it. The difference may be that resistance adds struggle, while acceptance lets you move with what is happening. Trying to keep everything the same takes a great deal of energy, like trying to hold back a river. When you relax that effort and allow a more natural flow, you may have more energy to create, enjoy, and live.",
+        "meditationEntry": "Imagine that you are a tree in autumn. Your leaves are changing color and preparing to fall, but you hold on to them, saying, “No, I need these leaves; they are part of me, and I will die without them.” But trees do not work that way. To make room for new growth, the old leaves must be released. When the leaves fall, the tree is not lost; it is preparing for renewal. Winter brings rest, and spring can bring new growth. This is a natural cycle. You have cycles too. What you are holding on to because it must stay the same may be keeping new growth from beginning."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
     "card_key": "22",
     "locale": "en",
     "name": "Mind",
