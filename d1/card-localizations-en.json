@@ -5881,6 +5881,54 @@
   },
   {
     "deck_id": "dragons",
+    "card_key": "34",
+    "locale": "en",
+    "name": "Lotus Dragon Purity",
+    "name_secondary": "蓮花龍純淨",
+    "preview_payload": {
+      "keywords": ["Integrity", "Resilience", "Renewal"],
+      "nameEn": "Lotus Dragon Purity"
+    },
+    "gated_payload": {
+      "message": "The Lotus Dragon grows from muddy water and opens above the surface, an image of renewal and the possibility of change. Your past and circumstances can shape your life, but they do not define your entire identity or determine every choice. This card invites you to consider what integrity and wholeness mean to you. Purity need not mean perfection, denying your needs, or separating yourself from the world. You can acknowledge complexity, learn from mistakes, and still act with care. Your worth does not depend on being untouched by hardship or free from difficult feelings.",
+      "guidance": "Reflect on a value you want to express through your actions, such as honesty, kindness, or fairness. If shame or guilt is weighing on you, distinguish between taking responsibility for a specific action and judging your whole self as bad. You can make amends where appropriate and seek support without expecting yourself to erase the past. Notice thoughts and feelings with curiosity, while remembering that they do not have to dictate your choices. Care for your body and surroundings in ordinary ways that feel supportive. You do not need to cleanse, detox, or purify yourself to deserve respect and care.",
+      "energy": "A lotus image, white flower, or clear stone can serve as a symbol of renewal if it is meaningful to you. Try imagining a lotus opening as a way to reflect on what you hope to cultivate, without treating the image as proof of spiritual purity. A bath or quiet ritual may feel restorative; avoid adding substances that could irritate your skin or claiming it removes toxins. Choose clothing for comfort rather than as a measure of virtue. An affirmation such as 'I can grow while accepting my whole, imperfect self' supports renewal without demanding perfection."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "35",
+    "locale": "en",
+    "name": "Gem Dragon Richness",
+    "name_secondary": "寶石龍豐富",
+    "preview_payload": {
+      "keywords": ["Richness", "Diversity", "Treasures"],
+      "nameEn": "Gem Dragon Richness"
+    },
+    "gated_payload": {
+      "message": "The Gem Dragon carries many different stones, each with its own color and character. It symbolizes the richness of varied experiences, perspectives, relationships, and forms of beauty. Difference need not mean that one person is more valuable than another; each person deserves respect without being reduced to a metaphor or expected to share the same story. This card also invites you to recognize your own skills, knowledge, and experiences as meaningful. Life can hold pleasure and discovery alongside responsibilities, and noticing beauty does not require ignoring hardship.",
+      "guidance": "Explore a form of art, music, writing, or learning that is new to you, approaching it with curiosity and respect. Listen to people whose experiences differ from yours without assuming they speak for an entire group. Make a list of strengths or skills you would like to use more, and consider where they might be useful. Offer sincere appreciation to others without demanding that they respond in a particular way. Give your attention to everyday experiences such as a meal, a song, or time outdoors when you can. Seek a range of interests and relationships that fit your capacity rather than filling every part of life with activity.",
+      "energy": "Colorful stones or artwork can serve as reminders of variety and personal meaning. If buying gemstones, consider their sourcing and avoid treating luxury objects as necessary for a rich life. Create a small arrangement using found colors, drawings, or objects that already matter to you. Try a visualization of a collection of different lights, then reflect on the distinct qualities you appreciate in yourself and others. A floral scent may be pleasant if safe for you. An affirmation such as 'I value difference and notice what brings meaning to my life' celebrates richness without making material possessions its measure."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "36",
+    "locale": "en",
+    "name": "Moonlight Dragon Intuition",
+    "name_secondary": "月光龍直覺",
+    "preview_payload": {
+      "keywords": ["Intuition", "Reflection", "Cycles"],
+      "nameEn": "Moonlight Dragon Intuition"
+    },
+    "gated_payload": {
+      "message": "The Moonlight Dragon's changing silver scales evoke intuition, reflection, and the rhythms of rest and activity. A gut feeling can be useful information about your reactions, but it is not infallible and need not outweigh evidence, expertise, or another person's boundaries. This card invites you to notice your inner responses and consider them alongside careful reasoning. Energy and mood can fluctuate for many reasons; there is no single cycle that applies to everyone. You can honor periods of rest or creativity without treating them as fixed rules or as signs tied to gender or the moon.",
+      "guidance": "When you notice an initial reaction, write it down and ask what it may be responding to. For important decisions, consider facts, likely outcomes, your values, and advice from people with relevant expertise. You can test your instincts on low-stakes choices and reflect on what you learn without assuming every feeling predicts what will happen. Track your energy or mood only if it is helpful, and avoid assigning cause based on moon phases alone. Dreams may inspire reflection, but their meaning is personal rather than a guaranteed message. Balance action with rest according to your own needs.",
+      "energy": "Moonstone or labradorite may serve as personal reminders of reflection, but they do not strengthen psychic abilities or regulate hormones. Try a moon-themed journal prompt or a brief meditation in comfortable surroundings. If you enjoy observing lunar phases, use them as a calendar for reflection rather than as a force that determines your choices. A moon altar or image can hold objects that remind you of values or intentions. Use fragrance only if safe and pleasant. An affirmation such as 'I listen to my feelings and check them against what I know' supports intuition and discernment together."
+    }
+  },
+  {
+    "deck_id": "dragons",
     "card_key": "32",
     "locale": "en",
     "name": "Volcano Dragon Eruption",
