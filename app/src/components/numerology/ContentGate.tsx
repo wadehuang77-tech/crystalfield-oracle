@@ -1,7 +1,9 @@
 import type { PlanTier } from '../../hooks/usePremium';
+import type { Language } from '../../lib/i18n';
 
 interface ContentGateProps {
   currentTier: PlanTier;
+  language?: Language;
   requiredTier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
   accentColor?: string;
@@ -13,6 +15,7 @@ interface ContentGateProps {
 
 export default function ContentGate({
   currentTier,
+  language = 'zh-Hant',
   requiredTier,
   onUpgrade,
   accentColor = '#a78bfa',
@@ -25,14 +28,24 @@ export default function ContentGate({
 
   const gateColor = accentColor;
   const usesEmailUnlock = Boolean(emailUnlockTargetId);
-  const label = usesEmailUnlock
+  const label = language === 'en'
+    ? usesEmailUnlock
+      ? 'Enter your email to unlock the full content for free.'
+      : requiredTier === 1
+        ? 'Unlock the Basic plan to view the full content.'
+        : requiredTier === 2
+          ? 'Unlock the Advanced plan to view the full content.'
+          : 'Unlock the full soul reading to view all content.'
+    : usesEmailUnlock
     ? '輸入Email免費解鎖，查看完整內容'
     : requiredTier === 1
     ? '解鎖基礎版 NT$199，查看完整內容'
     : requiredTier === 2
     ? '解鎖進階版 NT$499，查看完整內容'
     : '解鎖完整靈魂版 NT$10，查看完整內容';
-  const btnLabel = usesEmailUnlock ? '輸入Email免費解鎖' : '解鎖完整解析';
+  const btnLabel = language === 'en'
+    ? usesEmailUnlock ? 'Unlock with Email' : 'Unlock Full Reading'
+    : usesEmailUnlock ? '輸入Email免費解鎖' : '解鎖完整解析';
   const handleUnlockClick = () => {
     if (emailUnlockTargetId) {
       document.getElementById(emailUnlockTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });

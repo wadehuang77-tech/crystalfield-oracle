@@ -213,6 +213,7 @@ export default function NumerologyPage() {
         const next = new URLSearchParams(searchParams);
         next.delete('order_id');
         next.delete('order_token');
+        next.delete('return_to');
         next.delete('section');
         setSearchParams(next, { replace: true });
       })
@@ -355,69 +356,64 @@ export default function NumerologyPage() {
   };
 
   const basicFeatures = [
-    '缺失數字完整分析',
-    '高頻水晶療癒方案',
-    '缺失能量盲點解析',
-    '水晶配方與療癒建議',
+    ...(language === 'en'
+      ? ['Full missing-number analysis', 'Crystal reflection prompts', 'Missing-number themes', 'Optional crystal associations']
+      : ['缺失數字完整分析', '高頻水晶療癒方案', '缺失能量盲點解析', '水晶配方與療癒建議']),
   ];
   const basicLockedFeatures = [
-    '靈魂藍圖 × 當下能量交叉指引',
-    '神聖水晶陣指引',
-    '完整流年報告',
-    '專屬水晶手串推薦',
+    ...(language === 'en'
+      ? ['Oracle and numerology reflection', 'Optional crystal arrangement', 'Full personal-year report', 'Crystal associations']
+      : ['靈魂藍圖 × 當下能量交叉指引', '神聖水晶陣指引', '完整流年報告', '專屬水晶手串推薦']),
   ];
   const unlockPlans: UnlockPlan[] = [
     ...(!crystalUnlocked ? [{
       key: 'basic',
-      title: '基礎版',
-      desc: '缺失數字 × 水晶療癒方案',
+      title: language === 'en' ? 'Basic plan' : '基礎版',
+      desc: language === 'en' ? 'Missing-number reflection and crystals' : '缺失數字 × 水晶療癒方案',
       color: '#5eead4',
       icon: <Sparkles className="w-3 h-3" />,
       priceLabel: 'NT$199',
       features: basicFeatures,
       lockedFeatures: basicLockedFeatures,
-      buttonLabel: '立即解鎖 基礎版 NT$199',
+      buttonLabel: language === 'en' ? 'Unlock Basic · NT$199' : '立即解鎖 基礎版 NT$199',
       onClick: () => handleTierCheckout(1, 'crystal'),
     }] : []),
     ...(!forecastUnlocked ? [{
       key: 'forecast',
-      title: '完整流年',
-      desc: '年度流年解析與守護水晶',
+      title: language === 'en' ? 'Personal Year' : '完整流年',
+      desc: language === 'en' ? 'Year-ahead reflection and crystal prompts' : '年度流年解析與守護水晶',
       color: '#f97316',
       icon: <Star className="w-3 h-3" />,
       priceLabel: 'NT$499',
       features: [
-        '完整流年主題與年度能量解析',
-        '每月轉折提醒與行動建議',
-        '年度守護水晶與配戴方向',
-        '流年課題、機會與關係提醒',
+        ...(language === 'en'
+          ? ['Personal-year themes and reflection', 'Monthly prompts and practical ideas', 'Optional crystal associations', 'Themes for goals and relationships']
+          : ['完整流年主題與年度能量解析', '每月轉折提醒與行動建議', '年度守護水晶與配戴方向', '流年課題、機會與關係提醒']),
       ],
       lockedFeatures: [
-        '缺失數字水晶療癒方案',
-        '靈魂藍圖 × 當下能量交叉指引',
-        '神聖水晶陣與水晶手串推薦',
+        ...(language === 'en'
+          ? ['Missing-number crystal prompts', 'Oracle and numerology reflection', 'Advanced crystal reflections']
+          : ['缺失數字水晶療癒方案', '靈魂藍圖 × 當下能量交叉指引', '神聖水晶陣與水晶手串推薦']),
       ],
-      buttonLabel: '立即解鎖 完整流年報告 NT$499',
+      buttonLabel: language === 'en' ? 'Unlock Personal Year · NT$499' : '立即解鎖 完整流年報告 NT$499',
       onClick: handleForecastUnlock,
     }] : []),
     ...(!oracleUnlocked ? [{
       key: 'advanced',
-      title: '進階版',
-      desc: '靈魂藍圖與水晶陣手串',
+      title: language === 'en' ? 'Advanced plan' : '進階版',
+      desc: language === 'en' ? 'Oracle reflection and crystal associations' : '靈魂藍圖與水晶陣手串',
       color: '#a78bfa',
       icon: <Sparkles className="w-3 h-3" />,
       priceLabel: 'NT$499',
       features: [
-        '靈魂藍圖 × 當下能量交叉指引',
-        '神聖水晶陣指引',
-        '當下靈數卡牌點提示',
-        '專屬水晶手串推薦',
-        '靜心冥想儀式指引',
+        ...(language === 'en'
+          ? ['Oracle and numerology reflection', 'Optional crystal arrangement', 'Personal reflection prompts', 'Crystal associations', 'Journaling practice']
+          : ['靈魂藍圖 × 當下能量交叉指引', '神聖水晶陣指引', '當下靈數卡牌點提示', '專屬水晶手串推薦', '靜心冥想儀式指引']),
       ],
       lockedFeatures: [
-        '完整流年報告',
+        language === 'en' ? 'Full personal-year report' : '完整流年報告',
       ],
-      buttonLabel: '立即解鎖 進階版 NT$499',
+      buttonLabel: language === 'en' ? 'Unlock Advanced · NT$499' : '立即解鎖 進階版 NT$499',
       onClick: () => handleTierCheckout(2, 'advanced'),
     }] : []),
   ];
@@ -440,10 +436,10 @@ export default function NumerologyPage() {
       <div className="flex items-center justify-between gap-3 mb-3">
         <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em]" style={{ color: 'rgba(233,213,255,0.72)' }}>
           <Sparkles className="w-3.5 h-3.5" style={{ color: '#5eead4' }} />
-          解鎖捷徑
+          {language === 'en' ? 'Unlock options' : '解鎖捷徑'}
         </p>
         <span className="text-[10px]" style={{ color: 'rgba(196,181,253,0.42)' }}>
-          一鍵前往完整內容
+          {language === 'en' ? 'Choose a report section' : '一鍵前往完整內容'}
         </span>
       </div>
       <div className="space-y-3">
@@ -691,12 +687,14 @@ export default function NumerologyPage() {
             <>
               {showUnlockPanel && renderUnlockShortcutPanel()}
               <NumerologyShareProvider value={{
+                language: language === 'en' ? 'en' : 'zh-Hant',
                 number: report.lifePathNumber,
                 access: shareAccess,
                 proofs: getNumerologyShareProofs(),
                 capabilities: shareCapabilities,
                 onCapabilities: (tokens) => setShareCapabilities(mergeNumerologyShareCapabilities(tokens)),
               }}><NumerologyReport
+                language={language}
                 report={report}
                 oracleCard={oracleCard}
                 onReset={handleReset}

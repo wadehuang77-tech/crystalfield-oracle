@@ -33,22 +33,32 @@ export function savePendingDraw(spread_id: string, picks: PendingDrawPick[]): vo
   }
 }
 
-export function consumePendingDraw(spread_id: string): PendingDraw | null {
+export function readPendingDraw(spread_id?: string): PendingDraw | null {
   let raw: string | null = null;
   try { raw = sessionStorage.getItem(STORAGE_KEY); } catch { return null; }
   if (!raw) return null;
   try {
     const data = JSON.parse(raw) as PendingDraw;
-    if (data.spread_id !== spread_id) return null;
+    if (spread_id && data.spread_id !== spread_id) return null;
     if (Date.now() - data.draw_at > MAX_AGE_MS) {
       sessionStorage.removeItem(STORAGE_KEY);
       return null;
     }
-    sessionStorage.removeItem(STORAGE_KEY);
     return data;
   } catch {
     return null;
   }
+}
+
+export function consumePendingDraw(spread_id: string): PendingDraw | null {
+  const pending = readPendingDraw(spread_id);
+  if (!pending) return null;
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    return pending;
+  }
+  return pending;
 }
 
 export function clearPendingDraw(): void {

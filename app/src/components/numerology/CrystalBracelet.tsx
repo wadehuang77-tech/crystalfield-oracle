@@ -4,6 +4,7 @@ import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
 import NumerologyShareButton from './NumerologyShare';
 
 interface Props {
+  language: 'zh-Hant' | 'en';
   report: NumerologyReport;
 }
 
@@ -264,7 +265,8 @@ function BraceletCard({ theme, featured = false }: { theme: BraceletTheme; featu
   );
 }
 
-export default function CrystalBracelet({ report }: Props) {
+export default function CrystalBracelet({ language, report }: Props) {
+  const isEnglish = language === 'en';
   const missingCrystals = report.missingNumbers
     .flatMap(n => missingNumberData[n]?.crystals || [])
     .slice(0, 4);
@@ -277,9 +279,31 @@ export default function CrystalBracelet({ report }: Props) {
 
   const lifeNum = report.lifePathNumber > 9 ? 9 : report.lifePathNumber;
   const featuredBracelet = lifePathBracelets[lifeNum] ?? lifePathBracelets[1];
-  const crystalGridGuidance = lifePathCrystalGrids[lifeNum] ?? lifePathCrystalGrids[1];
+  const crystalGridGuidance = isEnglish
+    ? `For Life Path ${lifeNum}, use the selected stones as optional visual reminders of qualities you want to reflect on. You can arrange them in any way that feels meaningful, or skip the ritual entirely. Crystal associations are symbolic; they do not produce guaranteed effects or replace professional care.`
+    : lifePathCrystalGrids[lifeNum] ?? lifePathCrystalGrids[1];
 
-  const generalTwo = generalBracelets
+  const englishThemes: Record<number, Pick<BraceletTheme, 'name' | 'description' | 'tag'>> = {
+    1: { name: 'Grounded Initiative Bracelet', description: 'A symbolic pairing for reflecting on independence, practical action, and steady decision-making.', tag: 'Initiative' },
+    2: { name: 'Heart and Boundaries Bracelet', description: 'A symbolic pairing for reflecting on connection, communication, and healthy boundaries.', tag: 'Connection' },
+    3: { name: 'Creative Expression Bracelet', description: 'A symbolic pairing for reflecting on creativity, clear communication, and follow-through.', tag: 'Creativity' },
+    4: { name: 'Grounded Routine Bracelet', description: 'A symbolic pairing for reflecting on sustainable routines, patience, and flexibility.', tag: 'Stability' },
+    5: { name: 'Flexible Change Bracelet', description: 'A symbolic pairing for reflecting on curiosity, informed change, and practical limits.', tag: 'Adaptability' },
+    6: { name: 'Care and Balance Bracelet', description: 'A symbolic pairing for reflecting on mutual care, responsibility, and personal capacity.', tag: 'Balance' },
+    7: { name: 'Reflection and Focus Bracelet', description: 'A symbolic pairing for reflecting on study, intuition, and putting insights into practice.', tag: 'Reflection' },
+    8: { name: 'Purposeful Goals Bracelet', description: 'A symbolic pairing for reflecting on accountability, resources, and realistic goals.', tag: 'Purpose' },
+    9: { name: 'Integration Bracelet', description: 'A symbolic pairing for reflecting on completion, perspective, and thoughtful transitions.', tag: 'Integration' },
+  };
+  const englishGeneralThemes: BraceletTheme[] = [
+    { id: 'wealth-en', name: 'Resources and Planning', description: 'A symbolic reminder to review priorities, resources, and practical next steps.', tag: 'Planning', tagColor: '#fbbf24', crystalHexes: [], crystalNames: ['Citrine', 'Tiger’s Eye'] },
+    { id: 'love-en', name: 'Connection and Care', description: 'A symbolic reminder to practice clear communication and mutual care.', tag: 'Connection', tagColor: '#fda4af', crystalHexes: [], crystalNames: ['Rose Quartz', 'Green Aventurine'] },
+    { id: 'soul-en', name: 'Reflection and Intention', description: 'A symbolic reminder to reflect on values and choose a manageable action.', tag: 'Reflection', tagColor: '#a78bfa', crystalHexes: [], crystalNames: ['Amethyst', 'Clear Quartz'] },
+  ];
+  const displayFeaturedBracelet = isEnglish
+    ? { ...featuredBracelet, ...englishThemes[lifeNum], crystalNames: lifeCrystals.map((crystal) => crystal.name).slice(0, 2) }
+    : featuredBracelet;
+
+  const generalTwo = (isEnglish ? englishGeneralThemes : generalBracelets)
     .filter(b => b.id !== featuredBracelet.id)
     .slice(0, 2);
 
@@ -303,17 +327,17 @@ export default function CrystalBracelet({ report }: Props) {
       >
         <div className="flex items-center gap-2">
           <Gem className="w-4 h-4" style={{ color: '#5eead4' }} />
-          <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>神聖水晶陣指引</h3>
+          <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{isEnglish ? 'Optional Crystal Arrangement' : '神聖水晶陣指引'}</h3>
         </div>
         <p className="text-sm leading-[1.9]" style={{ color: 'rgba(233,213,255,0.78)' }}>
           {crystalGridGuidance}
         </p>
-        <NumerologyShareButton group="bracelet" sectionKey="crystal_grid" sectionName="神聖水晶陣指引" summary={crystalGridGuidance} guidance="以穩定的意念啟動水晶陣，讓能量支持你的生命方向。" highlights={uniqueCrystals.map(c => c.nameZh)} />
+        {!isEnglish && <NumerologyShareButton group="bracelet" sectionKey="crystal_grid" sectionName="神聖水晶陣指引" summary={crystalGridGuidance} guidance="以穩定的意念啟動水晶陣，讓能量支持你的生命方向。" highlights={uniqueCrystals.map(c => c.nameZh)} />}
       </div>
 
       <div className="flex items-center gap-2">
         <Sparkles className="w-4 h-4" style={{ color: '#fbbf24' }} />
-        <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>專屬水晶手串推薦</h3>
+        <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{isEnglish ? 'Crystal Associations' : '專屬水晶手串推薦'}</h3>
       </div>
 
       {/* Custom bracelet visual */}
@@ -328,7 +352,7 @@ export default function CrystalBracelet({ report }: Props) {
             className="text-[11px] uppercase tracking-widest font-medium"
             style={{ color: 'rgba(196,181,253,0.6)', textShadow: '0 0 8px rgba(196,181,253,0.3)' }}
           >
-            你的專屬能量配方
+            {isEnglish ? 'Selected Crystal Associations' : '你的專屬能量配方'}
           </p>
           <div className="flex items-center gap-2 flex-wrap">
             {uniqueCrystals.map((c, i) => (
@@ -348,7 +372,7 @@ export default function CrystalBracelet({ report }: Props) {
           </div>
           <div className="flex flex-wrap gap-2">
             {uniqueCrystals.map((c, i) => (
-              <CrystalNameBadge key={c.nameZh} name={c.nameZh} hex={CRYSTAL_GLOW_COLORS[i % CRYSTAL_GLOW_COLORS.length]} />
+              <CrystalNameBadge key={c.nameZh} name={isEnglish ? c.name : c.nameZh} hex={CRYSTAL_GLOW_COLORS[i % CRYSTAL_GLOW_COLORS.length]} />
             ))}
           </div>
         </div>
@@ -359,13 +383,13 @@ export default function CrystalBracelet({ report }: Props) {
             className="text-[11px] uppercase tracking-widest font-medium"
             style={{ color: 'rgba(196,181,253,0.6)', textShadow: '0 0 8px rgba(196,181,253,0.3)' }}
           >
-            能量主題手串
+            {isEnglish ? 'Reflection Themes' : '能量主題手串'}
           </p>
-          <BraceletCard theme={featuredBracelet} featured />
+          <BraceletCard theme={displayFeaturedBracelet} featured />
           {generalTwo.map(theme => (
             <BraceletCard key={theme.id} theme={theme} />
           ))}
-          <NumerologyShareButton group="bracelet" sectionKey="crystal_bracelet" sectionName="專屬水晶建議" summary={featuredBracelet.description} guidance={`讓「${featuredBracelet.name}」陪伴你穩定展現${featuredBracelet.tag}的力量。`} highlights={featuredBracelet.crystalNames} />
+          {!isEnglish && <NumerologyShareButton group="bracelet" sectionKey="crystal_bracelet" sectionName="專屬水晶建議" summary={featuredBracelet.description} guidance={`讓「${featuredBracelet.name}」陪伴你穩定展現${featuredBracelet.tag}的力量。`} highlights={featuredBracelet.crystalNames} />}
         </div>
     </div>
   );

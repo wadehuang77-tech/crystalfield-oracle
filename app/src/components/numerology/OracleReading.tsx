@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Sparkles, Gem, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport, OracleCard, MissingNumberData, CrystalInfo } from '../../lib/numerology';
 import { missingNumberData } from '../../lib/numerology';
+import { localizeMissingNumberData } from '../../lib/numerologyDisplay';
 import type { PlanTier } from '../../hooks/usePremium';
 import NumerologyShareButton from './NumerologyShare';
 
 interface Props {
+  language: 'zh-Hant' | 'en';
   report: NumerologyReport;
   card: OracleCard;
   tier: PlanTier;
@@ -138,13 +140,72 @@ function buildRitual(
 儀式結束：感謝神諭的降臨，吹熄蠟燭，緩緩回到當下。建議將此次冥想中浮現的任何畫面、感受或洞見記錄在日記中。`;
 }
 
-export default function OracleReading({ report, card, tier, oracleUnlocked, onOracleUnlock }: Props) {
+export default function OracleReading({ language, report, card, tier, oracleUnlocked, onOracleUnlock }: Props) {
   const [expanded, setExpanded] = useState<'blockpoint' | 'crystalGrid' | 'ritual' | null>(null);
   const analysis = generateCrossAnalysis(report, card);
   const accentColor = card.elementColor;
   const showFull = oracleUnlocked;
   const lp = report.lifePathNumber;
   const topMissing = report.missingNumbers[0];
+
+  if (language === 'en') {
+    const numberPrompt = topMissing
+      ? `Your report lists ${topMissing} among its missing numbers. In numerology traditions, this is sometimes used as a prompt to reflect on ${missingNumberData[topMissing] ? localizeMissingNumberData(missingNumberData[topMissing]).challenge : 'a personal growth theme'}. It is not a diagnosis or a prediction.`
+      : `Your report has no missing numbers listed. You can use Life Path ${lp} as a symbolic prompt for reflection; numerology is not a scientific assessment or a prediction.`;
+    const reflection = `Use “${card.nameEn}” as a journaling prompt: what part of its symbolism feels relevant to a current choice, and what practical evidence or support would help you decide? You are free to set aside any interpretation that does not fit.`;
+    const practice = `Take a few quiet minutes to name one question you are considering. Write down what you know, what you still need to learn, and one small, reversible next step. This exercise is for reflection and does not replace professional, medical, financial, or relationship advice.`;
+    const sections = [
+      { id: 'blockpoint' as const, title: 'Reflection prompt', description: reflection },
+      { id: 'crystalGrid' as const, title: 'Optional crystal ritual', description: 'If crystals are meaningful to you, choose one as a personal reminder of an intention. Their use is symbolic and is not a substitute for evidence-based care or practical action.' },
+      { id: 'ritual' as const, title: 'Journaling practice', description: practice },
+    ];
+
+    return (
+      <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025))', border: '1px solid rgba(255,255,255,0.10)' }}>
+        <div className="p-6 space-y-4" style={{ borderBottom: `1px solid ${accentColor}18` }}>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4" style={{ color: accentColor }} />
+            <h3 className="text-sm font-medium text-white">Oracle and Numerology Reflection</h3>
+            {!showFull && <span className="ml-auto text-[10px] font-bold rounded-full px-2 py-1" style={{ color: accentColor, background: `${accentColor}12` }}>25% preview</span>}
+          </div>
+          <div className="rounded-2xl p-5 space-y-3" style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
+            <div className="flex items-start gap-4">
+              <span className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl" style={{ background: `${accentColor}12` }}>{card.animalSpirit ?? '✦'}</span>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide" style={{ color: `${accentColor}bb` }}>Selected oracle card</p>
+                <h4 className="text-lg font-semibold" style={{ color: accentColor }}>{card.nameEn}</h4>
+                <p className="text-xs text-white/60">Life Path {lp} · Missing numbers: {report.missingNumbers.length ? report.missingNumbers.join(', ') : 'none listed'}</p>
+              </div>
+            </div>
+            <p className="text-sm leading-relaxed text-white/80">{numberPrompt}</p>
+            <p className="text-xs leading-relaxed text-white/50">Numerology and oracle symbolism are presented for personal reflection only. They do not establish facts about your future or determine what choices you should make.</p>
+          </div>
+        </div>
+        <div className="p-6 space-y-3">
+          {showFull ? sections.map((section) => {
+            const isOpen = expanded === section.id;
+            const gated = section.id !== 'blockpoint' && tier < 2;
+            return (
+              <div key={section.id} className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${accentColor}20` }}>
+                <button onClick={() => toggle(section.id)} className="w-full flex items-center justify-between gap-3 p-4 text-left">
+                  <span className="text-sm font-medium text-white/90">{section.title}</span>
+                  {isOpen ? <ChevronUp className="w-4 h-4" style={{ color: accentColor }} /> : <ChevronDown className="w-4 h-4" style={{ color: accentColor }} />}
+                </button>
+                {isOpen && <div className="px-4 pb-4"><p className="text-sm leading-relaxed text-white/75">{gated ? 'This section is available with the Advanced plan.' : section.description}</p>{gated && <button onClick={onOracleUnlock} className="mt-3 rounded-lg px-4 py-2 text-xs font-semibold" style={{ color: accentColor, border: `1px solid ${accentColor}40`, background: `${accentColor}10` }}>Unlock Advanced · NT$499</button>}</div>}
+              </div>
+            );
+          }) : (
+            <div className="rounded-2xl p-5 text-center" style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
+              <Lock className="mx-auto mb-2 h-4 w-4" style={{ color: accentColor }} />
+              <p className="text-sm font-medium text-white">Full reflection locked</p>
+              <p className="mt-1 text-xs text-white/60">Unlock the complete oracle and numerology reflection.</p>
+              <button onClick={onOracleUnlock} className="mt-4 rounded-lg px-4 py-2 text-xs font-semibold" style={{ color: '#07040f', background: accentColor }}>Unlock · NT$499</button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const toggle = (key: typeof expanded) => {
     setExpanded(prev => prev === key ? null : key);

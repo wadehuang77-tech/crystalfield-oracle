@@ -11,6 +11,10 @@ export function getLanguageFromPath(pathname: string): Language {
   return 'zh-Hant';
 }
 
+export function getCheckoutLocaleFromPath(pathname: string): 'en' | 'zh-TW' {
+  return getLanguageFromPath(pathname) === 'en' ? 'en' : 'zh-TW';
+}
+
 export function getLocalizedPath(pathname: string, language: Language): string {
   const normalizedPath = pathname.replace(/\/+$|\/+$/g, '') || '/';
   const basePath = normalizedPath.startsWith('/en') ? normalizedPath.slice(3) || '/' : normalizedPath;

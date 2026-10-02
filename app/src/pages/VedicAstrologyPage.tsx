@@ -161,7 +161,7 @@ export default function VedicAstrologyPage() {
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`vedic.${key}`, language) : fallback;
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthPlace: '' });
   const [chart, setChart] = useState<VedicChartResponse | null>(() => loadChart());
   const [isCalculating, setIsCalculating] = useState(false);
@@ -174,6 +174,7 @@ export default function VedicAstrologyPage() {
   const restoreRef = useRef(false);
   const returnOrderId = searchParams.get('order_id');
   const returnOrderToken = searchParams.get('order_token');
+  const returnToMarker = searchParams.get('return_to');
   const currentChartId = chart?.chart_id;
   const currentChartToken = chart?.chart_token;
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
@@ -216,6 +217,11 @@ export default function VedicAstrologyPage() {
         }
         setReport(result.report);
         setReportError('');
+        if (returnToMarker) {
+          const next = new URLSearchParams(window.location.search);
+          next.delete('return_to');
+          setSearchParams(next, { replace: true });
+        }
         window.setTimeout(() => document.getElementById('vedic-paid-report')?.scrollIntoView({ behavior: 'smooth' }), 100);
       } catch (reason) {
         if (cancelled) return;
@@ -249,7 +255,7 @@ export default function VedicAstrologyPage() {
       cancelled = true;
       window.clearTimeout(startTimer);
     };
-  }, [currentChartId, currentChartToken, returnOrderId, returnOrderToken]);
+  }, [currentChartId, currentChartToken, language, returnOrderId, returnOrderToken, returnToMarker, setSearchParams]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();

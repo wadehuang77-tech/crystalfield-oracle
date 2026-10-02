@@ -363,6 +363,7 @@ export default function HumanDesignPage() {
     const next = new URLSearchParams(params);
     next.delete('order_id');
     next.delete('order_token');
+    next.delete('return_to');
     setParams(next, { replace: true });
   }, [params, setParams]);
 

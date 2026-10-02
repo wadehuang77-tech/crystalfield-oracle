@@ -44,6 +44,59 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   vedic_complete: { id: 'vedic_complete', name: '印度占星｜完整人生地圖', amount: 699 },
 };
 
+export type CheckoutLocale = 'en' | 'zh-TW';
+
+export function normalizeCheckoutLocale(value: unknown): CheckoutLocale {
+  return value === 'en' || value === 'zh-TW' ? value : 'zh-TW';
+}
+
+export function checkoutReturnPath(locale: CheckoutLocale): string {
+  return locale === 'en' ? '/en/checkout/return' : '/checkout/return';
+}
+
+export interface EcpayBrowserReturnUrls {
+  clientBackURL: string;
+  orderResultURL: string;
+}
+
+export function buildEcpayBrowserReturnUrls(input: {
+  apiOrigin: string;
+  frontendOrigin: string;
+  locale: CheckoutLocale;
+  orderId: string;
+  orderToken: string;
+  returnTo: string;
+}): EcpayBrowserReturnUrls {
+  const clientBackURL = new URL(checkoutReturnPath(input.locale), input.frontendOrigin);
+  clientBackURL.searchParams.set('order_id', input.orderId);
+  clientBackURL.searchParams.set('order_token', input.orderToken);
+  clientBackURL.searchParams.set('return_to', input.returnTo);
+
+  const orderResultURL = new URL('/api/checkout/result', input.apiOrigin);
+  orderResultURL.searchParams.set('locale', input.locale);
+  orderResultURL.searchParams.set('return_to', input.returnTo);
+  return { clientBackURL: clientBackURL.toString(), orderResultURL: orderResultURL.toString() };
+}
+
+export function normalizeCheckoutReturnTo(value: unknown, locale: CheckoutLocale): string {
+  const fallback = locale === 'en' ? '/en' : '/';
+  if (typeof value !== 'string' || value.length === 0 || value.length > 2048) return fallback;
+  if (!value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\') || value.includes('\\') || /[\u0000-\u001f\u007f]/u.test(value)) {
+    return fallback;
+  }
+
+  try {
+    const base = 'https://crystalfield101.com';
+    const url = new URL(value, base);
+    if (url.origin !== base) return fallback;
+    const isEnglishPath = url.pathname === '/en' || url.pathname.startsWith('/en/');
+    if (locale === 'en' ? !isEnglishPath : isEnglishPath) return fallback;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
 function phpStyleUrlEncode(s: string): string {
   return encodeURIComponent(s)
     .replace(/'/g, '%27')
@@ -100,6 +153,7 @@ export interface AioCheckOutInput {
   tradeDesc: string;
   returnURL: string;
   clientBackURL: string;
+  locale?: CheckoutLocale;
   orderResultURL?: string;
   paymentType?: string;
   choosePayment?: string;
@@ -189,6 +243,7 @@ export async function buildAioCheckOutForm(
     EncryptType:       '1',
   };
   if (input.orderResultURL) fields.OrderResultURL = input.orderResultURL;
+  if (input.locale === 'en') fields.Language = 'ENG';
   if (input.periodAmount !== undefined) fields.PeriodAmount = String(input.periodAmount);
   if (input.periodType) fields.PeriodType = input.periodType;
   if (input.frequency !== undefined) fields.Frequency = String(input.frequency);

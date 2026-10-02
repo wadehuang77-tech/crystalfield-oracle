@@ -9,6 +9,7 @@ interface InlineEmailUnlockProps {
   readingType: string;
   cardData?: Record<string, unknown>;
   theme?: 'light' | 'dark';
+  language?: 'zh-Hant' | 'en';
   cardUnlock?: { spread_id: string; card_key: string; reversed?: boolean };
   useTarotLogin?: boolean;
 }
@@ -17,7 +18,7 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', cardUnlock, useTarotLogin }: InlineEmailUnlockProps) {
+export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', language = 'zh-Hant', cardUnlock, useTarotLogin }: InlineEmailUnlockProps) {
   const { user, loading: authLoading } = useAuth();
   const [emailInput, setEmailInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,6 +38,7 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
   readingTypeRef.current = readingType;
 
   const tarotReading = useTarotLogin ?? /^(tarot|osho|lightworker|unicorns|egyptian|dragons|work_your_light|celtic_cross|cosmic_cross)/.test(readingType);
+  const isEnglish = language === 'en';
 
   useEffect(() => {
     if (tarotReading) return;
@@ -69,10 +71,10 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
         }
       } catch (err) {
         setAutoUnlockFailed(true);
-        setAutoUnlockError(err instanceof Error ? err.message : '自動解鎖失敗');
+        setAutoUnlockError(err instanceof Error ? err.message : (isEnglish ? 'Automatic unlock failed' : '自動解鎖失敗'));
       }
     })();
-  }, [user?.id, tarotReading]);
+  }, [user?.id, tarotReading, isEnglish]);
 
   if (tarotReading) return <TarotLoginGate theme={theme} />;
   if (authLoading) return null;
@@ -83,7 +85,7 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
     const trimmed = emailInput.trim().toLowerCase();
 
     if (!isValidEmail(trimmed)) {
-      setError('請輸入有效的 Email 地址');
+      setError(isEnglish ? 'Enter a valid email address.' : '請輸入有效的 Email 地址');
       return;
     }
 
@@ -106,12 +108,12 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
 
       const data = await publicApi.saveEmail(trimmed, readingType);
       if (!data.success) {
-        setError(data.message || '提交失敗，請稍後再試');
+        setError(data.message || (isEnglish ? 'Submission failed. Please try again.' : '提交失敗，請稍後再試'));
         return;
       }
       onUnlocked(trimmed);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '系統錯誤，請稍後再試');
+      setError(err instanceof Error ? err.message : (isEnglish ? 'Something went wrong. Please try again.' : '系統錯誤，請稍後再試'));
     } finally {
       setIsSubmitting(false);
     }
@@ -128,19 +130,19 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
             </div>
           </div>
           <div className="text-center mb-6">
-            <p className="text-blue-100/60 text-sm uppercase tracking-widest mb-3">這張牌還有更關鍵的訊息</p>
+            <p className="text-blue-100/60 text-sm uppercase tracking-widest mb-3">{isEnglish ? 'More insight is available' : '這張牌還有更關鍵的訊息'}</p>
             <h3 className="text-xl font-medium text-blue-100 mb-3 leading-snug">
-              你現在看到的只是表層訊息<br />
-              <span className="text-blue-300">真正的轉化，在後面</span>
+              {isEnglish ? 'You are viewing a preview.' : '你現在看到的只是表層訊息'}<br />
+              <span className="text-blue-300">{isEnglish ? 'Unlock the complete reading' : '真正的轉化，在後面'}</span>
             </h3>
             <p className="inline-flex items-center justify-center rounded-full border border-blue-200/35 bg-blue-100/15 px-4 py-2 text-sm font-bold leading-relaxed text-blue-50 shadow-[0_0_22px_rgba(96,165,250,0.28)]">
-              輸入 Email，解鎖完整指引與能量提醒
+              {isEnglish ? 'Enter your email to unlock the full reading' : '輸入 Email，解鎖完整指引與能量提醒'}
             </p>
           </div>
 
           {autoUnlockFailed && (
             <div className="border border-red-500/45 bg-red-500/10 px-3 py-2 mb-4 text-xs text-blue-200 tracking-wide text-center">
-              自動解鎖失敗{autoUnlockError ? `:${autoUnlockError}` : ''}，請重新輸入 Email 試試
+              {isEnglish ? 'Automatic unlock failed' : '自動解鎖失敗'}{autoUnlockError ? `: ${autoUnlockError}` : ''}{isEnglish ? '. Enter your email and try again.' : '，請重新輸入 Email 試試'}
             </div>
           )}
 
@@ -166,14 +168,14 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
-                  <span>處理中...</span>
+                  <span>{isEnglish ? 'Working…' : '處理中...'}</span>
                 </>
               ) : (
-                <span>解鎖完整解讀</span>
+                <span>{isEnglish ? 'Unlock full reading' : '解鎖完整解讀'}</span>
               )}
             </button>
           </form>
-          <p className="text-xs text-blue-100/25 text-center mt-3">我們尊重您的隱私，絕不發送垃圾郵件</p>
+          <p className="text-xs text-blue-100/25 text-center mt-3">{isEnglish ? 'Your email will not be used for spam.' : '我們尊重您的隱私，絕不發送垃圾郵件'}</p>
         </div>
       </div>
     );
@@ -189,19 +191,19 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
           </div>
         </div>
         <div className="text-center mb-6">
-          <p className="text-slate-500 text-xs uppercase tracking-widest mb-3">這張牌還有更關鍵的訊息</p>
+          <p className="text-slate-500 text-xs uppercase tracking-widest mb-3">{isEnglish ? 'More insight is available' : '這張牌還有更關鍵的訊息'}</p>
           <h3 className="text-xl font-semibold text-slate-900 mb-3 leading-snug">
-            你現在看到的只是表層訊息<br />
-            <span className="text-slate-700">真正的轉化，在後面</span>
+            {isEnglish ? 'You are viewing a preview.' : '你現在看到的只是表層訊息'}<br />
+            <span className="text-slate-700">{isEnglish ? 'Unlock the complete reading' : '真正的轉化，在後面'}</span>
           </h3>
           <p className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-sm font-bold leading-relaxed text-white shadow-md">
-            輸入 Email，解鎖完整指引與能量提醒
+            {isEnglish ? 'Enter your email to unlock the full reading' : '輸入 Email，解鎖完整指引與能量提醒'}
           </p>
         </div>
 
         {autoUnlockFailed && (
           <div className="border border-red-500/45 bg-red-500/10 px-3 py-2 mb-4 text-xs text-slate-900 tracking-wide text-center">
-            自動解鎖失敗{autoUnlockError ? `:${autoUnlockError}` : ''}，請重新輸入 Email 試試
+            {isEnglish ? 'Automatic unlock failed' : '自動解鎖失敗'}{autoUnlockError ? `: ${autoUnlockError}` : ''}{isEnglish ? '. Enter your email and try again.' : '，請重新輸入 Email 試試'}
           </div>
         )}
 
@@ -227,14 +229,14 @@ export function InlineEmailUnlock({ onUnlocked, readingType, theme = 'light', ca
             {isSubmitting ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
-                <span>處理中...</span>
+                <span>{isEnglish ? 'Working…' : '處理中...'}</span>
               </>
             ) : (
-              <span>解鎖完整解讀</span>
+              <span>{isEnglish ? 'Unlock full reading' : '解鎖完整解讀'}</span>
             )}
           </button>
         </form>
-        <p className="text-xs text-slate-400 text-center mt-3">我們尊重您的隱私，絕不發送垃圾郵件</p>
+        <p className="text-xs text-slate-400 text-center mt-3">{isEnglish ? 'Your email will not be used for spam.' : '我們尊重您的隱私，絕不發送垃圾郵件'}</p>
       </div>
     </div>
   );

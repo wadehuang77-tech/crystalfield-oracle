@@ -1,4 +1,5 @@
 import { trackBeginCheckout, trackUnlockClick } from './ga4';
+import { getCheckoutLocaleFromPath } from './i18n';
 
 const BASE = import.meta.env.VITE_API_BASE
   || (import.meta.env.PROD ? 'https://api.crystalfield101.com' : '');
@@ -326,7 +327,16 @@ export const checkoutApi = {
     trackUnlockClick(spread_id);
     const result = await req<{ order_id: string; merchant_trade_no: string; item_name: string; amount: number; ecpay: EcpayForm | null; admin_unlocked?: boolean; order_token?: string | null }>(
       '/api/checkout/create-order',
-      { method: 'POST', body: { spread_id, picks, ...guest } },
+      {
+        method: 'POST',
+        body: {
+          spread_id,
+          picks,
+          ...guest,
+          locale: getCheckoutLocaleFromPath(window.location.pathname),
+          return_to: `${window.location.pathname}${window.location.search}${window.location.hash}`,
+        },
+      },
     );
     if (!result.admin_unlocked) {
       trackBeginCheckout(spread_id, result.merchant_trade_no, result.amount, result.item_name);

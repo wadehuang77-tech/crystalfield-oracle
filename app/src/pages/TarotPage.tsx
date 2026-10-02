@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
@@ -19,7 +19,7 @@ import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
-import { consumePendingSingleDraw } from '../lib/pendingDraw';
+import { clearPendingDraw, consumePendingSingleDraw, readPendingDraw, savePendingDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart, type OracleSpreadId } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
@@ -78,6 +78,11 @@ const SPREAD_IDS: Record<SpreadType, OracleSpreadId> = {
   pastlife: 'tarot_pastlife'
 };
 
+const PAST_LIFE_POSITIONS = [
+  '前世身份能量', '前世關鍵事件', '帶來的影響', '今生呈現的問題',
+  '重複的模式', '靈魂要釋放的', '解鎖與療癒方式',
+];
+
 const CELTIC_CROSS_POSITIONS = [
   '當前狀況',
   '挑戰/障礙',
@@ -102,7 +107,7 @@ interface DrawnCard {
 function TarotPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const language = getLanguageFromPath(location.pathname);
   const copy = translations[language].tarot;
   const cardLabel = (label: string) => localizeCardLabel(label, language);
@@ -177,7 +182,58 @@ function TarotPage() {
       return u ? { ...d, card: buildShim(d.preview, u.gated as unknown as TarotGated) } : d;
     }));
     setIsLocallyUnlocked(true);
+    clearPendingDraw();
   }, [multiGate.unlockedCards]);
+
+  const restorePendingMultiDraw = useCallback((pending: NonNullable<ReturnType<typeof readPendingDraw>>) => {
+    if (!deck?.length) return false;
+    const restoredSpread = (Object.entries(SPREAD_IDS).find(([, spreadId]) => spreadId === pending.spread_id)?.[0] ?? null) as SpreadType | null;
+    if (!restoredSpread || restoredSpread === 'single') return false;
+
+    const restored: DrawnCard[] = [];
+    for (let index = 0; index < pending.picks.length; index++) {
+      const pick = pending.picks[index];
+      const preview = deck.find((card) => card.card_key === pick.card_key);
+      if (!preview) return false;
+      restored.push({
+        preview,
+        card: buildShim(preview),
+        isReversed: !!pick.reversed,
+        revealed: true,
+        position: restoredSpread === 'pastlife' ? PAST_LIFE_POSITIONS[index] : undefined,
+      });
+    }
+    if (restored.length === 0) return false;
+
+    setSpreadType(restoredSpread);
+    setShowCardLayout(true);
+    setDrawnCards(restored);
+    setHasDrawn(true);
+    setIsLocallyUnlocked(false);
+    setIsUnlocked(false);
+    setUnlockError(null);
+    return true;
+  }, [deck]);
+
+  const pendingDrawRestoreStartedRef = useRef(false);
+  useEffect(() => {
+    if (pendingDrawRestoreStartedRef.current || !deck?.length || searchParams.has('order_id')) return;
+    if (hasDrawn || drawnCards.length > 0) return;
+    const pending = readPendingDraw();
+    if (!pending) return;
+    if (!['tarot_three', 'tarot_celtic', 'tarot_pastlife'].includes(pending.spread_id)) return;
+    pendingDrawRestoreStartedRef.current = true;
+    if (!restorePendingMultiDraw(pending)) setUnlockError('無法還原先前的牌陣，請重新抽牌');
+  }, [deck, drawnCards.length, hasDrawn, restorePendingMultiDraw, searchParams]);
+
+  useEffect(() => {
+    if (!hasDrawn || isLocallyUnlocked || spreadType === 'single' || drawnCards.length === 0) return;
+    savePendingDraw(SPREAD_IDS[spreadType], drawnCards.map((drawn, index) => ({
+      card_key: drawn.preview.card_key,
+      position: index + 1,
+      reversed: drawn.isReversed,
+    })));
+  }, [drawnCards, hasDrawn, isLocallyUnlocked, spreadType]);
 
   const handleEmailSubmitted = (email: string, card?: UnlockedCard) => {
     singleGate.onEmailUnlocked(email, card);
@@ -210,6 +266,7 @@ function TarotPage() {
 
   const drawSingleCard = () => {
     if (!deck || deck.length === 0) return;
+    clearPendingDraw();
     trackReadingStart('tarot_single');
 
     setIsDrawing(true);
@@ -268,6 +325,20 @@ function TarotPage() {
     (async () => {
       try {
         const { order } = await checkoutApi.getOrder(orderId, orderToken);
+        if (order.item_id === TAROT_SUBSCRIPTION.id && order.status === 'paid') {
+          const pending = readPendingDraw();
+          const isTarotPending = !!pending && ['tarot_three', 'tarot_celtic', 'tarot_pastlife'].includes(pending.spread_id);
+          if (isTarotPending && !restorePendingMultiDraw(pending!)) {
+            setUnlockError('無法還原先前的牌陣，請重新抽牌');
+          }
+          window.dispatchEvent(new Event('tarot-entitlement-changed'));
+          const next = new URLSearchParams(searchParams);
+          next.delete('order_id');
+          next.delete('order_token');
+          next.delete('return_to');
+          setSearchParams(next, { replace: true });
+          return;
+        }
         if (!order.picks || order.status !== 'paid') {
           setUnlockError('無法還原此訂單(status/picks 不符)');
           return;
@@ -284,11 +355,6 @@ function TarotPage() {
           return;
         }
 
-        const pastLifePositions = [
-          '前世身份能量', '前世關鍵事件', '帶來的影響', '今生呈現的問題',
-          '重複的模式', '靈魂要釋放的', '解鎖與療癒方式',
-        ];
-
         const restored: DrawnCard[] = [];
         for (let i = 0; i < order.picks.length; i++) {
           const pick = order.picks[i];
@@ -302,7 +368,7 @@ function TarotPage() {
             card: buildShim(preview),
             isReversed: pick.reversed ?? false,
             revealed: true,
-            position: restoredSpread === 'pastlife' ? pastLifePositions[i] : undefined,
+            position: restoredSpread === 'pastlife' ? PAST_LIFE_POSITIONS[i] : undefined,
           });
         }
 
@@ -331,10 +397,11 @@ function TarotPage() {
         setUnlockError(e instanceof Error ? `還原訂單失敗:${e.message}` : '還原訂單失敗');
       }
     })();
-  }, [searchParams, deck]);
+  }, [searchParams, deck, restorePendingMultiDraw, setSearchParams]);
 
   const performDraw = () => {
     if (!deck || deck.length === 0) return;
+    clearPendingDraw();
     trackReadingStart(SPREAD_IDS[spreadType]);
 
     setIsDrawing(true);
@@ -371,6 +438,7 @@ function TarotPage() {
   };
 
   const resetDraw = () => {
+    clearPendingDraw();
     setDrawnCards([]);
     setHasDrawn(false);
     setShowCardLayout(false);
@@ -379,6 +447,7 @@ function TarotPage() {
   };
 
   const handleSpreadTypeChange = (newSpreadType: SpreadType) => {
+    clearPendingDraw();
     setSpreadType(newSpreadType);
     setIsLocallyUnlocked(false);
     setShowCardLayout(true);

@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Sun, Briefcase, Heart, Sparkles, AlertTriangle, Gem, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
 import type { NumerologyReport } from '../../lib/numerology';
 import { getPersonalYearData } from '../../lib/numerology';
+import { localizePersonalYearData } from '../../lib/numerologyDisplay';
 import NumerologyShareButton from './NumerologyShare';
 
 interface Props {
+  language: 'zh-Hant' | 'en';
   report: NumerologyReport;
   forecastUnlocked: boolean;
   onForecastUnlock: () => void;
@@ -40,6 +42,29 @@ const LOCKED_PREVIEW_ITEMS = [
   { icon: <Heart className="w-3 h-3" />, label: '財運、事業、感情完整解析' },
 ];
 
+const SECTION_LABELS_EN: Record<string, string> = {
+  career: 'Career and Resources',
+  love: 'Relationships',
+  spiritual: 'Personal Growth',
+  warning: 'Things to Watch',
+};
+
+const UNLOCK_FEATURES_EN = [
+  'Full personal-year reading',
+  'Crystal associations',
+  'Career and resource prompts',
+  'Relationship reflections',
+  'Yearly reflection guide',
+  'Personal-growth themes',
+];
+
+const LOCKED_PREVIEW_ITEMS_EN = [
+  'Full personal-year reading',
+  'Crystal associations',
+  'Quarterly reflections',
+  'Career and relationship themes',
+];
+
 function QuarterCard({ quarter, color }: { quarter: { label: string; energy: string; focus: string }; color: string }) {
   return (
     <div
@@ -60,12 +85,16 @@ function QuarterCard({ quarter, color }: { quarter: { label: string; energy: str
   );
 }
 
-export default function PersonalYearForecast({ report, forecastUnlocked, onForecastUnlock }: Props) {
+export default function PersonalYearForecast({ language, report, forecastUnlocked, onForecastUnlock }: Props) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const data = getPersonalYearData(report.personalYearNumber);
+  const isEnglish = language === 'en';
+  const sourceData = getPersonalYearData(report.personalYearNumber);
+  const data = isEnglish ? localizePersonalYearData(sourceData) : sourceData;
   const color = data.color;
   const CURRENT_YEAR = 2026;
   const sections = ['career', 'love', 'spiritual', 'warning'] as const;
+  const sectionLabels = isEnglish ? SECTION_LABELS_EN : SECTION_LABELS;
+  const unlockFeatures = isEnglish ? UNLOCK_FEATURES_EN : UNLOCK_FEATURES;
   const showFull = forecastUnlocked;
 
   return (
@@ -106,7 +135,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
               }}
             >
               <span className="font-serif font-bold text-2xl text-obsidian-950">{data.number}</span>
-              <span className="text-[8px] text-obsidian-950 font-semibold opacity-70">流年</span>
+              <span className="text-[8px] text-obsidian-950 font-semibold opacity-70">{isEnglish ? 'YEAR' : '流年'}</span>
             </div>
           </div>
 
@@ -116,14 +145,14 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                 className="text-[10px] font-bold uppercase tracking-widest rounded-full px-3 py-1"
                 style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}
               >
-                {CURRENT_YEAR} 流年運勢
+                {isEnglish ? `${CURRENT_YEAR} Personal Year` : `${CURRENT_YEAR} 流年運勢`}
               </span>
               {!showFull && (
                 <span style={{
                   fontSize: 10, fontWeight: 700, padding: '2px 8px',
                   borderRadius: 999, background: `${color}12`,
                   border: `1px solid ${color}25`, color,
-                }}>25% 免費</span>
+                }}>{isEnglish ? '25% preview' : '25% 免費'}</span>
               )}
             </div>
             <h3 className="font-serif text-xl font-semibold mb-1" style={{ color }}>
@@ -141,11 +170,11 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
           <div className="flex items-center gap-2 mb-3">
             <Sun className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />
             <span className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color }}>
-              {CURRENT_YEAR} 流年能量總覽
+              {isEnglish ? `${CURRENT_YEAR} Overview` : `${CURRENT_YEAR} 流年能量總覽`}
             </span>
           </div>
           <p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{data.overview}</p>
-          <NumerologyShareButton group="forecast" sectionKey="forecast_summary" sectionName={`${CURRENT_YEAR} 流年運勢`} number={data.number} summary={data.overview} guidance={data.affirmation} highlights={[data.keyword, data.theme]} />
+          <NumerologyShareButton group="forecast" sectionKey="forecast_summary" sectionName={isEnglish ? `${CURRENT_YEAR} Personal Year` : `${CURRENT_YEAR} 流年運勢`} number={data.number} summary={data.overview} guidance={data.affirmation} highlights={[data.keyword, data.theme]} />
         </div>
 
         {/* Progress bar — shown when locked */}
@@ -153,7 +182,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <p style={{ margin: 0, fontSize: 11, color: `${color}cc`, fontWeight: 500 }}>
-                您已查看 25% 流年運勢解析
+                {isEnglish ? 'You are viewing a 25% preview.' : '您已查看 25% 流年運勢解析'}
               </p>
               <span style={{ fontSize: 11, fontWeight: 700, color }}>25%</span>
             </div>
@@ -165,7 +194,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
               }} />
             </div>
             <p style={{ margin: '5px 0 0', fontSize: 10, color: `${color}60` }}>
-              解鎖完整年度運勢與守護水晶指引
+              {isEnglish ? 'Unlock the full year-ahead reading and crystal prompts.' : '解鎖完整年度運勢與守護水晶指引'}
             </p>
           </div>
         )}
@@ -198,7 +227,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                         {SECTION_ICONS[key]}
                       </div>
                       <span className="flex-1 text-sm font-medium" style={{ color: '#e9d5ff' }}>
-                        {SECTION_LABELS[key]}
+                        {sectionLabels[key]}
                       </span>
                       {isOpen
                         ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.4)' }} />
@@ -209,7 +238,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                         <p className="text-sm leading-[1.9] pt-3" style={{ color: '#e9d5ff' }}>
                           {data[key as 'career' | 'love' | 'spiritual' | 'warning']}
                         </p>
-                        <NumerologyShareButton group="forecast" sectionKey={`forecast_${key}`} sectionName={SECTION_LABELS[key]} number={data.number} summary={data[key]} guidance={data.affirmation} />
+                        <NumerologyShareButton group="forecast" sectionKey={`forecast_${key}`} sectionName={sectionLabels[key]} number={data.number} summary={data[key]} guidance={data.affirmation} />
                       </div>
                     )}
                   </div>
@@ -222,7 +251,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
               <div className="flex items-center gap-2">
                 <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color }}>
-                  {CURRENT_YEAR} 流年守護水晶
+                  {isEnglish ? `${CURRENT_YEAR} Crystal Associations` : `${CURRENT_YEAR} 流年守護水晶`}
                 </span>
               </div>
               <div className="space-y-2">
@@ -241,15 +270,15 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>
-                        {c.nameZh}
-                        <span className="font-normal text-xs ml-1.5" style={{ color: 'rgba(196,181,253,0.4)' }}>{c.name}</span>
+                        {isEnglish ? c.name : c.nameZh}
+                        {!isEnglish && <span className="font-normal text-xs ml-1.5" style={{ color: 'rgba(196,181,253,0.4)' }}>{c.name}</span>}
                       </p>
                       <p className="text-xs leading-relaxed mt-0.5" style={{ color: 'rgba(233,213,255,0.55)' }}>{c.reason}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <NumerologyShareButton group="forecast" sectionKey="forecast_crystals" sectionName="流年守護水晶" number={data.number} summary={data.crystals.map(c => `${c.nameZh}：${c.reason}`).join('；')} guidance={data.affirmation} highlights={data.crystals.map(c => c.nameZh)} />
+              <NumerologyShareButton group="forecast" sectionKey="forecast_crystals" sectionName={isEnglish ? 'Personal-Year Crystal Associations' : '流年守護水晶'} number={data.number} summary={data.crystals.map(c => `${isEnglish ? c.name : c.nameZh}: ${c.reason}`).join('; ')} guidance={data.affirmation} highlights={data.crystals.map(c => isEnglish ? c.name : c.nameZh)} />
             </div>
 
             {/* Affirmation */}
@@ -258,17 +287,17 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
               style={{ background: `${color}06`, border: `1px solid ${color}20` }}
             >
               <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: `${color}80` }}>
-                {CURRENT_YEAR} 流年宣言
+                {isEnglish ? `${CURRENT_YEAR} Affirmation` : `${CURRENT_YEAR} 流年宣言`}
               </p>
               <p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>
-                「{data.affirmation}」
+                {isEnglish ? '“' : '「'}{data.affirmation}{isEnglish ? '”' : '」'}
               </p>
             </div>
 
             {/* Quarterly Breakdown */}
             <div className="space-y-3">
               <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(196,181,253,0.35)' }}>
-                {CURRENT_YEAR} 季度能量預報
+                {isEnglish ? `${CURRENT_YEAR} Quarterly Reflections` : `${CURRENT_YEAR} 季度能量預報`}
               </p>
               {data.quarters.map(q => (
                 <QuarterCard key={q.label} quarter={q} color={color} />
@@ -283,8 +312,8 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
               display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px',
               marginBottom: 14,
             }}>
-              {LOCKED_PREVIEW_ITEMS.map(item => (
-                <div key={item.label} style={{
+              {(isEnglish ? LOCKED_PREVIEW_ITEMS_EN : LOCKED_PREVIEW_ITEMS.map((item) => item.label)).map((label) => (
+                <div key={label} style={{
                   display: 'flex', alignItems: 'center', gap: 7,
                   padding: '9px 12px', borderRadius: 10,
                   background: `${color}07`,
@@ -298,7 +327,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                   }}>
                     <Lock style={{ width: 10, height: 10 }} />
                   </div>
-                  <span style={{ fontSize: 11, color: `${color}90`, fontWeight: 500, lineHeight: 1.3 }}>{item.label}</span>
+                  <span style={{ fontSize: 11, color: `${color}90`, fontWeight: 500, lineHeight: 1.3 }}>{label}</span>
                 </div>
               ))}
             </div>
@@ -324,7 +353,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                             {SECTION_ICONS[key]}
                           </div>
                           <span className="flex-1 text-sm font-medium" style={{ color: '#e9d5ff' }}>
-                            {SECTION_LABELS[key]}
+                            {sectionLabels[key]}
                           </span>
                           <ChevronDown className="w-4 h-4" style={{ color: 'rgba(167,139,250,0.4)' }} />
                         </div>
@@ -335,8 +364,8 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                     style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                     <div className="w-8 h-8 rounded-lg flex-shrink-0" style={{ background: `${color}44` }} />
                     <div>
-                      <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>流年守護水晶</p>
-                      <p className="text-xs" style={{ color: 'rgba(233,213,255,0.55)' }}>專屬水晶能量加持</p>
+                      <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{isEnglish ? 'Crystal associations' : '流年守護水晶'}</p>
+                      <p className="text-xs" style={{ color: 'rgba(233,213,255,0.55)' }}>{isEnglish ? 'Optional symbols for reflection' : '專屬水晶能量加持'}</p>
                     </div>
                   </div>
                   {data.quarters.slice(0, 2).map(q => (
@@ -371,7 +400,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                   <Lock style={{ width: 18, height: 18, color }} />
                 </div>
                 <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: `${color}cc` }}>
-                  完整流年報告已鎖定
+                  {isEnglish ? 'Full personal-year report locked' : '完整流年報告已鎖定'}
                 </p>
               </div>
             </div>
@@ -385,17 +414,17 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
             }}>
               <div style={{ textAlign: 'center', marginBottom: 14 }}>
                 <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color }}>
-                  解鎖完整年度流年報告
+                  {isEnglish ? 'Unlock the Full Personal-Year Report' : '解鎖完整年度流年報告'}
                 </p>
                 <p style={{ margin: '4px 0 0', fontSize: 11, color: `${color}70` }}>
-                  NT$499 永久查看
+                  {isEnglish ? 'Lifetime access · NT$499' : 'NT$499 永久查看'}
                 </p>
               </div>
               <div style={{
                 display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px 10px',
                 marginBottom: 16,
               }}>
-                {UNLOCK_FEATURES.map(f => (
+                {unlockFeatures.map(f => (
                   <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Check style={{ width: 11, height: 11, color, flexShrink: 0 }} />
                     <span style={{ fontSize: 11, color: 'rgba(196,181,253,0.68)' }}>{f}</span>
@@ -420,7 +449,7 @@ export default function PersonalYearForecast({ report, forecastUnlocked, onForec
                 } as React.CSSProperties}
               >
                 <Lock style={{ width: 13, height: 13 }} />
-                解鎖完整流年報告 NT$499
+                {isEnglish ? 'Unlock Full Forecast · NT$499' : '解鎖完整流年報告 NT$499'}
               </button>
             </div>
           </div>

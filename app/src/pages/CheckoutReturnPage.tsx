@@ -5,6 +5,8 @@ import { checkoutApi, type Order } from '../lib/api';
 import { consumeMembershipCheckoutRedirect } from '../lib/pendingDraw';
 import { formatPrice } from '../lib/spread-prices';
 import { trackPurchase, trackTarotPaymentFailed, trackTarotPaymentSuccess, trackTarotSubscriptionStart } from '../lib/ga4';
+import { getLanguageFromPath, getLocalizedPath } from '../lib/i18n';
+import { isSafeAuthRedirect } from '../lib/authLocale';
 
 const SPREAD_HOME: Record<string, string> = {
   tarot_three:        '/tarot?spread=three',
@@ -34,19 +36,101 @@ const SPREAD_HOME: Record<string, string> = {
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {
-  const sep = url.includes('?') ? '&' : '?';
-  const tokenPart = orderToken ? `&order_token=${encodeURIComponent(orderToken)}` : '';
-  return `${url}${sep}order_id=${encodeURIComponent(orderId)}${tokenPart}`;
+  const target = new URL(url, 'https://crystalfield101.com');
+  target.searchParams.set('order_id', orderId);
+  if (orderToken) target.searchParams.set('order_token', orderToken);
+  return `${target.pathname}${target.search}${target.hash}`;
 }
 
 const POLL_INTERVAL_MS  = 2000;
 const POLL_TIMEOUT_MS   = 90_000;
 
+const CHECKOUT_RETURN_COPY = {
+  en: {
+    missingOrder: 'Missing order ID',
+    notFound: 'Order not found. Please check the link.',
+    unavailable: 'Unable to retrieve order status.',
+    failedTitle: 'Payment not completed',
+    failedBody: 'The payment failed or was canceled. No charge was made. Contact support if you need help.',
+    home: 'Home',
+    signIn: 'Please sign in again',
+    expired: 'Your sign-in session expired. ECPay has recorded the payment; sign in again to access your reading.',
+    signingIn: 'Confirming payment',
+    waiting: 'Please wait while we confirm your payment with ECPay…',
+    pending: 'Your payment is still processing. Bank transfers and convenience-store payments may take longer to settle. Your purchase will unlock when payment is confirmed. You can return later to check.',
+    checking: 'Checking payment',
+    pleaseWait: 'Please wait…',
+    success: 'Payment successful',
+    orderNumber: 'ORDER NUMBER',
+    vedicProcessing: 'Your in-depth reading is being prepared and may take 1–2 minutes.',
+    keepReportOpen: 'Keep this report page open; it will update when ready.',
+    unlocked: 'Your content is unlocked. You can return to view the full reading.',
+    redirecting: 'Taking you back shortly…',
+    viewReading: 'VIEW FULL READING',
+    genericItem: 'Digital reading',
+  },
+  'zh-Hant': {
+    missingOrder: '缺少訂單編號',
+    notFound: '找不到此訂單,請確認連結正確',
+    unavailable: '無法取得訂單狀態',
+    failedTitle: '付款未完成',
+    failedBody: '付款失敗或已取消,沒有從你的帳戶扣款。如有疑問請聯繫客服。',
+    home: '回首頁',
+    signIn: '請重新登入',
+    expired: '你的登入狀態已過期。付款本身已記錄在綠界,重新登入後即可看到完整解析。',
+    signingIn: '確認付款中',
+    waiting: '請稍候,正在向綠界確認付款結果⋯',
+    pending: '付款仍在處理(ATM / 超商代碼可能需要一段時間入帳),完成後系統會自動解鎖。你可以先回首頁,稍後再回來查看。',
+    checking: '確認中',
+    pleaseWait: '請稍候⋯',
+    success: '付款成功',
+    orderNumber: '訂 單 號',
+    vedicProcessing: '深度指引產生中，請等候約 1～2 分鐘。',
+    keepReportOpen: '請保持報告頁開啟，完成後會自動顯示。',
+    unlocked: '你的內容已解鎖,可以回去查看完整解析。',
+    redirecting: '即將自動帶你回去⋯',
+    viewReading: '立 刻 查 看 完 整 解 析',
+    genericItem: '數位解析',
+  },
+} as const;
+
+const ITEM_NAMES_EN: Record<string, string> = {
+  tarot_monthly_600: 'All-Access Tarot Membership',
+  numerology_basic: 'Basic Numerology Reading',
+  numerology_advanced: 'Advanced Numerology Reading',
+  numerology_full: 'Full Numerology Soul Reading',
+  numerology_forecast: 'Numerology Year Forecast',
+  human_design_basic: 'Human Design Core Reading',
+  human_design_full: 'Human Design Life Guide',
+  human_design_bundle: 'Human Design Reading Bundle',
+  vedic_career: 'Vedic Astrology: Career and Wealth',
+  vedic_relationship: 'Vedic Astrology: Love and Marriage',
+  vedic_karma: 'Vedic Astrology: Past-Life Karma',
+  vedic_timeline: 'Vedic Astrology: Ten-Year Forecast',
+  vedic_full: 'Complete Vedic Astrology Reading',
+  vedic_soul_karma: 'Vedic Astrology: Soul Karma',
+  vedic_life_full: 'Vedic Astrology: Complete Life Reading',
+  vedic_complete: 'Vedic Astrology: Complete Life Map',
+};
+
 export default function CheckoutReturnPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const language = getLanguageFromPath(window.location.pathname);
+  const isEnglish = language === 'en';
+  const copy = CHECKOUT_RETURN_COPY[language];
+  const localizedPath = (path: string) => getLocalizedPath(path, language);
   const orderId = params.get('order_id') ?? '';
   const orderToken = params.get('order_token');
+  const requestedReturnTo = params.get('return_to');
+  const returnTo = isSafeAuthRedirect(requestedReturnTo)
+    && getLanguageFromPath(requestedReturnTo) === language
+    ? requestedReturnTo
+    : null;
+  const signInReturnParams = new URLSearchParams({ order_id: orderId });
+  if (orderToken) signInReturnParams.set('order_token', orderToken);
+  if (returnTo) signInReturnParams.set('return_to', returnTo);
+  const signInReturnTo = `${localizedPath('/checkout/return')}?${signInReturnParams}`;
 
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState('');
@@ -56,7 +140,7 @@ export default function CheckoutReturnPage() {
 
   useEffect(() => {
     if (!orderId) {
-      setError('缺少訂單編號');
+      setError(copy.missingOrder);
       return;
     }
     let stopped = false;
@@ -80,10 +164,10 @@ export default function CheckoutReturnPage() {
             return;
           }
         } else if (status === 404) {
-          setError('找不到此訂單,請確認連結正確');
+          setError(copy.notFound);
           return;
         } else if (Date.now() - startRef.current > 10_000) {
-          setError(e instanceof Error ? e.message : '無法取得訂單狀態');
+          setError(isEnglish ? copy.unavailable : e instanceof Error ? e.message : copy.unavailable);
           return;
         }
       }
@@ -100,18 +184,22 @@ export default function CheckoutReturnPage() {
       stopped = true;
       if (timer) clearTimeout(timer);
     };
-  }, [orderId, orderToken]);
+  }, [orderId, orderToken, copy, isEnglish]);
 
-  const goHome = () => navigate('/');
+  const goHome = () => navigate(localizedPath('/'));
   const goSpread = () => {
     if (!order) return;
+    if (returnTo) {
+      navigate(appendOrderId(returnTo, order.id, orderToken));
+      return;
+    }
     if (order.item_id === 'tarot_monthly_600') {
       const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
-      navigate(redirect);
+      navigate(localizedPath(redirect));
       return;
     }
     const base = SPREAD_HOME[order.item_id] ?? '/';
-    navigate(appendOrderId(base, order.id, orderToken));
+    navigate(appendOrderId(localizedPath(base), order.id, orderToken));
   };
 
   useEffect(() => {
@@ -139,16 +227,20 @@ export default function CheckoutReturnPage() {
     if (order?.status !== 'paid') return;
     const isVedicOrder = order.item_id.startsWith('vedic_');
     const t = setTimeout(() => {
+      if (returnTo) {
+        navigate(appendOrderId(returnTo, order.id, orderToken), { replace: true });
+        return;
+      }
       if (order.item_id === 'tarot_monthly_600') {
         const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
-        navigate(redirect, { replace: true });
+        navigate(getLocalizedPath(redirect, language), { replace: true });
         return;
       }
       const base = SPREAD_HOME[order.item_id] ?? '/';
-      navigate(appendOrderId(base, order.id, orderToken), { replace: true });
+      navigate(appendOrderId(getLocalizedPath(base, language), order.id, orderToken), { replace: true });
     }, isVedicOrder ? 800 : 3500);
     return () => clearTimeout(t);
-  }, [order, navigate, orderToken]);
+  }, [order, navigate, orderToken, returnTo, language]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
@@ -158,70 +250,63 @@ export default function CheckoutReturnPage() {
           {!orderId || error ? (
             <Center>
               <Icon Icon={XCircle} tone="wine" />
-              <Title>無法確認訂單</Title>
-              <Body>{error || '缺少訂單資訊'}</Body>
+              <Title>{isEnglish ? 'Unable to confirm order' : '無法確認訂單'}</Title>
+              <Body>{error || (isEnglish ? 'Order information is missing.' : '缺少訂單資訊')}</Body>
               <Actions>
-                <Link to="/" className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center">回首頁</Link>
+                <Link to={localizedPath('/')} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center">{copy.home}</Link>
               </Actions>
             </Center>
           ) : authExpired ? (
             <Center>
               <Icon Icon={XCircle} tone="wine" />
-              <Title>請重新登入</Title>
-              <Body>
-                你的登入狀態已過期。付款本身已記錄在綠界,
-                <br />
-                重新登入後即可看到完整解析。
-              </Body>
+              <Title>{copy.signIn}</Title>
+              <Body>{copy.expired}</Body>
               <Actions>
                 <Link
-                  to={`/auth?redirect=${encodeURIComponent('/checkout/return?order_id=' + orderId)}`}
+                  to={`${localizedPath('/login')}?redirect=${encodeURIComponent(signInReturnTo)}`}
                   className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 w-full !justify-center"
                 >
-                  重新登入
+                  {isEnglish ? 'Sign in again' : '重新登入'}
                 </Link>
                 <Link
-                  to="/"
+                  to={localizedPath('/')}
                   className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 w-full !justify-center"
                 >
-                  回首頁
+                  {copy.home}
                 </Link>
               </Actions>
             </Center>
           ) : !order ? (
             <Center>
               <Icon Icon={Clock} tone="gold" pulse />
-              <Title>確認付款中</Title>
-              <Body>請稍候,正在向綠界確認付款結果⋯</Body>
+              <Title>{copy.signingIn}</Title>
+              <Body>{copy.waiting}</Body>
             </Center>
           ) : order.status === 'paid' ? (
-            <PaidSuccess order={order} onSpread={goSpread} />
+            <PaidSuccess order={order} onSpread={goSpread} isEnglish={isEnglish} />
           ) : order.status === 'failed' || order.status === 'cancelled' ? (
             <Center>
               <Icon Icon={XCircle} tone="wine" />
-              <Title>付款未完成</Title>
-              <Body>付款失敗或已取消,沒有從你的帳戶扣款。如有疑問請聯繫客服。</Body>
+              <Title>{copy.failedTitle}</Title>
+              <Body>{copy.failedBody}</Body>
               <Actions>
-                <button onClick={goHome} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center">回首頁</button>
+                <button onClick={goHome} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center">{copy.home}</button>
               </Actions>
             </Center>
           ) : timedOut ? (
             <Center>
               <Icon Icon={Clock} tone="gold" />
-              <Title>確認中</Title>
-              <Body>
-                付款仍在處理(ATM / 超商代碼可能需要一段時間入帳),
-                完成後系統會自動解鎖。你可以先回首頁,稍後再回來查看。
-              </Body>
+              <Title>{copy.checking}</Title>
+              <Body>{copy.pending}</Body>
               <Actions>
-                <button onClick={goHome} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center">回首頁</button>
+                <button onClick={goHome} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center">{copy.home}</button>
               </Actions>
             </Center>
           ) : (
             <Center>
               <Icon Icon={Clock} tone="gold" pulse />
-              <Title>確認付款中</Title>
-              <Body>請稍候⋯</Body>
+              <Title>{copy.signingIn}</Title>
+              <Body>{copy.pleaseWait}</Body>
             </Center>
           )}
         </div>
@@ -231,7 +316,8 @@ export default function CheckoutReturnPage() {
   );
 }
 
-function PaidSuccess({ order, onSpread }: { order: Order; onSpread: () => void }) {
+function PaidSuccess({ order, onSpread, isEnglish }: { order: Order; onSpread: () => void; isEnglish: boolean }) {
+  const copy = CHECKOUT_RETURN_COPY[isEnglish ? 'en' : 'zh-Hant'];
   const isVedicOrder = order.item_id.startsWith('vedic_');
   return (
     <div className="relative">
@@ -261,7 +347,7 @@ function PaidSuccess({ order, onSpread }: { order: Order; onSpread: () => void }
             <SealStamp />
           </div>
 
-          <p className="font-serif text-2xl sm:text-3xl text-blue-100 tracking-[0.2em] sm:tracking-[0.4em] mb-3">付款成功</p>
+          <p className="font-serif text-2xl sm:text-3xl text-blue-100 tracking-[0.2em] sm:tracking-[0.4em] mb-3">{copy.success}</p>
           <div className="ornamental-divider mb-6">
             <svg viewBox="-8 -8 16 16" className="w-3 h-3" fill="currentColor">
               <path d="M 0 -6 L 6 0 L 0 6 L -6 0 Z" />
@@ -269,27 +355,27 @@ function PaidSuccess({ order, onSpread }: { order: Order; onSpread: () => void }
             </svg>
           </div>
 
-          <p className="font-serif text-lg text-blue-100 mt-2 tracking-[0.2em]">{order.item_name}</p>
+          <p className="font-serif text-lg text-blue-100 mt-2 tracking-[0.2em]">{isEnglish ? ITEM_NAMES_EN[order.item_id] ?? copy.genericItem : order.item_name}</p>
           <p className="font-serif text-3xl text-blue-300 mt-4 tracking-[0.12em]">
             {formatPrice(order.amount)}
           </p>
 
           <div className="mt-8 mb-6 inline-block px-4 py-2 border border-blue-500/25">
-            <p className="text-[11px] text-blue-400/70 tracking-[0.3em] mb-1">訂 單 號</p>
+            <p className="text-[11px] text-blue-400/70 tracking-[0.3em] mb-1">{copy.orderNumber}</p>
             <p className="font-mono text-xs text-blue-200/85">{order.merchant_trade_no}</p>
           </div>
 
           <p className="text-sm text-blue-200/85 leading-loose tracking-wide">
-            {isVedicOrder ? <><strong>深度指引產生中，請等候約 1～2 分鐘。</strong><br />請保持報告頁開啟，完成後會自動顯示。</> : <>你的內容已解鎖,<br className="sm:hidden"/>可以回去查看完整解析。</>}
+            {isVedicOrder ? <><strong>{copy.vedicProcessing}</strong><br />{copy.keepReportOpen}</> : copy.unlocked}
           </p>
-          <p className="text-xs text-blue-300/70 mt-3 tracking-wide">即將自動帶你回去⋯</p>
+          <p className="text-xs text-blue-300/70 mt-3 tracking-wide">{copy.redirecting}</p>
 
           <div className="space-y-3 mt-8">
             <button onClick={onSpread} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center">
-              立 刻 查 看 完 整 解 析
+              {copy.viewReading}
               <ArrowRight className="w-4 h-4" strokeWidth={1.4} />
             </button>
-            <Link to="/" className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 w-full !justify-center">回 首 頁</Link>
+            <Link to={getLocalizedPath('/', isEnglish ? 'en' : 'zh-Hant')} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-blue-500/30 rounded-xl hover:bg-slate-700/60 hover:border-blue-400/50 transition-all text-blue-200 w-full !justify-center">{copy.home}</Link>
           </div>
         </div>
       </div>

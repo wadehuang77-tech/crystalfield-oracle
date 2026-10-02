@@ -1,7 +1,11 @@
 import { signJwt, verifyJwt } from './auth';
 import {
   buildAioCheckOutForm,
+  buildEcpayBrowserReturnUrls,
+  checkoutReturnPath,
   makeMerchantTradeNo,
+  normalizeCheckoutReturnTo,
+  normalizeCheckoutLocale,
   paymentBillingConfigForProduct,
   SPREAD_CATALOG,
 } from './ecpay';
@@ -36,6 +40,8 @@ interface OrderPick {
 
 interface CreateOrderBody {
   spread_id: string;
+  locale?: unknown;
+  return_to?: unknown;
   picks?: OrderPick[];
   guest_email?: string;
   context_id?: string;
@@ -70,6 +76,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   }
 
   const body = await readBody<CreateOrderBody>(req);
+  const locale = normalizeCheckoutLocale(body.locale);
+  const returnTo = normalizeCheckoutReturnTo(body.return_to, locale);
   const item = SPREAD_CATALOG[body.spread_id];
   if (!item) return badRequest(req, env, '商品代號錯誤');
   const isNumerologyCheckout = item.id.startsWith('numerology_');
@@ -248,6 +256,14 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     item.amount,
     `${apiOrigin}/api/payments/ecpay/tarot-period-return`,
   );
+  const browserReturnUrls = buildEcpayBrowserReturnUrls({
+    apiOrigin,
+    frontendOrigin,
+    locale,
+    orderId,
+    orderToken,
+    returnTo,
+  });
 
   const form = await buildAioCheckOutForm({
     merchantId,
@@ -258,8 +274,9 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     itemName:        item.name,
     tradeDesc:       `晶域心語 — ${item.name}`,
     returnURL:       `${apiOrigin}/api/ecpay-webhook`,
-    clientBackURL:   `${frontendOrigin}/checkout/return?order_id=${orderId}&order_token=${encodeURIComponent(orderToken)}`,
-    orderResultURL:  `${apiOrigin}/api/checkout/result`,
+    clientBackURL:   browserReturnUrls.clientBackURL,
+    orderResultURL:  browserReturnUrls.orderResultURL,
+    locale,
     choosePayment:   billing.choosePayment,
     periodAmount:    billing.periodAmount,
     periodType:      billing.periodType,
@@ -288,6 +305,10 @@ function inferFrontendOrigin(env: Env): string {
 
 export async function checkoutResult(req: Request, env: Env): Promise<Response> {
   const frontendOrigin = inferFrontendOrigin(env);
+  const resultRequestUrl = new URL(req.url);
+  const locale = normalizeCheckoutLocale(resultRequestUrl.searchParams.get('locale'));
+  const returnTo = normalizeCheckoutReturnTo(resultRequestUrl.searchParams.get('return_to'), locale);
+  const returnPath = checkoutReturnPath(locale);
   let merchantTradeNo = '';
   try {
     const form = await req.formData();
@@ -295,7 +316,9 @@ export async function checkoutResult(req: Request, env: Env): Promise<Response> 
   } catch {}
 
   if (!merchantTradeNo) {
-    return Response.redirect(frontendOrigin, 302);
+    const missingTradeUrl = new URL(returnPath, frontendOrigin);
+    missingTradeUrl.searchParams.set('return_to', returnTo);
+    return Response.redirect(missingTradeUrl.toString(), 302);
   }
 
   const order = await env.DB.prepare(
@@ -303,17 +326,20 @@ export async function checkoutResult(req: Request, env: Env): Promise<Response> 
   ).bind(merchantTradeNo).first<{ id: string; email: string }>();
 
   if (!order) {
-    return Response.redirect(`${frontendOrigin}/checkout/return`, 302);
+    const missingOrderUrl = new URL(returnPath, frontendOrigin);
+    missingOrderUrl.searchParams.set('return_to', returnTo);
+    return Response.redirect(missingOrderUrl.toString(), 302);
   }
   const orderToken = await signJwt(
     { sub: order.id, email: order.email || 'guest-order@crystalfield.local' },
     env.JWT_SECRET,
     ORDER_TOKEN_SEC,
   );
-  return Response.redirect(
-    `${frontendOrigin}/checkout/return?order_id=${encodeURIComponent(order.id)}&order_token=${encodeURIComponent(orderToken)}`,
-    302,
-  );
+  const resultUrl = new URL(returnPath, frontendOrigin);
+  resultUrl.searchParams.set('order_id', order.id);
+  resultUrl.searchParams.set('order_token', orderToken);
+  resultUrl.searchParams.set('return_to', returnTo);
+  return Response.redirect(resultUrl.toString(), 302);
 }
 
 export async function getOrder(req: Request, env: Env, orderId: string): Promise<Response> {

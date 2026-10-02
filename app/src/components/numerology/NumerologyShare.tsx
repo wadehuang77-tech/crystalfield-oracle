@@ -13,6 +13,7 @@ const PLATFORM_EVENTS = {
 } as const;
 
 interface ShareContextValue {
+  language: 'zh-Hant' | 'en';
   number: number;
   access: NumerologyShareAccess | null;
   proofs: NumerologyShareProof[];
@@ -76,7 +77,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, x: number, y: number,
   if (lineNo < maxLines && line) ctx.fillText(line, x, y + lineNo * lineHeight);
 }
 
-function createCard(number: number, title: string, summary: string, highlights: string[]) {
+function createCard(number: number, title: string, summary: string, highlights: string[], isEnglish: boolean) {
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1350;
@@ -93,8 +94,8 @@ function createCard(number: number, title: string, summary: string, highlights: 
     ctx.fillRect(x, y, i % 5 === 0 ? 3 : 2, i % 5 === 0 ? 3 : 2);
   }
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#f1d98d'; ctx.font = '600 34px serif'; ctx.fillText('晶域心語', 540, 100);
-  ctx.fillStyle = '#eadfff'; ctx.font = '500 40px serif'; ctx.fillText('我的生命靈數指引', 540, 170);
+  ctx.fillStyle = '#f1d98d'; ctx.font = '600 34px serif'; ctx.fillText(isEnglish ? 'Crystalfield Oracle' : '晶域心語', 540, 100);
+  ctx.fillStyle = '#eadfff'; ctx.font = '500 40px serif'; ctx.fillText(isEnglish ? 'My Numerology Reflection' : '我的生命靈數指引', 540, 170);
   const glow = ctx.createRadialGradient(540, 430, 20, 540, 430, 190);
   glow.addColorStop(0, '#fff3ba'); glow.addColorStop(.35, '#d8ad55'); glow.addColorStop(1, 'rgba(126,78,196,.08)');
   ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(540, 430, 180, 0, Math.PI * 2); ctx.fill();
@@ -105,7 +106,7 @@ function createCard(number: number, title: string, summary: string, highlights: 
     ctx.fillStyle = '#d9c2ff'; ctx.font = '27px sans-serif';
     wrap(ctx, highlights.slice(0, 3).map((item) => `✦ ${shortText(item, 42)}`).join('　'), 540, 1040, 850, 43, 3);
   }
-  ctx.fillStyle = '#f1d98d'; ctx.font = '600 30px sans-serif'; ctx.fillText('探索你的靈魂數字', 540, 1215);
+  ctx.fillStyle = '#f1d98d'; ctx.font = '600 30px sans-serif'; ctx.fillText(isEnglish ? 'Explore your numerology' : '探索你的靈魂數字', 540, 1215);
   ctx.fillStyle = 'rgba(234,223,255,.7)'; ctx.font = '24px sans-serif'; ctx.fillText('www.crystalfield101.com/numerology', 540, 1265);
   return canvas.toDataURL('image/jpeg', .9);
 }
@@ -119,6 +120,7 @@ function dataUrlFile(dataUrl: string) {
 
 export default function NumerologyShareButton(props: Props) {
   const context = useContext(ShareContext);
+  const isEnglish = context?.language === 'en';
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
@@ -131,7 +133,9 @@ export default function NumerologyShareButton(props: Props) {
   const summary = shortText(props.summary, 220);
   const guidance = shortText(props.guidance, 160);
   const highlights = useMemo(() => (props.highlights ?? []).map((item) => shortText(item, 100)).slice(0, 3), [props.highlights]);
-  const shareText = useMemo(() => `我的生命靈數是【${props.sectionName}・${number}】✨\n\n這次得到的生命指引是：\n${summary}\n\n${guidance}\n\n每一個數字，都藏著靈魂為你準備的生命訊息。\n\n你也來看看自己的生命靈數：\n${SITE_URL}\n\n#晶域心語 #生命靈數 #靈魂藍圖 #水晶療癒 #韋德老師`, [guidance, number, props.sectionName, summary]);
+  const shareText = useMemo(() => isEnglish
+    ? `My numerology reflection: ${props.sectionName} · ${number}\n\n${summary}\n\n${guidance}\n\nExplore your numerology:\n${SITE_URL}\n\n#Numerology #SelfReflection`
+    : `我的生命靈數是【${props.sectionName}・${number}】✨\n\n這次得到的生命指引是：\n${summary}\n\n${guidance}\n\n每一個數字，都藏著靈魂為你準備的生命訊息。\n\n你也來看看自己的生命靈數：\n${SITE_URL}\n\n#晶域心語 #生命靈數 #靈魂藍圖 #水晶療癒 #韋德老師`, [guidance, isEnglish, number, props.sectionName, summary]);
 
   const params = (platform: string, method: string) => ({
     numerology_number: number, report_section: props.sectionKey, plan_name: planName,
@@ -163,7 +167,7 @@ export default function NumerologyShareButton(props: Props) {
     try {
       if (platform === 'copy') {
         track(event, params(platform, 'clipboard')); await copyText(shareText);
-        setNotice('分享文字已複製'); track('numerology_share_success', params(platform, 'clipboard'));
+        setNotice(isEnglish ? 'Share text copied.' : '分享文字已複製'); track('numerology_share_success', params(platform, 'clipboard'));
       } else if (platform === 'facebook') {
         track(event, params(platform, 'official_sharer'));
         const popup = window.open('about:blank', 'facebook-share', 'width=720,height=650');
@@ -171,7 +175,7 @@ export default function NumerologyShareButton(props: Props) {
         popup.opener = null;
         const url = await ensurePublic();
         popup.location.replace(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
-        setNotice('Facebook 分享視窗已開啟；可再複製分享文字。');
+        setNotice(isEnglish ? 'Facebook opened. You can also copy the share text.' : 'Facebook 分享視窗已開啟；可再複製分享文字。');
         track('numerology_share_success', params(platform, 'official_sharer'));
       } else {
         const file = dataUrlFile(image);
@@ -180,55 +184,57 @@ export default function NumerologyShareButton(props: Props) {
         if (navigator.share && (!navigator.canShare || navigator.canShare({ files }))) {
           track(event, params(platform, 'web_share'));
           await navigator.share({ title: props.sectionName, text: shareText, url: publicUrl, files });
-          setNotice('分享已完成'); track('numerology_share_success', params(platform, 'web_share'));
+          setNotice(isEnglish ? 'Shared.' : '分享已完成'); track('numerology_share_success', params(platform, 'web_share'));
         } else {
           track(event, params(platform, 'download_and_copy'));
           await copyText(`${shareText}\n${publicUrl}`);
-          const link = document.createElement('a'); link.href = image; link.download = '晶域心語-生命靈數指引.jpg'; link.click();
+          const link = document.createElement('a'); link.href = image; link.download = isEnglish ? 'crystalfield-numerology.jpg' : '晶域心語-生命靈數指引.jpg'; link.click();
           track('numerology_share_image_download', params(platform, 'download_and_copy'));
-          setNotice(platform === 'instagram' ? '分享圖片已下載、文字已複製，請開啟 Instagram 發布。' : '分享圖片已下載、文字已複製，請貼到 Threads。');
+          setNotice(platform === 'instagram'
+            ? (isEnglish ? 'Image downloaded and text copied. Open Instagram to post.' : '分享圖片已下載、文字已複製，請開啟 Instagram 發布。')
+            : (isEnglish ? 'Image downloaded and text copied. Open Threads to post.' : '分享圖片已下載、文字已複製，請貼到 Threads。'));
           track('numerology_share_success', params(platform, 'download_and_copy'));
         }
       }
     } catch (error) {
-      if (error instanceof DOMException && ['AbortError', 'NotAllowedError'].includes(error.name)) setNotice('已取消分享');
-      else { setNotice('分享未完成，請改用複製文字或下載圖片。'); track('numerology_share_error', params(platform, 'fallback')); }
+      if (error instanceof DOMException && ['AbortError', 'NotAllowedError'].includes(error.name)) setNotice(isEnglish ? 'Sharing canceled.' : '已取消分享');
+      else { setNotice(isEnglish ? 'Sharing did not finish. Try copying the text or downloading the image.' : '分享未完成，請改用複製文字或下載圖片。'); track('numerology_share_error', params(platform, 'fallback')); }
     } finally { setBusy(false); }
   };
   const downloadImage = () => {
     if (!image) return;
     const link = document.createElement('a');
-    link.href = image; link.download = '晶域心語-生命靈數指引.jpg'; link.click();
+    link.href = image; link.download = isEnglish ? 'crystalfield-numerology.jpg' : '晶域心語-生命靈數指引.jpg'; link.click();
     track('numerology_share_image_download', params('download', 'direct_download'));
-    setNotice('分享圖片已下載');
+    setNotice(isEnglish ? 'Image downloaded.' : '分享圖片已下載');
   };
   const openPreview = () => {
     publicRef.current = null; setImage(''); setOpen(true); setNotice('');
     window.setTimeout(() => {
-      try { setImage(createCard(number, props.sectionName, summary, highlights)); }
-      catch { setNotice('分享圖片產生失敗，仍可複製分享文字。'); }
+      try { setImage(createCard(number, props.sectionName, summary, highlights, isEnglish)); }
+      catch { setNotice(isEnglish ? 'Could not create the image. You can still copy the share text.' : '分享圖片產生失敗，仍可複製分享文字。'); }
     }, 0);
     track('numerology_share_click', params('preview', 'button'));
     track('numerology_share_preview', params('preview', 'modal'));
   };
   return <>
     <button type="button" onClick={openPreview} className={props.reportButton ? 'w-full rounded-2xl px-5 py-4 font-semibold' : 'mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold'} style={{ background: 'linear-gradient(135deg,rgba(167,139,250,.2),rgba(251,191,36,.12))', border: '1px solid rgba(216,190,255,.28)', color: '#f3e8ff', boxShadow: '0 0 22px rgba(139,92,246,.12)' }}>
-      <Share2 className="w-4 h-4" />{props.reportButton ? '分享我的生命靈數指引' : '分享這段指引'}
+      <Share2 className="w-4 h-4" />{isEnglish ? (props.reportButton ? 'Share my numerology report' : 'Share this reflection') : (props.reportButton ? '分享我的生命靈數指引' : '分享這段指引')}
     </button>
-    {open && <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(4,2,12,.86)', backdropFilter: 'blur(10px)' }} role="dialog" aria-modal="true" aria-label="分享預覽">
+    {open && <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(4,2,12,.86)', backdropFilter: 'blur(10px)' }} role="dialog" aria-modal="true" aria-label={isEnglish ? 'Share preview' : '分享預覽'}>
       <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-3xl p-5 space-y-4" style={{ background: 'linear-gradient(145deg,#1d103c,#08172b)', border: '1px solid rgba(216,190,255,.25)' }}>
-        <div className="flex items-center justify-between"><div><p className="text-lg font-serif" style={{ color: '#f1d98d' }}>分享預覽</p><p className="text-xs" style={{ color: 'rgba(233,213,255,.58)' }}>確認圖片與文字後再分享</p></div><button aria-label="關閉" onClick={() => setOpen(false)}><X className="w-5 h-5" /></button></div>
-        {image ? <img src={image} alt="生命靈數分享卡片預覽" className="w-full rounded-2xl" /> : <div className="h-64 grid place-items-center"><Loader2 className="animate-spin" /></div>}
+        <div className="flex items-center justify-between"><div><p className="text-lg font-serif" style={{ color: '#f1d98d' }}>{isEnglish ? 'Share preview' : '分享預覽'}</p><p className="text-xs" style={{ color: 'rgba(233,213,255,.58)' }}>{isEnglish ? 'Review the image and text before sharing.' : '確認圖片與文字後再分享'}</p></div><button aria-label={isEnglish ? 'Close' : '關閉'} onClick={() => setOpen(false)}><X className="w-5 h-5" /></button></div>
+        {image ? <img src={image} alt={isEnglish ? 'Numerology share card preview' : '生命靈數分享卡片預覽'} className="w-full rounded-2xl" /> : <div className="h-64 grid place-items-center"><Loader2 className="animate-spin" /></div>}
         <div className="rounded-xl p-3 whitespace-pre-wrap text-xs max-h-36 overflow-y-auto" style={{ background: 'rgba(255,255,255,.05)', color: '#e9d5ff' }}>{shareText}</div>
         <div className="grid grid-cols-2 gap-2">
           <button disabled={busy || !image} onClick={() => void run('facebook')} className="share-action"><Facebook className="w-4 h-4" />Facebook</button>
           <button disabled={busy || !image} onClick={() => void run('threads')} className="share-action"><Share2 className="w-4 h-4" />Threads</button>
           <button disabled={busy || !image} onClick={() => void run('instagram')} className="share-action"><Download className="w-4 h-4" />Instagram</button>
-          <button disabled={busy} onClick={() => void run('copy')} className="share-action"><Copy className="w-4 h-4" />複製分享文字</button>
+          <button disabled={busy} onClick={() => void run('copy')} className="share-action"><Copy className="w-4 h-4" />{isEnglish ? 'Copy share text' : '複製分享文字'}</button>
         </div>
-        {busy && <p className="text-center text-xs" style={{ color: '#c4b5fd' }}><Loader2 className="inline w-4 h-4 mr-1 animate-spin" />正在準備分享…</p>}
+        {busy && <p className="text-center text-xs" style={{ color: '#c4b5fd' }}><Loader2 className="inline w-4 h-4 mr-1 animate-spin" />{isEnglish ? 'Preparing share…' : '正在準備分享…'}</p>}
         {notice && <p role="status" className="text-center text-sm" style={{ color: '#5eead4' }}>{notice}</p>}
-        {notice.startsWith('分享未完成') && <button type="button" onClick={downloadImage} className="share-action w-full"><Download className="w-4 h-4" />下載分享圖片</button>}
+        {(notice.startsWith('分享未完成') || notice.startsWith('Sharing did not finish')) && <button type="button" onClick={downloadImage} className="share-action w-full"><Download className="w-4 h-4" />{isEnglish ? 'Download share image' : '下載分享圖片'}</button>}
       </div>
     </div>}
   </>;
