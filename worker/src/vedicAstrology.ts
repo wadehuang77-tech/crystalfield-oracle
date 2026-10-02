@@ -460,14 +460,25 @@ function vedicStdTime(date: string, time: string, offset: string): string {
   return `${time} ${day}/${month}/${year} ${offset}`;
 }
 
-async function vedAstroCall(env: Env, method: string, body: Record<string, unknown>): Promise<unknown> {
+async function vedAstroCall(
+  env: Env,
+  method: string,
+  body: Record<string, unknown>,
+  pathParameter?: { name: string; value: string },
+): Promise<unknown> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (env.VEDASTRO_API_KEY) headers['x-api-key'] = env.VEDASTRO_API_KEY;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
   try {
-    const response = await fetch(`${VEDASTRO_BASE}/${method}`, {
-      method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal,
+    const url = pathParameter
+      ? `${VEDASTRO_BASE}/${method}/${pathParameter.name}/${encodeURIComponent(pathParameter.value)}`
+      : `${VEDASTRO_BASE}/${method}`;
+    const response = await fetch(url, {
+      method: pathParameter ? 'GET' : 'POST',
+      headers,
+      ...(pathParameter ? {} : { body: JSON.stringify(body) }),
+      signal: controller.signal,
     });
     if (!response.ok) throw new Error(`VedAstro ${method} HTTP ${response.status}`);
     const envelope = await response.json() as VedAstroEnvelope;
@@ -718,7 +729,12 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
   try {
     await ensureVedicSchema(env);
     failureStage = 'birthplace lookup';
-    const geo = await vedAstroCall(env, 'AddressToGeoLocation', { address: birthPlace, Ayanamsa: 'LAHIRI' }) as Record<string, unknown>;
+    const geo = await vedAstroCall(
+      env,
+      'AddressToGeoLocation',
+      { address: birthPlace },
+      { name: 'Address', value: birthPlace },
+    ) as Record<string, unknown>;
     const latitude = Number(geo?.Latitude);
     const longitude = Number(geo?.Longitude);
     const locationName = cleanText(geo?.Name, 160) || birthPlace;
