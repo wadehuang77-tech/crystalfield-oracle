@@ -4222,5 +4222,65 @@
       "questions": "What is coming to fruition? Am I allowing myself to receive recognition? Do I celebrate progress? What am I grateful for? Which projects still need tending? How can I share what I have without overextending? Has my effort received support? Am I ready to acknowledge this season's results?",
       "energyFocus": "Notice results and celebrate what you have helped make possible, however small. Receive recognition without minimizing it. Appreciate the people and circumstances that supported your progress. Continue tending projects that are still growing, rather than assuming one success completes everything. Share resources when it fits your capacity. Let gratitude and satisfaction have space, and enjoy the fruits of your effort."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "34",
+    "locale": "en",
+    "name": "Heka - Magic Personified",
+    "name_secondary": "赫卡 - 魔法之神",
+    "preview_payload": {
+      "titleEn": "Heka - Magic Personified",
+      "symbol": "Personification of magic and creative power from creation"
+    },
+    "gated_payload": {
+      "godStory": "Heka is the personification of magic in ancient Egyptian religion and is present in creation stories from the beginning of the world. He represents creative power, intention, and the ritual use of words. In ancient Egypt, magic was not necessarily viewed as supernatural, but as part of how the world worked and could be engaged through knowledge and ritual. Heka's image suggests that intention, language, and practice can shape experience. It also reminds us that spiritual ritual is a belief practice, not a guarantee of changing external events.",
+      "coreMeaning": "Heka represents magic, creativity, intention, words, ritual, and conscious participation in life. This card invites you to notice how thoughts, speech, and action influence your choices and relationships. Heka teaches that intention can guide what you make and how you act. Use your creative capacity with care, choosing clear intentions, supportive language, and focused effort. This is a spiritual metaphor and practice, not a claim that thoughts alone control reality.",
+      "coreEnergy": "Magic, creativity, intention, language, ritual, transformation, and conscious making. Heka's energy is imaginative and creative. It can symbolize bringing intention, words, and actions together to shape a result. This is not a promise that a ritual or belief will make an outcome certain. It is an invitation to participate mindfully in what you can influence, and to consider the effects your choices may have.",
+      "guidance": "Use your creative power with intention. Clarify what you want to work toward, express it in words that support you, and take actions consistent with that goal. Your thoughts and speech can shape your perspective and influence your choices, but they cannot guarantee an outcome. Consider a ritual, meditation, or affirmation if it helps you focus, and let it complement practical action. Create a meaningful space for reflection if you like. Magic here is not an escape from reality; it is a way of acting consciously within it.",
+      "soulReminder": "You can help shape your life through thought, speech, and action, and that influence carries responsibility. Your words can build understanding or cause harm, so use them with care. Rituals can focus attention and mark an intention, but they do not guarantee results or make you responsible for everything that happens. Let creativity serve your values and the well-being of others. You are a participant in life, able to make meaningful choices without needing supernatural certainty.",
+      "questions": "How am I using my creative power? Is my intention clear? What effect do my words have? Am I acting consciously? What practice helps me focus? Do I trust my ability to take a next step? What outcomes are within my influence? How can I use creativity responsibly?",
+      "energyFocus": "Practice intentional creation in grounded ways. Write down a clear goal and identify the next practical action. Use supportive language that feels honest rather than making promises to yourself. A personal ritual can provide a meaningful moment of focus; keep it safe and let it support, not replace, action. Notice how your thoughts, speech, and behavior affect your experience. Use your creativity in service of what matters, and stay open to changing course as you learn."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "35",
+    "locale": "en",
+    "name": "The Balance - Cosmic Equilibrium",
+    "name_secondary": "天秤 - 宇宙平衡",
+    "preview_payload": {
+      "titleEn": "The Balance - Cosmic Equilibrium",
+      "symbol": "Scales of Ma'at weighing a heart against a feather"
+    },
+    "gated_payload": {
+      "godStory": "This card depicts the scales of Ma'at, used in ancient Egyptian funerary belief to weigh a person's heart against the feather of truth. The scales are a powerful symbol of balance, justice, and accountability. They suggest that actions and intentions matter and can affect relationships and communities. This image invites reflection on fairness and truth, without claiming that every real-world outcome is perfectly balanced or that people always receive what they deserve.",
+      "coreMeaning": "The Balance represents equilibrium, fairness, consequences, harmony, and the many parts of life that need attention. This card invites you to review your balance and the effects of your choices. Some areas may be receiving too much attention while others are neglected. Ma'at's image suggests seeking fairness in how you give and receive, how you work and rest, and how you meet material and emotional needs. Balance is not identical treatment in every situation; it is thoughtful adjustment to what is needed.",
+      "coreEnergy": "Balance, fairness, harmony, accountability, order, moderation, truth, and proportion. This energy seeks a fair view rather than favoring one side without reflection. Like scales, it asks you to weigh different needs and consequences. Balance is not perfect stillness; it changes as circumstances do. Where something is excessive or lacking, you may be able to make an adjustment and restore greater harmony.",
+      "guidance": "Review the main areas of your life honestly. Is there balance between work and rest, giving and receiving, material needs and meaning, or self and others? Notice where you may need to add support or reduce an unsustainable demand. Your choices have consequences, so make them with care and consider the longer term. Trust your sense of fairness, but do not rely on the belief that the universe will automatically correct every injustice. Where you can act, seek practical and compassionate ways to restore balance.",
+      "soulReminder": "Your life may need ongoing adjustment to feel more balanced. Balance is dynamic, not a fixed state: you will keep responding to changing needs. Your choices matter, but they do not determine every outcome, and fairness is not always guaranteed. Live with integrity, listen to different perspectives, and be willing to make repairs when needed. You can seek harmony without pretending that every situation is already fair. Let balance be a practice, not a judgment of your worth.",
+      "questions": "Does my life feel balanced? Which areas need more or less attention? What effects do my choices have? Am I acting fairly? Where could I restore harmony? How can I make a decision with a longer view? What does balance mean for me right now?",
+      "energyFocus": "Notice where your life feels out of balance and identify one adjustment. Seek moderation without forcing everything into equal portions. Consider fairness and long-term consequences when making decisions. Practice honesty and integrity in relationships and situations. Let truth guide your choices while allowing for complexity. Restore inner and outer balance where you can, and accept that this is an ongoing practice."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "36",
+    "locale": "en",
+    "name": "The Ankh - Key of Life",
+    "name_secondary": "安卡 - 生命之鑰",
+    "preview_payload": {
+      "titleEn": "The Ankh - Key of Life",
+      "symbol": "Ankh: a cross topped with a loop, symbol of life"
+    },
+    "gated_payload": {
+      "godStory": "The ankh is one of ancient Egypt's most recognizable symbols, shaped like a cross with a loop at the top. It is associated with life, vitality, and divine power; Egyptian deities are often shown holding it. The ankh can be understood as a key to life or as an image of enduring spirit within Egyptian belief. In this reading, it reminds you that life is precious and that breath, connection, and vitality deserve attention and care.",
+      "coreMeaning": "The Ankh represents life, vitality, breath, renewal, and the sacredness of existence. This card invites you to reconnect with what makes you feel alive and to honor the life you have. It may encourage rest, movement, time in nature, or other activities that restore your sense of vitality. The ankh can symbolize eternal life in spiritual traditions, but this reading cannot establish immortality or promise that energy is limitless. It celebrates being here now.",
+      "coreEnergy": "Life, vitality, breath, renewal, sacredness, presence, and affirmation. The Ankh's energy symbolizes life's force and the wish to restore vitality. It can invite you to notice what nourishes you and to celebrate existence. Like a key opening a door, the symbol may help you focus on possibilities for renewal. It is a spiritual image, not a guarantee that meditation or breathwork will resolve health concerns or create endless energy.",
+      "guidance": "Reconnect with what helps you feel alive. If you feel tired or disconnected, consider rest, comfortable breathing, time outdoors, or an activity that brings meaning and enjoyment. Choose practices that are safe and suitable for you. The Ankh also invites celebration: notice the fact that you are here, and honor ordinary moments. Some people understand it as a reminder of the soul's enduring nature; you can hold that belief while staying present in this life and caring for your body and needs.",
+      "soulReminder": "Your life is precious, and each breath can be a reason to pause and appreciate being here. Try not to take life for granted, while remembering that you do not have to be energetic or joyful every moment. You can seek renewal and meaning, and you deserve support when you feel depleted. Your identity and worth are more than your physical state, but your body and health still matter. Celebrate the life you have in ways that feel genuine to you.",
+      "questions": "Do I feel connected to my vitality? What helps me feel alive? Do I celebrate being here? What kind of rest or renewal do I need? How can I care for my body? What meaning does the Ankh hold for me? How might I live more fully today?",
+      "energyFocus": "Pay attention to life and vitality in grounded ways. Take a few comfortable breaths and notice your body. Spend time in nature or do an activity that helps you feel present. Celebrate your existence and small moments of joy. Care for your health with appropriate rest and support. Reflect on beliefs about the soul or eternal life as spiritual meaning, not as a reason to neglect this life. Let your choices honor the preciousness of being here."
+    }
   }
 ]
