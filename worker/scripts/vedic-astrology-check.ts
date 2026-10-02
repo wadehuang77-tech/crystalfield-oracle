@@ -1,6 +1,47 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { SPREAD_CATALOG } from '../src/ecpay.ts';
+import {
+  buildVedAstroAllPlanetLongitudeUrl,
+  parsePlanetLongitudes,
+  timezoneOffsetAtLocal,
+} from '../src/vedicAstrology.ts';
+
+const directCalculationUrl = buildVedAstroAllPlanetLongitudeUrl({
+  latitude: 25.0330,
+  longitude: 121.5654,
+  birthHour: 20,
+  birthMinute: 0,
+  day: 6,
+  month: 9,
+  year: 1968,
+  timezoneOffset: '+08:00',
+  ayanamsa: 'LAHIRI',
+});
+assert.equal(
+  directCalculationUrl,
+  'https://api.vedastro.org/api/Calculate/AllPlanetLongitude/Location/25.0330,121.5654/Time/20:00/06/09/1968/+08:00/Ayanamsa/LAHIRI',
+);
+assert.equal(timezoneOffsetAtLocal('1968-09-06', '20:00', 'Asia/Taipei'), '+08:00');
+assert.equal(timezoneOffsetAtLocal('2020-01-15', '12:00', 'America/New_York'), '-05:00');
+assert.equal(timezoneOffsetAtLocal('2020-07-15', '12:00', 'America/New_York'), '-04:00');
+assert.throws(() => buildVedAstroAllPlanetLongitudeUrl({
+  latitude: 91,
+  longitude: 121.5654,
+  birthHour: 20,
+  birthMinute: 0,
+  day: 6,
+  month: 9,
+  year: 1968,
+  timezoneOffset: '+08:00',
+  ayanamsa: 'LAHIRI',
+}), RangeError);
+const parsedPlanets = parsePlanetLongitudes(
+  'Sun - 140.52194444444444, Moon - 315.31111111111113, Mars - 116.93916666666667, Mercury - 163.52777777777777, Jupiter - 142.42111111111112, Venus - 161.77416666666667, Saturn - 1.355, Ketu - 167.36305555555555, Rahu - 347.36305555555555',
+);
+assert.deepEqual(Object.keys(parsedPlanets).sort(), [
+  'Jupiter', 'Ketu', 'Mars', 'Mercury', 'Moon', 'Rahu', 'Saturn', 'Sun', 'Venus',
+]);
 
 const expectedPrices: Record<string, number> = {
   vedic_career: 399,
@@ -73,7 +114,10 @@ assert.match(source, /不得增加、刪除、合併、改序或改日期/);
 assert.match(source, /\[vedic-chart\] chart creation failed/);
 assert.match(source, /VEDIC_GEOLOCATION_UNAVAILABLE/);
 assert.match(source, /VEDIC_CALCULATION_UNAVAILABLE/);
-assert.match(source, /safeVedAstroFailure\(envelope, body\)/);
+assert.match(source, /VEDASTRO_HTTP_ERROR/);
+assert.match(source, /VEDASTRO_STATUS_FAIL/);
+assert.match(source, /VEDASTRO_INVALID_RESPONSE/);
+assert.match(source, /VEDASTRO_PLANET_DATA_MISSING/);
 assert.match(source, /typeof payload === 'string' \? payload : undefined/);
 assert.match(source, /payload_type=\$\{payloadType\}/);
 assert.match(source, /\[redacted\]/);
@@ -85,10 +129,12 @@ assert.match(source, /const maximumLength = kind === 'period' \? 600 : 1100/);
 assert.match(source, /transientFallback: true/);
 assert.match(source, /FREE_READING_MIN_CHARS = 250/);
 assert.match(source, /Ayanamsa:\s*'LAHIRI'/);
-assert.match(source, /VEDASTRO_BASE = 'https:\/\/vedastroapi\.azurewebsites\.net\/api\/Calculate'/);
+assert.match(source, /VEDASTRO_BASE = 'https:\/\/api\.vedastro\.org\/api'/);
+assert.match(source, /method: 'GET'/);
+assert.match(source, /buildVedAstroAllPlanetLongitudeUrl/);
+assert.doesNotMatch(source, /vedastroapi\.azurewebsites\.net/);
 assert.match(source, /AddressToGeoLocation',\s*\{ address: birthPlace \},\s*\{ name: 'Address', value: birthPlace \}/);
-assert.match(source, /method: pathParameter \? 'GET' : 'POST'/);
-assert.match(source, /\$\{method\}\/\$\{pathParameter\.name\}\/\$\{encodeURIComponent\(pathParameter\.value\)\}/);
+assert.match(source, /x-api-key/);
 assert.match(source, /order\.status !== 'paid'/);
 assert.match(source, /order\.item_id\.startsWith\('vedic_'\)/);
 assert.match(source, /order_id TEXT NOT NULL UNIQUE/);

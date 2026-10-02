@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildVedicFallbackReport, buildVedicForecastPeriods, mergeVedicForecastInterpretations, validateCompleteVedicReport, auditCompleteVedicReport, type VedicChartData } from '../src/vedicAstrology.ts';
+import { buildVedicFallbackReport, buildVedicForecastPeriods, mergeVedicForecastInterpretations, validateCompleteVedicReport, auditCompleteVedicReport, VEDIC_REPORT_FORMAT_VERSION, type VedicChartData } from '../src/vedicAstrology.ts';
 
 const chart: VedicChartData = {
   ayanamsa: 'LAHIRI', lagna: 'Capricorn', sunSign: 'Libra', moonSign: 'Libra', moonNakshatra: 'Chitra - Pada 4',
@@ -41,7 +41,7 @@ assert.throws(() => mergeVedicForecastInterpretations(skeleton, missing, chart),
 assert.throws(() => mergeVedicForecastInterpretations(skeleton, { ...ai, period_1: { consultation: '太短' } }, chart), /VEDIC_FORECAST_AI_INCOMPLETE/);
 
 const report = buildVedicFallbackReport('complete', chart, null);
-assert.equal(report.formatVersion, 9);
+assert.equal(report.formatVersion, VEDIC_REPORT_FORMAT_VERSION);
 assert.equal(report.sections.length, 9);
 assert.equal(validateCompleteVedicReport(report), false, 'the compact deterministic fallback must not be mistaken for a premium AI report');
 assert.ok(auditCompleteVedicReport(report).some((issue) => issue.includes('too_short')));

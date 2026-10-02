@@ -12,11 +12,12 @@ import {
   tooManyRequests,
   unauthorized,
 } from './utils';
+import { BirthLocationResolutionError, resolveBirthLocation } from './vedicGeocoding';
 
-const VEDASTRO_BASE = 'https://vedastroapi.azurewebsites.net/api/Calculate';
+const VEDASTRO_BASE = 'https://api.vedastro.org/api';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
-const VEDIC_REPORT_FORMAT_VERSION = 10;
+export const VEDIC_REPORT_FORMAT_VERSION = 10;
 const VEDIC_FORECAST_YEARS = 5;
 const REPORT_SCOPES = [
   'career', 'relationship', 'karma', 'timeline', 'full',
@@ -416,7 +417,7 @@ export async function ensureVedicSchema(env: Env): Promise<void> {
   ]);
 }
 
-function timezoneOffsetAtLocal(date: string, time: string, timezone: string): string {
+export function timezoneOffsetAtLocal(date: string, time: string, timezone: string): string {
   const [year, month, day] = date.split('-').map(Number);
   const [hour, minute] = time.split(':').map(Number);
   const wallUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
@@ -460,42 +461,293 @@ function vedicStdTime(date: string, time: string, offset: string): string {
   return `${time} ${day}/${month}/${year} ${offset}`;
 }
 
+type VedAstroFailureCode =
+  | 'VEDASTRO_HTTP_ERROR'
+  | 'VEDASTRO_STATUS_FAIL'
+  | 'VEDASTRO_INVALID_RESPONSE'
+  | 'VEDASTRO_PLANET_DATA_MISSING';
+
+interface VedAstroTimeInput {
+  StdTime: string;
+  Location: { Name?: string; Latitude: number; Longitude: number };
+}
+
+interface VedAstroCalculationInput {
+  latitude: number;
+  longitude: number;
+  birthHour: number;
+  birthMinute: number;
+  day: number;
+  month: number;
+  year: number;
+  timezoneOffset: string;
+  ayanamsa: 'LAHIRI' | 'RAMAN';
+}
+
+class VedAstroIntegrationError extends Error {
+  constructor(
+    readonly code: VedAstroFailureCode,
+    message: string,
+    readonly method: string,
+    readonly httpStatus?: number,
+    readonly vedAstroStatus?: string,
+  ) {
+    super(message);
+    this.name = 'VedAstroIntegrationError';
+  }
+}
+
+const VEDASTRO_METHODS = new Set([
+  'AllPlanetLongitude',
+  'MoonConstellation',
+  'AllHouseLongitudes',
+  'DasaAtRange',
+  'AllPlanetRasiSigns',
+]);
+
+function assertValidOffset(offset: string): void {
+  const match = /^([+-])(\d{2}):(\d{2})$/.exec(offset);
+  if (!match) throw new RangeError('Invalid timezone offset');
+  const hours = Number(match[2]);
+  const minutes = Number(match[3]);
+  if (hours > 14 || minutes > 59 || (hours === 14 && minutes !== 0)) {
+    throw new RangeError('Invalid timezone offset');
+  }
+}
+
+function formatVedAstroCoordinate(value: number, maximum: number): string {
+  if (!Number.isFinite(value) || value < -maximum || value > maximum) {
+    throw new RangeError('Invalid VedAstro coordinates');
+  }
+  const precise = value.toFixed(8);
+  const trimmed = precise.replace(/0+$/, '').replace(/\.$/, '');
+  const decimalPlaces = trimmed.split('.')[1]?.length ?? 0;
+  return decimalPlaces < 4 ? value.toFixed(4) : trimmed;
+}
+
+function formatVedAstroTimeSegments(
+  latitude: number,
+  longitude: number,
+  birthHour: number,
+  birthMinute: number,
+  day: number,
+  month: number,
+  year: number,
+  timezoneOffset: string,
+): string[] {
+  if (!Number.isInteger(birthHour) || birthHour < 0 || birthHour > 23
+    || !Number.isInteger(birthMinute) || birthMinute < 0 || birthMinute > 59) {
+    throw new RangeError('Invalid birth time');
+  }
+  if (!Number.isInteger(year) || year < 1 || year > 9999
+    || !Number.isInteger(month) || month < 1 || month > 12
+    || !Number.isInteger(day) || day < 1
+    || new Date(Date.UTC(year, month - 1, day)).getUTCDate() !== day) {
+    throw new RangeError('Invalid birth date');
+  }
+  assertValidOffset(timezoneOffset);
+  const lat = formatVedAstroCoordinate(latitude, 90);
+  const lon = formatVedAstroCoordinate(longitude, 180);
+  return [
+    'Location', `${lat},${lon}`, 'Time',
+    `${String(birthHour).padStart(2, '0')}:${String(birthMinute).padStart(2, '0')}`,
+    String(day).padStart(2, '0'), String(month).padStart(2, '0'), String(year), timezoneOffset,
+  ];
+}
+
+export function buildVedAstroAllPlanetLongitudeUrl(input: VedAstroCalculationInput): string {
+  if (input.ayanamsa !== 'LAHIRI' && input.ayanamsa !== 'RAMAN') {
+    throw new RangeError('Unsupported VedAstro ayanamsa');
+  }
+  const timeSegments = formatVedAstroTimeSegments(
+    input.latitude,
+    input.longitude,
+    input.birthHour,
+    input.birthMinute,
+    input.day,
+    input.month,
+    input.year,
+    input.timezoneOffset,
+  );
+  return `${VEDASTRO_BASE}/Calculate/AllPlanetLongitude/${timeSegments.join('/')}/Ayanamsa/${input.ayanamsa}`;
+}
+
+function vedAstroTimeInput(value: unknown): VedAstroTimeInput {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new RangeError('Invalid VedAstro Time input');
+  }
+  const time = value as Record<string, unknown>;
+  const location = time.Location;
+  if (typeof time.StdTime !== 'string' || !location || typeof location !== 'object' || Array.isArray(location)) {
+    throw new RangeError('Invalid VedAstro Time input');
+  }
+  const locationRecord = location as Record<string, unknown>;
+  const latitude = Number(locationRecord.Latitude);
+  const longitude = Number(locationRecord.Longitude);
+  const match = /^(\d{2}):(\d{2}) (\d{2})\/(\d{2})\/(\d{4}) ([+-]\d{2}:\d{2})$/.exec(time.StdTime);
+  if (!match) throw new RangeError('Invalid VedAstro StdTime');
+  return {
+    StdTime: time.StdTime,
+    Location: {
+      Name: typeof locationRecord.Name === 'string' ? locationRecord.Name : undefined,
+      Latitude: latitude,
+      Longitude: longitude,
+    },
+  };
+}
+
+function buildVedAstroCalculateUrl(method: string, parameters: Record<string, unknown>): string {
+  if (!VEDASTRO_METHODS.has(method)) throw new RangeError('Unsupported VedAstro method');
+  if (method === 'AllPlanetLongitude') {
+    const time = vedAstroTimeInput(parameters.time);
+    const match = /^(\d{2}):(\d{2}) (\d{2})\/(\d{2})\/(\d{4}) ([+-]\d{2}:\d{2})$/.exec(time.StdTime);
+    if (!match) throw new RangeError('Invalid VedAstro StdTime');
+    const ayanamsa = parameters.Ayanamsa;
+    if (ayanamsa !== 'LAHIRI' && ayanamsa !== 'RAMAN') throw new RangeError('Unsupported VedAstro ayanamsa');
+    return buildVedAstroAllPlanetLongitudeUrl({
+      latitude: time.Location.Latitude,
+      longitude: time.Location.Longitude,
+      birthHour: Number(match[1]),
+      birthMinute: Number(match[2]),
+      day: Number(match[3]),
+      month: Number(match[4]),
+      year: Number(match[5]),
+      timezoneOffset: match[6],
+      ayanamsa,
+    });
+  }
+
+  const segments = ['Calculate', method];
+  let ayanamsa: string | undefined;
+  for (const [name, value] of Object.entries(parameters)) {
+    if (name === 'Ayanamsa') {
+      if (value !== 'LAHIRI' && value !== 'RAMAN') throw new RangeError('Unsupported VedAstro ayanamsa');
+      ayanamsa = value;
+      continue;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      const time = vedAstroTimeInput(value);
+      const match = /^(\d{2}):(\d{2}) (\d{2})\/(\d{2})\/(\d{4}) ([+-]\d{2}:\d{2})$/.exec(time.StdTime);
+      if (!match) throw new RangeError('Invalid VedAstro StdTime');
+      segments.push(...formatVedAstroTimeSegments(
+        time.Location.Latitude,
+        time.Location.Longitude,
+        Number(match[1]), Number(match[2]), Number(match[3]), Number(match[4]), Number(match[5]), match[6],
+      ));
+      continue;
+    }
+    if ((typeof value !== 'number' && typeof value !== 'boolean') || !Number.isFinite(Number(value))) {
+      throw new RangeError('Invalid VedAstro path parameter');
+    }
+    segments.push(name[0].toUpperCase() + name.slice(1), String(value));
+  }
+  if (ayanamsa) segments.push('Ayanamsa', ayanamsa);
+  return `${VEDASTRO_BASE}/${segments.join('/')}`;
+}
+
+function redactVedAstroText(text: string, request: Record<string, unknown>, apiKey?: string): string {
+  const sensitiveValues: string[] = [];
+  const collectSensitive = (value: unknown, key = '') => {
+    if (typeof value === 'string' && ['address', 'Name', 'StdTime'].includes(key)) sensitiveValues.push(value);
+    else if (Array.isArray(value)) value.forEach((item) => collectSensitive(item, key));
+    else if (value && typeof value === 'object') {
+      for (const [childKey, child] of Object.entries(value as Record<string, unknown>)) collectSensitive(child, childKey);
+    }
+  };
+  collectSensitive(request);
+  let safeText = text.trim();
+  for (const sensitive of sensitiveValues.sort((a, b) => b.length - a.length)) {
+    if (sensitive) safeText = safeText.replaceAll(sensitive, '[redacted]');
+  }
+  if (apiKey) safeText = safeText.replaceAll(apiKey, '[redacted]');
+  return safeText
+    .replace(/\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/g, '[date]')
+    .replace(/\b\d{1,2}:\d{2}\b/g, '[time]')
+    .replace(/-?\d{1,3}\.\d{4,}/g, '[coordinate]')
+    .replace(/\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9_-]+\b/gi, '[redacted]')
+    .slice(0, 240);
+}
+
 async function vedAstroCall(
   env: Env,
   method: string,
   body: Record<string, unknown>,
-  pathParameter?: { name: string; value: string },
 ): Promise<unknown> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = { Accept: 'application/json' };
   if (env.VEDASTRO_API_KEY) headers['x-api-key'] = env.VEDASTRO_API_KEY;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
+  const request = body;
+  let url: string;
   try {
-    const url = pathParameter
-      ? `${VEDASTRO_BASE}/${method}/${pathParameter.name}/${encodeURIComponent(pathParameter.value)}`
-      : `${VEDASTRO_BASE}/${method}`;
-    const response = await fetch(url, {
-      method: pathParameter ? 'GET' : 'POST',
-      headers,
-      ...(pathParameter ? {} : { body: JSON.stringify(body) }),
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error(`VedAstro ${method} HTTP ${response.status}`);
-    const envelope = await response.json() as VedAstroEnvelope;
+    url = buildVedAstroCalculateUrl(method, body);
+
+    let response: Response;
+    try {
+      response = await fetch(url, { method: 'GET', headers, signal: controller.signal });
+    } catch (error) {
+      const kind = error instanceof Error ? error.name : 'NetworkError';
+      throw new VedAstroIntegrationError('VEDASTRO_HTTP_ERROR', `request failed: ${kind}`, method);
+    }
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      throw new VedAstroIntegrationError(
+        'VEDASTRO_HTTP_ERROR',
+        redactVedAstroText(responseText, request, env.VEDASTRO_API_KEY),
+        method,
+        response.status,
+      );
+    }
+
+    let envelope: VedAstroEnvelope;
+    try {
+      envelope = JSON.parse(responseText) as VedAstroEnvelope;
+    } catch {
+      throw new VedAstroIntegrationError(
+        'VEDASTRO_INVALID_RESPONSE',
+        redactVedAstroText(responseText, request, env.VEDASTRO_API_KEY),
+        method,
+        response.status,
+      );
+    }
+    if (!envelope || typeof envelope !== 'object' || typeof envelope.Status !== 'string') {
+      throw new VedAstroIntegrationError('VEDASTRO_INVALID_RESPONSE', 'missing response Status', method, response.status);
+    }
     if (envelope.Status !== 'Pass') {
-      throw new Error(`VedAstro ${method} HTTP ${response.status} ${safeVedAstroFailure(envelope, body)}`);
+      throw new VedAstroIntegrationError(
+        'VEDASTRO_STATUS_FAIL',
+        safeVedAstroFailure(envelope, request, env.VEDASTRO_API_KEY),
+        method,
+        response.status,
+        envelope.Status,
+      );
     }
     const payload = envelope.Payload;
+    if (!payload || (typeof payload !== 'object' && typeof payload !== 'string')) {
+      throw new VedAstroIntegrationError('VEDASTRO_INVALID_RESPONSE', 'missing calculation payload', method, response.status, envelope.Status);
+    }
     if (payload && typeof payload === 'object' && method in payload) {
       return (payload as Record<string, unknown>)[method];
     }
     return payload;
+  } catch (error) {
+    if (error instanceof VedAstroIntegrationError) throw error;
+    throw new VedAstroIntegrationError(
+      'VEDASTRO_INVALID_RESPONSE',
+      error instanceof RangeError ? error.message : 'request construction failed',
+      method,
+    );
   } finally {
     clearTimeout(timer);
   }
 }
 
-function safeVedAstroFailure(envelope: VedAstroEnvelope, request: Record<string, unknown>): string {
+function safeVedAstroFailure(
+  envelope: VedAstroEnvelope,
+  request: Record<string, unknown>,
+  apiKey?: string,
+): string {
   const payload = envelope.Payload;
   const payloadObject = payload && typeof payload === 'object' && !Array.isArray(payload)
     ? payload as Record<string, unknown>
@@ -508,34 +760,15 @@ function safeVedAstroFailure(envelope: VedAstroEnvelope, request: Record<string,
     ...detailFields.map((field) => payloadObject?.[field]),
   ]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0);
-  const sensitiveValues: string[] = [];
-  const collectSensitive = (value: unknown, key = '') => {
-    if (typeof value === 'string' && ['address', 'Name', 'StdTime'].includes(key)) sensitiveValues.push(value);
-    else if (Array.isArray(value)) value.forEach((item) => collectSensitive(item, key));
-    else if (value && typeof value === 'object') {
-      for (const [childKey, child] of Object.entries(value as Record<string, unknown>)) collectSensitive(child, childKey);
-    }
-  };
-  collectSensitive(request);
-
-  let safeDetail = detail?.trim() ?? '';
-  for (const sensitive of sensitiveValues.sort((a, b) => b.length - a.length)) {
-    if (sensitive) safeDetail = safeDetail.replaceAll(sensitive, '[redacted]');
-  }
-  safeDetail = safeDetail
-    .replace(/\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/g, '[date]')
-    .replace(/\b\d{1,2}:\d{2}\b/g, '[time]')
-    .replace(/\b-?\d{1,3}\.\d{4,}\b/g, '[coordinate]')
-    .replace(/\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9_-]+\b/gi, '[redacted]')
-    .slice(0, 240);
 
   const payloadType = payload === null ? 'null' : Array.isArray(payload) ? 'array' : typeof payload;
   const payloadKeys = payloadObject ? Object.keys(payloadObject).slice(0, 12).join(',') : '';
+  const detailText = detail ? redactVedAstroText(detail, request, apiKey) : '';
   return [
     `status=${cleanText(envelope.Status, 32) || 'unknown'}`,
     `payload_type=${payloadType}`,
     payloadKeys ? `payload_keys=${payloadKeys}` : '',
-    safeDetail ? `detail=${safeDetail}` : '',
+    detailText ? `detail=${detailText}` : '',
   ].filter(Boolean).join(' ');
 }
 
@@ -564,13 +797,13 @@ function signAtLongitude(value: number): string {
   return SIGNS[Math.floor(normalizeLongitude(value) / 30)] || '';
 }
 
-function parsePlanetLongitudes(value: unknown): Record<string, number> {
+export function parsePlanetLongitudes(value: unknown): Record<string, number> {
   const result: Record<string, number> = {};
   if (typeof value !== 'string') return result;
-  for (const entry of value.split(',')) {
-    const [rawPlanet, rawLongitude] = entry.split('-').map((part) => part.trim());
-    const longitude = Number(rawLongitude);
-    if (rawPlanet && Number.isFinite(longitude)) result[rawPlanet] = normalizeLongitude(longitude);
+  const pattern = /\b(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)\s*-\s*(-?\d+(?:\.\d+)?)/g;
+  for (const match of value.matchAll(pattern)) {
+    const longitude = Number(match[2]);
+    if (Number.isFinite(longitude)) result[match[1]] = normalizeLongitude(longitude);
   }
   return result;
 }
@@ -728,21 +961,9 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
   let failureStage = 'database initialization';
   try {
     await ensureVedicSchema(env);
-    failureStage = 'birthplace lookup';
-    const geo = await vedAstroCall(
-      env,
-      'AddressToGeoLocation',
-      { address: birthPlace },
-      { name: 'Address', value: birthPlace },
-    ) as Record<string, unknown>;
-    const latitude = Number(geo?.Latitude);
-    const longitude = Number(geo?.Longitude);
-    const locationName = cleanText(geo?.Name, 160) || birthPlace;
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      return badRequest(req, env, body.language === 'en'
-        ? 'Birthplace not found. Enter a city and country or region, such as Taipei City, Taiwan.'
-        : '找不到出生地，請輸入「城市, 國家／地區」，例如「台北市, 台灣」');
-    }
+    failureStage = 'geocoding';
+    const location = await resolveBirthLocation(env, birthPlace);
+    const { latitude, longitude, name: locationName } = location;
 
     failureStage = 'astrology chart calculation';
     const timezone = tzLookup(latitude, longitude);
@@ -784,6 +1005,15 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
     ]);
 
     const planetLongitudes = parsePlanetLongitudes(planetLongitudeRaw);
+    const missingPlanets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
+      .filter((planet) => !Object.hasOwn(planetLongitudes, planet));
+    if (missingPlanets.length) {
+      throw new VedAstroIntegrationError(
+        'VEDASTRO_PLANET_DATA_MISSING',
+        `missing planet longitude data: ${missingPlanets.join(',')}`,
+        'AllPlanetLongitude',
+      );
+    }
     const planets = Object.fromEntries(Object.entries(planetLongitudes)
       .map(([planet, longitude]) => [planet, signAtLongitude(longitude)]));
     const lagnaLongitude = parseLagnaLongitude(houseLongitudeRaw);
@@ -824,13 +1054,27 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
     }, { status: 201 });
   } catch (error) {
     const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
-    console.error('[vedic-chart] chart creation failed', { stage: failureStage, error: detail });
-    if (failureStage === 'birthplace lookup') {
+    const integrationError = error instanceof VedAstroIntegrationError ? error : null;
+    console.error('[vedic-chart] chart creation failed', {
+      stage: failureStage,
+      code: integrationError?.code,
+      endpoint: integrationError?.method,
+      httpStatus: integrationError?.httpStatus,
+      vedAstroStatus: integrationError?.vedAstroStatus,
+      error: integrationError?.message ?? detail,
+    });
+    if (failureStage === 'geocoding') {
+      const geocodingError = error instanceof BirthLocationResolutionError ? error : null;
       return json(req, env, {
         error: body.language === 'en'
-          ? 'Birthplace lookup is temporarily unavailable. Try a city and country or region, such as Taipei City, Taiwan, or try again later.'
-          : '出生地解析服務暫時無法使用，請輸入城市與國家／地區（例如「台北市, 台灣」）或稍後再試',
+          ? geocodingError?.code === 'GEOCODING_NO_RESULTS'
+            ? 'Birthplace not found. Try a city and country or region, such as Taipei City, Taiwan.'
+            : 'Birthplace lookup is temporarily unavailable. Please try again later.'
+          : geocodingError?.code === 'GEOCODING_NO_RESULTS'
+            ? 'Birthplace not found. Enter a city and country or region, such as Taipei City, Taiwan.'
+            : '出生地解析服務暫時無法使用，請稍後再試',
         code: 'VEDIC_GEOLOCATION_UNAVAILABLE',
+        failure_code: geocodingError?.code,
       }, { status: 502 });
     }
     if (failureStage === 'astrology chart calculation') {
@@ -839,6 +1083,7 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
           ? 'Chart calculation is temporarily unavailable. Please try again later.'
           : '星盤計算服務暫時無法使用，請稍後再試',
         code: 'VEDIC_CALCULATION_UNAVAILABLE',
+        failure_code: integrationError?.code,
       }, { status: 502 });
     }
     return serverError(req, env, error);
