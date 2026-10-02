@@ -1,6 +1,6 @@
 # Bilingual Rollout Progress
 
-Last updated: 2026-10-01
+Last updated: 2026-10-02
 Current branch at handoff: `main`
 
 ## Goal
@@ -13,6 +13,7 @@ Make crystalfield101.com available in Traditional Chinese and English while pres
 - English copy for the landing entry, Oracle directory flow and long page, privacy policy, Tarot entry and some result labels, and the main introductions/forms for Lightworker, Unicorn, Dragon, Egyptian, Osho, Work Your Light, Numerology, Human Design, and Vedic Astrology.
 - Runtime English SEO metadata for selected service pages; untranslated article routes are `noindex`. `sitemap.xml` now has 42 URLs and 44 reciprocal language alternate links covering 11 English service routes. `prerender.mjs` generates English metadata and a minimal English heading/intro for those 11 routes.
 - Locale is sent with deck preview/unlock requests. The card Worker reads `card_localizations` and `deck_localizations` from the separate cards D1. Missing English payloads no longer return Chinese card preview/gated text: previews are marked unavailable and unlock endpoints return `CARD_TRANSLATION_UNAVAILABLE`.
+- Card Worker now accepts `locale=en` / `locale=zh-TW` alongside the existing `language` query/body parameter. The localization generator compares translations with the seeded inventory, rejects unknown card IDs, and prints every missing English card ID.
 - Human Design paid English reports use an independent report version and request all sections in English. English requests do not receive the Chinese fixed fallback. HD full-section sharing reads the locale-specific report version, and core share summary labels have English variants.
 - Vedic report requests carry locale; the existing order row stores locale-specific report/draft JSON. English headings, word-count validation, retry locale propagation, and explicit no-provider behavior are wired.
 - Vedic English free-result UI now localizes the result heading, key chart badges, D1 chart labels, house labels, planet names, and Lahiri calculation note; the Chinese route remains unchanged.
@@ -28,24 +29,35 @@ Make crystalfield101.com available in Traditional Chinese and English while pres
 
 The actual seeded inventory was verified from `d1/cards-seed.sql` in an isolated local Wrangler D1 database:
 
-| Deck | Cards | Fully translated English payloads |
-| --- | ---: | ---: |
-| `tarot` | 22 | 4 |
-| `osho` | 45 | 0 |
-| `lightworker` | 43 | 0 |
-| `unicorns` | 44 | 0 |
-| `egyptian_gods` | 36 | 0 |
-| `work_your_light` | 44 | 0 |
-| `dragons` | 44 | 0 |
-| **Total** | **278** | **4** |
+| Deck ID | Chinese name | English name | Cards | English complete | Remaining |
+| --- | --- | --- | ---: | ---: | ---: |
+| `tarot` | 韋特塔羅 | Rider-Waite Tarot | 22 | 6 | 16 |
+| `osho` | 奧修禪卡 | Osho Zen Tarot | 45 | 0 | 45 |
+| `lightworker` | 光行者神諭卡 | Lightworker Oracle | 43 | 0 | 43 |
+| `unicorns` | 獨角獸神諭卡 | Unicorn Oracle | 44 | 0 | 44 |
+| `egyptian_gods` | 埃及神諭卡 | Egyptian Oracle | 36 | 0 | 36 |
+| `work_your_light` | Work Your Light 神諭卡 | Work Your Light Oracle | 44 | 0 | 44 |
+| `dragons` | 龍族神諭卡 | Dragon Oracle | 44 | 0 | 44 |
+| **Total** |  |  | **278** | **5** | **273** |
 
-Translated stable IDs: `tarot:0-fool`, `tarot:1-magician`, `tarot:2-high-priestess`, and `tarot:3-empress`. The next card to translate is `tarot:4-emperor`.
+- Total cards: 278
+- English completed: 6
+- Remaining: 272
+- Current deck: `tarot`
+- Last completed: `tarot:5-hierophant`
+- Next: `tarot:6-lovers`
+- Last verification time: 2026-10-02
+- Validator: PASS
+- TypeScript: PASS (frontend and Worker)
+- Build: PASS (Vite and prerender; existing large-chunk warning)
 
-The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql`. The remaining 274 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
+Translated stable IDs: `tarot:0-fool`, `tarot:1-magician`, `tarot:2-high-priestess`, `tarot:3-empress`, `tarot:4-emperor`, and `tarot:5-hierophant`.
+
+The full translations are in `d1/card-localizations-en.json`. `d1/build-card-localizations-seed.ts` validates source IDs, duplicates, empty strings, and required per-deck fields, then produces idempotent SQLite upserts at `d1/cards-localizations-seed.sql` and lists untranslated stable IDs. The remaining 272 complete payloads are not translated. Names in `name_secondary` are not counted as full card translations. The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are absent from this workspace; the seeded SQL is the only available full Chinese source.
 
 ## Still Incomplete
 
-- 274 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
+- 273 card payloads, including complete previews, meanings, keywords, and deck-specific interpretation fields.
 - Complete Oracle/Tarot spread/result/restore/error/paywall/share screens; only entry copy and selected result labels are localized.
 - Numerology calculated reports, daily energy, forecast, crystal and oracle readings, AI advisor, checkout/unlock/share states.
 - Human Design fixed knowledge, chart labels/free report, article content, checkout states, and public share-page content.
@@ -73,7 +85,10 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 
 - App TypeScript check: passed.
 - Worker TypeScript check: passed.
-- Card seed generator: passed for 4 translations; repeated upsert was idempotent.
+- Card localization generator/validator: passed for 6 complete translations; verified all IDs against the 278-card seed, rejected unknown IDs, regenerated the SQL upserts, and listed the 272 remaining stable IDs.
+- Frontend TypeScript check: passed.
+- Worker TypeScript check: passed.
+- Vite production build and prerender: passed; existing main bundle exceeds the 500 kB advisory threshold.
 - Isolated local cards D1: base schema, 278-card seed, and localization migration executed successfully. Inventory query confirmed 278 rows, 278 unique IDs, zero blank required names/keys, and declared per-deck counts match actual counts.
 - Local Worker API smoke test: the English Fool payload was returned in English; untranslated cards returned empty previews, `content_locale: "zh-Hant"`, and `translation_available: false`.
 - Sitemap XML browser parse: valid; 42 URL entries and 44 hreflang alternate links.
@@ -84,7 +99,7 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 
 ## Next Steps
 
-1. Translate `tarot:4-emperor` and continue the remaining Tarot IDs in stable `card_key` order. Preserve all source fields and structure; regenerate `cards-localizations-seed.sql` after each reviewed batch and validate with the generator.
+1. Translate `tarot:5-hierophant` and continue the remaining Tarot IDs in stable `card_key` order. Preserve all source fields and structure; regenerate `cards-localizations-seed.sql` after each reviewed batch and validate with the generator.
 2. Add translations for the other six decks in seed order, keeping original IDs and Chinese rows unchanged.
 3. Run the repeatable seed against a local/test cards D1, verify all 278 translated rows and field completeness, and smoke-test both preview and unlock APIs for translated and untranslated cards.
 4. Continue route-by-route UI localization for all spread, report, auth, membership, checkout, sharing, and error states. Add missing English Human Design/Vedic article content.

@@ -182,5 +182,97 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "4-emperor",
+    "locale": "en",
+    "name": "The Emperor",
+    "name_secondary": "皇帝",
+    "preview_payload": {
+      "keywords": ["Authority", "Structure", "Leadership", "Stability", "Paternal Wisdom"],
+      "arcana": "major",
+      "number": 4
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Emperor represents authority, structure, and stability. He embodies leadership, organizational ability, and the wisdom to create order. When this card appears, it reminds you to approach matters with reason and logic, and to establish clear rules and boundaries. The Emperor encourages you to take responsibility and lead with firmness and fairness. This can be a good time to build a career, make plans, or consolidate what you have achieved. His energy is steady and dependable, offering protection and a sense of security. He reminds you that discipline and determination, sustained through effort and perseverance, can help you work toward long-term goals. The Emperor also represents paternal wisdom and experience, offering practical advice and support.",
+      "reversedMeaning": "The reversed Emperor warns that you may be becoming too authoritarian or controlling. You may be misusing power, treating others harshly, or becoming so rigid that you cannot adapt to change. This card can also point to a lack of discipline or direction, making it difficult to manage yourself or others effectively. You may be avoiding responsibility, struggling to lead, or resisting authority. The reversed Emperor asks you to find balance between control and flexibility. Do not let fear drive you to control everything, but do not abandon structure and order altogether. Exercise authority with greater openness and consideration, and respect other people's autonomy. Also ask whether you rely too heavily on external authority while overlooking your own inner wisdom.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Authority", "Structure", "Self-Mastery", "Leadership", "Stability"],
+          "reversed": ["Overcontrol", "Authoritarianism", "Lack of Discipline", "Avoiding Responsibility", "Rigidity"],
+          "uprightExplanation": "Upright, the Emperor represents the stabilizing force of paternal energy, embodying order, authority, and the ability to build. He sits on a stone throne with rugged mountains behind him, symbols of an unshakable foundation. This card brings rational, logical, and strategic thinking. Rather than relying on emotion or intuition, the Emperor makes decisions through experience and wisdom. He establishes rules, sets boundaries, and creates structure so that things can be kept in order. This is masculine energy expressed through leadership and control in the service of protection and stability. The upright Emperor reminds you that sometimes you must be the sovereign of your own life, creating an order and discipline that are truly yours.",
+          "reversedExplanation": "The reversed Emperor shows that the energy of authority has become distorted or is missing. You may be excessively controlling, using strict rules to pressure yourself or others and turning protection into constraint. At the other extreme, you may lack discipline and direction, avoid responsibilities you need to take on, or struggle to lead. Paternal energy can become authoritarian and oppressive, with disagreement silenced in the name of doing what is best for everyone. This card can also point to resistance to authority and a rejection of all rules and structure. The reversed Emperor reminds you that true strength is not control, but flexibility within stability. Seek a balance between order and freedom."
+        },
+        "energyFlow": {
+          "direction": "Top-down",
+          "type": "Constructive leadership and control",
+          "description": "The Emperor's energy directs and builds from the top down; it is a guiding, masculine force. He establishes order, sets rules, and takes charge. This is steady, practical, and methodical energy."
+        },
+        "timing": {
+          "speed": "Steady and gradual",
+          "description": "Things are likely to move forward steadily according to plan rather than happen suddenly. The Emperor represents long-term building, and it may take two to six months to see solid results. This is a marathon, not a sprint."
+        },
+        "advice": {
+          "upright": "Create a clear plan and structure. Set boundaries and take responsibility for leading. What is needed now is discipline and strategy, not emotion or impulse. Think like a CEO and make decisions rationally.",
+          "reversed": "Loosen your need for control. You cannot control everything, and you do not need to. Consider whether you are controlling others in the name of protecting them. If you have been too undisciplined, this may be the time to establish some structure. Look for balance."
+        },
+        "chakra": {
+          "primary": "Solar Plexus Chakra and Root Chakra",
+          "issue": "Your sense of power may be out of balance: you may be trying to control too much or feel completely out of control, with insecurity driving the need to take charge.",
+          "healingNote": "The Emperor connects the Solar Plexus Chakra, associated with personal power, and the Root Chakra, associated with security. Excessive control often comes from inner insecurity. If you need to control everything to feel safe, it may be worth tending to your sense of grounding. Practices involving crystals such as obsidian or red jasper can be used as a personal ritual for cultivating security. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade; crystal practices are not medical treatment, so consult a qualified professional for health concerns."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that true strength comes from a stable foundation. You have the ability to build your own empire, but it takes patience and strategy. Take responsibility instead of avoiding it. You are more capable of directing your circumstances than you may think.",
+          "reversed": "Your soul is reminding you that control can be another expression of fear. If you need to manage everything before you can feel at ease, you may not be trusting life's flow. Or are you avoiding a responsibility that is yours to carry? True strength is not control, but trust rooted in stability."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "5-hierophant",
+    "locale": "en",
+    "name": "The Hierophant",
+    "name_secondary": "教皇",
+    "preview_payload": {
+      "keywords": ["Tradition", "Education", "Faith", "Mentor", "Wisdom"],
+      "arcana": "major",
+      "number": 5
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Hierophant represents traditional wisdom, spiritual teachers, and formal learning. He safeguards cultural, religious, and social values, offering moral and spiritual guidance. When this card appears, you may be seeking deeper meaning and spiritual understanding. This is a time to learn from a mentor, join a community, or follow an established system. The Hierophant encourages you to respect traditions and customs and draw on the wisdom of those who came before you. This period is well suited to formal education, religious ceremonies, or spiritual guidance. The Hierophant also represents commitment and loyalty, and may relate to marriage, joining an organization, or another formal union. He reminds you of the importance of cultural inheritance and collective wisdom, as well as the stability that comes from following ethical principles.",
+      "reversedMeaning": "The reversed Hierophant suggests that you may be challenging tradition or questioning an established belief system. You want to follow your own path rather than blindly obey rules set by others. This card may point to rebellion, unconventional ideas, or distrust of authority. You may feel that the current system is too rigid to meet your needs and values. The reversed Hierophant encourages you to develop your own beliefs and philosophy instead of following external dogma without question. At the same time, it cautions you not to oppose something merely for the sake of opposition; consider your path carefully. As you pursue personal freedom, remain open to the value of some traditional wisdom. Finding balance between respect for tradition and personal innovation can help you forge a path of your own.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Tradition", "Mentor", "Learning", "Belief System", "Formal Commitment"],
+          "reversed": ["Rebellion", "Questioning Authority", "Breaking with Tradition", "Personal Beliefs", "Spiritual Freedom"],
+          "uprightExplanation": "Upright, the Hierophant represents the transmission of traditional wisdom and spiritual authority. He is a bridge between heaven and earth, the sacred and the everyday, safeguarding the values of culture, religion, and society. This card brings formal learning, a mentor's guidance, and respect for established principles. The Hierophant does not forge a new path; he points toward roads that have been tested by those before you. This is a time to learn from tradition and deepen your understanding through ceremony, education, or commitment. The upright Hierophant reminds you that not every wheel needs to be reinvented. Standing on the shoulders of those who came before, you can see farther.",
+          "reversedExplanation": "Reversed, the Hierophant shows that you are questioning or rejecting external authority and tradition. You may feel that an established belief system no longer meets your spiritual needs, or that customary practices are limiting your growth. This rebellious energy can be liberating, but it can also become indiscriminate. You may be forming your own beliefs and no longer need a mentor or religion to tell you what is true. Yet this card also cautions against opposing things simply for the sake of opposition or becoming a cynical rebel. The reversed Hierophant reminds you that spiritual freedom does not mean rejecting every tradition; it means wisely choosing what suits you and what you are ready to release."
+        },
+        "energyFlow": {
+          "direction": "Passed down from mentor to student",
+          "type": "Teaching and receiving",
+          "description": "The Hierophant's energy is one of transmission, flowing from teacher to student and from tradition to the present. It is the energy of learning, receiving guidance, and becoming part of a system. This is not about innovation, but about absorbing wisdom that already exists."
+        },
+        "timing": {
+          "speed": "Follows an established process (moderate to slow)",
+          "description": "Matters are likely to proceed according to traditional or formal steps rather than move quickly. Formal commitments, education, or certification may take three to six months. Following the right steps matters more than speed."
+        },
+        "advice": {
+          "upright": "Seek guidance from a mentor or qualified expert. Rather than trying to work everything out alone, learn from someone with experience. Follow established rules and processes instead of looking for shortcuts. If you are making a commitment, such as marriage or signing a contract, this may be a favorable time.",
+          "reversed": "Question the rules you have always followed: do they truly fit you? Do not follow tradition or authority blindly, but do not oppose them just for the sake of it. Choose your own path thoughtfully and build a belief system of your own."
+        },
+        "chakra": {
+          "primary": "Throat Chakra and Crown Chakra",
+          "issue": "Difficulty expressing your authentic beliefs (Throat Chakra), or following external authority blindly and losing connection with your higher self (Crown Chakra).",
+          "healingNote": "The Hierophant connects the Throat Chakra, associated with authentic expression, and the Crown Chakra, associated with spiritual connection. If you cannot express your beliefs or follow another's doctrines blindly, these chakras may need balance. Lapis lazuli and clear quartz can support authentic spiritual expression through crystal practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that learning from those who came before you does not mean losing yourself. There is wisdom in tradition; do not overlook a path that has already proven effective just to be different. Find a mentor you can trust and let yourself stand on the shoulders of giants.",
+          "reversed": "Your soul is reminding you that no external authority can define your spiritual truth. The answers you seek are not in any religion or with any mentor; they are within you. It is time to reclaim your spiritual sovereignty and build a belief system of your own."
+        }
+      }
+    }
   }
 ]

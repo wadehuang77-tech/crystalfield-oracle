@@ -19,6 +19,20 @@ function contentLanguage(value: unknown): ContentLanguage {
   return value === 'en' ? 'en' : 'zh-Hant';
 }
 
+function requestContentLanguage(req: Request): ContentLanguage {
+  const params = new URL(req.url).searchParams;
+  return contentLanguage(params.get('language') ?? params.get('locale'));
+}
+
+interface LocalizedRequestBody {
+  language?: ContentLanguage;
+  locale?: string;
+}
+
+function bodyContentLanguage(body: LocalizedRequestBody): ContentLanguage {
+  return contentLanguage(body.language ?? body.locale);
+}
+
 interface CardLocalizationRow {
   name: string | null;
   name_secondary: string | null;
@@ -55,7 +69,7 @@ export async function listDecks(req: Request, env: Env): Promise<Response> {
   const result = await env.DB_CARDS.prepare(
     `SELECT id, name, card_count FROM decks ORDER BY id`,
   ).all();
-  const language = contentLanguage(new URL(req.url).searchParams.get('language'));
+  const language = requestContentLanguage(req);
   if (language !== 'en') return json(req, env, { decks: result.results ?? [] });
   const localizations = await env.DB_CARDS.prepare(
     `SELECT deck_id, name FROM deck_localizations WHERE locale = ?`,
@@ -79,7 +93,7 @@ export async function getDeckPreview(
   env: Env,
   deckId: string,
 ): Promise<Response> {
-  const language = contentLanguage(new URL(req.url).searchParams.get('language'));
+  const language = requestContentLanguage(req);
   const result = await env.DB_CARDS.prepare(
     `SELECT id, deck_id, card_key, position, name, name_secondary, image,
             preview_payload, gated_payload
@@ -189,12 +203,11 @@ function buildExcerpts(
   return teaser ? { preview_excerpt: clipExcerpt(teaser, ratio) } : {};
 }
 
-interface SingleUnlockBody {
+interface SingleUnlockBody extends LocalizedRequestBody {
   spread_id: string;
   card_key: string;
   email: string;
   reversed?: boolean;
-  language?: ContentLanguage;
 }
 
 export async function unlockSingleCard(req: Request, env: Env): Promise<Response> {
@@ -216,7 +229,7 @@ export async function unlockSingleCard(req: Request, env: Env): Promise<Response
   if (!body.card_key) return badRequest(req, env, 'card_key required');
 
   const email = session.email;
-  const language = contentLanguage(body.language);
+  const language = bodyContentLanguage(body);
   const card = await loadFullCard(env, spread.deck_id, body.card_key, language);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
   if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
@@ -257,12 +270,11 @@ interface SpreadUnlockPick {
   reversed?: boolean;
 }
 
-interface SpreadUnlockBody {
+interface SpreadUnlockBody extends LocalizedRequestBody {
   spread_id: string;
   picks: SpreadUnlockPick[];
   order_id?: string;
   order_token?: string;
-  language?: ContentLanguage;
 }
 
 function picksMatch(a: SpreadUnlockPick[], b: SpreadUnlockPick[]): boolean {
@@ -319,7 +331,7 @@ export async function unlockSpread(req: Request, env: Env): Promise<Response> {
 
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
-    const language = contentLanguage(body.language);
+    const language = bodyContentLanguage(body);
     const card = await loadFullCard(env, spread.deck_id, pick.card_key, language);
     if (!card) {
       return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
@@ -403,7 +415,7 @@ export function getSpreadDef(spreadId: string): TarotSpreadDef | undefined {
   return TAROT_SPREADS[spreadId];
 }
 
-interface FreeUnlockSingleBody { spread_id: string; card_key: string; reversed?: boolean; reading_id?: string; language?: ContentLanguage; }
+interface FreeUnlockSingleBody extends LocalizedRequestBody { spread_id: string; card_key: string; reversed?: boolean; reading_id?: string; }
 
 export async function freeUnlockSingle(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSingleBody>(req);
@@ -415,7 +427,7 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
   if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
   const entitlement = await getTarotEntitlement(env, session.id);
   if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
-  const language = contentLanguage(body.language);
+  const language = bodyContentLanguage(body);
   const card = await loadFullCard(env, spread.deck_id, body.card_key, language);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
   if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
@@ -427,7 +439,7 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
 }
 
 interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
-interface FreeUnlockSpreadBody { spread_id: string; picks: FreeSpreadPick[]; reading_id?: string; email?: string; language?: ContentLanguage; }
+interface FreeUnlockSpreadBody extends LocalizedRequestBody { spread_id: string; picks: FreeSpreadPick[]; reading_id?: string; email?: string; }
 
 async function hmacSha256Hex(secret: string, value: string): Promise<string> {
   const key = await crypto.subtle.importKey(
@@ -695,7 +707,7 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
   if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
-    const language = contentLanguage(body.language);
+    const language = bodyContentLanguage(body);
     const card = await loadFullCard(env, spread.deck_id, pick.card_key, language);
     if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
     if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
@@ -710,11 +722,10 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
   });
 }
 
-interface BundleUnlockSpreadBody {
+interface BundleUnlockSpreadBody extends LocalizedRequestBody {
   spread_id: string;
   picks: SpreadUnlockPick[];
   reading_id: string;
-  language?: ContentLanguage;
 }
 
 const BUNDLE_CATEGORY_BY_SPREAD: Record<string, 'three_card' | 'ten_card' | 'pastlife'> = {
@@ -749,7 +760,7 @@ export async function bundleUnlockSpread(req: Request, env: Env): Promise<Respon
 
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
-    const language = contentLanguage(body.language);
+    const language = bodyContentLanguage(body);
     const card = await loadFullCard(env, spread.deck_id, pick.card_key, language);
     if (!card) return json(req, env, { error: 'card not found', card_key: pick.card_key }, { status: 404 });
     if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);

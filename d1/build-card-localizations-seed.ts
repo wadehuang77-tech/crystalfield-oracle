@@ -13,7 +13,12 @@ interface CardLocalization {
 
 const sourcePath = fileURLToPath(new URL('./card-localizations-en.json', import.meta.url));
 const outputPath = fileURLToPath(new URL('./cards-localizations-seed.sql', import.meta.url));
+const cardsSeedPath = fileURLToPath(new URL('./cards-seed.sql', import.meta.url));
 const entries = JSON.parse(readFileSync(sourcePath, 'utf8')) as CardLocalization[];
+const sourceCardKeys = new Set(
+  [...readFileSync(cardsSeedPath, 'utf8').matchAll(/^INSERT INTO cards \(id, deck_id, card_key, position, name, name_secondary, image, preview_payload, gated_payload\) VALUES \('([^']+)'/gm)]
+    .map((match) => match[1]),
+);
 const allowedDecks = new Set(['tarot', 'osho', 'lightworker', 'unicorns', 'egyptian_gods', 'work_your_light', 'dragons']);
 const requiredGatedFields: Record<string, string[]> = {
   tarot: [
@@ -75,6 +80,9 @@ for (const [index, entry] of entries.entries()) {
     throw new Error(`Missing stable ID or translated name at entry ${index}`);
   }
   const stableKey = `${entry.deck_id}:${entry.card_key}:${entry.locale}`;
+  if (!sourceCardKeys.has(`${entry.deck_id}:${entry.card_key}`)) {
+    throw new Error(`Unknown card localization key: ${entry.deck_id}:${entry.card_key}`);
+  }
   if (seen.has(stableKey)) throw new Error(`Duplicate localization key: ${stableKey}`);
   seen.add(stableKey);
   assertComplete(entry.preview_payload, `${stableKey}.preview_payload`);
@@ -114,3 +122,6 @@ const statements = [
 
 writeFileSync(outputPath, statements.join('\n'), 'utf8');
 console.log(`Wrote ${entries.length} card translations across ${new Set(entries.map((entry) => entry.deck_id)).size} decks.`);
+const translatedCardKeys = new Set(entries.map((entry) => `${entry.deck_id}:${entry.card_key}`));
+const missingCardKeys = [...sourceCardKeys].filter((cardKey) => !translatedCardKeys.has(cardKey));
+console.log(`Missing English localizations (${missingCardKeys.length}/${sourceCardKeys.size}): ${missingCardKeys.join(', ') || 'none'}`);
