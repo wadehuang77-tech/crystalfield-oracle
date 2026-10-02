@@ -2191,6 +2191,63 @@
   },
   {
     "deck_id": "lightworker",
+    "card_key": "19",
+    "locale": "en",
+    "name": "Earth Guardian",
+    "name_secondary": "地球守護者",
+    "preview_payload": {
+      "keywords": ["Earth", "Protection", "Environment", "Responsibility"],
+      "nameEn": "Earth Guardian"
+    },
+    "gated_payload": {
+      "cosmicMessage": "You may feel a deep soul connection with Mother Earth and a desire to help care for and protect the planet. Earth is not only a resource or backdrop; many spiritual traditions regard it as a living presence that nourishes and supports life. As a lightworker, you may feel called to protect the Earth through your choices, awareness, and way of living. Small actions matter, because collective change can begin with individual choices. The card frames the Earth's transition as something to which you can contribute through caring action.",
+      "currentSituation": "You may feel deep pain or helplessness about environmental destruction. You may try to make environmentally conscious choices but feel that your efforts are too small. Perhaps you feel called to participate more actively in conservation or ecological movements. Or this card may invite you to review your lifestyle and consider where you can show more respect and care for the Earth. You may also want to spend more time in nature and tend to your relationship with it.",
+      "deeperMeaning": "Humanity has been disconnected from the Earth for a long time, treating her as a resource to be endlessly extracted. This card asks you to remember that the planet is our home and that human well-being is connected to the health of the Earth. Caring for the planet can begin with healing our relationship with nature—recognizing that we are part of it, not separate from or above it. Anyone can be an Earth Guardian without becoming an environmental activist; it begins with living consciously. Consumption, food, energy use, and attitudes toward nature are all ways to care for the planet. The card also frames raising awareness as a way to serve the Earth.",
+      "actionGuidance": "Spend regular time in nature, not only to relax but to connect and listen. Walk barefoot outdoors if it is safe and comfortable for you. Review your lifestyle and make environmentally conscious choices where possible: reduce plastic, recycle, conserve water and electricity, and support sustainable products. You could reduce meat consumption or choose sustainably sourced food if that suits you. Plant or care for a tree, garden, or other living things. Participate in environmental activities or support organizations doing this work. Learn about environmental issues and share what you learn. Try a meditation that imagines the Earth surrounded by light and care. Practice gratitude for what the Earth provides and cultivate a respectful relationship with nature.",
+      "energyHealing": "Moss agate or green jasper may be used as symbolic objects for grounding and connection with the Earth. You could create a simple outdoor ritual or offer care through practical service, such as picking up litter where safe or helping care for a local green space. Grounding meditation may involve imagining roots extending from your feet into the earth while remaining aware of your body and surroundings. Cedar or pine essential oils may be part of a reflective practice if suitable. Mark seasonal changes with a small ritual honoring the Earth's cycles. Create an altar with stones, plants, or soil as a reminder of your connection. You might say, “I see you, I care for you, and I will do my part to protect you.”",
+      "soulQuestion": "Am I living in a way that respects my relationship with the Earth? How can I care for and protect the planet more consciously?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "20",
+    "locale": "en",
+    "name": "Spiritual Teacher",
+    "name_secondary": "靈性導師",
+    "preview_payload": {
+      "keywords": ["Mentor", "Teaching", "Sharing", "Wisdom"],
+      "nameEn": "Spiritual Teacher"
+    },
+    "gated_payload": {
+      "cosmicMessage": "You may have traveled a deep spiritual path and gathered wisdom and insight along the way. This may be a time to share what you have learned and offer light to others. You do not have to be perfect or all-knowing to teach; you can share your experiences honestly. A spiritual teacher need not be a distant master, but can be a humble fellow traveler who has walked a little farther and offers a hand. Your story, healing, and awakening may inspire or help someone else.",
+      "currentSituation": "You may feel called to share your spiritual knowledge and experience but be unsure how to begin or doubt whether you are qualified. Or people may naturally come to you for guidance and advice, which could be an invitation to notice your mentoring abilities. You may be considering teaching, writing, healing work, or another form of spiritual service. This card encourages you to take a thoughtful first step and trust that your particular experience has value, while staying honest about what you do and do not know.",
+      "deeperMeaning": "People who have moved through healing and awakening can choose to share what they have learned. This is not about believing you are better than others; it can be a natural exchange. Wisdom shared with care may benefit both the giver and receiver. A spiritual teacher remains a lifelong student; teaching and learning are two sides of the same process. What you teach may also be something you are still learning, and serving others can deepen your own understanding. Do not wait until you feel completely ready. Begin where you are and share what you can responsibly offer.",
+      "actionGuidance": "Start sharing your perspective in small ways, such as writing a blog post, making a social media post, or having a thoughtful conversation with a friend. Consider your distinctive gifts and experiences and what you can responsibly teach. You might offer a low-cost or introductory service to build experience, while respecting your training and boundaries. It is all right to say “I don't know.” Stay humble and keep learning. Develop a teacher identity without letting it define your whole self. Set healthy boundaries: you are a guide, not a rescuer. Seek mentors or a peer community to support your growth. Most importantly, try to live by the values you teach.",
+      "energyHealing": "Lapis lazuli or blue kyanite may be used as symbolic objects in a Throat Chakra practice focused on clear, authentic expression. Labradorite can be included in reflection about intuition and insight. Try a meditation in which you ask what you can responsibly share and what is not yours to carry. Frankincense or sage may be used to prepare a teaching space if suitable. Consider grounding and setting boundaries before and after teaching so you can remain present without taking responsibility for students' energy. Create an altar with objects representing wisdom and learning. Visualize light flowing from your heart and voice as a symbol of care. An affirmation such as “I share what I know with humility” may help you focus.",
+      "soulQuestion": "Am I ready to step beyond my comfort zone and share what I have learned? Can I be a light for others with humility and honesty?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "21",
+    "locale": "en",
+    "name": "Soul Contract",
+    "name_secondary": "靈魂契約",
+    "preview_payload": {
+      "keywords": ["Contract", "Agreement", "Release", "Freedom"],
+      "nameEn": "Soul Contract"
+    },
+    "gated_payload": {
+      "cosmicMessage": "In some spiritual traditions, the soul is described as making agreements with other souls, guides, or the universe before incarnation. These agreements are understood as opportunities for learning and growth. Some may feel complete or no longer aligned with your present well-being. This card invites you to reflect on patterns you may want to update or release, and to make conscious agreements that support the path you choose now. You have the power to reconsider the meaning you give these spiritual ideas and to choose how you move forward.",
+      "currentSituation": "You may feel caught in a pattern, relationship, or situation, as though an invisible force is preventing you from moving forward. Perhaps you experience recurring lessons or relationships that seem difficult to change. You may feel an unexplained sense of obligation toward certain people or roles. In the language of this card, these experiences might be interpreted through the idea of a soul contract. If a pattern no longer serves you, you can reflect on what keeps it going and consider what choices are available now.",
+      "deeperMeaning": "Soul contracts are spiritual agreements, distinct from legal contracts, and are understood in some traditions as flexible and open to reconsideration. They may be used symbolically to reflect on relationships, life experiences, or roles a person feels drawn into. Such interpretations can help people make meaning of experience, but they are matters of belief rather than established fact. A past-life or soul-contract explanation should not be used to excuse harm, blame someone for illness or hardship, or avoid present responsibilities. Releasing a contract can be understood as a spiritual expression of maturity: recognizing your agency and choosing your path now.",
+      "actionGuidance": "Try a reflective meditation and ask your higher self what patterns no longer support you. Notice recurring themes in your life and consider what they may be teaching you without assuming a supernatural cause. Write down an agreement you are ready to release, such as “I must suffer in order to grow” or “I must sacrifice myself to save others.” If you choose, create a symbolic ritual by reading the statement aloud and safely disposing of the paper. You can also write a new intention, such as choosing growth through joy or relationships built on mutual care. Releasing a belief does not harm anyone else. Consider a qualified, grounded practitioner if you seek support, and keep your focus on choices you can make in this life.",
+      "energyHealing": "Obsidian or smoky quartz may be used as symbolic objects in a personal letting-go ritual. An Akashic-records meditation may be meaningful within your spiritual beliefs, but treat what arises as reflection rather than verified history. Sage or palo santo may be used to mark a transition if suitable for you. You could state aloud what you are choosing to release and what values you want to follow now. Visualize setting down an old agreement and making room for a new intention. A new moon can serve as a symbolic time for reflection. Notice any sense of freedom or lightness afterward, and allow new possibilities to develop at a grounded pace.",
+      "soulQuestion": "Am I ready to release beliefs or agreements that no longer support me? Am I willing to take ownership of the choices that shape my path now?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
     "card_key": "18",
     "locale": "en",
     "name": "Past Life Memory",
