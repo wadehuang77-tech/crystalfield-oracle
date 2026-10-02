@@ -74,6 +74,7 @@ assert.match(source, /\[vedic-chart\] chart creation failed/);
 assert.match(source, /VEDIC_GEOLOCATION_UNAVAILABLE/);
 assert.match(source, /VEDIC_CALCULATION_UNAVAILABLE/);
 assert.match(source, /safeVedAstroFailure\(envelope, body\)/);
+assert.match(source, /typeof payload === 'string' \? payload : undefined/);
 assert.match(source, /payload_type=\$\{payloadType\}/);
 assert.match(source, /\[redacted\]/);
 assert.match(source, /chart,/);

@@ -490,7 +490,12 @@ function safeVedAstroFailure(envelope: VedAstroEnvelope, request: Record<string,
     ? payload as Record<string, unknown>
     : null;
   const detailFields = ['Error', 'error', 'Message', 'message', 'Code', 'code', 'Details', 'details'];
-  const detail = [envelope.Error, envelope.Message, ...detailFields.map((field) => payloadObject?.[field])]
+  const detail = [
+    envelope.Error,
+    envelope.Message,
+    typeof payload === 'string' ? payload : undefined,
+    ...detailFields.map((field) => payloadObject?.[field]),
+  ]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0);
   const sensitiveValues: string[] = [];
   const collectSensitive = (value: unknown, key = '') => {
