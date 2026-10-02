@@ -5670,5 +5670,53 @@
       "guidance": "If you are curious about family history, ask relatives about their memories or explore records with care. Notice which stories and values you want to carry forward, and which patterns you would prefer to change. You can reflect on a past version of yourself with compassion by writing what you wish you could tell them, without promising that everything will be all right. Imagine yourself years from now and ask what advice that person might offer. Bring attention back to the present as well: consider what is within your influence today. If painful memories are affecting your well-being, a qualified mental health professional can offer support.",
       "energy": "Amber can be a tactile symbol of memory and patience; hold a piece or place it beside a journal if you like. Write a letter to your past self or to the person you hope to become, and keep it as a reflection rather than a prediction. You might light a candle to mark the practice, following fire safety. Family photos, heirlooms, or a record of family stories can also prompt reflection, while respecting relatives' privacy and complicated histories. Treat prayers, guided imagery, or rituals for ancestral connection as expressions of belief, not as guaranteed communication or healing."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "19",
+    "locale": "en",
+    "name": "Jasper Dragon Grounding",
+    "name_secondary": "碧玉龍扎根",
+    "preview_payload": {
+      "keywords": ["Grounding", "Stability", "Practicality"],
+      "nameEn": "Jasper Dragon Grounding"
+    },
+    "gated_payload": {
+      "message": "The Jasper Dragon is deeply rooted in the earth and symbolizes steadiness, practical care, and persistence. It reminds you to balance reflection and big dreams with the needs of your body and everyday life. Caring for your health, finances, home, work, and relationships can be meaningful, ordinary work rather than an obstacle to spiritual growth. Small, consistent efforts often accomplish more than bursts of unsustainable energy. When life feels uncertain, return to what you can attend to in the present, and let routine offer support without expecting it to resolve everything.",
+      "guidance": "Take stock of the practical parts of your life that may need attention. Is there an appointment to schedule, a bill to review, or a household task to handle? Choose one manageable action and make a realistic plan. Build routines that support sleep, nourishment, movement, and rest, adapting them to your needs. If you are working toward a larger goal, break it into specific steps and allow progress to take time. When anxious or distracted, use your senses to notice what you see, hear, smell, taste, and feel. A gentle walk or time in a garden may help you reconnect with the present, if accessible and comfortable.",
+      "energy": "Red jasper and other varieties of jasper can serve as symbolic reminders of stability. Keep a stone nearby if you enjoy it, or visualize roots extending into the earth as a reflection exercise. Neither crystals nor grounding imagery can literally connect you to the planet's core or replace practical support. Gardening, cooking, tidying, woodworking, or another hands-on activity may help you feel engaged with daily life. Choose an aroma such as cedar or patchouli only if it is safe and pleasant for you. An affirmation such as 'I take one steady step at a time' can bring your attention back to a realistic next action."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "20",
+    "locale": "en",
+    "name": "Opal Dragon Transformation",
+    "name_secondary": "歐泊龍變化",
+    "preview_payload": {
+      "keywords": ["Change", "Many Facets", "Possibility"],
+      "nameEn": "Opal Dragon Transformation"
+    },
+    "gated_payload": {
+      "message": "The Opal Dragon's shifting colors evoke change, adaptability, and many possibilities. You are not limited to a single role or a fixed idea of who you must be; learning and experience can change how you understand yourself. You can bring several parts of your identity together without needing to choose just one. Still, change is not always easy or fully within your control. This card invites you to notice where you do have choices, stay curious about alternatives, and move at a pace that respects your circumstances and values.",
+      "guidance": "When something changes, ask what you need now before deciding what the change means. Explore an interest or skill that gives you room to learn something new. You are allowed to revise a goal or change direction when you have considered the practical effects; changing your mind is not automatically failure. Write down the roles you occupy and ask which feel meaningful to you and which feel driven mainly by others' expectations. If you are choosing between paths, list the tradeoffs and keep options open where possible. Seek new experiences with curiosity, while giving yourself enough stability and support to adjust.",
+      "energy": "Opal or labradorite can serve as visual reminders of change and possibility. Use a journaling prompt to imagine more than one future path, then identify a small, real-world step for the option you want to explore. You might write down an old story about yourself and replace it with a more flexible, balanced description. If you choose to burn the paper, do so only with a fire-safe container and supervision; tearing or recycling it works just as well. Treat visualizations and rituals as reflection, not as ways to guarantee a future or control events."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "21",
+    "locale": "en",
+    "name": "Mithril Dragon Alchemy",
+    "name_secondary": "秘銀龍煉金",
+    "preview_payload": {
+      "keywords": ["Alchemy", "Transformation", "Refinement"],
+      "nameEn": "Mithril Dragon Alchemy"
+    },
+    "gated_payload": {
+      "message": "The Mithril Dragon draws on alchemy as a metaphor for inner change. In this image, lead becomes gold: difficult experiences may sometimes lead to new insight, while refining your life means keeping what matters and letting go of what does not. But pain and trauma are not necessary ingredients for growth, and not every hardship has a hidden lesson. You do not have to turn suffering into a gift or forgive before you are ready. This card invites you to notice what support, boundaries, and practical changes could help you move forward on your own terms.",
+      "guidance": "If you are ready, reflect on what a recent experience has taught you about your needs or boundaries. You may also choose simply to acknowledge that it was difficult; meaning can come later, or not at all. Notice repeated habits without blaming yourself, and consider what need they may have served. Make a small review of your commitments, possessions, or routines: what supports your priorities, and what could be simplified? Journaling can help you record observations and possible changes. If painful memories are difficult to manage or affect everyday life, seek support from a qualified mental health professional. You can pursue change without treating every challenge as a message from the universe.",
+      "energy": "Silver, clear quartz, or amethyst may serve as symbolic reminders of refinement and change. For a reflection ritual, write down something you are ready to reconsider, then safely tear up or recycle the paper. Imagine an alchemical vessel as a metaphor for giving yourself time and support to process experience. Avoid visualizations that pressure you to erase fear, pain, or trauma. A candle may mark the practice if you can use it safely; an unlit object or a few quiet minutes works too. An affirmation such as 'I choose what I carry forward' honors your agency without promising that every experience will become gold."
+    }
   }
 ]
