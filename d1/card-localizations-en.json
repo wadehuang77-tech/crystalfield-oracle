@@ -1979,5 +1979,62 @@
       "energyHealing": "You may choose practices focused on the Third Eye Chakra, using amethyst, lapis lazuli, or sugilite as ritual objects. Try a Third Eye meditation that imagines indigo light gently turning at the space between the eyebrows. Frankincense or sage essential oil may be part of a cleansing ritual if suitable for you. Practice visualization and inner imagery as exercises in attention. If you explore pineal-gland or breathing practices, choose gentle, evidence-informed approaches and avoid unsafe techniques. Reduce overstimulation, such as long periods of screen use, when it affects your well-being. Sound practices with “OM” or “SHAM” may help you focus. Treat impressions as reflections to consider rather than unquestionable facts.",
       "soulQuestion": "Am I truly listening to my inner voice, or only looking for the answer I want to hear? Am I willing to trust my intuition even when it differs from outside advice?"
     }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "7",
+    "locale": "en",
+    "name": "Abundance Manifestation",
+    "name_secondary": "豐盛顯化",
+    "preview_payload": {
+      "keywords": ["Abundance", "Manifestation", "Creation", "Attraction"],
+      "nameEn": "Abundance Manifestation"
+    },
+    "gated_payload": {
+      "cosmicMessage": "You may be at a powerful threshold for bringing intentions into form. Your frequency may feel elevated, helping you notice opportunities and possibilities more quickly. The universe is responding not only to your thoughts, but also to your overall energy and choices. You are a creator, and your thoughts, emotions, and beliefs can shape how you meet reality. This may be a time to use that creative power consciously and move toward a life that feels abundant to your soul. Remember that true abundance is not only material; it can include richness and flow in many areas of life.",
+      "currentSituation": "You may be noticing a quicker connection between your thoughts and what happens around you. Things you think about may seem to appear soon afterward, whether positive or negative. This can feel exciting and also unsettling, because it asks you to be aware of your thoughts and energy. You may be trying different manifestation techniques, some of which seem to work and others not. This card reminds you that manifestation is not only about technique; your inner state and beliefs matter too.",
+      "deeperMeaning": "Manifestation is not about manipulating the universe into giving you everything you want; it can be understood as aligning with the creative flow of life. When a desire feels connected to your authentic nature and purpose, pursuing it may feel more natural. Obstacles can come from limiting beliefs, feelings of unworthiness, or conflicted attitudes about abundance. Some people may say they want abundance while holding deeper beliefs that money is bad, spiritual people should be poor, or they do not deserve good things. Manifestation work can begin internally by examining those beliefs and developing a greater capacity for gratitude and receiving.",
+      "actionGuidance": "Each day, visualize the kind of life you hope to create and notice what feelings arise, such as joy or gratitude. You may make a vision board or an abundance altar as a way to give your intentions form. Write down what you want, including how you hope to feel, not only the objects or outcomes. Examine limiting beliefs about money and abundance through journaling or other reflective practices. Practice gratitude for what you already have. Take inspired, practical actions; creation involves both intention and your participation. Practice receiving help and gifts when they are freely offered. Keep choosing activities that support your well-being rather than trying to maintain a constant high mood.",
+      "energyHealing": "Citrine, green phantom quartz, or gold may be included in a personal abundance ritual. Try grounding practices that bring attention to the Solar Plexus and Root Chakras. In an abundance meditation, imagine golden light moving through different areas of your life. Cinnamon, orange, or patchouli essential oils may be used in a personal ritual if suitable for you. You could reflect on your relationship with money and release beliefs that no longer serve you. Visualize details of a life with sufficient resources, using all your senses. An affirmation such as “I am open to abundance” or “I deserve good things” may help you focus your reflection.",
+      "soulQuestion": "Do I truly believe I deserve abundance? Am I ready to receive more than I currently know? What hidden beliefs do I hold about money and material abundance?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "8",
+    "locale": "en",
+    "name": "Soul Family",
+    "name_secondary": "靈魂家族",
+    "preview_payload": {
+      "keywords": ["Connection", "Community", "Support", "Soul"],
+      "nameEn": "Soul Family"
+    },
+    "gated_payload": {
+      "cosmicMessage": "Your soul family may be finding you through a sense of resonance. These souls may feel connected to you through an old bond, as though you have learned and grown together across many lifetimes. You may share similar light codes and a sense of purpose. The universe may be bringing about meaningful meetings and reunions because this is a time when you can serve the Earth together. You do not have to walk your path alone; a community of kindred spirits may be gathering around you.",
+      "currentSituation": "You may have felt lonely or misunderstood, even when surrounded by people. Family members and old friends may not understand your current path or the changes you are going through. You may long for deeper spiritual connection and a community where you can be yourself. Or you may recently have met people whose connection feels unusually deep and familiar, as though you already know them. This card invites you to remain open to new soul connections and notice which relationships feel supportive and genuine.",
+      "deeperMeaning": "A soul family does not have to be a family by blood. It can mean beings with whom you feel a deep soul agreement and resonance. You may imagine that you agreed to meet in this life to support one another's growth and purpose. Soul-family connections can bring a sense of recognition, deep understanding, and acceptance. These people may see your essence beyond your personality or social role. Such connections are not always easy; sometimes people mirror your shadow or encourage you to grow. The card frames this as a relationship grounded in care and commitment to one another's development. Your soul family may include people, animals, spiritual guides, or beings from other dimensions within this belief system.",
+      "actionGuidance": "Set an intention to welcome meaningful, resonant connections. Attend spiritual workshops, gatherings, or online communities to create opportunities to meet people. When you meet someone with whom you resonate, consider deepening the connection rather than withdrawing out of fear. Join or create a learning circle or support group. Share your spiritual journey on social media or a blog if that feels right, so kindred people can find you. Trust your discernment about who belongs in your close circle. Soul family is about quality, not quantity: a few deep connections can matter more than many surface relationships. Stay open to unconventional forms of community, including online groups or friendships across generations.",
+      "energyHealing": "Rose quartz or rhodonite may be included in a personal practice focused on openness and connection. Practices that balance the Heart and Throat Chakras can support expressing yourself authentically and building resonant relationships. You could create a simple ritual to welcome supportive connections using candles, crystals, or written intentions. Visualize being surrounded by people who care about and understand you. Lavender or rose essential oil may be part of a heart-opening ritual if suitable for you. A chakra-alignment meditation may help you reflect on how you show up in relationships. A full-moon ritual can be used as a symbolic moment to set intentions for connection.",
+      "soulQuestion": "Am I truly open to deep soul connections, or are fear and defenses keeping them at a distance? Am I ready to show my authentic self to the people I hope to meet?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "9",
+    "locale": "en",
+    "name": "Divine Feminine",
+    "name_secondary": "神聖陰性",
+    "preview_payload": {
+      "keywords": ["Receptivity", "Acceptance", "Intuition", "Creativity"],
+      "nameEn": "Divine Feminine"
+    },
+    "gated_payload": {
+      "cosmicMessage": "The Divine Feminine is described as a rising energy on Earth, and you may be one channel through which this ancient force returns. This energy is not about gender; it represents qualities such as receptivity, flow, intuition, nourishment, and creativity. It is associated with the moon, the wisdom of water, and the creative womb. After long periods of suppression, the Divine Feminine is being invited to be seen, honored, and embodied. The goddess within you may be awakening, inviting deeper self-acceptance and a freer creative flow.",
+      "currentSituation": "You may have been relying heavily on active, goal-directed energy—constantly acting, pushing, controlling, and achieving. You may feel tired, depleted, or disconnected from your body and emotions. Your receptive side may be asking for attention through physical sensations, emotional shifts, or a deep desire for rest and nourishment. Or perhaps you are just beginning to explore goddess energy, lunar cycles, or feminine spiritual practices. This card encourages you to honor and embody receptive qualities within yourself, regardless of your biological sex.",
+      "deeperMeaning": "The Divine Feminine teaches the power of being, not only doing. It reminds you that receiving matters as much as giving, rest has value alongside work, and feeling can be as wise as thinking. Feminine energy is cyclical, spiral, and inclusive, complementing the linear and goal-directed qualities often called masculine energy. In a world that can overvalue constant action, restoring balance can support personal and collective healing. This may include honoring the body, emotions, and intuitive wisdom; learning to receive help; allowing things to unfold organically; and aligning with natural cycles. The Divine Feminine can also symbolize deep creativity, giving form to something new from a space of possibility.",
+      "actionGuidance": "Build a relationship with lunar cycles by noticing how your energy and emotions shift through the month. Give yourself permission to rest, receive, and do nothing without guilt. Explore feminine spiritual practices such as goddess meditation, womb-centered reflection, or sacred dance if they resonate with you. Nourish your body with food, touch, and attention that feel caring. Create art, music, or another form of expression. You could create an altar honoring different aspects of the Divine Feminine. Meditate or bathe in water as a symbolic way to connect with its wisdom. Practice receiving support from others. Reflect on your relationship with your mother, female ancestors, and the wider community of women.",
+      "energyHealing": "You may choose practices that focus on balancing the Sacral and Heart Chakras, which some traditions associate with receptive and creative energy. Moonstone, rose quartz, or pearls may be used as personal ritual objects. A womb-centered meditation can be practiced regardless of whether you have a physical womb, as an image of a creative inner space. Rose, ylang-ylang, or jasmine essential oils may be part of a ritual if suitable for you. Try gentle, flowing movement such as Yin Yoga if it feels supportive. A full-moon ritual can be a symbolic time for reflection and renewal. Visualize soft pink or silver moonlight surrounding you, and explore sound practices such as goddess mantras or womb-drum rhythms if they resonate.",
+      "soulQuestion": "Where in my life am I overusing active, goal-driven energy and neglecting receptivity? Am I ready to receive, surrender, and trust the flow of life?"
+    }
   }
 ]
