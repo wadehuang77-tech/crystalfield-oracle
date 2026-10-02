@@ -1583,6 +1583,63 @@
   },
   {
     "deck_id": "osho",
+    "card_key": "37",
+    "locale": "en",
+    "name": "Ordinariness",
+    "name_secondary": "平凡時刻",
+    "preview_payload": {
+      "subtitle": "Ordinariness"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "This is an ordinary moment, without drama, a peak, or a crisis—just the simple flow of daily life. You may feel bored or disappointed, waiting for more excitement or meaning. This card invites you to look again at the ordinary: it is not necessarily missing something; it can be a deep presence in the here and now. In ordinary moments, you can breathe, rest, and notice small things. Morning coffee, sunlight through a window, or a friend's laughter can be life itself. You do not have to wait for real life to begin; this is it.",
+        "dailyGuidance": "Give your ordinary tasks your full attention today. When you wash dishes, notice the water's temperature, the texture of the soap, and the clean dish. When you walk, feel your feet touching the ground, the air on your skin, and the sounds around you. Do not rush toward the next thing or spend the moment planning and replaying thoughts. Simply be here. You may find that when you are truly present, nothing is entirely ordinary. Each moment has its own texture and richness. The ordinary can become sacred when you meet it with awareness.",
+        "emotionalInsight": "You may have been pursuing the extraordinary: extraordinary achievements, relationships, or experiences. That pursuit can keep you elsewhere, never satisfied with what is here. Paradoxically, deep satisfaction may come not from extraordinary events but from appreciating ordinary life. When you can find beauty and meaning in a quiet evening, a simple meal, or an everyday conversation, you may feel freer. You become less dependent on outside stimulation or validation. Happiness can become steadier and more internally grounded.",
+        "blockageAnalysis": "You may feel stuck because you dismiss the ordinary while chasing the extraordinary. The deeper block may be idealizing exceptional moments and believing they contain something you cannot find here. But extraordinary moments are rare; if you live only for them, you may miss much of life. Ironically, meaningful insight, deep connection, and creative breakthroughs often grow in ordinary moments when you are relaxed and present. When you learn to appreciate the ordinary, the extraordinary can arrive in its own time as an unexpected gift rather than something you have to chase.",
+        "meditationEntry": "Imagine yourself in an art gallery searching for the “greatest” painting. You hurry past each one, judging and comparing, looking for the one that will make you say “wow.” In your search, you have not really looked at any painting. Now stop and truly look at the one in front of you. It may not be famous or precious; it is simply this painting. Notice its colors, brushstrokes, and composition. Give it time. Slowly, you may begin to see its beauty, depth, and story. It does not have to be the greatest to deserve your attention. Life can be like that too."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "38",
+    "locale": "en",
+    "name": "Stress",
+    "name_secondary": "壓力",
+    "preview_payload": {
+      "subtitle": "Stress"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may be under pressure, feeling overwhelmed, unable to catch your breath, or close to your limit. There may be too much to do, too many responsibilities, and too many expectations. Your body may be tense, your mind racing, and your emotions at the edge. This card is a warning that the current state may not be sustainable. Pause, breathe, and reassess. What is truly necessary? What are you placing on yourself? What can you set down, and where could you ask for help? Stress is not simply something to push through; it can be a signal that something needs to change.",
+        "dailyGuidance": "Today, your first priority may not be getting more done, but lowering your stress. That could mean saying no, canceling or postponing something, or asking for help. Look at your to-do list and ask what would really happen if you did not do each item. The consequences may be less severe than you imagine. Prioritize caring for your body: breathing, stretching, walking, or sleeping. Your performance may improve when you are rested, rather than when you push harder. Give yourself permission to slow down, even if only for today.",
+        "emotionalInsight": "Your stress may come not only from outside demands, but also from inner drives and beliefs. Perhaps you believe your worth depends on productivity, that you must prove yourself, that rest is laziness, or that failure is unacceptable. These beliefs can act like an inner taskmaster, pushing you forward. Notice and question those voices. Your worth is not only in what you do; it is also in who you are. You have a right to rest, make mistakes, and be imperfect. As you change these inner beliefs, outside pressure may feel more manageable too.",
+        "blockageAnalysis": "You may feel stuck in a trap of doing more. You feel pressure, so you try to work harder, faster, or more efficiently in the hope of catching up. But there is always more to do. The deeper block may be needing to change the game rather than play it better. That could mean setting boundaries, redefining success, or accepting that you cannot do everything. This takes courage because someone may be disappointed or you may fear looking inadequate. But the cost of living under constant pressure—your health, relationships, and joy—can be high. Consider choosing a different way.",
+        "meditationEntry": "Imagine carrying a backpack full of stones. Each stone represents a responsibility, expectation, or commitment. It is heavy and presses on your shoulders, making you bend. You keep walking because you think you must, but each step becomes harder. Now stop and set the backpack down. Look at it. Ask each stone: do I truly need to carry you? Some may not belong to you at all. Some may have served their purpose, and some can wait. Slowly remove what you do not need. Feel your body grow lighter. You do not have to carry everything."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "39",
+    "locale": "en",
+    "name": "Exhaustion",
+    "name_secondary": "精疲力盡",
+    "preview_payload": {
+      "subtitle": "Exhaustion"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may have reached your limit—not simply feeling tired, but exhausted emotionally, physically, or mentally. You may have given too much, gone too far, or held on for too long. Right now, there may be nothing left to give. This card does not mean failure; it can mark a necessary stop. Your body and being may be saying, “Enough.” That can be wisdom, not weakness. When you reach this point, a wise response may be to stop, rest, and recover. Give yourself the time you genuinely need, not just a day or a week if that is not enough. This is an invitation to deep replenishment.",
+        "dailyGuidance": "If possible, do very little today. Cancel plans, turn off notifications, and let people know you are unavailable if you can. If you must do something, do only what is essential, then rest. Sleep, lie down, or sit in the sunlight. Do not try to be productive or even to relax in a particular way; simply stop. Your system may need a pause to recover. Do not feel guilty. This is not selfish; it is necessary care. Give your body what it is asking for: a stop and a chance to replenish. Trust that energy can return when you truly rest, but do not force it.",
+        "emotionalInsight": "Exhaustion often comes after you have ignored your needs and limits for a long time. You may have kept saying, “I can do a little more,” “I will rest later,” or “Other people need me.” Now your system may be forcing you to stop. You may feel failure, guilt, fear, or shame. Meet those feelings and yourself with compassion. You are not weak; you are human. Everyone has limits, and honoring them is strength. Ask what this exhaustion may be teaching you about a more sustainable way to live.",
+        "blockageAnalysis": "You may feel stuck because you believe you cannot stop or something bad will happen if you do. The deeper block may be overestimating how indispensable you are and underestimating other people's capacity. The world will not collapse if you rest. People can wait, handle things themselves, or find other resources. When you keep pushing through exhaustion, your decisions, emotional balance, creativity, and effectiveness may suffer. You may think you are helping, but you could be harming yourself. Caring for yourself can help you support others from a more replenished place.",
+        "meditationEntry": "Imagine a phone battery in the red zone at one percent. You keep trying to use it, but it shuts down. You feel frustrated and press the buttons, but nothing happens. What it needs is clear: to be plugged in, allowed to charge, and left unused for a while. You would not be angry at the phone or tell it to try harder. You would give it what it needs. Your body and being are similar. When your battery is in the red, the answer may be to recharge—not push harder, use more willpower, or rely on more caffeine. Stop, rest, and recover. Give yourself that basic respect."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
     "card_key": "34",
     "locale": "en",
     "name": "Sharing",
