@@ -5718,5 +5718,53 @@
       "guidance": "If you are ready, reflect on what a recent experience has taught you about your needs or boundaries. You may also choose simply to acknowledge that it was difficult; meaning can come later, or not at all. Notice repeated habits without blaming yourself, and consider what need they may have served. Make a small review of your commitments, possessions, or routines: what supports your priorities, and what could be simplified? Journaling can help you record observations and possible changes. If painful memories are difficult to manage or affect everyday life, seek support from a qualified mental health professional. You can pursue change without treating every challenge as a message from the universe.",
       "energy": "Silver, clear quartz, or amethyst may serve as symbolic reminders of refinement and change. For a reflection ritual, write down something you are ready to reconsider, then safely tear up or recycle the paper. Imagine an alchemical vessel as a metaphor for giving yourself time and support to process experience. Avoid visualizations that pressure you to erase fear, pain, or trauma. A candle may mark the practice if you can use it safely; an unlit object or a few quiet minutes works too. An affirmation such as 'I choose what I carry forward' honors your agency without promising that every experience will become gold."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "22",
+    "locale": "en",
+    "name": "Sky Dragon Vision",
+    "name_secondary": "天幕龍視野",
+    "preview_payload": {
+      "keywords": ["Perspective", "Foresight", "Big Picture"],
+      "nameEn": "Sky Dragon Vision"
+    },
+    "gated_payload": {
+      "message": "The Sky Dragon soars high above the landscape, an image of perspective that can hold both the broad view and the details. When daily pressures feel all-consuming, a little distance may help you ask what matters most and what can wait. This card also speaks to vision: imagining a future you would like to help create for yourself and your community. A vision is a direction to explore, not a prediction or guarantee. Keep room for uncertainty, other people's needs, and the circumstances that shape what is possible.",
+      "guidance": "Pause and consider whether a current worry will matter to you a year from now. Use that question to clarify priorities, not to dismiss a problem that needs attention. Write down a longer-term hope and one step you can take toward it this week. A vision board or future journal can help you explore what you value, but it cannot ensure a particular outcome. When making a decision, consider likely consequences for yourself and others, and seek perspectives beyond your own when useful. Learning about history, other cultures, or systems can broaden your view. Focus on the parts of a better future where your actions can make a difference.",
+      "energy": "Blue kyanite or lapis lazuli may serve as symbolic reminders of perspective. Try a guided visualization in which you imagine viewing your life from a high vantage point, then write down what becomes clearer. You can also look at a landscape from a safe, accessible place without seeking heights. A future-self letter can help you name hopes and priorities; treat it as reflection, not a message from the future. Rosemary or mint may be used as a scent if safe and pleasant. Let your vision guide practical choices while accepting that outcomes cannot be fully controlled."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "23",
+    "locale": "en",
+    "name": "Emerald Dragon Prosperity",
+    "name_secondary": "翠玉龍繁榮",
+    "preview_payload": {
+      "keywords": ["Prosperity", "Growth", "Abundance"],
+      "nameEn": "Emerald Dragon Prosperity"
+    },
+    "gated_payload": {
+      "message": "The Emerald Dragon, with scales like fresh spring leaves, symbolizes steady growth and the patience to nurture what matters. This card invites you to think broadly about prosperity: financial security, supportive relationships, meaningful work, health, learning, and time for joy. Growth often takes sustained effort and can be affected by circumstances beyond your control. Gratitude and generosity may enrich relationships, but they do not guarantee wealth or make hardship someone's fault. Choose the areas of life you want to nurture and consider what realistic support they need.",
+      "guidance": "Take stock of different areas of your life and notice where you would like more care or change. For finances, practical steps might include reviewing a budget, building savings if possible, learning about risk, or seeking qualified advice. For relationships, make time for honest conversations and mutual attention. Continue learning skills that serve your goals, and treat setbacks as information rather than proof that you cannot grow. Choose small, sustainable actions and acknowledge progress along the way. Generosity can be meaningful, but give within your means and keep healthy boundaries. Your worth is not measured by money, productivity, or success.",
+      "energy": "Green aventurine or jade can serve as symbolic reminders of growth and renewal; they do not attract money or guarantee good luck. Tend a plant or sow seeds as a visible practice in patience, choosing species and methods that suit your space. A prosperity altar with a plant, written goal, or meaningful object can help you reflect on what abundance means to you. If you use candles or scents, follow safety guidance and account for sensitivities. Visualize steady progress, then choose a practical action that supports it. Let the symbol encourage care rather than replace planning, advice, or material resources."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "24",
+    "locale": "en",
+    "name": "Garnet Dragon Passion",
+    "name_secondary": "石榴龍熱情",
+    "preview_payload": {
+      "keywords": ["Passion", "Commitment", "Dedication"],
+      "nameEn": "Garnet Dragon Passion"
+    },
+    "gated_payload": {
+      "message": "The Garnet Dragon symbolizes passion, dedication, and the focus to stay with something meaningful. With so many distractions and options, it can feel difficult to go beyond a first attempt. Choosing to devote attention to a craft, relationship, project, or value can bring depth and satisfaction. Commitment should remain a conscious choice, not a demand to endure harm or ignore changed circumstances. This card invites you to notice what you genuinely want to invest in and to bring care and focus to it for as long as it continues to align with your needs.",
+      "guidance": "Choose a commitment because it matters to you, not only because someone else expects it. Set aside regular time for a relationship, creative project, skill, or goal, and reduce distractions when you can. Progress may continue even when excitement fades; make a realistic plan that includes breaks and support. Distinguish dedication from rigidity by checking in periodically: is this still healthy and worthwhile? In relationships, discuss expectations and revisit agreements together. You are allowed to change course when a commitment no longer fits or becomes unsafe. Focus on the next meaningful step instead of demanding immediate results.",
+      "energy": "Garnet or red jasper may serve as symbolic reminders of dedication and endurance. Keep one nearby while you work, or write a commitment in your journal along with a date to review it. Movement, dance, or gentle yoga can help you reconnect with your energy if they suit your body. A candle may mark an intention, with appropriate fire safety; no ritual or stone can bind you to a path or guarantee success. An affirmation such as 'I give my attention to what matters, and I may reassess as I grow' can hold both devotion and flexibility."
+    }
   }
 ]
