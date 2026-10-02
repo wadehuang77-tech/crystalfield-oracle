@@ -5382,5 +5382,53 @@
         "suitableQuestions": "This card may resonate when you feel drawn to share ideas, spiritual insight, or creative work. Ask: “What would I like to contribute?” “How can I share it responsibly?” “What do I know, and what am I still learning?” “How can I serve without overextending?” “What helps me stay grounded?” “How can I distinguish inspiration from certainty?” Let your answers guide a thoughtful way to share."
       }
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "1",
+    "locale": "en",
+    "name": "Fire Dragon Power",
+    "name_secondary": "火龍之力",
+    "preview_payload": {
+      "keywords": ["Strength", "Transformation", "Passion"],
+      "nameEn": "Fire Dragon Power"
+    },
+    "gated_payload": {
+      "message": "The Fire Dragon symbolizes the power of change: releasing an old habit or identity can make room for something new. Transformation may be uncomfortable, so meet yourself with patience rather than demanding that you enjoy every part of it. You have a capacity for passion, anger, desire, and vitality; learning to express these feelings safely is different from suppressing them or acting on every impulse. Consider what would happen if you made more room for the energy and creativity you have been holding back.",
+      "guidance": "You do not need to make yourself smaller to meet someone else's expectations. Notice what genuinely gives you energy and consider one practical step toward it. Excitement can be a helpful clue, but it is not the only factor in a decision; include your safety, responsibilities, and resources. Use your fire as steady motivation and creativity rather than an outburst. Set clear boundaries, protect time for what matters, and let strength be bold without becoming aggressive.",
+      "energy": "Carnelian or red jasper may serve as symbolic reminders of vitality and courage. If crystals or elemental imagery are part of your practice, you might meditate with one safely nearby or picture a warm flame at your center. Movement, exercise, or making art can offer a practical outlet for energy. Avoid intense breathwork or practices that make you feel unwell; gentle grounding afterward may help you feel settled. Treat these activities as reflection and expression, not as guaranteed ways to activate chakras or change your body."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "2",
+    "locale": "en",
+    "name": "Water Dragon Wisdom",
+    "name_secondary": "水龍智慧",
+    "preview_payload": {
+      "keywords": ["Wisdom", "Flow", "Emotion"],
+      "nameEn": "Water Dragon Wisdom"
+    },
+    "gated_payload": {
+      "message": "The Water Dragon represents adaptability, depth, and the wisdom of responding rather than forcing. Water can be soft and still shape stone over time; it changes form while continuing to flow. Your emotions, too, can shift, and allowing yourself to notice them may bring useful information. You do not have to suppress feelings or act on them immediately. Give them room to be felt, and consider what they may be asking you to notice.",
+      "guidance": "Try meeting an obstacle with flexibility instead of pushing directly against it. Listen to others with empathy, without taking responsibility for fixing every feeling. Let yourself name emotions such as joy, sadness, anger, or fear, and choose a safe way to express them. Intuition can be one part of a decision alongside facts, reflection, and advice. Spend a quiet moment near water if that feels calming. You can be adaptable without abandoning your values or boundaries.",
+      "energy": "Aquamarine or blue lace agate may serve as symbolic reminders of calm and emotional awareness. A bath, swim, or time near a lake or river may feel soothing if accessible and safe. Try slow movement such as swimming, gentle yoga, or tai chi if it suits your body. When feelings rise, pause and take a comfortable breath before responding. Drinking water supports ordinary hydration, but it is not a treatment for emotional distress. Use water imagery as reflection, not as a guarantee of healing."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "3",
+    "locale": "en",
+    "name": "Wind Dragon Freedom",
+    "name_secondary": "風龍自由",
+    "preview_payload": {
+      "keywords": ["Freedom", "Thought", "Communication"],
+      "nameEn": "Wind Dragon Freedom"
+    },
+    "gated_payload": {
+      "message": "The Wind Dragon symbolizes freedom of thought and expression. Notice the beliefs and expectations that may be limiting you, and ask whether they still fit. Changing how you think can affect your choices and experience, though thoughts alone do not control reality. Wind also suggests communication: your voice can express what matters to you. Speak honestly and clearly, without turning truth into an attack. Let fresh perspectives clear room for change.",
+      "guidance": "Write down a belief that limits you and consider whether it is always true. Replace it with a more balanced thought if that feels useful. Practice expressing yourself in a low-stakes situation: name a preference, share a feeling, or ask for what you need. You do not have to share everything with everyone. Stay curious about different perspectives and notice when a thought is only a thought, rather than a fact. Allow yourself to learn and change your mind.",
+      "energy": "Lapis lazuli may serve as a symbolic reminder of honest communication, while blue kyanite may represent clarity. Carry a meaningful stone or place it nearby if that supports your reflection. Take a few comfortable breaths outdoors and imagine breathing in spaciousness and releasing tension. Singing, reading aloud, journaling, or speaking with someone trustworthy can help you practice expression. Essential oils such as mint or eucalyptus may be used if safe and pleasant for you. Let these be reflective practices, not claims that crystals or aromas produce a specific outcome."
+    }
   }
 ]
