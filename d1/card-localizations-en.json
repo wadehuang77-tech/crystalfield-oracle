@@ -3682,5 +3682,65 @@
       "questions": "When did I last play or enjoy myself? What brings me joy? Do I allow myself to enjoy life? Are my boundaries clear? How do I balance work with play? Is there enough laughter in my life? How can I move through a challenge with more grace? When do I want solitude, and when do I want connection?",
       "energyFocus": "Give attention to what brings you joy. Make room for play, relaxation, and enjoyment. Add music, dance, or art to everyday life. Practice a calm and graceful pace rather than rushing or tensing. Stretch, rest, and notice pleasant sensory experiences. Protect your space and energy with clear boundaries. Embrace independence without needing constant approval. Let laughter and lightness find their way back into your life."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "7",
+    "locale": "en",
+    "name": "Horus - Sky God",
+    "name_secondary": "荷魯斯 - 天空之神",
+    "preview_payload": {
+      "titleEn": "Horus - Sky God",
+      "symbol": "Falcon-headed deity with eyes associated with the sun and moon"
+    },
+    "gated_payload": {
+      "godStory": "Horus is often depicted with the head of a falcon. In some traditions, his eyes are associated with the sun and moon, giving him a view across day and night. With broad wings, he soars above the land. In myth, Horus fights his uncle Seth after the death of his father, Osiris, and eventually becomes a legitimate ruler of Egypt. The Eye of Horus became a powerful symbol of protection and kingship. In this reading, it can invite you to look carefully beyond appearances and question what is true.",
+      "coreMeaning": "Horus represents perspective, insight, leadership, justice, perseverance, and protection. This card invites you to step back from the details and consider the larger picture. Horus teaches that a wider view may reveal patterns you could not see up close. He encourages you to develop your leadership, stand up for values you believe in, and protect what matters to you. Progress can come through persistence and thoughtful action, even when the path is challenging.",
+      "coreEnergy": "Vision, insight, leadership, justice, courage, protection, and perseverance. Horus's energy is far-seeing, clear, and brave. It can symbolize rising above immediate difficulties enough to notice facts and possibilities, then acting with resolve. Like a falcon, this energy combines careful observation with timely action. Leadership here is not domination; it includes responsibility, fairness, and care for those affected by your decisions.",
+      "guidance": "Try viewing your situation from a wider perspective. Step back from details and ask what the overall pattern might be, while checking your assumptions. You may be ready to take a leadership role at work, at home, or in your own life. Stand up for a value or person you believe in, and consider what protection or support is actually needed. Challenges do not require you to prove your strength; act with courage and judgment, and protect your own goals as well as the people you care about.",
+      "soulReminder": "You may have more perspective and strength than you realize, but stay open to the possibility that you do not yet see the whole truth. Leadership is not control; it can be service, fairness, and protection. Standing up for justice can take patience and discernment. Progress may be slow, and setbacks do not mean the truth will automatically prevail. Keep going in ways that align with your values, and let courage be guided by humility and care.",
+      "questions": "From what perspective am I viewing this situation? Have I considered the larger picture? Where might I develop my leadership? What value am I standing up for? What or whom am I trying to protect? What does my careful observation suggest? Am I ready to speak or act? How can I advocate for truth with courage and fairness?",
+      "energyFocus": "Raise your perspective enough to see relationships and patterns without dismissing important details. Develop leadership skills, including listening and taking responsibility. Stand up for your values with courage and respect. Protect your goals and the people you care about using practical steps. Observe carefully and check what you believe you see. Like a falcon, combine focus with flexibility; progress may call for both strategy and persistence."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "8",
+    "locale": "en",
+    "name": "Hathor - Goddess of Love",
+    "name_secondary": "哈索爾 - 愛之女神",
+    "preview_payload": {
+      "titleEn": "Hathor - Goddess of Love",
+      "symbol": "Cow goddess crowned with a solar disk between her horns"
+    },
+    "gated_payload": {
+      "godStory": "Hathor is often depicted as a cow goddess crowned with a solar disk between her horns, imagery associated with nourishment and abundance. As a sky goddess, she is connected with the stars. She is also associated with music, dance, celebration, love, and joy. In her temples, these arts could be part of worship and celebration. Hathor's image can hold many roles—nurturer, beloved, and source of pleasure—reminding you that life can include beauty and celebration as well as responsibility.",
+      "coreMeaning": "Hathor represents love, beauty, joy, abundance, celebration, music, art, and the good in life. This card is about opening your heart to love and appreciating beauty around you. Hathor teaches that love can be a powerful source of connection, and that everyone deserves care and respect. She encourages you to welcome the richness of life—not only material resources, but also affection, beauty, creativity, and joy.",
+      "coreEnergy": "Love, beauty, joy, abundance, celebration, nourishment, music, art, sensory pleasure, and openness. Hathor's energy is warm, generous, and joyful. It invites you to embrace life, open your heart, and give and receive care. Like nourishment shared with a child, this energy can evoke tenderness and belonging. Abundance here can mean emotional and creative richness, not a promise of unlimited material wealth.",
+      "guidance": "Open yourself to love and the good things that may be present. You can lower your guard gradually, in ways that feel safe, and allow different forms of love—romantic, friendship, family, or self-love—to reach you. Celebrate small moments worth celebrating. Listen to music, make art, savor a meal, or spend time with something beautiful in nature. You deserve joy and care, and you do not have to earn them through constant positivity. Share affection and appreciation without expecting it to guarantee a return.",
+      "soulReminder": "You are worthy of love and care as you are. You do not need to prove your value before allowing yourself to receive kindness. Life can hold celebration even when it is not perfect; you do not have to wait until every task is done to enjoy a good moment. There is beauty, love, and joy in the world, though access to them can vary. When you give love, it does not diminish your worth, and you may also let yourself receive it. Let Hathor's joy remind you to make room for pleasure.",
+      "questions": "Is my heart open or guarded right now? Am I willing to receive love? When did I last celebrate? Do I notice beauty in my life? Where do I feel rich or depleted? How can I share care with others? What makes it difficult to receive good things? How can I make life feel more celebratory?",
+      "energyFocus": "Notice love and beauty in your surroundings. Open up gradually to giving and receiving affection, while maintaining boundaries that feel safe. Bring music, art, or other beauty into daily life. Celebrate small wins, joys, and moments of ease. Practice gratitude for what is genuinely meaningful to you. Offer sincere care, praise, or encouragement. Enjoy sensory experiences without suppressing delight, and let love guide choices that respect both you and others."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "9",
+    "locale": "en",
+    "name": "Sekhmet - Warrior Goddess",
+    "name_secondary": "塞赫邁特 - 戰士女神",
+    "preview_payload": {
+      "titleEn": "Sekhmet - Warrior Goddess",
+      "symbol": "Lioness goddess with fire in her eyes"
+    },
+    "gated_payload": {
+      "godStory": "Sekhmet is a fierce lioness goddess, often shown with fire in her eyes and associated with formidable power. In one myth, she is the Eye of Ra, sent to punish humanity for its rebellion; her fury becomes so great that it threatens to destroy humankind. Sekhmet is also associated with healing, reflecting the way her force can be both dangerous and protective. A lotus may symbolize renewal after destruction. Her fire can represent the power to end what is harmful and make room for change.",
+      "coreMeaning": "Sekhmet represents strength, courage, anger, boundaries, healing, and transformation. This card invites you to call on your inner warrior to stand up for yourself, say no, and face what needs attention. Sekhmet suggests that gentleness and strength can coexist, and that healing sometimes requires confronting pain. Anger is not automatically destructive; it can signal a boundary or injustice. What matters is how you listen to it and choose to respond.",
+      "coreEnergy": "Strength, courage, anger, boundaries, protection, healing, fire, transformation, and the warrior spirit. Sekhmet's energy is powerful, fierce, and unwilling to tolerate harm. It may help you say “enough” and protect what matters. Like fire, it can destroy or transform depending on how it is handled. This is both warrior and healer energy: the courage to act, and the care to avoid turning that force against yourself or others.",
+      "guidance": "Call on your strength and courage. It may be time to stand up for yourself, set a clear boundary, or speak honestly. You do not have to let anyone undermine your dignity or worth. If a difficult conversation is needed, prepare what you want to say and choose a safe time and setting. Sekhmet's fire can symbolize resolve, not permission to harm. At the same time, make room to understand and process anger rather than suppressing it. Ask what the feeling is signaling, then express it safely and constructively.",
+      "soulReminder": "You may be stronger than you think, and you do not have to be endlessly gentle, agreeable, or yielding. Anger is not a sin; it can be a signal that something feels wrong or a boundary has been crossed. You have the right to protect yourself, say no, and ask for respect. Healing does not mean pretending everything is fine; it can mean facing pain and seeking support. Let your strength illuminate a way forward without burning you or anyone else. You can be both a protector and a healer.",
+      "questions": "Where do I need to be firmer? Are my boundaries clear? Am I suppressing anger? What value or person am I standing up for? Where does my strength show up? Do I allow myself to be powerful? What needs to change or be released? How can I balance strength with gentleness?",
+      "energyFocus": "Focus on your capacity rather than only on vulnerability. Practice saying no and setting boundaries, even when someone may dislike them. Let yourself feel anger, then choose a safe way to process it, such as movement, writing, or talking with someone you trust. Face a difficult situation or conversation with preparation. Develop a protective warrior spirit, not an attacking one. A fire ritual may symbolize releasing an old pattern; follow fire safety. Your strength is valuable when guided by care."
+    }
   }
 ]
