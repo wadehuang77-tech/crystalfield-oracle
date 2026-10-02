@@ -5526,5 +5526,53 @@
       "guidance": "Choose one small area to clear—a room, a digital folder, or a commitment you want to reconsider. Let go of items you no longer use if that is practical, and review relationships with honesty while respecting safety and shared responsibilities. You may also write down an old belief you are ready to question and a more balanced perspective. After making space, clarify what you want to invite into your life. You can start fresh without needing to forgive on demand or erase painful memories.",
       "energy": "Clear quartz or selenite may serve as symbolic reminders of clarity. A white-light visualization can be a calming way to imagine a fresh start, not a method for removing toxins or purifying your body. If you use incense or essential oils, consider allergies, ventilation, and safe use. A candle or a few minutes of quiet can mark a transition. After clearing space, write an intention for what you would like to build. Keep the ritual simple, safe, and meaningful to you."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "10",
+    "locale": "en",
+    "name": "Jade Dragon Healing",
+    "name_secondary": "翡翠龍療癒",
+    "preview_payload": {
+      "keywords": ["Healing", "Heart Chakra", "Harmony"],
+      "nameEn": "Jade Dragon Healing"
+    },
+    "gated_payload": {
+      "message": "The Jade Dragon's gentle green color evokes the heart and themes of care and healing. Many people carry hurt from neglect, betrayal, or loss. Such experiences can affect trust and make it harder to give or receive love. The Jade Dragon invites patience and compassion as you tend to what hurts. Healing is gradual and can include support, boundaries, and professional care. It does not require you to forgive, reconcile, or open your heart before you feel ready.",
+      "guidance": "If you want to begin healing, start gently. Place a hand near your heart, breathe comfortably, and ask what kind of care you need. Let feelings arise without forcing them or judging yourself. Tears may come, but they are not required for healing. Practice self-compassion and consider support from a therapist or counselor if painful experiences feel difficult to manage alone. Forgiveness is a personal choice, not an obligation. You can protect yourself and still work toward peace.",
+      "energy": "Green aventurine or jade may serve as symbolic reminders of compassion and renewal. If you find crystals meaningful, hold one during a quiet reflection, but do not treat it as a treatment for emotional or physical conditions. A gentle heart-focused visualization can help you pause and notice what you feel. Spending time in a green space or with supportive people may also feel restorative. Choose practices that comfort you, and seek qualified help when you need more support."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "11",
+    "locale": "en",
+    "name": "Purple Dragon Awakening",
+    "name_secondary": "紫龍覺醒",
+    "preview_payload": {
+      "keywords": ["Awakening", "Spirituality", "Transformation"],
+      "nameEn": "Purple Dragon Awakening"
+    },
+    "gated_payload": {
+      "message": "The Purple Dragon symbolizes spiritual exploration and a shift in awareness. You may be questioning old beliefs, noticing new interests, or experiencing life in a different way. Change can feel unsettling, but it does not mean you are undergoing a literal energy upgrade or spiritual awakening. Stay curious, grounded, and open to support as you make sense of what is changing. Your experiences deserve care, not pressure to fit a particular spiritual story.",
+      "guidance": "Give yourself time to reflect and integrate new ideas. A steady routine, rest, time outdoors, and conversations with trusted people can help you stay grounded. Explore meditation, prayer, or other practices gently and stop if they increase distress. Keep notes on meaningful experiences, but allow yourself to question interpretations. If you have physical symptoms, severe sleep disruption, or distress that interferes with daily life, consult a qualified health professional. Balance spiritual interests with care for your body, work, and relationships.",
+      "energy": "Amethyst or sugilite may be used as personal symbols of reflection and change. A visualization of purple light can be a calming focus, but it does not activate energy centers or guarantee spiritual development. Choose gentle practices that feel safe; avoid intense techniques or extreme diets and fasting. You can create a quiet space with music or a candle, and take time to notice how you feel. Keep a balance between introspection and ordinary routines that support your well-being."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "12",
+    "locale": "en",
+    "name": "Blue Dragon Wisdom",
+    "name_secondary": "藍龍智慧",
+    "preview_payload": {
+      "keywords": ["Communication", "Truth", "Expression"],
+      "nameEn": "Blue Dragon Wisdom"
+    },
+    "gated_payload": {
+      "message": "The Blue Dragon symbolizes honest communication and the courage to express what matters. It invites you to speak clearly and truthfully, without turning conversation into an attack. Many people hold back because they fear rejection or judgment, but silence can also leave needs and ideas unspoken. Words can build understanding or cause harm, so use them with care. Good communication also includes listening deeply and making room for another person's perspective.",
+      "guidance": "Practice expressing yourself in small ways. State a preference at a restaurant, share a feeling with a friend, or write down something you have wanted to say. Notice when fear keeps you quiet, and choose a safe context to speak. You do not have to explain or prove every part of your truth; a clear statement may be enough. Learn communication skills such as active listening or nonviolent communication, and set boundaries around hurtful speech. Listen for the feelings and needs behind other people's words as well.",
+      "energy": "Blue kyanite or aquamarine may serve as symbolic reminders of clarity and expression. Wear a meaningful stone if you like, or use a visualization of blue light at your throat as a reflection practice. Singing, reading aloud, journaling, or talking with someone trustworthy can help you practice using your voice. Before an important conversation, take a comfortable breath and consider what you want to communicate. You might hum or chant if that feels calming, but no sound or crystal guarantees that communication will be easy."
+    }
   }
 ]
