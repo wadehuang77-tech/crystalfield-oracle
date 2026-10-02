@@ -41,15 +41,17 @@ The actual seeded inventory was verified from `d1/cards-seed.sql` in an isolated
 | **Total** |  |  | **278** | **278** | **0** |
 
 - Total cards: 278
-- English completed: 278
+- English complete: 278
 - Remaining: 0
-- Current deck: `dragons`
-- Last completed: `dragons:44`
-- Next: none
+- Current deck: none (all seven decks complete)
+- Last completed card: `dragons:44`
+- Next card: none; do not retranslate existing validator-passing entries
 - Last verification time: 2026-10-02
 - Validator: PASS
 - TypeScript: PASS (frontend and Worker)
 - Build: PASS (Vite and prerender; existing large-chunk warning)
+
+Production availability is separate from local translation completeness. A read-only check of all seven production English deck previews returned 0 of 278 cards with `translation_available: true`; each returned an empty English preview with `content_locale: "zh-Hant"`. The Worker safety fallback is working, but the production cards D1 does not have the English localization rows loaded. The cards migration/seed was not run because production migrations and deployment are out of scope for this handoff.
 
 Translated stable IDs: all 22 `tarot` cards, from `tarot:0-fool` through `tarot:21-world`, all 45 `osho` cards, from `osho:1` through `osho:45`, all `lightworker:1` through `lightworker:43`, all `unicorns:1` through `unicorns:44`, all `egyptian_gods:1` through `egyptian_gods:36`, all `work_your_light:1` through `work_your_light:44`, and `dragons:1` through `dragons:44`.
 
@@ -94,14 +96,12 @@ No `.env`, API key, password, or credential file is intended for the commit. The
 - Sitemap XML browser parse: valid; 42 URL entries and 44 hreflang alternate links.
 - Vite build: `npm.cmd --prefix app run build` completed successfully with exit code `0`, including generated English prerender output. Existing Vite warning: the main JS chunk exceeds 500 kB.
 - Production D1 migration: **not executed**.
-- Production Worker deployment: completed for commit `53f7461`; frontend deployment is triggered by the `main` push workflow.
+- Production Worker and Pages deployment: completed for commit `c484c18`; this localization audit did not deploy or migrate production.
 - Paid AI translation/report-generation calls: **none**.
 
 ## Next Steps
 
-1. Translate `tarot:5-hierophant` and continue the remaining Tarot IDs in stable `card_key` order. Preserve all source fields and structure; regenerate `cards-localizations-seed.sql` after each reviewed batch and validate with the generator.
-2. Add translations for the other six decks in seed order, keeping original IDs and Chinese rows unchanged.
-3. Run the repeatable seed against a local/test cards D1, verify all 278 translated rows and field completeness, and smoke-test both preview and unlock APIs for translated and untranslated cards.
-4. Continue route-by-route UI localization for all spread, report, auth, membership, checkout, sharing, and error states. Add missing English Human Design/Vedic article content.
-5. Complete locale-aware report/share end-to-end checks, scan `/en` flows for residual Chinese, and align English prerender, canonical/hreflang, and sitemap with actually translated routes.
-6. Apply the cards-D1 migration/seed separately only after review; it remains **not executed**. Continue `/en` browser-flow verification and review the frontend deployment result.
+1. No English card IDs remain to translate locally. The last card is `dragons:44`; next card is none. Preserve existing payloads unless a future audit identifies a concrete missing or incorrect field.
+2. Production must separately apply the reviewed cards-D1 migration and `cards-localizations-seed.sql` before the English preview warning can clear. This remains **not executed** in this handoff.
+3. Continue route-by-route UI localization for spread, report, auth, membership, checkout, sharing, and error states. Add missing English Human Design/Vedic article content.
+4. Complete locale-aware report/share end-to-end checks, scan `/en` flows for residual Chinese, and align English prerender, canonical/hreflang, and sitemap with actually translated routes.
