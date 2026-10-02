@@ -5107,5 +5107,80 @@
         "suitableQuestions": "This card may resonate when you feel alone, overwhelmed, or uncertain about your next step. Ask: “What support do I need?” “Who could I reach out to?” “What wise counsel is available?” “What practical help would make this easier?” “What do I believe about spiritual guidance?” “How can I tell a helpful insight from an assumption?” Let the card encourage connection and support without requiring certainty about unseen beings."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "34",
+    "locale": "en",
+    "name": "The Great Gathering",
+    "name_secondary": "盛大集結",
+    "preview_payload": {
+      "titleEn": "The Great Gathering",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be ready to connect with people who share your values and hopes. Communities can weave a network of care, creativity, and support. This card invites you to be visible enough for genuine connections to find you, without assuming you have a predetermined soul group or that a global spiritual gathering is already underway. Belonging grows through honesty, mutual respect, and showing up for one another.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I choose to let myself be seen where it feels safe. I am open to meeting people with whom I can build mutual, meaningful connection.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card celebrates the possibility of people finding one another and building community around shared care, purpose, or values. You may meet people who understand parts of you that others have not. Such connections need not be explained through past lives or a cosmic agreement to be important. You are invited to seek your community and let others know what you care about. Collective effort can be powerful, while every relationship still requires time, trust, and reciprocity.",
+        "higherSelfMessage": "You may have felt isolated or misunderstood in your beliefs, interests, or way of seeing the world. That does not mean your people are destined to arrive through synchronicity; it may help to take concrete steps to meet them. Share interests that matter to you in settings where you feel safe. You may meet a few people who resonate, while others do not. Let connections develop gradually, and allow existing relationships to change without concluding that anyone who leaves was never meant to be there.",
+        "spiritualGuidance": "Take practical steps to meet people who share your interests: attend a workshop, class, reading group, community event, or online forum. Share your work or ideas at a level that feels comfortable. When you meet someone with whom conversation feels mutual, invest in the relationship over time. Create or join a regular group for discussion, meditation, or mutual support if that suits you. You do not need to post publicly or reveal private information to be found. Be yourself, respect others' boundaries, and let trust grow through repeated interactions.",
+        "energyQualities": "This card evokes connection and belonging, like a gathering of people who recognize shared values. It can invite courage to be more visible and openness to collaboration. Community may take time to find, and not every encounter will be a perfect match. You can release connections thoughtfully when they no longer feel mutual, while creating space for new ones through everyday effort. Belonging is built through care, listening, and respect—not only through a powerful feeling of recognition.",
+        "suitableQuestions": "This card may resonate when you feel isolated or want to find a supportive community. Ask: “Where might people with shared values meet?” “What could I share about myself safely?” “Which connections feel mutual?” “How can I contribute to a community?” “What boundaries help me feel comfortable?” “How can I build relationships over time?” Let your answers guide a real step toward connection."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "35",
+    "locale": "en",
+    "name": "Imrama",
+    "name_secondary": "靈魂之旅",
+    "preview_payload": {
+      "titleEn": "Imrama",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Imrama is an old Irish term for a spiritual voyage. This card invites you to consider a meaningful journey, either a physical trip to a place that calls to you or an inward exploration of your own life. Such a journey can be enriching without proving a past-life connection or being a required step in your evolution. Explore what draws you and plan with care, curiosity, and attention to practical needs.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "May I stay open to what this journey can teach me. Please help me travel with curiosity, care, and respect.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "Imrama is an Irish word associated with a voyage or journey, often understood as a spiritual quest. This card may point toward physical travel to a meaningful place or an inward journey into your own experience. It is not simply a vacation or an escape, though travel need not be spiritually transformative to be worthwhile. A journey can change your perspective and reconnect you with what matters. You may feel drawn to a place because of its history, beauty, or personal meaning; you do not need to assume you lived there in a past life.",
+        "higherSelfMessage": "Perhaps a particular place or an inner exploration has been on your mind. Take that interest seriously enough to explore it, while checking the practical details. If a trip is not possible now, you can learn about the place, connect with its culture respectfully, or find another way to explore what it represents to you. If the journey is inward, you might make room for reflection, therapy, time alone in nature, or creative work. A meaningful journey should support your well-being rather than pressure you into a risky or costly choice.",
+        "spiritualGuidance": "If a place calls to you, research its history, local customs, costs, accessibility, and safety. Ask what attracts you and what you hope to learn. If you travel, do so as a respectful visitor, spend time listening and observing, and support local communities appropriately. Set an intention to remain open to new perspectives without expecting signs or memories. For an inward journey, create time for journaling, quiet reflection, or guided support. Notice your experience and record what you learn. Let the journey unfold at a pace and scale that fit your life.",
+        "energyQualities": "This card evokes exploration and discovery, like following a distant call toward somewhere new. It can carry curiosity, transformation, and a sense of returning to something familiar. That feeling can be meaningful without proving an ancient connection. A journey may open new perspectives, but its effects are personal and unpredictable. Stay open to discovery while remaining grounded in safety, respect, and practical planning.",
+        "suitableQuestions": "This card may resonate when you feel drawn to a place, want to travel, or need time for inward exploration. Ask: “What am I hoping to find?” “What does this place mean to me?” “What practical preparation do I need?” “What inner journey feels important?” “How can I explore respectfully?” “What would help me stay grounded while I travel?” Let curiosity guide you without requiring certainty about a past-life connection."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "36",
+    "locale": "en",
+    "name": "Keepers of the Earth",
+    "name_secondary": "地球守護者",
+    "preview_payload": {
+      "titleEn": "Keepers of the Earth",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You do not have to protect the earth alone. This card invites you to draw strength from ancestors, elders, community, or spiritual traditions that matter to you as you care for the land. People who have worked to protect the earth across generations can inspire your own choices. If you feel called to environmental care, look for respectful, practical ways to participate and listen to those with deep relationships to the land.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I am open to receiving support and wisdom for the care I offer to life and the earth. Thank you.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card connects you with people who care for the earth: ancestors, elders, Indigenous knowledge keepers, and others who have protected land and community. Their traditions are diverse and should not be treated as one interchangeable spiritual lineage. If you feel called to heal the earth, protect nature, or serve a place, you are not alone; many communities are already doing this work. This card affirms that environmental care matters and invites you to learn, listen, and contribute without claiming a heritage or spiritual authority that is not yours.",
+        "higherSelfMessage": "Your relationship with land and nature can be meaningful and real, whether or not you frame it as a spiritual connection. You may learn from family history, local elders, scientists, conservation groups, or Indigenous communities, while respecting their distinct knowledge and boundaries. Ask how you can support rather than speak over the people most connected to a place. You do not need unseen ancestors to authorize caring for the earth. Your role can begin with showing up, listening, and taking responsibility for your impact.",
+        "spiritualGuidance": "Develop a respectful relationship with the place where you live. Spend time outdoors, learn about local ecosystems, and notice what needs care. You might garden, reduce waste, volunteer with a conservation project, or support community-led environmental work. If learning from Indigenous traditions, seek resources shared by those communities and respect limits around cultural knowledge; avoid borrowing ceremonies or sacred practices without invitation. Ask what practical action would be useful. Your everyday choices can express care for the earth, and they can be joined with collective efforts.",
+        "energyQualities": "This card evokes grounding, ancestry, and connection, like feeling the land beneath your feet. It can bring a sense of continuity across generations and responsibility for those who come after. Its energy is protective and humble, reminding you that people are part of the earth's systems. Let this connection encourage stewardship and learning, not a claim to speak for ancestors, Indigenous peoples, or the land itself.",
+        "suitableQuestions": "This card may resonate when you feel called to care for nature or seek a deeper relationship with a place. Ask: “What can I learn about the land where I live?” “How can I support local environmental work?” “Whose knowledge should I listen to?” “How can I act respectfully?” “What practical contribution is within my capacity?” “How might I honor ancestors or elders without claiming traditions that are not mine?” Let your care become a grounded action."
+      }
+    }
   }
 ]
