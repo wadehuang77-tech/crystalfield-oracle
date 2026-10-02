@@ -666,14 +666,21 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
   if (birthPlace.length < 2) return badRequest(req, env, '請提供出生城市與國家／地區');
   if (body.consent !== true) return badRequest(req, env, '請先同意為產生星盤而處理出生資料');
 
+  let failureStage = 'database initialization';
   try {
     await ensureVedicSchema(env);
+    failureStage = 'birthplace lookup';
     const geo = await vedAstroCall(env, 'AddressToGeoLocation', { address: birthPlace, Ayanamsa: 'LAHIRI' }) as Record<string, unknown>;
     const latitude = Number(geo?.Latitude);
     const longitude = Number(geo?.Longitude);
     const locationName = cleanText(geo?.Name, 160) || birthPlace;
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return badRequest(req, env, '找不到出生地，請輸入「城市, 國家／地區」');
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return badRequest(req, env, body.language === 'en'
+        ? 'Birthplace not found. Enter a city and country or region, such as Taipei City, Taiwan.'
+        : '找不到出生地，請輸入「城市, 國家／地區」，例如「台北市, 台灣」');
+    }
 
+    failureStage = 'astrology chart calculation';
     const timezone = tzLookup(latitude, longitude);
     const timezoneOffset = timezoneOffsetAtLocal(birthDate, birthTime, timezone);
     const birth = {
@@ -732,6 +739,7 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       timezone, timezoneOffset,
     };
     const freeResults = deriveFreeResults(chart);
+    failureStage = 'chart persistence';
     const id = crypto.randomUUID();
     const user = await readSession(req, env);
     const createdAt = new Date().toISOString();
@@ -751,6 +759,24 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       calculation: { provider: 'VedAstro', ayanamsa: 'Lahiri' },
     }, { status: 201 });
   } catch (error) {
+    const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.error('[vedic-chart] chart creation failed', { stage: failureStage, error: detail });
+    if (failureStage === 'birthplace lookup') {
+      return json(req, env, {
+        error: body.language === 'en'
+          ? 'Birthplace lookup is temporarily unavailable. Try a city and country or region, such as Taipei City, Taiwan, or try again later.'
+          : '出生地解析服務暫時無法使用，請輸入城市與國家／地區（例如「台北市, 台灣」）或稍後再試',
+        code: 'VEDIC_GEOLOCATION_UNAVAILABLE',
+      }, { status: 502 });
+    }
+    if (failureStage === 'astrology chart calculation') {
+      return json(req, env, {
+        error: body.language === 'en'
+          ? 'Chart calculation is temporarily unavailable. Please try again later.'
+          : '星盤計算服務暫時無法使用，請稍後再試',
+        code: 'VEDIC_CALCULATION_UNAVAILABLE',
+      }, { status: 502 });
+    }
     return serverError(req, env, error);
   }
 }
