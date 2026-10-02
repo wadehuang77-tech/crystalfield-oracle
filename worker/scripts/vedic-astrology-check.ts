@@ -85,7 +85,7 @@ assert.match(source, /const maximumLength = kind === 'period' \? 600 : 1100/);
 assert.match(source, /transientFallback: true/);
 assert.match(source, /FREE_READING_MIN_CHARS = 250/);
 assert.match(source, /Ayanamsa:\s*'LAHIRI'/);
-assert.match(source, /VEDASTRO_BASE = 'https:\/\/vedastro\.azurewebsites\.net\/api\/Calculate'/);
+assert.match(source, /VEDASTRO_BASE = 'https:\/\/vedastroapi\.azurewebsites\.net\/api\/Calculate'/);
 assert.match(source, /AddressToGeoLocation',\s*\{ address: birthPlace \},\s*\{ name: 'Address', value: birthPlace \}/);
 assert.match(source, /method: pathParameter \? 'GET' : 'POST'/);
 assert.match(source, /\$\{method\}\/\$\{pathParameter\.name\}\/\$\{encodeURIComponent\(pathParameter\.value\)\}/);

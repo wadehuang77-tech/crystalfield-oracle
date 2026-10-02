@@ -13,7 +13,7 @@ import {
   unauthorized,
 } from './utils';
 
-const VEDASTRO_BASE = 'https://vedastro.azurewebsites.net/api/Calculate';
+const VEDASTRO_BASE = 'https://vedastroapi.azurewebsites.net/api/Calculate';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
 const VEDIC_REPORT_FORMAT_VERSION = 10;
