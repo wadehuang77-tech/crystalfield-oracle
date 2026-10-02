@@ -1922,5 +1922,62 @@
       "energyHealing": "Try a light-body visualization, imagining your body filled with radiant white or golden light. Clear quartz, opal, or moonstone may be used as personal ritual objects to focus on your light-body imagery. At sunrise or sunset, you may reflect on natural light without looking directly at the sun. Rose or jasmine essential oil may be part of a Heart Chakra ritual if suitable for you. Listen to high-frequency music if it feels calming. Imagine your light extending compassionately to people and places that may need care, without taking responsibility for fixing them.",
       "soulQuestion": "Am I ready to let my light shine without making myself smaller out of fear? How can I consciously bring light into my everyday life?"
     }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "4",
+    "locale": "en",
+    "name": "Divine Timing",
+    "name_secondary": "神聖時機",
+    "preview_payload": {
+      "keywords": ["Timing", "Patience", "Trust", "Surrender"],
+      "nameEn": "Divine Timing"
+    },
+    "gated_payload": {
+      "cosmicMessage": "The universe's clock and the human clock move on different scales. This card suggests that your prayers have been heard and your wishes may already be taking shape on a higher plane, now moving toward material reality in their own time. The universe is arranging a complex and beautiful symphony, bringing together many elements, people, and circumstances so you may be ready to receive what you have been hoping for. A delay is not necessarily a rejection; it may be a form of protection and preparation.",
+      "currentSituation": "You may feel impatient or frustrated because a dream or goal has not yet come to fruition. You have done what you believe you should, but the result has not appeared. You may begin to wonder whether your approach is wrong or whether this is a goal you should release. People around you may have achieved something similar, making you feel behind or anxious. This card reminds you that every soul follows a different timeline, so comparison may not be useful.",
+      "deeperMeaning": "The idea of divine timing challenges the desire for control and immediate gratification. It invites you to see life as an organic process rather than a machine that can be forced or manipulated. When something is delayed, there may be inner growth, healing, or preparation still unfolding. The universe may see a wider picture than you can see right now, and circumstances may need time to come together. Surrendering to divine timing is not passive resignation; it is an active practice of trust and wisdom.",
+      "actionGuidance": "Loosen your attachment to a specific result or schedule, and bring your attention to the journey you are on now. Practice gratitude for what you already have; this can help you become more receptive. Continue taking actions that feel inspired while releasing your attachment to the outcome. Build trust through a daily practice such as affirmations, prayer, or meditation. Reflect on times when something happened at a fitting moment and let that strengthen your trust. Use this waiting period to know yourself more deeply, develop skills, or tend to old wounds.",
+      "energyHealing": "Blue lace agate or celestite may be used as personal ritual objects while practicing patience and calm. Try breathing exercises to settle anxiety or impatience. A moon-themed meditation may help you reflect on natural cycles and timing. Lavender or chamomile essential oils can be part of a relaxing practice if suitable for you. Grounding exercises may help balance an overactive mind. You could create a small altar with objects that symbolize surrender and trust, or write down worries as a letting-go ritual. These are reflective practices, not substitutes for professional care.",
+      "soulQuestion": "Can I trust that things may be unfolding for my highest good even when I do not understand the delay? Am I willing to release some control over the timing?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "5",
+    "locale": "en",
+    "name": "Heart Healing",
+    "name_secondary": "心輪療癒",
+    "preview_payload": {
+      "keywords": ["Healing", "Love", "Release", "Emotion"],
+      "nameEn": "Heart Healing"
+    },
+    "gated_payload": {
+      "cosmicMessage": "Your heart may be moving through a deep process of transformation. Old hurt, betrayal, disappointment, or loss may be coming up to be met with care. Your capacity for love may be expanding as you make room for greater openness. This healing is not only about past pain; it can also be about remembering the heart's capacity for unconditional love. The universe is gently recalibrating your heart toward a sense of openness and innocence.",
+      "currentSituation": "You may be in an emotionally vulnerable period, with old hurts rising to the surface. You may feel heartbroken, sad, or afraid of love. These feelings may relate to what is happening now, or they may feel connected to earlier experiences. Your defenses may be trying to protect your heart from being hurt again, while also making it harder to let love in. This card suggests that it may be a safe time to explore heart healing at your own pace and with appropriate support.",
+      "deeperMeaning": "Heart healing can be an important part of a spiritual journey. Our hearts carry many memories—from our own lives, family histories, and the wider human experience. When you choose to care for your heart, the effects may reach beyond you into your relationships and community. A closed heart can make it difficult to receive love and abundance. Healing means being willing to feel emotions, including painful ones, rather than suppressing or avoiding them. It does not mean having no scars; it can mean learning to love fully while carrying your history with compassion.",
+      "actionGuidance": "Give yourself permission to feel and express emotions without judging them. You might write a letter to someone who hurt you without sending it, simply to express and release your feelings. Inner-child practices may help you comfort a younger, wounded part of yourself. Explore forgiveness as a path toward your own freedom, not as an obligation to anyone else. Create a soothing space with gentle music, candlelight, or comfortable surroundings. Consider seeking qualified support, such as psychotherapy or other healing practices that feel right for you. Treat yourself with extraordinary gentleness and compassion.",
+      "energyHealing": "Rose quartz, green aventurine, or pink quartz may be used in a personal Heart Chakra practice, such as resting them near the heart while reflecting. Try a heart meditation that imagines green or pink light moving gently through the center of your chest. Rose or ylang-ylang essential oil may be included in a ritual if suitable for you. Practice breathing gently toward the heart area and imagining each breath bringing kindness. You could also explore sound practices with the “YAM” mantra. A bath with rose petals and sea salt can be a soothing ritual. These practices are for reflection and relaxation, not medical treatment.",
+      "soulQuestion": "Am I ready to soften the walls around my heart and feel and offer love again? Can I trust my heart to heal and grow stronger?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "6",
+    "locale": "en",
+    "name": "Intuitive Wisdom",
+    "name_secondary": "直覺智慧",
+    "preview_payload": {
+      "keywords": ["Intuition", "Wisdom", "Guidance", "Inner Voice"],
+      "nameEn": "Intuitive Wisdom"
+    },
+    "gated_payload": {
+      "cosmicMessage": "Your inner knowing may be awakening. The Third Eye is described in this tradition as opening, allowing you to perceive truths beyond the material. Intuition can be a language of the soul and a way of connecting with your higher self, guides, or universal wisdom. You may have been looking outside yourself for answers and validation, while this card reminds you that important wisdom can also be found within. Learning to listen to and discern your inner voice can be part of spiritual growth.",
+      "currentSituation": "You may be facing an important decision, with rational thinking and outside advice pointing in different directions. Your intuition may have been offering signals, but fear, doubt, or external pressure could make it difficult to hear. You may also be noticing more synchronicities, vivid dreams, or a strong inner sense without knowing how to interpret them. This card affirms that you can give these experiences thoughtful attention and learn how to discern what they mean for you.",
+      "deeperMeaning": "Intuitive wisdom is described as an innate capacity, though a society that emphasizes reason and logic can teach people to suppress or ignore it. Intuition does not have to oppose reason; it can offer another kind of information. Developing it may require quiet, inner space, and practice. It can appear subtly: as a bodily sensation, a sudden knowing, a recurring symbol, or an unexplained sense of attraction or aversion. Learning to distinguish intuition from fear, desire, or conditioned responses takes time and reflection.",
+      "actionGuidance": "Create quiet time each day to listen inwardly, through meditation, walking, or sitting in stillness. Keep a record of intuitive impressions, dreams, and synchronicities, and reflect on them over time. Practice following intuition with small decisions to build self-trust. Notice how your body responds when something feels like a yes or a no; intuition may speak through physical sensations. Reduce outside noise and excessive information so there is room to hear yourself. You may explore card reading, a pendulum, or energy awareness as reflective exercises. Do not demand immediate results; the meaning of an intuitive impression may become clearer later.",
+      "energyHealing": "You may choose practices focused on the Third Eye Chakra, using amethyst, lapis lazuli, or sugilite as ritual objects. Try a Third Eye meditation that imagines indigo light gently turning at the space between the eyebrows. Frankincense or sage essential oil may be part of a cleansing ritual if suitable for you. Practice visualization and inner imagery as exercises in attention. If you explore pineal-gland or breathing practices, choose gentle, evidence-informed approaches and avoid unsafe techniques. Reduce overstimulation, such as long periods of screen use, when it affects your well-being. Sound practices with “OM” or “SHAM” may help you focus. Treat impressions as reflections to consider rather than unquestionable facts.",
+      "soulQuestion": "Am I truly listening to my inner voice, or only looking for the answer I want to hear? Am I willing to trust my intuition even when it differs from outside advice?"
+    }
   }
 ]
