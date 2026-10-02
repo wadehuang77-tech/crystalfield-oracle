@@ -2267,6 +2267,63 @@
   },
   {
     "deck_id": "lightworker",
+    "card_key": "34",
+    "locale": "en",
+    "name": "Divine Masculine",
+    "name_secondary": "神聖男性",
+    "preview_payload": {
+      "keywords": ["Masculine Energy", "Strength", "Protection", "Action"],
+      "nameEn": "Divine Masculine"
+    },
+    "gated_payload": {
+      "cosmicMessage": "The Divine Masculine represents qualities such as direction, protection, action, logic, and strength. It is not toxic masculinity—domination, control, or aggression—but a healthy expression of active energy, including protection, provision, structure, and wise action. Regardless of gender, you can explore these qualities within yourself. This card invites you to honor and integrate the Divine Masculine, especially if you have suppressed it or expressed it in a distorted way. Healthy active energy can offer direction and structure, bring a vision into action, and protect what is precious.",
+      "currentSituation": "You may need more active energy: clearer direction, action, structure, or boundaries. Or you may be expressing it in an unhealthy way through excessive control, aggression, or domination. Some men may be healing their relationship with masculinity and seeking a balance between toxic patterns and suppression. Some women may be learning to integrate inner masculine qualities without giving up their feminine strength. This card invites you to explore your relationship with masculine energy, both personally and collectively.",
+      "deeperMeaning": "Healthy Divine Masculine qualities can include clear purpose, considered action, protection without control, balance between logic and intuition, offering structure and support, courage, responsibility, and reliability. Collectively, people have experienced harmful forms of masculinity associated with war, domination, oppression, and environmental exploitation. In reaction, some have suppressed all masculine energy. Healing does not have to mean suppression; it can mean transforming harmful patterns into a healthier expression. We need active energy that can give direction, protect what is new and vulnerable, create structure amid uncertainty, and bridge vision with action. In balance with receptive energy, it can support a more integrated whole.",
+      "actionGuidance": "Assess how active energy is showing up in your life: is it excessive, absent, or distorted? If you need more of it, practice taking action before conditions are perfect, setting clear goals, building supportive structure, maintaining boundaries, and protecting your values. If you need balance, loosen control, trust receptivity as well as action, and let strength coexist with gentleness. Explore and heal relationships with your father or other masculine figures if that feels useful. Notice healthy masculine role models and archetypes, such as the king, warrior, magician, or mature lover. If you are a man, you can honor masculinity as a gift without adopting toxic extremes. Connect with images of mountains, the sun, deer, or eagles if they resonate. Try a meditation on the inner warrior or wise king.",
+      "energyHealing": "Tiger's eye or red jasper may be used as grounding objects in a personal practice. Practices focusing on the Solar Plexus and Root Chakras may help you reflect on agency and stability. A midday sun meditation can be a symbolic way to connect with vitality. Visualize a healthy inner masculine figure—perhaps a wise king, warrior, or sage—with strength, compassion, and responsibility. Cedar or sandalwood essential oils may be part of a ritual if suitable. Create an altar with symbols such as a sword for discernment, a staff for action, a mountain for steadiness, or the sun for vitality. Try strength poses or Warrior yoga poses if safe and comfortable. Explore healing paternal wounds with appropriate support. Visualize your inner masculine and feminine qualities working together in harmony.",
+      "soulQuestion": "Am I ready to embrace and integrate healthy masculine qualities? Can I release harmful patterns and express strength with care?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "35",
+    "locale": "en",
+    "name": "Cosmic Abundance",
+    "name_secondary": "宇宙豐盛",
+    "preview_payload": {
+      "keywords": ["Abundance", "Prosperity", "Flow", "Receiving"],
+      "nameEn": "Cosmic Abundance"
+    },
+    "gated_payload": {
+      "cosmicMessage": "Many spiritual traditions describe the universe as abundant, like the countless stars, seeds, flowers, and forms of life in nature. Creation can feel generous and full of possibility. This card reminds you that abundance is not only money, but can include love, health, opportunity, joy, beauty, connection, and creativity. When you shift from a sense of scarcity toward a more abundant outlook, you may become more open to noticing and receiving what is available. This is an invitation to explore your relationship with abundance, not a guarantee of material wealth.",
+      "currentSituation": "You may be experiencing a sense of scarcity in one or more areas of life—finances, love, health, opportunity, or support. This may be a practical shortage or a deeper scarcity mindset, even when some resources are present. You may find it difficult to receive and be more accustomed to giving. Limiting beliefs about money, prosperity, or worthiness may be involved. Or perhaps you are beginning to notice ways life supports you. This card invites you to reconsider your relationship with abundance and explore ways to move from struggle toward a healthier flow.",
+      "deeperMeaning": "Abundance and scarcity mindsets offer very different ways of viewing life. A scarcity mindset assumes resources are limited, competition is necessary, and there is not enough for everyone. An abundance mindset emphasizes possibility, cooperation, circulation, and the ability to receive. These perspectives can shape your experience and choices. Healing a scarcity mindset may involve noticing beliefs learned in childhood, family, or society, and addressing guilt, shame, or fear around money and worthiness. It also involves balancing giving with receiving; some spiritually minded people give too much and have difficulty accepting support. Abundance here means allowing yourself to receive care and resources while also acting responsibly.",
+      "actionGuidance": "Notice beliefs you hold about scarcity and abundance. Complete the sentence “When it comes to money or abundance, I believe…” and observe any limiting ideas. Reflect on your relationship with money, acknowledge what it helps you do, and allow yourself to want and enjoy material well-being without judgment. Practice receiving compliments, help, or gifts without immediately feeling obligated to repay them. Notice whether you give beyond your means, refuse to receive, feel unworthy, or try to control everything. Appreciate what you already have. Visualize a life with more resources while taking practical steps toward it, such as learning, planning, or creating sustainable opportunities. Give generously when you can, without depleting yourself. Align work with your values and strengths where possible. Trust is helpful, but pair it with grounded choices.",
+      "energyHealing": "Citrine is often associated with abundance and success, and green aventurine with openness and the Heart Chakra; they may be used as symbolic objects. Try an abundance meditation in which golden light represents possibilities across different areas of life. Cinnamon or orange essential oils may be part of a personal ritual if suitable. Reflect on and release beliefs about money that no longer serve you. Visualize the details of a life with sufficient resources, using your imagination without treating it as a guarantee. You might write an affirmation such as “I am open to abundance” or “I deserve good things.” Practice both giving and receiving, and notice how resources flow in your life.",
+      "soulQuestion": "Am I ready to release a scarcity mindset and become more open to abundance? Can I allow myself to receive different forms of support and prosperity?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "36",
+    "locale": "en",
+    "name": "Soul Family Reunion",
+    "name_secondary": "靈魂家族重聚",
+    "preview_payload": {
+      "keywords": ["Soul Family", "Connection", "Reunion", "Support"],
+      "nameEn": "Soul Family Reunion"
+    },
+    "gated_payload": {
+      "cosmicMessage": "A soul family is described as beings with a deep connection at the soul level, not necessarily through blood. You may imagine that you have traveled through many lifetimes together, supporting one another's growth and purpose. At different times in your life, you may meet people who feel like members of your soul family—some connections brief, others lasting, and each meaningful in its own way. This card celebrates the possibility of meeting or reconnecting with people who understand you, share your values or vision, and resonate with you.",
+      "currentSituation": "You may have long felt lonely or out of place, even in a crowd. You may long for deep connection and understanding beyond surface relationships. Perhaps you have recently lost some friendships or relationships, creating space for new connections. Or you may already have met people with whom you feel immediate recognition and a deep bond. This card invites you to remain open to finding people with whom you can share mutual understanding, care, and purpose.",
+      "deeperMeaning": "Soul family does not have to mean a family related by blood. In some spiritual traditions, it refers to a group of souls believed to travel, learn, or serve together. You may feel a sense of belonging with one or more communities because of shared values or resonance. A connection can feel immediate and hard to explain, as though you have known one another for a long time. Conversation may feel deep and understanding natural. Soul-family relationships can offer support, reflection, challenge, and celebration. In this time of awakening, spiritual communities may be gathering to work toward shared goals. Feeling part of a community may require tending past hurt, fear, or defensiveness and allowing yourself to be seen. Connection develops through mutual care and respect.",
+      "actionGuidance": "Tend wounds from past relationships and release what you can from betrayal, rejection, or abandonment, so you can be open to new connections. Clarify your values, purpose, and authentic self; these can help you recognize people with whom you resonate. Spend time in communities that feel welcoming, such as workshops, classes, online groups, or spiritual events. When you meet someone you connect with, consider taking a small step toward a deeper friendship. You can share authentically while respecting your boundaries. Not everyone will be a close friend, and that is all right. Trust takes time. Appreciate each meaningful connection, whether brief or lasting. Community can also include animals, nature, or spiritual practices that help you feel connected.",
+      "energyHealing": "Rose quartz may be used as a symbolic object in a practice focused on openness and care. Celestite may be included in a reflection on spiritual connection. Try a meditation in which you set an intention to welcome supportive community while remaining discerning. Create an altar with space for people you value and connections you hope to build. Lavender or jasmine essential oils may be part of a ritual if suitable. Heart-centered practices can help you reflect on old relational defenses. Write a letter to a future friend or community describing the kind of mutual connection you hope to cultivate. Notice people with whom you feel safe, respected, and able to be yourself. Give thanks for the connections already in your life.",
+      "soulQuestion": "Am I ready to open my heart to supportive community? Can I release the belief that I must walk alone and allow mutual connection into my life?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
     "card_key": "22",
     "locale": "en",
     "name": "Divine Masculine-Feminine Integration",
