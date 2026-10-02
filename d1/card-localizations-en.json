@@ -320,5 +320,143 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "7-chariot",
+    "locale": "en",
+    "name": "The Chariot",
+    "name_secondary": "戰車",
+    "preview_payload": {
+      "keywords": ["Victory", "Willpower", "Control", "Progress", "Determination"],
+      "arcana": "major",
+      "number": 7
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Chariot symbolizes victory, willpower, and unwavering determination. It shows how focus and self-discipline can help you overcome obstacles and reach your goals. The charioteer guides two opposing forces, representing the ability to integrate conflicting energies and move in a clear direction. When this card appears, success may be within reach, but it calls for a steady will and a clear aim. This is a time to act, show determination, and meet challenges directly. The Chariot encourages you to trust your abilities and not let outside distractions shake your resolve. With discipline and focus, you can steer your course toward your goals. The card can also signify travel and progress, whether through a literal journey or movement along your life's path.",
+      "reversedMeaning": "The reversed Chariot suggests that you may have lost your sense of direction or control. You may feel pulled by opposing forces and unable to make a decision or act consistently. It can also point to aggression, forcefulness, or a lack of self-discipline. You may be rushing toward a goal or trying to force an outcome, creating conflict and resistance. The reversed Chariot asks you to regain your inner balance and direction. Do not let outside pressure or inner conflict keep you from moving forward. Meet challenges with greater flexibility and openness instead of pushing ahead at all costs. Pause to reassess your goals and methods, make sure you are on the right path, and choose a more harmonious way to pursue them.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Victory", "Willpower", "Steering Your Course", "Breakthrough", "Strong Momentum"],
+          "reversed": ["Loss of Control", "Unclear Direction", "Aggression", "Inner Conflict", "Lack of Discipline"],
+          "uprightExplanation": "Upright, the Chariot represents victory achieved through willpower and self-discipline. The charioteer guides two contrasting forces, symbolizing the integration of opposing energies in pursuit of a clear goal. This card is about taking charge—not controlling the outside world, but directing your own energy and course. You know where you want to go and have the resolve to face obstacles along the way. The Chariot advances through will and focus rather than brute force. It reminds you that when you are internally aligned and your aim is clear, the way forward becomes easier to see. This is a moment to commit yourself fully; victory is within reach.",
+          "reversedExplanation": "Reversed, the Chariot shows a loss of direction or control. Opposing forces pull you apart, leaving you unable to move forward. You may be pushing too aggressively and creating more resistance, or you may have lost momentum and become stuck. Perhaps you have a goal but cannot follow through, or you are acting decisively in the wrong direction. Before charging ahead, bring your inner opposites into alignment. Hesitation and excessive force can both come from inner division. Pause, recalibrate your direction, and then begin again."
+        },
+        "energyFlow": {
+          "direction": "Forward momentum",
+          "type": "Focused breakthrough",
+          "description": "The Chariot's energy is highly focused and moves powerfully in one direction. It breaks through barriers, overcomes resistance, and advances toward a goal. This energy is linear, purposeful, and undivided."
+        },
+        "timing": {
+          "speed": "Rapid progress",
+          "description": "Matters may develop quickly, with noticeable progress. The Chariot marks a period of acceleration, and a significant breakthrough may appear within two to four weeks. Maintaining momentum is important."
+        },
+        "advice": {
+          "upright": "Give your full effort without getting distracted. This is a time to act, not just plan. Stay focused and direct your energy toward one clear aim. Victory calls for discipline and determination, so keep going.",
+          "reversed": "Pause and reassess your direction. Resolve the inner conflict that is pulling you in different ways. Do not try to force your way through; first bring your opposing impulses into alignment. If you have become too passive, this may also be a time to rebuild your momentum."
+        },
+        "chakra": {
+          "primary": "Solar Plexus Chakra and Sacral Chakra",
+          "issue": "Low willpower or overexertion that leads to fatigue, with blocked motivation or difficulty taking action.",
+          "healingNote": "The Chariot connects the Solar Plexus Chakra, associated with willpower, and the Sacral Chakra, associated with movement and vitality. If you feel unable to move forward or are pushing yourself into exhaustion, these centers may need balance. Citrine and amber can be included in personal grounding or reflection practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that you can achieve what you truly set your heart on. When your will is aligned with your deeper self, obstacles need not define your path. This is not the moment to doubt yourself, but to give your effort wholeheartedly. Trust yourself and keep moving; victory is yours to pursue.",
+          "reversed": "Your soul is reminding you that inner conflict is pulling you apart. One part of you wants to move forward while another resists. Before you can make real progress, bring these opposing parts into conversation. Or ask whether you are applying effort in the wrong direction. Listen inwardly, and you can find where you truly want to go."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "8-strength",
+    "locale": "en",
+    "name": "Strength",
+    "name_secondary": "力量",
+    "preview_payload": {
+      "keywords": ["Courage", "Patience", "Compassion", "Inner Strength", "Self-Control"],
+      "arcana": "major",
+      "number": 8
+    },
+    "gated_payload": {
+      "uprightMeaning": "Strength is not about brute force; it is about gentleness, patience, and inner courage. This card shows the ability to meet instinct with love and compassion rather than domination. When Strength appears, it reminds you that real strength comes from within—from accepting and understanding yourself and others. This is a time to be courageous, face your fears, and meet challenges with gentle resolve. Strength encourages you to trust your inner resources; you do not need force or violence to reach your goals. With patience, self-restraint, and compassion, you can work through obstacles. The card also speaks to emotional steadiness and resilience, reminding you to remain calm and graceful even in difficult moments. True strength transforms fear through love and eases conflict through understanding.",
+      "reversedMeaning": "The reversed Strength card may point to a period of self-doubt, vulnerability, or low confidence. Fear and insecurity may be keeping you from expressing your real strength. It can also indicate excessive force or impatience: you may be trying to control a situation through pressure rather than guiding it gently. The reversed card asks you to reconnect with your inner courage and resources. Do not let outside criticism or inner fear erode your confidence. Treat yourself with compassion and patience, and accept your flaws and imperfections. Real strength comes from accepting and integrating every part of yourself, including the parts you consider weak. Through self-acceptance and inner peace, you can rediscover your strength.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Inner Strength", "Gentle Resolve", "Emotional Steadiness", "Courage", "Compassion"],
+          "reversed": ["Self-Doubt", "Low Confidence", "Excessive Force", "Loss of Composure", "Inner Conflict"],
+          "uprightExplanation": "Upright, Strength shows the wisdom of the woman who meets the lion without force, guiding it with patience and care. Its central message is that real strength integrates rather than suppresses. You can face your instincts and fears not by fighting them, but by understanding and accepting them. This is emotional maturity: remaining calm in anger and courageous in fear. Strength embodies the wisdom that gentleness can overcome force; the more gently and firmly you respond, the more resilient you become. The inner beast is not your enemy, but a part of you waiting to be met with love. When you treat your shadow with compassion, you find a strength that cannot be shaken.",
+          "reversedExplanation": "Reversed, Strength suggests that you have lost touch with your inner resources. You may feel overwhelmed by fear and self-doubt, or use excessive force to hide your vulnerability, becoming controlling or domineering. The lion may be suppressed too deeply or allowed to roar unchecked. You may be harsh with yourself or others, replacing compassion with criticism. This card reminds you that real strength comes from inner balance, not outward domination. If you feel powerless, it may not be because you lack strength, but because you are using the wrong approach. Stop fighting yourself and begin making peace with who you are. True courage includes admitting vulnerability, and true strength can be gentle."
+        },
+        "energyFlow": {
+          "direction": "Integrated inward",
+          "type": "Balance and self-mastery",
+          "description": "Strength's energy gathers inward, integrating instinct with conscious awareness. It is steady, sustained, gentle, and firm: not explosive, but enduring."
+        },
+        "timing": {
+          "speed": "Steady over time",
+          "description": "Strength points to a process that calls for patience. Change may not happen overnight, but it can continue steadily. Building inner resilience and emotional steadiness may take two to three months."
+        },
+        "advice": {
+          "upright": "Meet challenges with gentle resolve. Choose patience and care over force or pressure, and trust your inner strength to help you respond. Stay calm and treat yourself and others with compassion.",
+          "reversed": "Stop fighting yourself. Notice whether you are being too forceful or too hesitant, and look for a more balanced response. Accept your vulnerability and let care, rather than fear, guide you. Rebuild confidence in your inner resources."
+        },
+        "chakra": {
+          "primary": "Heart Chakra and Solar Plexus Chakra",
+          "issue": "A wounded Heart Chakra may make it difficult to respond with love, while imbalance in the Solar Plexus Chakra may show up as low confidence or excessive control.",
+          "healingNote": "Strength calls for balance between the Heart Chakra, associated with love and compassion, and the Solar Plexus Chakra, associated with personal power. If you feel powerless or overly forceful, these centers may need harmony. Rose quartz and citrine can be included in personal reflection or grounding practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that you are stronger and gentler than you may realize. True strength is not about suppressing fear, but holding it with tenderness. When you stop fighting your instincts and learn to move with them, you discover a strength that cannot be shaken. Your gentleness is your strength.",
+          "reversed": "Your soul is reminding you that you do not need to prove how strong you are, or pretend that you feel no fear. Real courage means admitting that you are afraid and choosing to move forward anyway. Stop using harshness to protect your vulnerability; let care help you meet your fear. Your strength is still there, though mistaken beliefs may have obscured it."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "9-hermit",
+    "locale": "en",
+    "name": "The Hermit",
+    "name_secondary": "隱士",
+    "preview_payload": {
+      "keywords": ["Introspection", "Wisdom", "Solitude", "Truth", "Guidance"],
+      "arcana": "major",
+      "number": 9
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Hermit represents a period of introspection, solitude, and seeking inner truth. This card asks you to step back from the noise of daily life and give yourself quiet time to reflect and explore your inner world. The lantern in the Hermit's hand symbolizes wisdom and guidance, illuminating the path toward truth. This can be a time for deep self-exploration, spiritual practice, or seeking a deeper sense of meaning. Solitude is not the same as loneliness; it can be an opportunity to reconnect with your authentic self. This period is well suited to study, reading, meditation, or other forms of inner work. The Hermit encourages you to trust your inner guidance and draw wisdom from your own experience. Through deep reflection, you can find answers to life's questions and a direction for moving forward.",
+      "reversedMeaning": "The reversed Hermit suggests that you may be isolating yourself too much and refusing help or support. You may feel lonely and disconnected, or avoid social contact until you become closed off. This card can also point to excessive inward focus that causes you to overlook the needs and opportunities of the outside world. You may have built walls out of fear of being hurt or disappointed, but those walls can also limit growth and connection. The reversed Hermit asks you to find balance between solitude and social contact. Reflection matters, but complete isolation can lead to stagnation and discouragement. Try opening up and receiving other people's support and perspectives. Sharing your thoughts and feelings can sometimes bring fresh insight and understanding.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Inner Wisdom", "Spiritual Search", "Solitary Reflection", "Guiding Light", "Deep Exploration"],
+          "reversed": ["Isolation", "Rejecting Guidance", "Avoiding Connection", "Excessive Loneliness", "Feeling Lost"],
+          "uprightExplanation": "Upright, the Hermit represents a journey in search of wisdom deep within the soul. Standing on a mountaintop with a lantern, he symbolizes the insight that can come through reflection and solitude. This card calls you to step away from the noise of the outside world and enter a quieter inner sanctuary. The Hermit is not escaping; he is making space for a deeper connection. This can be an important period for seeking meaning and spiritual growth. You may need solitude to process past experiences, organize your thoughts, and listen to what matters within. The Hermit's lantern first illuminates his own path, not someone else's. When you find your own light, you may be able to offer guidance to others. The card reminds you that some answers are found not outside, but in the deepest part of yourself.",
+          "reversedExplanation": "Reversed, the Hermit suggests that solitude may have turned into avoidance. You may have built walls because you fear being hurt, refusing connection with the outside world. The Hermit can become a recluse who hides from life rather than seeking wisdom. You may feel intensely lonely and still hesitate to open up. This card can also point to ignoring your inner guidance, becoming so focused on the outside that you lose contact with yourself. Sometimes the reversed Hermit means your inner search has reached a natural pause and it is time to return to the world and share what you have learned. Balance is key: neither complete isolation nor constant outward activity is likely to serve you."
+        },
+        "energyFlow": {
+          "direction": "Deeply inward",
+          "type": "Receiving and reflecting",
+          "description": "The Hermit's energy moves inward, like diving into the depths of the unconscious to find a pearl. It is quiet, contemplative, and exploratory, calling for solitude and stillness."
+        },
+        "timing": {
+          "speed": "Slow and deepening",
+          "description": "The Hermit points to a process that takes time. Genuine wisdom cannot be rushed; a period of inner exploration and reflection may take three to six months. Let insight emerge naturally."
+        },
+        "advice": {
+          "upright": "Give yourself time and space alone. Reduce social activity and make room for meditation, reading, and reflection. Look inward for answers instead of seeking them everywhere else. Trust that your inner wisdom can emerge in quiet moments.",
+          "reversed": "Ask whether you are choosing solitude or becoming isolated. If you have closed yourself off, try opening up and accepting support. If you have been constantly outward-facing, make some quiet time for yourself. Seek a balance between being alone and connecting with others."
+        },
+        "chakra": {
+          "primary": "Crown Chakra",
+          "issue": "Feeling disconnected from spiritual guidance or unable to receive insight, or becoming so absorbed in spiritual concerns that you lose touch with practical life.",
+          "healingNote": "The Hermit has a strong connection with the Crown Chakra, associated with spiritual awareness. If you feel lost or unable to hear your inner guidance, you may want to explore practices that help you feel centered and present. Clear quartz and amethyst can be included in personal reflection rituals. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that this may be a time to withdraw—not because you are weak, but because you need to recharge and find your direction. In stillness, you may hear a truth that has been overlooked. Your lantern is waiting for you to light it, and that calls for solitude and reflection. This is a part of the journey only you can walk.",
+          "reversed": "Your soul is reminding you that isolation is not strength; it can be fear. You may have hidden long enough, and it may be time to reconnect with the world. Or perhaps you have been out in the world for too long and need to return to yourself. Balance solitude with connection, and you can find a deeper wisdom."
+        }
+      }
+    }
   }
 ]
