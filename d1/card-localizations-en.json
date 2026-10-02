@@ -5332,5 +5332,55 @@
         "suitableQuestions": "This card may resonate when you feel connected to nature or long for a more harmonious world. Ask: “What does living in balance mean to me?” “How can I care for the land where I live?” “What practical action is within my capacity?” “What have I learned from this mythic image?” “How can I support community without taking on the whole burden?” Let the vision of harmony inform a grounded choice."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "43",
+    "locale": "en",
+    "name": "Mintakan",
+    "name_secondary": "明塔卡人",
+    "preview_payload": {
+      "titleEn": "Mintakan",
+      "suit": "Transmission Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "In Starseed spirituality, Mintaka is imagined as a home among the stars, and this card speaks to longing for belonging. If you feel out of place, you can explore that feeling while also creating connections and routines that help you feel at home here. Grounding practices may help you feel more present. You do not need to accept a literal extraterrestrial origin to honor homesickness or grief.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": "I allow myself to be present here and now. I make room for the sadness of not belonging, and I seek connection and care.",
+      "deepInterpretation": {
+        "coreMeaning": "This card draws on the Mintakan Starseed story: a soul from a lost world in Orion carrying a deep sense of displacement. Some people use this myth to describe feeling like an outsider, longing for a home they cannot name, or being a perpetual traveler. These feelings can be real and painful without proving a connection to a destroyed planet. The card invites you to care for homesickness and build belonging here—through community, routines, and relationships—rather than waiting for a perfect home to appear.",
+        "higherSelfMessage": "Feeling that you do not belong does not mean there is something wrong with you. You may have lost connections, moved often, or struggled to find people who understand you. This card invites you to tend to that grief and to seek community in the present. You are not a refugee from another planet unless that is a spiritual belief you choose to hold; you are here, now, and deserve care and connection. Let yourself build roots while honoring whatever stories help you make meaning.",
+        "spiritualGuidance": "Try grounding practices that help you feel present: gentle movement, time outdoors, gardening, cooking, or noticing your surroundings. Feel your feet on the floor and name what is around you. If it is meaningful, use a phrase such as “I am here, in this place, now.” Write about the homesickness or sadness you feel and consider talking with someone supportive. Create a sense of home through people, routines, and spaces that feel safe. You do not need to recover past-life memories or adopt the Mintakan identity to belong.",
+        "energyQualities": "This card evokes homesickness, displacement, and longing for belonging. It acknowledges grief while also suggesting resilience and adaptation. The image of a lost star home is a spiritual metaphor for feeling disconnected; it is not evidence of extraterrestrial origins. This card invites healing, grounding, and a sense of home in the present rather than escape from it.",
+        "suitableQuestions": "This card may resonate when you feel out of place, long for a home you cannot name, or struggle to feel grounded. Ask: “What helps me feel at home here?” “What connections do I need?” “What grief might I be carrying?” “How can I ground myself in the present?” “What community feels welcoming?” “What story about belonging supports me without disconnecting me from life now?” Let the answers guide you toward care and connection."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "44",
+    "locale": "en",
+    "name": "Pleiades",
+    "name_secondary": "昴宿星",
+    "preview_payload": {
+      "titleEn": "Pleiades",
+      "suit": "Transmission Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "In Starseed spirituality, the Pleiades symbolize wisdom, healing, and service. This card invites you to share your creativity or insight in ways that support others. You may feel drawn to writing, teaching, or healing practices, but you do not have to attribute those interests to a star lineage. Offer what you know with humility, keep learning, and respect the boundaries and needs of the people you serve.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": "I welcome insight and inspiration that support my well-being and the good I can do. May I share what I know with clarity, humility, and care.",
+      "deepInterpretation": {
+        "coreMeaning": "This card draws on beliefs about Pleiadian beings who support spiritual growth and healing. People who resonate with this imagery may feel drawn to teach, write, create, or share spiritual ideas. You can explore those interests without treating communication with extraterrestrial beings as verified fact. The central invitation is to notice what you want to contribute and how to share it responsibly. Your work can support others without requiring certainty about your cosmic origin or a mission to raise planetary consciousness.",
+        "higherSelfMessage": "You may want your life to serve something beyond personal achievement. That desire can be meaningful, whether you understand it spiritually or simply as care for your community. Writing, speaking, teaching, healing work, or ordinary kindness are all possible ways to contribute. You do not need to claim channeling or special authority. Share ideas transparently as your own reflections, remain open to feedback, and take care of yourself as you serve.",
+        "spiritualGuidance": "If you want to share spiritual or creative work, start with a practice that feels grounded: write regularly, learn from reputable sources, or share with a trusted audience. You might use meditation or prayer to reflect on what you hope to offer, without treating impressions as instructions from an external being. Be clear about the limits of your expertise, especially when discussing health or trauma. Keep your work connected to compassion, consent, and practical care. You do not need a public platform to make a meaningful contribution.",
+        "energyQualities": "This card evokes inspiration, a wider perspective, and a desire to serve. Its star imagery can feel refined and expansive, like receiving an idea from afar. Treat that as a metaphor for creativity or personal spiritual belief rather than proof of extraterrestrial transmission. Let inspiration empower you while staying humble, grounded, and accountable for what you share.",
+        "suitableQuestions": "This card may resonate when you feel drawn to share ideas, spiritual insight, or creative work. Ask: “What would I like to contribute?” “How can I share it responsibly?” “What do I know, and what am I still learning?” “How can I serve without overextending?” “What helps me stay grounded?” “How can I distinguish inspiration from certainty?” Let your answers guide a thoughtful way to share."
+      }
+    }
   }
 ]
