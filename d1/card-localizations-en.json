@@ -3622,5 +3622,65 @@
         "questions": "What am I ready to let go of? What has reached its end, even though I am still holding on? What kind of ending do I fear? What might renewal mean to me? Am I ready to consider a new version of myself? Which old pattern no longer fits? How can I support myself through change? What beliefs do I hold about death, endings, and renewal?",
         "energyFocus": "Focus on loosening your grip rather than tightening it, and on accepting change without rushing it. Give yourself room to grieve what has ended. Spend time in the uncertainty instead of filling every open space immediately. A symbolic release ritual—writing what you are ready to leave behind and safely disposing of the paper—may help mark an intention. Notice what is ending and what may be beginning. Let darkness be a time for rest and reflection, not proof that nothing new can grow."
       }
+    },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "4",
+    "locale": "en",
+    "name": "Thoth - God of Wisdom",
+    "name_secondary": "托特 - 智慧之神",
+    "preview_payload": {
+      "titleEn": "Thoth - God of Wisdom",
+      "symbol": "Ibis-headed figure holding a writing palette and reed pen"
+    },
+    "gated_payload": {
+      "godStory": "Thoth is often depicted with the head of an ibis, holding a writing palette and reed pen as a record-keeper of knowledge. He is associated with writing, magic, learning, and the moon. In some creation stories, words help bring the world into being, reflecting the sacred power attributed to language. Thoth also serves as a divine scribe and mediator, known for wisdom and fairness. His image invites you to look beyond appearances and seek a fuller understanding of the truth.",
+      "coreMeaning": "Thoth represents wisdom, knowledge, communication, learning, and the power of language. This card is about expanding your mind, seeking truth, and gaining strength through understanding. Thoth reminds you that words can shape how you and others experience the world. He encourages deep study, clear communication, and thoughtful use of language. Wisdom comes not only from books but also from observation, listening, and careful reflection.",
+      "coreEnergy": "Intellect, clarity, truth, communication, learning, writing, language, and lunar wisdom. Thoth's energy is discerning, rational, and insightful. It can help you organize thoughts, gather knowledge, and express yourself accurately. This is the energy of cutting through confusion and naming what you see. Words can feel like spells because they influence thought and relationship; knowledge can be powerful when used responsibly.",
+      "guidance": "This may be a good time to learn and expand your knowledge. Study a subject that interests you; read, explore, and ask questions. Pay attention to your words as well: they can affect your perspective and relationships, so speak with care about the world you want to help create. Notice negative self-talk or habitual complaints without shaming yourself. If you are seeking answers, consult books, teachers, and your own reflection. Record thoughts, dreams, or insights as material to consider, not as unquestionable facts.",
+      "soulReminder": "You can keep learning throughout your life, and curiosity can open new paths. Your words are tools: they can clarify, connect, encourage, or wound, so use them thoughtfully. Wisdom is more than collecting facts; it includes understanding context and knowing what you do not know. Listening can teach as much as speaking. Learning is an ongoing journey, so keep a student's mind—curious, discerning, and open to revision.",
+      "questions": "What would I like to learn? How do my words shape my experience and relationships? Am I speaking in ways that empower or limit me? What message do I need to communicate? How can I express it more clearly? Do my thought patterns serve me? What kind of wisdom am I seeking? How can I use language more responsibly?",
+      "energyFocus": "Develop your mind through reading, learning, thinking, and analysis. Practice clear reasoning and precise expression. Choose words intentionally, including the way you speak to yourself. Writing in a journal, taking notes, or doing creative writing can help organize your thoughts. Learn from teachers and from daily experience. Put knowledge into practice, and let action test and deepen your understanding. Speak carefully, as if your words matter—because they do."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "5",
+    "locale": "en",
+    "name": "Anubis - Guardian of Souls",
+    "name_secondary": "阿努比斯 - 靈魂守護者",
+    "preview_payload": {
+      "titleEn": "Anubis - Guardian of Souls",
+      "symbol": "Black jackal-headed figure holding scales"
+    },
+    "gated_payload": {
+      "godStory": "Anubis is depicted with the head of a black jackal and is associated with tombs and the threshold of the afterlife. In Egyptian belief, he guides the dead through the underworld and oversees the weighing of the heart. In the judgment scene, the heart is weighed against the feather of Ma'at, a symbol of truth and right order. Anubis appears as both guardian and guide, accompanying the dead through darkness. In this reading, his image can also symbolize support during uncertain transitions.",
+      "coreMeaning": "Anubis represents protection, guidance, transition, honesty, and the courage to face what is true. This card may speak to being supported between stages of life: an old chapter has ended, while a new one has not yet begun. During this vulnerable period, seek guidance and be honest about your motives, choices, and inner truth. You can move through uncertainty without pretending to know exactly where you are headed.",
+      "coreEnergy": "Protection, guidance, transition, truth, honesty, and companionship through darkness. Anubis's energy is steady, protective, and guiding. His image can remind you to look for reliable support when you feel vulnerable or lost. This is a grounded presence through difficult times, not a guarantee that nothing painful will happen. The card also asks for honesty: to look clearly at your actions and intentions with fairness rather than harsh self-condemnation.",
+      "guidance": "Trust that you can seek guidance even when the path ahead is unclear. You do not have to face a transition alone; ask a trusted person, mentor, or professional for support. This may also be a time for honest self-reflection: Are your choices aligned with your values? Do your actions reflect what you say matters to you? The image of the heart being weighed can prompt this reflection without turning it into a judgment of your worth. If you are experiencing loss or major change, give yourself time and support as you move through it.",
+      "soulReminder": "Feeling lost does not mean you are without direction or support. Even in a dark period, you can look for trustworthy people and practical resources to guide you. Transitions can be part of growth, but they need not be interpreted as something you were destined to endure. Honesty may feel uncomfortable at first, yet it can help you make choices that fit your values. Treat yourself fairly as you face what is true, and seek guidance when you need it.",
+      "questions": "What transition am I moving through? What kind of guidance would help me? Am I being honest with myself? What feels heavy, and what feels aligned with my values? Is there a truth I have been avoiding? Do my actions reflect what matters to me? Can I trust someone to support me through uncertainty? How might I find steadiness when the future is unclear?",
+      "energyFocus": "Focus on honesty and authenticity. Review the different parts of your life with fairness and curiosity. Face a truth you may have been avoiding, while seeking support if it feels difficult. Allow yourself to be vulnerable during a transition rather than pretending to be unaffected. Guidance may come through reflection, dreams, a spiritual mentor, or a trusted friend; consider each source thoughtfully. Let truth be a compass, and let compassion accompany it."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "6",
+    "locale": "en",
+    "name": "Bastet - Cat Goddess",
+    "name_secondary": "芭絲特 - 貓女神",
+    "preview_payload": {
+      "titleEn": "Bastet - Cat Goddess",
+      "symbol": "Cat-headed goddess with an elegant, poised presence"
+    },
+    "gated_payload": {
+      "godStory": "Bastet is often depicted with a cat's head and a graceful, poised presence. In some traditions, she is associated with the lioness goddess Sekhmet, with stories reflecting a movement between fierce protection and gentler domestic life. She is linked with music, celebration, protection of the home, and care for children and women. Bastet can represent both a guardian and one who enjoys life's pleasures, reminding you that life needs room for joy and play as well as responsibility.",
+      "coreMeaning": "Bastet represents joy, play, grace, independence, protection of home and family, and feminine power. This card is about bringing more lightness and happiness into your life, balancing work with play, and moving with the ease of a cat. Bastet reminds you that life is not only responsibilities; it also includes enjoying the present and relaxing. Like a cat, you can have boundaries: choosing when to draw close and when to take space to protect your energy and comfort.",
+      "coreEnergy": "Joy, play, grace, independence, protection, feminine power, sensory pleasure, music, and dance. Bastet's energy is light, enjoyable, and elegant. It represents knowing how to enjoy life, find humor amid seriousness, and meet challenges with poise. Like a cat, this energy can be gentle yet strong, independent yet affectionate, relaxed yet alert. Let pleasure and rest have a place without treating them as rewards you must earn.",
+      "guidance": "It may be time to lighten up. Set down some tension and do something that genuinely brings you joy: dance, sing, play a game, enjoy a favorite meal, listen to music, or rest. You may have focused so much on responsibility that pleasure has slipped away. Bastet also reminds you to protect your time, energy, and space. Like a cat, notice when you need solitude and when you want company. Set healthy boundaries; you do not owe everyone unlimited access to your attention.",
+      "soulReminder": "You deserve to enjoy life's pleasures. Laughter is not a sin, and play is not automatically wasted time. Do not wait until every task is complete to allow yourself joy; there will always be more to do. Feminine energy—regardless of your gender—can include grace, intuition, and independence. Strength can be soft, and independence can include knowing when to connect. Move through life with poise, mystery, and room for delight.",
+      "questions": "When did I last play or enjoy myself? What brings me joy? Do I allow myself to enjoy life? Are my boundaries clear? How do I balance work with play? Is there enough laughter in my life? How can I move through a challenge with more grace? When do I want solitude, and when do I want connection?",
+      "energyFocus": "Give attention to what brings you joy. Make room for play, relaxation, and enjoyment. Add music, dance, or art to everyday life. Practice a calm and graceful pace rather than rushing or tensing. Stretch, rest, and notice pleasant sensory experiences. Protect your space and energy with clear boundaries. Embrace independence without needing constant approval. Let laughter and lightness find their way back into your life."
+    }
+  }
 ]
