@@ -5766,5 +5766,53 @@
       "guidance": "Choose a commitment because it matters to you, not only because someone else expects it. Set aside regular time for a relationship, creative project, skill, or goal, and reduce distractions when you can. Progress may continue even when excitement fades; make a realistic plan that includes breaks and support. Distinguish dedication from rigidity by checking in periodically: is this still healthy and worthwhile? In relationships, discuss expectations and revisit agreements together. You are allowed to change course when a commitment no longer fits or becomes unsafe. Focus on the next meaningful step instead of demanding immediate results.",
       "energy": "Garnet or red jasper may serve as symbolic reminders of dedication and endurance. Keep one nearby while you work, or write a commitment in your journal along with a date to review it. Movement, dance, or gentle yoga can help you reconnect with your energy if they suit your body. A candle may mark an intention, with appropriate fire safety; no ritual or stone can bind you to a path or guarantee success. An affirmation such as 'I give my attention to what matters, and I may reassess as I grow' can hold both devotion and flexibility."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "25",
+    "locale": "en",
+    "name": "Aurora Dragon Miracle",
+    "name_secondary": "極光龍奇蹟",
+    "preview_payload": {
+      "keywords": ["Miracle", "Magic", "Wonder"],
+      "nameEn": "Aurora Dragon Wonder"
+    },
+    "gated_payload": {
+      "message": "The Aurora Dragon shimmers with colors like the northern lights, an image of wonder and the beauty that can be found in ordinary life. The aurora itself is a natural phenomenon; this card uses its shifting light as a metaphor for paying attention to moments of surprise, connection, or delight. You do not have to suspend reason or expect miracles to appreciate what is meaningful. Stay curious and open to possibility while keeping your judgment. Sometimes a small kindness, a vivid sunset, or an unexpected opportunity can feel remarkable without needing a supernatural explanation.",
+      "guidance": "Practice noticing one small thing each day that catches your attention: a changing sky, a kind gesture, or a moment of laughter. You might keep a journal of these observations as a record of what you value, rather than as proof that the universe is sending signs. Leave a little unscheduled time for curiosity, and spend time in nature if it is accessible to you. When an opportunity appears, consider it carefully and decide whether it fits your needs. Share appreciation or kindness with someone else, without expecting it to return in a particular form. Wonder can coexist with planning and clear-eyed thinking.",
+      "energy": "Labradorite may serve as a visual reminder of shifting light and possibility. Look at images of the aurora or, if practical, enjoy the sky from a safe place. Try a brief visualization of colored lights as a way to pause and reflect, not as a source of special energy or guidance. Keep a list or jar of moments that brought you joy or surprise, and revisit it when helpful. Lavender or frankincense may be used as a scent if safe and pleasant. Let the ritual support attention and gratitude without promising that it will attract miracles."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "26",
+    "locale": "en",
+    "name": "Copper Dragon Resilience",
+    "name_secondary": "赤銅龍韌性",
+    "preview_payload": {
+      "keywords": ["Resilience", "Adaptation", "Recovery"],
+      "nameEn": "Copper Dragon Resilience"
+    },
+    "gated_payload": {
+      "message": "The Copper Dragon draws on copper's flexibility and changing patina as images of resilience and adaptation. Resilience does not mean being unaffected, never needing help, or becoming stronger because of trauma. It can include rest, grief, asking for support, and adjusting to what has changed. If you have lived through difficulty, you may recognize the care and effort it took to get through it, without having to call the experience a gift. This card invites you to draw on available support and notice what helps you recover at your own pace.",
+      "guidance": "Think of a past challenge you feel comfortable reflecting on and acknowledge what helped you through it. You might list people, skills, or resources you could turn to now. During a difficult period, focus on basics such as rest, meals, movement that feels appropriate, and staying connected with someone trustworthy. A slow breath, journaling, or creative expression may help, but choose what feels supportive rather than treating any method as mandatory. Break a large problem into manageable steps and recognize small progress. If you feel overwhelmed, consider reaching out to a qualified professional or support service.",
+      "energy": "Copper jewelry, hematite, or red jasper may serve as personal reminders of steadiness; they do not increase resilience or energy by themselves. A meaningful object, photograph, or note can remind you of support you have received. Gentle yoga or tai chi may suit some people, but rest or another accessible activity may be better for others. Avoid extreme temperature exposure or sauna practices as tests of toughness. Write a short note to yourself recognizing what you have managed and what help you can ask for next. Let resilience include flexibility, limits, and care."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "27",
+    "locale": "en",
+    "name": "Fluorite Dragon Clarity",
+    "name_secondary": "螢石龍清晰",
+    "preview_payload": {
+      "keywords": ["Clarity", "Focus", "Organization"],
+      "nameEn": "Fluorite Dragon Clarity"
+    },
+    "gated_payload": {
+      "message": "The Fluorite Dragon's many colors evoke clarity and order amid a flood of information and distractions. When your mind feels overloaded, it may help to separate what is urgent from what can wait, and to create systems that make everyday tasks easier. A clearer workspace can support focus, but tidiness is not a measure of worth, and external order will not solve every concern. This card invites you to reduce unnecessary input, organize one area at a time, and give your attention to the task or decision that matters most right now.",
+      "guidance": "Try a short information break by limiting news or social media for a set period. Pick one small space or digital folder to organize rather than attempting to clear everything at once. For a decision, write down the options, tradeoffs, and values that matter to you, then give yourself time to consider them. Focus on one task for a manageable interval and take a break before continuing. A quick brain dump of worries and tasks may help you decide what to address next. Turn off notifications when possible, and remember that asking for help is also a practical way to reduce overload.",
+      "energy": "Fluorite or clear quartz may serve as visual reminders of focus, but neither crystal clears thoughts or improves concentration on its own. Place a meaningful object on your desk if it helps you mark a work area. Try a comfortable breathing pause or picture cloudy water settling as a reflection exercise. Peppermint or rosemary may be used as a scent if safe and pleasant for you. A clean, well-lit workspace can help some tasks feel easier; adapt it to your needs instead of pursuing perfection. Before an important task, write down the single next action you want to take."
+    }
   }
 ]
