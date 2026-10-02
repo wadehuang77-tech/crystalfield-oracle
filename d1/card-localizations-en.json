@@ -5574,5 +5574,53 @@
       "guidance": "Practice expressing yourself in small ways. State a preference at a restaurant, share a feeling with a friend, or write down something you have wanted to say. Notice when fear keeps you quiet, and choose a safe context to speak. You do not have to explain or prove every part of your truth; a clear statement may be enough. Learn communication skills such as active listening or nonviolent communication, and set boundaries around hurtful speech. Listen for the feelings and needs behind other people's words as well.",
       "energy": "Blue kyanite or aquamarine may serve as symbolic reminders of clarity and expression. Wear a meaningful stone if you like, or use a visualization of blue light at your throat as a reflection practice. Singing, reading aloud, journaling, or talking with someone trustworthy can help you practice using your voice. Before an important conversation, take a comfortable breath and consider what you want to communicate. You might hum or chant if that feels calming, but no sound or crystal guarantees that communication will be easy."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "13",
+    "locale": "en",
+    "name": "Crystal Dragon Manifestation",
+    "name_secondary": "晶龍顯化",
+    "preview_payload": {
+      "keywords": ["Manifestation", "Clarity", "Focus"],
+      "nameEn": "Crystal Dragon Manifestation"
+    },
+    "gated_payload": {
+      "message": "The Crystal Dragon symbolizes clarity, focus, and the work of turning an intention into action. Crystals can reflect and refract light, making them a useful image for considering how attention shapes what you notice. Thoughts and expectations can influence choices, but quantum physics does not show that thoughts manifest events. Clarify what you want, consider why it matters, and identify actions and resources that could move you toward it. Honest self-reflection can help distinguish your own goals from outside expectations.",
+      "guidance": "Write down a goal in specific terms, while keeping it flexible enough to adjust. Identify one practical step, the resources it needs, and any barriers you may face. Visualization can help you picture a goal and prepare for action, but it cannot guarantee an outcome. Practice replacing self-defeating thoughts with realistic encouragement. Notice opportunities and use your judgment before following them. You may also make room for gratitude and joy without feeling that every emotion determines what you attract.",
+      "energy": "Clear quartz may serve as a symbolic reminder of focus. You could place it beside a written intention or use a simple ritual at the new moon to mark a fresh start. Treat crystal grids, visualization, and affirmations as ways to reflect and stay attentive, not as energy amplifiers that guarantee a result. If a practice brings pressure or self-blame, set it aside. Let clear intentions work together with planning, effort, support, and flexibility."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "14",
+    "locale": "en",
+    "name": "Thunder Dragon Breakthrough",
+    "name_secondary": "雷龍突破",
+    "preview_payload": {
+      "keywords": ["Breakthrough", "Shock", "Awakening"],
+      "nameEn": "Thunder Dragon Breakthrough"
+    },
+    "gated_payload": {
+      "message": "The Thunder Dragon symbolizes sudden change, a flash of insight, or a moment that shifts your perspective. Change can be disruptive and frightening, but it is not automatically necessary or a sign that the universe is clearing a path. If you feel stuck, this card invites you to consider a bold but thoughtful change. If a crisis has already happened, focus first on safety, support, and what you need now. You can look for meaning without calling harm a blessing.",
+      "guidance": "Ask what may need to change: a job, relationship, belief, or environment. Separate what you can influence from what you cannot, and make a safe plan before taking major action. If a difficult event has disrupted your life, you do not have to make a big decision immediately. Give yourself time to recover and seek support. A turning point can invite reflection, but you are not required to find a lesson in every painful event. Stay flexible and choose the next step that best protects your well-being.",
+      "energy": "A flash of lightning can symbolize sudden clarity, but you do not need to seek crisis to create change. For a personal ritual, write down a fear or limiting belief and safely discard the paper. Movement, drumming, or energetic music may help you express emotion; choose practices that feel safe and do not risk injury. Avoid hyperventilation or breathwork that causes dizziness. A calming scent such as mint or rosemary may be used if safe and pleasant. Let the imagery inspire courage without treating crystals or energy practices as guarantees."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "15",
+    "locale": "en",
+    "name": "Coral Dragon Connection",
+    "name_secondary": "珊瑚龍連結",
+    "preview_payload": {
+      "keywords": ["Connection", "Community", "Network"],
+      "nameEn": "Coral Dragon Connection"
+    },
+    "gated_payload": {
+      "message": "The Coral Dragon evokes the rich interdependence of a reef, where many forms of life exist in relation to one another. This card reminds you that you do not have to face everything alone. Mutual support and cooperation can strengthen both individuals and communities. Consider how to reconnect with people, build supportive relationships, or contribute to a group. You can seek help without being a burden, and offer support without taking responsibility for everything.",
+      "guidance": "Review your relationships and community connections. Do you have people you can rely on? If you feel isolated, take a practical step: join a class, interest group, support group, or online community, or invite someone you trust to meet. Practice authentic connection by sharing at a pace that feels safe and listening in return. Offer support as well as asking for it, within your capacity. Volunteering or helping organize an activity can be one way to contribute, but connection does not require constant giving.",
+      "energy": "Coral imagery can serve as a symbolic reminder of interdependence; if choosing coral objects, avoid products that harm living reefs and seek ethical alternatives. Rose quartz may be a personal symbol of care. A heart-centered visualization can help you imagine connection extending from loved ones to a wider community, but collective meditation does not guarantee measurable group effects. Attend a group gathering or create a shared space for conversation if that feels right. Empathy can deepen understanding while respecting each person's distinct experience."
+    }
   }
 ]
