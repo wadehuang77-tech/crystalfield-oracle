@@ -4507,5 +4507,80 @@
         "suitableQuestions": "This card may resonate when you feel pressure to hide, shrink, or compromise yourself. Ask: “Where am I dimming my light?” “What am I afraid to show?” “Whose approval am I seeking?” “How could I express myself more safely and honestly?” “Which people help me feel accepted?” “How can I respond to criticism while staying true to my values?” Use the answers to choose a grounded next step toward authenticity."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "10",
+    "locale": "en",
+    "name": "Mirror",
+    "name_secondary": "鏡子",
+    "preview_payload": {
+      "titleEn": "Mirror",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "People and situations can sometimes bring your beliefs, hopes, or fears into view. Someone who triggers you may touch a tender place, while someone you admire may reflect qualities you value and want to develop. This card invites self-reflection: what is this reaction telling you about your needs or experiences? But other people's behavior is not always a reflection of you. If someone is harming you, that is their responsibility, and you deserve safety and support.",
+      "actionGuidance": null,
+      "inquiryPrompt": "Who or what is triggering me, and what might it be bringing up in me?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card uses the mirror as a metaphor for self-awareness. People and situations can sometimes reveal beliefs you hold about yourself, life, or the world. A strong reaction may connect with an old hurt or a quality you have not yet accepted in yourself. Admiration can also be informative: someone may embody a quality you would like to cultivate. The invitation is to ask, “What does this bring up in me?” without assuming that every event is caused by your inner world. Other people's actions remain their responsibility, and harm should not be explained away as your projection.",
+        "higherSelfMessage": "A strong reaction can be an opportunity to learn about your needs, boundaries, and history. You can take responsibility for your own responses without taking blame for someone else's behavior. Notice what you admire in others, too; those qualities may be ones you value or wish to develop. You do not have to copy someone or assume that every quality you see belongs to you. Let the mirror help you understand yourself while keeping clear distinctions between your experience and other people's choices.",
+        "spiritualGuidance": "Reflect on someone or something that recently affected you. What behavior or quality stood out? Does it remind you of an experience, fear, boundary, or value? Ask whether you recognize a similar pattern in yourself, but do not force a connection. Consider what you admire in people you look up to and whether you want to practice that quality. This work takes honesty and kindness. You can learn from a trigger while also addressing the situation, setting a boundary, or seeking help when needed.",
+        "energyQualities": "This card evokes awareness and integration, like turning a light toward an overlooked part of yourself. It can help you notice patterns, assumptions, and reactions. Reflection can bring separated aspects of your experience into a fuller picture, but it should not become a reason to judge yourself or take responsibility for others' actions. Use the mirror without condemnation: observe what appears, ask what you need, and decide what response would support your well-being.",
+        "suitableQuestions": "This card may help when someone or a situation brings up a strong emotional response or a recurring pattern. Ask: “What is this reaction telling me about my needs?” “What boundary might be involved?” “Is this reminding me of something from my past?” “What quality do I admire in this person?” “Could I develop that quality in my own way?” “Am I taking responsibility for something that belongs to someone else?” Let reflection support growth without excusing harm."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "11",
+    "locale": "en",
+    "name": "Priestess",
+    "name_secondary": "女祭司",
+    "preview_payload": {
+      "titleEn": "Priestess",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "The Priestess represents leadership and service rooted in lived experience. You do not have to be perfect to help or guide someone; sharing what you have learned may illuminate a path. Your story can be meaningful without making you responsible for anyone else's healing. This card asks how you might step forward in a way that fits your values, skills, and boundaries.",
+      "actionGuidance": null,
+      "inquiryPrompt": "How am I being invited to step forward and lead?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card calls you to consider leadership as service. You do not need to be flawless to support others; lived experience can offer perspective that theory alone cannot. The challenges you have faced and the wisdom you have gained may be useful when shared with care. Telling your story can help others feel less alone, but you are not obligated to disclose painful details or present yourself as an expert. Leadership is not standing above people; it can mean walking alongside them and sharing what you have learned.",
+        "higherSelfMessage": "You may be ready to take on a leadership or mentoring role, but leadership does not require perfection. Your humanity and honest experience can help others connect with what you share. You do not need to wait until you have everything figured out, and you also do not have to teach beyond your knowledge. Share with humility, care for your own needs, and recognize when someone would benefit from a trained professional. Let authenticity be a strength rather than a demand to reveal everything.",
+        "spiritualGuidance": "Consider what experience or knowledge you could share in a useful way. Begin with a small step: talk with a friend, write about a lesson you learned, or offer guidance within your area of expertise. You do not need to wait for perfect credentials to tell your own story, but be transparent about the limits of your knowledge. Leadership and freedom can coexist: choose who you serve, how much you give, and when you need a boundary. Let your actions reflect genuine care rather than pressure to fulfill a role.",
+        "energyQualities": "This card evokes self-possession and service, like a lamp helping someone see the path ahead. It can awaken your inner teacher and give you courage to share what you know. Empowerment can extend to both you and the people you support. Many traditions connect priestesses with spiritual service; here, leadership can be a meaningful contribution without requiring you to represent a tradition or speak for others. Your experiences can become a bridge when shared thoughtfully.",
+        "suitableQuestions": "This card may resonate when you feel called to share or teach but doubt whether you are qualified. Ask: “What have I learned that might help someone?” “How can I share my story safely?” “What is within my expertise?” “How can my experience serve others?” “How can I lead while keeping my boundaries?” “What makes me hesitate to step forward?” Let these questions help you choose a responsible way to contribute."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "12",
+    "locale": "en",
+    "name": "Star Mother",
+    "name_secondary": "星際母親",
+    "preview_payload": {
+      "titleEn": "Star Mother",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may have more support and care around you than you can currently feel. This card invites you to set down some regret, shame, or guilt and seek compassion. If the image of a mother, Earth, or a sacred presence comforts you, use it as a focus for reflection. You do not have to carry everything alone, and asking for help can lighten a burden.",
+      "actionGuidance": null,
+      "inquiryPrompt": "How can I treat myself with motherly care?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card offers comfort and reminds you to look for support, especially when you feel alone. You may picture a universal mother, the Earth, a goddess, or nurturing care itself, depending on your beliefs. Regret, shame, and guilt can feel heavy, but you do not have to carry them without help. This card invites you to acknowledge what you feel and seek compassion, not to surrender responsibility or assume that a supernatural force will remove the consequences. Strength can include receiving comfort and support.",
+        "higherSelfMessage": "You deserve care because you are human, not because you have achieved perfection. You may have tried to manage everything alone or prove that you are strong. Consider whether real people in your life could support you, and allow yourself to ask. Spiritual imagery of a loving mother may be a source of comfort, but you can also find care through friends, family, community, or professional support. You are not required to be a solitary warrior; rest and connection are valid needs.",
+        "spiritualGuidance": "If it feels meaningful, create a simple ritual to acknowledge regret or guilt: write down what you are carrying, reflect on what responsibility is yours, and decide what can be released or repaired. You do not need to burn anything or give your feelings to a supernatural being. Breathe slowly and imagine receiving warmth or care. Notice nurturing presences in your life—nature, supportive people, or the kindness you offer yourself. You deserve to be cared for, and seeking help is one way to accept that care.",
+        "energyQualities": "This card evokes nourishment and comfort, like a warm embrace. It may ease a sense of isolation and remind you of connection to a larger whole. Its receptive quality can help you rest, ask for help, and allow support in. You can connect this image with Earth Mother, a cosmic mother, or your own nurturing capacity. Let it be a comforting symbol rather than a guarantee that every burden will disappear.",
+        "suitableQuestions": "This card may resonate when you feel alone, unsupported, or weighed down by guilt or shame. Ask: “What care do I need right now?” “Who could support me?” “What responsibility is mine, and what can I release?” “How can I treat myself more gently?” “What does nurturing energy mean to me?” “How can I make room to receive help?” Let comfort and accountability coexist."
+      }
+    }
   }
 ]
