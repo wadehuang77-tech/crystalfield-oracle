@@ -1526,6 +1526,63 @@
   },
   {
     "deck_id": "osho",
+    "card_key": "31",
+    "locale": "en",
+    "name": "Control",
+    "name_secondary": "控制",
+    "preview_payload": {
+      "subtitle": "Control"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may be holding on very tightly, trying to control every detail: how people see you, how events unfold, and what the future will bring. This urge can come from fear that if you let go, everything will fall apart. Yet holding so tightly may leave you more anxious, tired, and alone. Life cannot be controlled in every detail; it has to be lived. This card invites you to notice that control can offer an illusion of certainty. You may never have had complete control, and pretending otherwise can be exhausting. It may be time to loosen your grip.",
+        "dailyGuidance": "Notice moments when you want to control something today: directing a conversation, making every plan go your way, or preventing surprises. When you notice the urge, ask what you fear would happen if you loosened your control. Often, the worst case may not be as bad as you imagine. Practice letting go in small ways: allow someone else to decide, accept a change of plan, or let something unfold naturally. Notice what happens in your body when you release control. There may be anxiety, but there may also be relief.",
+        "emotionalInsight": "A deep sense of insecurity may be hidden beneath your need for control. Perhaps life felt chaotic or unpredictable when you were young, and taking charge became a way to feel safe. That strategy may no longer be serving you and may have become a prison. A sense of safety does not have to come only from controlling the outside world; it can also come from trusting your ability to respond. You have already made it through things you once thought you could not. You may be stronger than your need to control suggests. Begin building trust in that inner strength and gradually loosen your grip on what is outside your control.",
+        "blockageAnalysis": "You may feel stuck because you equate control with safety and letting go with danger. The deeper block may be overlooking the cost of control. It can create an illusion of safety while limiting spontaneity, surprise, flow, and connection. Other people may pull away when they feel controlled, and opportunities may pass when rigidity leaves no room for them. As you loosen your grip and trust life more, you may find a different kind of security in being flexible and able to adapt. Control can be brittle; trust can be resilient.",
+        "meditationEntry": "Imagine holding a handful of sand. The tighter you squeeze, the more sand slips between your fingers. Your hand becomes tired and sore, but you are afraid to relax because you might lose all the sand. Now imagine slowly opening your palm. Some grains remain there, and your hand is relaxed and free. It can receive something new. This can be an image of releasing control. You do not necessarily lose everything when you loosen your grip; you may gain room to breathe and choose."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "32",
+    "locale": "en",
+    "name": "Politics",
+    "name_secondary": "政治",
+    "preview_payload": {
+      "subtitle": "Politics"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may be caught in power games, manipulation, or strategy—perhaps at work, in family dynamics, or in a social circle. You may notice yourself calculating, defending, or trying to gain the upper hand. This can drain your energy and pull you away from what feels genuine. This card is not here to condemn you, but to show what can happen when you live through political maneuvering: sincerity can get lost. You may begin to act like a player in a game rather than a real person. Ask yourself why you are playing and whether the cost is worth it.",
+        "dailyGuidance": "Notice moments when you make a strategic choice that does not feel genuine: saying something you do not believe to please someone, hiding your real thoughts to avoid conflict, or manipulating a situation to get what you want. When you notice this, ask what might happen if you responded honestly. There may be consequences, but there may also be freedom. Choose at least one moment today to respond sincerely rather than strategically. Notice the difference. You may lose an advantage in a game, but gain a stronger sense of yourself.",
+        "emotionalInsight": "Living through politics and maneuvering can leave you emotionally tired and cynical. You may begin to distrust everyone because you assume they are all manipulating something. That can protect you, but it can also isolate you. Genuine connection is difficult when no one sees the real you and you do not see the real person in front of you. If you want more authentic relationships, consider stepping out of the game where it is possible and safe to do so. This can take courage because it involves vulnerability, but vulnerability can also make real closeness possible.",
+        "blockageAnalysis": "You may feel stuck because you believe you will lose if you do not play politics. But what would you be losing? If “winning” means betraying yourself, living in fear, and constantly wearing a mask, that victory may come at a high cost. The deeper block may be overlooking another option: neither manipulating others nor accepting victimhood, but stepping away from the game where possible. Seek or create an environment where sincerity is welcome. When you stop engaging in political maneuvering, you may find more room for relationships and situations built on mutual honesty.",
+        "meditationEntry": "Imagine being at a ball where everyone wears a mask and follows carefully rehearsed steps. You are wearing a mask too, following the rules. It feels tiring and false, but you are afraid to take off the mask because you might be rejected. Now imagine pausing and slowly removing it. Some people may be surprised or uncomfortable. Then one person removes their mask too, followed by another. Gradually, the gathering changes. The dance becomes less rehearsed and more genuine. Imagine that change beginning with one person's courage: yours."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "33",
+    "locale": "en",
+    "name": "Celebration",
+    "name_secondary": "慶祝",
+    "preview_payload": {
+      "subtitle": "Celebration"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "This may be a moment to celebrate—not because you are waiting for a special reason, but because existence itself can be celebrated. You are alive, breathing, and here in this moment; that can be enough. This card invites you out of a serious, heavy mode in which you are always striving, and toward joy and play. Life is not only a list of tasks to complete; it can also be a party to enjoy. You can choose to smile, dance, and laugh along the way. Celebration is not selfish or irresponsible; it is a way of honoring the gift of being alive.",
+        "dailyGuidance": "Find a reason to celebrate today, even if it is small: the sun came out, your coffee tasted good, you read a lovely book, or you laughed with a friend. Notice small joys and let yourself appreciate them. Play music you like and dance, give yourself a small treat, or spend time doing something that makes you happy. Today, give joy some priority alongside productivity. Notice how your energy shifts when you give yourself permission to enjoy life. Celebration is not wasted time; it can replenish you.",
+        "emotionalInsight": "You may live under a strict inner voice that says you can be happy only after you have finished everything and proved yourself. But “afterward” may never arrive because there is always more to do. This card says you can be happy now without needing a special reason. Your inner child may be longing for play, spontaneity, and joy without a goal. Give yourself permission. It may help soften old messages that you must always be serious, work hard, or postpone satisfaction. Celebration can be a quiet rebellion against those internalized demands.",
+        "blockageAnalysis": "You may feel stuck because you feel guilty or unworthy when you are happy. Perhaps you think there is too much suffering in the world for you to celebrate, or that you have not earned the right to feel joy. The deeper block may be believing that happiness is a reward you must earn rather than a natural part of being alive. Your joy does not take joy away from others; it can be shared and contagious. When you celebrate, you may give others permission to do so too. Your happiness need not be selfish; it can be a contribution to the world.",
+        "meditationEntry": "Remember a moment from childhood when you were completely absorbed in play—perhaps at the beach, in the snow, or at a playground. You were not thinking about tomorrow or yesterday; you were fully in the present and happy without needing a reason. Feel that memory in your body. The capacity to play and celebrate life has not left you; it may simply be buried beneath duties and expectations. It is still there, waiting to be awakened. Play is not only for children; it is for everyone who is alive."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
     "card_key": "22",
     "locale": "en",
     "name": "Mind",
