@@ -161,6 +161,8 @@ function writeLocalizedVedicReport(existingJson: string | undefined, language: '
 interface VedAstroEnvelope {
   Status?: string;
   Payload?: unknown;
+  Error?: unknown;
+  Message?: unknown;
 }
 
 interface StoredChart {
@@ -469,7 +471,9 @@ async function vedAstroCall(env: Env, method: string, body: Record<string, unkno
     });
     if (!response.ok) throw new Error(`VedAstro ${method} HTTP ${response.status}`);
     const envelope = await response.json() as VedAstroEnvelope;
-    if (envelope.Status !== 'Pass') throw new Error(`VedAstro ${method} failed`);
+    if (envelope.Status !== 'Pass') {
+      throw new Error(`VedAstro ${method} HTTP ${response.status} ${safeVedAstroFailure(envelope, body)}`);
+    }
     const payload = envelope.Payload;
     if (payload && typeof payload === 'object' && method in payload) {
       return (payload as Record<string, unknown>)[method];
@@ -478,6 +482,45 @@ async function vedAstroCall(env: Env, method: string, body: Record<string, unkno
   } finally {
     clearTimeout(timer);
   }
+}
+
+function safeVedAstroFailure(envelope: VedAstroEnvelope, request: Record<string, unknown>): string {
+  const payload = envelope.Payload;
+  const payloadObject = payload && typeof payload === 'object' && !Array.isArray(payload)
+    ? payload as Record<string, unknown>
+    : null;
+  const detailFields = ['Error', 'error', 'Message', 'message', 'Code', 'code', 'Details', 'details'];
+  const detail = [envelope.Error, envelope.Message, ...detailFields.map((field) => payloadObject?.[field])]
+    .find((value): value is string => typeof value === 'string' && value.trim().length > 0);
+  const sensitiveValues: string[] = [];
+  const collectSensitive = (value: unknown, key = '') => {
+    if (typeof value === 'string' && ['address', 'Name', 'StdTime'].includes(key)) sensitiveValues.push(value);
+    else if (Array.isArray(value)) value.forEach((item) => collectSensitive(item, key));
+    else if (value && typeof value === 'object') {
+      for (const [childKey, child] of Object.entries(value as Record<string, unknown>)) collectSensitive(child, childKey);
+    }
+  };
+  collectSensitive(request);
+
+  let safeDetail = detail?.trim() ?? '';
+  for (const sensitive of sensitiveValues.sort((a, b) => b.length - a.length)) {
+    if (sensitive) safeDetail = safeDetail.replaceAll(sensitive, '[redacted]');
+  }
+  safeDetail = safeDetail
+    .replace(/\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/g, '[date]')
+    .replace(/\b\d{1,2}:\d{2}\b/g, '[time]')
+    .replace(/\b-?\d{1,3}\.\d{4,}\b/g, '[coordinate]')
+    .replace(/\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9_-]+\b/gi, '[redacted]')
+    .slice(0, 240);
+
+  const payloadType = payload === null ? 'null' : Array.isArray(payload) ? 'array' : typeof payload;
+  const payloadKeys = payloadObject ? Object.keys(payloadObject).slice(0, 12).join(',') : '';
+  return [
+    `status=${cleanText(envelope.Status, 32) || 'unknown'}`,
+    `payload_type=${payloadType}`,
+    payloadKeys ? `payload_keys=${payloadKeys}` : '',
+    safeDetail ? `detail=${safeDetail}` : '',
+  ].filter(Boolean).join(' ');
 }
 
 function signOnly(value: unknown): string {
