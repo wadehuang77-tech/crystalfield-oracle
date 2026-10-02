@@ -1469,6 +1469,63 @@
   },
   {
     "deck_id": "osho",
+    "card_key": "28",
+    "locale": "en",
+    "name": "Laziness",
+    "name_secondary": "懶惰",
+    "preview_payload": {
+      "subtitle": "Laziness"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You may feel a deep reluctance to move—not necessarily because you are tired, but as if you do not want to strive, change, or grow. You may simply want to stay where you are and do nothing. This could be resistance, or it could be wisdom. This card asks: is this stillness serving you, or harming you? If you need rest and integration, honor that need. If laziness is disguising fear or helping you avoid something you know matters, meet it gently and honestly.",
+        "dailyGuidance": "Look honestly at what you are calling laziness today. List the things you have been putting off and ask of each one: why do I not want to do this? The answer may tell you something. Perhaps the task is not important to you and comes from someone else's expectations; if so, consider releasing it. Or perhaps it matters to you, but you fear failure or success. Acknowledge the fear and consider beginning anyway. Sometimes the remedy is action: start, and motivation may follow. Sometimes it is permission: allow yourself to rest without guilt. Today, notice which one you need.",
+        "emotionalInsight": "What you call laziness may be emotional exhaustion. You may have spent a long time striving, pushing, and proving yourself, and now something in you is asking for a pause. That is not necessarily weakness; it may be a wise signal. If this state lasts a long time, it can also be connected with depression or hopelessness, and support may be helpful. You may have lost a sense of meaning or wonder why effort matters. If so, reconnect with what you genuinely care about, not only what others say you should do. When you find a reason that is truly yours, energy may begin to return.",
+        "blockageAnalysis": "You may feel stuck because you are waiting for motivation before taking action. But motivation often follows action rather than preceding it. The deeper block may be wanting a guarantee that effort will pay off, so you wait for the perfect moment or plan. That moment may never arrive. To move through inertia, try the smallest first step, whatever you feel. Often, once you begin, the task may feel less difficult and you may even find some enjoyment in it. Action can create clarity, and clarity can create momentum. Do not wait indefinitely; begin small.",
+        "meditationEntry": "Imagine that you are lying in a very comfortable bed. It is so comfortable that you do not want to get up. Outside the window, a beautiful day is waiting: sunlight, fresh air, and adventure. You sense that you may enjoy it if you rise, but the bed is comfortable and getting up takes effort. Now imagine your future self, already up and outside, returning to tell you it was worth it. That small effort, that moment of moving through resistance, opened a whole day of possibility. Listen to that voice and let it help you take one step."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "29",
+    "locale": "en",
+    "name": "Trust",
+    "name_secondary": "信任",
+    "preview_payload": {
+      "subtitle": "Trust"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "This is a time to practice trust, especially when things are uncertain. You may be facing the unknown without a map or a clear idea of what will happen. This card invites you to loosen your grip and take a step while trusting that support may be available, even when you cannot yet see how. This is not blind certainty; it is a willingness to meet what is unfolding. Trust is not something you can force, but you can practice it. Each time you release some control and say, “I do not know, but I am willing to trust,” you strengthen that capacity.",
+        "dailyGuidance": "Practice a small act of trust today. Perhaps it means not overplanning and allowing the day to unfold naturally. Perhaps it means giving someone room to keep a promise without checking or reminding them. Or perhaps it means listening to your body and its signals. Each time you notice yourself trying to control or worrying, pause, breathe, and say, “I trust.” Observe what happens. Sometimes things work themselves out in a way that is different from what you could have forced. Trust is not passivity; it is doing your part and then releasing your grip on the result.",
+        "emotionalInsight": "Your trust may have been hurt in the past, by a person or by life not unfolding as you expected. That hurt may have made you vigilant and ready to be disappointed. This protective stance can also cut you off from the flow of life, leaving you tired and alone. Rebuilding trust does not mean forgetting the past or becoming naive. It means recognizing that one betrayal is an experience, not the whole of experience. You can learn to discern who and what is worthy of trust while allowing room for new evidence. Begin with small steps and show yourself that trust can still be possible.",
+        "blockageAnalysis": "You may feel stuck because you want guarantees and control before you are willing to trust. But certainty is not the same as trust. The deeper block may be believing that everything will fall apart if you do not manage every detail. Constant control can exhaust you and sometimes push away opportunities or help. When you loosen your grip, you may discover that things can unfold in ways you could not have planned. This does not mean abandoning responsibility; it means allowing room for life and other people to participate too.",
+        "meditationEntry": "Remember learning to swim, or imagine what it might be like. At first, you may have held tightly to the edge, afraid of the water. Then perhaps there was a moment when you let yourself float. You did not know exactly how the water would support you, but you tried. Notice the feeling of discovering that it could hold you. Your body relaxed and began to float. That moment can be an image of trust. Imagine life as water that can support you when you soften and stop struggling. Remember this feeling and return to it when you need to."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "30",
+    "locale": "en",
+    "name": "Understanding",
+    "name_secondary": "理解",
+    "preview_payload": {
+      "subtitle": "Understanding"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "Light is reaching places that were once dark. You may be beginning to understand something that has confused you for a long time: why a relationship unfolded as it did, why a pattern repeats, or why a particular hurt goes so deep. This understanding is not only intellectual; your heart and body may recognize it too. Such insight can bring release because when you truly understand something, some attachments may naturally fall away. You may no longer need to force forgiveness or let go; the issue may simply matter differently. This can be a moment of deep healing.",
+        "dailyGuidance": "Give yourself time to integrate a new understanding today. You may want to write it down, speak it aloud, or sit quietly with it. This insight may change how you see many things, so allow your perspective to reorganize. Do not rush into action or a decision; let the new view settle first. Look gently at your past through this understanding. Some things you thought were mistakes or failures may also have been steps that brought you to where you are now. Treat this new perspective as a gift and give it time.",
+        "emotionalInsight": "Your emotions may be gaining context. Before, you may have felt pain, anger, or sadness without knowing why it was so intense. Now you may see a connection: a current situation stirred an older wound, someone reminded you of an earlier relationship, or a fear connects with a childhood experience. This insight may not immediately remove the pain, but it can change your relationship to it. You may feel less confused or controlled by it as you see its logic and origins. That recognition can itself be healing. Gradually, understanding may help transform how you carry the pain.",
+        "blockageAnalysis": "You may be overanalyzing, trying to understand every detail, while deeper understanding may not come from analysis alone. The block may be trying to use the mind to solve an issue that also needs the heart. Some things cannot be thought through; they need to be felt through. If you are caught in analysis, try setting aside the question of why and notice what is here. Allow your body and heart to have their own wisdom. Sometimes insight appears when you stop trying so hard to understand, like an “aha” moment that arrives in quiet and openness.",
+        "meditationEntry": "Imagine looking at a painting from very close up. You can see colors and brushstrokes but cannot tell what the picture is, which may feel confusing. Now slowly step back. With more distance, an image begins to emerge. Step back a little farther and suddenly you see a face, a landscape, or a story. That moment of recognition is understanding. Your life can be like that too: when you are very close to an experience, you may see only confusion. With a little distance and a wider view, meaning may become visible. Your experiences may be part of a larger tapestry."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
     "card_key": "22",
     "locale": "en",
     "name": "Mind",
