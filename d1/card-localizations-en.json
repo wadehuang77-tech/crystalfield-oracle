@@ -3742,5 +3742,65 @@
       "questions": "Where do I need to be firmer? Are my boundaries clear? Am I suppressing anger? What value or person am I standing up for? Where does my strength show up? Do I allow myself to be powerful? What needs to change or be released? How can I balance strength with gentleness?",
       "energyFocus": "Focus on your capacity rather than only on vulnerability. Practice saying no and setting boundaries, even when someone may dislike them. Let yourself feel anger, then choose a safe way to process it, such as movement, writing, or talking with someone you trust. Face a difficult situation or conversation with preparation. Develop a protective warrior spirit, not an attacking one. A fire ritual may symbolize releasing an old pattern; follow fire safety. Your strength is valuable when guided by care."
     }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "10",
+    "locale": "en",
+    "name": "Ptah - Creator God",
+    "name_secondary": "普塔 - 造物主",
+    "preview_payload": {
+      "titleEn": "Ptah - Creator God",
+      "symbol": "Enshrouded figure holding a staff, with hands visible"
+    },
+    "gated_payload": {
+      "godStory": "Ptah is an ancient Egyptian creator god, often shown wrapped in a close-fitting garment with only his hands visible, holding a staff. In a creation account associated with Memphis, he conceives the world in his heart and brings it forth through speech. He is also a patron of craftspeople, builders, and artists. His image evokes the process of shaping an idea into form: imagining, planning, and making. His temple was a center of worship and craft in Memphis.",
+      "coreMeaning": "Ptah represents creativity, making, craft, and the movement from an idea to something tangible. This card asks how you might bring a dream into the world through thought, words, and action. You are a builder of your life in the sense that your decisions and effort shape some of your experiences. Ptah suggests beginning with a clear vision, then using focus and skill to work toward it. Thoughts alone cannot guarantee an outcome; making requires practice and real-world steps.",
+      "coreEnergy": "Creation, building, craftsmanship, intention, practical wisdom, and patience. Ptah's energy is steady, focused, and constructive. It can help you turn an idea into a tangible result through clear aims, careful planning, practiced skill, and sustained effort. This is the craftsperson's energy, attentive to quality, detail, and what will endure. Allow for revision: good work often takes time to shape.",
+      "guidance": "You have the ability to work toward a dream. First clarify what you want to create and take time to picture its practical details. Then turn the vision into a plan with steps you can take. Your thoughts and words can influence your choices, so use language that supports rather than undermines your effort. Replace harsh self-talk with realistic encouragement, and remember that setbacks do not mean you have failed to manifest correctly. Use your hands: write, draw, build, cook, or practice a craft. Let action help bring an idea into reality.",
+      "soulReminder": "You can shape parts of your life through your choices and creative work. Do not underestimate your potential, but remember that outcomes also depend on resources, circumstances, and other people. Lasting creations take time; a pyramid was not built in a day. Be patient and focused, and work on your dream one step at a time. Words can help set direction, while practice and action do the building. Begin with a clear intention and follow through with care.",
+      "questions": "What would I like to create? Is my vision clear enough to take a first step? Do my thoughts support my goal? Are my words encouraging or limiting? What action am I ready to take? What skills and tools can I use or develop? How can I stay focused? What lasting value would I like my work to have?",
+      "energyFocus": "Clarify the vision you want to build, and give it enough detail to guide action. Practice realistic, encouraging self-talk. Create a specific plan and break the dream into manageable tasks. Work with your hands or materials; making something tangible can help you understand the process. Keep showing up consistently and make time for your goal. Trust the work you can do, and revise as you learn."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "11",
+    "locale": "en",
+    "name": "Ma'at - Goddess of Truth",
+    "name_secondary": "瑪特 - 真理女神",
+    "preview_payload": {
+      "titleEn": "Ma'at - Goddess of Truth",
+      "symbol": "Goddess wearing an ostrich feather and holding a staff"
+    },
+    "gated_payload": {
+      "godStory": "Ma'at is often shown wearing an ostrich feather, a symbol associated with truth, and holding a staff and an ankh. She represents cosmic order, balance, and harmony. In ancient Egyptian funerary belief, a deceased person's heart was weighed against her feather; this image became a powerful symbol of judgment and moral accountability. Ma'at is more than a goddess in these traditions: her name also describes the order and truth sustaining the world. In this reading, she invites integrity, fairness, and balance.",
+      "coreMeaning": "Ma'at represents truth, justice, balance, honesty, and order. This card invites you to live with integrity, seek balance in daily life, and act in keeping with your conscience. Ma'at teaches that choices have consequences and that disregarding truth can disrupt trust and relationships. She encourages honesty with yourself and others, and fairness in the situations you face. Truth can be freeing, though it may also require care and courage to express.",
+      "coreEnergy": "Truth, justice, balance, harmony, honesty, moral integrity, order, and fairness. Ma'at's energy is steady and impartial. It seeks a clear view of what happened and what is fair, helping you restore balance where possible. The feather offers an image of lightness and truth; rather than judging yourself as pure or impure, use it as a prompt to examine your actions with honesty and compassion.",
+      "guidance": "Be honest with yourself and others. Review your life: Are your choices aligned with your values? Is there a truth you need to communicate? This may be a time to restore trust through integrity and courage. If you have been concealing something or avoiding an honest conversation, consider what a responsible next step would be. Ma'at also invites balance across life: work and rest, giving and receiving, material needs and meaning. Seek fairness in relationships and situations, including fairness toward yourself.",
+      "soulReminder": "Truth and integrity can help you feel lighter, though facing a difficult fact may be uncomfortable at first. You do not have to be perfect to act honestly. Your actions have consequences, and you can take responsibility, repair harm where possible, and make a different choice. Aim for a life that is honest, balanced, and fair, while allowing for complexity and mistakes. You cannot control every outcome, but you can choose to meet yourself and others with integrity.",
+      "questions": "Am I being honest with myself? Where in my life do I need more balance? Do my actions reflect my values? What truth might I need to express? What am I avoiding? How can I treat myself and others more fairly? What is weighing on my conscience?",
+      "energyFocus": "Practice honesty in your interactions and review where your life feels out of balance. Adjust what you can, one area at a time. Build the courage to tell the truth with care, especially when it is difficult. Make decisions with fairness and consider the needs of everyone affected. Reflect on whether your actions align with your beliefs. Restore inner and outer balance where possible, and let integrity guide your next step."
+    }
+  },
+  {
+    "deck_id": "egyptian_gods",
+    "card_key": "12",
+    "locale": "en",
+    "name": "Nephthys - Dark Mother",
+    "name_secondary": "奈芙蒂斯 - 黑暗母親",
+    "preview_payload": {
+      "titleEn": "Nephthys - Dark Mother",
+      "symbol": "Goddess wearing a headdress with a house symbol and protective wings"
+    },
+    "gated_payload": {
+      "godStory": "Nephthys wears a headdress associated with a house or temple sign and is sister to Isis in Egyptian tradition. She is connected with the night and hidden realms. Often shown with protective wings, she is associated with mourning and with accompanying the dead through darkness. Her image can evoke what is hidden, unseen, or difficult to acknowledge. As a mourner and guardian, she symbolizes companionship during the darkest moments, rather than requiring you to face them alone.",
+      "coreMeaning": "Nephthys represents shadow work, hidden insight, suppressed emotions, transformation, and inward exploration. This card invites you to notice parts of yourself you may avoid or disown, and to approach them with care. Nephthys teaches that darkness is not necessarily evil; it can be a quiet space for rest, grief, and change. Explore your inner life at a pace that feels safe, and seek support if painful material becomes overwhelming.",
+      "coreEnergy": "Shadow, hidden wisdom, depth, protection in darkness, difficult emotions, inward reflection, grief, and mystery. Nephthys's energy is deep and transformative. It does not turn away from what is difficult, but it meets it with protection and patience. This energy can help you face fears, understand emotions, and tend to parts of yourself that have gone unnoticed. It is not a reason to force painful memories to surface or to interpret distress as a spiritual requirement.",
+      "guidance": "You do not have to fear exploring parts of yourself that you usually avoid, but move gently. Feelings you have denied or pushed away may deserve acknowledgment. You might reflect on fear, anger, jealousy, or other emotions you have judged as “negative,” asking what they need or what they are signaling. These feelings are not enemies, and they do not define you. Sometimes withdrawing into quiet is useful for rest and reflection. If this work brings up trauma or intense distress, pause and consider support from a qualified therapist or trusted person.",
+      "soulReminder": "Difficult or hidden parts of yourself may hold information about what you need, but you do not have to explore them alone or all at once. Darkness can be a place of rest and transformation, not proof that something is wrong with you. The parts you find hard to accept deserve compassion, not condemnation. Integration is about becoming more whole, not becoming dark. Like the moon in its hidden phase, you remain yourself even when you cannot see every part clearly.",
+      "questions": "What am I avoiding? Which feelings have I pushed aside? What makes me feel ashamed, and why? Are there parts of myself I deny? What might I learn from sitting with an emotion safely? What support would help me explore this? Am I ready to approach this slowly? How can I grow during private or unseen moments?",
+      "energyFocus": "Turn inward with care and explore an area you usually avoid, only as far as feels manageable. Journaling can help; dream reflection may be meaningful if you hold interpretations lightly. A therapist or trusted support person can accompany deeper work. Let emotions arise without judging them or demanding that they lead to an insight. Spend time in solitude and quiet when it supports you, and take breaks when needed. Welcome your complexity, including parts you once labeled “bad,” with boundaries and compassion."
+    }
   }
 ]
