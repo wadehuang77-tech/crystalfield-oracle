@@ -2825,6 +2825,66 @@
   },
   {
     "deck_id": "unicorns",
+    "card_key": "10",
+    "locale": "en",
+    "name": "Unicorn of Courage",
+    "name_secondary": "勇氣獨角獸",
+    "preview_payload": {
+      "keywords": ["Courage", "Strength", "Bravery", "Breakthrough", "Resolve"],
+      "nameEn": "Unicorn of Courage"
+    },
+    "gated_payload": {
+      "point1": "This card calls on your inner courage, like a gentle unicorn with the strength to face what is difficult and protect what matters. Courage is not the absence of fear; it is choosing a thoughtful next step while fear is present. It is not never falling, but finding a way to rise again when you can. You may have more resilience than you recognize, built through the challenges you have already met. This is an invitation to meet the current challenge with care, not a demand to take reckless risks.",
+      "point2": "Brave soul, remember the times you have shown courage: beginning again after heartbreak, trying after a setback, being honest when it felt vulnerable, or facing the unknown. Now you may be asked to act courageously once more. The challenge may look large, but fear does not prove you are weak. It may simply signal that something matters or feels uncertain. Each time you choose a considered, values-aligned action, you can reshape your story, whatever the outcome.",
+      "point3": "The energy of courage can feel strong, encouraging, and empowering, like a steady mountain or a bright flame. It may help you stand a little taller and remember the ways you have endured, adapted, and learned. When you connect with this quality, self-doubt may ease enough for you to act. Courage does not guarantee success or remove fear; it helps you take a step while staying aware of your limits and the support available to you.",
+      "point4": "Your current lesson may be practicing courageous action. You may know you need to have a conversation, begin a project, share a feeling, or set a boundary, but fear can leave you stuck. You do not have to wait until you feel no fear. Break the situation into manageable steps and consider the risks before you act. Courage can include leaving an unhealthy situation, but it can also mean planning carefully and seeking support. Each safe, small act of honesty or self-advocacy can build confidence.",
+      "point5": "Choose one courageous action that is important and appropriate for you. Name what it is, then break the challenge into steps and focus on the first one. Write down times you have acted bravely before to remind yourself of what you can do. Ask a trusted person to support you or keep you accountable. You might practice a slightly uncomfortable but safe action, such as expressing a preference or asking a question. Let the goal be acting with intention, not controlling how others respond.",
+      "point6": "Courage grows through practice and self-kindness. Do not judge yourself for feeling afraid; fear is a normal human response and can sometimes point to a risk worth considering. Notice it, then ask, “What can I do while this fear is here?” A few slow breaths or a hand over your heart may help you pause before choosing. Courage is often a series of decisions, not one grand gesture. Recognize each effort, regardless of whether the result was what you hoped for.",
+      "point7": "Spiritually, courage can support growth by helping you move beyond familiar habits and live closer to your values. This card reminds you that you are not defined only by fear or past setbacks. Your honest efforts may encourage someone else, though you do not need to become a symbol or catalyst for everyone. Let courage include care for yourself and others. You can be brave and still ask for help, take time, or change direction when you learn something new."
+    }
+  },
+  {
+    "deck_id": "unicorns",
+    "card_key": "11",
+    "locale": "en",
+    "name": "Unicorn of Grace",
+    "name_secondary": "優雅獨角獸",
+    "preview_payload": {
+      "keywords": ["Grace", "Composure", "Balance", "Harmony", "Dignity"],
+      "nameEn": "Unicorn of Grace"
+    },
+    "gated_payload": {
+      "point1": "This card invites you to meet life's changes with grace, like a unicorn keeping its poise in a storm. Grace is not polished manners or pretending to be perfect; it can mean staying connected to yourself under pressure. How you respond to a challenge may matter as much as the challenge itself. Consider choosing a response guided by care and wisdom rather than fear or impulse, while still allowing yourself to feel what you feel.",
+      "point2": "Dear soul, grace can express inner strength; it is not a mask of weakness. When difficulties arise, someone triggers an emotion, or events do not go as planned, you have choices about what to do next. You might react quickly, or pause, reconnect with yourself, and choose a response that reflects your values. This is not suppressing emotion or pretending everything is fine. It is making room for your feelings without letting them dictate every action. That can be grace: steadiness in a storm and dignity in uncertainty.",
+      "point3": "The energy of grace can feel fluid, gentle, and firm, like a willow bending without breaking or water finding a way around an obstacle. It may support balance when circumstances are unsettled. When you connect with this quality, you may feel less pressure to prove, control, or fight everything. Grace does not require passivity or going along with what is wrong; it can help you move with awareness and dignity while holding clear boundaries.",
+      "point4": "Your current lesson may be staying grounded during a challenge. You might shut down under pressure, lash out in conflict, or lose perspective when things are hard. Practice pausing when you notice you are triggered, taking a breath, and checking what you need before responding. You do not have to answer every provocation immediately. Grace is not perfection; it can include getting back up, acknowledging a mistake, and making repair when needed.",
+      "point5": "Begin cultivating grace with a brief pause when you feel activated. Take three slow breaths, if that feels comfortable, and give yourself room to choose a response. Before a difficult conversation, set an intention to be clear and respectful. Notice people you admire for how they handle pressure, while finding your own way to define grace. Write down what dignity and composure mean to you. You can feel anger or grief without losing your right to express yourself. At the end of the day, reflect on one moment you handled with care.",
+      "point6": "Practicing grace takes time; do not expect yourself to respond perfectly right away. If you act impulsively or lose your balance, treat yourself with compassion and reflect afterward on what you might try next time. A simple anchor—one breath, a grounding phrase, or a familiar gesture—can remind you to pause. Practice it when life is calm so it is easier to remember under pressure. Grace is a choice you can return to, not a standard you must meet in every moment.",
+      "point7": "Spiritually, grace may look like emotional awareness paired with dignity and honesty. Maturity is not escaping emotion or appearing flawless; it can mean feeling fully while taking responsibility for your actions. Your way of meeting difficulty may encourage others, but you do not have to maintain peace at the expense of your needs. You can be compassionate and assertive. Let grace be a gift you offer yourself as well as the people around you."
+    }
+  },
+  {
+    "deck_id": "unicorns",
+    "card_key": "12",
+    "locale": "en",
+    "name": "Unicorn of Freedom",
+    "name_secondary": "自由獨角獸",
+    "preview_payload": {
+      "keywords": ["Freedom", "Liberation", "Release", "Independence", "Flight"],
+      "nameEn": "Unicorn of Freedom"
+    },
+    "gated_payload": {
+      "point1": "This card is a call toward greater freedom, like a unicorn running across an open field. It invites you to examine what limits or constrains you, including inner beliefs as well as external circumstances. Freedom is not simply doing anything you want; it can mean being more fully yourself without shame or fear. Notice the chains you may have placed on yourself and consider which ones you are ready to loosen, while recognizing that some limits are real and require practical solutions.",
+      "point2": "Dear soul, some constraints may come from internalized beliefs, other people's expectations, social standards, or past experiences. You can feel restricted even when parts of your life look free from the outside. This card gives you permission to question the rules you have accepted and commitments that no longer fit. You are not here only to meet everyone else's expectations. You can seek a life that reflects your values, while honoring responsibilities and considering the effects of major decisions.",
+      "point3": "The energy of freedom can feel expansive, light, and full of options, like a wide sky or an open breeze. It may help you breathe more easily, widen your perspective, and remember that you have choices. This is not necessarily rebellion or escape; it can be a deeper sense of self-ownership. You have a right to consider your path, truth, and way of living. Freedom also includes making choices with awareness of their consequences and respect for others' autonomy.",
+      "point4": "Your current lesson may be recognizing and loosening what constrains you. Ask honestly what is limiting you: a job, an unhealthy relationship, an outdated self-image, a belief about what you “should” do, or a promise you no longer know how to honor. Sometimes fear of change, disappointing someone, or facing the unknown can keep us in place. You do not need to label every obligation a cage. This card invites you to assess what still serves you and plan carefully for changes that affect your safety, livelihood, or loved ones.",
+      "point5": "Start a freedom inquiry by listing areas where you feel restricted. For each one, ask whether it still fits your values and whether you would choose it freely today. Be honest without demanding that you change everything immediately. Make a realistic plan for any changes you decide to pursue, and consider talking with someone trustworthy. A symbolic act—saying no, deleting an app, changing your routine, or dancing in the rain—may help you mark a choice. Your freedom can begin with one small, deliberate step.",
+      "point6": "The process of change can bring discomfort, guilt, fear, or grief. Those feelings are understandable, especially when a familiar situation once provided security. Remind yourself that seeking more freedom is not automatically selfish, while also taking seriously the needs and commitments involved. If fear asks what you might lose, consider both sides: what could staying cost you, and what resources would change require? Seek support from people who respect your autonomy. Celebrate small steps, and allow time for new routines or relationships to take shape.",
+      "point7": "Spiritually, freedom can mean releasing identities and expectations that no longer reflect you. You are more than your roles, relationships, achievements, or past, even as these may be meaningful parts of your life. This card invites you to explore who you are beneath old labels and to choose your next steps with care. Your example may encourage others, but you do not need to persuade anyone else to change. Let freedom include responsibility, connection, and the ability to revise your path."
+    }
+  },
+  {
+    "deck_id": "unicorns",
     "card_key": "8",
     "locale": "en",
     "name": "Unicorn of Joy",
