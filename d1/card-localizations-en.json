@@ -1982,6 +1982,63 @@
   },
   {
     "deck_id": "lightworker",
+    "card_key": "13",
+    "locale": "en",
+    "name": "Starseed",
+    "name_secondary": "星際種子",
+    "preview_payload": {
+      "keywords": ["Starseed", "Purpose", "Connection", "Cosmos"],
+      "nameEn": "Starseed"
+    },
+    "gated_payload": {
+      "cosmicMessage": "You may identify as more than human—as a Starseed whose soul originates in a distant star system. In this spiritual framework, your essence carries light codes from the Pleiades, Sirius, Arcturus, or other systems. You may feel that you chose to be born on Earth at this pivotal moment to support the evolution of human consciousness and the transformation of the planet. Perhaps you have often felt out of place or longed for home. This card suggests that you may be here to bring your unique wisdom and perspective into your life on Earth.",
+      "currentSituation": "You may have long felt lonely or misunderstood, as though you do not belong in this world. You may have a natural interest in technology, the cosmos, or spirituality. Perhaps you have had experiences you interpret as contact with extraterrestrial life or craft, or you often dream of starscapes. Violence, injustice, and destruction on Earth may affect you deeply. This card invites you to remember what gives your life meaning and consider how your sense of purpose can be expressed here.",
+      "deeperMeaning": "In this spiritual belief system, Starseeds are souls said to come from highly evolved civilizations, bringing frequencies of love, peace, and expanded awareness. You may feel that your soul carries memories of advanced knowledge, healing traditions, or cosmic truths. Awakening to a Starseed identity can mean integrating your human experience on Earth with a sense of cosmic belonging, becoming a bridge between worlds. Your purpose is not to escape Earth, but to bring what you value into your life here.",
+      "actionGuidance": "Try a meditation in which you reflect on your connection to the stars, your sense of belonging, and what feels meaningful to you. Explore different star-system traditions and notice which ideas resonate without feeling pressured to adopt an identity. Spend time under the night sky if it feels grounding. Seek communities where you can share these experiences thoughtfully and support one another. Stay connected to ordinary life on Earth as well; grounding can help you serve your values effectively. Develop your distinctive gifts and use them in ways that feel helpful and responsible. Remember that you can choose how to express your sense of purpose.",
+      "energyHealing": "Moldavite or Libyan desert glass may be used as symbolic ritual objects associated with star origins in some traditions. Labradorite can be included in reflective practices about identity and purpose. You might try a meditation beneath the night sky, imagining a thread of light connecting you with the stars. Frankincense essential oil may be part of a ritual if suitable for you. Listen to space-themed or ambient music if it supports relaxation. Visualize light connecting with the Crown Chakra as an imaginative exercise. Balance any cosmic exploration with grounding practices and everyday routines. Treat these as spiritual practices, not literal proof of extraterrestrial origin.",
+      "soulQuestion": "Am I ready to explore my sense of cosmic origin and live out a meaningful purpose on Earth? How can I become a bridge between the perspectives that matter to me?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "14",
+    "locale": "en",
+    "name": "Sacred Shadow",
+    "name_secondary": "神聖陰影",
+    "preview_payload": {
+      "keywords": ["Shadow", "Integration", "Acceptance", "Wholeness"],
+      "nameEn": "Sacred Shadow"
+    },
+    "gated_payload": {
+      "cosmicMessage": "Your shadow is not your enemy. It can include parts of yourself that have been denied or suppressed and are waiting to be seen, accepted, and integrated. Everyone has aspects they consider unacceptable, unspiritual, or difficult. Yet a fuller sense of light can come from embracing the whole self, including the shadow. As you integrate these parts, you may feel more whole and spend less energy fighting yourself.",
+      "currentSituation": "You may be trying hard to become a perfect spiritual person by suppressing anger, jealousy, desire, or other emotions you consider negative. Or your shadow may be appearing through projection: traits that trigger a strong reaction in someone else may also reflect something you have not acknowledged in yourself. Emotional outbursts, self-sabotaging behavior, or repeated negative patterns may be signals asking for your attention. Approach them with curiosity and care rather than judgment.",
+      "deeperMeaning": "Jungian psychology describes the shadow as including suppressed aspects of the self, as well as undeveloped potential and strength. Rejecting the shadow can mean rejecting a part of your own wholeness and power. Shadow work is not about becoming darker; it is about becoming more honest and complete. Light and shadow are two sides of experience, and accepting the shadow can strengthen your capacity to live authentically. Some people find that spiritual growth stalls when they focus only on light and love while avoiding difficult inner material. Transformation can ask for the courage to explore what has been hidden.",
+      "actionGuidance": "Begin a shadow journal, noting parts of yourself you dislike, feelings or thoughts you try to hide, and situations that trigger strong reactions. Ask what these reactions may reflect within you. You might write a dialogue with a shadow part, asking why it is present, what it needs, and what it is trying to protect. Do not judge or try to eliminate it; seek to understand it with curiosity and compassion. Inner-child reflection may help when a pattern connects with experiences from childhood. Consider qualified psychotherapy or a trusted shadow-work practitioner if you want support. Give yourself permission to feel uncomfortable emotions without acting harmfully on them.",
+      "energyHealing": "Obsidian or black tourmaline may be used as grounding objects during reflective shadow work. Smoky quartz can serve as a symbol of transformation and integration. In a guided visualization, imagine entering a cave or basement within yourself and meeting a shadow aspect with care, inviting it into awareness rather than forcing it away. Myrrh or cedar essential oils may be part of a ritual if suitable for you. A new-moon ritual can be a symbolic time to reflect on patterns you want to change. Shadow work is best done in a supportive and safe setting. Practice grounding and seek professional support if difficult feelings become overwhelming.",
+      "soulQuestion": "Am I ready to face and embrace parts of myself that I have tried to hide or deny? Can I meet my shadow with compassion instead of criticism?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "15",
+    "locale": "en",
+    "name": "Divine Connection",
+    "name_secondary": "神聖連結",
+    "preview_payload": {
+      "keywords": ["Connection", "Oneness", "Presence", "Divinity"],
+      "nameEn": "Divine Connection"
+    },
+    "gated_payload": {
+      "cosmicMessage": "Your connection with the divine source has never been broken; perhaps you have simply lost sight of it. You do not have to search outside yourself for the divine, because this card invites you to recognize the sacred within. You do not need to become spiritual to connect with the divine; the card suggests that divinity is already part of your essence. Your connection with all things can be understood as enduring and inseparable. Each breath and heartbeat can remind you of the sacred moving through life. One simple way to return to this connection is presence: being fully here in this moment.",
+      "currentSituation": "You may feel disconnected from the sacred, and spiritual practices may have become mechanical or empty. Perhaps you are looking for the divine through complicated rituals or doctrines while overlooking the simple possibility of presence here and now. Or you may have had a brief experience of sacred connection and now long to feel it again. This card invites you to stop searching for a better future state and begin by being present. Connection need not wait until you become a better version of yourself; it can be explored in this moment.",
+      "deeperMeaning": "Divine connection does not have to be a special mystical experience, though such experiences can occur. More deeply, it can mean being aware of sacred presence in all things. When you are fully present and not pulled away by regret about the past or worry about the future, you may feel this connection. When you look at a flower, listen to rain, or notice your breath, being fully with the experience can feel sacred. Many spiritual seekers make connection complicated, but this card points to a simple truth: the sacred may be found here, in the ordinary wonders of daily life.",
+      "actionGuidance": "Practice present-moment awareness, not to achieve a special state but simply to notice what is here. Begin with simple activities: drink tea attentively, feel each step while walking, or listen to birdsong. Create a sacred space if that helps, such as an altar, a place in nature, or a quiet inner refuge. Remember that the sacred can also be encountered in ordinary places. Loosen fixed ideas about what the divine must look like and allow for different experiences. Washing dishes, driving, or working can also become mindful activities. Gratitude may help you notice the blessings already present in your life. Spend time in nature if it helps you feel connected.",
+      "energyHealing": "Clear quartz or selenite may be included as symbolic objects in a personal ritual. Try an oneness meditation, imagining your connection with trees, stars, and living beings while remaining grounded in your own body. Palo santo or frankincense can be used to create a reflective atmosphere if suitable for you. Practice breathing gently into the heart and imagining love extending outward. Listen to sacred music or repeat a sound that is meaningful to you, such as Om or Amitabha Buddha. A light meditation may help you reflect on connection. Above all, keep the practice simple: it may call for an open and present heart rather than elaborate techniques.",
+      "soulQuestion": "Am I looking for the divine only in my thoughts and missing the sacred presence of this moment? Can I recognize something sacred in ordinary life?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
     "card_key": "7",
     "locale": "en",
     "name": "Abundance Manifestation",
