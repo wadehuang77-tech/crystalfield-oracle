@@ -4582,5 +4582,80 @@
         "suitableQuestions": "This card may resonate when you feel alone, unsupported, or weighed down by guilt or shame. Ask: “What care do I need right now?” “Who could support me?” “What responsibility is mine, and what can I release?” “How can I treat myself more gently?” “What does nurturing energy mean to me?” “How can I make room to receive help?” Let comfort and accountability coexist."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "13",
+    "locale": "en",
+    "name": "Starseed",
+    "name_secondary": "星際種子",
+    "preview_payload": {
+      "titleEn": "Starseed",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "In Starseed spirituality, some people understand themselves as souls from beyond Earth, here with a purpose. Whether or not you hold that belief literally, you may feel different or drawn to help create change. Your sense of urgency can point to values and interests that matter deeply, but you do not have to fulfill a cosmic mission to justify your existence. This card invites you to explore what lights you up and how you might contribute in grounded ways.",
+      "actionGuidance": null,
+      "inquiryPrompt": "What lights me up?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card speaks to the Starseed idea: that an old soul from the stars may come to Earth with a special purpose. People drawn to this belief may feel out of step with mainstream culture or experience a sense of not belonging. You can honor that feeling without treating it as proof of an extraterrestrial origin. A desire to contribute to personal growth or positive change on Earth can be meaningful on its own. If you feel urgency, ask what values or needs it points to, and choose a sustainable way to act.",
+        "higherSelfMessage": "You may experience a deep longing, an unexplained interest, or a strong connection to certain ideas or places. These feelings can matter without proving memories of a past life or promises made before birth. You have a perspective and abilities that may benefit others, and your differences can be worth understanding rather than suppressing. Explore what you care about and how to use your gifts in everyday life. Your worth does not depend on having a cosmic identity or saving the planet.",
+        "spiritualGuidance": "Explore what genuinely excites you and what issues evoke a sense of purpose. These can help you identify skills and interests to develop—healing practices, teaching, art, technology, or community work, for example. Take practical steps, such as learning, creating, or volunteering. Seek supportive communities while staying grounded in daily responsibilities and relationships. You do not need to identify with a Starseed label or believe in a specific cosmic origin to make a difference. Your purpose can unfold through choices in the present.",
+        "energyQualities": "This card evokes awakening, remembering, and a broader sense of connection. It may help you reflect on feeling different, seeking purpose, or imagining a more compassionate future. Treat images of cosmic origins and higher dimensions as spiritual symbolism or personal belief, not established fact. Let the sense of possibility encourage grounded action and connection with life here and now.",
+        "suitableQuestions": "This card may resonate if you feel out of place, are searching for purpose, or care deeply about collective change. Ask: “What gives me energy?” “What issues matter to me?” “How can my skills serve others?” “What does belonging mean to me?” “How can I balance spiritual exploration with life here on Earth?” “What small action could express my values?” Let curiosity guide you without needing certainty about a cosmic identity."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "14",
+    "locale": "en",
+    "name": "Trust the Niggle",
+    "name_secondary": "信任那小小的異樣感",
+    "preview_payload": {
+      "titleEn": "Trust the Niggle",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "A small, persistent discomfort may be worth paying attention to. It could reflect intuition, an unmet need, a boundary, or stress; a feeling by itself is not proof that something is wrong. If you ignore a concern, it may remain unresolved, so investigate it gently while checking the facts. This card invites curiosity about what is bothering you and what might help.",
+      "actionGuidance": null,
+      "inquiryPrompt": "What might this nagging feeling be asking me to notice?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card is about noticing small, persistent signals: unease, a quiet concern, or a sense that something deserves attention. Such a feeling may come from intuition, stress, past experience, or an unmet need. Your rational mind may dismiss it, but you do not need to decide immediately what it means. Treat it as information to explore. If something concerns your safety, take it seriously and seek help; otherwise, gather context and consider what change might be useful.",
+        "higherSelfMessage": "Your feelings and body can provide clues about your experience, though they are not infallible. If something feels off, pause and look more closely rather than either dismissing it or treating it as certainty. Notice whether the feeling connects to a boundary, a past hurt, fatigue, or a specific behavior. You can take your own experience seriously and still consider other explanations. Early, thoughtful attention may help you address a concern before it grows, but not every discomfort signals a crisis.",
+        "spiritualGuidance": "Listen to your body and your intuition with curiosity. What uneasy feeling have you been setting aside? When does it arise, and what is happening around you? Look for specific evidence and consider whether a conversation, boundary, rest, or other change might help. You do not have to wait for more proof if you are in danger; move toward safety and seek trusted support. For less urgent concerns, give yourself time to explore before deciding. You might say, “Something feels unsettled, and I can learn more about it.”",
+        "energyQualities": "This card evokes alertness and discernment, like a sensitive instrument registering a subtle change. It can help you notice misalignment while there is still room to respond. This is a protective quality, not an instruction to become hypervigilant. Pay attention to small signals, then use context, evidence, and support to decide what they mean. Your awareness can guide a thoughtful adjustment without turning every discomfort into a warning.",
+        "suitableQuestions": "This card may resonate when you have a persistent unease but are unsure whether to trust it. Ask: “What might this feeling be pointing to?” “When does it arise?” “What facts do I have?” “Could stress or an unmet need be affecting me?” “Do I need a boundary or support?” “What is a safe next step?” Use reflection to explore the feeling without dismissing it or assuming it proves danger."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "15",
+    "locale": "en",
+    "name": "Trust Your Path",
+    "name_secondary": "信任你的道路",
+    "preview_payload": {
+      "titleEn": "Trust Your Path",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "This card invites you to trust your direction while staying engaged with the choices in front of you. You do not need to see the entire route to take one step, but you can make plans and revise them as you learn. Rather than trying to control every detail, focus on what matters to you and what you can do now. Let your values guide you, and allow room for uncertainty and support.",
+      "actionGuidance": null,
+      "inquiryPrompt": "If I trusted that I could find support along the way, what would I do?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card invites trust in your path, your timing, and your ability to respond as you go. You do not need a complete map before taking a next step. Your task may be to face the direction that feels true to your values and move forward gradually. Trying to control every detail can be exhausting, but planning and preparation are still useful. Let intuition, information, and practical needs work together. Support may come from people, resources, and your own skills; you do not have to rely on the universe to provide it.",
+        "higherSelfMessage": "You may be trying to make every step correct and avoid every possible mistake. That desire for control can slow you down, but you do not need to abandon judgment to trust yourself. Mistakes can teach you, though they are not all secretly beneficial. You are free to change direction when new information appears. Focus on staying connected to your values rather than trying to predict every outcome. You can take one step, notice what you learn, and choose the next one.",
+        "spiritualGuidance": "Practice releasing unnecessary control while keeping the planning that helps you feel secure. Ask where you are worrying about “what if,” and what preparation is realistically useful. When plans change, stay curious about your options rather than assuming the change is a sign from the universe. Notice coincidences if they feel meaningful, but do not treat them as proof that you are on a predetermined path. Ask, “If I trusted myself to respond as things unfold, what small step would I take?” Then take it with care.",
+        "energyQualities": "This card evokes surrender and flow, like moving with a river rather than trying to force every current. It can ease anxiety and invite a greater sense of trust. Openness may help you notice support, but it does not guarantee that every path will be easy or that the right answer will appear. Trust can mean accepting uncertainty while staying attentive and acting on what you know.",
+        "suitableQuestions": "This card may resonate when you feel anxious, want to control an outcome, or are unsure about your direction. Ask: “What do I know about this choice?” “What is within my control?” “What would help me prepare?” “Can I take one step without knowing the whole route?” “What values do I want to follow?” “If I trusted myself to adapt, what would I do?” Use these questions to support thoughtful action, not to demand certainty about a divine plan."
+      }
+    }
   }
 ]
