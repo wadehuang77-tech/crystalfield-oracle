@@ -2682,5 +2682,65 @@
       "energyHealing": "Clear quartz or labradorite may be used as symbolic reminders of openness and possibility. In a visualization, imagine several paths before you and consider which one best reflects your values; this is a reflective exercise, not a way to choose a quantum reality. A DNA-activation image may serve as a metaphor for exploring untapped potential, not a biological process. Create an altar with objects that symbolize openness, such as a key, feather, star, or open doorway. Mint or lemon scents may be part of a fresh-start ritual if suitable. You might imagine speaking with a future version of yourself and reflect on what practical wisdom they might offer. Celebrate possibilities you have already explored and steps you have taken. Let excitement support your effort while making room for uncertainty and realistic constraints.",
       "soulQuestion": "What possibility would I like to explore if I questioned one limiting assumption? Am I willing to imagine a wider future and take a grounded step toward it?"
     }
+  },
+  {
+    "deck_id": "unicorns",
+    "card_key": "1",
+    "locale": "en",
+    "name": "Unicorn of New Beginnings",
+    "name_secondary": "新開始獨角獸",
+    "preview_payload": {
+      "keywords": ["New Beginnings", "Renewal", "Purity", "Hope", "Possibility"],
+      "nameEn": "Unicorn of New Beginnings"
+    },
+    "gated_payload": {
+      "point1": "This card symbolizes the infancy of life and the first light of dawn, like a unicorn emerging from morning mist with a sense of fresh possibility. Its message is that an ending can make room for a beginning. A chapter of your life may have run its course, and you now stand at a threshold, looking toward a world of new options. Treat this moment as an invitation to choose again, create again, and shape who you want to become.",
+      "point2": "Dear soul, you are being invited to enter a new season of life. A beginning may reflect the growth you have already done; you do not need to see it as a sign that everything is destined or perfectly arranged. You can release old limits, identities, or stories that no longer fit. At this starting point, you have room to choose who you want to be and what you want to build. Let past experiences become sources of insight rather than burdens you must carry unchanged.",
+      "point3": "The energy of a new beginning can feel fresh, light, and hopeful, like the first flower opening in spring. It can bring creativity and renewal, helping you set down some of the weight of the past and make room for new vitality. When you connect with this feeling, you may find a quiet sense of “I can begin.” It is a reminder that possibilities can open when you are willing to take a first step.",
+      "point4": "Your current lesson may be learning to let go and find the courage to begin again. You may be holding on to a relationship, job, belief, or identity because the unknown feels frightening. Growth can require releasing a chapter that is complete and making space for what comes next. An ending is not necessarily a failure; it can be part of change. When you are ready, saying goodbye can help you welcome something new.",
+      "point5": "Take one small action today. You might write down what you are ready to release and dispose of the paper safely, or sketch a vision for what you hope to create. Clear a small area in your home if that feels helpful. Set a simple, specific goal and take its first step. You do not need perfect timing or a complete plan to begin, but you can choose a step that is safe and realistic.",
+      "point6": "Treat yourself gently as you move through change. A new beginning can bring insecurity or fear, and that is understandable. Give yourself time to adjust instead of expecting immediate perfection. Write down past transitions you have navigated to remember your capacity to adapt. When doubt arises, pause, breathe, and remind yourself that you can take this one step at a time. Seek out people and environments that support your growth, and notice one thing you appreciate today.",
+      "point7": "Spiritually, a new beginning can be a meaningful moment in your personal growth. Each time you begin again, you may loosen an old pattern and live with greater awareness. This card is not only about changing your outer circumstances; it also invites you to reshape how you meet life. Bring a beginner's mind, as if seeing the world with fresh curiosity. Trust your own reflection and judgment as you step into this next chapter; you do not need to assume that every event follows a perfect plan."
+    }
+  },
+  {
+    "deck_id": "unicorns",
+    "card_key": "2",
+    "locale": "en",
+    "name": "Unicorn of Trust",
+    "name_secondary": "信任獨角獸",
+    "preview_payload": {
+      "keywords": ["Trust", "Surrender", "Calm", "Flow", "Confidence"],
+      "nameEn": "Unicorn of Trust"
+    },
+    "gated_payload": {
+      "point1": "This card symbolizes deep trust and surrender, like a unicorn running freely through a forest. It reminds you that control has limits and that strength can also come from allowing life to unfold. When you grip too tightly, you may find it difficult to adapt; when you allow some uncertainty, new options can become visible. Trust is not weakness. It can mean having the courage to take a thoughtful step even when you cannot see the whole path.",
+      "point2": "Dear soul, you are gently invited to loosen your grip. Life may not follow the route you planned, and you do not have to control every turn. Your mind may want certainty, while another part of you may be ready to practice trust. Even in a difficult or unclear period, you can move forward one decision at a time. Let trust be a compass, not a guarantee that everything will go as hoped; pair it with your own discernment.",
+      "point3": "The energy of trust can feel deep, calm, and steady, like resting in warm water and letting yourself float. This softness can help you meet anxiety or fear with less resistance. When you connect with this feeling, you may find more calm inside even when things outside remain uncertain. A calmer state can help you stay open to support and possibility, without promising that every difficulty will disappear.",
+      "point4": "Your current lesson may be learning to release the need to control every outcome. You may plan carefully and try to prevent surprises, but constant tension can exhaust you. Some things are beyond your control; recognizing this can help you focus on what is yours to do. You can learn to live with uncertainty while continuing to make practical choices. Trust is a capacity you can develop gradually, and it may help you meet challenges with more steadiness.",
+      "point5": "Practice trust in small, low-stakes moments. Notice how you feel when a plan changes or you have to wait, and take a few slow breaths before responding. Write down times when listening to your judgment helped you, as well as times when you adapted after uncertainty. You may place a worry on paper and set it aside for now, then identify one useful action you can take. Observe whether practicing trust changes your feelings, without treating coincidences as proof that events are arranged for you.",
+      "point6": "Healing around trust begins with treating your distrust gently. If trusting is difficult, past hurt may have taught you to protect yourself. Acknowledge that fear and consider what boundaries or support would help you feel safer now. You might imagine warm light around your heart as a calming reflection practice. An affirmation such as “I can build trust at my own pace” may feel more honest than asking yourself to trust everything. Give yourself time; trust is often built gradually through experience.",
+      "point7": "On a spiritual path, trust can mean feeling connected to something larger than yourself, according to your own beliefs. This card invites you to consider whether surrender means giving up or cooperating with what you cannot control. You can stay open to guidance while checking it against your values, evidence, and needs. Each time you choose a considered response over an automatic attempt to control everything, you may feel more freedom. Let trust be a practice, not a demand for certainty or a reason to ignore warning signs."
+    }
+  },
+  {
+    "deck_id": "unicorns",
+    "card_key": "3",
+    "locale": "en",
+    "name": "Unicorn of Miracles",
+    "name_secondary": "奇蹟獨角獸",
+    "preview_payload": {
+      "keywords": ["Miracles", "Magic", "Surprise", "Possibility", "Blessings"],
+      "nameEn": "Unicorn of Miracles"
+    },
+    "gated_payload": {
+      "point1": "This card celebrates the possibility of being surprised by life and finding meaning in what exceeds your expectations. The unicorn is a mythical creature, and here it represents wonder: something extraordinary to imagine, even if it cannot be proven. The card invites you to remain open to outcomes you had not considered. When you believe a new possibility is worth exploring, what once seemed out of reach may become something you can approach through real choices and effort.",
+      "point2": "Dear soul, you may be longing for a beautiful change, even if you cannot yet see how it could happen. Some things may be coming together in ways you did not expect, but no one can promise a particular result. You can prepare to notice opportunities, accept support, and remain open to pleasant surprises. Your hopes and gratitude can shape how you meet the present, while your actions and circumstances also matter.",
+      "point3": "The energy of wonder can feel bright, joyful, and expansive, like starlight scattered across the night sky. It may help you notice beauty in the ordinary and experience moments of delight as meaningful. When you make room for joy and gratitude, you may feel more present and receptive. You do not have to be joyful all the time or treat difficult feelings as a failure; wonder can exist alongside uncertainty and hardship.",
+      "point4": "Your current lesson may be expanding your sense of what is possible. Past experience, practical reasoning, and social expectations can sometimes narrow your imagination, but they can also help you make sound decisions. This card invites you to question assumptions that are holding you back while staying realistic about what you can influence. Let yourself hope and explore without believing that faith alone guarantees an outcome.",
+      "point5": "Make room for experiences that bring you joy: meditation, time in nature, music, creativity, or a conversation with someone you care about. Notice coincidences or small unexpected moments if they feel meaningful to you, but do not treat them as reliable predictions. In the morning, you might set an intention to stay open to what the day brings. Release the expectation that a good surprise must arrive in a particular form, and appreciate small moments of kindness or delight.",
+      "point6": "If you want to make space for possibility, write down something you assume cannot happen and ask, “What would I need to learn or try to explore this?” You can loosen attachment to one exact outcome while still taking practical steps toward what matters to you. Celebrate progress, even when it is modest. If doubt arises, let it help you examine your expectations rather than treating it as a sign that you have blocked a miracle. Keep your sense of wonder and allow yourself to be surprised.",
+      "point7": "Spiritually, a miracle can be a way of describing an experience of awe, grace, or unexpected support. This card invites you to feel connected and cared for, if that meaning resonates with you, while remembering that needing help does not mean you have failed. You can receive support and also offer it to others. Let a sense of wonder enrich your life without requiring extraordinary events as proof of your worth or of a divine plan."
+    }
   }
 ]
