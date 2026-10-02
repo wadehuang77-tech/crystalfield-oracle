@@ -872,5 +872,143 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "19-sun",
+    "locale": "en",
+    "name": "The Sun",
+    "name_secondary": "太陽",
+    "preview_payload": {
+      "keywords": ["Joy", "Success", "Vitality", "Positivity", "Celebration"],
+      "arcana": "major",
+      "number": 19
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Sun represents joy, success, and uncomplicated happiness. It is one of the most positive cards in the Tarot, symbolizing light, warmth, and vitality. When the Sun appears, it points toward a brighter period in which your efforts may be rewarded and success may be within reach. The Sun illuminates what was hidden, bringing clarity, truth, and insight. This can be a lively, confident, and optimistic time, well suited to expressing your authentic self and enjoying what life has to offer. The Sun also represents childlike openness, innocence, and simple happiness, reminding you to keep your heart sincere and receptive. It encourages you to celebrate accomplishments, share joy, and approach life with a positive attitude. The Sun's energy is generous and nourishing, supporting growth. This is a time to appreciate what has come to fruition, give thanks for the good in your life, and look ahead with hope.",
+      "reversedMeaning": "The reversed Sun is usually still positive, but may point to temporary clouds or joy that is delayed. You may feel low on energy, less confident, or unable to fully enjoy a success. This card can also caution against excessive optimism or overlooking a problem. You may be seeing a situation through rose-colored glasses instead of assessing it realistically. The reversed Sun reminds you that light can still be present during difficult moments, even when clouds temporarily obscure it. Do not let a setback diminish your confidence or optimism. Look for positive things in daily life, even if they seem small. Reconnect with your own sources of joy and vitality rather than letting outside circumstances determine your happiness. Remember that clouds can pass. Be patient and keep faith in the possibility of better days.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Pure Joy", "Achievement", "Vitality", "Authentic Self", "Radiant Clarity"],
+          "reversed": ["Temporary Clouds", "Excessive Optimism", "Delayed Joy", "Low Confidence", "Overlooking the Shadow"],
+          "uprightExplanation": "Upright, the Sun represents life's purest joy and the visible expression of success. It shines generously on all things, symbolizing abundance, warmth, and vitality at their height. This card brings clarity, truth, and strongly positive energy. It can mark a harvest period when your efforts are rewarded and progress is clear. The Sun represents your authentic self: open, lively, and unafraid to be seen. Its joy is simple and wholehearted. Under the Sun, things become easier to see and there is less room for concealment. The upright Sun encourages you to express yourself confidently, celebrate your achievements, and share your happiness. Enjoy this bright moment and remember that you deserve to appreciate what is good in your life.",
+          "reversedExplanation": "The reversed Sun is usually still positive, though its light may be temporarily obscured. You may feel less energetic or confident, or find it difficult to enjoy a success fully. There may be a delay, a temporary setback, or an inner cloud affecting your outlook. You may be overly optimistic and overlooking practical concerns, or seeing things through rose-colored glasses. This card can also point to fear of showing your authentic self or inner shadows that still need care. The reversed Sun reminds you that sunlight remains even when clouds cover it. Do not let temporary difficulties take all your joy away. Look for what is still bright, and rebuild your confidence and vitality. The clouds can part in time."
+        },
+        "energyFlow": {
+          "direction": "Radiating outward",
+          "type": "Expansion and generosity",
+          "description": "The Sun's energy radiates outward, freely giving light and warmth. It is abundant, warm, and full of vitality, illuminating and nourishing what it touches. This energy is open, positive, and generous."
+        },
+        "timing": {
+          "speed": "Rapid progress and clarity",
+          "description": "The Sun points to clear, relatively quick progress. Joy or a successful result may appear within one to four weeks. This can be a harvest period when the results of earlier effort are ready to be enjoyed."
+        },
+        "advice": {
+          "upright": "Enjoy this positive period and celebrate what you have achieved. Share your happiness, express your authentic self with confidence, and do not hide your light. Give thanks for what you have. This can be a good time for creative and purposeful action.",
+          "reversed": "Look for what is still positive, even if it seems small. Do not let a temporary difficulty erase your optimism. Rebuild your confidence and remember your worth, while also checking whether excessive optimism is keeping you from seeing a real concern. Clouds can pass; keep perspective."
+        },
+        "chakra": {
+          "primary": "Solar Plexus Chakra and Heart Chakra",
+          "issue": "Low personal power or confidence (Solar Plexus Chakra), or a closed heart that makes it difficult to feel joy (Heart Chakra).",
+          "healingNote": "The Sun relates to the Solar Plexus Chakra, associated with personal power, and the Heart Chakra, associated with joy and connection. If you feel low in energy or unable to enjoy things, gentle practices that support these centers may help. Citrine and orange calcite can be included in personal reflection rituals. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul is celebrating: you have come through darkness into the light. This joy is a result of your effort, and you deserve to enjoy it. Do not make yourself smaller; let yourself shine. Your light does not diminish others and may help illuminate the way for them too. Remember this moment if you face darkness again: light can return.",
+          "reversed": "Your soul is reminding you that the Sun is still there, even when temporarily obscured. Do not let a passing cloud make you forget your own light. You have an inner capacity for brightness and joy that difficulty cannot erase. Reconnect with your inner Sun; it is still there, waiting to be remembered. You deserve good things, and you can hold on to that belief."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "20-judgement",
+    "locale": "en",
+    "name": "Judgement",
+    "name_secondary": "審判",
+    "preview_payload": {
+      "keywords": ["Awakening", "Reflection", "Forgiveness", "Decision", "Rebirth"],
+      "arcana": "major",
+      "number": 20
+    },
+    "gated_payload": {
+      "uprightMeaning": "Judgement represents awakening, reflection, and an important moment of decision. The angel's trumpet calls sleeping souls to rise, symbolizing an inner calling and a summons toward a higher purpose. When Judgement appears, it asks you to review past experiences, learn from them, and make an important choice. This is a time for honest self-reflection and looking carefully at your life, actions, and decisions. Judgement also represents forgiveness, atonement, and renewal, encouraging you to release past mistakes and regrets and offer yourself and others another chance. The card can bring clear insight and a broader understanding of patterns and meaning in your life. Judgement asks you to listen to your inner calling and respond to what feels purposeful and true. This is a time of transformation and growth, preparing you to welcome a new beginning.",
+      "reversedMeaning": "The reversed Judgement card suggests that you may be avoiding self-reflection or finding it difficult to forgive yourself or others. Guilt, shame, or self-criticism may be keeping you tied to past mistakes. This card can also indicate ignoring an inner calling or refusing to respond to a larger purpose. Fear of change or reluctance to take responsibility may cause you to miss an important opportunity. The reversed Judgement asks you to face yourself honestly rather than avoid necessary reflection and evaluation. Forgiveness can be a key to release, whether you are forgiving another person or yourself. Let go of harsh judgment and meet your past with compassion and understanding. Learn from experience without allowing it to define you. Listen to your inner voice and respond to what life is asking of you, even if you feel uncertain or afraid.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Spiritual Awakening", "Self-Reflection", "Forgiveness and Release", "Answering a Calling", "Renewal and Transformation"],
+          "reversed": ["Avoiding Evaluation", "Difficulty Forgiving", "Ignoring a Calling", "Self-Criticism", "Missed Opportunity"],
+          "uprightExplanation": "Upright, Judgement marks a moment of spiritual awakening and an inner call. The angel's trumpet symbolizes a summons from a higher awareness, inviting you to respond to a purpose that feels true. This card asks you to review the past, reflect on experience, learn what you can, and make an important decision. It can be a time to reckon with past choices and awaken to what matters now. Judgement represents forgiveness: letting go of mistakes and regrets, and making room for a fresh start. This is a moment of renewal, when an old sense of self can give way to a new one. Judgement is not punishment; it is an opportunity for release and growth. It reminds you that you can answer your inner calling and prepare for a new chapter.",
+          "reversedExplanation": "Reversed, Judgement suggests that you may be avoiding necessary self-reflection or evaluation. You may be unable to forgive yourself or others and feel caught in guilt, shame, or resentment. The inner call may be ignored or refused because you fear change or greater responsibility. This card can also point to harsh self-criticism and difficulty accepting that you have made mistakes. The reversed Judgement reminds you that forgiveness can be a key to release. You cannot change the past, but you can choose how to meet it now. Be honest about mistakes without allowing them to define you. Listen to your inner calling even if you feel afraid or uncertain. This may be a time to make an important decision instead of postponing it."
+        },
+        "energyFlow": {
+          "direction": "Rising and elevating",
+          "type": "Awakening and renewal",
+          "description": "Judgement's energy rises, like a soul waking from sleep and answering a higher call. It brings transformation, elevation, renewal, clear insight, and the possibility of a new beginning. Energy moves from an old sense of self toward a new one."
+        },
+        "timing": {
+          "speed": "A decisive moment",
+          "description": "Judgement points to an important turning point that may unfold within one to three months. This can be a time for evaluation and decision-making. Circumstances may be ready for a choice and its consequences to be faced."
+        },
+        "advice": {
+          "upright": "Review your past honestly and learn from it without becoming attached to regret. Forgive yourself and others where you can, and release what you are ready to put down. Listen to your inner calling and take responsibility for the purpose you choose. Meet a new beginning with courage.",
+          "reversed": "Stop avoiding yourself and look honestly at what is happening. Forgiveness is a form of release, not weakness. You may be judging yourself too harshly; accept that being human includes making mistakes. Listen for the inner call toward a more meaningful direction, and do not keep postponing a decision that is ready to be made."
+        },
+        "chakra": {
+          "primary": "Crown Chakra and Throat Chakra",
+          "issue": "Difficulty receiving an inner or spiritual calling (Crown Chakra), or speaking up for what you believe is true (Throat Chakra).",
+          "healingNote": "Judgement relates to the Crown Chakra, associated with spiritual awareness, and the Throat Chakra, associated with authentic expression. If it is difficult to hear an inner calling or forgive, these centers may need care. Selenite and lapis lazuli can be included in personal reflective practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul is calling you: the time has come. You have learned from what you have been through, and now you can gather that wisdom and take responsibility for your purpose. Release the past, offer forgiveness, and move bravely toward what matters to you. You are being called to do something meaningful; do not underestimate yourself. A new beginning is already underway—meet it with openness.",
+          "reversed": "Your soul is asking you to stop avoiding and punishing yourself. You cannot change the past, but you can choose to forgive and release it. Your inner calling is growing louder; how long will you pretend not to hear it? Your purpose is waiting, but begin by accepting and forgiving yourself. It may be time to answer."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "21-world",
+    "locale": "en",
+    "name": "The World",
+    "name_secondary": "世界",
+    "preview_payload": {
+      "keywords": ["Completion", "Achievement", "Fulfillment", "Integration", "Success"],
+      "arcana": "major",
+      "number": 21
+    },
+    "gated_payload": {
+      "uprightMeaning": "The World represents completion, achievement, and fulfillment. As the final card of the Major Arcana, it symbolizes the end of an important journey and the realization of a whole. When the World appears, you may have reached an important milestone, achieved a long-term goal, and integrated what you have learned. This is a time to celebrate success and enjoy the results of your efforts. The World also represents wholeness and unity: different parts of your life may be coming together in harmony. This card brings satisfaction, accomplishment, and inner peace. It encourages you to recognize your achievements and feel proud of how far you have come. At the same time, an ending can also be a beginning: one cycle is complete and another is about to open. Enjoy the present sense of fulfillment while staying open to new possibilities and adventures.",
+      "reversedMeaning": "The reversed World suggests that you may feel incomplete or not yet have reached a goal. You may be close to finishing but unable to cross the finish line for some reason. This card can point to a lack of closure, unresolved matters, or a delayed goal. You may have set unrealistic standards and feel dissatisfied, making it difficult to enjoy what you have already accomplished. The reversed World asks you to examine what is preventing you from completing this journey. Is it an outside obstacle or an inner fear? Sometimes fear of success or of the emptiness afterward can lead to self-sabotage. This card encourages you to overcome the final obstacle and finish what you started. It also asks you to appreciate the process, not only the outcome. Even if you have not reached your ultimate goal, you have already come a long way and deserve to recognize that effort.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Full Achievement", "Integrated Wholeness", "Journey Completed", "A World of Possibilities", "Fulfillment"],
+          "reversed": ["Unfinished Business", "Lack of Closure", "Stalled at the Threshold", "Difficulty Celebrating", "Unrealistic Standards"],
+          "uprightExplanation": "Upright, the World represents the completion and fulfillment of the Major Arcana journey. After many experiences, the Fool reaches a moment of integration and wholeness. This card marks the close of an important journey, achievement of a goal, and a chance to celebrate success. The World symbolizes balance among the four elements and the integration of different parts of life into a harmonious whole. This is a time to gather the results of your effort and feel a deep sense of satisfaction and completion. The World encourages you to celebrate what you have achieved and recognize how far you have come. It also reminds you that every ending opens into a new beginning. One cycle is complete, and another is about to unfold. New possibilities and a larger journey may be waiting for you.",
+          "reversedExplanation": "Reversed, the World suggests that you may feel incomplete or have not yet reached a goal. You may be close to finishing but unable to cross the finish line. There may be unresolved matters, a lack of closure, or a delay. Unrealistic standards can leave you dissatisfied and unable to enjoy what you have already done. This card can also point to fear of the emptiness that may follow completion, leading to self-sabotage. The reversed World reminds you that completion does not require perfection. Ask what is holding you back: an outside obstacle or an inner fear? Recognize how far you have already come, even if the goal is not fully reached. Sometimes the process itself is an achievement. Let yourself pause, celebrate, and rest before beginning the next journey."
+        },
+        "energyFlow": {
+          "direction": "A complete cycle",
+          "type": "Integration and completion",
+          "description": "The World's energy is whole and complete, like a perfect circle. Its elements coexist in harmony and its many aspects are integrated. This is the energy of balance, completion, and realization, marking the close of one cycle and the beginning of another."
+        },
+        "timing": {
+          "speed": "A moment of completion",
+          "description": "The World marks the end of a journey and suggests that circumstances may be ripe for completion. A milestone may arrive within one to three months. This is a time to gather results and celebrate as one important phase ends and another begins."
+        },
+        "advice": {
+          "upright": "Celebrate what you have achieved and acknowledge the path you have taken. Enjoy this moment of fulfillment and be grateful for what you have learned and experienced. Stay open to what comes next; a new journey may be beginning. You have integrated a great deal, and you can take that experience into your next adventure.",
+          "reversed": "Look at what is keeping you from completing the journey. Are your standards too high, or are you afraid of the emptiness that may follow? Recognize what you have already accomplished instead of dismissing your effort because the goal is not fully complete. Sometimes the final step is letting go of perfectionism."
+        },
+        "chakra": {
+          "primary": "Whole-system integration, especially the Crown and Root connection",
+          "issue": "Difficulty integrating spiritual and material life, or a lack of harmonious flow among the energy centers.",
+          "healingNote": "The World represents integration and balance throughout the energy system, connecting the Root Chakra with the Crown Chakra, earth with sky, and practical life with spiritual meaning. If you feel incomplete or out of balance, a whole-system approach to grounding and reflection may help. Crystal practices can be used as personal reminders of integration and balance. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul is celebrating: you did it. You completed this journey and learned what you came here to learn. You have integrated your experiences and become more whole. Enjoy this moment of fulfillment; you deserve joy and a sense of accomplishment. Remember, this is not the end, but a meaningful completion before a new beginning. A wider world is waiting to be explored.",
+          "reversed": "Your soul is gently asking: why can you not celebrate what you have achieved? You have come so far, so why does it still feel like not enough? Release perfectionism and recognize that you have completed an important part of the journey. Or perhaps your soul is encouraging you: you are at the final step, so do not give up. Whatever the case, you are already enough."
+        }
+      }
+    }
   }
 ]
