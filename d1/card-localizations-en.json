@@ -4357,5 +4357,80 @@
         "suitableQuestions": "This card may be useful when you want encouragement around a choice you have been considering. Ask: “Does this decision fit my values?” “Is now a reasonable time to take a step?” “What would accepting this opportunity require?” “What preparation or support do I need?” “Am I ready to explore this, even if I cannot see the whole path?” Let the card prompt reflection rather than serve as the only basis for a major decision."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "4",
+    "locale": "en",
+    "name": "You're Already Doing It",
+    "name_secondary": "你已經在做了",
+    "preview_payload": {
+      "titleEn": "You're Already Doing It",
+      "suit": "Confirmation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be questioning your progress, but the steps you have taken can already be laying a foundation. Not seeing immediate results does not mean your effort is wasted. This card invites you to pause before changing direction or pushing harder. Consider whether your current path still fits your values, then continue at a pace that is sustainable. You do not have to interpret every delay as evidence that the universe is preparing a perfect outcome.",
+      "actionGuidance": "You have already begun. Acknowledge the progress you have made and choose one reasonable next step. Keep moving if the direction still feels right, and allow yourself to adjust as you learn.",
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card offers reassurance when you cannot yet see the results of your efforts. You may be moving in a direction that matters to you, even if progress seems slow or subtle. Small steps, daily practices, and continued effort can build meaningful change over time. This may not be the moment to change course or speed up; it may be a moment to check in, trust your considered choices, and continue if they remain right for you. Your own values—not a card—are your true north.",
+        "higherSelfMessage": "You have been making choices and taking actions that deserve recognition. You may not see the whole picture, and that is okay; stay open to new information rather than assuming everything is perfectly aligned. Do not measure your progress only by outside standards or someone else's timeline. Notice what you have learned, and acknowledge the persistence it took to keep going through uncertainty. Continue what feels worthwhile, while giving yourself permission to adjust when needed.",
+        "spiritualGuidance": "If you have been overanalyzing or doubting yourself, take a moment to review the path you have already traveled. You do not need endless outside confirmation, but reflection and trusted feedback can help. Keep up practices that genuinely support you, and move toward your vision at a sustainable pace. Growth may be hard to see while it is happening. Celebrate what you have done so far, then decide on a next step based on your needs and circumstances.",
+        "energyQualities": "This card evokes steadiness and reassurance, like firm ground beneath your feet. It can remind you that small steps contribute to a larger effort and help you stay oriented amid doubt. It does not mean that every step is correct or that you must persist no matter what. Let resilience and discernment work together: maintain direction where it fits, and make changes where the evidence or your needs call for them.",
+        "suitableQuestions": "This card may resonate when you doubt whether you are on the right path, especially if you have worked for a while without visible results. Ask: “What progress have I made?” “Is this direction still aligned with my values?” “Is my effort having an effect?” “Would I benefit from continuing, changing something, or resting?” “What would a sustainable next step look like?” Use the questions to reflect, not to demand certainty from the card."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "5",
+    "locale": "en",
+    "name": "Align Your Life",
+    "name_secondary": "調整你的生活",
+    "preview_payload": {
+      "titleEn": "Align Your Life",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Life keeps changing, and you may be ready to make choices that better reflect who you are now. This card invites you to examine roles, relationships, routines, or self-definitions that no longer feel like a fit. You can release old expectations and move toward a more authentic life, one decision at a time. Change does not mean the past was a failure; it may mean your needs and values have evolved.",
+      "actionGuidance": null,
+      "inquiryPrompt": "What in my life feels out of alignment or ready for change?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card invites you to reflect on how you are changing. You may no longer identify with an old role, belief, relationship pattern, or definition of yourself. Continuing to live by expectations that no longer fit can feel restrictive. Letting something change is not necessarily a failure; it may be a response to growth. Notice where you feel tension or fatigue, then ask what adjustment would bring your daily life closer to your current values. You can make changes thoughtfully, without needing to leave everything familiar at once.",
+        "higherSelfMessage": "When your outer life and inner values feel out of step, pay attention. You may have changed, and the way you work, relate, or describe yourself may need to change too. Releasing what no longer serves you does not mean betraying the past. It can mean honoring what you have learned. You do not have to remove every mask or make a dramatic leap to be authentic. Take time to discern what feels true and what responsibilities or relationships deserve careful conversation.",
+        "spiritualGuidance": "Honestly review your life. What feels heavy? Where do you feel you have to perform or hide? Which commitments come from care, and which from pressure? Your body may offer useful signals, but fatigue or tension can have many causes; consider your health and circumstances too. This card invites conscious rearrangement so your life better reflects who you are now. That could mean changing a career, renegotiating a relationship, or adjusting daily habits. Experiment with small changes and learn what brings more energy, stability, or meaning.",
+        "energyQualities": "This card evokes transformation and reorganization, like a butterfly emerging after a period of change. It may help you release an identity or pattern that no longer fits and make room for new possibilities. Change can be cleansing, but it can also be difficult; resistance does not mean you are doing something wrong. You can adapt in stages. Let the changing seasons remind you that change is natural, while choosing a pace that supports your well-being.",
+        "suitableQuestions": "This card may resonate when parts of your life no longer feel right, or when you are considering a significant change. Ask: “Which parts of my life need adjustment?” “What no longer supports me?” “What am I ready to release?” “How can I live more authentically?” “Which commitments should I reconsider?” “What is one safe and practical next step?” Use the answers to clarify your choices, not as pressure to make an immediate drastic change."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "6",
+    "locale": "en",
+    "name": "Answer the Call",
+    "name_secondary": "回應召喚",
+    "preview_payload": {
+      "titleEn": "Answer the Call",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "A deep desire or interest may be inviting you to take notice, even if pursuing it feels frightening or impractical. You do not need to know the entire plan to explore it; a small next step can teach you more. This card asks what feels meaningful and what you might do to make room for it. A sense of calling can be important without proving that you have a fixed destiny or that you must take a risk before you are ready.",
+      "actionGuidance": null,
+      "inquiryPrompt": "What is calling me to explore or do next?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card points to a desire or direction you may have heard within yourself but not yet explored. You may feel drawn to create, serve, learn, or contribute in a particular way. It can seem impractical or intimidating, but that does not automatically mean it is your destiny or that you should ignore the risks. You do not need a complete map. Start by naming what matters, researching what it would involve, and choosing a manageable next step. Action can bring clarity, and so can careful reflection.",
+        "higherSelfMessage": "You may want more expression, creativity, service, or contribution in your life. Fear or other people's opinions can make it difficult to hear that desire, but they are only part of the picture. You do not need to choose an unsafe or unsustainable path to prove your courage. Meaningful work can also grow alongside your current commitments. Let the idea of a calling inspire exploration, while remembering you are free to change your mind as you learn more.",
+        "spiritualGuidance": "Take time to listen. Ask yourself what you genuinely want, what makes you feel engaged, and what you might do if you felt less afraid. Treat your answers as clues, not commands. Begin with a small step: research a course, talk with someone in the field, or set aside time for a creative project. You do not have to quit a job or make a dramatic change immediately. Each step can offer new information. Notice what feels meaningful while considering practical needs and support.",
+        "energyQualities": "This card evokes purpose and motivation, like a distant bell calling your attention. It may awaken passion and help you question inertia or routine. It does not mean you have a predetermined mission or that urgency is proof of spiritual guidance. A sense of purpose can deepen over time through curiosity, relationships, and the contributions you choose to make. Let the pull toward something meaningful guide exploration, not override your judgment.",
+        "suitableQuestions": "This card may resonate when you feel an inner desire but are unsure how to act. Ask: “What do I want to explore?” “What is one step I can take?” “How can I address my fear while staying safe?” “What practical considerations matter?” “Does this desire fit my values?” “What would help me learn whether this path suits me?” Let the questions support discernment rather than assume the universe has issued an instruction."
+      }
+    }
   }
 ]
