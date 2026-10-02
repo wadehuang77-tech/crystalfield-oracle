@@ -5478,5 +5478,53 @@
       "guidance": "Make a little quiet time each day so you can notice your thoughts and feelings. When making a decision, gather relevant information, then pause and ask how the options feel to you. Treat bodily sensations as clues, not automatic yes-or-no answers; stress, illness, and context can affect them. Keep a dream journal if it interests you, and reflect on dreams rather than assuming they predict the future. Start by listening to intuition in low-stakes situations, and remain open to revising your view.",
       "energy": "Moonstone may symbolize reflection and change, while labradorite can serve as a personal reminder of curiosity. Use a meaningful stone during meditation if you wish. At night or under the moon, take a quiet moment to notice how you feel, without expecting lunar phases to determine your emotions. A calm breathing practice or journaling can create space for reflection. Keep sleep and wellness practices safe and comfortable; crystals do not enhance intuition or predict events."
     }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "7",
+    "locale": "en",
+    "name": "Rainbow Dragon Integration",
+    "name_secondary": "彩虹龍統合",
+    "preview_payload": {
+      "keywords": ["Integration", "Balance", "Wholeness"],
+      "nameEn": "Rainbow Dragon Integration"
+    },
+    "gated_payload": {
+      "message": "The Rainbow Dragon symbolizes the integration of many parts of life, like seven colors joining in one arc. You may be bringing together spirituality and daily responsibilities, work and rest, or ideals and practical needs. This card invites you to explore how seemingly different parts of yourself can coexist. Integration is an ongoing process, not a final state, and it does not require you to deny conflict or difficult feelings.",
+      "guidance": "Take stock of the areas of your life—work, finances, health, relationships, family, social connection, growth, and recreation. Notice which need more attention and choose one realistic adjustment. You might also reflect on parts of yourself that feel in conflict and ask what each needs. Treat shadow work as optional self-reflection; you do not need to force painful memories to surface. Bring mindfulness into ordinary tasks and balance practical responsibilities with meaning and rest.",
+      "energy": "Rainbow obsidian or fluorite may serve as symbolic reminders of integration and balance. If you enjoy chakra imagery, you can visualize colored light moving through your body as a reflection practice, not as a medical treatment. Look at a real rainbow if one appears, or use a prism to create color in a room. Eating a variety of colorful foods can be an enjoyable practical reminder of variety, not an energy-balancing technique. Integration grows through patient attention to the different parts of your life."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "8",
+    "locale": "en",
+    "name": "Black Dragon Protection",
+    "name_secondary": "黑龍保護",
+    "preview_payload": {
+      "keywords": ["Protection", "Transformation", "Shadow"],
+      "nameEn": "Black Dragon Protection"
+    },
+    "gated_payload": {
+      "message": "The Black Dragon represents protection and the courage to explore difficult or hidden feelings. Darkness can be a place for rest, reflection, and growth, not something inherently evil. Anger, envy, fear, and desire may carry information about needs or boundaries. This card invites you to approach those feelings with curiosity and care. You do not have to face everything at once, and you can seek support if reflection becomes overwhelming.",
+      "guidance": "If someone or something triggers a strong reaction, pause and explore what you feel without assuming it is only a projection. Ask what the emotion may be signaling and what support or boundary would help. Journaling or talking with a therapist can support deeper reflection. You can also use a calming visualization, such as imagining a protective cloak around you, as a way to focus on safety. Protection is not isolation: keep connections that feel respectful, and seek help if a situation is unsafe.",
+      "energy": "Obsidian or black tourmaline may serve as symbolic reminders of grounding and boundaries. Carry a meaningful object if it comforts you, but crystals are not proven to absorb harmful energies or protect against danger. A visualization of a dragon or shield can help you focus on feeling secure. You might create a simple evening routine to leave the day's stress behind: wash your hands, take a few breaths, or write down what you want to set aside. Choose calming practices that do not increase fear."
+    }
+  },
+  {
+    "deck_id": "dragons",
+    "card_key": "9",
+    "locale": "en",
+    "name": "White Dragon Purity",
+    "name_secondary": "白龍純淨",
+    "preview_payload": {
+      "keywords": ["Purity", "Clarity", "New Beginnings"],
+      "nameEn": "White Dragon Purity"
+    },
+    "gated_payload": {
+      "message": "The White Dragon symbolizes clearing, clarity, and a fresh start, like new snow covering the ground. A chapter may be ending and another beginning. You are invited to release what no longer fits and make room for what matters now. This can include practical tidying as well as reconsidering habits, beliefs, or relationships. You do not have to erase the past or label experiences as impure to move forward.",
+      "guidance": "Choose one small area to clear—a room, a digital folder, or a commitment you want to reconsider. Let go of items you no longer use if that is practical, and review relationships with honesty while respecting safety and shared responsibilities. You may also write down an old belief you are ready to question and a more balanced perspective. After making space, clarify what you want to invite into your life. You can start fresh without needing to forgive on demand or erase painful memories.",
+      "energy": "Clear quartz or selenite may serve as symbolic reminders of clarity. A white-light visualization can be a calming way to imagine a fresh start, not a method for removing toxins or purifying your body. If you use incense or essential oils, consider allergies, ventilation, and safe use. A candle or a few minutes of quiet can mark a transition. After clearing space, write an intention for what you would like to build. Keep the ritual simple, safe, and meaningful to you."
+    }
   }
 ]
