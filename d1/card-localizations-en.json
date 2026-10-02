@@ -2036,5 +2036,62 @@
       "energyHealing": "You may choose practices that focus on balancing the Sacral and Heart Chakras, which some traditions associate with receptive and creative energy. Moonstone, rose quartz, or pearls may be used as personal ritual objects. A womb-centered meditation can be practiced regardless of whether you have a physical womb, as an image of a creative inner space. Rose, ylang-ylang, or jasmine essential oils may be part of a ritual if suitable for you. Try gentle, flowing movement such as Yin Yoga if it feels supportive. A full-moon ritual can be a symbolic time for reflection and renewal. Visualize soft pink or silver moonlight surrounding you, and explore sound practices such as goddess mantras or womb-drum rhythms if they resonate.",
       "soulQuestion": "Where in my life am I overusing active, goal-driven energy and neglecting receptivity? Am I ready to receive, surrender, and trust the flow of life?"
     }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "10",
+    "locale": "en",
+    "name": "Divine Masculine",
+    "name_secondary": "神聖陽性",
+    "preview_payload": {
+      "keywords": ["Masculine Energy", "Action", "Protection", "Manifestation"],
+      "nameEn": "Divine Masculine"
+    },
+    "gated_payload": {
+      "cosmicMessage": "A healthy Divine Masculine energy may be awakening within you. This is not toxic masculinity or control, but qualities such as protection, action, structure, and conscious leadership. It is the energy of the sun, the transformative power of fire, and the steadiness of a mountain. In this tradition, the Divine Masculine offers a container in which the creativity of the Divine Feminine can safely take form. It can embody a warrior's courage, a wise leader's discernment, and a father's protective love. This may be a time to embody these qualities, take action, and create a solid structure for your dreams.",
+      "currentSituation": "You may have been planning, dreaming, and feeling, but finding it difficult to put ideas into practice. Perhaps you have relied heavily on receptive, flowing energy and waiting, and now need more focused action. Or you may have lost touch with healthy masculine energy because of painful experiences with toxic masculinity. You may need clearer boundaries, ways to protect your energy, or the courage to stand up in certain situations. This card calls on your inner warrior and wise leader.",
+      "deeperMeaning": "The Divine Masculine is very different from cultural ideas of masculinity. It is not about domination, suppressing emotion, or opposing feminine energy. A healthy Divine Masculine is conscious, responsible, and oriented toward service. It knows how to use strength without abusing it, protect without controlling, and lead without dominating. It offers direction, structure, and action while staying connected to the wisdom of the heart and soul. It can be an inner father archetype that offers support, encouragement, and confidence in your abilities. Balanced masculine energy can help you bring a spiritual vision into the world effectively.",
+      "actionGuidance": "Set clear goals and an action plan that breaks your vision into practical steps. Build daily structure and discipline that support your growth and goals. Practice setting and maintaining healthy boundaries, including saying no to things that do not align with your well-being. Develop discernment so you can make decisions when needed. Try physical training, martial arts, or another embodied practice to connect with strength and agency. Speak up for yourself and others when appropriate. Take on leadership or mentoring roles if they suit you, and complete projects you have begun. You might also reflect on your relationship with your father, male ancestors, and the wider community of men.",
+      "energyHealing": "You may focus on practices associated with the Solar Plexus Chakra, often linked with willpower and personal agency. Tiger's eye, red jasper, or citrine can be included in a personal ritual. Try a sun meditation, imagining golden sunlight warming your whole being and gently activating your inner fire. Cedar, sandalwood, or frankincense essential oils may be used as part of a ritual if suitable for you. Dynamic yoga or qigong can help you explore movement and strength. Spend time in sunlight safely, and visualize a protective golden or red light if that feels grounding. Warrior breathing or fire-breathing practices should be gentle and appropriate to your health; stop if uncomfortable.",
+      "soulQuestion": "Am I avoiding an action or responsibility that matters to me? Am I ready to embody healthy strength to protect and bring my dreams into reality?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "11",
+    "locale": "en",
+    "name": "Angel Guidance",
+    "name_secondary": "天使指引",
+    "preview_payload": {
+      "keywords": ["Angels", "Guidance", "Protection", "Support"],
+      "nameEn": "Angel Guidance"
+    },
+    "gated_payload": {
+      "cosmicMessage": "This card describes a strengthening connection with the angelic realm. In this spiritual belief, these beings of light are nearby and await your invitation to offer help. They do not override free will, but are said to respond when asked. You are not alone: angels, archangels, and beings of light may be imagined as watching over you and guiding you toward your highest path. This may be a time to consciously invite support and remain open to love, wisdom, and encouragement.",
+      "currentSituation": "You may feel lonely, overwhelmed, or unsure of your direction. Life's challenges may feel heavy, and you may wonder whether you can handle them alone. Or you may have begun noticing angel numbers, feathers, or other signs that feel meaningful to you. You may receive impressions in dreams or meditation without being sure where they come from or what they mean. This card invites you to notice what feels supportive and explore your own interpretation of these experiences.",
+      "deeperMeaning": "Angels are described in this tradition as beings of pure love whose existence extends beyond the three-dimensional world. Many people believe everyone has at least one guardian angel and that some may have more. You may also choose to call on archangels, ascended masters, or other beings of light for support. In this belief system, angels may communicate through synchronicities, intuition, dreams, bodily sensations, or recurring symbols. Learning to notice and interpret these signs is part of developing a relationship with angelic guidance. Guidance rooted in love should feel supportive and encouraging; if a message brings fear or negativity, pause and use your discernment rather than assuming its source.",
+      "actionGuidance": "You may speak to your guardian angel each day, aloud or silently. If you ask for help, be clear about what you need. Notice synchronicities, repeating numbers such as 111, 222, or 444, and other signs that feel meaningful to you. Create an altar with objects that represent angels, such as a feather or a white candle. Learn about different archangels if that interests you and consider calling on them symbolically. Keep a journal of impressions and responses. Express gratitude when you feel supported. Stay open to unexpected forms of guidance while also using your judgment.",
+      "energyHealing": "Clear quartz, angelite, or moonstone may be included in a personal ritual focused on connection. Practices that balance the Crown and Heart Chakras may support reflection on spiritual messages. Create an angel-connection meditation by inviting your guardian angel into your awareness, if that is meaningful to you. Frankincense or rose essential oil may be part of a ritual if suitable for you. Visualize yourself surrounded by protective wings as a symbol of care and support. Listen to music that feels uplifting. Before sleep, you may set an intention to remember dreams, then write down what you recall in the morning. Interpret these experiences thoughtfully and in a way that feels grounded.",
+      "soulQuestion": "Am I willing to receive support and trust that I am not alone? Am I ready to open my heart to guidance and encouragement?"
+    }
+  },
+  {
+    "deck_id": "lightworker",
+    "card_key": "12",
+    "locale": "en",
+    "name": "Chakra Balance",
+    "name_secondary": "脈輪平衡",
+    "preview_payload": {
+      "keywords": ["Chakras", "Energy", "Balance", "Healing"],
+      "nameEn": "Chakra Balance"
+    },
+    "gated_payload": {
+      "cosmicMessage": "Your energy system may need attention and recalibration. In this tradition, chakras are described as centers in the energy body. When they feel balanced and aligned, life energy—sometimes called qi or prana—is thought to flow freely, supporting vitality and clarity. A blockage or imbalance may be associated with physical, emotional, or spiritual concerns, though chakra concepts are not medical diagnoses. This card invites you to care for your energy and physical well-being together. It may be a good time for reflection and practices that help you feel balanced.",
+      "currentSituation": "You may notice areas of life that feel out of balance. In chakra traditions, Root Chakra concerns are associated with anxiety, finances, or safety; Sacral Chakra concerns with creativity or emotion; Solar Plexus concerns with confidence or digestion; Heart Chakra concerns with giving or receiving love; Throat Chakra concerns with communication or self-expression; Third Eye concerns with intuition or vision; and Crown Chakra concerns with spiritual connection. These associations are reflective frameworks, not diagnostic tools. This card invites you to notice which areas may need care and to seek qualified support for health concerns.",
+      "deeperMeaning": "The seven main chakras are understood in some traditions as bridges between the physical and energy bodies. Each is associated with parts of the body, emotional themes, and spiritual questions. Chakra work appears in many older spiritual traditions, including Indian yoga and Tibetan Buddhism, and is also used in some modern energy-healing practices. Balancing chakras is not only an energy exercise; it can also involve attending to life themes connected with each center. For example, heart-centered reflection may include forgiveness, openness to love, and self-compassion. These practices can complement, but do not replace, medical or mental-health care.",
+      "actionGuidance": "Learn about the location, color, element, and themes associated with each chakra in the tradition you follow. Scan your body and notice where you feel tension, openness, or disconnection without treating the sensation as a diagnosis. You may use color-associated stones as reflective objects, try a chakra meditation, or explore yoga poses associated with different centers. Essential oils, tuning forks, or chanting can be part of a personal ritual if suitable for you. Notice whether recurring life patterns connect with themes you associate with a chakra. Reiki or other energy practices may be options if they feel right, but consult qualified professionals for medical or mental-health concerns.",
+      "energyHealing": "A seven-color crystal set may be used as a symbolic focus in a whole-chakra meditation: red jasper at the Root, carnelian at the Sacral, citrine at the Solar Plexus, green aventurine or rose quartz at the Heart, blue kyanite at the Throat, lapis lazuli at the Third Eye, and amethyst or clear quartz at the Crown. You may also explore chakra sound practices using a tone or mantra associated with each center. Imagine rainbow light moving upward from the base of the body, bringing attention and care to each area. These are optional contemplative practices, not treatments.",
+      "soulQuestion": "Where in my life do I feel blocked or out of balance? Am I willing to make time to care for and rebalance my energy system?"
+    }
   }
 ]
