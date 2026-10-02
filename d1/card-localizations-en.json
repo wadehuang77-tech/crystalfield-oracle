@@ -1010,5 +1010,62 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "1",
+    "locale": "en",
+    "name": "Existence",
+    "name_secondary": "存在",
+    "preview_payload": {
+      "subtitle": "Existence"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "You are in a state of complete ease and oneness with the universe. This is the energy of simply existing: you do not need to become anyone; you can just be. In this moment, you are experiencing a deep, essential joy, like a cloud drifting freely across the sky without a purpose or agenda. Your energy is expanding and resonating with everything around you. This is not an escape from reality, but a return to your most authentic state. When you stop chasing, you may discover that you are already home.",
+        "dailyGuidance": "Today's message is to stop striving and simply be. You do not need to prove or accomplish anything. Let yourself settle into this moment and feel life's natural flow. The universe is not asking you to do anything; it is inviting you to be. Each breath can be a celebration, and each moment can be complete in itself. Release plans and expectations for a while, and let life express itself through you. When you stop struggling, you may find that new possibilities arise naturally.",
+        "emotionalInsight": "Your anxiety may come from trying to become someone instead of accepting who you are now. Deep down, you may already be more whole than you realize. Loosening your attachment to the future can allow your emotions to settle. You have been looking outside yourself for approval and overlooking the abundance already within. Some fears and worries may be stories created by the mind. When you return to simple awareness, emotions can be experienced as passing visitors while you remain the steady center that notices them.",
+        "blockageAnalysis": "You may feel stuck because you are always doing and have forgotten how to simply be. The problem may not be outside you; you may have lost touch with the ease of existing without striving. Stop chasing, and an answer may arise on its own. The mind can keep creating problems and then trying to solve them in an endless cycle. A breakthrough may come not from finding one more answer, but from noticing that the problem itself may be less solid than it seems. When you relax into the present, some of the knots can begin to loosen because they were never as fixed as they appeared.",
+        "meditationEntry": "Close your eyes and notice the movement of your breath. You do not need to change anything; simply observe. Feel your body and its connection with the space around you. You are part of existence itself. Let awareness spread through your whole body and notice the life in each cell. Now allow that awareness to extend beyond the body's boundaries and into the surrounding space. You are not separate from everything around you; you are part of the whole. In this space there is no problem to solve and no answer to chase, only stillness."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "2",
+    "locale": "en",
+    "name": "Inner Voice",
+    "name_secondary": "內在聲音",
+    "preview_payload": {
+      "subtitle": "Inner Voice"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "Your inner world is asking for your attention. This is a time to listen inwardly; your intuition may be trying to share something important. Trust that quiet inner voice. Amid the noise of the world, your soul has been speaking softly, waiting for you to pause and listen. This energy invites you back to inner stillness, where the answers you have been seeking may already be waiting. Rather than searching outside yourself, remember that wisdom can be found within.",
+        "dailyGuidance": "Today, make some quiet space to listen to your inner wisdom. There is a lot of noise around you, so take a break from outside distractions and notice what your heart is saying. Give yourself time alone, away from social media, other people's opinions, and outside expectations. In stillness, your intuition may become easier to hear. When making a decision today, do not ask everyone else first; check in with yourself. Your inner sense can help you discern what feels right for you, so give it room to speak.",
+        "emotionalInsight": "Emotional turbulence may arise when you ignore your inner voice. You may keep seeking outside advice and approval while forgetting that some of the truest answers are already within you. When you feel confused or anxious, it may be because your actions do not align with your inner guidance. Those uneasy feelings can be a reminder that you have moved away from your own path. Try listening for what your emotions are communicating; they can be guides to understanding what matters to you.",
+        "blockageAnalysis": "You may be unable to move forward because you are listening to other people instead of yourself. The block may be a lack of trust in your own intuition. As you learn to trust your inner guidance, your path may become clearer. You may fear making the wrong decision and keep looking for outside approval, but this can leave you feeling even more lost. The deeper block may not be a lack of information, but a lack of trust in yourself. When you begin to listen to your own wisdom, obstacles can look different and you may find a direction that feels like your own true north.",
+        "meditationEntry": "Find a quiet place and rest a hand over your heart. Ask yourself, “What is my heart trying to tell me?” Do not analyze; simply listen and allow an answer to emerge in its own way. Feel the rhythm of your heartbeat, the pulse of life. There is space between each breath, and in that space you can make room for inner wisdom. Do not rush to find an answer; stay open and receptive. When you become truly quiet, your inner voice may become clearer. It might arrive as a feeling, an image, or a simple knowing."
+      }
+    }
+  },
+  {
+    "deck_id": "osho",
+    "card_key": "3",
+    "locale": "en",
+    "name": "Playfulness",
+    "name_secondary": "遊戲",
+    "preview_payload": {
+      "subtitle": "Playfulness"
+    },
+    "gated_payload": {
+      "meanings": {
+        "currentEnergy": "Your energy is calling for lightness and play. Life does not have to be so serious; this may be a moment to let your inner child come out and enjoy the simple joy of being alive. Perhaps it has been a long time since you truly laughed or felt carefree. This card reminds you that life can be a celebration, not only a list of tasks. Set down your responsibilities for a little while, even if only briefly, and reconnect with the part of you that knows how to play.",
+        "dailyGuidance": "Today's reminder is not to take everything so seriously. Meet life with a playful spirit and you may discover more possibilities and creativity. Even work can sometimes be approached as a game. When you relax, inspiration may come more easily. Try doing something today without a goal, simply because it brings you joy: dance, sing, draw, or take a walk. Let a sense of lightness return, and you may find it easier to see new ways to approach a problem.",
+        "emotionalInsight": "Your heaviness may come from taking life too seriously. Loosen the frame of what you think you must do and allow yourself a little ease. Joy does not always need a reason. You may be carrying the weight of the world as though everything would fall apart if you stopped trying so hard. Yet life may flow more easily when you allow yourself to relax. Some things you treat as grave obligations may be mental cages. When you meet them with a playful perspective, they may lose some of their power over you.",
+        "blockageAnalysis": "You may feel stuck because you are treating life like an exam instead of an exploration. Loosen your attachment to outcomes and approach things with a spirit of play; new paths may open. Being preoccupied with right and wrong, winning and losing, can keep you from moving. Creativity and breakthroughs often need room to experiment. When you are less afraid of mistakes and imperfection, you may feel freer. The block may not be that you have not tried hard enough; you may be trying too hard. Relax and let yourself explore.",
+        "meditationEntry": "Remember a game you loved as a child and reconnect with the uncomplicated joy you felt. Let that energy move through your body. Feel the freedom of being fully present, with no past to revisit and no future to plan—only the joy of this moment. Let your body move without needing a reason, simply because it wants to. Allow a smile to arise naturally. In this space, you do not need to become anyone; you can simply enjoy being alive."
+      }
+    }
   }
 ]
