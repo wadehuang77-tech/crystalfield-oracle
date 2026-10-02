@@ -5032,5 +5032,80 @@
         "suitableQuestions": "This card may resonate when you wonder whether your contribution is important enough, or when you are drawn to a quieter way of serving. Ask: “What role feels meaningful to me?” “How can I contribute without neglecting myself?” “What quiet work do I value?” “Do I need recognition or support?” “What am I helping make possible?” “How can I trust my path without assuming a fixed divine plan?” Let your answers honor both your contribution and your needs."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "31",
+    "locale": "en",
+    "name": "Awakening",
+    "name_secondary": "覺醒",
+    "preview_payload": {
+      "titleEn": "Awakening",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be going through a period of personal or spiritual change, reconsidering who you are and what matters. Change can feel intense or uncertain, but this card invites curiosity rather than a diagnosis. You might experience new insights, heightened interest in spiritual ideas, or a desire to live differently. Physical symptoms can have many causes and should not automatically be interpreted as spiritual activation; seek appropriate medical advice when needed.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I welcome growth at a pace that feels grounded and safe. May I stay open to insight, rest, and support as I change.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card describes an awakening as a shift in awareness or priorities. What feels like a crisis may also be a time to reconsider old beliefs, habits, or relationships, but not every difficult experience is a spiritual breakthrough. Change can bring insight and also uncertainty. You may become curious about spiritual topics, notice new patterns, or want to understand yourself differently. Let these experiences invite reflection without assuming a particular past-life story, energy upgrade, or predetermined outcome.",
+        "higherSelfMessage": "You are changing, and it is understandable if the process feels unsettled. New information may challenge old beliefs, and relationships or routines may shift. Give yourself time to integrate what you are learning rather than trying to force a dramatic transformation. Rest, support, and ordinary routines can help you stay grounded. If physical or emotional symptoms concern you, do not assume they are spiritual signs; consult an appropriate health professional. Growth can include asking for help and taking things slowly.",
+        "spiritualGuidance": "Support yourself during change with grounding, rest, and trusted connection. Spend time outdoors, eat regularly, and notice what helps you feel present. If meditation, yoga, journaling, or gentle breathing feels helpful, use it at a comfortable pace. Avoid practices that intensify distress or promise a guaranteed awakening. Write down insights and questions, then consider them over time. Seek a qualified teacher or clinician when appropriate. Change often comes in waves; you do not need to reach a final state or label every experience.",
+        "energyQualities": "This card evokes activation and transformation, like a sudden insight that changes how you see something. Spiritual traditions may describe this through energy centers or awakening imagery. These are belief frameworks, not a diagnosis for physical sensations or illness. Let the image of change encourage reflection and care. Transformation can be meaningful without being dramatic, and stability, rest, and support are part of the process.",
+        "suitableQuestions": "This card may resonate during a shift in awareness or priorities. Ask: “What is changing for me?” “What insights am I considering?” “How can I stay grounded while I explore them?” “What support or rest do I need?” “Are there physical or emotional concerns I should discuss with a professional?” “What can I integrate at my own pace?” Let the questions help you care for yourself rather than prove that an awakening is happening."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "32",
+    "locale": "en",
+    "name": "Birthing a New Age",
+    "name_secondary": "誕生新時代",
+    "preview_payload": {
+      "titleEn": "Birthing a New Age",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be in a period of transition, letting go of old ways and helping bring something new into being. Like childbirth, meaningful change can require courage, patience, and support. This card invites you to take an active part in creating what you hope to see, without assuming that one person is responsible for ushering in a new world. Your contribution can begin with a project or choice in your own life.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I am open to the creative work that wants to take shape through me. May I find a grounded next step and the support to take it.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card uses birth as an image for bringing something important into the world. You may be helping a project, way of working, or new understanding take shape. Social change can also feel like an old order giving way to something new, though no one can know that a specific new age is arriving. Meaningful creation takes courage and may involve discomfort. You can take an active role without carrying the burden of transforming the entire world.",
+        "higherSelfMessage": "An idea or project you have been considering may be ready for a first step. You do not have to wait until you are perfectly prepared, and you also do not have to ignore your limits. Beginnings can be imperfect and still worthwhile. Ask what the idea needs to become more real: time, planning, collaboration, or resources. Change happens through many people and circumstances, not through one person's effort alone. Let your work contribute in a way that is sustainable for you.",
+        "spiritualGuidance": "Identify what you want to bring into being and choose a concrete next step. You do not need a complete plan before beginning, but consider what preparation and support will help. Make space and time for the project; ask collaborators for help if appropriate. Expect uncertainty and adjust as you learn. A personal intention or ritual can mark the beginning if meaningful, while practical action helps carry it forward. Celebrate small milestones. Completion need not be perfect to be valuable.",
+        "energyQualities": "This card evokes the effort of creation and the movement from possibility into form. It can feel active, challenging, and transformative. A new beginning may also require grieving what is ending. The image of birth honors effort and support, not a guarantee that every idea will succeed or that all change is destined. Let the energy encourage patient, collaborative creation and care for yourself during the process.",
+        "suitableQuestions": "This card may resonate when you have an idea or dream you have delayed, or when you are living through a larger transition. Ask: “What am I ready to create?” “What first step can I take?” “What fears or practical needs should I address?” “Who could support me?” “What can I let go of to make room?” “How might my work contribute without requiring me to carry everything?” Let the answers guide steady action."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "33",
+    "locale": "en",
+    "name": "Council of Light",
+    "name_secondary": "光之議會",
+    "preview_payload": {
+      "titleEn": "Council of Light",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "This card offers an image of compassionate spiritual support. If you believe in guides, angels, teachers, or other benevolent presences, you may use that belief as a source of comfort. You can also understand the Council of Light as a symbol for the people and resources that help you. Ask for support in ways that fit your beliefs, while remembering that practical help and trusted relationships matter too.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "Council of Light, if you are part of my spiritual path, I welcome guidance and support for what matters to me. Help me notice wise counsel and take grounded steps. Thank you.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card reminds you that you do not have to navigate every challenge alone. Some spiritual traditions describe guides, angels, ascended masters, or other benevolent beings who offer support. Whether you understand this literally or symbolically, consider what kind of help would be useful. A card cannot verify that a group of unseen beings is working behind the scenes, but it can prompt you to ask for guidance, notice your resources, and stay open to support from people you trust.",
+        "higherSelfMessage": "You may be carrying more than you need to carry alone. Asking for support is not weakness. You can seek advice about a confusing decision, emotional care for a difficult period, or connection when you feel isolated. If spiritual beliefs help you feel supported, you may draw on them while using your own judgment. Notice patterns or coincidences if they feel meaningful, but do not treat them as guaranteed messages. Real support can arrive through friends, family, professionals, and community.",
+        "spiritualGuidance": "Create a reflective practice if you wish: take a quiet moment and ask for wisdom or support, in language that fits your beliefs. Be specific about what you need—clarity, help with a relationship, creative energy, or practical resources. Then consider concrete ways to seek it: talk with a trusted person, consult a professional, or explore a community. Keep a journal of thoughts and coincidences if useful, while interpreting them thoughtfully. You might create a small space with meaningful objects, but you do not need an altar or spiritual ritual to deserve help. Thank those who support you, seen or unseen according to your beliefs.",
+        "energyQualities": "This card evokes connection and support, like discovering caring company when you thought you were alone. It can invite wisdom, compassion, and collaboration. You are part of networks of care, though no one can promise that unseen beings will solve a problem. Receiving support may mean asking, listening, and taking action with others. Let this card ease isolation while keeping your own discernment and agency.",
+        "suitableQuestions": "This card may resonate when you feel alone, overwhelmed, or uncertain about your next step. Ask: “What support do I need?” “Who could I reach out to?” “What wise counsel is available?” “What practical help would make this easier?” “What do I believe about spiritual guidance?” “How can I tell a helpful insight from an assumption?” Let the card encourage connection and support without requiring certainty about unseen beings."
+      }
+    }
   }
 ]
