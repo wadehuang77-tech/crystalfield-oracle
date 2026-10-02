@@ -5257,5 +5257,80 @@
         "suitableQuestions": "This card may resonate during a significant life change or when you want to shift an old pattern. Ask: “What habit or belief am I ready to reconsider?” “What support would help me feel safe?” “How can I care for my body and mind during this process?” “What change can I approach gradually?” “Should I speak with a professional about these symptoms or distress?” Let transformation include practical support and self-compassion."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "40",
+    "locale": "en",
+    "name": "Release the Old",
+    "name_secondary": "釋放舊有誓言",
+    "preview_payload": {
+      "titleEn": "Release the Old",
+      "suit": "Activation Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be carrying old stories, promises, or beliefs that no longer fit your life. This card invites you to examine them and decide what you want to release. Ideas about past-life vows or soul contracts are spiritual beliefs, not established facts. You can still let go of limiting expectations from family, culture, or your own past without proving where they began. You are free to make new choices that fit who you are now.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": "I release old stories, promises, and expectations that no longer fit who I am. I am free to choose with care in the present.",
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card asks whether an old story or commitment is still shaping your life. You may be holding beliefs such as “I must stay silent,” “I do not deserve comfort,” or “I cannot be seen.” These can come from past experiences, family expectations, or learned habits; you do not need to attribute them to past lives. Some promises made earlier may no longer serve you, though responsibilities should be considered before changing course. This is an opportunity to examine what fits your present values and what you are ready to release.",
+        "higherSelfMessage": "You may have been living by rules that no longer apply. Perhaps you promised yourself you would never speak up, accept help, or trust again. Those commitments may once have felt protective, but you can reconsider them now. You are free to make new choices, while recognizing that change may take time and support. Try saying: “I can let go of expectations that do not fit my life today.” Notice what shifts, and proceed gently rather than expecting one statement to remove a deep pattern immediately.",
+        "spiritualGuidance": "Reflect on a pattern you would like to change—around money, expression, intimacy, or being seen. Ask where you learned it and what purpose it served, without assuming a past-life cause. Write down the belief and a more balanced choice you want to practice. A simple ritual can mark the intention: read it aloud, then safely discard the paper. You might say, “I am ready to choose differently.” Follow this with a practical step, such as speaking up in a safe situation or asking for support. Revisit the practice if the old pattern returns; change often takes repetition.",
+        "energyQualities": "This card evokes release and greater freedom, like loosening a binding that has felt tight. It can symbolize ending an old story and making room for a new one. This is not a guarantee that one ritual will dissolve a pattern, but it can help you mark your intention. Agency grows through reflection and repeated choices. You are not permanently bound to every belief or expectation you have carried.",
+        "suitableQuestions": "This card may resonate when you feel held back by a belief or repeating pattern. Ask: “What expectation no longer fits me?” “What promise did I make to protect myself?” “What is within my control now?” “What new choice would support my well-being?” “What practical step could help me practice it?” “What support would make change easier?” Let release mean thoughtful change, not denial of responsibilities."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "41",
+    "locale": "en",
+    "name": "Akasha",
+    "name_secondary": "阿卡西",
+    "preview_payload": {
+      "titleEn": "Akasha",
+      "suit": "Transmission Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "In some spiritual traditions, the Akashic Records are imagined as a source of insight about a soul's history, lessons, or gifts. You may use this idea as a reflective framework for exploring purpose and patterns. It is not a verified archive or proof that life's turning points were arranged in advance. Notice signs and coincidences if they feel meaningful, while making decisions with your own judgment and real-world information.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": "I am open to wisdom and reflection that support my well-being. May I meet what I receive with discernment and care.",
+      "deepInterpretation": {
+        "coreMeaning": "The Akashic Records are described in some spiritual beliefs as a cosmic library containing the journeys, lessons, and gifts of souls. This card invites you to reflect on your purpose and recurring patterns through that image. It does not establish that you have a predetermined contract, that specific encounters were planned before birth, or that every difficulty was chosen for growth. You may look for meaning while remembering that your choices, circumstances, and other people all shape your life.",
+        "higherSelfMessage": "Your life does not have to be random for it to be meaningful, and it does not need a prewritten plan. You can draw wisdom from your experiences, relationships, and values without needing access to a supernatural record. If synchronicities or symbols resonate, treat them as prompts for reflection rather than instructions. Ask what you need, seek reliable information, and choose a path that supports your well-being. You are allowed to revise your understanding as you learn.",
+        "spiritualGuidance": "If the Akashic Records are part of your spiritual practice, approach them as a reflective or meditative framework. Take a quiet moment, set an intention to seek insight that is useful and compassionate, and write down impressions without treating them as facts. You might ask, “What patterns do I notice?” “What strengths have I developed?” “What matters to me now?” Keep a journal of dreams or coincidences if helpful, and interpret them thoughtfully. If working with a practitioner, choose someone trustworthy who respects your boundaries and does not make frightening or coercive claims.",
+        "energyQualities": "This card evokes perspective, memory, and a sense of larger context, like opening an old book of stories. It may invite curiosity about your past and future possibilities. Its spiritual imagery can offer comfort or insight, but does not prove that every event is predetermined or meaningful in a specific way. Let reflection bring clarity while leaving room for uncertainty and personal choice.",
+        "suitableQuestions": "This card may resonate when you seek purpose or notice recurring patterns. Ask: “What have I learned from this experience?” “What strengths do I want to use?” “What values guide my next step?” “What does this symbol mean to me?” “Am I treating an impression as fact?” “What practical information should I consider?” Let spiritual reflection support—not replace—your judgment."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "42",
+    "locale": "en",
+    "name": "Lemuria",
+    "name_secondary": "列穆里亞",
+    "preview_payload": {
+      "titleEn": "Lemuria",
+      "suit": "Transmission Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Lemuria is a mythical place in modern spiritual traditions, often imagined as an era of harmony between people and nature. This card uses Lemuria as a symbol of connection, simplicity, and care for the earth. Whether or not you believe in Lemuria as a real ancient civilization, the image invites you to consider how you might live with more respect for land, animals, and community. Caring for the world can begin with caring for yourself and your surroundings.",
+      "actionGuidance": null,
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": "I honor my connection with the earth and the living world. May I act with care, respect, and gratitude.",
+      "deepInterpretation": {
+        "coreMeaning": "This card draws on Lemuria as a mythic image of people living in harmony with nature and the sacred. Some spiritual communities regard it as an ancient continent or a remembered consciousness; these claims are not established history. As a symbol, Lemuria can express a longing for connection, simplicity, and respect for the earth. Healing the world can begin with attention to your own well-being and relationship with nature, while collective change also requires practical action and cooperation.",
+        "higherSelfMessage": "You may feel a strong bond with nature or wish for a more harmonious way of living. That longing does not need to come from cellular memory or a past life to be meaningful. It may reflect values you want to bring into your present life. Consider how you can care for your body, local environment, and relationships. Your choices can contribute to collective well-being, but you are not responsible for creating a new world alone. Let hope lead to grounded care rather than pressure to save everyone.",
+        "spiritualGuidance": "Deepen your relationship with the natural world in practical ways. Spend attentive time outdoors, care for a plant or garden, learn about local ecosystems, or support a community environmental effort. You may create a simple practice of gratitude for the land and resources you depend on. Treat Indigenous traditions and knowledge with respect; learn from sources shared by those communities and do not borrow ceremonies without invitation. Let a vision of harmony guide everyday choices, such as reducing waste, supporting conservation, or caring for your community.",
+        "energyQualities": "This card evokes innocence, harmony, and a garden-like connection with the earth. It can bring up nostalgia for a simpler or more balanced way of living. That image can inspire hope without requiring belief in a literal lost civilization or past-life memory. Its energy is nurturing and restorative, inviting you to notice where separation from nature or community might be softened through present-day care.",
+        "suitableQuestions": "This card may resonate when you feel connected to nature or long for a more harmonious world. Ask: “What does living in balance mean to me?” “How can I care for the land where I live?” “What practical action is within my capacity?” “What have I learned from this mythic image?” “How can I support community without taking on the whole burden?” Let the vision of harmony inform a grounded choice."
+      }
+    }
   }
 ]
