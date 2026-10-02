@@ -4,23 +4,26 @@ import { trackEvent } from '../lib/tracking';
 
 export function usePageViewTracking() {
   const location = useLocation();
-  const hasMountedRef = useRef(false);
   const lastPageKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     const pageKey = `${location.pathname}${location.search}`;
-
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
-      lastPageKeyRef.current = pageKey;
-      return;
-    }
 
     if (lastPageKeyRef.current === pageKey) {
       return;
     }
 
     lastPageKeyRef.current = pageKey;
+
+    const isAdminPath =
+      location.pathname === '/admin' ||
+      location.pathname.startsWith('/admin/') ||
+      location.pathname === '/en/admin' ||
+      location.pathname.startsWith('/en/admin/');
+
+    if (isAdminPath) {
+      return;
+    }
 
     const pagePath = `${location.pathname}${location.search}`;
 
