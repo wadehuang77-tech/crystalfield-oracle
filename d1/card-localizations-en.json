@@ -596,5 +596,143 @@
         }
       }
     }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "13-death",
+    "locale": "en",
+    "name": "Death",
+    "name_secondary": "死神",
+    "preview_payload": {
+      "keywords": ["Transformation", "Ending", "Rebirth", "Letting Go", "Transition"],
+      "arcana": "major",
+      "number": 13
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Death card represents endings, transformation, and renewal, not literal death. It marks the close of an important phase and the beginning of another. When Death appears, it asks you to release the past and let what has run its course make room for new possibilities. This may involve ending a relationship, leaving a job, changing a belief, or releasing an old pattern of behavior. Change can feel unsettling, but Death points to necessary transformation and renewal. The card encourages you to accept life's natural cycles and understand that endings make new beginnings possible. Death rides a white horse, symbolizing the purifying power of transformation. Rather than resist the process, meet change and trust that what follows can bring growth and evolution.",
+      "reversedMeaning": "The reversed Death card suggests that you may be resisting a necessary ending or change. You may be clinging to people, situations, or things that no longer suit you because you fear that letting go means losing everything. This card can also point to stagnation and difficulty completing a transition. You may be caught between past and future, unable to release one or welcome the other. The reversed Death reminds you that refusing change can create more pain and difficulty. Some things have reached their end, and forcing them to continue can drain your energy. Be honest about what is happening and accept that something may need to end. Letting go is not failure; it creates room for something more fitting to enter your life. Allow yourself to grieve what you have lost, then find the courage to move forward.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Profound Transformation", "Ending and Rebirth", "Releasing the Past", "Renewal", "Necessary Endings"],
+          "reversed": ["Resisting an Ending", "Unable to Let Go", "Stagnation", "Fear of Change", "Slow Transition"],
+          "uprightExplanation": "Upright, Death represents deep and complete transformation: one cycle ends so another can begin. The white horse symbolizes a purifying force that carries away what is outdated or no longer serves you. This card asks you to accept the close of an important phase, whether it involves a relationship, work, a belief, or a way of living. It does not refer to literal death, but to symbolic ending and renewal. Death reminds you that something new can emerge when the old has ended. This transformation may be painful, but it can also be necessary, and resisting it may prolong the pain. Death teaches you to release attachment and trust the process of change. Beyond an ending, renewal remains possible.",
+          "reversedExplanation": "Reversed, Death suggests strong resistance to a necessary ending or transition. You may be holding on to something that has run its course because you fear loss or the unknown. The ending may be delayed, but resisting it can create further pain and stagnation. You may feel suspended between past and future, unable to release one or welcome the other. This card can also point to such a strong fear of change that you will do almost anything to preserve the status quo. The reversed Death reminds you that some things have reached their end, and forcing them to continue can drain your life energy. Letting go is not failure; it can be an act of wisdom. When you allow an ending to happen, renewal becomes possible."
+        },
+        "energyFlow": {
+          "direction": "Clearing and release",
+          "type": "Transformation and rebirth",
+          "description": "Death's energy clears and releases, like autumn leaves making room for spring growth. This is an irreversible kind of transformation: the old must end for something new to begin. Energy moves from an ending toward renewal."
+        },
+        "timing": {
+          "speed": "An unavoidable ending",
+          "description": "Death points to an ending whose timing is shaped by life itself. A period of transition may take one to three months, while full renewal may take longer. What is ready to end cannot always be hastened or delayed."
+        },
+        "advice": {
+          "upright": "Accept the ending instead of resisting it. Release people, situations, or habits that no longer fit your life. Trust the process of change, even if you cannot yet see what comes next. Give yourself room to grieve, then take a brave step forward.",
+          "reversed": "Be honest about what you are holding on to and why it is hard to release. Fear is natural, but it does not have to prevent necessary change. Some things must end; accepting that sooner can help you begin a new chapter sooner."
+        },
+        "chakra": {
+          "primary": "Root Chakra and whole-system clearing",
+          "issue": "Fear of loss may unsettle your sense of security, or your overall energy may feel in need of deep clearing.",
+          "healingNote": "Death's transformation can affect the whole energy system, especially the Root Chakra, associated with survival and security. If it is difficult to accept an ending or transition, rebuilding a sense of safety and trust may help. Obsidian and smoky quartz can be included in personal practices for reflection and release. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that this ending may be a necessary blessing. What you have been holding on to has fulfilled its purpose, and it may be time to let go. Death is not the end, but a doorway to transformation. As you release what is complete, new life can begin. Trust the process; renewal is waiting on the other side.",
+          "reversed": "Your soul is reminding you that you cannot remain between two worlds forever. What has reached its end must be allowed to end; resisting it can deepen the pain. Letting go does not mean losing everything; it can make room for what truly matters. Stop fighting life's natural movement and allow change to take place. Renewal is waiting on the other side."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "14-temperance",
+    "locale": "en",
+    "name": "Temperance",
+    "name_secondary": "節制",
+    "preview_payload": {
+      "keywords": ["Balance", "Adjustment", "Patience", "Harmony", "Moderation"],
+      "arcana": "major",
+      "number": 14
+    },
+    "gated_payload": {
+      "uprightMeaning": "Temperance represents balance, harmony, and the wisdom of moderation. The image of an angel pouring water between two cups symbolizes energy moving and blending. When Temperance appears, it reminds you to seek balance and harmony in different areas of life. This may mean bringing opposing elements together, balancing work and personal life, or making room for both reason and emotion. Temperance encourages patience and self-restraint, and cautions against extremes and excess. This is a time for healing, adaptation, and integration, calling for gentle, gradual progress. Temperance also represents spiritual alchemy: different elements becoming a harmonious whole. It reminds you that moderation has wisdom and that enough can be enough. With patience and adjustment, you can cultivate inner peace and greater harmony around you.",
+      "reversedMeaning": "The reversed Temperance card suggests imbalance, excess, or a lack of moderation. You may be putting too much energy into one area while neglecting other important parts of life. This card can also point to impatience and a desire for quick results that leads you to skip necessary steps. You may feel disharmony within yourself or in your surroundings, unable to bring opposing elements together. The reversed Temperance asks you to find your balance again. Review your life and notice where there may be too much or too little. Practice moderation and avoid swinging to extremes. This card may also caution against overindulgence in a habit or behavior that calls for greater self-control. Take time to adjust gently. Remember that balance is not a final destination, but an ongoing process.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Harmonious Balance", "Moderation", "Integration", "Patient Progress", "Alchemy"],
+          "reversed": ["Imbalance and Excess", "Lack of Moderation", "Extremes", "Impatience", "Difficulty Integrating"],
+          "uprightExplanation": "Upright, Temperance represents the art of integration and balance, like alchemy. An angel pours water between two cups, one associated with active energy and the other with receptive energy, symbolizing opposing elements blending in harmony. This card teaches the wisdom of moderation: avoid extremes and find a point of balance among different forces. Temperance is not suppression, but harmonizing what is present. This is a time for healing and integration, as seemingly conflicting parts of life are brought into a more coherent whole. Temperance asks you to be patient and make gradual progress. Real strength is not found in extremes, but in balance. When you find your center, you can work with change more skillfully.",
+          "reversedExplanation": "Reversed, Temperance suggests imbalance and excess. You may be investing too much in one area and neglecting other important needs, or swinging sharply between extremes. The energy of integration is blocked, making it hard for opposing elements to coexist peacefully. You may be impatient for results and skip steps that matter. This card can also point to overindulgence in a habit or behavior and difficulty exercising self-control. The reversed Temperance reminds you that imbalance can cause distress. Look honestly at where there is too much and where there is not enough. Healing takes time and patience; it cannot be forced to happen all at once. Return to your center and find balance again."
+        },
+        "energyFlow": {
+          "direction": "Two-way flow and integration",
+          "type": "Harmonizing and balancing",
+          "description": "Temperance's energy flows in both directions, building a bridge between opposing forces. It is gentle, gradual, and continually adjusting, seeking dynamic balance rather than rigid stillness. Energy transforms through integration."
+        },
+        "timing": {
+          "speed": "Gradual and unhurried",
+          "description": "Temperance represents a gradual process that calls for time and patience. Genuine integration and balance cannot be rushed and may take two to four months of ongoing adjustment. Take your time; steady work matters."
+        },
+        "advice": {
+          "upright": "Seek the middle path and avoid extremes. Find balance between work and personal life, reason and emotion, and giving and receiving. Be patient and make changes gently. Integrate opposing parts instead of forcing yourself to choose only one side.",
+          "reversed": "Look at where your life may be out of balance. What is receiving too much attention, and what is being neglected? Practice moderation and self-control. Do not rush results; give yourself time to adjust gradually. Return to your center and rebuild harmony."
+        },
+        "chakra": {
+          "primary": "Heart Chakra",
+          "issue": "Heart Chakra imbalance may make it difficult to integrate opposing energies or may pull you too strongly toward one extreme.",
+          "healingNote": "Temperance is closely connected with the Heart Chakra's role in balance and integration, bridging the upper and lower energy centers. If you feel out of balance or unable to reconcile conflicting needs, this center may benefit from care. Rose quartz and green aventurine can be included in personal reflection practices. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that the art of life is balance, not perfection. You are learning an alchemy that turns opposites into harmony. Be patient; the middle path can be a powerful one. You do not have to choose one side when you can integrate both. In balance, you may discover a truer sense of yourself.",
+          "reversed": "Your soul is reminding you that you may have lost your center. Excess and deprivation are both forms of imbalance. Pause and look honestly at your life; you cannot keep swinging between extremes. Healing comes through gentle adjustments rather than drastic changes. Return to your center and begin again from there."
+        }
+      }
+    }
+  },
+  {
+    "deck_id": "tarot",
+    "card_key": "15-devil",
+    "locale": "en",
+    "name": "The Devil",
+    "name_secondary": "惡魔",
+    "preview_payload": {
+      "keywords": ["Bondage", "Addiction", "Materialism", "Dependency", "Limitations"],
+      "arcana": "major",
+      "number": 15
+    },
+    "gated_payload": {
+      "uprightMeaning": "The Devil represents bondage, addiction, and the pull of material desire. The figures on the card are chained, but the chains are loose, suggesting that some constraints are self-imposed and may be possible to loosen. When this card appears, you may feel trapped by a habit, belief, or relationship. This could involve substance use, a harmful relationship, compulsive behavior, or a limiting pattern of thought. The Devil also represents the shadow self and suppressed desires, asking you to face deep fears and parts of yourself you have kept hidden. This card is not here to judge you; it is meant to bring awareness to what may be controlling you. Once you can recognize a bond, you can begin to consider your choices and seek support to loosen it. The Devil reminds you that change and greater freedom are possible.",
+      "reversedMeaning": "The reversed Devil is often an encouraging sign of beginning to break free from constraints, move toward release, and see more clearly. You may be working to change an addictive pattern, leave a harmful relationship, or challenge a limiting belief. This card suggests that you are starting to see through an illusion. However, the reversed Devil can also point to denying that a problem exists or underestimating the hold a pattern has on you. You may tell yourself everything is fine while remaining caught in an unhealthy cycle. The reversed Devil reminds you that release is a process requiring courage and honesty. Do not be afraid to face your shadow; accepting and integrating it can help you move toward freedom. This can be a powerful time of change and an opportunity to take greater ownership of your life. If addiction or safety is involved, professional and trusted support can be an important part of that process.",
+      "detailedInterpretation": {
+        "coreKeywords": {
+          "upright": ["Self-Imposed Bondage", "Addiction and Dependency", "Material Temptation", "Shadow Self", "False Security"],
+          "reversed": ["Breaking Free", "Awakening and Release", "Changing Addictive Patterns", "Facing the Shadow", "Breaking Limitations"],
+          "uprightExplanation": "Upright, the Devil reveals bonds and limitations that may have been created or reinforced by your own choices. The figures are held by loose chains, suggesting that a way out may exist even if it is not yet easy to see. This card asks you to notice what is controlling you: an addictive pattern, a harmful relationship, material desire, a limiting belief, or an excessive need for security. The Devil represents the shadow parts of yourself—the desires and fears you may not want to admit. It is not a judgment, but an invitation to become aware. Recognizing what binds you is the first step toward choosing what to do about it. The Devil reminds you that a prison can be built from your own beliefs, and that the possibility of freedom begins with seeing the key you already hold.",
+          "reversedExplanation": "Reversed, the Devil often signals that you are beginning to break free and see clearly what has been controlling you. You may be loosening old chains, changing an addictive pattern, leaving a harmful relationship, or challenging limiting beliefs. Yet the reversed Devil can also indicate continued denial or the belief that you are free when the same pattern has simply taken another form. Genuine release takes courage and honesty about your vulnerabilities. The more clearly you can see the bond, the more consciously you can choose how to respond."
+        },
+        "energyFlow": {
+          "direction": "Heavy and downward",
+          "type": "Bondage and limitation",
+          "description": "The Devil's energy feels dense and heavy, as though pulled downward by gravity. It can feel sticky and difficult to escape, leaving you trapped or powerless. Energy is confined to material concerns and struggles to rise."
+        },
+        "timing": {
+          "speed": "Slow and stuck",
+          "description": "The Devil represents feeling trapped, where time itself may seem distorted. Breaking a pattern calls for awareness and sustained effort and may take three to six months or longer. Change will not happen automatically; it asks you to take active steps to interrupt the cycle."
+        },
+        "advice": {
+          "upright": "Be honest about what is binding you. Stop telling yourself, “I can quit whenever I want,” without examining the pattern. Face your shadow, acknowledge your vulnerabilities and desires, and remember that a chain can sometimes be loosened. Ask yourself why you are choosing to stay. If addiction, abuse, or safety is involved, reach out to qualified and trusted support rather than facing it alone.",
+          "reversed": "If you are working to break free, keep going and seek support when you need it. If you are denying a problem, this is a time to face it honestly. Breaking an old pattern takes courage and persistence. You do not have to do it alone; acknowledging what is happening is a meaningful first step."
+        },
+        "chakra": {
+          "primary": "Root Chakra and Sacral Chakra",
+          "issue": "Excessive attachment to material security (Root Chakra), or feeling controlled by desire and compulsive patterns (Sacral Chakra).",
+          "healingNote": "The Devil relates to imbalance in the lower energy centers, especially the Root Chakra, associated with fear and security, and the Sacral Chakra, associated with desire and pleasure. If you feel trapped or unable to change a pattern, grounding and reflective practices may help you explore what is happening. Obsidian and smoky quartz can be included in personal practices for reflection and release. For chakra-related concerns, you may seek crystal-healing guidance from Teacher Wade."
+        },
+        "soulMessage": {
+          "upright": "Your soul wants you to know that you may be freer than you think. The chains that bind you may be loose, and a choice may be available—but first you have to acknowledge the chains are there. Do not be afraid to see your shadow; it is a part of you that needs care and acceptance. You still have the power to choose your next step.",
+          "reversed": "Your soul is celebrating your awakening: you are working to break free and reclaim your choices. This path may not be easy, but you have begun. Do not let old comforts pull you back into the same pattern. True freedom lies ahead. Or perhaps your soul is reminding you to stop denying the problem: you may not be fully free yet, but caught in a different form of the same cage. Be honest with yourself."
+        }
+      }
+    }
   }
 ]
