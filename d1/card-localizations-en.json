@@ -4657,5 +4657,80 @@
         "suitableQuestions": "This card may resonate when you feel anxious, want to control an outcome, or are unsure about your direction. Ask: “What do I know about this choice?” “What is within my control?” “What would help me prepare?” “Can I take one step without knowing the whole route?” “What values do I want to follow?” “If I trusted myself to adapt, what would I do?” Use these questions to support thoughtful action, not to demand certainty about a divine plan."
       }
     }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "16",
+    "locale": "en",
+    "name": "Warrior Woman",
+    "name_secondary": "戰士女子",
+    "preview_payload": {
+      "titleEn": "Warrior Woman",
+      "suit": "Inquiry Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Living from the heart can take courage, especially when fear makes you hesitate. Fear may appear at an important threshold, but it does not automatically mean you should stop or proceed. This card invites you to explore what matters deeply and what a brave, safe next step might be. Courage can mean moving forward, asking for help, or choosing not to take a risk that is not right for you.",
+      "actionGuidance": null,
+      "inquiryPrompt": "Have I answered my deepest calling?",
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card embodies a warrior spirit—not violence or aggression, but a willingness to face fear and live more honestly. Following what matters to you can take courage when it differs from social expectations, other people's opinions, or your comfort zone. Fear often appears before an important decision, but it is not proof that the choice is right or wrong. Explore what you feel called to do and weigh the risks, needs, and support involved. Courage can include moving forward carefully, changing course, or waiting until you are safer.",
+        "higherSelfMessage": "You may have protected yourself by waiting, staying cautious, or choosing what feels familiar. Those strategies can be useful, and you can also ask whether a meaningful desire deserves some attention. A dream that excites and frightens you may matter, but fear alone does not establish that it is your destiny. Your commitment to something important can help you act despite uncertainty. Let your courage be guided by care and realistic preparation, not by pressure to prove yourself.",
+        "spiritualGuidance": "Name a desire or action you have been postponing, then ask what makes it important and what makes it frightening. You might ask, “What would I explore if I felt a little safer?” rather than “What would I do with unlimited courage?” Take a small, considered step. Each time you act in line with your values, you practice courage. Seek support from trusted people; brave work does not need to be solitary. Ultimately, you choose whether and when to take the next step.",
+        "energyQualities": "This card evokes courage and determination, like a warm flame in the heart. It may soften hesitation and help you act on something you have delayed. The energy is protective rather than aggressive: it can guard a dream, a boundary, or your authentic self. Let it strengthen your resolve without overriding caution. Your inner warrior can include rest, discernment, and asking for support.",
+        "suitableQuestions": "This card may resonate when you face a decision or action that takes courage. Ask: “What do I deeply want?” “What am I afraid of?” “What could this fear be protecting?” “What is one safe step I can take?” “What support would help?” “Am I choosing this because it matters to me, or to prove something?” Use the answers to act thoughtfully, not to force yourself into a risk."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "17",
+    "locale": "en",
+    "name": "Break the Chain",
+    "name_secondary": "打破鎖鏈",
+    "preview_payload": {
+      "titleEn": "Break the Chain",
+      "suit": "Action Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "You may be noticing family patterns that you do not want to continue. These could involve beliefs, ways of relating, or coping habits learned across generations. This card invites you to understand what has shaped you and choose which patterns you want to change. You do not have to assume that every struggle is inherited trauma, or that you chose your family for a spiritual purpose. Change can begin with support, awareness, and a different choice.",
+      "actionGuidance": "Which family patterns are you ready to question or change? Consider seeking support from trusted people or a qualified therapist.",
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card points to family patterns and experiences that may influence you. Some fears, beliefs, or behaviors can be learned in a family or community, while others have different origins. You may notice repeated dynamics around money, trust, relationships, achievement, or grief. You are not destined to repeat them. With support and reflection, you can decide which patterns to keep and which to change. This may benefit you and the people around you, but you are not responsible for healing an entire family line.",
+        "higherSelfMessage": "You have the capacity to make different choices from the ones you observed or inherited. If you recognize a recurring pattern, that awareness can help you decide what support might be useful. You do not have to carry a spiritual burden on behalf of your ancestors or believe that painful experiences were chosen before birth. This work can be difficult; you deserve support from a therapist or counselor if it brings up trauma. Asking for help is a responsible step, not a sign that you lack strength.",
+        "spiritualGuidance": "Notice family stories and patterns, if it feels safe and useful. You might ask relatives about their experiences, but you do not need to uncover secrets or confront anyone. Reflect on what repeats in your own life and what you want to do differently. A therapist, counselor, or culturally appropriate support person can help with deep or painful patterns. Journaling or a private ritual may mark your intention to choose another path. You can respect your family while also setting boundaries and making choices that support your well-being.",
+        "energyQualities": "This card evokes release and change, like loosening a chain that has felt tight for a long time. It can bring patience to the work of understanding patterns and strength to choose differently. This is not a promise that one realization will heal generational trauma. It is an invitation to explore, seek support, and retain connections that feel loving while changing those that cause harm. You can preserve care and history without repeating every pattern.",
+        "suitableQuestions": "This card may resonate when you notice a family pattern repeating or feel constrained by expectations. Ask: “What have I learned about relationships, money, or success?” “Which patterns do I want to continue?” “What do I want to change?” “What is mine to address, and what is not mine to carry?” “What support would help?” “How can I honor my family while living authentically?” Let change be thoughtful and supported."
+      }
+    }
+  },
+  {
+    "deck_id": "work_your_light",
+    "card_key": "18",
+    "locale": "en",
+    "name": "Dance with Life",
+    "name_secondary": "與生命共舞",
+    "preview_payload": {
+      "titleEn": "Dance with Life",
+      "suit": "Action Card"
+    },
+    "gated_payload": {
+      "coreMeaning": "Life changes, and resisting every change can leave you feeling stuck. This card invites flexibility and a renewed connection with your body. Music and movement may help some people shift their mood or feel more present, but they are not a guaranteed treatment. Dancing does not need to look a certain way; it can simply be a way to move, play, and express yourself. Try a form of movement that feels comfortable and accessible.",
+      "actionGuidance": "Choose a small, enjoyable activity to shift your energy, such as listening to music, stretching, or taking a walk.",
+      "inquiryPrompt": null,
+      "activationPrayer": null,
+      "transmissionPrayer": null,
+      "deepInterpretation": {
+        "coreMeaning": "This card invites you to be more flexible as life changes. Seasons shift, relationships evolve, and you continue to grow. Trying to keep everything still or control every result can sometimes leave you feeling rigid or stuck. Music and movement are familiar ways people express themselves and connect with their bodies. This is not about changing a measurable vibration or solving every problem through dancing; it is an invitation to try a little movement, play, or spontaneity if it feels right.",
+        "higherSelfMessage": "You may spend a lot of time thinking, analyzing, worrying, or planning. Your body also offers information about comfort, fatigue, and emotion, though it does not hold a perfect answer to every question. Gentle movement or listening to music may help you reconnect with the present. Choose what feels accessible; you do not need to push through pain or distress. Creativity and play can be part of a full life, alongside serious responsibilities and practical care.",
+        "spiritualGuidance": "Try a small, comfortable movement practice. Put on music you enjoy and move privately if that feels easier; there is no right way to dance. You might stretch, sway, walk, or simply breathe and notice your body. Let the movement reflect how you feel rather than forcing yourself to release an emotion. If dancing feels too difficult, choose another gentle activity or rest. These practices can offer enjoyment and expression, but they do not replace medical or mental-health care when you need it.",
+        "energyQualities": "This card evokes movement, vitality, and rhythm, like a stream beginning to flow again. It may encourage you to loosen rigidity and reconnect with joy. Movement can feel playful and spontaneous, but it should remain safe and appropriate for your body. Let music or gentle activity invite presence rather than demand a transformation. There is room to move, pause, and choose again.",
+        "suitableQuestions": "This card may resonate when you feel stuck, tense, or disconnected from your body. Ask: “What small movement might feel good?” “What could help me feel more present?” “Am I spending too much time in my thoughts?” “What kind of play or spontaneity do I miss?” “How can I adapt to a change without forcing myself?” Choose an activity that feels safe and enjoyable, and let that be enough."
+      }
+    }
   }
 ]
