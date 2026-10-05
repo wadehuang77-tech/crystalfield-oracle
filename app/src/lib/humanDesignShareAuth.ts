@@ -7,7 +7,6 @@ const CAPABILITIES_KEY = 'cf_hd_share_capabilities';
 const REVOCATIONS_KEY = 'cf_hd_share_revocations';
 
 export function resolveHumanDesignAccess(
-  current: HumanDesignAccess,
   groups: readonly string[],
 ): HumanDesignAccess {
   const hasCore = groups.includes('core');
@@ -15,7 +14,7 @@ export function resolveHumanDesignAccess(
   if (hasCore && hasFull) return 'bundle';
   if (hasFull) return 'full';
   if (hasCore) return 'basic';
-  return current;
+  return 'locked';
 }
 
 function readArray<T>(key: string): T[] {

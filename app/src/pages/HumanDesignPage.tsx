@@ -399,7 +399,7 @@ export default function HumanDesignPage() {
     return () => { cancelled = true; };
   }, [chart, chartId, access, user]);
 
-  const effectiveAccess = resolveHumanDesignAccess(access, shareAccess?.groups ?? []);
+  const effectiveAccess = resolveHumanDesignAccess(shareAccess?.groups ?? []);
   const isFullUnlocked = effectiveAccess === 'full' || effectiveAccess === 'bundle';
 
   return (

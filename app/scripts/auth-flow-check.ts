@@ -27,11 +27,18 @@ assert.equal(googleButtonLocale('/login'), 'zh_TW');
 assert.equal(getLanguageFromPath('/en/human-design/'), 'en');
 assert.equal(getCheckoutLocaleFromPath('/en/human-design/'), 'en');
 assert.equal(getCheckoutLocaleFromPath('/human-design/'), 'zh-TW');
-assert.equal(resolveHumanDesignAccess('locked', ['identity', 'full', 'summary']), 'full');
-assert.equal(resolveHumanDesignAccess('locked', ['identity', 'core', 'full', 'summary']), 'bundle');
-assert.equal(resolveHumanDesignAccess('locked', ['identity', 'core', 'summary']), 'basic');
-assert.equal(resolveHumanDesignAccess('locked', ['identity', 'summary']), 'locked');
-assert.equal(resolveHumanDesignAccess('full', []), 'full', 'A verified checkout return must not be downgraded while access refreshes');
+const humanDesignAccessCases = [
+  { groups: ['identity', 'core', 'summary'], access: 'basic' },
+  { groups: ['identity', 'full', 'summary'], access: 'full' },
+  { groups: ['identity', 'core', 'full', 'summary'], access: 'bundle' },
+  { groups: ['identity', 'summary'], access: 'locked' },
+  { groups: [], access: 'locked' },
+] as const;
+for (const { groups, access } of humanDesignAccessCases) {
+  for (const locale of ['zh-Hant', 'en'] as const) {
+    assert.equal(resolveHumanDesignAccess(groups), access, `${locale} uses server-confirmed groups`);
+  }
+}
 
 const originalEnglishUrl = '/en/oracle?spread=celtic#reading';
 const loginUrl = new URL(authUrlFor('/en/oracle', 'login', originalEnglishUrl), 'https://crystalfield101.com');
@@ -105,7 +112,9 @@ assert.match(humanDesignReport, /authority: isEnglish \? authorityNames\[chart\.
 assert.match(humanDesignReport, /language=\{language\}/);
 assert.match(humanDesignReport, /isEnglish \? 'Download PDF' : '下載報告 PDF'/);
 const apiSource = readFileSync(new URL('../src/lib/api.ts', import.meta.url), 'utf8');
-assert.match(humanDesignPage, /resolveHumanDesignAccess\(access, shareAccess\?\.groups \?\? \[\]\)/);
+assert.match(humanDesignPage, /resolveHumanDesignAccess\(shareAccess\?\.groups \?\? \[\]\)/);
+assert.doesNotMatch(humanDesignPage, /resolveHumanDesignAccess\(access,/);
+assert.doesNotMatch(humanDesignPage, /const effectiveAccess = access/);
 assert.match(humanDesignPage, /isFullUnlocked = effectiveAccess === 'full' \|\| effectiveAccess === 'bundle'/);
 assert.match(humanDesignPage, /access=\{effectiveAccess\}/);
 assert.match(apiSource, /locale: getCheckoutLocaleFromPath\(window\.location\.pathname\)/);
@@ -113,6 +122,15 @@ assert.match(apiSource, /body: \{ \.\.\.auth, language \}/);
 assert.match(apiSource, /timeoutMs: 90000/);
 assert.match(humanDesignPage, /'human_design_full'/);
 assert.match(humanDesignPage, /'human_design_bundle'/);
+assert.doesNotMatch(humanDesignPage, /human_design_(?:full|bundle)-en/);
+assert.match(apiSource, /access: \(body: \{ chart_id: string; proofs: HumanDesignShareProof\[\]; capabilities: string\[\] \}\)/);
+assert.match(humanDesignPage, /humanDesignShareApi\.access\(\{ chart_id: chartId, proofs, capabilities \}\)/);
+assert.match(humanDesignPage, /setShareAccess\(nextAccess\)/);
+const humanDesignShareWorker = readFileSync(new URL('../../worker/src/humanDesignShareResults.ts', import.meta.url), 'utf8');
+assert.match(humanDesignShareWorker, /human_design_full: \['identity', 'full', 'summary'\]/);
+assert.match(humanDesignShareWorker, /human_design_bundle: \['identity', 'core', 'full', 'summary'\]/);
+const workerRoutes = readFileSync(new URL('../../worker/src/index.ts', import.meta.url), 'utf8');
+assert.match(workerRoutes, /hasHumanDesignPaidGroup\(req, env, id, accessBody, 'full'\)/);
 
 assert.equal(localizeAuthError('電子郵件或密碼錯誤', 'en', 'Sign-in failed.'), 'Incorrect email or password.');
 assert.equal(localizeAuthError('此電子郵件已經註冊', 'en', 'Registration failed.'), 'This email is already registered.');
