@@ -1,8 +1,22 @@
 import type { HumanDesignShareProof } from './api';
 
+export type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full' | 'bundle';
+
 const PROOFS_KEY = 'cf_hd_share_proofs';
 const CAPABILITIES_KEY = 'cf_hd_share_capabilities';
 const REVOCATIONS_KEY = 'cf_hd_share_revocations';
+
+export function resolveHumanDesignAccess(
+  current: HumanDesignAccess,
+  groups: readonly string[],
+): HumanDesignAccess {
+  const hasCore = groups.includes('core');
+  const hasFull = groups.includes('full');
+  if (hasCore && hasFull) return 'bundle';
+  if (hasFull) return 'full';
+  if (hasCore) return 'basic';
+  return current;
+}
 
 function readArray<T>(key: string): T[] {
   try { const parsed = JSON.parse(localStorage.getItem(key) ?? '[]'); return Array.isArray(parsed) ? parsed : []; }

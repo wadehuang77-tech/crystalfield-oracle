@@ -9,6 +9,8 @@ import {
   isSafeAuthRedirect,
   localizeAuthError,
 } from '../src/lib/authLocale';
+import { resolveHumanDesignAccess } from '../src/lib/humanDesignShareAuth';
+import { getCheckoutLocaleFromPath, getLanguageFromPath } from '../src/lib/i18n';
 
 assert.equal(authPathFor('/oracle', 'login'), '/login');
 assert.equal(authPathFor('/en/oracle', 'login'), '/en/login');
@@ -22,6 +24,14 @@ assert.equal(authModeForPath('/auth', 'signup'), 'signup');
 assert.equal(googleButtonLocale('/en/login'), 'en');
 assert.equal(googleButtonLocale('/en/oracle'), 'en');
 assert.equal(googleButtonLocale('/login'), 'zh_TW');
+assert.equal(getLanguageFromPath('/en/human-design/'), 'en');
+assert.equal(getCheckoutLocaleFromPath('/en/human-design/'), 'en');
+assert.equal(getCheckoutLocaleFromPath('/human-design/'), 'zh-TW');
+assert.equal(resolveHumanDesignAccess('locked', ['identity', 'full', 'summary']), 'full');
+assert.equal(resolveHumanDesignAccess('locked', ['identity', 'core', 'full', 'summary']), 'bundle');
+assert.equal(resolveHumanDesignAccess('locked', ['identity', 'core', 'summary']), 'basic');
+assert.equal(resolveHumanDesignAccess('locked', ['identity', 'summary']), 'locked');
+assert.equal(resolveHumanDesignAccess('full', []), 'full', 'A verified checkout return must not be downgraded while access refreshes');
 
 const originalEnglishUrl = '/en/oracle?spread=celtic#reading';
 const loginUrl = new URL(authUrlFor('/en/oracle', 'login', originalEnglishUrl), 'https://crystalfield101.com');
@@ -95,6 +105,10 @@ assert.match(humanDesignReport, /authority: isEnglish \? authorityNames\[chart\.
 assert.match(humanDesignReport, /language=\{language\}/);
 assert.match(humanDesignReport, /isEnglish \? 'Download PDF' : '下載報告 PDF'/);
 const apiSource = readFileSync(new URL('../src/lib/api.ts', import.meta.url), 'utf8');
+assert.match(humanDesignPage, /resolveHumanDesignAccess\(access, shareAccess\?\.groups \?\? \[\]\)/);
+assert.match(humanDesignPage, /isFullUnlocked = effectiveAccess === 'full' \|\| effectiveAccess === 'bundle'/);
+assert.match(humanDesignPage, /access=\{effectiveAccess\}/);
+assert.match(apiSource, /locale: getCheckoutLocaleFromPath\(window\.location\.pathname\)/);
 assert.match(apiSource, /body: \{ \.\.\.auth, language \}/);
 assert.match(apiSource, /timeoutMs: 90000/);
 assert.match(humanDesignPage, /'human_design_full'/);

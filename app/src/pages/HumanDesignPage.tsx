@@ -16,11 +16,12 @@ import {
   getHumanDesignShareCapabilities,
   getHumanDesignShareProofs,
   mergeHumanDesignShareCapabilities,
+  resolveHumanDesignAccess,
   saveHumanDesignShareProof,
+  type HumanDesignAccess,
 } from '../lib/humanDesignShareAuth';
 
 type Page = 'landing' | 'hero' | 'loading' | 'report';
-type HumanDesignAccess = 'locked' | 'email' | 'basic' | 'full' | 'bundle';
 
 const STATE_KEY = 'cf_human_design_state_v1';
 const SESSION_STATE_KEY = 'cf_human_design_state_session_v1';
@@ -376,8 +377,8 @@ export default function HumanDesignPage() {
   }, [page]);
 
   useEffect(() => {
+    setShareAccess(null);
     if (!chartId || !chart) {
-      setShareAccess(null);
       return;
     }
     let cancelled = false;
@@ -398,7 +399,8 @@ export default function HumanDesignPage() {
     return () => { cancelled = true; };
   }, [chart, chartId, access, user]);
 
-  const isFullUnlocked = access === 'full' || access === 'bundle';
+  const effectiveAccess = resolveHumanDesignAccess(access, shareAccess?.groups ?? []);
+  const isFullUnlocked = effectiveAccess === 'full' || effectiveAccess === 'bundle';
 
   return (
     <div className="relative min-h-screen bg-[#0A0E17] text-white overflow-x-hidden">
@@ -434,7 +436,7 @@ export default function HumanDesignPage() {
               language={language}
               chart={chart}
               chartId={chartId}
-              access={access}
+              access={effectiveAccess}
               checkoutLoading={checkoutLoading}
               isFullUnlocked={isFullUnlocked}
               onStartBasicCheckout={startBasicCheckout}
