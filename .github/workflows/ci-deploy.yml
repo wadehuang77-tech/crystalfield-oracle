@@ -114,7 +114,7 @@ jobs:
   deploy-pages:
     name: Deploy Pages
     needs: [frontend, verify-worker]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.CLOUDFLARE_PAGES_PROJECT_NAME != ''
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -138,25 +138,60 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
 
-  smoke:
-    name: Smoke test production
+  deployment-status:
+    name: Verify production deployment status
     needs: [deploy-worker, verify-worker, deploy-pages]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: worker
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: app/package-lock.json
+          cache-dependency-path: worker/package-lock.json
       - run: npm ci
-      - name: Run smoke tests
-        run: npm run smoke
+      - name: Verify active Worker deployment through Cloudflare API
+        run: |
+          set -euo pipefail
+          npx wrangler deployments status --name bolt-tarot-api --json > "$RUNNER_TEMP/worker-deployment.json"
+          node -e '
+            const fs = require("node:fs");
+            const deployment = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            const active = deployment.versions?.filter((version) => version.percentage > 0) ?? [];
+            const traffic = active.reduce((total, version) => total + version.percentage, 0);
+            if (!deployment.id || active.length === 0 || traffic !== 100) {
+              throw new Error("Worker deployment is not fully active");
+            }
+            console.log(`Verified active Worker deployment ${deployment.id} with ${traffic}% traffic.`);
+          ' "$RUNNER_TEMP/worker-deployment.json"
         env:
-          SMOKE_API_BASE: ${{ vars.SMOKE_API_BASE || vars.VITE_API_BASE || 'https://api.crystalfield101.com' }}
-          SMOKE_FRONTEND_URL: ${{ vars.SMOKE_FRONTEND_URL || 'https://crystalfield101.com' }}
-          SMOKE_ORIGIN: ${{ vars.SMOKE_ORIGIN || vars.SMOKE_FRONTEND_URL || 'https://crystalfield101.com' }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Verify Pages deployment through Cloudflare API
+        run: |
+          set -euo pipefail
+          npx wrangler pages deployment list --project-name "$CLOUDFLARE_PAGES_PROJECT_NAME" --environment production --json > "$RUNNER_TEMP/pages-deployments.json"
+          node -e '
+            const fs = require("node:fs");
+            const deployments = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            const expectedSha = process.env.GITHUB_SHA.slice(0, 7);
+            const deployment = deployments.find((item) =>
+              item.Environment === "Production"
+              && item.Branch === "main"
+              && item.Source === expectedSha
+              && item.Id
+              && item.Deployment
+              && !Number.isNaN(Date.parse(item.Status))
+            );
+            if (!deployment) {
+              throw new Error(`No successful production Pages deployment found for ${expectedSha}`);
+            }
+            console.log(`Verified Pages deployment ${deployment.Id} for ${expectedSha}: ${deployment.Deployment}`);
+          ' "$RUNNER_TEMP/pages-deployments.json"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}

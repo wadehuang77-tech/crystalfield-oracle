@@ -194,8 +194,10 @@ npm run build      # 建置
 npm run preview    # 預覽 dist
 npm run lint       # ESLint
 npm run typecheck  # TypeScript 型別檢查
-npm run smoke      # Smoke test（需設定環境變數）
+npm run smoke:production # 從一般外部環境執行唯讀 production HTTP smoke
 ```
+
+Production HTTP smoke 預設檢查正式網站的中英文路由、`/api/health`、七副牌及中英文女祭司資料。若需指定其他站點，可設定 `SMOKE_FRONTEND_URL` 與 `SMOKE_API_BASE`。不要從 GitHub-hosted runner 執行此公開 HTTP smoke；Cloudflare Bot Fight Mode 可能對 runner 發出 Managed Challenge。CI deployment gate 僅透過 Wrangler/Cloudflare control plane 確認 Worker active traffic、Pages deployment 狀態與 commit SHA，不會呼叫公開 API。
 
 **Worker（在 `worker/` 執行）**
 
@@ -263,7 +265,7 @@ npm run deploy
 
 | Workflow | 觸發 | 內容 |
 |----------|------|------|
-| `ci-deploy.yml` | PR / push `main` | 安裝、建置、typecheck；push main 時自動部署 Worker，可選 Cloudflare Pages，最後跑 smoke test |
+| `ci-deploy.yml` | PR / push `main` | PR 執行檢查；push main 依序部署 Worker、驗證 active deployment、部署 Pages，最後以 Cloudflare control plane 驗證部署狀態與 SHA |
 | `d1-migrations.yml` | 手動 | `DB` 輸入 `APPLY` 套用客戶資料庫 migration；`DB_CARDS` 輸入 `APPLY` 建立英文牌卡翻譯表並匯入翻譯 |
 
 #### GitHub Secrets
@@ -281,10 +283,7 @@ CLOUDFLARE_ACCOUNT_ID
 
 ```text
 VITE_API_BASE=https://api.crystalfield101.com
-SMOKE_API_BASE=https://api.crystalfield101.com
-SMOKE_FRONTEND_URL=https://crystalfield101.com
-SMOKE_ORIGIN=https://crystalfield101.com
-CLOUDFLARE_PAGES_PROJECT_NAME=   # 留空則僅自動部署 Worker
+CLOUDFLARE_PAGES_PROJECT_NAME=   # Cloudflare Pages project name，部署時必填
 ```
 
 #### Google 帳戶登入

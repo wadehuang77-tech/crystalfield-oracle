@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { Miniflare } from 'miniflare';
-import { getDeckPreview } from '../src/cards';
+import { getDeckPreview, loadFullCard } from '../src/cards';
 import type { Env } from '../src/utils';
 
 function splitSqlStatements(sql: string): string[] {
@@ -92,6 +92,22 @@ async function main() {
         assert.equal('gated' in card, false, 'public preview must not include full gated content');
       }
       totalCards += body.cards.length;
+
+      if (deckId === 'lightworker') {
+        const fullCard = await loadFullCard(env, deckId, String(body.cards[0].card_key), 'en');
+        assert.ok(fullCard, 'Lightworker full card should be available');
+        assert.equal(fullCard.content_locale, 'en');
+        assert.equal(fullCard.translation_available, true);
+        const gated = fullCard.gated as Record<string, unknown>;
+        for (const field of [
+          'cosmicMessage', 'currentSituation', 'deeperMeaning',
+          'actionGuidance', 'energyHealing', 'soulQuestion',
+        ]) {
+          const text = gated[field];
+          assert.equal(typeof text, 'string', `${field} should be a full interpretation string`);
+          assert.doesNotMatch(text as string, /[\u3400-\u9fff]/, `${field} must not fall back to Chinese`);
+        }
+      }
     }
 
     assert.equal(totalCards, 278, 'all 278 translated cards must have public English previews');

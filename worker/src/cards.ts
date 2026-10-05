@@ -359,7 +359,7 @@ export async function unlockSpread(req: Request, env: Env): Promise<Response> {
   return json(req, env, { spread_id: body.spread_id, cards });
 }
 
-async function loadFullCard(
+export async function loadFullCard(
   env: Env,
   deckId: string,
   cardKey: string,

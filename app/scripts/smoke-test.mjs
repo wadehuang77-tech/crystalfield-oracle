@@ -1,17 +1,10 @@
-const apiBase = (process.env.SMOKE_API_BASE || process.env.VITE_API_BASE || '').replace(/\/$/, '');
-const frontendUrl = (process.env.SMOKE_FRONTEND_URL || '').replace(/\/$/, '');
-const origin = process.env.SMOKE_ORIGIN || frontendUrl || 'https://crystalfield101.com';
+const apiBase = (process.env.SMOKE_API_BASE || 'https://api.crystalfield101.com').replace(/\/$/, '');
+const frontendUrl = (process.env.SMOKE_FRONTEND_URL || 'https://www.crystalfield101.com').replace(/\/$/, '');
 
 const checks = [];
 
-function requireEnv(name, value) {
-  if (!value) {
-    throw new Error(`${name} is required`);
-  }
-}
-
 async function checkJson(name, url, expectedStatus, validate) {
-  const res = await fetch(url, { headers: { Origin: origin } });
+  const res = await fetch(url);
   const body = await res.text();
   if (res.status !== expectedStatus) {
     throw new Error(`${name} expected HTTP ${expectedStatus}, got ${res.status}: ${body.slice(0, 240)}`);
@@ -26,50 +19,101 @@ async function checkJson(name, url, expectedStatus, validate) {
   checks.push(`${name}: ok`);
 }
 
-async function checkCorsPreflight() {
-  const res = await fetch(`${apiBase}/api/checkout/create-order`, {
-    method: 'OPTIONS',
-    headers: {
-      Origin: origin,
-      'Access-Control-Request-Method': 'POST',
-      'Access-Control-Request-Headers': 'Content-Type, Authorization',
-    },
-  });
+async function checkFrontendRoute(path) {
+  const res = await fetch(new URL(path, `${frontendUrl}/`));
   if (!res.ok) {
-    throw new Error(`CORS preflight expected 2xx, got ${res.status}`);
-  }
-  const allowOrigin = res.headers.get('access-control-allow-origin') || '';
-  if (allowOrigin !== origin && allowOrigin !== '*') {
-    throw new Error(`CORS preflight returned unexpected allow-origin: ${allowOrigin || '(empty)'}`);
-  }
-  checks.push('CORS preflight: ok');
-}
-
-async function checkFrontend() {
-  if (!frontendUrl) return;
-  const res = await fetch(frontendUrl);
-  if (!res.ok) {
-    throw new Error(`Frontend expected 2xx, got ${res.status}`);
+    throw new Error(`Frontend route ${path} expected 2xx, got ${res.status}`);
   }
   const html = await res.text();
   if (!html.includes('<div id="root"')) {
-    throw new Error('Frontend did not look like the Vite app shell');
+    throw new Error(`Frontend route ${path} did not look like the app shell`);
   }
-  checks.push('Frontend shell: ok');
+  checks.push(`Frontend ${path}: HTTP ${res.status}`);
 }
 
-requireEnv('SMOKE_API_BASE or VITE_API_BASE', apiBase);
+async function getJson(name, url) {
+  const res = await fetch(url);
+  const body = await res.text();
+  if (res.status !== 200) {
+    throw new Error(`${name} expected HTTP 200, got ${res.status}: ${body.slice(0, 240)}`);
+  }
+  try {
+    return JSON.parse(body);
+  } catch {
+    throw new Error(`${name} did not return JSON: ${body.slice(0, 240)}`);
+  }
+}
 
-await checkJson('Checkout catalog', `${apiBase}/api/checkout/catalog`, 200, (json) => {
-  if (!json.catalog || json.catalog.tarot_monthly_600?.amount !== 600) {
-    throw new Error('Checkout catalog payload is missing tarot_monthly_600 at NT$600');
-  }
-  const retiredTarotItems = ['tarot_three', 'tarot_celtic', 'tarot_pastlife', 'unicorns_three', 'dragons_three', 'osho_three', 'celtic_cross', 'cosmic_cross', 'egyptian_pastlife', 'three_card_5pack_30d', 'three_pastlife_3plus3_30d', 'deep_spread_5pack_30d', 'membership_monthly'];
-  if (retiredTarotItems.some((id) => json.catalog[id])) {
-    throw new Error('Checkout catalog still exposes a retired tarot payment item');
-  }
+const frontendRoutes = [
+  '/',
+  '/oracle',
+  '/numerology',
+  '/human-design',
+  '/vedic-astrology',
+  '/en/',
+  '/en/oracle',
+  '/en/numerology',
+  '/en/human-design',
+  '/en/vedic-astrology',
+];
+for (const route of frontendRoutes) {
+  await checkFrontendRoute(route);
+}
+
+await checkJson('Worker health', `${apiBase}/api/health`, 200, (json) => {
+  if (json.ok !== true) throw new Error('Health payload did not contain ok=true');
 });
-await checkCorsPreflight();
-await checkFrontend();
+
+const decksResponse = await getJson('Deck list', `${apiBase}/api/decks?language=en`);
+if (!Array.isArray(decksResponse.decks) || decksResponse.decks.length !== 7) {
+  throw new Error(`Expected 7 decks, got ${decksResponse.decks?.length ?? 'invalid response'}`);
+}
+checks.push('Deck list: 7 decks');
+
+function hasText(value) {
+  if (typeof value === 'string') return Boolean(value.trim());
+  if (value && typeof value === 'object') return Object.values(value).some(hasText);
+  return false;
+}
+
+async function checkEnglishCard(deckId, cardKey) {
+  const result = await getJson(
+    `English ${deckId} preview`,
+    `${apiBase}/api/decks/${encodeURIComponent(deckId)}/preview?language=en`,
+  );
+  const cards = Array.isArray(result.cards) ? result.cards : [];
+  const card = cardKey ? cards.find((entry) => entry.card_key === cardKey) : cards[0];
+  if (!card || card.content_locale !== 'en' || card.translation_available !== true
+    || !card.name || !hasText(card.preview)) {
+    throw new Error(`English ${deckId} card is missing a localized name or preview`);
+  }
+  if (deckId === 'tarot' && !hasText(card.upright_excerpt)) {
+    throw new Error('English High Priestess is missing an interpretation excerpt');
+  }
+  checks.push(`English ${deckId}: ${card.name}, preview and interpretation excerpt`);
+  return card;
+}
+
+const highPriestessEnglish = await checkEnglishCard('tarot', '2-high-priestess');
+if (highPriestessEnglish.name !== 'The High Priestess') {
+  throw new Error(`Unexpected English High Priestess name: ${highPriestessEnglish.name}`);
+}
+const highPriestessChineseResponse = await getJson(
+  'Chinese High Priestess preview',
+  `${apiBase}/api/decks/tarot/preview?language=zh-Hant`,
+);
+const highPriestessChinese = highPriestessChineseResponse.cards?.find(
+  (card) => card.card_key === '2-high-priestess',
+);
+if (!highPriestessChinese || highPriestessChinese.name !== '女祭司'
+  || highPriestessChinese.content_locale !== 'zh-Hant' || !hasText(highPriestessChinese.preview)) {
+  throw new Error('Chinese High Priestess is missing its Traditional Chinese name or preview');
+}
+checks.push('Chinese High Priestess: 女祭司, preview');
+
+const englishDeckIds = ['tarot', 'osho', 'lightworker', 'unicorns', 'egyptian_gods', 'work_your_light', 'dragons'];
+for (const deckId of englishDeckIds) {
+  if (deckId !== 'tarot') await checkEnglishCard(deckId);
+}
 
 console.log(checks.join('\n'));

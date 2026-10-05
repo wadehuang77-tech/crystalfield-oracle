@@ -70,6 +70,7 @@ const CARD_LABELS_EN: Record<string, string> = {
   '可以問的問題': 'Questions to Explore', '能量重點': 'Energy Focus', '宇宙訊息': 'Cosmic Message',
   '現況解析': 'Current Situation', '深層含義': 'Deeper Meaning', '行動建議': 'Action Guidance',
   '能量療癒建議': 'Energy Care', '靈魂提問': 'Soul Question', '龍族訊息': 'Dragon Message',
+  '牌面訊息': 'Card Message',
   '能量頻率': 'Energy', '過去': 'Past', '現在': 'Present', '未來': 'Future',
   '整體解讀': 'Overall Reading', '整體解讀總結': 'Overall Summary', '前世因果解鎖陣': 'Past-Life Pattern Spread',
   '抽牌': 'Draw Cards', '抽 牌': 'Draw Cards', '重 新 抽 牌': 'Draw Again', '重選牌陣': 'Choose Another Spread',

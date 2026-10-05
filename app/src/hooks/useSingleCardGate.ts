@@ -5,7 +5,13 @@ import { trackCardDrawComplete } from '../lib/ga4';
 
 export type SingleGatePhase = 'idle' | 'loading' | 'unlocked' | 'login_gate' | 'membership_gate';
 
-interface UseSingleCardGateOptions { spreadId: string; cardKey: string | null; reversed?: boolean; enabled: boolean; }
+interface UseSingleCardGateOptions {
+  spreadId: string;
+  cardKey: string | null;
+  reversed?: boolean;
+  enabled: boolean;
+  language?: 'zh-Hant' | 'en';
+}
 interface UseSingleCardGateResult {
   phase: SingleGatePhase;
   unlockedCard: UnlockedCard | null;
@@ -15,7 +21,13 @@ interface UseSingleCardGateResult {
   setShowMembership: (value: boolean) => void;
 }
 
-export function useSingleCardGate({ spreadId, cardKey, reversed = false, enabled }: UseSingleCardGateOptions): UseSingleCardGateResult {
+export function useSingleCardGate({
+  spreadId,
+  cardKey,
+  reversed = false,
+  enabled,
+  language,
+}: UseSingleCardGateOptions): UseSingleCardGateResult {
   const { user } = useAuth();
   const [phase, setPhase] = useState<SingleGatePhase>('idle');
   const [unlockedCard, setUnlockedCard] = useState<UnlockedCard | null>(null);
@@ -32,7 +44,7 @@ export function useSingleCardGate({ spreadId, cardKey, reversed = false, enabled
 
   useEffect(() => {
     if (!enabled || !cardKey || phase === 'unlocked') return;
-    const key = `${spreadId}:${cardKey}:${reversed ? 1 : 0}:${user?.id ?? 'guest'}:${accessVersion}`;
+    const key = `${spreadId}:${cardKey}:${reversed ? 1 : 0}:${user?.id ?? 'guest'}:${accessVersion}:${language ?? 'path'}`;
     if (attemptRef.current === key) return;
     attemptRef.current = key;
     trackCardDrawComplete(spreadId, 1);
@@ -40,7 +52,7 @@ export function useSingleCardGate({ spreadId, cardKey, reversed = false, enabled
     if (!user) { setPhase('login_gate'); return; }
     setPhase('loading'); setError(null);
     const readingId = crypto.randomUUID();
-    void cardsApi.freeUnlockSingle(spreadId, cardKey, reversed, readingId).then((result) => {
+    void cardsApi.freeUnlockSingle(spreadId, cardKey, reversed, readingId, language).then((result) => {
       setUnlockedCard(result.card);
       setPhase('unlocked');
       setShowMembership(false);
@@ -51,7 +63,7 @@ export function useSingleCardGate({ spreadId, cardKey, reversed = false, enabled
       setPhase('membership_gate');
       setShowMembership(true);
     });
-  }, [enabled, cardKey, reversed, spreadId, user, accessVersion, phase]);
+  }, [enabled, cardKey, reversed, spreadId, user, accessVersion, phase, language]);
 
   const onEmailUnlocked = (_email: string, card?: UnlockedCard) => { if (card) setUnlockedCard(card); };
   return { phase, unlockedCard, error, onEmailUnlocked, showMembership, setShowMembership };

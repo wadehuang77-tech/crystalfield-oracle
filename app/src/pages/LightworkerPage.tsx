@@ -92,6 +92,7 @@ function LightworkerPage() {
     spreadId: 'lightworker_single',
     cardKey: drawnPreview?.card_key ?? null,
     enabled: !!(drawnPreview && hasDrawn && !unlocked),
+    language,
   });
 
   useEffect(() => {
@@ -273,7 +274,7 @@ function LightworkerPage() {
                 {!isUnlocked && (
                   <>
                     <div>
-                      <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-4">牌 面 訊 息</h3>
+                      <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-4">{localizeCardLabel('牌面訊息', language)}</h3>
                       {drawnPreview.preview_excerpt && (
                         <div className="relative bg-slate-900/40 rounded-xl border border-cyan-500/20 p-5">
                           <p className="text-cyan-100/90 leading-loose">{drawnPreview.preview_excerpt}</p>
@@ -281,7 +282,9 @@ function LightworkerPage() {
                         </div>
                       )}
                       <p className="mt-4 text-xs text-cyan-300/70 tracking-wide">
-                        前 30% 預覽 — 登入後享有 3 次免費占卜
+                        {language === 'en'
+                          ? 'First 30% preview — sign in for 3 free readings'
+                          : '前 30% 預覽 — 登入後享有 3 次免費占卜'}
                       </p>
                     </div>
                     {gate.phase === 'loading' && (
@@ -292,6 +295,7 @@ function LightworkerPage() {
                         onUnlocked={handleUnlocked}
                         readingType="lightworker_single"
                         theme="dark"
+                        language={language}
                         cardUnlock={{ spread_id: 'lightworker_single', card_key: drawnPreview.card_key }}
                       />
                     )}
@@ -309,14 +313,18 @@ function LightworkerPage() {
 
                 {isUnlocked && gated && (
                   <>
-                    <p className="text-center text-sm tracking-[0.3em] text-cyan-300">完 整 解 析</p>
+                    <p className="text-center text-sm tracking-[0.3em] text-cyan-300">
+                      {localizeCardLabel('完整解析已解鎖', language)}
+                    </p>
                     <Section title="宇宙訊息">{gated.cosmicMessage}</Section>
                     <Section title="現況解析">{gated.currentSituation}</Section>
                     <Section title="深層含義">{gated.deeperMeaning}</Section>
                     <Section title="行動建議">{gated.actionGuidance}</Section>
                     <Section title="能量療癒建議">{gated.energyHealing}</Section>
                     <div className="bg-slate-900/40 border-l-4 border-cyan-400 rounded-r-xl p-6">
-                      <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-4">靈 魂 提 問</h3>
+                      <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-4">
+                        {localizeCardLabel('靈魂提問', language)}
+                      </h3>
                       <p className="text-cyan-100/90 leading-loose italic">{gated.soulQuestion}</p>
                     </div>
                   </>

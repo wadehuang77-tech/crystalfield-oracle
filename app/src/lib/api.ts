@@ -883,10 +883,16 @@ export const cardsApi = {
   deckPreview: (deckId: DeckId) =>
     req<{ deck_id: DeckId; cards: CardPreview[] }>(`/api/decks/${encodeURIComponent(deckId)}/preview?language=${activeContentLanguage()}`),
 
-  freeUnlockSingle: (spread_id: string, card_key: string, reversed: boolean, reading_id: string) =>
+  freeUnlockSingle: (
+    spread_id: string,
+    card_key: string,
+    reversed: boolean,
+    reading_id: string,
+    language = activeContentLanguage(),
+  ) =>
     req<{ card: UnlockedCard; free_readings_remaining: number | null; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-single', {
       method: 'POST',
-      body: { spread_id, card_key, reversed, reading_id, language: activeContentLanguage() },
+      body: { spread_id, card_key, reversed, reading_id, language },
     }),
 
   freeUnlockSpread: (
