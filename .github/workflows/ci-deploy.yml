@@ -55,6 +55,7 @@ jobs:
           cache-dependency-path: worker/package-lock.json
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run test:health
 
   deploy-worker:
     name: Deploy Worker
@@ -82,14 +83,33 @@ jobs:
     needs: [deploy-worker]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
     steps:
-      - name: Check Worker API health
-        env:
-          API_BASE: ${{ vars.SMOKE_API_BASE || vars.VITE_API_BASE || 'https://api.crystalfield101.com' }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+      - name: Verify active Worker deployment through Cloudflare API
         run: |
           set -euo pipefail
-          response="$(curl --fail --silent --show-error --retry 5 --retry-delay 5 --retry-all-errors "$API_BASE/api/checkout/catalog")"
-          node -e 'const body = JSON.parse(process.argv[1]); if (body.catalog?.tarot_monthly_600?.amount !== 600) { throw new Error("Worker checkout catalog health check failed"); }' "$response"
+          npx wrangler deployments status --name bolt-tarot-api --json > "$RUNNER_TEMP/worker-deployment.json"
+          node -e '
+            const fs = require("node:fs");
+            const deployment = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            const active = deployment.versions?.filter((version) => version.percentage > 0) ?? [];
+            const traffic = active.reduce((total, version) => total + version.percentage, 0);
+            if (!deployment.id || active.length === 0 || traffic !== 100) {
+              throw new Error("Worker deployment is not fully active");
+            }
+            console.log(`Verified active Worker deployment ${deployment.id} with ${traffic}% traffic.`);
+          ' "$RUNNER_TEMP/worker-deployment.json"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   deploy-pages:
     name: Deploy Pages

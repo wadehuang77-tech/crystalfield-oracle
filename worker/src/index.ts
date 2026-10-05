@@ -106,12 +106,24 @@ const WORKER_DIAGNOSTIC_VERSION = 'hd-diagnostics-2026-07-10-v6';
 
 export default {
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const url = new URL(req.url);
+    const path = url.pathname;
+
+    if (path === '/api/health') {
+      if (req.method !== 'GET') {
+        return new Response(null, { status: 405, headers: { Allow: 'GET' } });
+      }
+      return new Response('{"ok":true}', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store',
+        },
+      });
+    }
+
     if (req.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders(req, env) });
     }
-
-    const url = new URL(req.url);
-    const path = url.pathname;
 
     const isMutating = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
     const isEcpayBack = path === '/api/ecpay-webhook'
