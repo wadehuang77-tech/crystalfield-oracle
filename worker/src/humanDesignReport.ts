@@ -163,6 +163,35 @@ const CENTER_LABELS: Record<CenterName, string> = {
   root: '根部中心',
 };
 
+const ENGLISH_CENTER_LABELS: Record<CenterName, string> = {
+  head: 'Head',
+  ajna: 'Ajna',
+  throat: 'Throat',
+  g: 'G',
+  heart: 'Heart',
+  sacral: 'Sacral',
+  'solar-plexus': 'Solar Plexus',
+  spleen: 'Spleen',
+  root: 'Root',
+};
+
+const ENGLISH_TYPE_NAMES: Record<string, string> = {
+  generator: 'Generator',
+  'manifesting-generator': 'Manifesting Generator',
+  projector: 'Projector',
+  manifestor: 'Manifestor',
+  reflector: 'Reflector',
+};
+
+const ENGLISH_AUTHORITY_NAMES: Record<string, string> = {
+  sacral: 'Sacral Authority',
+  emotional: 'Emotional Authority',
+  splenic: 'Splenic Authority',
+  ego: 'Ego Authority',
+  'self-projected': 'Self-Projected Authority',
+  lunar: 'Lunar Authority',
+};
+
 const CENTER_CONCISE_GUIDANCE: Record<CenterName, { defined: string; open: string }> = {
   head: {
     defined: '靈感與提問在你身上有較穩定的節奏，你常能持續思考一個主題，也容易啟發他人。留意別把每個疑問都變成必須解決的壓力；先分辨真正重要的問題，讓思緒有停靠與休息的空間。當頭腦安靜，靈感才更容易沉澱成可用的智慧。',
@@ -300,6 +329,39 @@ function buildFixedSectionBody(sectionId: string, chart: HDChart, row: ChartRow,
 
   if (sectionId === 'channels') {
     return `通道像兩個能量中心之間自然流動的光路。它所連起的感受、表達與行動，在你身上比較穩定，也常在不經意間被別人看見。它不是你必須完成的工作清單，而是靈魂已經熟悉的一種語言。\n\n你的主要通道是 ${compactList(channels, '目前沒有標示主要通道')}。通道多寡不代表能力高低；較少時，反而可能更容易因人與環境展現不同面向。請觀察這些力量何時讓你感到自然、完整，何時又因過度使用而疲憊。讓 ${typeName} 的策略與 ${authority} 為它們掌舵，天賦就能成為照亮生活的光，而不是必須證明自己的壓力。`;
+  }
+
+  return '';
+}
+
+export function buildEnglishFixedSectionBody(sectionId: string, chart: HDChart, row: ChartRow): string {
+  const typeName = ENGLISH_TYPE_NAMES[chart.type ?? row.hd_type] ?? 'your energy type';
+  const authority = ENGLISH_AUTHORITY_NAMES[chart.authority ?? row.hd_authority] ?? 'your inner authority';
+  const defined = new Set(chart.definedCenters ?? []);
+  const definedCenters = (chart.definedCenters ?? []).map((center) => ENGLISH_CENTER_LABELS[center] ?? center);
+  const openCenters = (chart.undefinedCenters ?? []).map((center) => ENGLISH_CENTER_LABELS[center] ?? center);
+  const gates = (chart.keyGates ?? []).map(String);
+  const channels = chart.keyChannels ?? [];
+  const profile = chart.profile ?? row.hd_profile;
+  const commaList = (values: string[], fallback: string) => {
+    if (!values.length) return fallback;
+    if (values.length === 1) return values[0];
+    return `${values.slice(0, -1).join(', ')}, and ${values[values.length - 1]}`;
+  };
+
+  if (sectionId === 'centers') {
+    const centerNotes = (Object.keys(ENGLISH_CENTER_LABELS) as CenterName[]).map((center) =>
+      `${ENGLISH_CENTER_LABELS[center]} is ${defined.has(center) ? 'defined' : 'open'} in this chart.`,
+    );
+    return `Your chart shows ${definedCenters.length} defined center${definedCenters.length === 1 ? '' : 's'} (${commaList(definedCenters, 'none listed')}) and ${openCenters.length} open center${openCenters.length === 1 ? '' : 's'} (${commaList(openCenters, 'none listed')}). In Human Design, defined centers describe themes that may feel comparatively consistent, while open centers can be places where you notice and amplify what is happening around you. Neither state is better. This is a reflection framework, not a diagnosis or a fixed prediction.\n\n${centerNotes.join(' ')} Use these labels as invitations to observe, not rules about how you must behave. Across an ordinary week, notice which experiences feel familiar regardless of the people nearby, and which seem to change with the room, relationship, or workload. A pattern becomes more useful when you can name the situation in which it appears and the way your body responds.\n\nAs a ${typeName} with ${authority}, allow decisions to follow the pace that feels reliable to you rather than forcing certainty from a chart description. When an open-center theme feels intense, create a little space before deciding whether the pressure is yours to act on. When a defined theme feels strong, remember that consistency does not require constant effort or performance. Rest, context, and personal choice matter as much as the chart. Keep what helps you understand yourself with compassion, question what does not match your experience, and let real-life observation remain the final guide.`;
+  }
+
+  if (sectionId === 'gates') {
+    return `The key gate${gates.length === 1 ? '' : 's'} recorded for your chart ${gates.length ? `are ${commaList(gates, '')}` : 'are not listed'}. In Human Design, gates are symbolic themes within a larger chart. Their meaning depends on the full context, including the center, line, channels, and the way the rest of the chart connects. A number by itself should not be treated as a complete description of your personality or a promise about what will happen.\n\nUse the listed gates as prompts for curiosity. When one seems relevant, write down a specific moment when the theme appeared: what was happening, who was present, what you noticed in your body, and what choice you made. Compare several situations rather than relying on one memorable example. This helps separate a recurring quality from a temporary reaction, and keeps the interpretation connected to your life instead of turning it into a label.\n\nYour ${typeName} design and ${authority} provide broader context for how you make decisions and engage with these themes. You do not need to perform a gate or prove that it applies. Notice whether its description brings recognition, pressure, or no response at all; each reaction is useful information. If the chart language conflicts with your lived experience, trust your experience and seek more context before drawing conclusions. The purpose of this section is to support reflection, self-respect, and thoughtful choice—not to narrow your options or tell you who you must become. Let patterns develop over time, and keep room for growth, relationships, and circumstances to change what a theme means to you.`;
+  }
+
+  if (sectionId === 'channels') {
+    return `The channel${channels.length === 1 ? '' : 's'} listed in your chart ${channels.length ? `include ${commaList(channels, '')}` : 'are not listed'}. In Human Design, a channel represents a connection between two centers and is interpreted as part of the complete chart. The numbers alone do not tell the whole story, so this reading avoids assigning a fixed talent or outcome without the appropriate context. Treat each listed connection as a place to notice how energy, expression, and interaction may feel familiar to you.\n\nThink of a channel as a reflection prompt rather than a job description. Recall moments when you acted naturally, communicated clearly, or contributed without needing to imitate someone else. Also notice when the same quality felt pressured or overused. Context matters: a strength can be supportive in one setting and tiring in another. Record what happened and how you felt afterward, then compare those observations with your actual responsibilities and relationships.\n\nAs a ${typeName} with a ${profile} profile and ${authority}, your timing and decision-making deserve attention alongside any channel theme. Do not force an interpretation to fit. Ask whether a description is consistently recognizable, whether it depends on a particular environment, and whether it leaves room for your own choices. A chart cannot replace direct communication, practical judgment, or professional advice when needed. The most useful insight is one that helps you understand your experience without making it feel predetermined. Keep what feels accurate, stay curious about what is still unfolding, and let your day-to-day life—not a number by itself—show how these connections matter to you.\n\nFor a practical experiment, choose one ordinary situation this week and notice how you participate before, during, and after it. Was your contribution welcomed, did it arise without strain, and did you still have energy afterward? Compare that with a different setting rather than drawing a conclusion from a single event. You can discuss what you notice with people you trust, while remembering that their perspective does not define your chart for you. This slower approach helps keep symbolic language grounded in real choices, changing circumstances, and your own sense of well-being.`;
   }
 
   return '';
@@ -554,7 +616,7 @@ export async function generateOpenAiSections(
 ): Promise<Record<string, string> | null> {
   if (!env.OPENAI_API_KEY) return null;
 
-  const aiDefs = defs.filter((def) => language === 'en' || OPENAI_SECTION_IDS.has(def.id));
+  const aiDefs = defs.filter((def) => def.generation_mode === 'openai' || OPENAI_SECTION_IDS.has(def.id));
   if (aiDefs.length === 0) return {};
   const languageLabel = language === 'en' ? 'English' : '繁體中文';
 
@@ -703,6 +765,7 @@ async function saveReport(
 ): Promise<ReportSection[]> {
   if (language === 'en') {
     const incomplete = defs.some((def) => {
+      if (def.generation_mode !== 'openai' && !OPENAI_SECTION_IDS.has(def.id)) return false;
       const body = aiBodies?.[def.id] ?? '';
       return body.trim().split(/\s+/).length < 250;
     });
@@ -713,10 +776,12 @@ async function saveReport(
   const reportId = crypto.randomUUID();
   const knowledge = knowledgeLookup(await getKnowledgeRows(env));
   const sections = defs.map((def) => {
-    const isOpenAi = language === 'en' || (def.generation_mode === 'openai') || OPENAI_SECTION_IDS.has(def.id);
+    const isOpenAi = def.generation_mode === 'openai' || OPENAI_SECTION_IDS.has(def.id);
     const body = isOpenAi
-      ? (language === 'en' ? (aiBodies?.[def.id] ?? '').trim() : normalizeAiBody(def.id, aiBodies?.[def.id], chart, row))
-      : buildFixedSectionBody(def.id, chart, row, knowledge);
+      ? normalizeAiBody(def.id, aiBodies?.[def.id], chart, row)
+      : language === 'en'
+        ? buildEnglishFixedSectionBody(def.id, chart, row)
+        : buildFixedSectionBody(def.id, chart, row, knowledge);
     return {
       id: def.id,
       title: def.title,

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import type { Env } from '../src/utils';
 import {
   getHumanDesignFullReport,
+  buildEnglishFixedSectionBody,
   generateOpenAiSections,
   getHumanDesignReportVersion,
   OPENAI_TIMEOUT_MS,
@@ -93,9 +94,7 @@ function makeReportEnv(cachedVersions: string[] = []) {
 async function checkGeneratorLocale(language: 'zh-Hant' | 'en') {
   const originalFetch = globalThis.fetch;
   let requestBody: Record<string, unknown> | null = null;
-  const expectedDefs = language === 'en'
-    ? definitions
-    : definitions.filter(({ id }) => ['personality', 'prescription', 'career', 'love', 'wealth', 'mission'].includes(id));
+  const expectedDefs = definitions.filter(({ generation_mode }) => generation_mode === 'openai');
   const responseSections = Object.fromEntries(expectedDefs.map(({ id }) => [id, language === 'en' ? words(260) : chineseText]));
 
   globalThis.fetch = async (input, init) => {
@@ -151,6 +150,14 @@ async function checkGeneratorLocale(language: 'zh-Hant' | 'en') {
 }
 
 async function main() {
+  for (const id of ['centers', 'gates', 'channels']) {
+    const content = buildEnglishFixedSectionBody(id, chart, row);
+    assert.ok(
+      content.trim().split(/\s+/u).length >= 250,
+      `English fixed section ${id} must satisfy the full-report minimum length`,
+    );
+  }
+
   const products = [
     { itemId: 'human_design_full', amount: 399, locale: 'zh-TW' as const, language: 'zh-Hant' as const, reportType: 'full' },
     { itemId: 'human_design_bundle', amount: 489, locale: 'zh-TW' as const, language: 'zh-Hant' as const, reportType: 'full' },
@@ -191,7 +198,7 @@ async function main() {
           required_sections?: Array<{ id: string }>;
         };
         assert.equal(requestPrompt.output_language, product.language === 'en' ? 'English' : '繁體中文');
-        assert.equal(requestPrompt.required_sections?.length, 9);
+        assert.equal(requestPrompt.required_sections?.length, 6);
         return new Response(JSON.stringify({ output_text: JSON.stringify(englishReportBodies) }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
@@ -220,6 +227,12 @@ async function main() {
         product.language === 'en',
         'English report content must be English; Chinese report fallback remains Chinese',
       );
+      if (product.language === 'en') {
+        assert.ok(body.sections.every(({ body: content }) => content.trim().split(/\s+/u).length >= 250));
+        assert.ok(body.sections.some(({ id }) => id === 'centers'));
+        assert.ok(body.sections.some(({ id }) => id === 'gates'));
+        assert.ok(body.sections.some(({ id }) => id === 'channels'));
+      }
     }
   } finally {
     globalThis.fetch = originalFetch;
