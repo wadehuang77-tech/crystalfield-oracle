@@ -157,6 +157,17 @@ CREATE TABLE multi_spread_free_unlocks (
 CREATE INDEX idx_multi_spread_free_unlocks_created
   ON multi_spread_free_unlocks(created_at DESC);
 
+CREATE TABLE tarot_free_readings (
+  user_id    TEXT NOT NULL,
+  reading_id TEXT NOT NULL,
+  spread_id  TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, reading_id),
+  FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_tarot_free_readings_user_created
+  ON tarot_free_readings(user_id, created_at);
+
 -- ---------------------------------------------------------------------------
 -- conversion_events:轉換漏斗事件
 -- ---------------------------------------------------------------------------

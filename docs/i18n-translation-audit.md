@@ -1,6 +1,6 @@
 # Bilingual Translation Audit
 
-Last reviewed: 2026-10-01
+Last reviewed: 2026-10-05
 
 This document records implemented locale plumbing separately from translated content. A page or data set is not marked translated merely because it has an `/en` route.
 
@@ -10,16 +10,16 @@ The `d1/cards-seed.sql` data was loaded with the existing card schema and the ne
 
 | Deck ID | Declared | Seeded | Unique card keys | Fully localized English cards |
 | --- | ---: | ---: | ---: | ---: |
-| `tarot` | 22 | 22 | 22 | 2 |
-| `osho` | 45 | 45 | 45 | 0 |
-| `lightworker` | 43 | 43 | 43 | 0 |
-| `unicorns` | 44 | 44 | 44 | 0 |
-| `egyptian_gods` | 36 | 36 | 36 | 0 |
-| `work_your_light` | 44 | 44 | 44 | 0 |
-| `dragons` | 44 | 44 | 44 | 0 |
-| **Total** | **278** | **278** | **278** | **2** |
+| `tarot` | 22 | 22 | 22 | 22 |
+| `osho` | 45 | 45 | 45 | 45 |
+| `lightworker` | 43 | 43 | 43 | 43 |
+| `unicorns` | 44 | 44 | 44 | 44 |
+| `egyptian_gods` | 36 | 36 | 36 | 36 |
+| `work_your_light` | 44 | 44 | 44 | 44 |
+| `dragons` | 44 | 44 | 44 | 44 |
+| **Total** | **278** | **278** | **278** | **278** |
 
-Two complete, manually translated Tarot payloads (`tarot:0-fool`, `tarot:1-magician`) now exist in `d1/card-localizations-en.json`; `d1/build-card-localizations-seed.ts` validates and emits idempotent SQLite upserts in `d1/cards-localizations-seed.sql`. The seed includes seven English deck names. The other 276 full card payloads are not translated. Existing `name_secondary` values are present for all 278 cards, but are not treated as proof that the rest of the card is translated. For missing English payloads, the Worker now omits Chinese preview/excerpts, marks `translation_available: false`, and rejects unlock requests with `CARD_TRANSLATION_UNAVAILABLE`.
+All 278 full English card payloads across seven decks are present in `d1/card-localizations-en.json`; `d1/build-card-localizations-seed.ts` validates the translations and emits idempotent SQLite upserts in `d1/cards-localizations-seed.sql`. The seed includes seven English deck names. Apply `d1/cards-migrations/001_card_localizations.sql` and then `d1/cards-localizations-seed.sql` to the separate cards D1 for production English previews and unlocks. Until those are applied remotely, English card previews may be empty and unlock requests may return `CARD_TRANSLATION_UNAVAILABLE`.
 
 The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts` are not present in this workspace. `d1/cards-seed.sql` is the only available source of the full Chinese card payloads.
 
@@ -53,14 +53,14 @@ The original TypeScript deck source paths referenced by `d1/build-cards-seed.ts`
 - Local Wrangler D1 cards schema: applied successfully to isolated local persistence.
 - Existing cards seed: loaded successfully; all declared counts and unique `card_key` counts matched (278 total).
 - `001_card_localizations.sql`: applied twice to the isolated local database; both runs succeeded, confirming idempotent table creation.
-- `cards-localizations-seed.sql`: generated from two reviewed translations and applied twice locally; upserts remain idempotent.
-- Inventory query: 278 rows, 278 distinct IDs, no blank card keys/names, declared and actual deck counts match; reviewed English payload coverage is 2/278.
-- Worker API smoke test: `/api/decks/tarot/preview?language=en` returned the localized Fool name, keywords, and excerpts with `content_locale: "en"`; unlocalized cards returned empty previews and `translation_available: false` without Chinese reading text.
+- `cards-localizations-seed.sql`: generated from all 278 English translations; upserts remain idempotent.
+- Inventory query: 278 rows, 278 distinct IDs, no blank card keys/names, declared and actual deck counts match; English payload coverage is 278/278.
+- Worker API test: `npm run test:english-card-previews` seeds an isolated D1 from repository data and verifies that all 278 English cards expose 30% excerpts without login while withholding full gated content.
 - Frontend TypeScript check: passed.
 - Worker TypeScript check: passed.
 - Vite production build/prerender: completed successfully; latest output reported `✓ built in 15.96s` and generated `app/dist/en/oracle/index.html`. The terminal wrapper did not reliably expose an npm process exit marker. Existing >500 kB chunk warning remains.
-- No live D1 migration, production deployment, or paid AI translation/generation call was run.
+- No live D1 migration or production deployment was run; the remote cards D1 could not be queried in the current Cloudflare CLI session due to account authorization.
 
 ## Translation Completion Gate
 
-Do not call the site fully bilingual until each user-visible route and state has been reviewed in English, all 278 cards have complete localized names/previews/gated payloads, both article collections have English copy, numerology/Human Design/Vedic results have locale-correct source and cache behavior, English share/report flows are checked, and the prerendered HTML plus sitemap contain matching canonical and language alternates.
+Do not call the site fully bilingual until each user-visible route and state has been reviewed in English, all 278 card localizations are applied to production and verified there, both article collections have English copy, numerology/Human Design/Vedic results have locale-correct source and cache behavior, English share/report flows are checked, and the prerendered HTML plus sitemap contain matching canonical and language alternates.

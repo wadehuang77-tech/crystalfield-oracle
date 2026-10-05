@@ -1,26 +1,21 @@
 import { getMembershipSummary } from './subscriptions';
+import { isTarotSubscriptionPlan, tarotSubscriptionPlan, tarotTierForSpread } from './tarotCatalog';
 import { Env, forbidden, json, readSession, unauthorized } from './utils';
+
+export const TAROT_FREE_READING_LIMIT = 3;
 
 export type TarotEntitlementStatus =
   | 'login_required'
-  | 'trial_available'
-  | 'trialing'
+  | 'free_available'
   | 'active'
   | 'canceled_active'
   | 'expired'
   | 'payment_pending'
   | 'payment_failed';
 
-interface TrialRow {
-  user_id: string;
-  google_sub: string | null;
-  email: string;
-  tarot_trial_started_at: string | null;
-  tarot_trial_ends_at: string | null;
-  tarot_trial_used_at: string | null;
-}
-
 interface MembershipLike {
+  item_id?: string;
+  plan_code?: string | null;
   status?: string | null;
   is_active?: boolean;
   cancel_at_period_end?: boolean;
@@ -34,9 +29,13 @@ interface MembershipLike {
 export interface TarotEntitlement {
   status: TarotEntitlementStatus;
   has_access: boolean;
-  trial_started_at: string | null;
-  trial_ends_at: string | null;
-  trial_used_at: string | null;
+  plan_id: string | null;
+  plan_tier: number;
+  free_readings_used: number;
+  free_readings_remaining: number;
+  trial_started_at: null;
+  trial_ends_at: null;
+  trial_used_at: null;
   subscription_started_at: string | null;
   current_period_end: string | null;
   access_until: string | null;
@@ -51,140 +50,135 @@ function iso(value: string | null | undefined): string | null {
   return Number.isFinite(time) ? new Date(time).toISOString() : null;
 }
 
+export function tarotPlanTier(planId: string | null | undefined): number {
+  if (!planId || !isTarotSubscriptionPlan(planId)) return 0;
+  return tarotSubscriptionPlan(planId)?.tier ?? 0;
+}
+
 export function deriveTarotEntitlement(
-  trial: Pick<TrialRow, 'tarot_trial_started_at' | 'tarot_trial_ends_at' | 'tarot_trial_used_at'> | null,
   membership: MembershipLike | null,
+  freeReadingsUsed = 0,
   nowMs = Date.now(),
 ): TarotEntitlement {
-  const trialStartedAt = iso(trial?.tarot_trial_started_at);
-  const trialEndsAt = iso(trial?.tarot_trial_ends_at);
-  const trialUsedAt = iso(trial?.tarot_trial_used_at);
+  const used = Math.max(0, Math.min(TAROT_FREE_READING_LIMIT, Math.floor(freeReadingsUsed)));
+  const planId = membership?.plan_code ?? membership?.item_id ?? null;
+  const planTier = tarotPlanTier(planId);
   const periodEnd = iso(membership?.current_period_end ?? membership?.current_period_ends_at);
-  const paidAccess = membership?.is_active === true && !!periodEnd && Date.parse(periodEnd) > nowMs;
+  const paidAccess = membership?.is_active === true && !!periodEnd && Date.parse(periodEnd) > nowMs && planTier > 0;
   const cancelled = membership?.status === 'cancelling'
     || membership?.status === 'cancelled'
     || membership?.cancel_at_period_end === true;
-
-  let status: TarotEntitlementStatus;
-  let accessUntil: string | null = null;
-  if (paidAccess) {
-    status = cancelled ? 'canceled_active' : 'active';
-    accessUntil = periodEnd;
-  } else if (trialEndsAt && Date.parse(trialEndsAt) > nowMs) {
-    status = 'trialing';
-    accessUntil = trialEndsAt;
-  } else if (!trialUsedAt && !trialStartedAt) {
-    status = 'trial_available';
-  } else if (membership?.status === 'pending') {
-    status = 'payment_pending';
-  } else if (membership?.status === 'payment_failed') {
-    status = 'payment_failed';
-  } else status = 'expired';
+  const status: TarotEntitlementStatus = paidAccess
+    ? cancelled ? 'canceled_active' : 'active'
+    : membership?.status === 'pending' ? 'payment_pending'
+      : membership?.status === 'payment_failed' ? 'payment_failed'
+        : used < TAROT_FREE_READING_LIMIT ? 'free_available' : 'expired';
 
   return {
     status,
-    has_access: status === 'trialing' || status === 'active' || status === 'canceled_active',
-    trial_started_at: trialStartedAt,
-    trial_ends_at: trialEndsAt,
-    trial_used_at: trialUsedAt,
+    has_access: paidAccess || used < TAROT_FREE_READING_LIMIT,
+    plan_id: paidAccess ? planId : null,
+    plan_tier: paidAccess ? planTier : 0,
+    free_readings_used: used,
+    free_readings_remaining: Math.max(0, TAROT_FREE_READING_LIMIT - used),
+    trial_started_at: null,
+    trial_ends_at: null,
+    trial_used_at: null,
     subscription_started_at: iso(membership?.started_at),
     current_period_end: periodEnd,
-    access_until: accessUntil,
+    access_until: paidAccess ? periodEnd : null,
     payment_status: membership?.latest_payment_status ?? membership?.status ?? null,
     last_payment_at: iso(membership?.last_payment_at),
   };
 }
 
-async function getTrialRow(env: Env, userId: string): Promise<TrialRow | null> {
-  return env.DB.prepare(
-    `SELECT m.user_id, m.google_sub, lower(trim(p.email)) AS email,
-            m.tarot_trial_started_at, m.tarot_trial_ends_at, m.tarot_trial_used_at
-       FROM profile_member_metadata m
-       JOIN profiles p ON p.id = m.user_id
-      WHERE m.user_id = ?
-      LIMIT 1`,
-  ).bind(userId).first<TrialRow>();
+async function getFreeReadingsUsed(env: Env, userId: string): Promise<number> {
+  const row = await env.DB.prepare('SELECT COUNT(*) AS count FROM tarot_free_readings WHERE user_id = ?')
+    .bind(userId).first<{ count: number }>();
+  return Math.max(0, Math.min(TAROT_FREE_READING_LIMIT, Number(row?.count ?? 0)));
 }
 
 export async function getTarotEntitlement(env: Env, userId: string): Promise<TarotEntitlement> {
-  const [trial, membership] = await Promise.all([
-    getTrialRow(env, userId),
+  const [membership, used] = await Promise.all([
     getMembershipSummary(env, userId),
+    getFreeReadingsUsed(env, userId),
   ]);
-  const entitlement = deriveTarotEntitlement(trial, membership);
-  if (!trial?.google_sub && !entitlement.has_access) {
-    return { ...entitlement, status: 'login_required', has_access: false };
-  }
-  return entitlement;
+  return deriveTarotEntitlement(membership, used);
 }
 
-export async function hasTarotAccess(env: Env, userId: string): Promise<boolean> {
-  return (await getTarotEntitlement(env, userId)).has_access;
+export async function authorizeTarotSpread(
+  env: Env,
+  userId: string,
+  spreadId: string,
+  readingId: string,
+): Promise<{ allowed: boolean; source: 'free' | 'subscription'; entitlement: TarotEntitlement }> {
+  const entitlement = await getTarotEntitlement(env, userId);
+  if (entitlement.plan_tier >= tarotTierForSpread(spreadId)) {
+    return { allowed: true, source: 'subscription', entitlement };
+  }
+
+  const existing = await env.DB.prepare(
+    'SELECT spread_id FROM tarot_free_readings WHERE user_id = ? AND reading_id = ?',
+  ).bind(userId, readingId).first<{ spread_id: string }>();
+  if (existing) {
+    return {
+      allowed: existing.spread_id === spreadId,
+      source: 'free',
+      entitlement,
+    };
+  }
+  if (entitlement.free_readings_remaining <= 0) {
+    return { allowed: false, source: 'free', entitlement };
+  }
+
+  const now = new Date().toISOString();
+  const inserted = await env.DB.prepare(
+    `INSERT INTO tarot_free_readings (user_id, reading_id, spread_id, created_at)
+     SELECT ?, ?, ?, ?
+      WHERE (SELECT COUNT(*) FROM tarot_free_readings WHERE user_id = ?) < ?
+     ON CONFLICT(user_id, reading_id) DO NOTHING`,
+  ).bind(userId, readingId, spreadId, now, userId, TAROT_FREE_READING_LIMIT).run();
+  if ((inserted.meta.changes ?? 0) === 0) {
+    const duplicate = await env.DB.prepare(
+      'SELECT spread_id FROM tarot_free_readings WHERE user_id = ? AND reading_id = ?',
+    ).bind(userId, readingId).first<{ spread_id: string }>();
+    if (duplicate) return { allowed: duplicate.spread_id === spreadId, source: 'free', entitlement };
+    return { allowed: false, source: 'free', entitlement };
+  }
+
+  await env.DB.prepare(
+    `INSERT INTO profile_member_metadata (user_id, tarot_usage_count, created_at, updated_at)
+     VALUES (?, (SELECT COUNT(*) FROM tarot_free_readings WHERE user_id = ?), ?, ?)
+     ON CONFLICT(user_id) DO UPDATE SET
+       tarot_usage_count = excluded.tarot_usage_count,
+       updated_at = excluded.updated_at`,
+  ).bind(userId, userId, now, now).run();
+  const updated = await getTarotEntitlement(env, userId);
+  return { allowed: true, source: 'free', entitlement: updated };
 }
 
 export async function getMyTarotEntitlement(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
   if (!user) return json(req, env, {
-    entitlement: {
-      status: 'login_required', has_access: false,
-      trial_started_at: null, trial_ends_at: null, trial_used_at: null,
-      subscription_started_at: null, current_period_end: null, access_until: null,
-      payment_status: null, last_payment_at: null,
-    },
+    entitlement: { ...deriveTarotEntitlement(null, 0), status: 'login_required' as const, has_access: false },
   });
   return json(req, env, { entitlement: await getTarotEntitlement(env, user.id) });
 }
 
 export async function startMyTarotTrial(req: Request, env: Env): Promise<Response> {
-  const user = await readSession(req, env);
-  if (!user) return unauthorized(req, env, '請先使用 Google 帳號登入');
-
-  const before = await getTrialRow(env, user.id);
-  if (!before?.google_sub) return forbidden(req, env, '免費試用需要使用 Google 帳號登入');
-
-  const identityHistory = await env.DB.prepare(
-    `SELECT m.user_id
-       FROM profile_member_metadata m
-       JOIN profiles p ON p.id = m.user_id
-      WHERE m.user_id <> ?
-        AND (m.google_sub = ? OR lower(trim(p.email)) = ?)
-        AND (m.tarot_trial_used_at IS NOT NULL OR m.tarot_trial_started_at IS NOT NULL)
-      LIMIT 1`,
-  ).bind(user.id, before.google_sub, before.email).first<{ user_id: string }>();
-  if (identityHistory) return forbidden(req, env, '此 Google 帳號或 Email 已使用過塔羅免費試用');
-
-  const existingEntitlement = await getTarotEntitlement(env, user.id);
-  if (existingEntitlement.status === 'active' || existingEntitlement.status === 'canceled_active') {
-    return json(req, env, { entitlement: existingEntitlement, trial_created: false });
-  }
-
-  const startedAt = new Date();
-  const endsAt = new Date(startedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const result = await env.DB.prepare(
-    `UPDATE profile_member_metadata
-        SET tarot_trial_started_at = ?, tarot_trial_ends_at = ?, tarot_trial_used_at = ?, updated_at = ?
-      WHERE user_id = ?
-        AND google_sub IS NOT NULL
-        AND tarot_trial_started_at IS NULL
-        AND tarot_trial_used_at IS NULL`,
-  ).bind(
-    startedAt.toISOString(), endsAt.toISOString(), startedAt.toISOString(), startedAt.toISOString(), user.id,
-  ).run();
-
-  const entitlement = await getTarotEntitlement(env, user.id);
-  return json(req, env, {
-    entitlement,
-    trial_created: (result.meta.changes ?? 0) === 1,
-  });
+  void env;
+  if (!await readSession(req, env)) return unauthorized(req, env, '請先登入');
+  return forbidden(req, env, '塔羅已改為 3 次免費占卜，無須啟用試用');
 }
 
 export function tarotAccessDenied(req: Request, env: Env, entitlement: TarotEntitlement): Response {
-  const code = entitlement.status === 'trial_available'
-    ? 'TAROT_TRIAL_AVAILABLE'
-    : entitlement.status === 'payment_pending'
-      ? 'TAROT_PAYMENT_PENDING'
-      : entitlement.status === 'payment_failed'
-        ? 'TAROT_PAYMENT_FAILED'
-        : 'TAROT_SUBSCRIPTION_REQUIRED';
-  return json(req, env, { error: '目前沒有可用的塔羅全館權限', code, entitlement }, { status: 403 });
+  void env;
+  const code = entitlement.status === 'payment_pending'
+    ? 'TAROT_PAYMENT_PENDING'
+    : entitlement.status === 'payment_failed'
+      ? 'TAROT_PAYMENT_FAILED'
+      : entitlement.free_readings_remaining > 0 || entitlement.plan_tier > 0
+        ? 'TAROT_PLAN_UPGRADE_REQUIRED'
+        : 'TAROT_FREE_QUOTA_EXHAUSTED';
+  return json(req, env, { error: '免費占卜次數已用完或目前方案不包含此牌陣', code, entitlement }, { status: 403 });
 }

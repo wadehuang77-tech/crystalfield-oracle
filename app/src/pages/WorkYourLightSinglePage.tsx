@@ -247,7 +247,7 @@ function WorkYourLightSinglePage() {
                               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-950/95 pointer-events-none rounded-b-lg"></div>
                             </div>
                           )}
-                          <p className="text-violet-200/60 text-xs mt-3">前 30% 預覽，登入後可開始塔羅全館 7 天免費試用</p>
+                          <p className="text-violet-200/60 text-xs mt-3">前 30% 預覽，登入後享有 3 次免費占卜</p>
                         </div>
                         <InlineEmailUnlock
                           onUnlocked={handleUnlocked}

@@ -7,6 +7,7 @@ import { formatPrice } from '../lib/spread-prices';
 import { trackPurchase, trackTarotPaymentFailed, trackTarotPaymentSuccess, trackTarotSubscriptionStart } from '../lib/ga4';
 import { getLanguageFromPath, getLocalizedPath } from '../lib/i18n';
 import { isSafeAuthRedirect } from '../lib/authLocale';
+import { isTarotSubscriptionPlan } from '../lib/tarot-subscription';
 
 const SPREAD_HOME: Record<string, string> = {
   tarot_three:        '/tarot?spread=three',
@@ -95,6 +96,9 @@ const CHECKOUT_RETURN_COPY = {
 } as const;
 
 const ITEM_NAMES_EN: Record<string, string> = {
+  tarot_three_monthly_600: 'Tarot Single and Three-Card Monthly Plan',
+  tarot_pastlife_monthly_1000: 'Tarot Past-Life Monthly Plan',
+  tarot_all_monthly_1500: 'All Tarot Spreads Monthly Plan',
   tarot_monthly_600: 'All-Access Tarot Membership',
   numerology_basic: 'Basic Numerology Reading',
   numerology_advanced: 'Advanced Numerology Reading',
@@ -193,7 +197,7 @@ export default function CheckoutReturnPage() {
       navigate(appendOrderId(returnTo, order.id, orderToken));
       return;
     }
-    if (order.item_id === 'tarot_monthly_600') {
+    if (isTarotSubscriptionPlan(order.item_id)) {
       const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
       navigate(localizedPath(redirect));
       return;
@@ -211,15 +215,15 @@ export default function CheckoutReturnPage() {
       order.item_name,
       order.ecpay_payment_type ?? 'unknown',
     );
-    if (order.item_id === 'tarot_monthly_600') {
-      trackTarotSubscriptionStart(order.merchant_trade_no);
-      trackTarotPaymentSuccess(order.merchant_trade_no);
+    if (isTarotSubscriptionPlan(order.item_id)) {
+      trackTarotSubscriptionStart(order.merchant_trade_no, order.item_id, order.amount);
+      trackTarotPaymentSuccess(order.merchant_trade_no, order.item_id, order.amount);
     }
   }, [order]);
 
   useEffect(() => {
-    if (order?.item_id === 'tarot_monthly_600' && (order.status === 'failed' || order.status === 'cancelled')) {
-      trackTarotPaymentFailed();
+    if (order && isTarotSubscriptionPlan(order.item_id) && (order.status === 'failed' || order.status === 'cancelled')) {
+      trackTarotPaymentFailed(order.item_id, order.amount);
     }
   }, [order]);
 
@@ -231,7 +235,7 @@ export default function CheckoutReturnPage() {
         navigate(appendOrderId(returnTo, order.id, orderToken), { replace: true });
         return;
       }
-      if (order.item_id === 'tarot_monthly_600') {
+      if (isTarotSubscriptionPlan(order.item_id)) {
         const redirect = consumeMembershipCheckoutRedirect() ?? '/membership';
         navigate(getLocalizedPath(redirect, language), { replace: true });
         return;

@@ -7,6 +7,47 @@ export const TAROT_SUBSCRIPTION = {
   frequency: 1,
 } as const;
 
+export const TAROT_SUBSCRIPTION_PLANS = {
+  tarot_three_monthly_600: {
+    id: 'tarot_three_monthly_600',
+    name: '塔羅三張牌陣月費會員',
+    amount: 600,
+    tier: 1,
+  },
+  tarot_pastlife_monthly_1000: {
+    id: 'tarot_pastlife_monthly_1000',
+    name: '塔羅前世因果月費會員',
+    amount: 1000,
+    tier: 2,
+  },
+  tarot_all_monthly_1500: {
+    id: 'tarot_all_monthly_1500',
+    name: '塔羅全牌陣月費會員',
+    amount: 1500,
+    tier: 3,
+  },
+} as const;
+
+export type TarotSubscriptionPlanId = keyof typeof TAROT_SUBSCRIPTION_PLANS | typeof TAROT_SUBSCRIPTION.id;
+export const TAROT_SUBSCRIPTION_PLAN_IDS = [TAROT_SUBSCRIPTION.id, ...Object.keys(TAROT_SUBSCRIPTION_PLANS)] as const;
+
+export function tarotSubscriptionPlan(id: string) {
+  if (id === TAROT_SUBSCRIPTION.id) return { ...TAROT_SUBSCRIPTION, tier: 3 as const };
+  return TAROT_SUBSCRIPTION_PLANS[id as keyof typeof TAROT_SUBSCRIPTION_PLANS];
+}
+
+export function isTarotSubscriptionPlan(id: string): boolean {
+  return id === TAROT_SUBSCRIPTION.id || id in TAROT_SUBSCRIPTION_PLANS;
+}
+
+export function tarotTierForSpread(spreadId: string): number {
+  const spread = TAROT_SPREADS[spreadId];
+  if (!spread) return Number.POSITIVE_INFINITY;
+  if (spread.card_count === 1 || spread.card_count === 3) return 1;
+  if (spread.id === 'tarot_pastlife' || spread.id === 'egyptian_pastlife') return 2;
+  return 3;
+}
+
 export interface TarotSpreadDef {
   id: string;
   name: string;

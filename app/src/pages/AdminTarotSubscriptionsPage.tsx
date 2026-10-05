@@ -52,7 +52,7 @@ export default function AdminTarotSubscriptionsPage() {
         </div>
         <label className="mb-6 block max-w-xs text-sm text-slate-300">資格狀態
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="mt-2 w-full rounded-lg border border-amber-500/25 bg-slate-900 px-3 py-2">
-            {['all', 'trial_available', 'trialing', 'active', 'canceled_active', 'expired', 'payment_pending', 'payment_failed'].map((status) => <option key={status} value={status}>{status === 'all' ? '全部' : status}</option>)}
+            {['all', 'free_available', 'active', 'canceled_active', 'expired', 'payment_pending', 'payment_failed', 'login_required'].map((status) => <option key={status} value={status}>{status === 'all' ? '全部' : status}</option>)}
           </select>
         </label>
 
@@ -67,8 +67,7 @@ export default function AdminTarotSubscriptionsPage() {
                 <Info label="user_id" value={subscription.user_id} />
                 <Info label="方案 / 狀態" value={`${subscription.plan_code}\n${subscription.status}`} />
                 <Info label="價格" value={`NT$${subscription.amount} / 月`} />
-                <Info label="試用開始 / 到期" value={`${date(subscription.trial_started_at)}\n${date(subscription.trial_ends_at)}`} />
-                <Info label="是否使用過試用" value={subscription.trial_used_at ? `是（${date(subscription.trial_used_at)}）` : '否'} />
+                <Info label="免費占卜次數" value={`已使用 ${subscription.free_readings_used} 次／剩餘 ${subscription.free_readings_remaining} 次`} />
                 <Info label="正式訂閱開始" value={date(subscription.subscription_started_at)} />
                 <Info label="資格到期" value={date(subscription.access_until)} />
                 <Info label="付款狀態 / 最近付款" value={`${subscription.payment_status || '—'}\n${date(subscription.last_payment_at)}`} />

@@ -18,7 +18,7 @@ import { checkoutApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { useSingleCardGate } from '../hooks/useSingleCardGate';
 import { useMultiSpreadGate } from '../hooks/useMultiSpreadGate';
 import { submitToEcpay } from '../lib/ecpayRedirect';
-import { TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
+import { isTarotSubscriptionPlan, TAROT_SUBSCRIPTION } from '../lib/tarot-subscription';
 import { clearPendingDraw, consumePendingSingleDraw, readPendingDraw, savePendingDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart, type OracleSpreadId } from '../lib/ga4';
@@ -325,7 +325,7 @@ function TarotPage() {
     (async () => {
       try {
         const { order } = await checkoutApi.getOrder(orderId, orderToken);
-        if (order.item_id === TAROT_SUBSCRIPTION.id && order.status === 'paid') {
+        if (isTarotSubscriptionPlan(order.item_id) && order.status === 'paid') {
           const pending = readPendingDraw();
           const isTarotPending = !!pending && ['tarot_three', 'tarot_celtic', 'tarot_pastlife'].includes(pending.spread_id);
           if (isTarotPending && !restorePendingMultiDraw(pending!)) {
@@ -702,7 +702,7 @@ function TarotPage() {
                             </p>
                             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none rounded-b-lg"></div>
                           </div>
-                          <p className="text-orange-200/60 text-xs mt-3">{cardLabel('前 30% 預覽，登入後可開始塔羅全館 7 天免費試用')}</p>
+                          <p className="text-orange-200/60 text-xs mt-3">{cardLabel('前 30% 預覽，登入後享有 3 次免費占卜')}</p>
                         </div>}
 
                         {!isUnlocked && singleGate.phase === 'loading' && (

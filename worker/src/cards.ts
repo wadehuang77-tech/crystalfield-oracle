@@ -1,7 +1,7 @@
 import { verifyOrderToken } from './checkout';
-import { getTarotEntitlement, tarotAccessDenied } from './tarotEntitlements';
+import { authorizeTarotSpread, getTarotEntitlement, tarotAccessDenied } from './tarotEntitlements';
 import { decideTarotQuota, mergeTarotUsageCounts, TAROT_FREE_READING_LIMIT } from './oracleQuota';
-import { TAROT_SPREADS, type TarotSpreadDef } from './tarotCatalog';
+import { TAROT_SPREADS, tarotTierForSpread, type TarotSpreadDef } from './tarotCatalog';
 import {
   badRequest,
   clientIp,
@@ -212,9 +212,7 @@ interface SingleUnlockBody extends LocalizedRequestBody {
 
 export async function unlockSingleCard(req: Request, env: Env): Promise<Response> {
   const session = await readSession(req, env);
-  if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
-  const entitlement = await getTarotEntitlement(env, session.id);
-  if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
+  if (!session) return unauthorized(req, env, '請先登入');
   const body = await readBody<SingleUnlockBody>(req);
   if (!body.spread_id || !TAROT_SPREADS[body.spread_id]) {
     return badRequest(req, env, 'spread_id invalid');
@@ -227,6 +225,10 @@ export async function unlockSingleCard(req: Request, env: Env): Promise<Response
     return badRequest(req, env, 'spread is not single card');
   }
   if (!body.card_key) return badRequest(req, env, 'card_key required');
+  const entitlement = await getTarotEntitlement(env, session.id);
+  if (entitlement.plan_tier < tarotTierForSpread(body.spread_id)) {
+    return tarotAccessDenied(req, env, entitlement);
+  }
 
   const email = session.email;
   const language = bodyContentLanguage(body);
@@ -415,7 +417,7 @@ export function getSpreadDef(spreadId: string): TarotSpreadDef | undefined {
   return TAROT_SPREADS[spreadId];
 }
 
-interface FreeUnlockSingleBody extends LocalizedRequestBody { spread_id: string; card_key: string; reversed?: boolean; reading_id?: string; }
+interface FreeUnlockSingleBody extends LocalizedRequestBody { spread_id: string; card_key: string; reversed?: boolean; reading_id: string; }
 
 export async function freeUnlockSingle(req: Request, env: Env): Promise<Response> {
   const body = await readBody<FreeUnlockSingleBody>(req);
@@ -423,23 +425,24 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
   const spread = TAROT_SPREADS[body.spread_id];
   if (!spread.free) return badRequest(req, env, 'not a single-card spread');
   if (!body.card_key) return badRequest(req, env, 'card_key required');
+  if (!body.reading_id || body.reading_id.length > 100) return badRequest(req, env, 'reading_id required');
   const session = await readSession(req, env);
-  if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
-  const entitlement = await getTarotEntitlement(env, session.id);
-  if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
+  if (!session) return unauthorized(req, env, '請先登入');
   const language = bodyContentLanguage(body);
   const card = await loadFullCard(env, spread.deck_id, body.card_key, language);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
   if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
+  const access = await authorizeTarotSpread(env, session.id, body.spread_id, body.reading_id);
+  if (!access.allowed) return tarotAccessDenied(req, env, access.entitlement);
   return json(req, env, {
     card: { ...card, reversed: !!body.reversed },
-    free_readings_remaining: null,
-    entitlement_status: entitlement.status,
+    free_readings_remaining: access.entitlement.free_readings_remaining,
+    entitlement_status: access.source === 'free' ? 'free_available' : access.entitlement.status,
   });
 }
 
 interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
-interface FreeUnlockSpreadBody extends LocalizedRequestBody { spread_id: string; picks: FreeSpreadPick[]; reading_id?: string; email?: string; }
+interface FreeUnlockSpreadBody extends LocalizedRequestBody { spread_id: string; picks: FreeSpreadPick[]; reading_id: string; email?: string; }
 
 async function hmacSha256Hex(secret: string, value: string): Promise<string> {
   const key = await crypto.subtle.importKey(
@@ -701,10 +704,9 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
   if (!Array.isArray(body.picks) || body.picks.length !== spread.card_count) {
     return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
   }
+  if (!body.reading_id || body.reading_id.length > 100) return badRequest(req, env, 'reading_id required');
   const session = await readSession(req, env);
-  if (!session) return unauthorized(req, env, '請先登入並啟用塔羅全館試用');
-  const entitlement = await getTarotEntitlement(env, session.id);
-  if (!entitlement.has_access) return tarotAccessDenied(req, env, entitlement);
+  if (!session) return unauthorized(req, env, '請先登入');
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
     const language = bodyContentLanguage(body);
@@ -714,11 +716,14 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 
+  const access = await authorizeTarotSpread(env, session.id, body.spread_id, body.reading_id);
+  if (!access.allowed) return tarotAccessDenied(req, env, access.entitlement);
   return json(req, env, {
     spread_id: body.spread_id,
     cards,
-    access_source: entitlement.status === 'trialing' ? 'tarot_trial' : 'tarot_monthly_600',
-    entitlement_status: entitlement.status,
+    access_source: access.source === 'free' ? 'free_quota' : access.entitlement.plan_id,
+    entitlement_status: access.source === 'free' ? 'free_available' : access.entitlement.status,
+    free_readings_remaining: access.entitlement.free_readings_remaining,
   });
 }
 

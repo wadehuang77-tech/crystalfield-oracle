@@ -1,62 +1,52 @@
 import { Check } from 'lucide-react';
-import {
-  TAROT_SUBSCRIPTION_DECK_NAMES,
-  TAROT_SUBSCRIPTION_SPREAD_NAMES,
-} from '../lib/tarot-subscription';
+import { TAROT_SUBSCRIPTION_PLANS } from '../lib/tarot-subscription';
 
-const BENEFITS = [
-  '7 大塔羅牌組全部解鎖',
-  '所有牌陣不限次數',
-  '完整解讀不限次數',
-  '每月 NT$600 自動續訂',
-  '可取消後續續訂',
+interface TarotSubscriptionDetailsProps {
+  selectedPlanId: string;
+  onSelect: (planId: string) => void;
+  disabled?: boolean;
+}
+
+const PLAN_SPREADS = [
+  '所有單張與三張牌陣',
+  '所有單張、三張與前世因果牌陣',
+  '所有牌組與全部牌陣',
 ];
 
-export function TarotSubscriptionDetails() {
+export function TarotSubscriptionDetails({ selectedPlanId, onSelect, disabled = false }: TarotSubscriptionDetailsProps) {
   return (
-    <div className="mt-6 space-y-6">
-      <section>
-        <h6 className="mb-3 text-sm font-semibold tracking-wider text-amber-200">
-          包含 7 大塔羅牌組
-        </h6>
-        <ul className="grid grid-cols-2 gap-2 md:grid-cols-2 lg:grid-cols-3">
-          {TAROT_SUBSCRIPTION_DECK_NAMES.map((deckName) => (
-            <li
-              key={deckName}
-              className={`flex min-h-10 items-center justify-center rounded-lg border border-amber-300/25 bg-slate-900/70 px-3 py-2 text-center text-sm leading-snug text-amber-50 ${
-                deckName === 'Lightworker 光之訊息' ? 'col-span-2 md:col-span-1' : ''
-              }`}
-            >
-              {deckName}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h6 className="mb-3 text-sm font-semibold tracking-wider text-amber-200">
-          會員可使用牌陣
-        </h6>
-        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {TAROT_SUBSCRIPTION_SPREAD_NAMES.map((spreadName) => (
-            <li
-              key={spreadName}
-              className="rounded-lg border border-amber-300/20 bg-slate-900/55 px-3 py-2 text-sm leading-snug text-amber-50/90"
-            >
-              {spreadName}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <ul className="space-y-2 border-t border-amber-300/15 pt-5 text-sm text-white/75">
-        {BENEFITS.map((benefit) => (
-          <li key={benefit} className="flex gap-2">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-            <span>{benefit}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="mt-6 grid gap-3 md:grid-cols-3">
+      {TAROT_SUBSCRIPTION_PLANS.map((plan, index) => {
+        const selected = selectedPlanId === plan.id;
+        return (
+          <button
+            key={plan.id}
+            type="button"
+            aria-pressed={selected}
+            disabled={disabled}
+            onClick={() => onSelect(plan.id)}
+            className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              selected ? 'border-amber-300 bg-amber-300/10' : 'border-amber-300/20 bg-slate-900/60 hover:border-amber-300/50'
+            }`}
+          >
+            <span className="block text-sm font-semibold text-amber-100">{plan.name}</span>
+            <span className="mt-2 block text-2xl font-bold text-white">NT${plan.price}<span className="text-sm font-normal text-white/60">／月</span></span>
+            <span className="mt-2 block text-xs leading-5 text-amber-100/70">{plan.description}</span>
+            <span className="mt-3 flex items-start gap-2 text-xs leading-5 text-white/65">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" />
+              {PLAN_SPREADS[index]}
+            </span>
+            <span className="mt-1 flex items-start gap-2 text-xs leading-5 text-white/65">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" />
+              月費期間內，涵蓋的牌陣可無限次完整占卜
+            </span>
+            <span className="mt-1 flex items-start gap-2 text-xs leading-5 text-white/65">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" />
+              每月自動續訂，可取消後續續訂
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }

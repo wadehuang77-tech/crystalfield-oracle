@@ -214,14 +214,6 @@ export default function HumanDesignPage() {
     }
   }, [access, birthData, chart, chartId, email]);
 
-  const handleEmailUnlocked = (nextEmail: string) => {
-    if (!chart) return;
-    setEmail(nextEmail);
-    setAccess('email');
-    persistState({ chart, chartId, birthData, access: 'email', email: nextEmail });
-    goTo('report');
-  };
-
   const startBasicCheckout = async () => {
     if (!chart || checkoutLoading) return;
     markCheckoutReturn('basic');
@@ -413,7 +405,7 @@ export default function HumanDesignPage() {
             birthDate={birthData.date}
             birthTime={birthData.time}
             birthCity={birthData.city}
-            onEmailUnlocked={handleEmailUnlocked}
+            onContinue={() => goTo('report')}
           />
         )}
         {page === 'loading' && <AnalysingScreen />}

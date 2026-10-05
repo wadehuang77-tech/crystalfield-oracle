@@ -8,8 +8,6 @@ interface ContentGateProps {
   onUpgrade: (required: PlanTier) => void;
   accentColor?: string;
   previewHeight?: number;
-  emailUnlocked?: boolean;
-  emailUnlockTargetId?: string;
   children: React.ReactNode;
 }
 
@@ -20,39 +18,22 @@ export default function ContentGate({
   onUpgrade,
   accentColor = '#a78bfa',
   previewHeight = 160,
-  emailUnlocked = false,
-  emailUnlockTargetId,
   children,
 }: ContentGateProps) {
-  if (currentTier >= requiredTier || emailUnlocked) return <>{children}</>;
+  if (currentTier >= requiredTier) return <>{children}</>;
 
   const gateColor = accentColor;
-  const usesEmailUnlock = Boolean(emailUnlockTargetId);
   const label = language === 'en'
-    ? usesEmailUnlock
-      ? 'Enter your email to unlock the full content for free.'
-      : requiredTier === 1
-        ? 'Unlock the Basic plan to view the full content.'
-        : requiredTier === 2
-          ? 'Unlock the Advanced plan to view the full content.'
-          : 'Unlock the full soul reading to view all content.'
-    : usesEmailUnlock
-    ? '輸入Email免費解鎖，查看完整內容'
+    ? requiredTier === 1
+      ? 'Unlock the Basic plan to view the full content.'
+      : requiredTier === 2
+        ? 'Unlock the Advanced plan to view the full content.'
+        : 'Unlock the full soul reading to view all content.'
     : requiredTier === 1
-    ? '解鎖基礎版 NT$199，查看完整內容'
-    : requiredTier === 2
-    ? '解鎖進階版 NT$499，查看完整內容'
-    : '解鎖完整靈魂版 NT$10，查看完整內容';
-  const btnLabel = language === 'en'
-    ? usesEmailUnlock ? 'Unlock with Email' : 'Unlock Full Reading'
-    : usesEmailUnlock ? '輸入Email免費解鎖' : '解鎖完整解析';
-  const handleUnlockClick = () => {
-    if (emailUnlockTargetId) {
-      document.getElementById(emailUnlockTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    onUpgrade(requiredTier);
-  };
+      ? '解鎖基礎版 NT$199，查看完整內容'
+      : requiredTier === 2
+        ? '解鎖進階版 NT$499，查看完整內容'
+        : '解鎖完整靈魂版 NT$10，查看全部內容';
 
   return (
     <div style={{ position: 'relative' }}>
@@ -105,7 +86,7 @@ export default function ContentGate({
         </p>
 
         <button
-          onClick={handleUnlockClick}
+          onClick={() => onUpgrade(requiredTier)}
           style={{
             padding: '9px 22px',
             borderRadius: 10,
@@ -121,8 +102,8 @@ export default function ContentGate({
             letterSpacing: '0.02em',
           } as React.CSSProperties}
         >
-          {btnLabel}
-        </button>
+          {language === 'en' ? 'Unlock Full Reading' : '解鎖完整解析'}
+          </button>
       </div>
     </div>
   );

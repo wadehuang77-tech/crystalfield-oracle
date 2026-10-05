@@ -14,8 +14,8 @@ import {
   createPendingMembershipSubscription,
   markMembershipFirstPaymentPaid,
   rejectDuplicateActiveMembership,
-  TAROT_SUBSCRIPTION_ITEM_ID,
 } from './subscriptions';
+import { isTarotSubscriptionPlan } from './tarotCatalog';
 import { validateVedicCheckoutContext } from './vedicAstrology';
 import {
   badRequest,
@@ -94,7 +94,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout && !isGuestHumanDesignCheckout && !isGuestVedicCheckout) {
     return unauthorized(req, env, '請先登入');
   }
-  if (user && item.id === TAROT_SUBSCRIPTION_ITEM_ID) {
+  if (user && isTarotSubscriptionPlan(item.id)) {
     await clearStalePendingMemberships(env, user.id);
     const reason = await rejectDuplicateActiveMembership(env, user.id);
     if (reason) return badRequest(req, env, reason);
@@ -165,7 +165,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
       merchantTradeNo,
       user?.id ?? null,
       user?.email ?? guestEmail,
-      item.id === TAROT_SUBSCRIPTION_ITEM_ID
+      isTarotSubscriptionPlan(item.id)
         ? 'subscription'
         : (isHumanDesignCheckout ? 'human_design' : (isVedicCheckout ? 'vedic_astrology' : 'spread')),
       item.id,
@@ -174,13 +174,14 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
       picksPayload,
     ).run();
 
-    if (user && item.id === TAROT_SUBSCRIPTION_ITEM_ID) {
+    if (user && isTarotSubscriptionPlan(item.id)) {
       await createPendingMembershipSubscription(env, {
         userId: user.id,
         email: user.email,
         orderId,
         merchantTradeNo,
         amount: item.amount,
+        planCode: item.id,
       });
     }
   }
@@ -207,7 +208,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     ).bind(orderId).run();
 
     // Grant access immediately (mirrors webhook logic) so admins can test unlock flow
-    if (item.id === TAROT_SUBSCRIPTION_ITEM_ID) {
+    if (isTarotSubscriptionPlan(item.id)) {
       await markMembershipFirstPaymentPaid(env, {
         id: orderId,
         user_id: user.id,
@@ -283,8 +284,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     frequency:       billing.frequency,
     execTimes:       billing.execTimes,
     periodReturnURL: billing.periodReturnURL,
-    customField1:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? orderId : undefined,
-    customField2:    item.id === TAROT_SUBSCRIPTION_ITEM_ID ? (user?.id ?? '') : undefined,
+    customField1:    isTarotSubscriptionPlan(item.id) ? orderId : undefined,
+    customField2:    isTarotSubscriptionPlan(item.id) ? (user?.id ?? '') : undefined,
   }, env.ECPAY_ENV);
 
   return json(req, env, {

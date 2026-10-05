@@ -356,9 +356,9 @@ function CosmicCrossPage() {
                           <Lock className="w-7 h-7 text-orange-300" />
                         </div>
                       </div>
-                      <h3 className="text-2xl font-serif text-orange-100 tracking-wide">登入並開始塔羅全館 7 天免費試用</h3>
+                      <h3 className="text-2xl font-serif text-orange-100 tracking-wide">登入後享有 3 次免費占卜</h3>
                       <p className="text-orange-200/80 text-base leading-relaxed max-w-md mx-auto">
-                        不需要輸入信用卡，也不會自動扣款；試用期間可使用全部 7 套牌卡與所有牌陣。
+                        登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。
                       </p>
                       <InlineEmailUnlock
                         onUnlocked={(email) => { void handleEmailUnlock(email); }}

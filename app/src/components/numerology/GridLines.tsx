@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Zap, Gem, ChevronDown, ChevronUp, Sparkles, Check } from 'lucide-react';
+import { Zap, Gem, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import type { NumerologyReport, GridLine } from '../../lib/numerology';
 import ContentGate from './ContentGate';
-import { InlineEmailUnlock } from '../InlineEmailUnlock';
 import type { PlanTier } from '../../hooks/usePremium';
 import NumerologyShareButton from './NumerologyShare';
 
@@ -126,7 +125,7 @@ function GridVisual({ report, hoveredLine, isEnglish }: { report: NumerologyRepo
   );
 }
 
-function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrade, onAdvancedUnlock, emailUnlocked, isEnglish }: {
+function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrade, onAdvancedUnlock, isEnglish }: {
   line: GridLine;
   isExpanded: boolean;
   onToggle: () => void;
@@ -135,7 +134,6 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
   tier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
   onAdvancedUnlock: () => void;
-  emailUnlocked: boolean;
   isEnglish: boolean;
 }) {
   const color = LINE_COLORS[line.id] || '#fbbf24';
@@ -185,13 +183,13 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
       {isExpanded && (
         <div className="px-4 pb-6 space-y-5 border-t" style={{ borderColor: `${color}15` }}>
 
-          {/* Soul Blueprint — gated at tier 2 (email unlocks) */}
+          {/* Soul Blueprint — gated at tier 2 */}
           <div className="pt-5 space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: color }} />
             <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(196,181,253,0.45)' }}>{isEnglish ? 'PROFILE AND REFLECTION' : '靈魂藍圖與脈輪狀態'}</p>
             </div>
-            <ContentGate currentTier={tier} language={isEnglish ? 'en' : 'zh-Hant'} requiredTier={2} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
+            <ContentGate currentTier={tier} language={isEnglish ? 'en' : 'zh-Hant'} requiredTier={2} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={100}>
               <p className="text-sm leading-[1.95] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: `${color}25` }}>
                 {line.soulBlueprint}
               </p>
@@ -200,8 +198,8 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
 
           <div className="h-px" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
 
-          {/* Crystal Prescription — email unlock */}
-          <ContentGate currentTier={tier} language={isEnglish ? 'en' : 'zh-Hant'} requiredTier={1} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={150} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
+          {/* Crystal Prescription — gated at tier 1 */}
+          <ContentGate currentTier={tier} language={isEnglish ? 'en' : 'zh-Hant'} requiredTier={1} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={150}>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />
@@ -228,7 +226,7 @@ function LineCard({ line, isExpanded, onToggle, onHover, onLeave, tier, onUpgrad
           </ContentGate>
 
           {/* Meditation & Ritual — unlocked by advanced tier */}
-          <ContentGate currentTier={tier} language={isEnglish ? 'en' : 'zh-Hant'} requiredTier={2} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={100} emailUnlocked={emailUnlocked} emailUnlockTargetId="numerology-grid-email-unlock">
+          <ContentGate currentTier={tier} language={isEnglish ? 'en' : 'zh-Hant'} requiredTier={2} onUpgrade={handleGateUpgrade} accentColor={color} previewHeight={100}>
             <div className="h-px mb-5" style={{ background: `linear-gradient(to right, ${color}25, transparent)` }} />
             <div className="rounded-2xl p-5 space-y-3" style={{ background: `${color}06`, border: `1px solid ${color}18` }}>
               <div className="flex items-center gap-2">
@@ -251,7 +249,6 @@ export default function GridLines({ language, report, tier, onUpgrade, onAdvance
   const isEnglish = language === 'en';
   const [expanded, setExpanded] = useState<string | null>(report.activeGridLines[0]?.id ?? null);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [emailUnlocked, setEmailUnlocked] = useState(() => localStorage.getItem('cf_numerology_grid_unlocked') === '1');
   const activeCount = report.activeGridLines.length;
   const totalLines = 8;
 
@@ -348,51 +345,6 @@ export default function GridLines({ language, report, tier, onUpgrade, onAdvance
         <div className="space-y-2 pt-2 border-t border-white/5">
           <p className="text-xs text-gray-500 uppercase tracking-widest pb-1">{isEnglish ? 'Pattern Details' : '連線詳細解析'}</p>
 
-          {!emailUnlocked && tier < 1 && (
-            <div id="numerology-grid-email-unlock" style={{
-              borderRadius: 16,
-              border: '1px solid rgba(167,139,250,0.25)',
-              background: 'linear-gradient(135deg, rgba(167,139,250,0.07), rgba(167,139,250,0.02))',
-              padding: '16px',
-              marginBottom: 8,
-            }}>
-              <p style={{
-                display: 'inline-flex',
-                margin: '0 0 10px',
-                padding: '6px 14px',
-                borderRadius: 999,
-                border: '1px solid rgba(245,243,255,0.55)',
-                background: 'rgba(245,243,255,0.20)',
-                color: '#ffffff',
-                fontSize: 14,
-                fontWeight: 900,
-                letterSpacing: '0.03em',
-                textShadow: '0 0 10px rgba(255,255,255,0.42)',
-                boxShadow: '0 0 22px rgba(167,139,250,0.34)',
-              }}>
-                {isEnglish ? 'Unlock free with email' : '輸入Email免費解鎖'}
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
-                {(isEnglish ? ['Pattern details', 'Crystal suggestions', 'Reflection practice'] : ['連線詳細解析', '高頻水晶處方', '專屬光體能量修復儀式']).map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <Check style={{ width: 12, height: 12, color: '#a78bfa', flexShrink: 0 }} />
-                    <span style={{ fontSize: 12, color: 'rgba(233,213,255,0.75)' }}>{f}</span>
-                  </div>
-                ))}
-              </div>
-              <InlineEmailUnlock
-                language={isEnglish ? 'en' : 'zh-Hant'}
-                onUnlocked={(email) => {
-                  void email;
-                  localStorage.setItem('cf_numerology_grid_unlocked', '1');
-                  setEmailUnlocked(true);
-                }}
-                readingType="numerology_grid"
-                theme="dark"
-              />
-            </div>
-          )}
-
           {report.activeGridLines.map(line => (
             <LineCard
               key={line.id}
@@ -404,7 +356,6 @@ export default function GridLines({ language, report, tier, onUpgrade, onAdvance
               tier={tier}
               onUpgrade={onUpgrade}
               onAdvancedUnlock={onAdvancedUnlock}
-              emailUnlocked={emailUnlocked}
               isEnglish={isEnglish}
             />
           ))}

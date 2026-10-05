@@ -1,4 +1,5 @@
 import { SPREAD_PRICES } from './spread-prices';
+import { isTarotSubscriptionPlan } from './tarot-subscription';
 import {
   ORACLE_SPREADS,
   type OracleDeckId,
@@ -26,27 +27,21 @@ type Ga4EventMap = {
   unlock_click: { deck_id: OracleDeckId; spread_id: OracleSpreadId; reading_id: string; product_id: string; product_name: string; value: number; currency: 'TWD' };
   begin_checkout: { currency: 'TWD'; value: number; transaction_id: string; deck_id: OracleDeckId; spread_id: OracleSpreadId; reading_id: string; items: Ga4Item[] };
   purchase: { transaction_id: string; currency: 'TWD'; value: number; deck_id?: OracleDeckId; spread_id?: OracleSpreadId; reading_id?: string; payment_type: string; plan_id?: string; billing_type?: 'recurring'; items: Ga4Item[] };
-  tarot_subscription_view: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; billing_type: 'recurring' };
-  tarot_subscription_checkout: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; billing_type: 'recurring' };
-  tarot_subscription_start: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; billing_type: 'recurring'; transaction_id: string };
-  tarot_subscription_renewal: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; billing_type: 'recurring'; transaction_id: string; billing_cycle: number };
-  tarot_subscription_payment_failed: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; billing_type: 'recurring'; billing_cycle: number };
-  tarot_subscription_cancelled: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; billing_type: 'recurring' };
+  tarot_subscription_view: { plan_id: string; value: number; currency: 'TWD'; billing_type: 'recurring' };
+  tarot_subscription_checkout: { plan_id: string; value: number; currency: 'TWD'; billing_type: 'recurring' };
+  tarot_subscription_start: { plan_id: string; value: number; currency: 'TWD'; billing_type: 'recurring'; transaction_id: string };
+  tarot_subscription_renewal: { plan_id: string; value: number; currency: 'TWD'; billing_type: 'recurring'; transaction_id: string; billing_cycle: number };
+  tarot_subscription_payment_failed: { plan_id: string; value: number; currency: 'TWD'; billing_type: 'recurring'; billing_cycle: number };
+  tarot_subscription_cancelled: { plan_id: string; value: number; currency: 'TWD'; billing_type: 'recurring' };
   oracle_need_selected: { need_type: OracleNeedType };
   oracle_reading_started: { need_type: OracleNeedType; spread_type: OracleSpreadId; deck_type: OracleDeckId };
-  oracle_free_reading_completed: { free_reading_number: 1 | 2; remaining_free_readings: number; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
-  oracle_paywall_viewed: { reason: 'free_limit_reached'; completed_free_readings: 2; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
-  view_tarot_trial_offer: { entitlement_status: 'login_required' | 'trial_available' };
-  login_for_tarot_trial: { method: 'google' };
-  start_tarot_trial: { trial_days: 7 };
-  tarot_trial_started: { trial_days: 7 };
-  use_tarot_during_trial: { spread_id: string };
-  tarot_trial_expired: { plan_id: 'tarot_monthly_600' };
-  view_tarot_subscription: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
-  click_tarot_subscribe: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
-  tarot_payment_started: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
-  tarot_payment_success: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD'; transaction_id: string };
-  tarot_payment_failed: { plan_id: 'tarot_monthly_600'; value: 600; currency: 'TWD' };
+  oracle_free_reading_completed: { free_reading_number: 1 | 2 | 3; remaining_free_readings: number; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
+  oracle_paywall_viewed: { reason: 'free_limit_reached'; completed_free_readings: 3; deck_type: OracleDeckId; spread_type: OracleSpreadId; need_type: OracleNeedType };
+  view_tarot_subscription: { plan_id: string; value: number; currency: 'TWD' };
+  click_tarot_subscribe: { plan_id: string; value: number; currency: 'TWD' };
+  tarot_payment_started: { plan_id: string; value: number; currency: 'TWD' };
+  tarot_payment_success: { plan_id: string; value: number; currency: 'TWD'; transaction_id: string };
+  tarot_payment_failed: { plan_id: string; value: number; currency: 'TWD' };
   tarot_deep_analysis_recommendations_view: { source: 'unlocked_tarot_result'; deck_id: OracleDeckId; spread_id: OracleSpreadId };
   tarot_cross_sell_click: { destination: 'numerology' | 'human_design' | 'vedic_astrology'; source: 'unlocked_tarot_result'; deck_id: OracleDeckId; spread_id: OracleSpreadId };
 };
@@ -137,104 +132,79 @@ function item(productId: string, name: string, value: number): Ga4Item {
   return { item_id: productId, item_name: name, item_category: 'oracle_reading', price: value, quantity: 1 };
 }
 
-const TAROT_SUBSCRIPTION_ANALYTICS = {
-  plan_id: 'tarot_monthly_600',
-  value: 600,
-  currency: 'TWD',
-  billing_type: 'recurring',
-} as const;
+function tarotSubscriptionAnalytics(planId: string, value: number) {
+  return { plan_id: planId, value, currency: 'TWD' as const, billing_type: 'recurring' as const };
+}
 
 function trackTarotSubscriptionOnce(
   eventName: 'tarot_subscription_view' | 'tarot_subscription_checkout' | 'tarot_subscription_cancelled',
+  planId: string,
+  value: number,
 ): void {
   const key = `cf_ga4_${eventName}`;
   if (sessionGet(key) === '1') return;
-  if (trackEvent(eventName, TAROT_SUBSCRIPTION_ANALYTICS)) sessionSet(key, '1');
+  if (trackEvent(eventName, tarotSubscriptionAnalytics(planId, value))) sessionSet(key, '1');
 }
 
-export function trackTarotSubscriptionView(): void {
-  trackTarotSubscriptionOnce('tarot_subscription_view');
+export function trackTarotSubscriptionView(planId = 'tarot_three_monthly_600', value = 600): void {
+  trackTarotSubscriptionOnce('tarot_subscription_view', planId, value);
 }
 
-export function trackTarotSubscriptionCheckout(): void {
-  trackTarotSubscriptionOnce('tarot_subscription_checkout');
+export function trackTarotSubscriptionCheckout(planId = 'tarot_three_monthly_600', value = 600): void {
+  trackTarotSubscriptionOnce('tarot_subscription_checkout', planId, value);
 }
 
-export function trackTarotSubscriptionCancelled(): void {
-  trackTarotSubscriptionOnce('tarot_subscription_cancelled');
+export function trackTarotSubscriptionCancelled(planId = 'tarot_three_monthly_600', value = 600): void {
+  trackTarotSubscriptionOnce('tarot_subscription_cancelled', planId, value);
 }
 
-export function trackTarotSubscriptionStart(transactionId: string): void {
+export function trackTarotSubscriptionStart(transactionId: string, planId = 'tarot_three_monthly_600', value = 600): void {
   if (!transactionId) return;
   const key = `cf_ga4_tarot_subscription_start_${transactionId}`;
   if (persistentGet(key) === '1') return;
-  if (trackEvent('tarot_subscription_start', { ...TAROT_SUBSCRIPTION_ANALYTICS, transaction_id: transactionId })) {
+  if (trackEvent('tarot_subscription_start', { ...tarotSubscriptionAnalytics(planId, value), transaction_id: transactionId })) {
     persistentSet(key, '1');
   }
 }
 
-export function trackTarotSubscriptionRenewal(transactionId: string, billingCycle: number): void {
+export function trackTarotSubscriptionRenewal(transactionId: string, billingCycle: number, planId = 'tarot_three_monthly_600', value = 600): void {
   if (!transactionId || billingCycle < 2) return;
   const key = `cf_ga4_tarot_subscription_renewal_${transactionId}`;
   if (persistentGet(key) === '1') return;
   if (trackEvent('tarot_subscription_renewal', {
-    ...TAROT_SUBSCRIPTION_ANALYTICS,
+    ...tarotSubscriptionAnalytics(planId, value),
     transaction_id: transactionId,
     billing_cycle: billingCycle,
   })) persistentSet(key, '1');
 }
 
-export function trackTarotSubscriptionPaymentFailed(billingCycle: number): void {
+export function trackTarotSubscriptionPaymentFailed(billingCycle: number, planId = 'tarot_three_monthly_600', value = 600): void {
   const key = `cf_ga4_tarot_subscription_payment_failed_${billingCycle}`;
   if (sessionGet(key) === '1') return;
   if (trackEvent('tarot_subscription_payment_failed', {
-    ...TAROT_SUBSCRIPTION_ANALYTICS,
+    ...tarotSubscriptionAnalytics(planId, value),
     billing_cycle: Math.max(1, billingCycle),
   })) sessionSet(key, '1');
 }
 
-export function trackTarotTrialOffer(status: 'login_required' | 'trial_available'): void {
-  trackEvent('view_tarot_trial_offer', { entitlement_status: status });
+export function trackViewTarotSubscription(planId = 'tarot_three_monthly_600', value = 600): void {
+  trackEvent('view_tarot_subscription', { plan_id: planId, value, currency: 'TWD' });
 }
 
-export function trackLoginForTarotTrial(): void {
-  trackEvent('login_for_tarot_trial', { method: 'google' });
+export function trackClickTarotSubscribe(planId = 'tarot_three_monthly_600', value = 600): void {
+  trackEvent('click_tarot_subscribe', { plan_id: planId, value, currency: 'TWD' });
 }
 
-export function trackStartTarotTrial(): void {
-  trackEvent('start_tarot_trial', { trial_days: 7 });
+export function trackTarotPaymentStarted(planId = 'tarot_three_monthly_600', value = 600): void {
+  trackEvent('tarot_payment_started', { plan_id: planId, value, currency: 'TWD' });
 }
 
-export function trackTarotTrialStarted(): void {
-  trackEvent('tarot_trial_started', { trial_days: 7 });
+export function trackTarotPaymentSuccess(transactionId: string, planId = 'tarot_three_monthly_600', value = 600): void {
+  if (transactionId) trackEvent('tarot_payment_success', { plan_id: planId, value, currency: 'TWD', transaction_id: transactionId });
 }
 
-export function trackUseTarotDuringTrial(spreadId: string): void {
-  trackEvent('use_tarot_during_trial', { spread_id: spreadId });
-}
-
-export function trackTarotTrialExpired(): void {
-  trackEvent('tarot_trial_expired', { plan_id: 'tarot_monthly_600' });
-}
-
-export function trackViewTarotSubscription(): void {
-  trackEvent('view_tarot_subscription', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
-}
-
-export function trackClickTarotSubscribe(): void {
-  trackEvent('click_tarot_subscribe', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
-}
-
-export function trackTarotPaymentStarted(): void {
-  trackEvent('tarot_payment_started', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
-}
-
-export function trackTarotPaymentSuccess(transactionId: string): void {
-  if (transactionId) trackEvent('tarot_payment_success', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD', transaction_id: transactionId });
-}
-
-export function trackTarotPaymentFailed(): void {
-  trackEvent('tarot_payment_failed', { plan_id: 'tarot_monthly_600', value: 600, currency: 'TWD' });
+export function trackTarotPaymentFailed(planId = 'tarot_three_monthly_600', value = 600): void {
+  trackEvent('tarot_payment_failed', { plan_id: planId, value, currency: 'TWD' });
 }
 
 export function trackTarotDeepAnalysisRecommendationsView(deckId: OracleDeckId, spreadId: OracleSpreadId): void {
@@ -393,7 +363,7 @@ export function trackPurchase(productId: string, transactionId: string, value: n
   if (!transactionId || !actualProductName || !paymentType || !Number.isFinite(value)) return;
   const storageKey = `cf_ga4_purchase_${transactionId}`;
   if (persistentGet(storageKey) === '1') return;
-  const sent = productId === 'tarot_monthly_600'
+  const sent = isTarotSubscriptionPlan(productId)
     ? trackEvent('purchase', {
       transaction_id: transactionId, currency: 'TWD', value, payment_type: paymentType,
       plan_id: productId, billing_type: 'recurring',

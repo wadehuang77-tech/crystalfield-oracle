@@ -172,7 +172,12 @@ function HomePage() {
 
   useEffect(() => {
     if (!user) { setEntitlement(null); return; }
-    void tarotEntitlementApi.me().then(({ entitlement: value }) => setEntitlement(value)).catch(() => setEntitlement(null));
+    const refreshEntitlement = () => {
+      void tarotEntitlementApi.me().then(({ entitlement: value }) => setEntitlement(value)).catch(() => setEntitlement(null));
+    };
+    refreshEntitlement();
+    window.addEventListener('tarot-entitlement-changed', refreshEntitlement);
+    return () => window.removeEventListener('tarot-entitlement-changed', refreshEntitlement);
   }, [user]);
 
   const selectNeed = (option: NeedOption) => {
@@ -193,8 +198,7 @@ function HomePage() {
         setLoginRequired(true);
         return;
       }
-      let access = (await tarotEntitlementApi.me()).entitlement;
-      if (access.status === 'trial_available') access = (await tarotEntitlementApi.startTrial()).entitlement;
+      const access = (await tarotEntitlementApi.me()).entitlement;
       setEntitlement(access);
       setLoginRequired(false);
       pendingRef.current = null;
@@ -317,7 +321,7 @@ function HomePage() {
                         disabled={isStarting}
                         className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3.5 text-base font-bold tracking-widest text-white shadow-lg transition hover:scale-[1.01] active:scale-[0.99] ${styles.button}`}
                       >
-                        {isStarting ? copy('checking', '確認資格中…') : !user ? copy('loginTrial', '登入並開始免費試用') : entitlement?.status === 'trial_available' ? copy('startTrial', '開始免費試用 7 天') : copy('enterSpread', '進入牌陣')}
+                        {isStarting ? copy('checking', '確認資格中…') : !user ? copy('loginTrial', '登入後開始免費占卜') : copy('enterSpread', '進入牌陣')}
                       </button>
                     </form>
                     {loginRequired && selectedId === option.id && <div className="mt-5"><TarotLoginGate theme="dark" /></div>}
@@ -329,11 +333,10 @@ function HomePage() {
         </section>
 
         <p className="mt-7 text-center text-sm leading-6 text-blue-100/70">
-          {!user && copy('guestInfo', '登入 Google 帳號即可免費試用塔羅全館 7 天，不需要信用卡，也不會自動扣款。')}
-          {user && entitlement?.status === 'trial_available' && copy('availableTrial', '你可以開始一次 7 天塔羅全館免費試用。')}
-          {user && entitlement?.status === 'trialing' && copy('trialing', '塔羅全館免費試用中：7 套牌卡與所有牌陣皆可不限次數使用。')}
-          {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && copy('browseOnly', '你仍可瀏覽所有牌卡與牌陣介紹；完整解析需訂閱塔羅全館月費會員。')}
-          {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && copy('memberInfo', '塔羅全館會員有效期間，可使用全部 7 套牌卡與所有牌陣。')}
+          {!user && copy('guestInfo', '登入或註冊後即可免費占卜 3 次，亦可使用 Google 帳號註冊。')}
+          {user && entitlement?.status === 'free_available' && `剩餘免費占卜 ${entitlement.free_readings_remaining} 次。`}
+          {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && copy('browseOnly', '免費占卜次數已用完，請選擇月費方案繼續占卜。')}
+          {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && `目前會員可使用第 ${entitlement.plan_tier} 級方案所包含的牌陣。`}
         </p>
 
         <details open className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">
@@ -414,7 +417,7 @@ function HomePage() {
                 ['前世因果解锁阵是什么？', '这是七张牌的探索牌阵，用来分层观察前世今生连结与人生课题。'],
                 ['不知道该选哪一组牌怎么办？', '可依首页主题建议选择，也可以浏览七组牌卡介绍后凭直觉决定。'],
                 ['塔羅占卜結果可以代替專業意見嗎？', '不可以；醫療、心理、法律或投資問題請諮詢合格專業人士。'],
-                ['7組牌卡是否都包含在塔羅全館月費會員中？', '依目前方案設定，塔羅全館月費會員為 NT$600／月，會員有效期間可使用全部7套牌卡與所有牌陣。'],
+                ['塔羅月費方案如何選擇？', '每個帳號跨所有牌組可免費完整占卜 3 次。NT$600/月包含單張與三張牌陣，NT$1,000/月另含前世因果陣，NT$1,500/月可使用全部牌組與牌陣；會員期間內，方案涵蓋的牌陣可無限次占卜。'],
               ]).map(([questionText, answer]) => (
                 <details key={questionText} className="rounded-xl border border-blue-300/15 bg-slate-950/30 px-4 py-3">
                   <summary className="cursor-pointer font-semibold text-blue-50">{questionText}</summary>

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { AuthProvider } from './contexts/AuthProvider';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import SiteFooter from './components/SiteFooter';
@@ -71,8 +72,8 @@ const routeConfig = [
   { path: '/osho/three', element: <OshoThreePage /> },
   { path: '/checkout/return', element: <CheckoutReturnPage /> },
   { path: '/membership', element: <ProtectedRoute><MembershipPage /></ProtectedRoute> },
-  { path: '/numerology', element: <NumerologyPage /> },
-  { path: '/human-design', element: <HumanDesignPage /> },
+  { path: '/numerology', element: requireLogin(<NumerologyPage />) },
+  { path: '/human-design', element: requireLogin(<HumanDesignPage />) },
   { path: '/human-design/types', element: <HumanDesignArticlePage slug="types" /> },
   { path: '/human-design/generator', element: <HumanDesignArticlePage slug="generator" /> },
   { path: '/human-design/manifesting-generator', element: <HumanDesignArticlePage slug="manifesting-generator" /> },
@@ -82,7 +83,7 @@ const routeConfig = [
   { path: '/human-design/authority', element: <HumanDesignArticlePage slug="authority" /> },
   { path: '/human-design/profile', element: <HumanDesignArticlePage slug="profile" /> },
   { path: '/human-design/birth-time', element: <HumanDesignArticlePage slug="birth-time" /> },
-  { path: '/vedic-astrology', element: <VedicAstrologyPage /> },
+  { path: '/vedic-astrology', element: requireLogin(<VedicAstrologyPage />) },
   { path: '/vedic-astrology/what-is-vedic-astrology', element: <VedicAstrologyArticlePage slug="what-is-vedic-astrology" /> },
   { path: '/vedic-astrology/vedic-vs-western', element: <VedicAstrologyArticlePage slug="vedic-vs-western" /> },
   { path: '/vedic-astrology/rahu-ketu', element: <VedicAstrologyArticlePage slug="rahu-ketu" /> },
@@ -94,6 +95,10 @@ const routeConfig = [
   { path: '/vedic-astrology/love-marriage', element: <VedicAstrologyArticlePage slug="love-marriage" /> },
   { path: '/vedic-astrology/career-wealth', element: <VedicAstrologyArticlePage slug="career-wealth" /> },
 ] as const;
+
+function requireLogin(element: ReactNode) {
+  return <ProtectedRoute>{element}</ProtectedRoute>;
+}
 
 function DocumentLanguage() {
   const location = useLocation();

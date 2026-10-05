@@ -18,9 +18,9 @@ import {
   markMembershipFirstPaymentPaid,
   refreshMyMembership,
   tarotPeriodReturn,
-  TAROT_SUBSCRIPTION_ITEM_ID,
   validateTarotRecurringParameters,
 } from './subscriptions';
+import { isTarotSubscriptionPlan } from './tarotCatalog';
 import {
   requestPasswordReset,
   resetPassword,
@@ -255,13 +255,13 @@ export default {
         return await updateHumanDesignAnswers(req, env, id);
       }
       if (path === '/api/oracle/free-reading-status' && req.method === 'GET') {
-        return json(req, env, { error: '舊免費次數制度已停止，請使用塔羅 7 天免費試用', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
+        return json(req, env, { error: '免費次數會在登入後的塔羅占卜流程中自動計算', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
       }
       if (path === '/api/oracle/free-reading-start' && req.method === 'POST') {
-        return json(req, env, { error: '舊免費次數制度已停止，請使用塔羅 7 天免費試用', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
+        return json(req, env, { error: '免費次數會在登入後的塔羅占卜流程中自動計算', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
       }
       if (path === '/api/oracle/free-reading-complete' && req.method === 'POST') {
-        return json(req, env, { error: '舊免費次數制度已停止，請使用塔羅 7 天免費試用', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
+        return json(req, env, { error: '免費次數會在登入後的塔羅占卜流程中自動計算', code: 'TAROT_FREE_QUOTA_RETIRED' }, { status: 410 });
       }
 
       if (path.startsWith('/api/button-links/') && req.method === 'GET') {
@@ -1323,7 +1323,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
   // Compatibility for recurring orders created before the dedicated
   // PeriodReturnURL route existed. First-payment ReturnURL uses TradeAmt;
   // periodic callbacks use Amount, so they must not be conflated.
-  if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID
+  if (isTarotSubscriptionPlan(order.item_id)
       && order.status === 'paid'
       && params.Amount
       && !params.TradeAmt
@@ -1339,8 +1339,8 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
     });
   }
 
-  if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
-    const validationError = validateTarotRecurringParameters(params, 'first');
+  if (isTarotSubscriptionPlan(order.item_id)) {
+    const validationError = validateTarotRecurringParameters(params, 'first', order.item_id);
     if (validationError) return new Response(`0|${validationError}`, { status: 400, headers: { 'Content-Type': 'text/plain' } });
   }
 
@@ -1350,7 +1350,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
     }
 
     if (order.status === 'paid') {
-      if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
+      if (isTarotSubscriptionPlan(order.item_id)) {
         try {
           await markMembershipFirstPaymentPaid(env, order, params);
         } catch {
@@ -1408,7 +1408,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
       const catalogItem = SPREAD_CATALOG[order.item_id];
       if (catalogItem?.bundle) {
         await grantBundleCredits(env, order.user_id, catalogItem.bundle).catch(() => {});
-      } else if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
+      } else if (isTarotSubscriptionPlan(order.item_id)) {
         try {
           await markMembershipFirstPaymentPaid(env, order, params);
         } catch {
@@ -1437,7 +1437,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
              updated_at = ?
            WHERE id = ?`
         ).bind(rawCallback, now, order.id).run();
-        if (order.item_id === TAROT_SUBSCRIPTION_ITEM_ID) {
+        if (isTarotSubscriptionPlan(order.item_id)) {
           await markMembershipFirstPaymentFailed(env, order, params);
         }
       } catch {

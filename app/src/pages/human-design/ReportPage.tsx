@@ -430,7 +430,7 @@ export default function ReportPage({
             {basicUnlocked ? `${chart.typeName} · ${chart.profile}` : chart.typeName}
           </h1>
           <p className="text-white/35 text-sm">
-            {basicUnlocked ? chart.authorityName : isEnglish ? 'Enter your email to unlock the free report' : 'Email 免費解鎖：先查看你的類型'}
+            {basicUnlocked ? chart.authorityName : isEnglish ? 'View your type first; unlock the complete core analysis with an upgrade.' : '先查看你的類型；升級即可解鎖完整核心解析'}
           </p>
 
             const language = getLanguageFromPath(window.location.pathname);

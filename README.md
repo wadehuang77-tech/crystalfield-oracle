@@ -264,7 +264,7 @@ npm run deploy
 | Workflow | 觸發 | 內容 |
 |----------|------|------|
 | `ci-deploy.yml` | PR / push `main` | 安裝、建置、typecheck；push main 時自動部署 Worker，可選 Cloudflare Pages，最後跑 smoke test |
-| `d1-migrations.yml` | 手動 | 輸入 `APPLY` 確認後套用 production D1 migrations |
+| `d1-migrations.yml` | 手動 | `DB` 輸入 `APPLY` 套用客戶資料庫 migration；`DB_CARDS` 輸入 `APPLY` 建立英文牌卡翻譯表並匯入翻譯 |
 
 #### GitHub Secrets
 

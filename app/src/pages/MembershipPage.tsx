@@ -59,11 +59,13 @@ export default function MembershipPage() {
   useEffect(() => {
     if (!membership) return;
     if (membership.status === 'payment_failed') {
-      trackTarotSubscriptionPaymentFailed(membership.total_success_times + 1);
+      trackTarotSubscriptionPaymentFailed(membership.total_success_times + 1, membership.plan_code, membership.amount);
     } else if (membership.total_success_times > 1) {
       trackTarotSubscriptionRenewal(
         `${membership.merchant_trade_no}-${membership.total_success_times}`,
         membership.total_success_times,
+        membership.plan_code,
+        membership.amount,
       );
     }
   }, [membership]);
@@ -89,7 +91,7 @@ export default function MembershipPage() {
     try {
       const { membership } = await membershipApi.cancel();
       setMembership(membership);
-      trackTarotSubscriptionCancelled();
+      if (membership) trackTarotSubscriptionCancelled(membership.plan_code, membership.amount);
     } catch (err) {
       setError(err instanceof Error ? err.message : '取消訂閱失敗');
     } finally {
@@ -125,7 +127,7 @@ export default function MembershipPage() {
               )}
 
               <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                <Info label="方案價格" value={membership ? `NT$${membership.amount} / 月` : 'NT$600 / 月'} />
+                <Info label="方案價格" value={membership ? `NT$${membership.amount} / 月` : '未訂閱'} />
                 <Info label="本期付款" value={membership ? `NT$${membership.amount}` : '尚未付款'} />
                 <Info label="已成功扣款次數" value={membership ? `${membership.total_success_times} 次` : '0 次'} />
                 <Info label="本期開始" value={formatDate(membership?.current_period_start ?? null)} />

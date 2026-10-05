@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cardsApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
-import { trackCardDrawComplete, trackUseTarotDuringTrial } from '../lib/ga4';
+import { trackCardDrawComplete } from '../lib/ga4';
 
 export type SingleGatePhase = 'idle' | 'loading' | 'unlocked' | 'login_gate' | 'membership_gate';
 
@@ -39,11 +39,12 @@ export function useSingleCardGate({ spreadId, cardKey, reversed = false, enabled
 
     if (!user) { setPhase('login_gate'); return; }
     setPhase('loading'); setError(null);
-    void cardsApi.freeUnlockSingle(spreadId, cardKey, reversed).then((result) => {
+    const readingId = crypto.randomUUID();
+    void cardsApi.freeUnlockSingle(spreadId, cardKey, reversed, readingId).then((result) => {
       setUnlockedCard(result.card);
       setPhase('unlocked');
       setShowMembership(false);
-      if (result.entitlement_status === 'trialing') trackUseTarotDuringTrial(spreadId);
+      window.dispatchEvent(new Event('tarot-entitlement-changed'));
     }).catch((cause: Error & { status?: number }) => {
       if (cause.status === 401) { setPhase('login_gate'); return; }
       setError(cause.message || '解鎖失敗');

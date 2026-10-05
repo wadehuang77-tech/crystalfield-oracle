@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cardsApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
-import { trackCardDrawComplete, trackUseTarotDuringTrial } from '../lib/ga4';
+import { trackCardDrawComplete } from '../lib/ga4';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'login_gate' | 'paywall';
 interface Pick { card_key: string; position: number; reversed?: boolean; }
@@ -40,11 +40,12 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
 
     if (!user) { setPhase('login_gate'); return; }
     setPhase('loading'); setError(null); setUnlockSource(null);
-    void cardsApi.freeUnlockSpread(spreadId, picks).then((result) => {
+    const readingId = crypto.randomUUID();
+    void cardsApi.freeUnlockSpread(spreadId, picks, readingId).then((result) => {
       setUnlockedCards(result.cards);
-      setUnlockSource(result.entitlement_status === 'trialing' ? 'free' : 'subscription');
+      setUnlockSource(result.entitlement_status === 'free_available' ? 'free' : 'subscription');
       setPhase('unlocked');
-      if (result.entitlement_status === 'trialing') trackUseTarotDuringTrial(spreadId);
+      window.dispatchEvent(new Event('tarot-entitlement-changed'));
     }).catch((cause: Error & { status?: number }) => {
       if (cause.status === 401) { setPhase('login_gate'); return; }
       setError(cause.message || '解鎖失敗');

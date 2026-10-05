@@ -27,15 +27,22 @@ import {
   recurringBillingCycle,
   validateTarotRecurringParameters,
 } from '../src/subscriptions';
-import { TAROT_DECK_CATALOG, TAROT_SPREADS, TAROT_SUBSCRIPTION } from '../src/tarotCatalog';
+import {
+  TAROT_DECK_CATALOG,
+  TAROT_SPREADS,
+  TAROT_SUBSCRIPTION,
+  TAROT_SUBSCRIPTION_PLANS,
+  isTarotSubscriptionPlan,
+} from '../src/tarotCatalog';
 import type { Env } from '../src/utils';
 
 async function main() {
 const here = dirname(fileURLToPath(import.meta.url));
+const entryTarotPlan = TAROT_SUBSCRIPTION_PLANS.tarot_three_monthly_600;
 
 const recurring = paymentBillingConfigForProduct(
-  TAROT_SUBSCRIPTION.id,
-  TAROT_SUBSCRIPTION.amount,
+  entryTarotPlan.id,
+  entryTarotPlan.amount,
   'https://api.crystalfield101.com/api/payments/ecpay/tarot-period-return',
 );
 assert.equal(recurring.billingType, 'recurring');
@@ -47,7 +54,7 @@ assert.equal(recurring.execTimes, 99);
 const recurringForm = await buildAioCheckOutForm({
   merchantId: '3002607', hashKey: 'test-hash-key-not-a-secret', hashIV: 'test-hash-iv',
   merchantTradeNo: '20260831000000ABCDEF', amount: 600,
-  itemName: TAROT_SUBSCRIPTION.name, tradeDesc: TAROT_SUBSCRIPTION.name,
+  itemName: entryTarotPlan.name, tradeDesc: entryTarotPlan.name,
   returnURL: 'https://api.crystalfield101.com/api/ecpay-webhook',
   clientBackURL: 'https://crystalfield101.com/checkout/return',
   orderResultURL: 'https://api.crystalfield101.com/api/checkout/result',
@@ -169,8 +176,11 @@ const missingTradeResultUrl = new URL(await checkoutResultLocation('en', '/en/or
 assert.equal(missingTradeResultUrl.pathname, '/en/checkout/return');
 assert.equal(missingTradeResultUrl.searchParams.get('return_to'), '/en/oracle?spread=celtic');
 
-for (const productId of ['tarot_monthly_600', 'numerology_basic', 'human_design_basic', 'vedic_complete']) {
+for (const productId of Object.keys(TAROT_SUBSCRIPTION_PLANS)) {
   const product = SPREAD_CATALOG[productId];
+  const tarotPlanRecurring = paymentBillingConfigForProduct(productId, product.amount, 'https://example.test/period');
+  assert.equal(tarotPlanRecurring.billingType, 'recurring', `${productId} must use recurring billing`);
+  assert.equal(tarotPlanRecurring.periodAmount, product.amount, `${productId} must recur at its listed price`);
   const form = await buildAioCheckOutForm({
     merchantId: '3002607', hashKey: localeTestHashKey, hashIV: localeTestHashIV,
     merchantTradeNo: `20260831${productId.replace(/[^a-z0-9]/gi, '').slice(0, 12)}`.slice(0, 20),
@@ -186,7 +196,9 @@ for (const productId of ['tarot_monthly_600', 'numerology_basic', 'human_design_
   assert.equal(form.fields.CheckMacValue, await computeEcpayCheckMac(fields, localeTestHashKey, localeTestHashIV));
 }
 
-for (const productId of Object.keys(SPREAD_CATALOG).filter((id) => id !== TAROT_SUBSCRIPTION.id)) {
+assert.equal(paymentBillingConfigForProduct(TAROT_SUBSCRIPTION.id, TAROT_SUBSCRIPTION.amount, 'https://example.test/period').billingType, 'recurring', 'legacy members must remain recurring');
+
+for (const productId of Object.keys(SPREAD_CATALOG).filter((id) => !isTarotSubscriptionPlan(id))) {
   const product = SPREAD_CATALOG[productId];
   const billing = paymentBillingConfigForProduct(productId, product.amount, 'https://example.test/period');
   assert.equal(billing.billingType, 'one_time', `${productId} must stay one-time`);
@@ -219,6 +231,18 @@ assert.equal(buildRecurringIdempotencyKey(replay, 2), buildRecurringIdempotencyK
 assert.notEqual(buildRecurringIdempotencyKey(replay, 2), buildRecurringIdempotencyKey({ ...replay, Gwsr: '124' }, 2));
 assert.equal(validateTarotRecurringParameters({ TradeAmt: '600', PeriodType: 'M', Frequency: '1', ExecTimes: '99' }, 'first'), null);
 assert.equal(validateTarotRecurringParameters({ Amount: '599', PeriodType: 'M', Frequency: '1' }, 'recurring'), 'Amount mismatch');
+for (const plan of Object.values(TAROT_SUBSCRIPTION_PLANS)) {
+  assert.equal(
+    validateTarotRecurringParameters({ TradeAmt: String(plan.amount), PeriodType: 'M', Frequency: '1', ExecTimes: '99' }, 'first', plan.id),
+    null,
+    `${plan.id} first payment must validate its configured price`,
+  );
+  assert.equal(
+    validateTarotRecurringParameters({ Amount: String(plan.amount), PeriodType: 'M', Frequency: '1', ExecTimes: '99' }, 'recurring', plan.id),
+    null,
+    `${plan.id} recurring payment must validate its configured price`,
+  );
+}
 
 const miniflare = new Miniflare({
   modules: true,
@@ -251,6 +275,7 @@ await createPendingMembershipSubscription(env, {
   orderId: 'order-recurring-test',
   merchantTradeNo,
   amount: 600,
+  planCode: entryTarotPlan.id,
 });
 assert.equal(
   await hasActiveTarotSubscription(env, userId),

@@ -1,5 +1,6 @@
 import { deriveTarotEntitlement } from './tarotEntitlements';
 import { Env, json, readSession, requireAdmin, unauthorized } from './utils';
+import { TAROT_SUBSCRIPTION_PLAN_IDS } from './tarotCatalog';
 import { TAROT_SUBSCRIPTION_ITEM_ID } from './subscriptions';
 
 interface Row {
@@ -12,23 +13,26 @@ interface Row {
   charge_id: string | null; billing_cycle: number | null; charge_amount: number | null;
   charge_status: string | null; paid_at: string | null;
   charge_merchant_trade_no: string | null; charge_ecpay_trade_no: string | null;
+  free_readings_used: number;
 }
 
 export async function adminListTarotSubscriptions(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
   if (!user || !await requireAdmin(req, env, user)) return unauthorized(req, env);
 
+  const placeholders = TAROT_SUBSCRIPTION_PLAN_IDS.map(() => '?').join(', ');
   const result = await env.DB.prepare(
     `WITH ranked AS (
        SELECT s.*, ROW_NUMBER() OVER (PARTITION BY s.user_id ORDER BY s.created_at DESC, s.rowid DESC) AS rn
          FROM subscriptions s
-        WHERE COALESCE(s.plan_code, s.item_id) = ?
+        WHERE COALESCE(s.plan_code, s.item_id) IN (${placeholders})
      )
      SELECT p.id AS user_id, COALESCE(NULLIF(p.name, ''), m.display_name) AS name, p.email,
             m.created_at AS member_created_at,
             m.tarot_trial_started_at AS trial_started_at,
             m.tarot_trial_ends_at AS trial_ends_at,
             m.tarot_trial_used_at AS trial_used_at,
+            m.tarot_usage_count AS free_readings_used,
             s.id AS subscription_id, COALESCE(s.plan_code, s.item_id) AS plan_code,
             s.status AS subscription_status, s.amount,
             COALESCE(s.started_at, s.first_paid_at) AS started_at,
@@ -45,20 +49,17 @@ export async function adminListTarotSubscriptions(req: Request, env: Env): Promi
        JOIN profiles p ON p.id = m.user_id
        LEFT JOIN ranked s ON s.user_id = p.id AND s.rn = 1
        LEFT JOIN subscription_charges c ON c.subscription_id = s.id
-      WHERE m.google_sub IS NOT NULL
       ORDER BY m.created_at DESC, c.billing_cycle DESC, c.created_at DESC
       LIMIT 4000`,
-  ).bind(TAROT_SUBSCRIPTION_ITEM_ID).all<Row>();
+  ).bind(...TAROT_SUBSCRIPTION_PLAN_IDS).all<Row>();
 
   const members = new Map<string, Record<string, unknown> & { payments: Array<Record<string, unknown>> }>();
   for (const row of result.results ?? []) {
     let member = members.get(row.user_id);
     if (!member) {
-      const entitlement = deriveTarotEntitlement({
-        tarot_trial_started_at: row.trial_started_at,
-        tarot_trial_ends_at: row.trial_ends_at,
-        tarot_trial_used_at: row.trial_used_at,
-      }, row.subscription_id ? {
+      const entitlement = deriveTarotEntitlement(row.subscription_id ? {
+        item_id: row.plan_code ?? TAROT_SUBSCRIPTION_ITEM_ID,
+        plan_code: row.plan_code ?? TAROT_SUBSCRIPTION_ITEM_ID,
         status: row.subscription_status,
         is_active: row.charge_status === 'paid' && !!row.current_period_end && Date.parse(row.current_period_end) > Date.now(),
         cancel_at_period_end: row.cancel_requested === 1,
@@ -66,12 +67,14 @@ export async function adminListTarotSubscriptions(req: Request, env: Env): Promi
         current_period_end: row.current_period_end,
         last_payment_at: row.last_payment_at,
         latest_payment_status: row.charge_status,
-      } : null);
+      } : null, row.free_readings_used);
       member = {
-        id: row.subscription_id ?? `trial:${row.user_id}`,
+        id: row.subscription_id ?? `member:${row.user_id}`,
         user_id: row.user_id, name: row.name, email: row.email,
-        plan_code: row.plan_code ?? TAROT_SUBSCRIPTION_ITEM_ID,
-        status: entitlement.status, amount: row.amount ?? 600,
+        plan_code: row.plan_code ?? '—',
+        status: entitlement.status, amount: row.amount ?? 0,
+        free_readings_used: entitlement.free_readings_used,
+        free_readings_remaining: entitlement.free_readings_remaining,
         trial_started_at: entitlement.trial_started_at,
         trial_ends_at: entitlement.trial_ends_at,
         trial_used_at: entitlement.trial_used_at,
@@ -99,7 +102,7 @@ export async function adminListTarotSubscriptions(req: Request, env: Env): Promi
     subscriptions: list,
     summary: {
       subscriptions: list.length,
-      active: list.filter((member) => ['trialing', 'active', 'canceled_active'].includes(String(member.status))).length,
+      active: list.filter((member) => ['active', 'canceled_active'].includes(String(member.status))).length,
       paid_transactions: payments.filter((payment) => payment.status === 'paid').length,
       revenue: payments.filter((payment) => payment.status === 'paid').reduce((sum, payment) => sum + Number(payment.amount), 0),
     },

@@ -10,7 +10,7 @@ import {
   readSession,
   unauthorized,
 } from './utils';
-import { TAROT_SUBSCRIPTION } from './tarotCatalog';
+import { isTarotSubscriptionPlan, TAROT_SUBSCRIPTION, TAROT_SUBSCRIPTION_PLAN_IDS, tarotSubscriptionPlan } from './tarotCatalog';
 
 export const TAROT_SUBSCRIPTION_ITEM_ID = TAROT_SUBSCRIPTION.id;
 export const MEMBERSHIP_PERIOD_TYPE = 'M';
@@ -134,10 +134,16 @@ export function recurringBillingCycle(params: Record<string, string>, previousSu
   return String(params.RtnCode) === '1' ? Math.max(1, successTimes) : Math.max(1, successTimes + 1);
 }
 
-export function validateTarotRecurringParameters(params: Record<string, string>, phase: 'first' | 'recurring'): string | null {
+export function validateTarotRecurringParameters(
+  params: Record<string, string>,
+  phase: 'first' | 'recurring',
+  planId: string = TAROT_SUBSCRIPTION_ITEM_ID,
+): string | null {
+  const plan = tarotSubscriptionPlan(planId);
+  if (!plan) return 'Unknown tarot subscription';
   const amount = toInt(phase === 'first' ? params.TradeAmt : params.Amount);
-  if (amount !== TAROT_SUBSCRIPTION.amount) return 'Amount mismatch';
-  if (params.PeriodAmount && toInt(params.PeriodAmount) !== TAROT_SUBSCRIPTION.amount) return 'PeriodAmount mismatch';
+  if (amount !== plan.amount) return 'Amount mismatch';
+  if (params.PeriodAmount && toInt(params.PeriodAmount) !== plan.amount) return 'PeriodAmount mismatch';
   if (params.PeriodType && params.PeriodType !== MEMBERSHIP_PERIOD_TYPE) return 'PeriodType mismatch';
   if (params.Frequency && toInt(params.Frequency) !== MEMBERSHIP_FREQUENCY) return 'Frequency mismatch';
   if (params.ExecTimes && toInt(params.ExecTimes) !== MEMBERSHIP_EXEC_TIMES) return 'ExecTimes mismatch';
@@ -153,7 +159,7 @@ export function decideTarotEntitlement(input: {
   const periodEndMs = input.currentPeriodEnd ? Date.parse(input.currentPeriodEnd) : NaN;
   const paidWindow = Number.isFinite(periodEndMs) && periodEndMs > nowMs;
   const statusAllowsPaidPeriod = input.status === 'active' || input.status === 'cancelled';
-  return input.planCode === TAROT_SUBSCRIPTION_ITEM_ID
+  return isTarotSubscriptionPlan(input.planCode)
     && statusAllowsPaidPeriod
     && paidWindow
     && input.latestPaymentStatus === 'paid';
@@ -242,6 +248,7 @@ function buildSummary(row: SubscriptionRow | null) {
 }
 
 export async function getLatestMembershipRow(env: Env, userId: string): Promise<SubscriptionRow | null> {
+  const placeholders = TAROT_SUBSCRIPTION_PLAN_IDS.map(() => '?').join(', ');
   return env.DB.prepare(
     `SELECT s.*,
             (SELECT c.status
@@ -250,10 +257,19 @@ export async function getLatestMembershipRow(env: Env, userId: string): Promise<
               ORDER BY c.billing_cycle DESC, c.created_at DESC, c.rowid DESC
               LIMIT 1) AS latest_payment_status
        FROM subscriptions s
-      WHERE s.user_id = ? AND COALESCE(s.plan_code, s.item_id) = ?
-      ORDER BY s.created_at DESC
+      WHERE s.user_id = ? AND COALESCE(s.plan_code, s.item_id) IN (${placeholders})
+      ORDER BY
+        CASE WHEN s.status IN ('active', 'cancelled')
+                   AND COALESCE(s.current_period_end, s.current_period_ends_at) > datetime('now')
+             THEN 0 WHEN s.status = 'pending' THEN 1 ELSE 2 END,
+        CASE COALESCE(s.plan_code, s.item_id)
+          WHEN 'tarot_all_monthly_1500' THEN 3
+          WHEN 'tarot_monthly_600' THEN 3
+          WHEN 'tarot_pastlife_monthly_1000' THEN 2
+          WHEN 'tarot_three_monthly_600' THEN 1 ELSE 0 END DESC,
+        s.created_at DESC
       LIMIT 1`
-  ).bind(userId, TAROT_SUBSCRIPTION_ITEM_ID).first<SubscriptionRow>();
+  ).bind(userId, ...TAROT_SUBSCRIPTION_PLAN_IDS).first<SubscriptionRow>();
 }
 
 export async function getMembershipSummary(env: Env, userId: string) {
@@ -278,6 +294,7 @@ export async function createPendingMembershipSubscription(env: Env, input: {
   orderId: string;
   merchantTradeNo: string;
   amount: number;
+  planCode: string;
 }): Promise<void> {
   await env.DB.prepare(
     `INSERT INTO subscriptions
@@ -290,8 +307,8 @@ export async function createPendingMembershipSubscription(env: Env, input: {
     input.email,
     input.orderId,
     input.merchantTradeNo,
-    TAROT_SUBSCRIPTION_ITEM_ID,
-    TAROT_SUBSCRIPTION_ITEM_ID,
+    input.planCode,
+    input.planCode,
     input.amount,
     MEMBERSHIP_PERIOD_TYPE,
     MEMBERSHIP_FREQUENCY,
@@ -421,7 +438,7 @@ export async function markMembershipFirstPaymentPaid(env: Env, order: {
     `INSERT OR IGNORE INTO events (id, user_id, event_type, created_at, meta)
      VALUES (?, ?, 'tarot_subscription_start', datetime('now'), ?)`
   ).bind(eventId, row.user_id, JSON.stringify({
-    plan_id: TAROT_SUBSCRIPTION_ITEM_ID,
+    plan_id: row.plan_code ?? row.item_id,
     billing_type: 'recurring',
     amount: order.amount,
     currency: 'TWD',
@@ -466,7 +483,7 @@ export async function markMembershipFirstPaymentFailed(env: Env, order: {
       `INSERT OR IGNORE INTO events (id, user_id, event_type, created_at, meta)
        VALUES (?, ?, 'tarot_subscription_payment_failed', datetime('now'), ?)`
     ).bind(`tarot-first-failed:${idempotencyKey}`, row.user_id, JSON.stringify({
-      plan_id: TAROT_SUBSCRIPTION_ITEM_ID,
+      plan_id: row.plan_code ?? row.item_id,
       billing_type: 'recurring',
       amount: order.amount,
       currency: 'TWD',
@@ -481,10 +498,10 @@ export async function handleMembershipRecurringCallback(env: Env, params: Record
   const row = await env.DB.prepare(
     `SELECT * FROM subscriptions WHERE merchant_trade_no = ? LIMIT 1`
   ).bind(params.MerchantTradeNo ?? '').first<SubscriptionRow>();
-  if (!row || (row.plan_code ?? row.item_id) !== TAROT_SUBSCRIPTION_ITEM_ID) {
+  if (!row || !isTarotSubscriptionPlan(row.plan_code ?? row.item_id)) {
     throw new Error('Unknown tarot subscription');
   }
-  const validationError = validateTarotRecurringParameters(params, 'recurring');
+  const validationError = validateTarotRecurringParameters(params, 'recurring', row.plan_code ?? row.item_id);
   if (validationError) throw new Error(validationError);
 
   const cycleIndex = recurringBillingCycle(params, row.total_success_times);
@@ -550,7 +567,7 @@ export async function handleMembershipRecurringCallback(env: Env, params: Record
     `INSERT OR IGNORE INTO events (id, user_id, event_type, created_at, meta)
      VALUES (?, ?, ?, datetime('now'), ?)`
   ).bind(`tarot-recurring:${idempotencyKey}`, row.user_id, eventType, JSON.stringify({
-    plan_id: TAROT_SUBSCRIPTION_ITEM_ID,
+    plan_id: row.plan_code ?? row.item_id,
     billing_type: 'recurring',
     amount: row.amount,
     currency: 'TWD',
@@ -786,7 +803,7 @@ export async function cancelMyMembership(req: Request, env: Env): Promise<Respon
     `tarot-subscription-cancelled:${latest.id}`,
     latest.user_id,
     JSON.stringify({
-      plan_id: TAROT_SUBSCRIPTION_ITEM_ID,
+      plan_id: latest.plan_code ?? latest.item_id,
       billing_type: 'recurring',
       merchant_trade_no: latest.merchant_trade_no,
       current_period_end: latest.current_period_end ?? latest.current_period_ends_at,
@@ -809,6 +826,7 @@ export async function rejectDuplicateActiveMembership(env: Env, userId: string):
 }
 
 export async function clearStalePendingMemberships(env: Env, userId: string): Promise<void> {
+  const placeholders = TAROT_SUBSCRIPTION_PLAN_IDS.map(() => '?').join(', ');
   await env.DB.prepare(
     `UPDATE subscriptions
         SET status = 'cancelled',
@@ -816,8 +834,8 @@ export async function clearStalePendingMemberships(env: Env, userId: string): Pr
             cancelled_at = COALESCE(cancelled_at, datetime('now')),
             updated_at = datetime('now')
       WHERE user_id = ?
-        AND item_id = ?
+        AND item_id IN (${placeholders})
         AND status = 'pending'
         AND created_at < datetime('now', '-30 minutes')`
-  ).bind(userId, TAROT_SUBSCRIPTION_ITEM_ID).run();
+  ).bind(userId, ...TAROT_SUBSCRIPTION_PLAN_IDS).run();
 }

@@ -380,9 +380,9 @@ export default function OshoThreePage() {
             {gate.phase === 'login_gate' && (
               <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8 text-center space-y-5">
                 <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
-                <h3 className="font-serif text-2xl text-teal-100">登入並開始塔羅全館 7 天免費試用</h3>
+                <h3 className="font-serif text-2xl text-teal-100">登入後享有 3 次免費占卜</h3>
                 <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">
-                  不需要輸入信用卡，也不會自動扣款；試用期間可使用全部 7 套牌卡與所有牌陣。
+                  登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。
                 </p>
                 <InlineEmailUnlock
                   onUnlocked={(email) => { void handleEmailUnlock(email); }}

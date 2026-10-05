@@ -1,4 +1,4 @@
-import { TAROT_SUBSCRIPTION } from './tarotCatalog';
+import { TAROT_SUBSCRIPTION_PLANS, isTarotSubscriptionPlan } from './tarotCatalog';
 
 export type SpreadBundleCategory = 'three_card' | 'ten_card' | 'pastlife';
 
@@ -18,12 +18,11 @@ export interface SpreadCatalogItem {
 }
 
 export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
-  // ── 塔羅全館唯一付費方案 ──────────────────────────────────────
-  [TAROT_SUBSCRIPTION.id]: {
-    id: TAROT_SUBSCRIPTION.id,
-    name: TAROT_SUBSCRIPTION.name,
-    amount: TAROT_SUBSCRIPTION.amount,
-  },
+  // ── 塔羅月費方案 ─────────────────────────────────────────────
+  ...Object.fromEntries(Object.values(TAROT_SUBSCRIPTION_PLANS).map((plan) => [
+    plan.id,
+    { id: plan.id, name: plan.name, amount: plan.amount },
+  ])),
   // ── 生命靈數方案 ────────────────────────────────────────────────
   numerology_basic:    { id: 'numerology_basic',    name: '生命靈數 基礎版',     amount: 199 },
   numerology_advanced: { id: 'numerology_advanced', name: '生命靈數 進階版',     amount: 499 },
@@ -185,7 +184,7 @@ export function paymentBillingConfigForProduct(
   amount: number,
   periodReturnURL: string,
 ): PaymentBillingConfig {
-  if (productId !== TAROT_SUBSCRIPTION.id) return { billingType: 'one_time' };
+  if (!isTarotSubscriptionPlan(productId)) return { billingType: 'one_time' };
   return {
     billingType: 'recurring',
     choosePayment: 'Credit',

@@ -1,13 +1,15 @@
-import { TAROT_SUBSCRIPTION } from './tarot-subscription';
+import { TAROT_SUBSCRIPTION, TAROT_SUBSCRIPTION_PLANS } from './tarot-subscription';
 
 export type SpreadCategory = 'three_card' | 'ten_card' | 'pastlife';
 
-// 非塔羅價格保持原狀；塔羅只保留唯一全館月費商品。
+// 非塔羅價格保持原狀；塔羅月費依可使用牌陣分級。
 export const SPREAD_PRICES: Record<string, number> = {
   human_design_basic: 199,
   human_design_full: 399,
   human_design_bundle: 489,
   [TAROT_SUBSCRIPTION.id]: TAROT_SUBSCRIPTION.price,
+  ...Object.fromEntries(TAROT_SUBSCRIPTION_PLANS.map((plan) => [plan.id, plan.price])),
+  tarot_monthly_600: 600,
 };
 
 export const SPREAD_CATEGORIES: Record<string, SpreadCategory> = {};

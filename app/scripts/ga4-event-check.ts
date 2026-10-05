@@ -118,20 +118,20 @@ analytics.trackPurchase('tarot_three', 'CF202608150001', 199, '偉特塔羅・�
 assert(count('purchase') === 1, 'purchase must be persistently deduplicated by transaction_id');
 assert(event('purchase').params.payment_type === 'Credit_CreditCard', 'purchase must include backend payment type');
 
-analytics.trackTarotSubscriptionView();
-analytics.trackTarotSubscriptionView();
-analytics.trackTarotSubscriptionCheckout();
-analytics.trackTarotSubscriptionCheckout();
-analytics.trackTarotSubscriptionStart('CFSUBSCRIPTION001');
-analytics.trackTarotSubscriptionStart('CFSUBSCRIPTION001');
-analytics.trackPurchase('tarot_monthly_600', 'CFSUBSCRIPTION001', 600, '塔羅全館月費會員', 'Credit_CreditCard');
-analytics.trackPurchase('tarot_monthly_600', 'CFSUBSCRIPTION001', 600, '塔羅全館月費會員', 'Credit_CreditCard');
-analytics.trackTarotSubscriptionRenewal('CFSUBSCRIPTION001-2', 2);
-analytics.trackTarotSubscriptionRenewal('CFSUBSCRIPTION001-2', 2);
-analytics.trackTarotSubscriptionPaymentFailed(3);
-analytics.trackTarotSubscriptionPaymentFailed(3);
-analytics.trackTarotSubscriptionCancelled();
-analytics.trackTarotSubscriptionCancelled();
+analytics.trackTarotSubscriptionView('tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionView('tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionCheckout('tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionCheckout('tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionStart('CFSUBSCRIPTION001', 'tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionStart('CFSUBSCRIPTION001', 'tarot_all_monthly_1500', 1500);
+analytics.trackPurchase('tarot_all_monthly_1500', 'CFSUBSCRIPTION001', 1500, '塔羅全牌陣月費會員', 'Credit_CreditCard');
+analytics.trackPurchase('tarot_all_monthly_1500', 'CFSUBSCRIPTION001', 1500, '塔羅全牌陣月費會員', 'Credit_CreditCard');
+analytics.trackTarotSubscriptionRenewal('CFSUBSCRIPTION001-2', 2, 'tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionRenewal('CFSUBSCRIPTION001-2', 2, 'tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionPaymentFailed(3, 'tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionPaymentFailed(3, 'tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionCancelled('tarot_all_monthly_1500', 1500);
+analytics.trackTarotSubscriptionCancelled('tarot_all_monthly_1500', 1500);
 assert(count('tarot_subscription_view') === 1, 'subscription view must be deduplicated');
 assert(count('tarot_subscription_checkout') === 1, 'subscription checkout must be deduplicated');
 assert(count('tarot_subscription_start') === 1, 'subscription start must be deduplicated by transaction');
@@ -139,23 +139,16 @@ assert(count('tarot_subscription_renewal') === 1, 'subscription renewal must be 
 assert(count('tarot_subscription_payment_failed') === 1, 'subscription failure must be deduplicated by cycle');
 assert(count('tarot_subscription_cancelled') === 1, 'subscription cancellation must be deduplicated');
 assert(count('purchase') === 2, 'subscription purchase must be emitted once with a unique transaction_id');
-const subscriptionPurchase = events.find((sent) => sent.name === 'purchase' && sent.params.plan_id === 'tarot_monthly_600');
+const subscriptionPurchase = events.find((sent) => sent.name === 'purchase' && sent.params.plan_id === 'tarot_all_monthly_1500');
 assert(subscriptionPurchase?.params.billing_type === 'recurring', 'subscription purchase must identify recurring billing');
-
-analytics.trackTarotTrialOffer('login_required');
-analytics.trackLoginForTarotTrial();
-analytics.trackStartTarotTrial();
-analytics.trackTarotTrialStarted();
-analytics.trackUseTarotDuringTrial('tarot_three');
-analytics.trackTarotTrialExpired();
-analytics.trackViewTarotSubscription();
-analytics.trackClickTarotSubscribe();
-analytics.trackTarotPaymentStarted();
-analytics.trackTarotPaymentSuccess('CFSUBSCRIPTION002');
-analytics.trackTarotPaymentFailed();
+assert(subscriptionPurchase?.params.value === 1500, 'subscription purchase must report the selected plan price');
+analytics.trackViewTarotSubscription('tarot_pastlife_monthly_1000', 1000);
+analytics.trackClickTarotSubscribe('tarot_pastlife_monthly_1000', 1000);
+analytics.trackTarotPaymentStarted('tarot_pastlife_monthly_1000', 1000);
+analytics.trackTarotPaymentSuccess('CFSUBSCRIPTION002', 'tarot_pastlife_monthly_1000', 1000);
+analytics.trackTarotPaymentFailed('tarot_pastlife_monthly_1000', 1000);
 for (const name of [
-  'view_tarot_trial_offer', 'login_for_tarot_trial', 'start_tarot_trial', 'tarot_trial_started',
-  'use_tarot_during_trial', 'tarot_trial_expired', 'view_tarot_subscription',
+  'view_tarot_subscription',
   'click_tarot_subscribe', 'tarot_payment_started', 'tarot_payment_success', 'tarot_payment_failed',
 ]) assert(count(name) === 1, `Missing or duplicated ${name}`);
 

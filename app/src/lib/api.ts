@@ -143,12 +143,16 @@ export interface GuestEmail {
   status?: string;
 }
 
-export type TarotEntitlementStatus = 'login_required' | 'trial_available' | 'trialing' | 'active'
+export type TarotEntitlementStatus = 'login_required' | 'free_available' | 'active'
   | 'canceled_active' | 'expired' | 'payment_pending' | 'payment_failed';
 
 export interface TarotEntitlement {
   status: TarotEntitlementStatus;
   has_access: boolean;
+  plan_id: string | null;
+  plan_tier: number;
+  free_readings_used: number;
+  free_readings_remaining: number;
   trial_started_at: string | null;
   trial_ends_at: string | null;
   trial_used_at: string | null;
@@ -177,6 +181,8 @@ export interface AdminTarotSubscription {
   plan_code: string;
   status: string;
   amount: number;
+  free_readings_used: number;
+  free_readings_remaining: number;
   started_at: string | null;
   last_payment_at: string | null;
   next_billing_at: string | null;
@@ -877,7 +883,7 @@ export const cardsApi = {
   deckPreview: (deckId: DeckId) =>
     req<{ deck_id: DeckId; cards: CardPreview[] }>(`/api/decks/${encodeURIComponent(deckId)}/preview?language=${activeContentLanguage()}`),
 
-  freeUnlockSingle: (spread_id: string, card_key: string, reversed = false, reading_id?: string) =>
+  freeUnlockSingle: (spread_id: string, card_key: string, reversed: boolean, reading_id: string) =>
     req<{ card: UnlockedCard; free_readings_remaining: number | null; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-single', {
       method: 'POST',
       body: { spread_id, card_key, reversed, reading_id, language: activeContentLanguage() },
@@ -886,7 +892,7 @@ export const cardsApi = {
   freeUnlockSpread: (
     spread_id: string,
     picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
-    reading_id?: string,
+    reading_id: string,
     email?: string,
   ) =>
     req<{ spread_id: string; cards: UnlockedCard[]; free_readings_remaining: number; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-spread', {
