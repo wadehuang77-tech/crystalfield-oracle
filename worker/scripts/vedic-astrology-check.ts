@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { SPREAD_CATALOG } from '../src/ecpay.ts';
+import type { Env } from '../src/utils.ts';
+import { BirthLocationResolutionError, resolveBirthLocation } from '../src/vedicGeocoding.ts';
 import {
   buildVedAstroAllPlanetLongitudeUrl,
   parsePlanetLongitudes,
@@ -25,6 +27,92 @@ assert.equal(
 assert.equal(timezoneOffsetAtLocal('1968-09-06', '20:00', 'Asia/Taipei'), '+08:00');
 assert.equal(timezoneOffsetAtLocal('2020-01-15', '12:00', 'America/New_York'), '-05:00');
 assert.equal(timezoneOffsetAtLocal('2020-07-15', '12:00', 'America/New_York'), '-04:00');
+
+async function checkGeocodingBehavior(): Promise<void> {
+  const geocodingCache = new Map<string, { result_json: string | null; not_found: number; cached_at: number }>();
+  let geocodingThrottleUpdated = false;
+  let geocodingRequestCount = 0;
+  let geocodingRequestUrl = '';
+  const originalFetch = globalThis.fetch;
+  const geocodingDb = {
+    async batch() {
+      return [];
+    },
+    prepare(query: string) {
+      let values: unknown[] = [];
+      return {
+        bind(...boundValues: unknown[]) {
+          values = boundValues;
+          return this;
+        },
+        async run() {
+          if (query.includes('UPDATE vedic_geocoding_throttle')) {
+            geocodingThrottleUpdated = true;
+            return { meta: { changes: 1 } };
+          }
+          if (query.includes('INSERT INTO vedic_geocoding_cache')) {
+            geocodingCache.set(String(values[0]), {
+              result_json: values[1] === null ? null : String(values[1]),
+              not_found: values[1] === null ? 1 : 0,
+              cached_at: Number(values[2]),
+            });
+          }
+          return { meta: { changes: 1 } };
+        },
+        async first<T>() {
+          if (query.includes('FROM vedic_geocoding_cache')) {
+            return (geocodingCache.get(String(values[0])) ?? null) as T | null;
+          }
+          if (query.includes('FROM vedic_geocoding_throttle')) {
+            return { last_request_ms: 0 } as T;
+          }
+          return null;
+        },
+      };
+    },
+  } as unknown as D1Database;
+  const geocodingEnv = { DB: geocodingDb } as Env;
+  globalThis.fetch = async (input, init) => {
+    geocodingRequestCount += 1;
+    geocodingRequestUrl = String(input);
+    assert.equal(init?.method, undefined);
+    assert.equal(new Headers(init?.headers).get('User-Agent'), 'CrystalField101/1.0 (+https://crystalfield101.com; contact: wadehuang77@gmail.com)');
+    return new Response(JSON.stringify([{
+      display_name: 'Taipei City, Taiwan',
+      lat: '25.0330',
+      lon: '121.5654',
+    }]), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+
+  try {
+    const resolvedLocation = await resolveBirthLocation(geocodingEnv, '  Taipei   City, Taiwan  ');
+    assert.deepEqual(resolvedLocation, {
+      name: 'Taipei City, Taiwan',
+      latitude: 25.033,
+      longitude: 121.5654,
+    });
+    assert.equal(geocodingThrottleUpdated, true);
+    const geocodingUrl = new URL(geocodingRequestUrl);
+    assert.equal(geocodingUrl.origin + geocodingUrl.pathname, 'https://nominatim.openstreetmap.org/search');
+    assert.equal(geocodingUrl.searchParams.get('q'), 'Taipei City, Taiwan');
+    assert.equal(geocodingUrl.searchParams.get('format'), 'jsonv2');
+    assert.equal(geocodingUrl.searchParams.get('limit'), '1');
+    assert.equal(geocodingRequestCount, 1);
+
+    const cachedLocation = await resolveBirthLocation(geocodingEnv, 'taipei city, taiwan');
+    assert.deepEqual(cachedLocation, resolvedLocation);
+    assert.equal(geocodingRequestCount, 1, 'A normalized birthplace query should be served from cache');
+
+    await assert.rejects(
+      resolveBirthLocation(geocodingEnv, 'x'),
+      (error: unknown) => error instanceof BirthLocationResolutionError
+        && error.code === 'GEOCODING_INVALID_RESPONSE',
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
 assert.throws(() => buildVedAstroAllPlanetLongitudeUrl({
   latitude: 91,
   longitude: 121.5654,
@@ -133,7 +221,6 @@ assert.match(source, /VEDASTRO_BASE = 'https:\/\/api\.vedastro\.org\/api'/);
 assert.match(source, /method: 'GET'/);
 assert.match(source, /buildVedAstroAllPlanetLongitudeUrl/);
 assert.doesNotMatch(source, /vedastroapi\.azurewebsites\.net/);
-assert.match(source, /AddressToGeoLocation',\s*\{ address: birthPlace \},\s*\{ name: 'Address', value: birthPlace \}/);
 assert.match(source, /x-api-key/);
 assert.match(source, /order\.status !== 'paid'/);
 assert.match(source, /order\.item_id\.startsWith\('vedic_'\)/);
@@ -141,4 +228,9 @@ assert.match(source, /order_id TEXT NOT NULL UNIQUE/);
 assert.doesNotMatch(source, /INSERT INTO vedic_charts[^]*birth_date/i);
 assert.doesNotMatch(source, /INSERT INTO vedic_charts[^]*birth_place/i);
 
-console.log('Vedic astrology catalog, payment guard, timeline and privacy checks: passed');
+void checkGeocodingBehavior().then(() => {
+  console.log('Vedic astrology catalog, geocoding behavior, payment guard, timeline and privacy checks: passed');
+}).catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});

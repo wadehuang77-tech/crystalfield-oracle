@@ -141,7 +141,7 @@ function RouterBody() {
               );
             } else {
               routes.push(
-                <Route key={`${path}-en`} path={path === '/' ? '/en' : `/en${path}`} element={element} />,
+                <Route key={`${path}-en`} path={getLocalizedPath(path, 'en')} element={element} />,
               );
             }
 

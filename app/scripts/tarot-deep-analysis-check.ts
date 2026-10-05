@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import ts from 'typescript';
 import { ORACLE_SPREADS } from '../src/lib/oracle-catalog';
+import { getLocalizedPath } from '../src/lib/i18n';
 import {
   DEEP_ANALYSIS_ROUTES,
   shouldShowDeepAnalysisRecommendations,
@@ -28,6 +30,31 @@ const componentSource = source('src/components/TarotDeepAnalysisRecommendations.
 const shareSource = source('src/components/ShareReadingSection.tsx');
 const appSource = source('src/App.tsx');
 const ga4Source = source('src/lib/ga4.ts');
+const appAst = ts.createSourceFile('App.tsx', appSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+const registeredRoutes = new Set<string>();
+
+function collectRegisteredRoutes(node: ts.Node): void {
+  if (ts.isVariableDeclaration(node) && node.name.getText(appAst) === 'routeConfig' && node.initializer) {
+    let initializer = node.initializer;
+    while (ts.isAsExpression(initializer) || ts.isTypeAssertionExpression(initializer)) {
+      initializer = initializer.expression;
+    }
+    if (!ts.isArrayLiteralExpression(initializer)) return;
+    for (const entry of initializer.elements) {
+      if (!ts.isObjectLiteralExpression(entry)) continue;
+      const pathProperty = entry.properties.find((property) =>
+        ts.isPropertyAssignment(property)
+        && property.name.getText(appAst) === 'path'
+        && ts.isStringLiteral(property.initializer));
+      if (pathProperty && ts.isPropertyAssignment(pathProperty) && ts.isStringLiteral(pathProperty.initializer)) {
+        registeredRoutes.add(pathProperty.initializer.text);
+      }
+    }
+  }
+  ts.forEachChild(node, collectRegisteredRoutes);
+}
+
+collectRegisteredRoutes(appAst);
 
 assert.equal(shouldShowDeepAnalysisRecommendations({ hasFullAccess: false, resultComplete: false }), false);
 assert.equal(shouldShowDeepAnalysisRecommendations({ hasFullAccess: false, resultComplete: true }), false);
@@ -40,7 +67,9 @@ assert.deepEqual(DEEP_ANALYSIS_ROUTES, {
   vedic_astrology: '/vedic-astrology',
 });
 for (const route of Object.values(DEEP_ANALYSIS_ROUTES)) {
-  assert.ok(appSource.includes(`<Route path="${route}"`), `Missing real main route ${route}`);
+  assert.ok(registeredRoutes.has(route), `Missing registered main route ${route}`);
+  assert.equal(getLocalizedPath(route, 'zh-Hant'), route, `Incorrect Chinese route ${route}`);
+  assert.equal(getLocalizedPath(route, 'en'), `/en${route}`, `Incorrect English route ${route}`);
 }
 
 for (const text of [
