@@ -5,9 +5,10 @@ import { getLanguageFromPath, t } from '../../lib/i18n';
 
 interface LandingPageProps {
   onCalculate: (birthDate: string, birthTime: string, birthCity: string) => void;
+  disabled?: boolean;
 }
 
-export default function LandingPage({ onCalculate }: LandingPageProps) {
+export default function LandingPage({ onCalculate, disabled = false }: LandingPageProps) {
   const language = getLanguageFromPath(window.location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`humanDesign.${key}`, language) : fallback;
   const [visible, setVisible] = useState(false);
@@ -162,7 +163,8 @@ export default function LandingPage({ onCalculate }: LandingPageProps) {
               {/* Submit */}
               <button
                 type="submit"
-                className="group relative w-full py-4 rounded-2xl text-sm font-semibold overflow-hidden mt-2"
+                disabled={disabled}
+                className="group relative mt-2 w-full overflow-hidden rounded-2xl py-4 text-sm font-semibold disabled:opacity-50"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500" />
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />

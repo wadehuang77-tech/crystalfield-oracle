@@ -13,6 +13,16 @@ export function authUrlFor(pathname: string, mode: AuthMode, redirectTo?: string
   return `${path}?${new URLSearchParams({ redirect: redirectTo })}`;
 }
 
+export function calculationLoginRedirect(
+  authenticated: boolean,
+  pathname: string,
+  search = '',
+  hash = '',
+): string | null {
+  if (authenticated) return null;
+  return authUrlFor(pathname, 'login', `${pathname}${search}${hash}`);
+}
+
 export function authModeForPath(pathname: string, queryMode?: string | null): AuthMode {
   const normalized = pathname.replace(/^\/en(?=\/|$)/, '') || '/';
   return normalized === '/register' || queryMode === 'signup' ? 'signup' : 'login';

@@ -946,6 +946,9 @@ function deriveFreeResults(chart: VedicChartData): VedicFreeResults {
 }
 
 export async function createVedicChart(req: Request, env: Env): Promise<Response> {
+  const user = await readSession(req, env);
+  if (!user) return unauthorized(req, env, '請先登入');
+
   const limit = await rateLimit(env, 'vedic-chart', clientIp(req), env.VEDASTRO_API_KEY ? 12 : 4, 3600);
   if (!limit.allowed) return tooManyRequests(req, env, '印度占星計算過於頻繁，請稍後再試');
 
@@ -1035,7 +1038,6 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
     const freeResults = deriveFreeResults(chart);
     failureStage = 'chart persistence';
     const id = crypto.randomUUID();
-    const user = await readSession(req, env);
     const createdAt = new Date().toISOString();
     const expiresAt = new Date(Date.now() + CHART_TOKEN_SECONDS * 1000).toISOString();
     await env.DB.prepare(

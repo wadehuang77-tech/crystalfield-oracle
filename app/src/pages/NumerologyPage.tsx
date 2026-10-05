@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Gem, Star, Sparkles, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
@@ -16,6 +16,7 @@ import type { NumerologyShareAccess } from '../lib/api';
 import { getNumerologyShareCapabilities, getNumerologyShareProofs, mergeNumerologyShareCapabilities, saveNumerologyShareProof } from '../lib/numerologyShareAuth';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
+import { calculationLoginRedirect } from '../lib/authLocale';
 
 type Tab = 'report' | 'daily' | 'ai';
 
@@ -70,9 +71,10 @@ function getTierFromSku(sku: string): PlanTier {
 export default function NumerologyPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const language = getLanguageFromPath(location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`numerology.${key}`, language) : fallback;
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
   const [oracleCard, setOracleCard] = useState<OracleCard | null>(null);
@@ -109,6 +111,7 @@ export default function NumerologyPage() {
   }, []);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     if (pendingUpgradeRef.current !== null) {
       const t = pendingUpgradeRef.current;
       pendingUpgradeRef.current = null;
@@ -127,7 +130,7 @@ export default function NumerologyPage() {
           });
       }
     }
-  }, [user]);
+  }, [authLoading, user]);
 
   // ── Derive unlock flags from tier ───────────────────────────────
   const crystalUnlocked = localTier >= 1;
@@ -135,6 +138,7 @@ export default function NumerologyPage() {
   const forecastUnlocked = forecastCheckoutUnlocked;
 
   useEffect(() => {
+    if (authLoading || !user) return;
     const section = searchParams.get('section');
     if (!section || report) return;
 
@@ -142,8 +146,8 @@ export default function NumerologyPage() {
     if (!rawState) return;
 
     try {
-      const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null };
-      if (!state.report) return;
+      const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null; userId?: string };
+      if (!state.report || state.userId !== user.id) return;
       setReport(state.report);
       setOracleCard(state.oracleCard ?? null);
       setActiveTab('report');
@@ -151,8 +155,7 @@ export default function NumerologyPage() {
     } catch {
       localStorage.removeItem(RETURN_STATE_KEY);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authLoading, location.search, report, searchParams, user]);
 
   useEffect(() => {
     if (!pendingScrollTarget || !report || activeTab !== 'report') return;
@@ -164,6 +167,7 @@ export default function NumerologyPage() {
   }, [activeTab, pendingScrollTarget, report]);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     const orderId = searchParams.get('order_id');
     if (!orderId) return;
 
@@ -179,10 +183,12 @@ export default function NumerologyPage() {
         let returnSection = searchParams.get('section') ?? '';
         if (rawState) {
           try {
-            const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null; section?: string };
-            if (state.report) setReport(state.report);
-            setOracleCard(state.oracleCard ?? null);
-            returnSection = state.section ?? returnSection;
+            const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null; section?: string; userId?: string };
+            if (state.userId === user.id) {
+              if (state.report) setReport(state.report);
+              setOracleCard(state.oracleCard ?? null);
+              returnSection = state.section ?? returnSection;
+            }
           } catch {
             localStorage.removeItem(RETURN_STATE_KEY);
           }
@@ -222,8 +228,15 @@ export default function NumerologyPage() {
       });
 
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authLoading, localTier, searchParams, setSearchParams, user]);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setReport(null);
+      setOracleCard(null);
+      setActiveTab('report');
+    }
+  }, [authLoading, user]);
 
   useEffect(() => {
     if (!report) { setShareAccess(null); return; }
@@ -244,6 +257,13 @@ export default function NumerologyPage() {
 
   // ── Actions ─────────────────────────────────────────────────────
   const handleSubmit = async (date: string, useOracle: boolean) => {
+    if (authLoading) return;
+    const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
+    if (loginUrl) {
+      navigate(loginUrl);
+      return;
+    }
+    if (!user) return;
     setLoading(true);
     await new Promise(r => setTimeout(r, 1200));
     const result = calculateNumerology(date);
@@ -252,7 +272,7 @@ export default function NumerologyPage() {
     clearForecastUnlock();
     setReport(result);
     setOracleCard(card);
-    localStorage.setItem(LAST_REPORT_STATE_KEY, JSON.stringify({ report: result, oracleCard: card }));
+    localStorage.setItem(LAST_REPORT_STATE_KEY, JSON.stringify({ report: result, oracleCard: card, userId: user.id }));
     setLoading(false);
   };
 
@@ -289,8 +309,9 @@ export default function NumerologyPage() {
   };
 
   const saveReturnState = (section: string) => {
+    if (!user) return;
     if (report) {
-      const state = JSON.stringify({ report, oracleCard, section });
+      const state = JSON.stringify({ report, oracleCard, section, userId: user.id });
       localStorage.setItem(RETURN_STATE_KEY, state);
       localStorage.setItem(LAST_REPORT_STATE_KEY, state);
       return;
@@ -300,12 +321,13 @@ export default function NumerologyPage() {
     if (!rawLastState) return;
 
     try {
-      const lastState = JSON.parse(rawLastState) as { report?: Report; oracleCard?: OracleCard | null };
-      if (!lastState.report) return;
+      const lastState = JSON.parse(rawLastState) as { report?: Report; oracleCard?: OracleCard | null; userId?: string };
+      if (!lastState.report || lastState.userId !== user.id) return;
       const state = JSON.stringify({
         report: lastState.report,
         oracleCard: lastState.oracleCard ?? null,
         section,
+        userId: user.id,
       });
       localStorage.setItem(RETURN_STATE_KEY, state);
       localStorage.setItem(LAST_REPORT_STATE_KEY, state);
@@ -315,6 +337,13 @@ export default function NumerologyPage() {
   };
 
   const startNumerologyCheckout = async (sku: string, section: string, paidTier?: PlanTier) => {
+    if (authLoading) return;
+    const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
+    if (loginUrl) {
+      navigate(loginUrl);
+      return;
+    }
+    if (!user) return;
     saveReturnState(section);
     setCheckoutLoading(true);
     try {
@@ -591,7 +620,7 @@ export default function NumerologyPage() {
               boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(167,139,250,0.04), inset 0 1px 0 rgba(255,255,255,0.07)',
             }}
           >
-            <BirthDateForm onSubmit={handleSubmit} loading={loading} />
+            <BirthDateForm onSubmit={handleSubmit} loading={loading || authLoading} />
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-8">

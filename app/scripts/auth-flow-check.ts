@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   authModeForPath,
   authPathFor,
   authUrlFor,
+  calculationLoginRedirect,
   googleButtonLocale,
   isSafeAuthRedirect,
   localizeAuthError,
@@ -33,6 +35,45 @@ assert.equal(signInUrl.pathname, '/en/login');
 assert.equal(isSafeAuthRedirect(originalEnglishUrl), true);
 assert.equal(isSafeAuthRedirect('//attacker.example'), false);
 assert.equal(isSafeAuthRedirect('/en/login'), false);
+
+for (const path of ['/numerology', '/human-design', '/vedic-astrology']) {
+  const url = new URL(calculationLoginRedirect(false, path)!, 'https://crystalfield101.com');
+  assert.equal(url.pathname, '/login');
+  assert.equal(url.searchParams.get('redirect'), path);
+  assert.equal(isSafeAuthRedirect(url.searchParams.get('redirect')), true);
+  assert.equal(calculationLoginRedirect(true, path), null);
+}
+for (const path of ['/en/numerology', '/en/human-design', '/en/vedic-astrology']) {
+  const url = new URL(calculationLoginRedirect(false, path)!, 'https://crystalfield101.com');
+  assert.equal(url.pathname, '/en/login');
+  assert.equal(url.searchParams.get('redirect'), path);
+  assert.equal(isSafeAuthRedirect(url.searchParams.get('redirect')), true);
+  assert.equal(calculationLoginRedirect(true, path), null);
+}
+assert.equal(
+  calculationLoginRedirect(false, '/en/human-design', '?step=chart', '#form'),
+  '/en/login?redirect=%2Fen%2Fhuman-design%3Fstep%3Dchart%23form',
+);
+
+const appRoutes = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+for (const [path, page] of [
+  ['/numerology', 'NumerologyPage'],
+  ['/human-design', 'HumanDesignPage'],
+  ['/vedic-astrology', 'VedicAstrologyPage'],
+] as const) {
+  assert.match(appRoutes, new RegExp(`path: '${path}', element: <${page} \\/>`), `${path} must be public`);
+}
+const numerologyPage = readFileSync(new URL('../src/pages/NumerologyPage.tsx', import.meta.url), 'utf8');
+const humanDesignPage = readFileSync(new URL('../src/pages/HumanDesignPage.tsx', import.meta.url), 'utf8');
+const vedicPage = readFileSync(new URL('../src/pages/VedicAstrologyPage.tsx', import.meta.url), 'utf8');
+for (const pageSource of [numerologyPage, humanDesignPage, vedicPage]) {
+  assert.match(pageSource, /calculationLoginRedirect\(!!user, location\.pathname, location\.search, location\.hash\)/);
+}
+assert.ok(numerologyPage.indexOf('const loginUrl = calculationLoginRedirect') < numerologyPage.indexOf('calculateNumerology(date)'));
+assert.ok(humanDesignPage.indexOf('const loginUrl = calculationLoginRedirect') < humanDesignPage.indexOf('calculateHDChart('));
+assert.ok(vedicPage.indexOf('const loginUrl = calculationLoginRedirect') < vedicPage.indexOf('vedicAstrologyApi.createChart('));
+const authPage = readFileSync(new URL('../src/pages/AuthPage.tsx', import.meta.url), 'utf8');
+assert.match(authPage, /navigate\(returnTo, \{ replace: true, state: returnState \}\)/);
 
 assert.equal(localizeAuthError('電子郵件或密碼錯誤', 'en', 'Sign-in failed.'), 'Incorrect email or password.');
 assert.equal(localizeAuthError('此電子郵件已經註冊', 'en', 'Registration failed.'), 'This email is already registered.');

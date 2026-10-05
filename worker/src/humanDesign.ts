@@ -1,9 +1,13 @@
 import {
   badRequest,
+  clientIp,
   Env,
   json,
+  rateLimit,
   readBody,
   readSession,
+  tooManyRequests,
+  unauthorized,
   validEmail,
 } from './utils';
 import { ensureHumanDesignSchema } from './humanDesignSchema';
@@ -51,13 +55,17 @@ function humanDesignDbError(req: Request, env: Env, err: unknown, fallback: stri
 
 export async function saveHumanDesignChart(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
+  if (!user) return unauthorized(req, env, '請先登入');
+  const limit = await rateLimit(env, 'hd-chart-ip', clientIp(req), 20, 3600);
+  if (!limit.allowed) return tooManyRequests(req, env);
+
   const body = await readBody<SaveChartBody>(req, 96 * 1024);
   const language = normalizeReportLanguage(body.language);
 
   const birthDate = cleanString(body.birth_date, 20);
   if (!birthDate || !validDate(birthDate)) return badRequest(req, env, '出生日期格式錯誤');
 
-  const email = user?.email ?? cleanString(body.user_email, 254).toLowerCase();
+  const email = user.email;
   if (email && !validEmail(email)) return badRequest(req, env, '電子郵件格式錯誤');
 
   const id = crypto.randomUUID();
@@ -74,7 +82,7 @@ export async function saveHumanDesignChart(req: Request, env: Env): Promise<Resp
     ).bind(
       id,
       sessionId,
-      user?.id ?? null,
+      user.id,
       cleanString(body.user_name, 120),
       email,
       birthDate,
@@ -95,6 +103,11 @@ export async function saveHumanDesignChart(req: Request, env: Env): Promise<Resp
 }
 
 export async function updateHumanDesignAnswers(req: Request, env: Env, chartId: string): Promise<Response> {
+  const user = await readSession(req, env);
+  if (!user) return unauthorized(req, env, '請先登入');
+  const limit = await rateLimit(env, 'hd-answers-ip', clientIp(req), 30, 3600);
+  if (!limit.allowed) return tooManyRequests(req, env);
+
   const body = await readBody<{ chat_answers?: unknown }>(req, 16 * 1024);
   if (!Array.isArray(body.chat_answers)) return badRequest(req, env, 'answers 格式錯誤');
   const answers = body.chat_answers
@@ -108,8 +121,8 @@ export async function updateHumanDesignAnswers(req: Request, env: Env, chartId: 
     result = await env.DB.prepare(
       `UPDATE hd_charts
           SET chat_answers = ?, updated_at = ?
-        WHERE id = ?`
-    ).bind(JSON.stringify(answers), new Date().toISOString(), chartId).run();
+        WHERE id = ? AND user_id = ?`
+    ).bind(JSON.stringify(answers), new Date().toISOString(), chartId, user.id).run();
   } catch (err) {
     return humanDesignDbError(req, env, err, '人類圖問答更新失敗');
   }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import ParticleBackground from '../components/human-design/ParticleBackground';
 import LandingPage from './human-design/LandingPage';
@@ -11,6 +11,7 @@ import { checkoutApi, humanDesignApi, humanDesignShareApi, type HumanDesignShare
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { useAuth } from '../contexts/AuthContext';
 import { getLanguageFromPath, t } from '../lib/i18n';
+import { calculationLoginRedirect } from '../lib/authLocale';
 import {
   getHumanDesignShareCapabilities,
   getHumanDesignShareProofs,
@@ -115,7 +116,9 @@ function AnalysingScreen() {
 }
 
 export default function HumanDesignPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const initialStoredState = useMemo(() => readStoredState(), []);
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
@@ -144,6 +147,12 @@ export default function HumanDesignPage() {
   };
 
   const handleCalculate = (birthDate: string, birthTime: string, birthCity: string) => {
+    if (authLoading) return;
+    const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
+    if (loginUrl) {
+      navigate(loginUrl);
+      return;
+    }
     let calculated: HDChart;
     try {
       calculated = calculateHDChart(birthDate, birthTime, birthCity);
@@ -398,7 +407,7 @@ export default function HumanDesignPage() {
       </div>
 
       <main key={pageKey} className="relative page-enter" style={{ zIndex: 2 }}>
-        {page === 'landing' && <LandingPage onCalculate={handleCalculate} />}
+        {page === 'landing' && <LandingPage onCalculate={handleCalculate} disabled={authLoading} />}
         {page === 'hero' && chart && (
           <HeroCardPage
             chart={chart}
@@ -433,7 +442,7 @@ export default function HumanDesignPage() {
           </HumanDesignShareProvider>
         )}
         {page === 'report' && !chart && checkoutRestoring && <AnalysingScreen />}
-        {page === 'report' && !chart && !checkoutRestoring && <LandingPage onCalculate={handleCalculate} />}
+        {page === 'report' && !chart && !checkoutRestoring && <LandingPage onCalculate={handleCalculate} disabled={authLoading} />}
       </main>
     </div>
   );

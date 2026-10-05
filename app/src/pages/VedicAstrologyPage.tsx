@@ -28,6 +28,8 @@ import {
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import VedicAstrologySeoContent from './VedicAstrologySeoContent';
 import { getLanguageFromPath, t } from '../lib/i18n';
+import { useAuth } from '../contexts/AuthContext';
+import { calculationLoginRedirect } from '../lib/authLocale';
 
 const SESSION_KEY = 'cf_vedic_chart_session';
 
@@ -141,29 +143,31 @@ type LifeQuestion = {
   points: readonly string[];
 };
 
-function saveChart(chart: VedicChartResponse) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(chart));
+function saveChart(chart: VedicChartResponse, userId: string) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ chart, userId }));
 }
 
-function loadChart(): VedicChartResponse | null {
+function loadChart(userId: string): VedicChartResponse | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as VedicChartResponse;
-    return parsed.chart_id && parsed.chart_token ? parsed : null;
+    const parsed = JSON.parse(raw) as { chart?: VedicChartResponse; userId?: string };
+    if (parsed.userId !== userId || !parsed.chart?.chart_id || !parsed.chart.chart_token) return null;
+    return parsed.chart;
   } catch {
     return null;
   }
 }
 
 export default function VedicAstrologyPage() {
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`vedic.${key}`, language) : fallback;
   const [searchParams, setSearchParams] = useSearchParams();
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthPlace: '' });
-  const [chart, setChart] = useState<VedicChartResponse | null>(() => loadChart());
+  const [chart, setChart] = useState<VedicChartResponse | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState('');
   const [report, setReport] = useState<VedicReport | null>(null);
@@ -177,6 +181,16 @@ export default function VedicAstrologyPage() {
   const returnToMarker = searchParams.get('return_to');
   const currentChartId = chart?.chart_id;
   const currentChartToken = chart?.chart_token;
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      sessionStorage.removeItem(SESSION_KEY);
+      setChart(null);
+      return;
+    }
+    setChart(loadChart(user.id));
+  }, [authLoading, user]);
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
 
   useEffect(() => {
@@ -267,6 +281,12 @@ export default function VedicAstrologyPage() {
       setError(language === 'en' ? 'Complete your date of birth, birth time, and birthplace.' : '請完整填寫出生年月日、出生時間與出生地點');
       return;
     }
+    const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
+    if (loginUrl) {
+      navigate(loginUrl);
+      return;
+    }
+    if (!user) return;
     setError('');
     setIsCalculating(true);
     setReport(null);
@@ -278,7 +298,7 @@ export default function VedicAstrologyPage() {
         consent: true,
       });
       setChart(result);
-      saveChart(result);
+      saveChart(result, user.id);
       window.setTimeout(() => document.getElementById('vedic-free-results')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : language === 'en' ? 'Chart calculation failed. Please try again later.' : '星盤計算失敗，請稍後再試');
@@ -350,7 +370,7 @@ export default function VedicAstrologyPage() {
               <p className={`mt-2 text-xs ${error === '未填出生地點' ? 'text-rose-200' : 'text-violet-200/45'}`}>{copy('placeRequired', '必填，請輸入城市與國家／地區。')}</p>
             </Field>
             {error && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 sm:col-span-2">{error}</p>}
-            <button type="submit" disabled={isCalculating} aria-disabled={isCalculating || !form.birthPlace.trim()} className={`flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-6 py-4 font-semibold shadow-[0_0_32px_rgba(217,70,239,0.28)] transition disabled:opacity-60 sm:col-span-2 ${!form.birthPlace.trim() ? 'cursor-not-allowed opacity-55' : 'hover:brightness-110'}`}>
+            <button type="submit" disabled={isCalculating || authLoading} aria-disabled={isCalculating || authLoading || !form.birthPlace.trim()} className={`flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-6 py-4 font-semibold shadow-[0_0_32px_rgba(217,70,239,0.28)] transition disabled:opacity-60 sm:col-span-2 ${!form.birthPlace.trim() ? 'cursor-not-allowed opacity-55' : 'hover:brightness-110'}`}>
               {isCalculating ? <><Loader2 className="animate-spin" />{copy('calculating', '正在連結出生星盤…')}</> : <><Stars />{copy('calculate', '開啟我的靈魂業力地圖')}</>}
             </button>
           </form>

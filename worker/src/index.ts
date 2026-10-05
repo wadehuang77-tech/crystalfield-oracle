@@ -247,8 +247,6 @@ export default {
       }
 
       if (path === '/api/human-design/charts' && req.method === 'POST') {
-        const rl = await rateLimit(env, 'hd-chart-ip', clientIp(req), 20, 3600);
-        if (!rl.allowed) return await tooManyRequests(req, env);
         return await saveHumanDesignChart(req, env);
       }
       if (path === '/api/vedic-astrology/charts' && req.method === 'POST') {
@@ -262,8 +260,6 @@ export default {
       if (path === '/api/vedic-astrology/reviews/public' && req.method === 'GET') return await listPublicVedicReviews(req, env);
       if (path.startsWith('/api/human-design/charts/') && path.endsWith('/answers') && req.method === 'POST') {
         const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/answers'.length));
-        const rl = await rateLimit(env, 'hd-answers-ip', clientIp(req), 30, 3600);
-        if (!rl.allowed) return await tooManyRequests(req, env);
         return await updateHumanDesignAnswers(req, env, id);
       }
       if (path === '/api/oracle/free-reading-status' && req.method === 'GET') {
