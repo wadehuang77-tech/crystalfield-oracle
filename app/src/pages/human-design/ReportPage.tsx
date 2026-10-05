@@ -5,9 +5,10 @@ import { humanDesignApi, type HumanDesignFullReportSection } from '../../lib/api
 import { generateFreeReport } from '../../data/human-design/humanDesignData';
 import HumanDesignShareButton from '../../components/human-design/HumanDesignShare';
 import { getHumanDesignShareCapabilities, getHumanDesignShareProofs } from '../../lib/humanDesignShareAuth';
-import { getLanguageFromPath } from '../../lib/i18n';
+import type { Language } from '../../lib/i18n';
 
 interface ReportPageProps {
+  language: Language;
   chart: HDChart;
   chartId?: string;
   access?: 'locked' | 'email' | 'basic' | 'full' | 'bundle';
@@ -44,25 +45,35 @@ const TYPE_COLORS: Record<string, string> = {
 
 const FALLBACK_COLOR = 'from-blue-950/40 to-cyan-950/40 border-blue-400/20';
 
-const FULL_REPORT_TITLES = [
-  '九大能量中心｜內在之光與開放之窗',
-  '靈魂閘門｜天賦與生命課題',
-  '能量通道｜天賦流動路徑',
-  '靈魂能量全貌',
-  '七日能量回歸指引',
-  '天賦與職涯能量',
-  '親密關係與能量界線',
-  '財富流動與價值能量',
-  '靈魂使命與生命方向',
-];
+const FULL_REPORT_TITLES = {
+  'zh-Hant': [
+    '九大能量中心｜內在之光與開放之窗',
+    '靈魂閘門｜天賦與生命課題',
+    '能量通道｜天賦流動路徑',
+    '靈魂能量全貌',
+    '七日能量回歸指引',
+    '天賦與職涯能量',
+    '親密關係與能量界線',
+    '財富流動與價值能量',
+    '靈魂使命與生命方向',
+  ],
+  en: [
+    'Nine Energy Centers: Inner Light and Open Windows',
+    'Gates: Gifts and Life Themes',
+    'Channels: Natural Paths of Energy',
+    'Your Energy at a Glance',
+    'A Seven-Day Reset Practice',
+    'Gifts and Career',
+    'Relationships and Boundaries',
+    'Resources and Value',
+    'Purpose and Direction',
+  ],
+} as const;
 
-const FULL_REPORT_LOADING_STEPS = [
-  '確認付款完成',
-  '展開你的人類圖能量藍圖',
-  '整理天賦、中心與生命主題',
-  '書寫多角度深度指引',
-  '準備完整能量報告',
-];
+const FULL_REPORT_LOADING_STEPS = {
+  'zh-Hant': ['確認付款完成', '展開你的人類圖能量藍圖', '整理天賦、中心與生命主題', '書寫多角度深度指引', '準備完整能量報告'],
+  en: ['Confirm payment', 'Open your Human Design blueprint', 'Review your gifts, centers, and life themes', 'Write your in-depth guidance', 'Prepare your complete report'],
+} as const;
 
 function displayFullReportTitle(title: string): string {
   return title.replace(/^AI\s+/, '');
@@ -72,38 +83,136 @@ function displayFullReportIcon(section: HumanDesignFullReportSection): string {
   return section.id === 'personality' ? '◇' : section.icon;
 }
 
+function fullReportFailureMessage(error: unknown, isEnglish: boolean): string {
+  const code = error && typeof error === 'object' && 'body' in error
+    && (error as { body?: { code?: unknown } }).body?.code;
+  if (code === 'HD_REPORT_GENERATION_TIMEOUT') {
+    return isEnglish
+      ? 'Report generation timed out. Your purchase is safe; please try again.'
+      : '報告生成逾時，您的購買狀態不受影響，請稍後重試。';
+  }
+  if (code === 'HD_REPORT_PROVIDER_ERROR') {
+    return isEnglish
+      ? 'The report service could not complete the request. Your purchase is safe; please try again.'
+      : '報告服務暫時無法完成請求，您的購買狀態不受影響，請稍後重試。';
+  }
+  if (code === 'HD_REPORT_INVALID_RESPONSE' || code === 'HD_ENGLISH_REPORT_INCOMPLETE') {
+    return isEnglish
+      ? 'The report service returned incomplete or invalid content. Your purchase is safe; please try again.'
+      : '報告服務回傳的內容不完整或格式錯誤，您的購買狀態不受影響，請稍後重試。';
+  }
+  if (code === 'HD_ENGLISH_REPORT_UNAVAILABLE') {
+    return isEnglish
+      ? 'English report generation is currently unavailable. Your purchase is safe; please try again.'
+      : '英文報告目前無法生成，您的購買狀態不受影響，請稍後重試。';
+  }
+  if (code === 'HD_REPORT_CACHE_ERROR') {
+    return isEnglish
+      ? 'Unable to load your Human Design report. Please try again later.'
+      : '目前無法載入你的人類圖報告，請稍後再試。';
+  }
+  return isEnglish
+    ? 'Unable to generate your Human Design report. Please try again later.'
+    : '完整版資料庫報告暫時無法載入，請稍後再試。';
+}
+
 const CORE_SHARE_IDS = new Set(['type', 'profile', 'strategy', 'authority', 'definition', 'ai-summary', 'basic-talent', 'ai-tip']);
 
 function normalizeCoreId(id: string) {
   return id.startsWith('fb-') ? id.slice(3) : id;
 }
 
-function coreShareResult(id: string, chart: HDChart) {
-  const definition = chart.definedCenters.length === 0 ? '無定義（反映者）'
-    : chart.definedCenters.length <= 3 ? '單一定義'
-      : chart.definedCenters.length <= 6 ? '雙重定義' : '多重定義';
-  return ({
-    type: chart.typeName,
-    profile: `${chart.profile} ${chart.profileName}`,
-    strategy: chart.strategy,
-    authority: chart.authorityName,
-    definition,
-    'ai-summary': chart.typeName,
-    'basic-talent': chart.typeName,
-    'ai-tip': chart.strategy,
-  } as Record<string, string>)[id] ?? chart.typeName;
+function getChartDisplayValues(chart: HDChart, isEnglish: boolean) {
+  const typeNames = {
+    generator: 'Generator',
+    'manifesting-generator': 'Manifesting Generator',
+    projector: 'Projector',
+    manifestor: 'Manifestor',
+    reflector: 'Reflector',
+  } as const;
+  const authorityNames: Record<string, string> = {
+    sacral: 'Sacral Authority',
+    emotional: 'Emotional Authority',
+    splenic: 'Splenic Authority',
+    ego: 'Ego Authority',
+    'self-projected': 'Self-Projected Authority',
+    lunar: 'Lunar Authority',
+  };
+  const profileNames: Record<string, string> = {
+    '1/3': 'Investigator / Martyr',
+    '1/4': 'Investigator / Opportunist',
+    '2/4': 'Hermit / Opportunist',
+    '2/5': 'Hermit / Heretic',
+    '3/5': 'Martyr / Heretic',
+    '3/6': 'Martyr / Role Model',
+    '4/1': 'Opportunist / Investigator',
+    '4/6': 'Opportunist / Role Model',
+    '5/1': 'Heretic / Investigator',
+    '5/2': 'Heretic / Hermit',
+    '6/2': 'Role Model / Hermit',
+    '6/3': 'Role Model / Martyr',
+  };
+  const strategies = {
+    generator: 'Wait to respond',
+    'manifesting-generator': 'Respond, then inform',
+    projector: 'Wait for the invitation',
+    manifestor: 'Inform before acting',
+    reflector: 'Wait through a lunar cycle',
+  } as const;
+  const definition = chart.definedCenters.length === 0 ? 'No Definition (Reflector)'
+    : chart.definedCenters.length <= 3 ? 'Single Definition'
+      : chart.definedCenters.length <= 6 ? 'Split Definition' : 'Multiple Definition';
+  return {
+    type: isEnglish ? typeNames[chart.type] : chart.typeName,
+    authority: isEnglish ? authorityNames[chart.authority] ?? chart.authorityName : chart.authorityName,
+    profile: isEnglish ? profileNames[chart.profile] ?? chart.profileName : chart.profileName,
+    strategy: isEnglish ? strategies[chart.type] : chart.strategy,
+    definition: isEnglish ? definition : chart.definedCenters.length === 0 ? '無定義（反映者）'
+      : chart.definedCenters.length <= 3 ? '單一定義'
+        : chart.definedCenters.length <= 6 ? '雙重定義' : '多重定義',
+  };
 }
 
-function coreShareName(id: string) {
+function coreShareResult(id: string, chart: HDChart, isEnglish: boolean) {
+  const display = getChartDisplayValues(chart, isEnglish);
+  return ({
+    type: display.type,
+    profile: `${chart.profile} ${display.profile}`,
+    strategy: display.strategy,
+    authority: display.authority,
+    definition: display.definition,
+    'ai-summary': display.type,
+    'basic-talent': display.type,
+    'ai-tip': display.strategy,
+  } as Record<string, string>)[id] ?? display.type;
+}
+
+function coreShareName(id: string, isEnglish: boolean) {
+  if (isEnglish) {
+    return ({
+      type: 'Energy Type', profile: 'Profile', strategy: 'Strategy', authority: 'Inner Authority', definition: 'Definition',
+      'ai-summary': 'Energy Summary', 'basic-talent': 'Gifts and Strengths', 'ai-tip': "Today's Guidance",
+    } as Record<string, string>)[id] ?? 'Human Design Guidance';
+  }
   return ({
     type: '能量類型', profile: '人生角色', strategy: '人生策略', authority: '內在權威', definition: '定義',
     'ai-summary': '靈魂能量摘要', 'basic-talent': '天賦與優勢', 'ai-tip': '今日能量指引',
   } as Record<string, string>)[id] ?? '人類圖指引';
 }
 
+function coreShareGuidance(id: string, isEnglish: boolean) {
+  if (isEnglish) {
+    return id === 'authority'
+      ? 'Follow your inner authority and give the right choice room to emerge.'
+      : 'Honor your energy design and give the right choice room to emerge.';
+  }
+  return `依循你的${id === 'authority' ? '內在權威' : '能量設計'}，讓正確的選擇自然浮現。`;
+}
+
 function FreeCard({
   section,
   chart,
+  language,
   index,
   locked = false,
   onUnlock,
@@ -111,12 +220,14 @@ function FreeCard({
 }: {
   section: ReturnType<typeof generateFreeReport>[number];
   chart: HDChart;
+  language: Language;
   index: number;
   locked?: boolean;
   onUnlock?: () => void;
   checkoutLoading?: boolean;
 }) {
   const [expanded, setExpanded] = useState(index <= 1 && !locked);
+  const isEnglish = language === 'en';
   const { ref, inView } = useInView();
   const colorClass = TYPE_COLORS[chart.type] ?? FALLBACK_COLOR;
 
@@ -125,7 +236,7 @@ function FreeCard({
     content = section.content(chart) ?? '';
   } catch (err) {
     console.error('Section render error:', err);
-    content = '內容載入中，請稍後再試。';
+    content = isEnglish ? 'Content is loading. Please try again shortly.' : '內容載入中，請稍後再試。';
   }
 
   const previewLength = Math.max(42, Math.ceil(content.replace(/\s/g, '').length * 0.2));
@@ -133,7 +244,7 @@ function FreeCard({
     ? `${content.slice(0, previewLength).trim()}...`
     : content;
   const paragraphs = previewContent.split('\n\n').map(p => p.trim()).filter(Boolean);
-  const displayParagraphs = paragraphs.length > 0 ? paragraphs : ['此區塊的詳細說明正在準備中。'];
+  const displayParagraphs = paragraphs.length > 0 ? paragraphs : [isEnglish ? 'Details for this section are being prepared.' : '此區塊的詳細說明正在準備中。'];
   const shareId = normalizeCoreId(section.id);
 
   return (
@@ -171,7 +282,9 @@ function FreeCard({
             {locked && (
               <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-300/5 px-4 py-4 text-center">
                 <p className="mb-3 text-xs leading-relaxed text-cyan-100/70">
-                  已顯示約 20% 內容。解鎖我的人類圖核心解析後，可查看這一區與其他核心段落。
+                  {isEnglish
+                    ? 'About 20% is shown. Unlock the Human Design core analysis to read this and the other core sections.'
+                    : '已顯示約 20% 內容。解鎖我的人類圖核心解析後，可查看這一區與其他核心段落。'}
                 </p>
                 <button
                   type="button"
@@ -180,7 +293,7 @@ function FreeCard({
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Lock className="h-4 w-4" />
-                  {checkoutLoading ? '前往付款中...' : '解鎖我的人類圖核心解析 NT$199'}
+                  {checkoutLoading ? (isEnglish ? 'Opening checkout...' : '前往付款中...') : isEnglish ? 'Unlock Human Design core analysis NT$199' : '解鎖我的人類圖核心解析 NT$199'}
                 </button>
               </div>
             )}
@@ -188,10 +301,10 @@ function FreeCard({
               <HumanDesignShareButton
                 group={shareId === 'type' ? 'identity' : 'core'}
                 sectionKey={`core_${shareId}`}
-                sectionName={coreShareName(shareId)}
-                result={coreShareResult(shareId, chart)}
+                sectionName={coreShareName(shareId, isEnglish)}
+                result={coreShareResult(shareId, chart, isEnglish)}
                 summary={content}
-                guidance={`依循你的${shareId === 'authority' ? '內在權威' : '能量設計'}，讓正確的選擇自然浮現。`}
+                guidance={coreShareGuidance(shareId, isEnglish)}
               />
             )}
           </div>
@@ -217,15 +330,16 @@ function FallbackReport({ onNavigate }: { onNavigate: (p: string) => void }) {
   );
 }
 
-function FullReportLoadingCard() {
+function FullReportLoadingCard({ isEnglish }: { isEnglish: boolean }) {
   const [step, setStep] = useState(0);
+  const loadingSteps = FULL_REPORT_LOADING_STEPS[isEnglish ? 'en' : 'zh-Hant'];
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setStep((current) => Math.min(current + 1, FULL_REPORT_LOADING_STEPS.length - 1));
+      setStep((current) => Math.min(current + 1, loadingSteps.length - 1));
     }, 1800);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [loadingSteps]);
 
   const progress = Math.min(92, 18 + step * 18);
 
@@ -235,10 +349,12 @@ function FullReportLoadingCard() {
         <Sparkles className="h-5 w-5 text-cyan-200 animate-pulse" />
       </div>
       <p className="mb-2 text-center text-sm font-semibold text-white/85">
-        付款已完成，正在展開你的人類圖能量藍圖
+        {isEnglish ? 'Payment confirmed. Preparing your Human Design blueprint.' : '付款已完成，正在展開你的人類圖能量藍圖'}
       </p>
       <p className="mx-auto mb-5 max-w-sm text-center text-xs leading-relaxed text-cyan-100/55">
-        請在此頁稍候片刻。我們正在整合你的能量圖、靈魂主題與個人化指引，讓每一段文字更貼近你的生命節奏。
+        {isEnglish
+          ? 'Please wait on this page while we bring together your chart, life themes, and personalized guidance.'
+          : '請在此頁稍候片刻。我們正在整合你的能量圖、靈魂主題與個人化指引，讓每一段文字更貼近你的生命節奏。'}
       </p>
       <div className="mb-5 h-2 overflow-hidden rounded-full bg-white/8">
         <div
@@ -247,7 +363,7 @@ function FullReportLoadingCard() {
         />
       </div>
       <div className="space-y-2">
-        {FULL_REPORT_LOADING_STEPS.map((label, index) => {
+        {loadingSteps.map((label, index) => {
           const done = index < step;
           const active = index === step;
           return (
@@ -268,13 +384,14 @@ function FullReportLoadingCard() {
         })}
       </div>
       <p className="mt-5 text-center text-[11px] leading-relaxed text-white/35">
-        若等待較久，請不要重新付款；報告完成後會自動顯示。
+        {isEnglish ? 'Please do not pay again if this takes a while. Your report will appear when ready.' : '若等待較久，請不要重新付款；報告完成後會自動顯示。'}
       </p>
     </div>
   );
 }
 
 export default function ReportPage({
+  language,
   chart,
   chartId = '',
   access = 'email',
@@ -286,7 +403,6 @@ export default function ReportPage({
   onEnsureChartSaved,
   onNavigate,
 }: ReportPageProps) {
-  const language = getLanguageFromPath(window.location.pathname);
   const isEnglish = language === 'en';
   const [visible, setVisible] = useState(false);
   const [fullReportSections, setFullReportSections] = useState<HumanDesignFullReportSection[] | null>(null);
@@ -350,10 +466,14 @@ export default function ReportPage({
     setFullReportError('');
     setReportVersion('');
 
-    humanDesignApi.getFullReport(chartId, {
-      proofs: getHumanDesignShareProofs(),
-      capabilities: getHumanDesignShareCapabilities(),
-    })
+    humanDesignApi.getFullReport(
+      chartId,
+      {
+        proofs: getHumanDesignShareProofs(),
+        capabilities: getHumanDesignShareCapabilities(),
+      },
+      language,
+    )
       .then(({ sections, report_version }) => {
         if (cancelled) return;
         if (!sections.length) {
@@ -368,7 +488,7 @@ export default function ReportPage({
       .catch((err) => {
         if (cancelled) return;
         console.error('human design full report load failed:', err);
-        setFullReportError('完整版資料庫報告暫時無法載入，請稍後再試。');
+        setFullReportError(fullReportFailureMessage(err, isEnglish));
         setFullReportSections(null);
         setReportVersion('');
       })
@@ -377,7 +497,7 @@ export default function ReportPage({
       });
 
     return () => { cancelled = true; };
-  }, [isFullUnlocked, chartId, onEnsureChartSaved]);
+  }, [isFullUnlocked, chartId, onEnsureChartSaved, language, isEnglish]);
 
   useEffect(() => {
     if (!isFullUnlocked || basicUnlocked) return;
@@ -401,12 +521,10 @@ export default function ReportPage({
   }
 
   const visibleSections = freeSections.filter(s => s.free);
+  const display = getChartDisplayValues(chart, isEnglish);
 
   // Determine definition label from definedCenters count
-  const definitionLabel =
-    chart.definedCenters.length === 0 ? '無定義（反映者）' :
-    chart.definedCenters.length <= 3 ? '單一定義' :
-    chart.definedCenters.length <= 6 ? '雙重定義' : '多重定義';
+  const definitionLabel = display.definition;
 
   const handleDownload = () => window.print();
   const paidContent = fullReportSections ?? [];
@@ -427,24 +545,22 @@ export default function ReportPage({
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            {basicUnlocked ? `${chart.typeName} · ${chart.profile}` : chart.typeName}
+            {basicUnlocked ? `${display.type} · ${chart.profile}` : display.type}
           </h1>
           <p className="text-white/35 text-sm">
-            {basicUnlocked ? chart.authorityName : isEnglish ? 'View your type first; unlock the complete core analysis with an upgrade.' : '先查看你的類型；升級即可解鎖完整核心解析'}
+            {basicUnlocked ? display.authority : isEnglish ? 'View your type first; unlock the complete core analysis with an upgrade.' : '先查看你的類型；升級即可解鎖完整核心解析'}
           </p>
 
-            const language = getLanguageFromPath(window.location.pathname);
-            const isEnglish = language === 'en';
           {/* Quick-glance chips */}
           <div className="flex flex-wrap justify-center gap-2 mt-5">
             {(basicUnlocked ? [
-              { label: '類型',     value: chart.typeName },
-              { label: isEnglish ? 'Strategy' : '策略', value: chart.strategy },
-              { label: isEnglish ? 'Inner Authority' : '內在權威', value: chart.authorityName },
-              { label: isEnglish ? 'Definition' : '定義', value: isEnglish ? definitionLabel.replace('無定義（反映者）', 'No Definition (Reflector)').replace('單一定義', 'Single Definition').replace('雙重定義', 'Split Definition').replace('多重定義', 'Multiple Definition') : definitionLabel },
-              { label: isEnglish ? 'Profile' : '人生角色', value: `${chart.profile} ${chart.profileName}` },
+              { label: isEnglish ? 'Type' : '類型', value: display.type },
+              { label: isEnglish ? 'Strategy' : '策略', value: display.strategy },
+              { label: isEnglish ? 'Inner Authority' : '內在權威', value: display.authority },
+              { label: isEnglish ? 'Definition' : '定義', value: definitionLabel },
+              { label: isEnglish ? 'Profile' : '人生角色', value: `${chart.profile} ${display.profile}` },
             ] : [
-              { label: isEnglish ? 'Type' : '類型', value: chart.typeName },
+              { label: isEnglish ? 'Type' : '類型', value: display.type },
             ]).map(chip => (
               <div
                 key={chip.label}
@@ -464,6 +580,7 @@ export default function ReportPage({
                 key={s.id}
                 section={s}
                 chart={chart}
+                language={language}
                 index={i}
                 locked={!basicUnlocked && s.id !== 'type'}
                 checkoutLoading={checkoutLoading}
@@ -484,6 +601,7 @@ export default function ReportPage({
                 key={s.id}
                 section={{ ...s, free: true, emailUnlock: false }}
                 chart={chart}
+                language={language}
                 index={i}
               />
             ))}
@@ -503,14 +621,14 @@ export default function ReportPage({
             <p className="text-cyan-300/60 text-xs text-center mb-3">{isEnglish ? 'Report is being generated and will appear when ready.' : '報告生成中，完成後會自動顯示'}</p>
           )}
           {isFullUnlocked && reportVersion && (
-            <p className="text-white/20 text-[11px] text-center mb-3">資料版本：{reportVersion}</p>
+            <p className="text-white/20 text-[11px] text-center mb-3">{isEnglish ? 'Report version:' : '資料版本：'}{reportVersion}</p>
           )}
           {isFullUnlocked && fullReportError && (
             <p className="text-amber-300/70 text-xs text-center mb-3">{fullReportError}</p>
           )}
           <div className="relative rounded-2xl overflow-hidden border border-white/6">
             {isWaitingForFullReport ? (
-              <FullReportLoadingCard />
+              <FullReportLoadingCard isEnglish={isEnglish} />
             ) : fullReportError && paidContent.length === 0 ? (
               <div className="px-6 py-8 text-center">
                 <p className="text-amber-200/75 text-sm leading-loose">
@@ -538,9 +656,11 @@ export default function ReportPage({
                         group="full"
                         sectionKey={`full_${s.id}`}
                         sectionName={displayFullReportTitle(s.title)}
-                        result={chart.typeName}
+                        result={display.type}
                         summary={s.body}
-                        guidance="看見自己的能量運作方式，就是活出天賦與自由的第一步。"
+                        guidance={isEnglish
+                          ? 'Understanding your energy is a first step toward expressing your gifts with more freedom.'
+                          : '看見自己的能量運作方式，就是活出天賦與自由的第一步。'}
                       />
                     </div>
                   </div>
@@ -559,7 +679,7 @@ export default function ReportPage({
               {isEnglish ? 'Unlock all 9 in-depth sections' : '解鎖後查看以下 9 項完整說明'}
             </p>
             <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {FULL_REPORT_TITLES.map((title) => (
+              {FULL_REPORT_TITLES[isEnglish ? 'en' : 'zh-Hant'].map((title) => (
                 <div
                   key={title}
                   className="rounded-xl border border-white/8 bg-slate-950/35 px-3 py-2.5 text-sm font-medium text-white/70"
@@ -589,18 +709,22 @@ export default function ReportPage({
         )}
 
         <div className="mb-8 rounded-2xl border border-cyan-300/15 bg-gradient-to-br from-blue-950/40 to-violet-950/40 p-5 text-center">
-          <p className="mb-4 text-sm text-cyan-100/75">把這份能量藍圖分享給重要的人</p>
+          <p className="mb-4 text-sm text-cyan-100/75">{isEnglish ? 'Share your energy blueprint with someone important to you.' : '把這份能量藍圖分享給重要的人'}</p>
           <HumanDesignShareButton
             group="summary"
             sectionKey="report_summary"
-            sectionName="人類圖能量藍圖"
-            result={chart.typeName}
-            summary={chart.aiIntro || `你是${chart.typeName}，適合依循${chart.strategy}做出選擇。`}
-            guidance={`相信${chart.authorityName}的訊號，讓生命能量回到適合你的節奏。`}
+            sectionName={isEnglish ? 'Human Design Energy Blueprint' : '人類圖能量藍圖'}
+            result={display.type}
+            summary={isEnglish
+              ? `You are a ${display.type}. Let your ${display.strategy} guide your choices.`
+              : chart.aiIntro || `你是${chart.typeName}，適合依循${chart.strategy}做出選擇。`}
+            guidance={isEnglish
+              ? `Trust the signals of your ${display.authority} and return to a rhythm that fits your energy.`
+              : `相信${chart.authorityName}的訊號，讓生命能量回到適合你的節奏。`}
             highlights={[
-              `人生角色：${chart.profile} ${chart.profileName}`,
-              `內在權威：${chart.authorityName}`,
-              `人生策略：${chart.strategy}`,
+              isEnglish ? `Profile: ${chart.profile} ${display.profile}` : `人生角色：${chart.profile} ${chart.profileName}`,
+              isEnglish ? `Inner Authority: ${display.authority}` : `內在權威：${chart.authorityName}`,
+              isEnglish ? `Strategy: ${display.strategy}` : `人生策略：${chart.strategy}`,
             ]}
             scope="report_summary"
             reportButton
@@ -614,7 +738,7 @@ export default function ReportPage({
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs text-white/40 border border-white/10 hover:border-white/20 hover:text-white/60 transition-all"
           >
             <Download className="w-3.5 h-3.5" />
-            下載報告 PDF
+            {isEnglish ? 'Download PDF' : '下載報告 PDF'}
           </button>
           <button
             onClick={() => onNavigate('landing')}

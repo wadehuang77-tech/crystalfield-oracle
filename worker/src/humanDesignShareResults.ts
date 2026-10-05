@@ -32,7 +32,7 @@ const PLAN_NAMES: Record<string, string> = {
   human_design_bundle: '完整組合方案',
 };
 
-const PLAN_GROUPS: Record<string, Group[]> = {
+export const PLAN_GROUPS: Record<string, Group[]> = {
   human_design_basic: ['identity', 'core', 'summary'],
   human_design_full: ['identity', 'full', 'summary'],
   human_design_bundle: ['identity', 'core', 'full', 'summary'],

@@ -647,10 +647,14 @@ export const humanDesignApi = {
       body: { chat_answers },
     }),
 
-  getFullReport: (chart_id: string, auth: { proofs: HumanDesignShareProof[]; capabilities: string[] }) =>
+  getFullReport: (
+    chart_id: string,
+    auth: { proofs: HumanDesignShareProof[]; capabilities: string[] },
+    language: 'zh-Hant' | 'en' = activeContentLanguage(),
+  ) =>
     req<{ report_version: string; sections: HumanDesignFullReportSection[]; cached: boolean }>(
       `/api/human-design/charts/${encodeURIComponent(chart_id)}/full-report`,
-      { method: 'POST', body: { ...auth, language: activeContentLanguage() }, timeoutMs: 70000 },
+      { method: 'POST', body: { ...auth, language }, timeoutMs: 90000 },
     ),
 };
 

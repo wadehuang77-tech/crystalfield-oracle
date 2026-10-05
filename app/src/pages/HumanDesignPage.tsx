@@ -119,6 +119,7 @@ export default function HumanDesignPage() {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const language = getLanguageFromPath(location.pathname);
   const [params, setParams] = useSearchParams();
   const initialStoredState = useMemo(() => readStoredState(), []);
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
@@ -178,6 +179,7 @@ export default function HumanDesignPage() {
         hd_type: calculated.type,
         hd_profile: calculated.profile,
         hd_authority: calculated.authority,
+        language,
         chart_data: calculated,
       })
       .then(({ chart_id }) => {
@@ -211,6 +213,7 @@ export default function HumanDesignPage() {
         hd_type: chart.type,
         hd_profile: chart.profile,
         hd_authority: chart.authority,
+        language,
         chart_data: chart,
       });
       setChartId(chart_id);
@@ -221,7 +224,7 @@ export default function HumanDesignPage() {
       persistState({ chart, chartId: '', birthData, access, email });
       return false;
     }
-  }, [access, birthData, chart, chartId, email]);
+  }, [access, birthData, chart, chartId, email, language]);
 
   const startBasicCheckout = async () => {
     if (!chart || checkoutLoading) return;
@@ -428,6 +431,7 @@ export default function HumanDesignPage() {
             onCapabilities: (tokens) => setShareCapabilities(mergeHumanDesignShareCapabilities(tokens)),
           }}>
             <ReportPage
+              language={language}
               chart={chart}
               chartId={chartId}
               access={access}

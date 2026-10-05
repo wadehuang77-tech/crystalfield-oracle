@@ -5,8 +5,10 @@ import {
 import { ensureHumanDesignSchema } from './humanDesignSchema';
 
 export const REPORT_VERSION = 'professional-v12';
+const ENGLISH_REPORT_VERSION = 'professional-v13-en';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 const MIN_AI_BODY_CHARS = 300;
+export const OPENAI_TIMEOUT_MS = 60000;
 
 type ReportLanguage = 'zh-Hant' | 'en';
 
@@ -15,7 +17,7 @@ function normalizeReportLanguage(value: unknown): ReportLanguage {
 }
 
 export function getHumanDesignReportVersion(language: ReportLanguage = 'zh-Hant'): string {
-  return language === 'en' ? `${REPORT_VERSION}-en` : REPORT_VERSION;
+  return language === 'en' ? ENGLISH_REPORT_VERSION : REPORT_VERSION;
 }
 
 const ENGLISH_SECTION_TITLES: Record<string, { title: string; focus: string }> = {
@@ -40,7 +42,7 @@ type CenterName =
   | 'head' | 'ajna' | 'throat' | 'g' | 'heart'
   | 'sacral' | 'solar-plexus' | 'spleen' | 'root';
 
-interface HDChart {
+export interface HDChart {
   type?: string;
   typeName?: string;
   profile?: string;
@@ -58,7 +60,7 @@ interface HDChart {
   aiIntro?: string;
 }
 
-interface ChartRow {
+export interface ChartRow {
   id: string;
   session_id: string;
   user_id: string | null;
@@ -72,7 +74,7 @@ interface ChartRow {
   chart_data: string;
 }
 
-interface SectionDef {
+export interface SectionDef {
   id: string;
   sort_order: number;
   icon: string;
@@ -88,7 +90,7 @@ interface ReportSection {
   body: string;
 }
 
-interface KnowledgeRow {
+export interface KnowledgeRow {
   category: string;
   key: string;
   title: string;
@@ -99,9 +101,23 @@ function dbErrorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
-function fullReportDbError(req: Request, env: Env, err: unknown, fallback: string): Response {
+function fullReportDbError(
+  req: Request,
+  env: Env,
+  err: unknown,
+  fallback: string,
+  language: ReportLanguage = 'zh-Hant',
+  reportVersion = getHumanDesignReportVersion(language),
+  durationMs = 0,
+): Response {
   const message = dbErrorMessage(err);
-  console.error(fallback, err);
+  logHumanDesignReportFailure(language, reportVersion, 500, durationMs, err);
+  if (language === 'en') {
+    return json(req, env, {
+      error: 'Unable to generate your Human Design report. Please try again later.',
+      code: 'HD_REPORT_GENERATION_ERROR',
+    }, { status: 500 });
+  }
   if (/no such table:?\s*hd_charts/i.test(message)) {
     return json(req, env, { error: 'D1 migration missing: hd_charts，請先套用 009_human_design_charts.sql' }, { status: 500 });
   }
@@ -324,6 +340,135 @@ function visibleCharCount(value: string): number {
   return value.replace(/\s/g, '').length;
 }
 
+type ReportGenerationErrorCode =
+  | 'HD_REPORT_GENERATION_TIMEOUT'
+  | 'HD_REPORT_PROVIDER_ERROR'
+  | 'HD_REPORT_INVALID_RESPONSE'
+  | 'HD_ENGLISH_REPORT_INCOMPLETE'
+  | 'HD_REPORT_CACHE_ERROR';
+
+type ReportFailureStage =
+  | 'OPENAI_TIMEOUT'
+  | 'OPENAI_API_ERROR'
+  | 'OPENAI_INVALID_RESPONSE'
+  | 'JSON_PARSE_ERROR'
+  | 'REPORT_SECTION_ERROR'
+  | 'REPORT_GENERATION_ERROR'
+  | 'CACHE_ERROR';
+
+const FAILURE_STAGE_BY_CODE: Record<ReportGenerationErrorCode, ReportFailureStage> = {
+  HD_REPORT_GENERATION_TIMEOUT: 'OPENAI_TIMEOUT',
+  HD_REPORT_PROVIDER_ERROR: 'OPENAI_API_ERROR',
+  HD_REPORT_INVALID_RESPONSE: 'OPENAI_INVALID_RESPONSE',
+  HD_ENGLISH_REPORT_INCOMPLETE: 'REPORT_SECTION_ERROR',
+  HD_REPORT_CACHE_ERROR: 'CACHE_ERROR',
+};
+
+export class ReportGenerationError extends Error {
+  constructor(
+    readonly code: ReportGenerationErrorCode,
+    readonly status: number,
+    readonly failedSection?: string,
+    readonly failedStage: ReportFailureStage = FAILURE_STAGE_BY_CODE[code],
+  ) {
+    super(code);
+    this.name = 'ReportGenerationError';
+  }
+}
+
+function logHumanDesignReportFailure(
+  language: ReportLanguage,
+  reportVersion: string,
+  status: number,
+  durationMs: number,
+  error: unknown,
+  fallbackStage: ReportFailureStage = 'REPORT_GENERATION_ERROR',
+): void {
+  const reportError = error instanceof ReportGenerationError ? error : null;
+  const failedSection = reportError?.failedSection;
+  console.error(JSON.stringify({
+    event: 'human_design_full_report_failure',
+    locale: language,
+    reportType: 'full',
+    cacheVersion: reportVersion,
+    httpStatus: status,
+    durationMs,
+    failedStage: reportError?.failedStage ?? fallbackStage,
+    ...(failedSection && /^[a-z0-9-]{1,64}$/u.test(failedSection) ? { failedSection } : {}),
+  }));
+}
+
+export function reportGenerationErrorResponse(
+  req: Request,
+  env: Env,
+  error: unknown,
+  language: ReportLanguage,
+): Response | null {
+  if (!(error instanceof ReportGenerationError)) return null;
+  const messages: Record<ReportGenerationErrorCode, Record<ReportLanguage, string>> = {
+    HD_REPORT_GENERATION_TIMEOUT: {
+      en: 'Report generation took too long. Your purchase is safe; please try again.',
+      'zh-Hant': '報告生成逾時，您的購買狀態不受影響，請稍後重試。',
+    },
+    HD_REPORT_PROVIDER_ERROR: {
+      en: 'The report service could not complete the request. Your purchase is safe; please try again.',
+      'zh-Hant': '報告服務暫時無法完成請求，您的購買狀態不受影響，請稍後重試。',
+    },
+    HD_REPORT_INVALID_RESPONSE: {
+      en: 'The report service returned incomplete or invalid content. Your purchase is safe; please try again.',
+      'zh-Hant': '報告服務回傳的內容不完整或格式錯誤，您的購買狀態不受影響，請稍後重試。',
+    },
+    HD_ENGLISH_REPORT_INCOMPLETE: {
+      en: 'The English report was incomplete. Your purchase is safe; please try again.',
+      'zh-Hant': '英文報告內容不完整，您的購買狀態不受影響，請稍後重試。',
+    },
+    HD_REPORT_CACHE_ERROR: {
+      en: 'Unable to load your Human Design report. Please try again later.',
+      'zh-Hant': '目前無法載入你的人類圖報告，請稍後再試。',
+    },
+  };
+  return json(req, env, {
+    error: messages[error.code][language],
+    code: error.code,
+  }, { status: error.status });
+}
+
+export function parseOpenAiSections(
+  text: string,
+  defs: SectionDef[],
+  language: ReportLanguage,
+): Record<string, string> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new ReportGenerationError('HD_REPORT_INVALID_RESPONSE', 502, undefined, 'JSON_PARSE_ERROR');
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new ReportGenerationError('HD_REPORT_INVALID_RESPONSE', 502);
+  }
+
+  const record = parsed as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const def of defs) {
+    const value = record[def.id];
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new ReportGenerationError(
+        language === 'en' ? 'HD_ENGLISH_REPORT_INCOMPLETE' : 'HD_REPORT_INVALID_RESPONSE',
+        502,
+        def.id,
+        'REPORT_SECTION_ERROR',
+      );
+    }
+    const body = value.trim();
+    if (language === 'en' && body.split(/\s+/u).filter(Boolean).length < 250) {
+      throw new ReportGenerationError('HD_ENGLISH_REPORT_INCOMPLETE', 502, def.id, 'REPORT_SECTION_ERROR');
+    }
+    out[def.id] = body;
+  }
+  return out;
+}
+
 const SECTION_DETAIL_APPENDICES: Record<string, string> = {
   gates: '理解閘門時，還可以從三個角度交叉觀察：在工作中，它是自然能力還是反覆壓力；在關係中，它是吸引、衝突還是彼此學習的入口；在身體上，被觸發時是擴張、緊繃還是想立刻行動。單一閘門不會決定命運，真正重要的是它與中心、通道、環境及當下選擇如何共同作用。把生活事件記下來，會比背誦號碼更容易理解自己的能量。',
   channels: '觀察通道時，不妨回想別人最常如何形容你，以及哪些能力即使沒有刻意準備也會自然出現。再進一步看它在壓力下是否被過度使用，例如把洞察變成控制、把行動力變成急迫，或把照顧變成犧牲。成熟的通道不是永遠強烈，而是能在合適時機流動、在不需要時安靜。這會讓天賦既能服務世界，也不必消耗自己。',
@@ -399,7 +544,7 @@ function fixedContext(chart: HDChart, row: ChartRow, knowledge: Map<string, Know
   ].filter(Boolean).join('\n');
 }
 
-async function generateOpenAiSections(
+export async function generateOpenAiSections(
   env: Env,
   row: ChartRow,
   chart: HDChart,
@@ -413,18 +558,24 @@ async function generateOpenAiSections(
   if (aiDefs.length === 0) return {};
   const languageLabel = language === 'en' ? 'English' : '繁體中文';
 
-  const prompt = {
-    fixed_human_design_context: fixedContext(chart, row, knowledge),
-    required_sections: aiDefs.map((def) => ({
-      id: def.id,
-      title: def.title,
-      focus: def.focus,
-    })),
-    writing_rules: [
-      `使用${languageLabel}，不可混用其他語言。`,
-      ...(language === 'en'
-        ? ['Write at least 300 English words for each section, in 3 to 5 paragraphs.', 'Translate the fixed Human Design context accurately into natural English before interpreting it.']
-        : ['每個 section 的 value 必須至少 300 個中文字，少於 300 個中文字視為錯誤。', '建議每個 section 產出 300 到 400 個中文字，分成 3 到 5 段。']),
+  const writingRules = language === 'en'
+    ? [
+      'Write only in natural English. Never include Chinese.',
+      'Write at least 300 English words per section, in 3 to 5 paragraphs.',
+      'Translate the supplied chart facts and fixed knowledge accurately into English before interpreting them.',
+      'Begin with a familiar everyday experience, then explain its Human Design meaning.',
+      'Use accessible language with a gentle spiritual perspective. Give practical, compassionate guidance.',
+      'Explain each technical term in plain English when it first appears.',
+      'Avoid mechanical language, repetitive templates, and bullet lists.',
+      'Use imagery only as metaphor; do not make supernatural guarantees or deterministic predictions.',
+      'Tie every section to the supplied Type, Authority, Profile, Definition, centers, channels, gates, signature, or not-self data.',
+      'Do not repeat encyclopedia-style fixed knowledge; use it only as interpretive context.',
+      'Return one JSON object. Use each required section id exactly as its key, and its English prose as the string value.',
+      'Do not add Markdown, translated keys, headings outside the JSON object, prices, or payment text.',
+    ]
+    : [
+      '使用繁體中文，不可混用其他語言。',
+      '每個 section 的 value 必須至少 300 個中文字，少於 300 個中文字視為錯誤；建議每個 section 產出 300 到 400 個中文字，分成 3 到 5 段。',
       '先從使用者可能熟悉的生活感受切入，再解釋人類圖含義。',
       '語言比例約為六成日常易懂、四成靈性與能量視角；讓讀者感到被理解，也知道可以怎麼做。',
       '專有名詞一次只解釋一個，出現 Type、Authority、Profile、中心、通道或閘門時，立刻用白話或身體感受說明。',
@@ -437,11 +588,21 @@ async function generateOpenAiSections(
       '不要重寫固定知識百科；固定知識只作為判讀基礎。',
       '必須回傳 JSON object，key 為 section id，value 為該段落文字。',
       '不要加入 Markdown 標題，不要加入價格或付款文字。',
-    ],
+    ];
+
+  const prompt = {
+    fixed_human_design_context: fixedContext(chart, row, knowledge),
+    required_sections: aiDefs.map((def) => ({
+      id: def.id,
+      title: def.title,
+      focus: def.focus,
+    })),
+    output_language: languageLabel,
+    writing_rules: writingRules,
   };
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
   let res: Response | undefined;
   try {
     res = await fetch('https://api.openai.com/v1/responses', {
@@ -471,29 +632,30 @@ async function generateOpenAiSections(
         max_output_tokens: 8000,
       }),
     });
+  } catch {
+    if (controller.signal.aborted) {
+      throw new ReportGenerationError('HD_REPORT_GENERATION_TIMEOUT', 504);
+    }
+    throw new ReportGenerationError('HD_REPORT_PROVIDER_ERROR', 502);
   } finally {
     clearTimeout(timeoutId);
   }
 
-  if (!res) {
-    throw new Error('OpenAI report generation failed: no response');
+  if (!res?.ok) {
+    throw new ReportGenerationError('HD_REPORT_PROVIDER_ERROR', 502);
   }
 
-  if (!res.ok) {
-    throw new Error(`OpenAI report generation failed: ${res.status}`);
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    throw new ReportGenerationError('HD_REPORT_INVALID_RESPONSE', 502);
   }
-
-  const data = await res.json();
   const text = extractOpenAiText(data);
-  if (!text) return null;
-
-  const parsed = JSON.parse(text) as Record<string, unknown>;
-  const out: Record<string, string> = {};
-  for (const def of aiDefs) {
-    const value = parsed[def.id];
-    if (typeof value === 'string' && value.trim()) out[def.id] = value.trim();
+  if (!text) {
+    throw new ReportGenerationError('HD_REPORT_INVALID_RESPONSE', 502);
   }
-  return out;
+  return parseOpenAiSections(text, aiDefs, language);
 }
 
 async function getSectionDefs(env: Env): Promise<SectionDef[]> {
@@ -637,6 +799,8 @@ async function enhanceSavedReport(
   defs: SectionDef[],
   language: ReportLanguage = 'zh-Hant',
 ): Promise<void> {
+  const startedAt = Date.now();
+  const reportVersion = getHumanDesignReportVersion(language);
   try {
     const knowledge = knowledgeLookup(await getKnowledgeRows(env));
     const aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge, language);
@@ -644,9 +808,7 @@ async function enhanceSavedReport(
       await saveReport(env, row, chart, defs, aiBodies, language);
     }
   } catch (err) {
-    // The complete deterministic report is already stored. AI enhancement failure
-    // must never remove paid content or turn the entire report into an error state.
-    console.error('human design background enhancement failed:', err);
+    logHumanDesignReportFailure(language, reportVersion, 500, Date.now() - startedAt, err);
   }
 }
 
@@ -658,10 +820,11 @@ export async function getHumanDesignFullReport(
   language: ReportLanguage = 'zh-Hant',
 ): Promise<Response> {
   const reportVersion = getHumanDesignReportVersion(language);
+  const startedAt = Date.now();
   try {
     await ensureHumanDesignSchema(env);
   } catch (err) {
-    return fullReportDbError(req, env, err, '人類圖資料庫初始化失敗');
+    return fullReportDbError(req, env, err, '人類圖資料庫初始化失敗', language, reportVersion, Date.now() - startedAt);
   }
 
   let row: ChartRow | null;
@@ -674,19 +837,26 @@ export async function getHumanDesignFullReport(
         LIMIT 1`
     ).bind(chartId).first<ChartRow>();
   } catch (err) {
-    return fullReportDbError(req, env, err, '人類圖資料讀取失敗');
+    return fullReportDbError(req, env, err, '人類圖資料讀取失敗', language, reportVersion, Date.now() - startedAt);
   }
 
   if (!row) {
     return json(req, env, { error: '找不到人類圖紀錄' }, { status: 404 });
   }
 
+  let stage: ReportFailureStage = 'CACHE_ERROR';
   try {
-    const saved = await readSavedReport(env, chartId, reportVersion);
+    let saved: ReportSection[] | null;
+    try {
+      saved = await readSavedReport(env, chartId, reportVersion);
+    } catch {
+      throw new ReportGenerationError('HD_REPORT_CACHE_ERROR', 500);
+    }
     if (saved) {
       return json(req, env, { report_version: reportVersion, sections: saved, cached: true });
     }
 
+    stage = 'REPORT_GENERATION_ERROR';
     const defs = localizeSectionDefs(await getSectionDefs(env), language);
     const chart = parseChart(row);
     if (language === 'en') {
@@ -704,6 +874,11 @@ export async function getHumanDesignFullReport(
     if (ctx) ctx.waitUntil(enhanceSavedReport(env, row, chart, defs, language));
     return json(req, env, { report_version: reportVersion, sections, cached: false });
   } catch (err) {
-    return fullReportDbError(req, env, err, '人類圖完整版報告產生失敗');
+    const response = reportGenerationErrorResponse(req, env, err, language);
+    if (response) {
+      logHumanDesignReportFailure(language, reportVersion, response.status, Date.now() - startedAt, err, stage);
+      return response;
+    }
+    return fullReportDbError(req, env, err, '人類圖完整版報告產生失敗', language, reportVersion, Date.now() - startedAt);
   }
 }
