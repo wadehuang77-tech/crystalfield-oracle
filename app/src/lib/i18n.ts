@@ -359,7 +359,7 @@ export const translations = {
       hour: 'Hour', minute: 'Minute', timeHint: 'Use the 24-hour clock. For example, 8:00 PM is 20:00.',
       cityPlaceholder: 'e.g. Taipei, Tokyo, or New York', calculate: 'Calculate My Human Design Chart',
       trustSignals: ['Instant chart calculation', '5 energy types', 'Personal energy insights'],
-      dateError: 'Choose your date of birth', timeError: 'Enter your birth time', cityError: 'Enter your birth city',
+      dateError: 'Enter a valid date in MM/DD/YYYY format that is not in the future.', timeError: 'Enter your birth time', cityError: 'Enter your birth city',
       analyzing: 'Reading your Human Design chart',
       steps: ['Analyzing your chart…', 'Bringing your energy centers together…', 'Preparing personalized insights…', 'Getting your free report ready…'],
       heroComplete: 'Your Human Design blueprint is ready',

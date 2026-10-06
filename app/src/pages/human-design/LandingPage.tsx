@@ -8,6 +8,28 @@ interface LandingPageProps {
   disabled?: boolean;
 }
 
+function parseEnglishBirthDate(value: string): string | null {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+  if (!match) return null;
+
+  const [, monthText, dayText, yearText] = match;
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const year = Number(yearText);
+  if (year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
+  if (
+    date.getUTCFullYear() !== year
+    || date.getUTCMonth() !== month - 1
+    || date.getUTCDate() !== day
+  ) return null;
+
+  const isoDate = `${yearText}-${monthText}-${dayText}`;
+  return isoDate <= new Date().toISOString().slice(0, 10) ? isoDate : null;
+}
+
 export default function LandingPage({ onCalculate, disabled = false }: LandingPageProps) {
   const language = getLanguageFromPath(window.location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`humanDesign.${key}`, language) : fallback;
@@ -23,19 +45,18 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
     return () => clearTimeout(t);
   }, []);
 
-  const validate = () => {
-    const e: Record<string, string> = {};
-    if (!form.birthDate) e.birthDate = copy('dateError', '請選擇出生日期');
-    if (!timeParts.hour || !timeParts.minute) e.birthTime = copy('timeError', '請輸入出生時間');
-    if (!form.birthCity.trim()) e.birthCity = copy('cityError', '請輸入出生城市');
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      onCalculate(form.birthDate, `${timeParts.hour}:${timeParts.minute}`, form.birthCity.trim());
+    const birthDate = language === 'en'
+      ? parseEnglishBirthDate(form.birthDate)
+      : form.birthDate;
+    const nextErrors: Record<string, string> = {};
+    if (!birthDate) nextErrors.birthDate = copy('dateError', '請選擇出生日期');
+    if (!timeParts.hour || !timeParts.minute) nextErrors.birthTime = copy('timeError', '請輸入出生時間');
+    if (!form.birthCity.trim()) nextErrors.birthCity = copy('cityError', '請輸入出生城市');
+    setErrors(nextErrors);
+    if (birthDate && Object.keys(nextErrors).length === 0) {
+      onCalculate(birthDate, `${timeParts.hour}:${timeParts.minute}`, form.birthCity.trim());
     }
   };
 
@@ -95,11 +116,13 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
                   {copy('birthDate', '出生日期')}
                 </label>
                 <input
-                  type="date"
+                  type={language === 'en' ? 'text' : 'date'}
+                  inputMode={language === 'en' ? 'numeric' : undefined}
+                  placeholder={language === 'en' ? 'MM/DD/YYYY' : undefined}
                   value={form.birthDate}
                   onChange={e => setForm({ ...form, birthDate: e.target.value })}
                   className={`${inputBase} ${errors.birthDate ? 'border-rose-400/50' : ''}`}
-                  max={new Date().toISOString().split('T')[0]}
+                  max={language === 'en' ? undefined : new Date().toISOString().split('T')[0]}
                 />
                 {errors.birthDate && (
                   <p className="text-rose-400/80 text-xs mt-1.5">{errors.birthDate}</p>
