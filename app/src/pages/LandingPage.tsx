@@ -1,4 +1,3 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import type { MouseEvent } from 'react';
 import { getLanguageFromPath, getLocalizedPath, translations } from '../lib/i18n';
@@ -97,40 +96,9 @@ const STARS = Array.from({ length: 80 }, (_, i) => ({
 
 // ─── LandingPage ─────────────────────────────────────────────────────────────
 export default function LandingPage() {
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
   const copy = translations[language];
-
-  const scrollToCard = useCallback((index: number) => {
-    const carousel = carouselRef.current;
-    if (!carousel) return;
-    const card = carousel.children[index] as HTMLElement;
-    if (!card) return;
-    carousel.scrollTo({
-      left: card.offsetLeft - (carousel.offsetWidth - card.offsetWidth) / 2,
-      behavior: 'smooth',
-    });
-    setActiveIndex(index);
-  }, []);
-
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (!carousel) return;
-    const onScroll = () => {
-      const center = carousel.scrollLeft + carousel.offsetWidth / 2;
-      let closest = 0, minDist = Infinity;
-      Array.from(carousel.children).forEach((child, i) => {
-        const el = child as HTMLElement;
-        const dist = Math.abs(el.offsetLeft + el.offsetWidth / 2 - center);
-        if (dist < minDist) { minDist = dist; closest = i; }
-      });
-      setActiveIndex(closest);
-    };
-    carousel.addEventListener('scroll', onScroll, { passive: true });
-    return () => carousel.removeEventListener('scroll', onScroll);
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#060310] overflow-x-hidden">
@@ -199,56 +167,17 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Mobile carousel */}
-          <div className="md:hidden">
-            <div ref={carouselRef}
-              className="flex overflow-x-auto gap-5 snap-x snap-mandatory pb-4"
-              style={{
-                paddingLeft: 'calc(50vw - 148px)',
-                paddingRight: 'calc(50vw - 148px)',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-                WebkitOverflowScrolling: 'touch',
-              } as React.CSSProperties}>
-              {CARDS.map((card, i) => (
-                <div key={card.id} className="snap-center flex-shrink-0 transition-all duration-500"
-                  style={{
-                    width: '296px',
-                    opacity: activeIndex === i ? 1 : 0.5,
-                    transform: activeIndex === i ? 'scale(1)' : 'scale(0.92)',
-                  }}>
-                  <PortalCard
-                    card={card}
-                    index={i}
-                    language={language}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Pagination dots */}
-            <div className="flex items-center justify-center gap-3 mt-7">
-              {CARDS.map((card, i) => (
-                <button key={card.id} onClick={() => scrollToCard(i)}
-                  aria-label={`Go to ${card.title}`}
-                  className="transition-all duration-300 rounded-full"
-                  style={{
-                    width: activeIndex === i ? '32px' : '8px',
-                    height: '8px',
-                    background: activeIndex === i
-                      ? `linear-gradient(90deg, #a855f7, ${card.glowSolid})`
-                      : 'rgba(168,85,247,0.25)',
-                    boxShadow: activeIndex === i ? `0 0 12px ${card.glow}` : 'none',
-                  }} />
-              ))}
-            </div>
-
-            <p className="text-center mt-3 text-sm font-semibold tracking-widest" style={{
-              background: 'linear-gradient(90deg, #c084fc, #f59e0b)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>{CARDS[activeIndex].title}</p>
-
-            <p className="text-center mt-2 text-purple-500/40 text-xs tracking-wider swipe-hint">{language === 'en' ? 'Swipe to explore' : '左右滑動探索'}</p>
+          {/* Mobile cards are stacked vertically so every tool is visible without horizontal scrolling. */}
+          <div className="space-y-6 px-6 md:hidden">
+            {CARDS.map((card, i) => (
+              <div key={card.id} className="w-full">
+                <PortalCard
+                  card={card}
+                  index={i}
+                  language={language}
+                />
+              </div>
+            ))}
           </div>
 
           <div className="mx-auto mt-10 max-w-6xl px-6 sm:mt-14">
@@ -263,7 +192,7 @@ export default function LandingPage() {
 
 // ─── Portal Card ──────────────────────────────────────────────────────────────
 function PortalCard({ card, index, onClick, language }: { card: Card; index: number; onClick?: () => void; language: 'zh-Hant' | 'en' }) {
-  const sharedClass = "group relative block rounded-3xl overflow-hidden cursor-pointer no-underline";
+  const sharedClass = "group relative block min-h-[420px] overflow-hidden rounded-3xl cursor-pointer no-underline sm:min-h-[520px]";
   const copy = translations[language];
   const cardCopy =
     card.id === 'tarot' ? copy.cards.tarot :
@@ -271,7 +200,6 @@ function PortalCard({ card, index, onClick, language }: { card: Card; index: num
     copy.cards.humanDesign;
   const localizedHref = getLocalizedPath(card.href, language);
   const sharedStyle: React.CSSProperties = {
-    minHeight: '520px',
     border: `1px solid ${card.borderGlow}`,
     boxShadow: `0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)`,
     transition: 'transform 0.5s cubic-bezier(.22,.68,0,1.2), box-shadow 0.4s ease',
