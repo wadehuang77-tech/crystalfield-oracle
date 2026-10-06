@@ -184,7 +184,6 @@ jobs:
               && item.Source === expectedSha
               && item.Id
               && item.Deployment
-              && !Number.isNaN(Date.parse(item.Status))
             );
             if (!deployment) {
               throw new Error(`No successful production Pages deployment found for ${expectedSha}`);
