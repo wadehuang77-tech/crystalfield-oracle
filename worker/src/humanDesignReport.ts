@@ -5,7 +5,7 @@ import {
 import { ensureHumanDesignSchema } from './humanDesignSchema';
 
 export const REPORT_VERSION = 'professional-v12';
-const ENGLISH_REPORT_VERSION = 'professional-v13-en';
+const ENGLISH_REPORT_VERSION = 'professional-v14-en';
 const OPENAI_SECTION_IDS = new Set(['personality', 'prescription', 'career', 'love', 'wealth', 'mission']);
 const MIN_AI_BODY_CHARS = 300;
 export const OPENAI_TIMEOUT_MS = 60000;
@@ -181,6 +181,14 @@ const ENGLISH_TYPE_NAMES: Record<string, string> = {
   projector: 'Projector',
   manifestor: 'Manifestor',
   reflector: 'Reflector',
+};
+
+const ENGLISH_STRATEGIES: Record<string, string> = {
+  generator: 'Wait to Respond',
+  'manifesting-generator': 'Wait to Respond, then Inform',
+  projector: 'Wait for the Invitation',
+  manifestor: 'Inform before Initiating',
+  reflector: 'Wait through a Lunar Cycle',
 };
 
 const ENGLISH_AUTHORITY_NAMES: Record<string, string> = {
@@ -365,6 +373,29 @@ export function buildEnglishFixedSectionBody(sectionId: string, chart: HDChart, 
   }
 
   return '';
+}
+
+function buildEnglishFallbackAiSectionBody(sectionId: string, chart: HDChart, row: ChartRow): string {
+  const typeName = ENGLISH_TYPE_NAMES[chart.type ?? row.hd_type] ?? 'your energy type';
+  const authority = ENGLISH_AUTHORITY_NAMES[chart.authority ?? row.hd_authority] ?? 'your inner authority';
+  const strategy = ENGLISH_STRATEGIES[chart.type ?? row.hd_type] ?? 'your strategy';
+  const profile = chart.profile ?? row.hd_profile;
+  const gates = (chart.keyGates ?? []).join(', ') || 'no key gates are listed';
+  const channels = (chart.keyChannels ?? []).join(', ') || 'no key channels are listed';
+  const sharedGuidance = `Treat this chart as a reflective framework, not a diagnosis, promise, or set of rules. Notice what matches your lived experience and leave aside what does not; you do not need to force a description to fit. For the next week, record one concrete situation each day: what happened, what you noticed in your body, what choice you made, and how you felt afterward. Looking across several examples is more reliable than drawing a conclusion from one intense moment. Your ${typeName} design, ${profile} profile, and ${authority} are context for reflection, not limits on your choices. Give important decisions enough time to follow ${strategy}, and use practical information and direct communication alongside any chart insight. You remain the authority on your own experience, and your needs can change with relationships, health, work, and circumstance.`;
+
+  const sectionGuidance: Record<string, string> = {
+    personality: `Your chart is a combination of several themes, rather than a single label. As a ${typeName}, your way of engaging with opportunities may feel different from someone else's, while your ${profile} profile describes another layer of how you learn and relate. Your ${authority} offers a way to notice which decisions feel grounded for you. These elements are most useful when considered together: observe whether you feel clearer when you honor ${strategy}, and whether rushing to meet another person's timetable leaves you less certain. Your chart also lists gates ${gates} and channels ${channels}; they add context, but they do not define your entire personality. Make room for qualities that the chart does not mention. You may respond differently in a safe environment than under pressure, and that difference is meaningful rather than inconsistent. Instead of asking whether you perfectly match a type description, ask what conditions help you feel present, honest, and able to choose. A helpful interpretation should increase self-understanding without making you feel fixed or obligated to perform a particular identity.`,
+    prescription: `Use this seven-day practice as a gentle experiment, not a test of discipline. On day one, pause for three slow breaths before one ordinary commitment and note your first bodily response. On day two, give yourself extra time before answering a meaningful question. On day three, notice which environments leave you settled and which make it harder to hear your own perspective. On day four, practice a kind, clear boundary in a low-stakes situation. On day five, review one recent decision and identify what information or time helped. On day six, choose an activity that restores energy without needing to be productive. On day seven, look for patterns and keep only the practices that genuinely help. Let ${authority} and ${strategy} guide the pace rather than turning the routine into another demand. If any exercise creates more stress, shorten it or stop. Rest, accessibility, responsibilities, and personal circumstances matter more than completing every step. The aim is to gather useful evidence about what supports you, not to prove that the chart is right.`,
+    career: `Think about work through both the tasks you perform and the conditions in which you perform them. As a ${typeName}, notice which opportunities invite a genuine response instead of requiring you to manufacture constant urgency. Your ${authority} and ${strategy} can be prompts to allow enough time for decisions about roles, clients, or commitments. Gates ${gates} and channels ${channels} are possible themes to explore, not guaranteed professional skills; compare them with feedback, training, and results from real projects. For one week, note which activities absorb you in a healthy way, which collaborations make expectations clear, and which demands repeatedly leave you depleted. Also consider practical factors such as compensation, workload, stability, growth, and the ability to recover. A nourishing career does not have to be effortless, and temporary fatigue does not automatically mean a role is wrong. Look for a sustainable pattern over time. You are allowed to revise your direction as your needs and circumstances change, and no chart should replace financial judgment or professional advice when those are needed.`,
+    love: `In close relationships, use this reading to support honest conversation rather than to explain another person or predict how a relationship will unfold. Notice whether you can express needs, ask for time, and disagree without feeling that you must abandon yourself. Your ${typeName} approach and ${authority} may remind you to respect your own pace, but a partner's actions and clear communication matter more than a chart label. Ask each other what helps you feel safe, how you prefer to handle conflict, and what boundaries are important. Pay attention to repeated behavior rather than relying only on promises or intense moments. A useful boundary is specific and respectful: it describes what you can do, what you cannot do, and what support you need. Compassion does not require taking responsibility for someone else's feelings, and independence does not require shutting out care. If a relationship involves fear, coercion, or harm, prioritize your safety and seek trusted support; Human Design is not a substitute for professional help. Let mutual respect and lived experience guide your choices.`,
+    wealth: `Explore resources with both reflection and practical care. Before a financial commitment, separate what you genuinely value from pressure, urgency, or fear of missing out. Your ${authority} and ${strategy} can encourage a pause, while budgets, written terms, comparison shopping, and qualified advice provide concrete safeguards. Notice whether work and spending choices support your wellbeing over time, not only whether they create a short burst of relief or excitement. Gates ${gates} and channels ${channels} can be prompts for considering how you contribute, but they do not predict income or guarantee success. Track the time, energy, costs, and benefits attached to one recurring commitment this week. Ask whether the exchange feels clear and sustainable, and whether a boundary or renegotiation would help. Abundance is not a measure of personal worth, and financial difficulty is not evidence of spiritual failure. Make room for uncertainty, changing responsibilities, and different definitions of security. Use this section to clarify your values; rely on sound financial information for decisions that affect your savings, debt, taxes, or livelihood.`,
+    mission: `Purpose does not have to arrive as one permanent job title or a single dramatic revelation. It can develop through recurring interests, relationships, responsibilities, and the ways you choose to contribute. As a ${typeName}, notice the settings where your attention and energy feel engaged without requiring you to imitate someone else. Your ${profile} profile, ${authority}, and ${strategy} offer questions to explore, not instructions about what you must become. Over the coming weeks, keep a short record of moments that felt meaningful, including ordinary ones: a conversation that helped someone, a problem you enjoyed solving, or a boundary that let you continue sustainably. Look for themes across time, and ask trusted people what they experience when working or spending time with you. Compare their observations with your own rather than letting others define your direction. Gates ${gates} and channels ${channels} may add symbolic language to that reflection, but they cannot decide your purpose. You are allowed to change course, hold several meaningful roles, or remain uncertain while gathering experience. Direction can grow from choices that respect both your values and your real-life needs.`,
+  };
+
+  const guidance = sectionGuidance[sectionId];
+  if (!guidance) return '';
+  return `${guidance}\n\n${sharedGuidance}`;
 }
 
 function buildFallbackAiSectionBody(sectionId: string, chart: HDChart, row: ChartRow): string {
@@ -763,7 +794,7 @@ async function saveReport(
   aiBodies: Record<string, string> | null = null,
   language: ReportLanguage = 'zh-Hant',
 ): Promise<ReportSection[]> {
-  if (language === 'en') {
+  if (language === 'en' && aiBodies) {
     const incomplete = defs.some((def) => {
       if (def.generation_mode !== 'openai' && !OPENAI_SECTION_IDS.has(def.id)) return false;
       const body = aiBodies?.[def.id] ?? '';
@@ -778,7 +809,9 @@ async function saveReport(
   const sections = defs.map((def) => {
     const isOpenAi = def.generation_mode === 'openai' || OPENAI_SECTION_IDS.has(def.id);
     const body = isOpenAi
-      ? normalizeAiBody(def.id, aiBodies?.[def.id], chart, row)
+      ? language === 'en'
+        ? aiBodies?.[def.id] ?? buildEnglishFallbackAiSectionBody(def.id, chart, row)
+        : normalizeAiBody(def.id, aiBodies?.[def.id], chart, row)
       : language === 'en'
         ? buildEnglishFixedSectionBody(def.id, chart, row)
         : buildFixedSectionBody(def.id, chart, row, knowledge);
@@ -925,16 +958,11 @@ export async function getHumanDesignFullReport(
     const defs = localizeSectionDefs(await getSectionDefs(env), language);
     const chart = parseChart(row);
     if (language === 'en') {
-      if (!env.OPENAI_API_KEY) {
-        return json(req, env, { error: 'English report generation is unavailable right now.', code: 'HD_ENGLISH_REPORT_UNAVAILABLE' }, { status: 503 });
-      }
-      const knowledge = knowledgeLookup(await getKnowledgeRows(env));
-      const aiBodies = await generateOpenAiSections(env, row, chart, defs, knowledge, language);
-      const sections = await saveReport(env, row, chart, defs, aiBodies, language);
+      const sections = await saveReport(env, row, chart, defs, null, language);
+      if (ctx) ctx.waitUntil(enhanceSavedReport(env, row, chart, defs, language));
       return json(req, env, { report_version: reportVersion, sections, cached: false });
     }
-    // Save and return a complete nine-section report first. AI enhancement happens
-    // after the response so a slow or unavailable model cannot block paid content.
+    // Return the complete report before AI enhancement so model latency cannot block paid content.
     const sections = await saveReport(env, row, chart, defs, null, language);
     if (ctx) ctx.waitUntil(enhanceSavedReport(env, row, chart, defs, language));
     return json(req, env, { report_version: reportVersion, sections, cached: false });

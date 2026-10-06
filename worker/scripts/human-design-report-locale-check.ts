@@ -175,7 +175,7 @@ async function main() {
     );
   }
   assert.equal(getHumanDesignReportVersion('zh-Hant'), 'professional-v12', 'The Chinese report cache version remains unchanged');
-  assert.equal(getHumanDesignReportVersion('en'), 'professional-v13-en', 'English reports must not reuse older cached output');
+  assert.equal(getHumanDesignReportVersion('en'), 'professional-v14-en', 'English reports must not reuse older cached output');
   assert.notEqual(getHumanDesignReportVersion('zh-Hant'), getHumanDesignReportVersion('en'), 'Each locale must use a distinct report cache key');
   assert.equal(OPENAI_TIMEOUT_MS, 60000, 'The OpenAI request is bounded by the 60-second abort timeout');
   assert.ok(!PLAN_GROUPS.human_design_full.includes('core'));
@@ -204,11 +204,17 @@ async function main() {
           headers: { 'Content-Type': 'application/json' },
         });
       };
+      const backgroundTasks: Promise<unknown>[] = [];
+      const context = {
+        waitUntil(promise: Promise<unknown>) {
+          backgroundTasks.push(promise);
+        },
+      } as unknown as ExecutionContext;
       const response = await getHumanDesignFullReport(
         new Request('https://api.example.test/api/human-design/charts/local-test-chart/full-report', { method: 'POST' }),
         env,
         row.id,
-        undefined,
+        product.language === 'en' ? context : undefined,
         product.language,
       );
       assert.equal(response.status, 200);
@@ -232,11 +238,27 @@ async function main() {
         assert.ok(body.sections.some(({ id }) => id === 'centers'));
         assert.ok(body.sections.some(({ id }) => id === 'gates'));
         assert.ok(body.sections.some(({ id }) => id === 'channels'));
+        assert.equal(backgroundTasks.length, 1, 'English AI enrichment runs after the fallback report is returned');
+        await Promise.all(backgroundTasks);
       }
     }
   } finally {
     globalThis.fetch = originalFetch;
   }
+
+  const noApiKeyEnv = { ...makeReportEnv().env, OPENAI_API_KEY: undefined } as Env;
+  const fallbackResponse = await getHumanDesignFullReport(
+    new Request('https://api.example.test/api/human-design/charts/local-test-chart/full-report', { method: 'POST' }),
+    noApiKeyEnv,
+    row.id,
+    undefined,
+    'en',
+  );
+  assert.equal(fallbackResponse.status, 200, 'The English report remains available without an OpenAI key');
+  const fallbackBody = await fallbackResponse.json() as { sections: Array<{ body: string }> };
+  assert.equal(fallbackBody.sections.length, 9);
+  assert.ok(fallbackBody.sections.every(({ body }) => body.trim().split(/\s+/u).length >= 250));
+  assert.ok(fallbackBody.sections.every(({ body }) => !/[\u3400-\u9fff]/u.test(body)));
 
   const failureEnv = makeReportEnv().env;
   const failureLogs: string[] = [];
@@ -244,18 +266,25 @@ async function main() {
   console.error = (...args: unknown[]) => { failureLogs.push(args.map(String).join(' ')); };
   try {
     globalThis.fetch = async () => new Response('provider internal detail must not be returned or logged', { status: 500 });
+    const backgroundTasks: Promise<unknown>[] = [];
     const failure = await getHumanDesignFullReport(
       new Request('https://api.example.test/api/human-design/charts/local-test-chart/full-report', { method: 'POST' }),
       failureEnv,
       row.id,
-      undefined,
+      {
+        waitUntil(promise: Promise<unknown>) {
+          backgroundTasks.push(promise);
+        },
+      } as unknown as ExecutionContext,
       'en',
     );
-    assert.equal(failure.status, 502);
-    const failureBody = await failure.json() as { error: string; code: string };
-    assert.equal(failureBody.code, 'HD_REPORT_PROVIDER_ERROR');
-    assert.match(failureBody.error, /report service could not complete/u);
-    assert.doesNotMatch(failureBody.error, /internal detail|test-only-placeholder|1990-01-02/u);
+    assert.equal(failure.status, 200, 'AI provider failure must not block the paid English report');
+    const failureBody = await failure.json() as { sections: Array<{ body: string }>; cached: boolean };
+    assert.equal(failureBody.sections.length, 9);
+    assert.equal(failureBody.cached, false);
+    assert.ok(failureBody.sections.every(({ body }) => body.trim().split(/\s+/u).length >= 250));
+    assert.equal(backgroundTasks.length, 1);
+    await Promise.all(backgroundTasks);
     assert.equal(failureLogs.length, 1);
     const log = JSON.parse(failureLogs[0]) as Record<string, unknown>;
     assert.deepEqual(
@@ -264,8 +293,8 @@ async function main() {
     );
     assert.equal(log.locale, 'en');
     assert.equal(log.reportType, 'full');
-    assert.equal(log.cacheVersion, 'professional-v13-en');
-    assert.equal(log.httpStatus, 502);
+    assert.equal(log.cacheVersion, 'professional-v14-en');
+    assert.equal(log.httpStatus, 500);
     assert.equal(log.failedStage, 'OPENAI_API_ERROR');
     assert.equal(typeof log.durationMs, 'number');
     assert.doesNotMatch(failureLogs.join('\n'), /provider internal detail|test-only-placeholder|1990-01-02|test@example\.invalid/u);
