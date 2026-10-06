@@ -93,25 +93,30 @@ async function main() {
       }
       totalCards += body.cards.length;
 
-      if (deckId === 'lightworker') {
-        const fullCard = await loadFullCard(env, deckId, String(body.cards[0].card_key), 'en');
-        assert.ok(fullCard, 'Lightworker full card should be available');
-        assert.equal(fullCard.content_locale, 'en');
-        assert.equal(fullCard.translation_available, true);
-        const gated = fullCard.gated as Record<string, unknown>;
-        for (const field of [
-          'cosmicMessage', 'currentSituation', 'deeperMeaning',
-          'actionGuidance', 'energyHealing', 'soulQuestion',
-        ]) {
-          const text = gated[field];
-          assert.equal(typeof text, 'string', `${field} should be a full interpretation string`);
-          assert.doesNotMatch(text as string, /[\u3400-\u9fff]/, `${field} must not fall back to Chinese`);
+      if (deckId === 'work_your_light') {
+        for (const preview of body.cards) {
+          const fullCard = await loadFullCard(env, deckId, String(preview.card_key), 'en');
+          assert.ok(fullCard, `Work Your Light ${String(preview.card_key)} full card should be available`);
+          assert.equal(fullCard.content_locale, 'en');
+          assert.equal(fullCard.translation_available, true);
+          const gated = fullCard.gated as Record<string, unknown>;
+          for (const field of ['coreMeaning', 'actionGuidance', 'deepInterpretation']) {
+            const value = gated[field];
+            assert.ok(Object.hasOwn(gated, field), `${field} should be present in the full interpretation`);
+            if (value !== null) {
+              assert.doesNotMatch(
+                JSON.stringify(value),
+                /[\u3400-\u9fff]/,
+                `${field} must not fall back to Chinese for ${String(preview.card_key)}`,
+              );
+            }
+          }
         }
       }
     }
 
     assert.equal(totalCards, 278, 'all 278 translated cards must have public English previews');
-    console.log(`English no-login 30% previews verified for all ${totalCards} cards across ${decks.length} decks.`);
+    console.log(`English previews verified for all ${totalCards} cards; Work Your Light full interpretations contain no Chinese fallback.`);
   } finally {
     await miniflare.dispose();
   }

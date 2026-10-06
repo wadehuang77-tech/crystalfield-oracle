@@ -5,7 +5,12 @@ import { trackCardDrawComplete } from '../lib/ga4';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'login_gate' | 'paywall';
 interface Pick { card_key: string; position: number; reversed?: boolean; }
-interface UseMultiSpreadGateOptions { spreadId: string; picks: Pick[] | null; enabled: boolean; }
+interface UseMultiSpreadGateOptions {
+  spreadId: string;
+  picks: Pick[] | null;
+  enabled: boolean;
+  language?: 'zh-Hant' | 'en';
+}
 interface UseMultiSpreadGateResult {
   phase: MultiGatePhase;
   unlockedCards: UnlockedCard[] | null;
@@ -15,7 +20,12 @@ interface UseMultiSpreadGateResult {
   bundleRemaining: number | null;
 }
 
-export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadGateOptions): UseMultiSpreadGateResult {
+export function useMultiSpreadGate({
+  spreadId,
+  picks,
+  enabled,
+  language,
+}: UseMultiSpreadGateOptions): UseMultiSpreadGateResult {
   const { user } = useAuth();
   const [phase, setPhase] = useState<MultiGatePhase>('idle');
   const [unlockedCards, setUnlockedCards] = useState<UnlockedCard[] | null>(null);
@@ -33,7 +43,7 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
   useEffect(() => {
     if (!enabled || !picks?.length || phase === 'unlocked') return;
     const picksKey = picks.map((pick) => `${pick.position}:${pick.card_key}:${pick.reversed ? 1 : 0}`).join(',');
-    const key = `${spreadId}:${picksKey}:${user?.id ?? 'guest'}:${accessVersion}`;
+    const key = `${spreadId}:${picksKey}:${user?.id ?? 'guest'}:${accessVersion}:${language ?? 'path'}`;
     if (attemptRef.current === key) return;
     attemptRef.current = key;
     trackCardDrawComplete(spreadId, picks.length);
@@ -41,7 +51,7 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
     if (!user) { setPhase('login_gate'); return; }
     setPhase('loading'); setError(null); setUnlockSource(null);
     const readingId = crypto.randomUUID();
-    void cardsApi.freeUnlockSpread(spreadId, picks, readingId).then((result) => {
+    void cardsApi.freeUnlockSpread(spreadId, picks, readingId, undefined, language).then((result) => {
       setUnlockedCards(result.cards);
       setUnlockSource(result.entitlement_status === 'free_available' ? 'free' : 'subscription');
       setPhase('unlocked');
@@ -51,7 +61,7 @@ export function useMultiSpreadGate({ spreadId, picks, enabled }: UseMultiSpreadG
       setError(cause.message || '解鎖失敗');
       setPhase('paywall');
     });
-  }, [enabled, picks, spreadId, user, accessVersion, phase]);
+  }, [enabled, picks, spreadId, user, accessVersion, phase, language]);
 
   const onEmailUnlocked = async () => {};
   return { phase, unlockedCards, error, onEmailUnlocked, unlockSource, bundleRemaining: null };

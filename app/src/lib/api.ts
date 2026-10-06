@@ -904,10 +904,11 @@ export const cardsApi = {
     picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
     reading_id: string,
     email?: string,
+    language = activeContentLanguage(),
   ) =>
     req<{ spread_id: string; cards: UnlockedCard[]; free_readings_remaining: number; entitlement_status: TarotEntitlementStatus }>('/api/cards/free-unlock-spread', {
       method: 'POST',
-      body: { spread_id, picks, reading_id, email, language: activeContentLanguage() },
+      body: { spread_id, picks, reading_id, email, language },
     }),
 
   unlockSingle: (spread_id: string, card_key: string, email: string, reversed = false) =>
@@ -921,10 +922,11 @@ export const cardsApi = {
     picks: Array<{ card_key: string; position: number; reversed?: boolean }>,
     order_id: string,
     order_token?: string | null,
+    language = activeContentLanguage(),
   ) =>
     req<{ spread_id: string; cards: UnlockedCard[] }>('/api/cards/spread-unlock', {
       method: 'POST',
-      body: { spread_id, picks, order_id, order_token: order_token ?? undefined, language: activeContentLanguage() },
+      body: { spread_id, picks, order_id, order_token: order_token ?? undefined, language },
     }),
 };
 
