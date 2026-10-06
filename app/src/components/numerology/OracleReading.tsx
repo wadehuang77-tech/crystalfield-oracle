@@ -3,6 +3,7 @@ import { Sparkles, Gem, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-
 import type { NumerologyReport, OracleCard, MissingNumberData, CrystalInfo } from '../../lib/numerology';
 import { missingNumberData } from '../../lib/numerology';
 import { localizeMissingNumberData } from '../../lib/numerologyDisplay';
+import { getOracleCardEnglish } from '../../lib/shamanicOracleDisplay';
 import type { PlanTier } from '../../hooks/usePremium';
 import NumerologyShareButton from './NumerologyShare';
 
@@ -147,69 +148,180 @@ export default function OracleReading({ language, report, card, tier, oracleUnlo
   const showFull = oracleUnlocked;
   const lp = report.lifePathNumber;
   const topMissing = report.missingNumbers[0];
+  const toggle = (key: typeof expanded) => {
+    setExpanded(prev => prev === key ? null : key);
+  };
+  const progressBar = (label: string, color: string) => (
+    <div style={{ marginBottom: 4 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+        <p style={{ margin: 0, fontSize: 11, color: `${color}cc`, fontWeight: 500 }}>{label}</p>
+        <span style={{ fontSize: 11, fontWeight: 700, color }}>25%</span>
+      </div>
+      <div style={{ height: 4, borderRadius: 999, background: `${color}14`, overflow: 'hidden' }}>
+        <div style={{
+          height: '100%', width: '25%', borderRadius: 999,
+          background: `linear-gradient(90deg, ${color}cc, ${color})`,
+          boxShadow: `0 0 8px ${color}55`,
+        }} />
+      </div>
+    </div>
+  );
 
   if (language === 'en') {
-    const numberPrompt = topMissing
-      ? `Your report lists ${topMissing} among its missing numbers. In numerology traditions, this is sometimes used as a prompt to reflect on ${missingNumberData[topMissing] ? localizeMissingNumberData(missingNumberData[topMissing]).challenge : 'a personal growth theme'}. It is not a diagnosis or a prediction.`
-      : `Your report has no missing numbers listed. You can use Life Path ${lp} as a symbolic prompt for reflection; numerology is not a scientific assessment or a prediction.`;
-    const reflection = `Use “${card.nameEn}” as a journaling prompt: what part of its symbolism feels relevant to a current choice, and what practical evidence or support would help you decide? You are free to set aside any interpretation that does not fit.`;
-    const practice = `Take a few quiet minutes to name one question you are considering. Write down what you know, what you still need to learn, and one small, reversible next step. This exercise is for reflection and does not replace professional, medical, financial, or relationship advice.`;
-    const sections = [
-      { id: 'blockpoint' as const, title: 'Reflection prompt', description: reflection },
-      { id: 'crystalGrid' as const, title: 'Optional crystal ritual', description: 'If crystals are meaningful to you, choose one as a personal reminder of an intention. Their use is symbolic and is not a substitute for evidence-based care or practical action.' },
-      { id: 'ritual' as const, title: 'Journaling practice', description: practice },
+    const englishCard = getOracleCardEnglish(card);
+    const englishMissing = topMissing ? localizeMissingNumberData(missingNumberData[topMissing]) : null;
+    const lifeLesson = englishMissing
+      ? `Missing number ${topMissing} invites you to explore ${englishMissing.challenge}. Repeated challenges can become opportunities to practice this skill, build resilience, and discover a more flexible response. Treat this as a reflection prompt rather than a fixed description of who you are; your experiences, choices, and circumstances matter more than a number.`
+      : `Life Path ${lp} offers a symbolic prompt to explore how your values, relationships, creativity, and inner life come together. Notice which parts of this theme feel relevant to your experience, and which do not. Numerology is a reflective tradition, not a scientific assessment or a prediction.`;
+    const soulGifts = [
+      `The ${englishCard.archetype.toLowerCase()} quality can help you respond to important moments with the perspective of ${englishCard.element.toLowerCase()}.`,
+      `Life Path ${lp} can be a reminder to listen for your own priorities while staying open to new information.`,
+      `You can draw on the card's ${englishCard.element.toLowerCase()} symbolism as a personal cue to pause and reflect.`,
+      englishMissing
+        ? `Reflecting on missing number ${topMissing} may help you notice where patience, self-understanding, or support could be useful.`
+        : `You can bring different parts of your experience together while keeping your choices grounded in what matters to you.`,
+    ];
+    const soulPotential = `When you connect the symbolism of ${card.nameEn} with Life Path ${lp}, you may find a useful perspective for approaching a current challenge. The ${englishCard.archetype.toLowerCase()} theme can help you recognize strengths you already use, while ${englishCard.element.toLowerCase()} offers an image to return to when you need to pause. Let this interpretation support reflection rather than define your identity; your potential is shaped by your actions, relationships, resources, and circumstances.`;
+    const lifeDirection = `Consider where the qualities associated with ${englishCard.element.toLowerCase()} and ${englishCard.archetype.toLowerCase()} already fit your interests and responsibilities. Rather than treating the card as an instruction about your future, use it to identify one direction worth exploring. Gather practical information, consider the people affected, and choose a step that is realistic for your time, energy, and resources.`;
+    const spiritualGrowth = `A useful next step is to move from recognizing the message of ${card.nameEn} to testing it in ordinary life. Notice one moment when the ${englishCard.archetype.toLowerCase()} quality feels available to you, and consider how the ${englishCard.element.toLowerCase()} theme might help you respond with intention. Small, repeatable choices can strengthen self-awareness without requiring certainty about spiritual claims or outcomes.`;
+    const blueprintAnalysis = `Your Life Path ${lp} reading and the ${card.nameEn} card share a reflective theme: ${englishCard.archetype.toLowerCase()}. This is a way to organize ideas, not evidence of a predetermined contract or destiny. Repeated questions, personal strengths, and intuitive impressions can all be explored alongside your lived experience. Keep the parts that help you understand your choices more clearly, and leave aside anything that does not fit.`;
+    const growthSuggestion = `Spend five minutes noticing the ${englishCard.element.toLowerCase()} theme in your surroundings or reflecting on what it represents to you. Once this week, write down a specific moment when you acted with the ${englishCard.archetype.toLowerCase()} quality. Describe what happened and what you learned, without judging the result.`;
+    const currentEnergyState = `${card.nameEn} brings attention to the ${englishCard.element.toLowerCase()} theme and the ${englishCard.archetype.toLowerCase()} quality. Use these symbols to reflect on how you are responding to current challenges, opportunities, and relationships. Consider what is within your control and what support or information might help.`;
+    const cosmicMessage = englishCard.message.split('\n\n')[0];
+    const currentLesson = englishMissing
+      ? `A current reflection point is missing number ${topMissing} and the theme of ${englishMissing.challenge.toLowerCase()}. Notice whether a real situation gives you an opportunity to practice this skill, while remembering that a numerology reading cannot determine what is happening or what you should do.`
+      : `A current reflection point is how Life Path ${lp} relates to your values and choices. Notice where you may be setting aside your own perspective, and consider what would help you make a grounded decision.`;
+    const actionDirection = `Choose one small, practical step that responds to the situation you are actually facing. The ${englishCard.archetype.toLowerCase()} theme can be a reminder to ${englishCard.shadow.charAt(0).toLowerCase()}${englishCard.shadow.slice(1)} Before acting, consider what information you still need and whether the step is safe and reversible.`;
+    const energyBalance = `Make room for a pace that supports your wellbeing: notice what restores your energy, what repeatedly drains it, and where a clearer boundary or a request for help could make a difference. The ${englishCard.element.toLowerCase()} symbolism can serve as a personal reminder, but practical care, rest, and support remain important.`;
+    const emotionalAwareness = `When you notice this pattern—${englishCard.shadow.charAt(0).toLowerCase()}${englishCard.shadow.slice(1)}—pause and name what you are feeling without treating it as a flaw. Ask what need, concern, or boundary may be underneath the reaction. You can then choose whether to respond now, gather more information, or seek support.`;
+    const manifestationFocus = `Turn one insight from ${card.nameEn} into a realistic action you can complete this week. Write down what you intend to do, what might get in the way, and what support would help. Intentions can clarify priorities, but outcomes depend on many factors beyond intention alone.`;
+    const spiritualReminder = `Use this reading as an invitation to reflect, not as a test you must pass. The ${englishCard.archetype.toLowerCase()} theme may help you notice abilities and supports already available to you. Trust can include asking questions, changing your mind, and seeking practical help when a situation calls for it.`;
+    const crystalName = englishMissing?.crystals[0]?.name ?? 'a crystal or natural object that feels meaningful to you';
+    const crystalGuidance = `If crystals are meaningful to you, place ${crystalName} as a personal reminder while you reflect on ${card.nameEn}. You can position it beside a written intention and take a moment to notice what the symbol brings to mind. This is an optional, symbolic practice; crystals do not guarantee changes in energy or wellbeing and are not a substitute for practical or professional support.`;
+    const ritualSections = [
+      { title: 'Preparation', text: `Choose a quiet, comfortable place and, if you wish, keep ${crystalName} nearby as a symbolic reminder. Take three unhurried breaths and let your attention settle on the present moment.` },
+      { title: 'Stage 1 — Meet the card (5 minutes)', text: `Picture ${card.nameEn} and recall its ${englishCard.archetype.toLowerCase()} theme. Consider what the ${englishCard.element.toLowerCase()} image means to you personally. Notice any thoughts or feelings that arise without assuming they carry a supernatural message.` },
+      { title: 'Stage 2 — Reflect on your numerology theme (7 minutes)', text: englishMissing ? `Think about missing number ${topMissing} and the theme of ${englishMissing.challenge.toLowerCase()}. Where, if anywhere, does this topic appear in your life? Name one real example, what you felt, and what support or information might help.` : `Reflect on Life Path ${lp} as a symbolic prompt. Which part of your life feels settled, and where would you like more clarity? Identify one question you can explore with practical information or a trusted person.` },
+      { title: 'Stage 3 — Integrate and choose (3 minutes)', text: `Complete this sentence in your own words: “I can take one grounded step toward what matters to me by…” Choose an action that fits your circumstances, and give yourself permission to revise it as you learn more.` },
+      { title: 'Closing', text: 'Take a final breath, look around the room, and return your attention to the day. If useful, write down a feeling, question, or next step. This exercise is for personal reflection and does not replace professional advice or care.' },
     ];
 
     return (
-      <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025))', border: '1px solid rgba(255,255,255,0.10)' }}>
+      <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.025) 100%)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
         <div className="p-6 space-y-4" style={{ borderBottom: `1px solid ${accentColor}18` }}>
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" style={{ color: accentColor }} />
-            <h3 className="text-sm font-medium text-white">Oracle and Numerology Reflection</h3>
-            {!showFull && <span className="ml-auto text-[10px] font-bold rounded-full px-2 py-1" style={{ color: accentColor, background: `${accentColor}12` }}>25% preview</span>}
+            <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>Soul Blueprint × Current Energy Guidance</h3>
+            {!showFull && <span className="ml-auto text-[10px] font-bold rounded-full px-2 py-1" style={{ color: accentColor, background: `${accentColor}12`, border: `1px solid ${accentColor}25` }}>25% preview</span>}
           </div>
-          <div className="rounded-2xl p-5 space-y-3" style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
+          <div className="rounded-2xl p-5 space-y-4" style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
             <div className="flex items-start gap-4">
-              <span className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl" style={{ background: `${accentColor}12` }}>{card.animalSpirit ?? '✦'}</span>
-              <div>
-                <p className="text-[10px] uppercase tracking-wide" style={{ color: `${accentColor}bb` }}>Selected oracle card</p>
-                <h4 className="text-lg font-semibold" style={{ color: accentColor }}>{card.nameEn}</h4>
-                <p className="text-xs text-white/60">Life Path {lp} · Missing numbers: {report.missingNumbers.length ? report.missingNumbers.join(', ') : 'none listed'}</p>
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: `radial-gradient(circle at 30% 30%, ${accentColor}30, ${accentColor}0a)`, border: `1px solid ${accentColor}30`, boxShadow: `0 0 24px ${accentColor}20` }}>
+                {card.animalSpirit ?? '✦'}
+              </div>
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] rounded-full px-2.5 py-0.5 font-medium uppercase tracking-wider" style={{ background: `${accentColor}15`, color: accentColor, border: `1px solid ${accentColor}25` }}>Shamanic Oracle Card</span>
+                  <span className="text-[10px] uppercase tracking-wider text-violet-200/40">Drawn for you</span>
+                </div>
+                <h4 className="text-lg font-serif font-semibold" style={{ color: accentColor }}>{card.nameEn}</h4>
+                <p className="text-xs italic text-violet-200/45">{englishCard.archetype}</p>
               </div>
             </div>
-            <p className="text-sm leading-relaxed text-white/80">{numberPrompt}</p>
-            <p className="text-xs leading-relaxed text-white/50">Numerology and oracle symbolism are presented for personal reflection only. They do not establish facts about your future or determine what choices you should make.</p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}18` }}>
+                <span className="text-[10px] text-violet-200/45">Archetype</span><span className="text-[10px] font-medium" style={{ color: accentColor }}>{englishCard.archetype}</span>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}18` }}>
+                <span className="text-[10px] text-violet-200/45">Element</span><span className="text-[10px] font-medium" style={{ color: accentColor }}>{englishCard.element}</span>
+              </div>
+            </div>
+            <p className="text-xs text-white/60">Life Path {lp} · Missing numbers: {report.missingNumbers.length ? report.missingNumbers.join(', ') : 'none listed'}</p>
           </div>
         </div>
-        <div className="p-6 space-y-3">
-          {showFull ? sections.map((section) => {
-            const isOpen = expanded === section.id;
-            const gated = section.id !== 'blockpoint' && tier < 2;
-            return (
-              <div key={section.id} className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${accentColor}20` }}>
-                <button onClick={() => toggle(section.id)} className="w-full flex items-center justify-between gap-3 p-4 text-left">
-                  <span className="text-sm font-medium text-white/90">{section.title}</span>
-                  {isOpen ? <ChevronUp className="w-4 h-4" style={{ color: accentColor }} /> : <ChevronDown className="w-4 h-4" style={{ color: accentColor }} />}
-                </button>
-                {isOpen && <div className="px-4 pb-4"><p className="text-sm leading-relaxed text-white/75">{gated ? 'This section is available with the Advanced plan.' : section.description}</p>{gated && <button onClick={onOracleUnlock} className="mt-3 rounded-lg px-4 py-2 text-xs font-semibold" style={{ color: accentColor, border: `1px solid ${accentColor}40`, background: `${accentColor}10` }}>Unlock Advanced · NT$499</button>}</div>}
+        <div className="p-6 space-y-4" style={{ borderBottom: `1px solid ${accentColor}12` }}>
+          <div className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" style={{ color: accentColor }} /><p className="text-xs font-semibold uppercase tracking-widest" style={{ color: accentColor }}>Soul Blueprint</p></div>
+          {showFull ? (
+            <div className="space-y-5">
+              <FieldBlock label="Soul mission" color={accentColor}><p className="text-sm leading-[1.9] whitespace-pre-line" style={{ color: '#e9d5ff' }}>{englishCard.message}</p></FieldBlock>
+              <FieldBlock label="Life lesson" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{lifeLesson}</p></FieldBlock>
+              <FieldBlock label="Soul gifts" color={accentColor}><div className="space-y-2">{soulGifts.map((gift) => <div key={gift} className="flex items-start gap-2.5"><div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: `${accentColor}18`, border: `1px solid ${accentColor}30` }}><Check style={{ width: 9, height: 9, color: accentColor }} /></div><p className="text-sm leading-relaxed text-violet-100/80">{gift}</p></div>)}</div></FieldBlock>
+              <FieldBlock label="Soul potential" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{soulPotential}</p></FieldBlock>
+              <FieldBlock label="Life direction" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{lifeDirection}</p></FieldBlock>
+              <FieldBlock label="Spiritual growth" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{spiritualGrowth}</p></FieldBlock>
+              <FieldBlock label="Blueprint analysis" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{blueprintAnalysis}</p></FieldBlock>
+              <NumerologyShareButton group="oracle" sectionKey="oracle_blueprint" sectionName="Soul Blueprint × Current Energy" summary={blueprintAnalysis} guidance={spiritualGrowth} highlights={soulGifts} />
+              <div className="rounded-xl p-4" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)' }}><p className="text-[10px] uppercase tracking-widest mb-1.5 text-amber-200/60">Growth suggestion</p><p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>“{growthSuggestion}”</p></div>
+            </div>
+          ) : (
+            <div>
+              {progressBar('Soul Blueprint · 25% preview', accentColor)}
+              <div className="space-y-3 mt-4">
+                <FieldBlock label="Soul mission preview" color={accentColor}><p className="text-sm leading-[1.9] whitespace-pre-line" style={{ color: '#e9d5ff' }}>{`${englishCard.message.split(/\s+/).slice(0, 24).join(' ')}…`}</p></FieldBlock>
+                <FieldBlock label="Life lesson preview" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{`${lifeLesson.split(/\s+/).slice(0, 22).join(' ')}…`}</p></FieldBlock>
+                <FieldBlock label="Soul gift preview" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{`${soulGifts[0].split(/\s+/).slice(0, 18).join(' ')}…`}</p></FieldBlock>
               </div>
-            );
-          }) : (
-            <div className="rounded-2xl p-5 text-center" style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
-              <Lock className="mx-auto mb-2 h-4 w-4" style={{ color: accentColor }} />
-              <p className="text-sm font-medium text-white">Full reflection locked</p>
-              <p className="mt-1 text-xs text-white/60">Unlock the complete oracle and numerology reflection.</p>
-              <button onClick={onOracleUnlock} className="mt-4 rounded-lg px-4 py-2 text-xs font-semibold" style={{ color: '#07040f', background: accentColor }}>Unlock · NT$499</button>
+              <div className="relative rounded-xl overflow-hidden mt-3 min-h-[100px]">
+                <div className="space-y-3 pt-1" style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>{['Soul potential', 'Life direction', 'Spiritual growth', 'Blueprint analysis', 'Growth suggestion'].map((label) => <div key={label} className="rounded-xl p-3" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}12` }}><p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: `${accentColor}80` }}>{label}</p><div className="h-3 rounded bg-violet-300/10 w-4/5" /></div>)}</div>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#090514]/15 via-[#090514]/80 to-[#090514]/95" />
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-[10px] font-semibold whitespace-nowrap" style={{ color: `${accentColor}95` }}><Lock className="w-2.5 h-2.5" />Full soul blueprint locked</div>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-2"><Zap className="w-3.5 h-3.5" style={{ color: accentColor }} /><p className="text-xs font-semibold uppercase tracking-widest" style={{ color: accentColor }}>Current Energy Guidance</p></div>
+          {showFull ? (
+            <div className="space-y-5">
+              <FieldBlock label="Current energy state" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{currentEnergyState}</p></FieldBlock>
+              <FieldBlock label="Oracle message" color={accentColor}><p className="text-sm leading-[1.9] whitespace-pre-line" style={{ color: '#e9d5ff' }}>{cosmicMessage}</p></FieldBlock>
+              <FieldBlock label="Current lesson" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{currentLesson}</p></FieldBlock>
+              <FieldBlock label="Suggested next step" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{actionDirection}</p></FieldBlock>
+              <FieldBlock label="Energy balance" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{energyBalance}</p></FieldBlock>
+              <FieldBlock label="Emotional awareness" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{emotionalAwareness}</p></FieldBlock>
+              <FieldBlock label="Focus for the week" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{manifestationFocus}</p></FieldBlock>
+              {([
+                { id: 'blockpoint' as const, icon: <Zap className="w-4 h-4" style={{ color: accentColor }} />, title: 'Numerology reflection point', subtitle: 'How this card can prompt reflection on your current numerology themes', content: `${currentLesson}\n\n${englishCard.shadow}\n\n${actionDirection}`, locked: false },
+                { id: 'crystalGrid' as const, icon: <Gem className="w-4 h-4" style={{ color: accentColor }} />, title: 'Optional crystal arrangement guide', subtitle: 'A symbolic arrangement inspired by the oracle card', content: crystalGuidance, locked: !oracleUnlocked },
+                { id: 'ritual' as const, icon: <Sparkles className="w-4 h-4" style={{ color: accentColor }} />, title: 'Meditation and reflection practice', subtitle: 'A guided practice combining the oracle card and numerology themes', content: '', locked: tier < 2 },
+              ]).map((section) => (
+                <div key={section.id} className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${accentColor}15` }}>
+                  <button onClick={() => toggle(section.id)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/2 transition-colors">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}20` }}>{section.icon}</div>
+                    <div className="flex-1 min-w-0"><p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{section.title}</p><p className="text-xs mt-0.5 text-violet-200/45">{section.subtitle}</p></div>
+                    {expanded === section.id ? <ChevronUp className="w-4 h-4 flex-shrink-0 text-violet-300/45" /> : <ChevronDown className="w-4 h-4 flex-shrink-0 text-violet-300/45" />}
+                  </button>
+                  {expanded === section.id && <div className="px-4 pb-4 pt-1 border-t border-white/5">
+                    {section.locked ? <div className="text-center py-4"><Lock className="w-4 h-4 mx-auto mb-2 opacity-70" style={{ color: accentColor }} /><p className="text-[11px] mb-2" style={{ color: `${accentColor}80` }}>Available with the Advanced plan</p><button onClick={onOracleUnlock} className="rounded-lg px-4 py-2 text-xs font-semibold" style={{ color: accentColor, border: `1px solid ${accentColor}40`, background: `${accentColor}10` }}>Unlock Advanced · NT$499</button></div>
+                      : section.id === 'ritual' ? <div className="space-y-3">{ritualSections.map((ritualSection) => <div key={ritualSection.title} className="pl-3 border-l space-y-1" style={{ borderColor: `${accentColor}20` }}><p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: `${accentColor}cc` }}>{ritualSection.title}</p><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{ritualSection.text}</p></div>)}<NumerologyShareButton group="oracle" sectionKey="oracle_ritual" sectionName="Meditation and reflection practice" summary={ritualSections.map((item) => `${item.title}: ${item.text}`).join('\n\n')} guidance={spiritualGrowth} /></div>
+                        : <div className="rounded-2xl p-4 mt-3" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}15` }}><p className="text-sm leading-[1.95] whitespace-pre-line" style={{ color: '#e9d5ff' }}>{section.content}</p><NumerologyShareButton group="oracle" sectionKey="oracle_blockpoint" sectionName="Numerology reflection point" summary={section.content} guidance={actionDirection} /></div>}
+                  </div>}
+                </div>
+              ))}
+              <div className="rounded-xl p-4" style={{ background: `${accentColor}07`, border: `1px solid ${accentColor}18` }}><p className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: `${accentColor}80` }}>Spiritual growth reminder</p><p className="text-sm italic leading-relaxed" style={{ color: '#e9d5ff' }}>“{spiritualReminder}”</p></div>
+              <NumerologyShareButton group="oracle" sectionKey="oracle_energy" sectionName="Current Energy Guidance" summary={currentEnergyState} guidance={actionDirection} highlights={[cosmicMessage, energyBalance]} />
+            </div>
+          ) : (
+            <div>
+              {progressBar('Current Energy Guidance · 25% preview', accentColor)}
+              <div className="space-y-3 mt-4">
+                <FieldBlock label="Current energy theme" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{`${currentEnergyState.split(/\s+/).slice(0, 24).join(' ')}…`}</p></FieldBlock>
+                <FieldBlock label="Energy reminder" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{`${energyBalance.split(/\s+/).slice(0, 18).join(' ')}…`}</p></FieldBlock>
+                <FieldBlock label="Suggested next step" color={accentColor}><p className="text-sm leading-[1.9]" style={{ color: '#e9d5ff' }}>{`${actionDirection.split(/\s+/).slice(0, 18).join(' ')}…`}</p></FieldBlock>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-3">{['Full Soul Blueprint', 'Complete Energy Guidance', 'Full Card Interpretation', 'Oracle Message and Practical Steps'].map((item) => <div key={item} className="flex items-center gap-2 p-2.5 rounded-lg" style={{ background: `${accentColor}07`, border: `1px solid ${accentColor}18` }}><span className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}25`, color: accentColor }}><Lock className="w-2.5 h-2.5" /></span><span className="text-[11px] leading-tight" style={{ color: `${accentColor}90` }}>{item}</span></div>)}</div>
+              <div className="relative rounded-xl overflow-hidden mt-3 min-h-[110px]">
+                <div className="space-y-2 pt-1" style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>{['Numerology reflection point', 'Optional crystal arrangement guide', 'Meditation and reflection practice'].map((label) => <div key={label} className="rounded-xl p-3" style={{ background: `${accentColor}06`, border: `1px solid ${accentColor}12` }}><p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: `${accentColor}80` }}>{label}</p><div className="h-3 rounded bg-violet-300/10 w-4/5" /></div>)}</div>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#090514]/15 via-[#090514]/75 to-[#090514]/95" />
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-[10px] font-semibold whitespace-nowrap" style={{ color: `${accentColor}95` }}><Lock className="w-2.5 h-2.5" />Full energy guidance locked</div>
+              </div>
+              <button onClick={onOracleUnlock} className="w-full mt-4 rounded-xl px-4 py-3 text-sm font-semibold" style={{ color: '#07040f', background: accentColor }}>Unlock the Full Reading · NT$499</button>
             </div>
           )}
         </div>
       </div>
     );
   }
-
-  const toggle = (key: typeof expanded) => {
-    setExpanded(prev => prev === key ? null : key);
-  };
 
   const ORACLE_UNLOCK_FEATURES = [
     '完整靈魂藍圖解析',
@@ -248,22 +360,6 @@ export default function OracleReading({ language, report, card, tier, oracleUnlo
   const emotionalAwareness = card.shadow ? `情緒覺察提醒：${card.shadow.replace('。', '')}。每當這個模式出現，試著暫停一秒，問自己「這個反應背後有什麼更深的需求？」那個需求，往往才是真正需要被照顧的地方。` : `覺察並允許你此刻真實的情緒狀態，不加評判地與它同在。`;
   const manifestationFocus = `當下最強的顯化能量點在於：將${card.name}帶來的覺察，轉化為一個具體的、可在7天內完成的「靈魂對齊行動」。意圖加上行動，才是宇宙顯化的完整公式。`;
   const spiritualReminder = `靈性成長提醒：你此刻所面對的，不是障礙，而是靈魂升級前的「校準考驗」。${card.archetype}的能量提醒你：你早已具備通過這個考驗所需的一切，唯一需要的，是對自己的完全信任。`;
-
-  const progressBar = (label: string, color: string) => (
-    <div style={{ marginBottom: 4 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-        <p style={{ margin: 0, fontSize: 11, color: `${color}cc`, fontWeight: 500 }}>{label}</p>
-        <span style={{ fontSize: 11, fontWeight: 700, color }}>25%</span>
-      </div>
-      <div style={{ height: 4, borderRadius: 999, background: `${color}14`, overflow: 'hidden' }}>
-        <div style={{
-          height: '100%', width: '25%', borderRadius: 999,
-          background: `linear-gradient(90deg, ${color}cc, ${color})`,
-          boxShadow: `0 0 8px ${color}55`,
-        }} />
-      </div>
-    </div>
-  );
 
   return (
     <div
@@ -786,4 +882,3 @@ function FieldBlock({ label, color, children }: { label: string; color: string; 
     </div>
   );
 }
-
