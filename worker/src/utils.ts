@@ -19,6 +19,7 @@ export interface Env {
   OPENAI_MODEL?: string;
   GOOGLE_CLIENT_ID?: string;
   VEDASTRO_API_KEY?: string;
+  VEDASTRO_API_BASE?: string;
 }
 
 export interface SessionUser {

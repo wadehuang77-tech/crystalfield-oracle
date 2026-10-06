@@ -511,7 +511,7 @@ export interface VedicChartResponse {
 export const vedicAstrologyApi = {
   createChart: (body: { birth_date: string; birth_time: string; birth_place: string; consent: boolean }) =>
     req<VedicChartResponse>('/api/vedic-astrology/charts', {
-      method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 45000,
+      method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 75000,
     }),
 
   getPaidReport: (body: { chart_id?: string; chart_token?: string; order_id: string; order_token: string }) =>
