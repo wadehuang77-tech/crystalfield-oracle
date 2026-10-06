@@ -5,6 +5,7 @@ import type { Env } from '../src/utils.ts';
 import { BirthLocationResolutionError, resolveBirthLocation } from '../src/vedicGeocoding.ts';
 import {
   buildVedAstroAllPlanetLongitudeUrl,
+  isVedAstroRateLimitMessage,
   parsePlanetLongitudes,
   timezoneOffsetAtLocal,
 } from '../src/vedicAstrology.ts';
@@ -27,6 +28,9 @@ assert.equal(
 assert.equal(timezoneOffsetAtLocal('1968-09-06', '20:00', 'Asia/Taipei'), '+08:00');
 assert.equal(timezoneOffsetAtLocal('2020-01-15', '12:00', 'America/New_York'), '-05:00');
 assert.equal(timezoneOffsetAtLocal('2020-07-15', '12:00', 'America/New_York'), '-04:00');
+assert.equal(isVedAstroRateLimitMessage('Free tier rate limit exceeded (5 calls/minute).'), true);
+assert.equal(isVedAstroRateLimitMessage('Too many requests; try again later.'), true);
+assert.equal(isVedAstroRateLimitMessage('Invalid birth time.'), false);
 
 async function checkGeocodingBehavior(): Promise<void> {
   const geocodingCache = new Map<string, { result_json: string | null; not_found: number; cached_at: number }>();
@@ -203,6 +207,8 @@ assert.match(source, /\[vedic-chart\] chart creation failed/);
 assert.match(source, /VEDIC_GEOLOCATION_UNAVAILABLE/);
 assert.match(source, /VEDIC_CALCULATION_UNAVAILABLE/);
 assert.match(source, /VEDASTRO_HTTP_ERROR/);
+assert.match(source, /VEDASTRO_RATE_LIMITED/);
+assert.match(source, /VEDIC_PROVIDER_RATE_LIMITED/);
 assert.match(source, /VEDASTRO_STATUS_FAIL/);
 assert.match(source, /VEDASTRO_INVALID_RESPONSE/);
 assert.match(source, /VEDASTRO_PLANET_DATA_MISSING/);

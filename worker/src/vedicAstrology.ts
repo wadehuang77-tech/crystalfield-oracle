@@ -463,6 +463,7 @@ function vedicStdTime(date: string, time: string, offset: string): string {
 
 type VedAstroFailureCode =
   | 'VEDASTRO_HTTP_ERROR'
+  | 'VEDASTRO_RATE_LIMITED'
   | 'VEDASTRO_STATUS_FAIL'
   | 'VEDASTRO_INVALID_RESPONSE'
   | 'VEDASTRO_PLANET_DATA_MISSING';
@@ -668,6 +669,10 @@ function redactVedAstroText(text: string, request: Record<string, unknown>, apiK
     .slice(0, 240);
 }
 
+export function isVedAstroRateLimitMessage(message: string): boolean {
+  return /rate[\s_-]*limit|too many requests|quota exceeded/i.test(message);
+}
+
 async function vedAstroCall(
   env: Env,
   method: string,
@@ -692,8 +697,9 @@ async function vedAstroCall(
 
     const responseText = await response.text();
     if (!response.ok) {
+      const code = response.status === 429 ? 'VEDASTRO_RATE_LIMITED' : 'VEDASTRO_HTTP_ERROR';
       throw new VedAstroIntegrationError(
-        'VEDASTRO_HTTP_ERROR',
+        code,
         redactVedAstroText(responseText, request, env.VEDASTRO_API_KEY),
         method,
         response.status,
@@ -715,9 +721,10 @@ async function vedAstroCall(
       throw new VedAstroIntegrationError('VEDASTRO_INVALID_RESPONSE', 'missing response Status', method, response.status);
     }
     if (envelope.Status !== 'Pass') {
+      const detail = safeVedAstroFailure(envelope, request, env.VEDASTRO_API_KEY);
       throw new VedAstroIntegrationError(
-        'VEDASTRO_STATUS_FAIL',
-        safeVedAstroFailure(envelope, request, env.VEDASTRO_API_KEY),
+        isVedAstroRateLimitMessage(detail) ? 'VEDASTRO_RATE_LIMITED' : 'VEDASTRO_STATUS_FAIL',
+        detail,
         method,
         response.status,
         envelope.Status,
@@ -1080,6 +1087,15 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       }, { status: 502 });
     }
     if (failureStage === 'astrology chart calculation') {
+      if (integrationError?.code === 'VEDASTRO_RATE_LIMITED') {
+        return json(req, env, {
+          error: body.language === 'en'
+            ? 'The astrology calculation service is temporarily rate-limited. Please try again in one minute. If this continues, contact support.'
+            : '占星計算服務目前流量較高，請 1 分鐘後再試；若持續發生，請聯絡客服。',
+          code: 'VEDIC_PROVIDER_RATE_LIMITED',
+          retry_after_seconds: 60,
+        }, { status: 429 });
+      }
       return json(req, env, {
         error: body.language === 'en'
           ? 'Chart calculation is temporarily unavailable. Please try again later.'
