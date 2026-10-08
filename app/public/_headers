@@ -1,0 +1,40 @@
+/app-shell
+  X-Robots-Tag: noindex, nofollow
+/app-shell.html
+  X-Robots-Tag: noindex, nofollow
+/admin
+  X-Robots-Tag: noindex, nofollow
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+/en/admin
+  X-Robots-Tag: noindex, nofollow
+/en/admin/*
+  X-Robots-Tag: noindex, nofollow
+/login
+  X-Robots-Tag: noindex, nofollow
+/en/login
+  X-Robots-Tag: noindex, nofollow
+/register
+  X-Robots-Tag: noindex, nofollow
+/en/register
+  X-Robots-Tag: noindex, nofollow
+/auth
+  X-Robots-Tag: noindex, nofollow
+/en/auth
+  X-Robots-Tag: noindex, nofollow
+/membership
+  X-Robots-Tag: noindex, nofollow
+/en/membership
+  X-Robots-Tag: noindex, nofollow
+/checkout/*
+  X-Robots-Tag: noindex, nofollow
+/en/checkout/*
+  X-Robots-Tag: noindex, nofollow
+/payment
+  X-Robots-Tag: noindex, nofollow
+/payment/*
+  X-Robots-Tag: noindex, nofollow
+/en/payment
+  X-Robots-Tag: noindex, nofollow
+/en/payment/*
+  X-Robots-Tag: noindex, nofollow

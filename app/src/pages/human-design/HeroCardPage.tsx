@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
-import { getLanguageFromPath, t } from '../../lib/i18n';
+import { useRouteLanguage } from '../../hooks/useRouteLanguage';
+import { t } from '../../lib/i18n';
 
 interface HeroCardPageProps {
   chart: HDChart;
@@ -142,7 +143,7 @@ function CenterDot({ defined }: { defined: boolean }) {
 }
 
 export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, onContinue }: HeroCardPageProps) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`humanDesign.${key}`, language) : fallback;
   const [visible, setVisible] = useState(false);
   const [cardVisible, setCardVisible] = useState(false);

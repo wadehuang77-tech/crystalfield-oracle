@@ -1,1 +1,3 @@
-/*    /index.html   200
+# Exact SPA-only route rewrites are generated from App.tsx during the build.
+# They target the extensionless, non-prerendered /app-shell asset.
+# Unknown paths fall through to Cloudflare Pages' 404.html.

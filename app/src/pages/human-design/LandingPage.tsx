@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, MapPin, Calendar, Clock } from 'lucide-react';
 import HumanDesignSeoContent from './HumanDesignSeoContent';
-import { getLanguageFromPath, t } from '../../lib/i18n';
+import { useRouteLanguage } from '../../hooks/useRouteLanguage';
+import { t } from '../../lib/i18n';
 
 interface LandingPageProps {
   onCalculate: (birthDate: string, birthTime: string, birthCity: string) => void;
@@ -31,7 +32,7 @@ function parseEnglishBirthDate(value: string): string | null {
 }
 
 export default function LandingPage({ onCalculate, disabled = false }: LandingPageProps) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`humanDesign.${key}`, language) : fallback;
   const [visible, setVisible] = useState(false);
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthCity: '' });
@@ -122,7 +123,6 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
                   value={form.birthDate}
                   onChange={e => setForm({ ...form, birthDate: e.target.value })}
                   className={`${inputBase} ${errors.birthDate ? 'border-rose-400/50' : ''}`}
-                  max={language === 'en' ? undefined : new Date().toISOString().split('T')[0]}
                 />
                 {errors.birthDate && (
                   <p className="text-rose-400/80 text-xs mt-1.5">{errors.birthDate}</p>

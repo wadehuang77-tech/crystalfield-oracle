@@ -1,9 +1,11 @@
 import { Mail, ShieldCheck } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { getLanguageFromPath, getLocalizedPath, t, translations } from '../lib/i18n';
+import { useRenderYear } from '../contexts/RenderYearContext';
 
 export default function SiteFooter() {
   const location = useLocation();
+  const renderYear = useRenderYear();
   const language = getLanguageFromPath(location.pathname);
   const copy = translations[language];
   const copyT = (key: string) => t(key, language);
@@ -34,7 +36,7 @@ export default function SiteFooter() {
       </div>
       <div className="border-t border-blue-500/10">
         <p className="text-center text-xs text-blue-400/50 tracking-[0.2em] py-3">
-          © {new Date().getFullYear()} {copy.siteName}
+          © {renderYear} {copy.siteName}
         </p>
       </div>
     </footer>

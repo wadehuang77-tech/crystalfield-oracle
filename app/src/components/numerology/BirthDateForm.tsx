@@ -1,15 +1,15 @@
 import { useState } from 'react';
+import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
-import { getLanguageFromPath, t } from '../../lib/i18n';
+import { t } from '../../lib/i18n';
 
 interface Props {
   onSubmit: (date: string, useOracle: boolean) => void;
   loading: boolean;
 }
 
-const currentYear = new Date().getFullYear();
-
 function isValidDate(y: string, m: string, d: string): boolean {
+  const currentYear = new Date().getFullYear();
   const yn = parseInt(y), mn = parseInt(m), dn = parseInt(d);
   if (!y || !m || !d) return false;
   if (yn < 1900 || yn > currentYear) return false;
@@ -21,7 +21,7 @@ function isValidDate(y: string, m: string, d: string): boolean {
 }
 
 export default function BirthDateForm({ onSubmit, loading }: Props) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`numerology.${key}`, language) : fallback;
   const [year, setYear]   = useState('');
   const [month, setMonth] = useState('');
@@ -31,6 +31,7 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
   const valid = isValidDate(year, month, day);
 
   function validateField(field: 'year' | 'month' | 'day', val: string) {
+    const currentYear = new Date().getFullYear();
     const n = parseInt(val);
     if (!val) return '';
     if (field === 'year')  return (n < 1900 || n > currentYear) ? copy('yearError', `請輸入 1900–${currentYear}`) : '';
@@ -106,7 +107,7 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
             value={year}
             placeholder={copy('yearPlaceholder', '西元年（如 1990）')}
             min={1900}
-            max={currentYear}
+            max={9999}
             error={errors.year}
             inputStyle={inputStyle(errors.year)}
             onChange={v => { setYear(v); setErrors(e => ({ ...e, year: validateField('year', v) })); }}

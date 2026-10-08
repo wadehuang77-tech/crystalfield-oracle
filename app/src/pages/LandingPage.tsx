@@ -60,6 +60,7 @@ function makeParticles(n: number, seed: number) {
 const TAROT_PARTICLES = makeParticles(24, 7);
 const NUMER_PARTICLES = makeParticles(24, 17);
 const HD_PARTICLES = makeParticles(24, 31);
+const stableSvgCoordinate = (value: number) => Math.round(value * 10_000) / 10_000;
 
 const FLOATING_CARDS = [
   { x: 12, y: 8, rot: -18, w: 32, h: 48, opacity: 0.22, delay: 0 },
@@ -311,7 +312,7 @@ function TarotArtwork() {
         <circle cx="140" cy="140" r="40" fill="none" stroke="#f59e0b" strokeWidth="0.8" />
         {[0,45,90,135,180,225,270,315].map((a, i) => {
           const r = Math.PI * a / 180;
-          return <line key={i} x1={140 + Math.cos(r) * 40} y1={140 + Math.sin(r) * 40} x2={140 + Math.cos(r) * 130} y2={140 + Math.sin(r) * 130} stroke="#c084fc" strokeWidth="0.6" />;
+          return <line key={i} x1={stableSvgCoordinate(140 + Math.cos(r) * 40)} y1={stableSvgCoordinate(140 + Math.sin(r) * 40)} x2={stableSvgCoordinate(140 + Math.cos(r) * 130)} y2={stableSvgCoordinate(140 + Math.sin(r) * 130)} stroke="#c084fc" strokeWidth="0.6" />;
         })}
       </svg>
       {FLOATING_CARDS.map((c, i) => (
@@ -360,7 +361,7 @@ function NumerologyArtwork() {
       <svg className="absolute" style={{ top: '3%', left: '5%', width: '260px', height: '260px', opacity: 0.1, animation: 'rotateSlowRev 55s linear infinite', transformOrigin: '130px 130px' }} viewBox="0 0 260 260">
         {[0,60,120,180,240,300].map((a, i) => {
           const r = Math.PI * a / 180;
-          return <circle key={i} cx={130 + Math.cos(r) * 45} cy={130 + Math.sin(r) * 45} r={45} fill="none" stroke="#818cf8" strokeWidth="0.8" />;
+          return <circle key={i} cx={stableSvgCoordinate(130 + Math.cos(r) * 45)} cy={stableSvgCoordinate(130 + Math.sin(r) * 45)} r={45} fill="none" stroke="#818cf8" strokeWidth="0.8" />;
         })}
         <circle cx="130" cy="130" r="45" fill="none" stroke="#818cf8" strokeWidth="0.8" />
         <circle cx="130" cy="130" r="90" fill="none" stroke="#6366f1" strokeWidth="0.6" />

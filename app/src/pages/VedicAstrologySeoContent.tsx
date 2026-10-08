@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { getLanguageFromPath } from '../lib/i18n';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 
 const faq = [
   ['印度占星是什麼？', '印度占星也常稱為吠陀占星或 Vedic Astrology，是以出生日期、時間與地點建立星盤，整理生命週期與自我探索方向的文化性占星系統。'],
@@ -19,7 +19,7 @@ const faq = [
 ] as const;
 
 export default function VedicAstrologySeoContent() {
-  const isEnglish = getLanguageFromPath(window.location.pathname) === 'en';
+  const isEnglish = useRouteLanguage() === 'en';
   const knowledgeLinks = [
     ['印度占星是什麼？', 'what-is-vedic-astrology'], ['印度占星與西洋占星', 'vedic-vs-western'], ['羅喉計都與前世業力', 'rahu-ketu'], ['印度占星大運', 'dasha'], ['月宿 Nakshatra', 'nakshatra'], ['D9 九分盤', 'd9-navamsa'], ['D10 十分盤', 'd10-dasamsa'], ['出生時間怎麼辦？', 'birth-time'], ['感情與婚姻', 'love-marriage'], ['事業與財富', 'career-wealth'],
   ];

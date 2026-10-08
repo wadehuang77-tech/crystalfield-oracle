@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -22,7 +23,7 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
-import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
+import { localizeCardLabel, t } from '../lib/i18n';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -97,7 +98,7 @@ function EgyptianPastlifePreviewCard({ slot, index }: { slot: PastlifeSlot; inde
 
 function EgyptianGodsPage() {
   const navigate = useNavigate();
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.egyptian.${key}`, language) : fallback;
   const { cards: deck, error: deckError } = useDeck('egyptian_gods');
   const [searchParams] = useSearchParams();
@@ -676,7 +677,7 @@ function EgyptianGodsPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">

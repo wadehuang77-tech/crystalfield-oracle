@@ -8,7 +8,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getLanguageFromPath, getLocalizedPath, t, translations } from '../lib/i18n';
 import {
   trackDeckSelect,
@@ -158,7 +158,8 @@ const ADVANCED_DECKS: Array<{ id: OracleDeckId; name: string; path: string }> = 
 
 function HomePage() {
   const navigate = useNavigate();
-  const language = getLanguageFromPath(window.location.pathname);
+  const { pathname } = useLocation();
+  const language = getLanguageFromPath(pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`oraclePage.${key}`, language) : fallback;
   const { user } = useAuth();
   const [selectedId, setSelectedId] = useState<NeedOption['id'] | null>(null);

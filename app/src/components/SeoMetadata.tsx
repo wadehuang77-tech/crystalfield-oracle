@@ -14,6 +14,13 @@ export type SeoConfig = {
 };
 
 const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
+  '/': {
+    title: '晶域心語｜塔羅、生命靈數、人類圖與印度占星',
+    description: '晶域心語結合塔羅牌占卜、生命靈數、人類圖與印度占星，提供自我探索工具，協助你整理當下課題、個人天賦與人生方向。',
+    canonical: 'https://www.crystalfield101.com/',
+    h1: '晶域心語',
+    intro: '晶域心語是一個結合塔羅牌占卜、生命靈數、人類圖與印度占星的自我探索平台，協助使用者理解當下課題、個人天賦、能量特質與人生方向。',
+  },
   '/oracle': {
     title: '免費塔羅牌占卜｜7套塔羅與神諭卡線上抽牌｜晶域心語',
     description: '免費體驗7套線上塔羅與神諭卡，包含偉特塔羅、光行者神諭、獨角獸塔羅、龍族塔羅、埃及神諭、光之訊息與奧修禪卡，探索感情、事業、前世因果與靈魂指引。',
@@ -170,11 +177,11 @@ function setHreflang(pathname: string, hasEnglishContent: boolean) {
   const variants = buildAlternateCanonicals(pathname);
   Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel="alternate"][hreflang]')).forEach((link) => link.remove());
   if (!hasEnglishContent) return;
-  Object.entries(variants).forEach(([lang, href]) => {
+  Object.entries({ ...variants, 'x-default': variants['zh-Hant'] }).forEach(([lang, href]) => {
     const link = document.createElement('link');
     link.rel = 'alternate';
     link.href = href;
-    link.hreflang = lang === 'en' ? 'en' : 'zh-Hant';
+    link.hreflang = lang;
     document.head.appendChild(link);
   });
 }
@@ -377,6 +384,7 @@ export default function SeoMetadata() {
     const routePath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
     const normalizedBase = routePath.startsWith('/en') ? routePath.replace(/^\/en(?=\/|$)/, '') || '/' : routePath;
     const seo = PUBLIC_SEO[normalizedBase] ?? PUBLIC_SEO[routePath];
+    const englishContentExists = Boolean(ENGLISH_PUBLIC_SEO[normalizedBase]);
     const englishSeo = language === 'en' ? ENGLISH_PUBLIC_SEO[normalizedBase] : undefined;
     const title = englishSeo?.title ?? seo?.title ?? (language === 'en' ? 'Crystal Field' : SITE_NAME);
     const description = englishSeo?.description ?? seo?.description ?? (language === 'en' ? 'Crystal Field offers tarot, oracle cards, and self-discovery services.' : '晶域心語提供塔羅、神諭卡與自我探索服務。');
@@ -385,7 +393,7 @@ export default function SeoMetadata() {
     const hasVedicResult = routePath === '/vedic-astrology' && Boolean(sessionStorage.getItem('cf_vedic_chart_session'));
     const robots = noindexPaths.has(routePath) || Boolean(search) || hasVedicResult || (language === 'en' && !englishSeo)
       ? 'noindex, follow'
-      : seo ? 'index, follow' : 'noindex, follow';
+      : seo || englishContentExists ? 'index, follow' : 'noindex, follow';
     document.title = title;
     setMeta('description', description);
     setMeta('robots', robots);
@@ -412,7 +420,7 @@ export default function SeoMetadata() {
     setMeta('twitter:description', description);
     setMeta('twitter:image', `${SITE_URL}/20260315_164545.jpg`);
     setCanonical(canonical);
-    setHreflang(pathname, Boolean(englishSeo));
+    setHreflang(pathname, englishContentExists);
     if (seo) setJsonLd(buildStructuredData(normalizedBase, englishSeo ? { ...seo, ...englishSeo, canonical } : seo));
   }, [pathname, search, language]);
 

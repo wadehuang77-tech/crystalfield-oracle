@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
-import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
+import { getLocalizedPath, t } from '../lib/i18n';
 
 export default function OshoPage() {
   const navigate = useNavigate();
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.osho.${key}`, language) : fallback;
 
   return (

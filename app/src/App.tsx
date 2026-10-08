@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthProvider';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -40,6 +40,7 @@ import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
 import SeoMetadata from './components/SeoMetadata';
 import HumanDesignArticlePage from './pages/human-design/HumanDesignArticlePage';
 import { getLanguageFromPath, getLocalizedPath } from './lib/i18n';
+import { RenderYearProvider } from './contexts/RenderYearContext';
 
 const routeConfig = [
   { path: '/', element: <LandingPage /> },
@@ -95,6 +96,12 @@ const routeConfig = [
   { path: '/vedic-astrology/career-wealth', element: <VedicAstrologyArticlePage slug="career-wealth" /> },
 ] as const;
 
+export const appRoutePaths = routeConfig.flatMap(({ path }) => (
+  path === '/home'
+    ? [path, '/en/home']
+    : [path, getLocalizedPath(path, 'en')]
+));
+
 function DocumentLanguage() {
   const location = useLocation();
 
@@ -142,7 +149,7 @@ function RouterBody() {
 
             return routes;
           })}
-          <Route path="/en/*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
       <SiteFooter />
@@ -150,13 +157,27 @@ function RouterBody() {
   );
 }
 
-function App() {
+function NotFoundPage() {
   return (
-    <AuthProvider>
-      <Router>
+    <main className="mx-auto w-full max-w-3xl px-6 py-20 text-center text-white">
+      <p className="mb-3 text-sm uppercase tracking-[0.3em] text-white/60">404</p>
+      <h1 className="mb-5 text-3xl font-semibold">找不到這個頁面</h1>
+      <p className="mb-8 text-white/75">The page you requested could not be found.</p>
+      <nav className="flex justify-center gap-6">
+        <a className="underline underline-offset-4" href="/">返回首頁</a>
+        <a className="underline underline-offset-4" href="/en/">English home</a>
+      </nav>
+    </main>
+  );
+}
+
+function App({ renderYear }: { renderYear: number }) {
+  return (
+    <RenderYearProvider year={renderYear}>
+      <AuthProvider>
         <RouterBody />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </RenderYearProvider>
   );
 }
 

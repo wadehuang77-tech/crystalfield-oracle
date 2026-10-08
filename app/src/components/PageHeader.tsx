@@ -85,7 +85,7 @@ export default function PageHeader() {
 
   useEffect(() => { setMobileMenuOpen(false); }, [location.pathname, location.search]);
 
-  const normalizedPath = location.pathname.replace(/^\/en/, '') || '/';
+  const normalizedPath = location.pathname.replace(/^\/en/, '').replace(/\/+$/, '') || '/';
 
   if (HIDDEN_ON.has(normalizedPath)) return null;
 

@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import articles from '../data/vedic-astrology/articles.json';
 import englishArticles from '../data/vedic-astrology/articles.en.json';
-import { getLanguageFromPath } from '../lib/i18n';
 
 export type VedicArticle = {
   title: string;
@@ -18,7 +18,7 @@ export const VEDIC_ARTICLES = articles as unknown as Record<string, VedicArticle
 const VEDIC_ARTICLES_EN = englishArticles as unknown as Record<string, VedicArticle>;
 
 export default function VedicAstrologyArticlePage({ slug }: { slug: keyof typeof articles }) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const isEnglish = language === 'en';
   const article = (isEnglish ? VEDIC_ARTICLES_EN[slug] : VEDIC_ARTICLES[slug]) ?? VEDIC_ARTICLES[slug];
   return (

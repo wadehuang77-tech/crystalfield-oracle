@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { Gem, Star, Sparkles, Check, Minus } from 'lucide-react';
 import BirthDateForm from '../components/numerology/BirthDateForm';
 import NumerologyReport from '../components/numerology/NumerologyReport';
@@ -86,17 +87,18 @@ export default function NumerologyPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [expandedUnlockKey, setExpandedUnlockKey] = useState<string | null>(null);
   const [shareAccess, setShareAccess] = useState<NumerologyShareAccess | null>(null);
-  const [shareCapabilities, setShareCapabilities] = useState<string[]>(() => getNumerologyShareCapabilities());
-
-  const [localTier, setLocalTier] = useState<PlanTier>(() => {
-    const n = Number(localStorage.getItem(LOCAL_TIER_KEY));
-    return n >= 1 && n <= 3 ? n as PlanTier : 0;
-  });
-  const [forecastCheckoutUnlocked, setForecastCheckoutUnlocked] = useState(() =>
-    localStorage.getItem(FORECAST_UNLOCK_KEY) === '1',
-  );
+  const [shareCapabilities, setShareCapabilities] = useState<string[]>([]);
+  const [localTier, setLocalTier] = useState<PlanTier>(0);
+  const [forecastCheckoutUnlocked, setForecastCheckoutUnlocked] = useState(false);
   const paidContentTier: PlanTier = localTier >= 2 ? localTier : 0;
   const pendingUpgradeRef = useRef<PlanTier | null>(null);
+
+  useEffect(() => {
+    const storedTier = Number(localStorage.getItem(LOCAL_TIER_KEY));
+    setLocalTier(storedTier >= 1 && storedTier <= 3 ? storedTier as PlanTier : 0);
+    setForecastCheckoutUnlocked(localStorage.getItem(FORECAST_UNLOCK_KEY) === '1');
+    setShareCapabilities(getNumerologyShareCapabilities());
+  }, []);
 
   // Capture upgrade intent from URL after auth redirect, then clean it
   useEffect(() => {
@@ -811,7 +813,7 @@ export default function NumerologyPage() {
 }
 
 function NumerologySeoContent() {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const faqs = language === 'en' ? [
     ['How is a life path number calculated?', 'Add the digits in your date of birth and continue reducing the total. This calculator preserves master numbers 11, 22, and 33.'],
     ['What can numerology help me explore?', 'Use it as a reflection tool for strengths, work, relationships, personal-year themes, missing numbers, and crystal associations.'],

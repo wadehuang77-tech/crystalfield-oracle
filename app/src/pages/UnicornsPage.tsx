@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { ArrowRight, BookOpen, Lock, RotateCcw, Search, X, Loader2 } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -20,7 +21,7 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
-import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
+import { localizeCardLabel, t } from '../lib/i18n';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -45,7 +46,7 @@ const POINTS_LABELS: [keyof UnicornGated, string][] = [
 ];
 
 export default function UnicornsPage() {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.unicorns.${key}`, language) : fallback;
   const navigate = useNavigate();
   const { cards: deck, error: deckError } = useDeck('unicorns');
@@ -737,7 +738,7 @@ export default function UnicornsPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">

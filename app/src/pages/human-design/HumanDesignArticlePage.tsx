@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import articles from '../../data/human-design/articles.json';
 import englishArticles from '../../data/human-design/articles.en.json';
-import { getLanguageFromPath } from '../../lib/i18n';
 
 export type HumanDesignArticle = {
   title: string;
@@ -23,7 +23,7 @@ type HumanDesignArticlePageProps = {
 };
 
 export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageProps) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const isEnglish = language === 'en';
   const article = (isEnglish ? HUMAN_DESIGN_ARTICLES_EN[slug] : HUMAN_DESIGN_ARTICLES[slug]) ?? HUMAN_DESIGN_ARTICLES[slug];
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
@@ -20,7 +21,7 @@ import { saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
-import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
+import { localizeCardLabel, t } from '../lib/i18n';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 interface DragonGated {
@@ -35,7 +36,7 @@ interface ThreeSlot {
 }
 
 function DragonsPage() {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.dragons.${key}`, language) : fallback;
   const navigate = useNavigate();
   const { cards: deck, error: deckError } = useDeck('dragons');
@@ -624,7 +625,7 @@ function DragonsPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
@@ -637,7 +638,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function ThreeSection({ title, children }: { title: string; children: React.ReactNode }) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   return (
     <div>
       <h4 className="text-xs text-emerald-400/85 mb-1.5 tracking-[0.18em] font-semibold">{localizeCardLabel(title, language)}</h4>

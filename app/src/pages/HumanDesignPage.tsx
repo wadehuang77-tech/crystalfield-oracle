@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
 import ParticleBackground from '../components/human-design/ParticleBackground';
 import LandingPage from './human-design/LandingPage';
@@ -37,12 +38,15 @@ interface StoredState {
 }
 
 function readStoredState(): StoredState | null {
+  if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem(STATE_KEY) ?? sessionStorage.getItem(SESSION_STATE_KEY);
     return raw ? JSON.parse(raw) as StoredState : null;
   } catch {
-    localStorage.removeItem(STATE_KEY);
-    sessionStorage.removeItem(SESSION_STATE_KEY);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STATE_KEY);
+      sessionStorage.removeItem(SESSION_STATE_KEY);
+    }
     return null;
   }
 }
@@ -78,7 +82,7 @@ function clearCheckoutReturn() {
 
 function AnalysingScreen() {
   const [step, setStep] = useState(0);
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const steps = useMemo(() => [
     language === 'en' ? t('humanDesign.steps.0', language) : '正在解析你的人類圖設計...',
     language === 'en' ? t('humanDesign.steps.1', language) : '整合你的能量中心狀態...',
@@ -122,19 +126,30 @@ export default function HumanDesignPage() {
   const navigate = useNavigate();
   const language = getLanguageFromPath(location.pathname);
   const [params, setParams] = useSearchParams();
-  const initialStoredState = useMemo(() => readStoredState(), []);
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
   const [page, setPage] = useState<Page>(() => (hasCheckoutReturn ? 'report' : 'landing'));
   const [pageKey, setPageKey] = useState(0);
-  const [chart, setChart] = useState<HDChart | null>(() => initialStoredState?.chart ?? null);
-  const [birthData, setBirthData] = useState(() => initialStoredState?.birthData ?? { date: '', time: '', city: '' });
-  const [chartId, setChartId] = useState(() => initialStoredState?.chartId ?? '');
-  const [access, setAccess] = useState<HumanDesignAccess>(() => initialStoredState?.access ?? 'locked');
-  const [email, setEmail] = useState(() => initialStoredState?.email ?? '');
+  const [chart, setChart] = useState<HDChart | null>(null);
+  const [birthData, setBirthData] = useState({ date: '', time: '', city: '' });
+  const [chartId, setChartId] = useState('');
+  const [access, setAccess] = useState<HumanDesignAccess>('locked');
+  const [email, setEmail] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutRestoring, setCheckoutRestoring] = useState(hasCheckoutReturn);
   const [shareAccess, setShareAccess] = useState<HumanDesignShareAccess | null>(null);
-  const [shareCapabilities, setShareCapabilities] = useState<string[]>(() => getHumanDesignShareCapabilities());
+  const [shareCapabilities, setShareCapabilities] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = readStoredState();
+    if (stored) {
+      setChart(stored.chart);
+      setBirthData(stored.birthData);
+      setChartId(stored.chartId);
+      setAccess(stored.access ?? 'locked');
+      setEmail(stored.email ?? '');
+    }
+    setShareCapabilities(getHumanDesignShareCapabilities());
+  }, []);
 
   const goTo = (next: Page) => {
     setPage(next);

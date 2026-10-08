@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { useDeck } from '../hooks/useDeck';
-import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
+import { getLocalizedPath, t } from '../lib/i18n';
 
 function WorkYourLightPage() {
   const navigate = useNavigate();
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.workYourLight.${key}`, language) : fallback;
   const { cards: deck, error: deckError } = useDeck('work_your_light');
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { RotateCcw, Sparkles } from 'lucide-react';
 import TarotCourseCTA from '../components/TarotCourseCTA';
 import { InlineEmailUnlock } from '../components/InlineEmailUnlock';
@@ -13,7 +14,7 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
-import { getLanguageFromPath, localizeCardLabel, t } from '../lib/i18n';
+import { localizeCardLabel, t } from '../lib/i18n';
 
 interface LightworkerGated {
   cosmicMessage: string;
@@ -26,7 +27,7 @@ interface LightworkerGated {
 
 function LightworkerPage() {
   const navigate = useNavigate();
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`servicePages.lightworker.${key}`, language) : fallback;
   const { cards: deck, error: deckError } = useDeck('lightworker');
   const [drawnPreview, setDrawnPreview] = useState<CardPreview | null>(null);
@@ -367,7 +368,7 @@ function LightworkerPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  const language = getLanguageFromPath(window.location.pathname);
+  const language = useRouteLanguage();
   return (
     <div className="bg-slate-900/40 border border-cyan-500/20 rounded-xl p-5">
       <h3 className="text-cyan-200 text-sm tracking-[0.4em] mb-3">{localizeCardLabel(title, language)}</h3>

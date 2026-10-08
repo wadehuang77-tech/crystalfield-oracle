@@ -1,4 +1,4 @@
-import { getLanguageFromPath } from '../../lib/i18n';
+import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 
 const faqs = [
   ['人類圖是什麼？', '人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。'],
@@ -27,7 +27,7 @@ const englishFaqs = [
 ];
 
 export default function HumanDesignSeoContent() {
-  const isEnglish = getLanguageFromPath(window.location.pathname) === 'en';
+  const isEnglish = useRouteLanguage() === 'en';
   if (isEnglish) {
     const types = [
       ['Generator', 'Observe what life places in front of you and notice whether your body has a genuine response before committing.'],
