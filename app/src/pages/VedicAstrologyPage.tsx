@@ -32,6 +32,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { calculationLoginRedirect } from '../lib/authLocale';
 import { pollVedicReport, terminalReport, persistedReportTimings } from '../lib/vedicReportPolling';
 import { VedicChartCore, VedicProgressiveReport } from '../components/VedicReportProgress';
+import { englishVedicFreeResults } from '../lib/vedicFreeReading';
+import { VEDIC_LIFE_QUESTIONS_EN, VEDIC_PAID_OPTION_EN } from '../lib/vedicEnglishCopy';
 
 const SESSION_KEY = 'cf_vedic_chart_session';
 
@@ -476,8 +478,8 @@ function Field({ label, wide, children }: { label: string; wide?: boolean; child
   return <label className={wide ? 'sm:col-span-2' : ''}><span className="mb-2 block text-sm font-medium text-amber-100/80">{label}</span>{children}</label>;
 }
 
-function FreeResults({ chart, language }: { chart: VedicChartResponse; language: 'zh-Hant' | 'en' }) {
-  const result = chart.free_results;
+export function FreeResults({ chart, language }: { chart: VedicChartResponse; language: 'zh-Hant' | 'en' }) {
+  const result = language === 'en' ? englishVedicFreeResults(chart.chart) : chart.free_results;
   const isEnglish = language === 'en';
   const translatePlanet = (value: string | undefined) => value ? (isEnglish ? PLANET_EN[value] || value : PLANET_ZH[value] || value) : '';
   return (
@@ -544,11 +546,18 @@ function ResultCard({ number, eyebrow, title, body, children }: { number: string
   return <article className="h-full rounded-[1.75rem] border border-violet-300/20 bg-gradient-to-br from-slate-950/70 to-violet-950/45 p-6 backdrop-blur-md sm:p-8"><div className="flex items-center justify-between"><span className="text-xs uppercase tracking-[0.25em] text-fuchsia-300/60">{eyebrow}</span><span className="font-serif text-2xl text-amber-200/35">{number}</span></div><h3 className="mt-4 font-serif text-2xl text-amber-50">{title}</h3><div className="mt-4">{children}</div><p className="leading-8 text-violet-50/72">{body}</p></article>;
 }
 
-function LifeQuestionCard({ number, title, badge, icon: Icon, prompt, description, points, language }: LifeQuestion & { language: 'zh-Hant' | 'en' }) {
+export function LifeQuestionCard(props: LifeQuestion & { language: 'zh-Hant' | 'en' }) {
+  const { number, title, badge, icon: Icon, prompt, description, points, language } = props.language === 'en'
+    ? { ...props, ...VEDIC_LIFE_QUESTIONS_EN[props.number] } : props;
   return <article className="rounded-[1.75rem] border border-violet-300/20 bg-gradient-to-br from-slate-950/75 to-violet-950/45 p-6 shadow-[0_0_30px_rgba(139,92,246,0.07)] sm:p-7"><div className="flex items-start justify-between gap-4"><div className="flex items-center gap-3"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon className="h-5 w-5" /></span><span className="font-serif text-2xl text-amber-200/45">{number}</span></div>{badge && <span className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">{language === 'en' ? ({ '主打': 'Featured', '印度占星核心': 'Vedic Core', '高價核心': 'Premium Core' } as Record<string, string>)[badge] || badge : badge}</span>}</div><h3 className="mt-5 font-serif text-2xl text-amber-50">{title}</h3><p className="mt-3 font-medium text-fuchsia-100/85">{prompt}</p><p className="mt-3 leading-7 text-violet-50/65">{description}</p><ul className="mt-5 grid gap-2 sm:grid-cols-2">{points.map((point) => <li key={point} className="flex gap-2 text-sm leading-6 text-white/55"><Check className="mt-1 h-4 w-4 shrink-0 text-amber-300" />{point}</li>)}</ul><p className="mt-5 border-t border-violet-200/10 pt-4 text-sm text-fuchsia-200/70">{language === 'en' ? '🔒 Full interpretation included in the life map' : '🔒 完整解讀收錄於人生地圖'}</p></article>;
 }
 
-function PaidOption(props: typeof PAID_OPTIONS[number] & { loading: boolean; disabled: boolean; onClick: () => void; language: 'zh-Hant' | 'en' }) {
+export function PaidOption(input: {
+  id: string; title: string; subtitle: string; price: number; originalPrice: number;
+  icon: typeof Sparkles; featured: boolean; description: string; bullets: readonly string[];
+  loading: boolean; disabled: boolean; onClick: () => void; language: 'zh-Hant' | 'en';
+}) {
+  const props = input.language === 'en' ? { ...input, ...VEDIC_PAID_OPTION_EN } : input;
   const Icon = props.icon;
   return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">{props.language === 'en' ? 'Featured' : '主打方案'}</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><div className={`text-right ${props.featured ? 'mt-10 sm:mt-0' : ''}`}><span className="block text-xs text-amber-200/70">{props.language === 'en' ? 'Introductory price' : '體驗價'}</span><strong className="text-xl text-white">NT${props.price}</strong><span className="ml-2 text-sm text-white/35 line-through">{props.language === 'en' ? 'Regular' : '原價'} NT${props.originalPrice}</span></div></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? (props.language === 'en' ? 'Opening checkout…' : '前往付款中…') : (props.language === 'en' ? 'Unlock this guidance' : '解鎖這份指引')}</button></article>;
 }

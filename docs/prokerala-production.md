@@ -140,7 +140,49 @@ Optional numeric `latitude` and `longitude` allow exact coordinates; both must
 be finite and in range. Without them, existing geocoding is unchanged.
 Astronomical inputs do not depend on report/UI language.
 
+The frontend selects free-reading copy from the current route language, not
+the language of `free_results` stored in session storage. English free readings
+are derived from the same saved chart placements without another astrology
+request; Chinese continues to display the existing API reading. All nine
+deep-reading cards and the complete-life-map offer have English titles,
+descriptions, prompts, and bullet points. Run `npm run test:vedic-locale` in
+`app` to check both languages and legacy Chinese cached charts.
+
 ## Operations and checks
+
+### Credential persistence
+
+Store both `PROKERALA_CLIENT_ID` and `PROKERALA_CLIENT_SECRET` as Worker
+Secrets using `wrangler secret put`. Do not keep the client ID only as a
+Dashboard plain-text variable: a subsequent deployment using the checked-in
+configuration removes plain-text variables absent from `[vars]`.
+Secret values must never be committed, printed, or included in logs.
+
+On 2026-10-08, production version `5d1aa385-8f2d-4e9f-bf55-7afe95b97f90`
+was missing `PROKERALA_CLIENT_ID`, although the successful rollout version
+`7e81b2d2-485f-444f-95fa-8fe3bbec93ba` contained it as plain text.
+This causes `PROKERALA_NOT_CONFIGURED` before any upstream request and displays
+the public server-authentication error. The historical client ID was restored
+as a Secret without rolling back the current Worker code.
+
+The first restoration still returned `PROKERALA_AUTH_FAILED`. Rewriting the
+same historical value through direct Node child-process stdin (without a
+PowerShell text pipeline) resolved it. On Windows, avoid text-pipeline
+encoding/BOM changes when supplying secret values; Wrangler removes trailing
+whitespace but does not remove a leading BOM.
+
+The subsequent single successful production chart returned HTTP 201,
+request ID `c9c9e4aa-ffd0-4ea0-816a-458699d86fed`, chart ID
+`4d89e277-6b70-4d85-8b65-98c1a887f1dc`. OAuth and all six astrology
+requests returned 200; calculation latency was 2,120 ms, with 430 estimated
+credits and no retries. The chart was persisted through the normal API.
+No paid AI report, payment operation, code rollback, or Pages deployment
+was performed for this repair.
+
+When this error appears, first inspect binding names/types (not values) and
+distinguish `PROKERALA_NOT_CONFIGURED` from `PROKERALA_AUTH_FAILED` using the
+response code/request ID. Do not change OAuth transport or fall back to
+VedAstro to mask a missing binding.
 
 Upstream failures are explicit safe errors, not fabricated charts. Failed charts
 are not persisted. The existing chart/report tables and payment rules are

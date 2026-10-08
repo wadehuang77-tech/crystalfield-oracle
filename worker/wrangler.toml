@@ -16,6 +16,12 @@
 #   5. npx wrangler secret put ECPAY_HASH_IV    (綠界提供,可選)
 #   6. npx wrangler secret put VEDASTRO_API_KEY  (印度占星正式流量建議設定)
 #   7. wrangler deploy
+#
+# 印度占星正式計算使用 Prokerala，必須設定以下兩個 Secret:
+#   npx wrangler secret put PROKERALA_CLIENT_ID
+#   npx wrangler secret put PROKERALA_CLIENT_SECRET
+# 不要只在 Dashboard 設為文字變數；本檔未列出的文字變數會被部署移除。
+# VEDASTRO_API_KEY 是舊供應商設定，不能取代 Prokerala 認證。
 
 name = "bolt-tarot-api"
 main = "src/entry.ts"
