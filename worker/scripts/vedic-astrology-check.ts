@@ -457,14 +457,12 @@ const workerIndexSource = readFileSync(new URL('../src/index.ts', import.meta.ur
 assert.match(geocodingSource, /nominatim\.openstreetmap\.org\/search/);
 assert.doesNotMatch(geocodingSource, /api\.vedastro\.org|AddressToGeoLocation/);
 assert.doesNotMatch(workerIndexSource, /\/api\/admin\/diagnostics|adminDiagnostics/);
-assert.match(source, /DasaAtRange/);
-assert.match(source, /AllPlanetLongitude/);
-assert.match(source, /AllHouseLongitudes/);
-assert.match(source, /AllPlanetNavamshaSign/);
-assert.match(source, /AllPlanetDashamamshaSign/);
+const calculationSource = source.slice(source.indexOf('export async function createVedicChart'), source.indexOf('export async function validateVedicCheckoutContext'));
+assert.match(calculationSource, /calculateProkeralaChart/);
+assert.match(calculationSource, /normalizeProkeralaVedic/);
+assert.doesNotMatch(calculationSource, /callVedAstro/);
+assert.match(calculationSource, /astrologyRequests: timings\.filter/);
 assert.doesNotMatch(source, /function deriveDivisionalCharts/);
-assert.match(source, /AllHouseNavamshaSign/);
-assert.match(source, /AllHouseDashamamshaSign/);
 assert.match(source, /housePlacements/);
 assert.match(source, /houseLords/);
 assert.match(source, /karmaAspects/);
@@ -481,7 +479,8 @@ for (const heading of [
 ]) {
   assert.match(source, new RegExp(heading), `missing complete report heading: ${heading}`);
 }
-assert.match(source, /loadCurrentTransits/);
+assert.match(source, /loadVedAstroReferenceTransits/);
+assert.doesNotMatch(source.slice(source.indexOf('export async function getVedicPaidReport')), /loadVedAstroReferenceTransits|callVedAstro/);
 assert.match(source, /current_transits/);
 assert.match(source, /VEDIC_REPORT_FORMAT_VERSION = 10/);
 assert.match(source, /①至⑧每篇以350至500個繁體中文字為目標/);

@@ -74,6 +74,7 @@ import { adminListTarotSubscriptions } from './adminSubscriptions';
 import { getMyTarotEntitlement, getTarotEntitlement, startMyTarotTrial } from './tarotEntitlements';
 import { validateRegistrationIdentity } from './registration';
 import { createVedicChart, getVedicPaidReport } from './vedicAstrology';
+import { verifyProkerala } from './prokeralaVerification';
 import {
   adminDeleteVedicReview, adminListVedicReviews, adminUpdateVedicReview, adminVedicReviewStats,
   getMyVedicReview, listPublicVedicReviews, upsertVedicReview,
@@ -133,6 +134,10 @@ export default {
     }
 
     try {
+      if (path === '/api/admin/prokerala/verify' || path === '/api/admin/prokerala/oauth-diagnose'
+        || path === '/api/admin/prokerala/report-smoke') {
+        return await verifyProkerala(req, env);
+      }
       if (path === '/api/auth/signup'  && req.method === 'POST') return await signup(req, env);
       if (path === '/api/auth/signin'  && req.method === 'POST') {
         const rl = await rateLimit(env, 'signin-ip', clientIp(req), 30, 3600);

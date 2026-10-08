@@ -505,7 +505,7 @@ export interface VedicChartResponse {
   chart: VedicChartData;
   free_results: VedicFreeResults;
   expires_at: string;
-  calculation: { provider: 'VedAstro'; ayanamsa: 'Lahiri' };
+  calculation: { provider: 'prokerala'; ayanamsa: 'Lahiri' };
 }
 
 export const vedicAstrologyApi = {

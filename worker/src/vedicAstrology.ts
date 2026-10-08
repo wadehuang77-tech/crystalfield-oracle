@@ -13,6 +13,8 @@ import {
   unauthorized,
 } from './utils';
 import { BirthLocationResolutionError, resolveBirthLocation } from './vedicGeocoding';
+import { calculateProkeralaChart, ProkeralaError, type ProkeralaChart, type ProkeralaTiming } from './prokerala';
+import { normalizeProkeralaVedic } from './prokeralaVedic';
 
 export const VEDASTRO_DEFAULT_API_BASE = 'https://vedastro.zaishi.net/api';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
@@ -27,7 +29,9 @@ const REPORT_SCOPES = [
 export type VedicReportScope = typeof REPORT_SCOPES[number];
 
 export interface VedicChartData {
-  ayanamsa: 'LAHIRI';
+  ayanamsa: 'LAHIRI' | 'lahiri';
+  provider?: 'prokerala';
+  calculationData?: ProkeralaChart;
   birth: {
     date: string;
     time: string;
@@ -36,6 +40,7 @@ export interface VedicChartData {
     longitude: number;
     timezone: string;
     utcOffset: string;
+    datetime?: string;
   };
   lagna: string;
   sunSign: string;
@@ -45,7 +50,7 @@ export interface VedicChartData {
   planets: Record<string, string>;
   planetLongitudes: Record<string, number>;
   lagnaLongitude: number;
-  houses: Record<string, { begin: number; mid: number; end: number; sign: string; lord: string }>;
+  houses: Record<string, { begin?: number; mid?: number; end?: number; sign: string; lord: string }>;
   divisionalCharts: {
     d9: { lagna: string; planets: Record<string, string>; houses: Record<string, string> };
     d10: { lagna: string; planets: Record<string, string>; houses: Record<string, string> };
@@ -258,7 +263,7 @@ const SIGNS = [
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
 ] as const;
 
-const SIGN_LORDS: Record<string, string> = {
+export const SIGN_LORDS: Record<string, string> = {
   Aries: 'Mars', Taurus: 'Venus', Gemini: 'Mercury', Cancer: 'Moon',
   Leo: 'Sun', Virgo: 'Mercury', Libra: 'Venus', Scorpio: 'Mars',
   Sagittarius: 'Jupiter', Capricorn: 'Saturn', Aquarius: 'Saturn', Pisces: 'Jupiter',
@@ -308,7 +313,7 @@ function zhNakshatra(value: string | null): string {
   return `${NAKSHATRA_ZH[name] || name}${pada ? `，第 ${pada} 分區` : ''}`;
 }
 
-function deriveHouseContext(
+export function deriveHouseContext(
   lagna: string,
   planets: Record<string, string>,
   actualHousePlacements?: Record<string, number>,
@@ -359,11 +364,12 @@ function publicChartData(chart: VedicChartData): Omit<
   VedicChartData,
   'planetLongitudes' | 'lagnaLongitude' | 'divisionalCharts'
 > {
-  const { planetLongitudes, lagnaLongitude, divisionalCharts, ...publicChart } = chart;
+  const { planetLongitudes, lagnaLongitude, divisionalCharts, calculationData, ...publicChart } = chart;
   void planetLongitudes;
   void lagnaLongitude;
   void divisionalCharts;
-  return publicChart;
+  void calculationData;
+  return { ...publicChart, ayanamsa: 'LAHIRI' as const };
 }
 
 function expandReading(text: string, additions: string[], minChars = FREE_READING_MIN_CHARS): string {
@@ -1327,7 +1333,10 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
   const limit = await rateLimit(env, 'vedic-chart', clientIp(req), 12, 3600);
   if (!limit.allowed) return tooManyRequests(req, env, '印度占星計算過於頻繁，請稍後再試');
 
-  const body = await readBody<{ birth_date?: string; birth_time?: string; birth_place?: string; consent?: boolean; language?: 'zh-Hant' | 'en' }>(req);
+  const body = await readBody<{
+    birth_date?: string; birth_time?: string; birth_place?: string; consent?: boolean;
+    language?: 'zh-Hant' | 'en'; latitude?: number; longitude?: number;
+  }>(req);
   const birthDate = cleanText(body.birth_date, 10);
   const birthTime = cleanText(body.birth_time, 5);
   const birthPlace = cleanText(body.birth_place, 160);
@@ -1335,75 +1344,36 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
   if (!isTime(birthTime)) return badRequest(req, env, '請提供正確的出生時間');
   if (birthPlace.length < 2) return badRequest(req, env, '請提供出生城市與國家／地區');
   if (body.consent !== true) return badRequest(req, env, '請先同意為產生星盤而處理出生資料');
+  const suppliedCoordinates = body.latitude !== undefined || body.longitude !== undefined;
+  if (suppliedCoordinates && (typeof body.latitude !== 'number' || typeof body.longitude !== 'number'
+    || !Number.isFinite(body.latitude) || !Number.isFinite(body.longitude)
+    || Math.abs(body.latitude) > 90 || Math.abs(body.longitude) > 180)) {
+    return badRequest(req, env, 'Invalid birth coordinates');
+  }
 
   let failureStage = 'database initialization';
   try {
     await ensureVedicSchema(env);
     failureStage = 'geocoding';
-    const location = await resolveBirthLocation(env, birthPlace);
+    const location = suppliedCoordinates
+      ? { name: birthPlace, latitude: body.latitude!, longitude: body.longitude! }
+      : await resolveBirthLocation(env, birthPlace);
     const { latitude, longitude } = location;
 
     failureStage = 'timezone resolution';
     const timezone = tzLookup(latitude, longitude);
     const timezoneOffset = timezoneOffsetAtLocal(birthDate, birthTime, timezone);
-    const birth = buildVedAstroTime(birthDate, birthTime, timezoneOffset, location);
     failureStage = 'astrology chart calculation';
-    const now = localNow(timezone);
-    const nowOffset = timezoneOffsetAtLocal(now.date, now.time, timezone);
-    const check = buildVedAstroTime(now.date, now.time, nowOffset, location);
-    const rangeEndDate = new Date();
-    rangeEndDate.setUTCFullYear(rangeEndDate.getUTCFullYear() + 10);
-    const rangeEndLocal = new Intl.DateTimeFormat('en-CA', {
-      timeZone: timezone,
-      year: 'numeric', month: '2-digit', day: '2-digit',
-    }).format(rangeEndDate);
-    const rangeEndOffset = timezoneOffsetAtLocal(rangeEndLocal, now.time, timezone);
-    const rangeEnd = buildVedAstroTime(rangeEndLocal, now.time, rangeEndOffset, location);
-
-    const [
-      planetLongitudeResult, nakshatraResult, houseLongitudeResult, dashaRaw,
-      d9PlanetRaw, d9HouseRaw, d10PlanetRaw, d10HouseRaw,
-    ] = await Promise.all([
-      callVedAstroGet(env, buildVedAstroGetTimePath(
-        'AllPlanetLongitude', birthDate, birthTime, timezoneOffset, location,
-      ), requestId),
-      callVedAstroGet(env, buildVedAstroGetTimePath(
-        'MoonConstellation', birthDate, birthTime, timezoneOffset, location,
-      ), requestId),
-      callVedAstroGet(env, buildVedAstroGetTimePath(
-        'AllHouseLongitudes', birthDate, birthTime, timezoneOffset, location,
-      ), requestId),
-      callVedAstro(env, 'DasaAtRange', {
-        BirthTime: birth,
-        StartTime: check,
-        EndTime: rangeEnd,
-        Levels: 2,
-        PrecisionHours: 168,
-        Ayanamsa: 'LAHIRI',
-      }, requestId),
-      callVedAstro(env, 'AllPlanetNavamshaSign', { Time: birth, Ayanamsa: 'LAHIRI' }, requestId),
-      callVedAstro(env, 'AllHouseNavamshaSign', { Time: birth, Ayanamsa: 'LAHIRI' }, requestId),
-      callVedAstro(env, 'AllPlanetDashamamshaSign', { Time: birth, Ayanamsa: 'LAHIRI' }, requestId),
-      callVedAstro(env, 'AllHouseDashamamshaSign', { Time: birth, Ayanamsa: 'LAHIRI' }, requestId),
-    ]);
-
+    const timings: ProkeralaTiming[] = [];
+    const calculationStart = performance.now();
+    const source = await calculateProkeralaChart(env, {
+      datetime: `${birthDate}T${birthTime}:00${timezoneOffset}`,
+      latitude, longitude, timezone,
+    }, timings, new Date(), true);
     failureStage = 'chart normalization';
-    const chart = normalizeVedicChart({
-      date: birthDate,
-      time: birthTime,
-      location,
-      timezone,
-      utcOffset: timezoneOffset,
-    }, {
-      planetLongitudes: planetLongitudeResult.payload,
-      nakshatra: nakshatraResult.payload,
-      houseLongitudes: houseLongitudeResult.payload,
-      dasha: dashaRaw,
-      d9Planets: d9PlanetRaw,
-      d9Houses: d9HouseRaw,
-      d10Planets: d10PlanetRaw,
-      d10Houses: d10HouseRaw,
-    });
+    const chart = normalizeProkeralaVedic(source, location.name);
+    const calculationLatencyMs = Math.round(performance.now() - calculationStart);
+    console.log('[prokerala-chart]', { requestId, timings, calculationLatencyMs });
     const freeResults = deriveFreeResults(chart);
     failureStage = 'chart persistence';
     const id = crypto.randomUUID();
@@ -1422,19 +1392,23 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       free_results: freeResults,
       expires_at: expiresAt,
       request_id: requestId,
-      calculation: { provider: 'VedAstro', ayanamsa: 'Lahiri' },
+      calculation: {
+        provider: 'prokerala', ayanamsa: 'Lahiri', timings,
+        totalLatencyMs: calculationLatencyMs,
+        astrologyRequests: timings.filter(t => t.endpoint !== 'oauth').length,
+        estimatedCredits: 430,
+      },
     }, { status: 201 });
   } catch (error) {
     const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
-    const integrationError = error instanceof VedAstroIntegrationError ? error : null;
+    const integrationError = error instanceof ProkeralaError ? error : null;
     console.error('[vedic-chart] chart creation failed', {
       requestId,
       stage: failureStage,
       code: integrationError?.code,
-      endpoint: integrationError?.method,
+      endpoint: integrationError?.endpoint,
       httpStatus: integrationError?.httpStatus,
-      vedAstroStatus: integrationError?.vedAstroStatus,
-      error: integrationError?.message ?? detail,
+      error: integrationError?.code ?? detail,
     });
     if (failureStage === 'geocoding') {
       const geocodingError = error instanceof BirthLocationResolutionError ? error : null;
@@ -1461,31 +1435,32 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       }, { status: 422 });
     }
     if (failureStage === 'astrology chart calculation') {
-      if (integrationError?.code === 'VEDASTRO_AUTH_FAILED') {
+      if (integrationError?.code === 'PROKERALA_AUTH_FAILED'
+        || integrationError?.code === 'PROKERALA_NOT_CONFIGURED') {
         return json(req, env, {
           error: body.language === 'en'
             ? 'The astrology provider rejected its server credentials. Please contact support.'
             : '占星服務供應商未接受伺服器認證，請聯絡客服。',
-          code: 'VEDASTRO_AUTH_FAILED',
+          code: integrationError.code,
           request_id: requestId,
         }, { status: 502 });
       }
-      if (integrationError?.code === 'VEDASTRO_RATE_LIMITED') {
+      if (integrationError?.code === 'PROKERALA_RATE_LIMITED') {
         return json(req, env, {
           error: body.language === 'en'
-            ? 'The astrology calculation service is temporarily rate-limited. Please try again in one minute. If this continues, contact support.'
-            : '占星計算服務目前流量較高，請 1 分鐘後再試；若持續發生，請聯絡客服。',
-          code: 'VEDASTRO_RATE_LIMIT',
-          retry_after_seconds: 60,
+            ? 'The astrology calculation service is temporarily rate-limited. Please try again after the indicated cooldown. If this continues, contact support.'
+            : '占星計算服務目前流量較高，請依提示的等待時間稍後再試；若持續發生，請聯絡客服。',
+          code: 'PROKERALA_RATE_LIMITED',
+          retry_after_seconds: integrationError.retryAfterSeconds ?? 60,
           request_id: requestId,
-        }, { status: 429 });
+        }, { status: 429, headers: { 'Retry-After': String(integrationError.retryAfterSeconds ?? 60) } });
       }
-      if (integrationError?.code === 'VEDASTRO_INVALID_RESPONSE') {
+      if (integrationError?.code === 'PROKERALA_INVALID_RESPONSE') {
         return json(req, env, {
           error: body.language === 'en'
             ? 'The astrology provider returned an invalid response. Please try again later.'
             : '占星服務回傳了無效資料，請稍後再試。',
-          code: 'VEDASTRO_INVALID_RESPONSE',
+          code: 'PROKERALA_INVALID_RESPONSE',
           request_id: requestId,
         }, { status: 502 });
       }
@@ -1493,7 +1468,7 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
         error: body.language === 'en'
           ? 'Chart calculation is temporarily unavailable. Please try again later.'
           : '星盤計算服務暫時無法使用，請稍後再試',
-        code: 'VEDASTRO_UPSTREAM_FAILED',
+        code: 'PROKERALA_UPSTREAM_FAILED',
         failure_code: integrationError?.code,
         request_id: requestId,
       }, { status: 502 });
@@ -1617,7 +1592,7 @@ interface VedicTransitSnapshot {
   planets: Record<string, string>;
 }
 
-async function loadCurrentTransits(env: Env): Promise<VedicTransitSnapshot | null> {
+export async function loadVedAstroReferenceTransits(env: Env): Promise<VedicTransitSnapshot | null> {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const time = now.toISOString().slice(11, 16);
@@ -2273,6 +2248,7 @@ export function auditCompleteVedicReport(report: VedicPaidReport, language: 'zh-
 
 export function buildVedicAiChartInput(chart: VedicChartData) {
   return {
+    provider: chart.provider,
     birth: chart.birth,
     d1: {
       ayanamsa: chart.ayanamsa,
@@ -2288,13 +2264,21 @@ export function buildVedicAiChartInput(chart: VedicChartData) {
       housePlacements: chart.housePlacements,
       houseLords: chart.houseLords,
       karmaAspects: chart.karmaAspects,
+      structuredPositions: chart.calculationData?.planets,
     },
-    d9: chart.divisionalCharts.d9,
-    d10: chart.divisionalCharts.d10,
+    d9: {
+      ...chart.divisionalCharts.d9,
+      ...(chart.calculationData ? { structuredPositions: chart.calculationData.d9.planets } : {}),
+    },
+    d10: {
+      ...chart.divisionalCharts.d10,
+      ...(chart.calculationData ? { structuredPositions: chart.calculationData.d10.planets } : {}),
+    },
     dasha: {
       mahaDasha: chart.mahaDasha,
       antarDasha: chart.antarDasha,
       timeline: chart.dashaTimeline,
+      balance: chart.calculationData?.dasha.balance,
     },
   };
 }
@@ -2671,6 +2655,22 @@ async function generatePaidReport(
   return report;
 }
 
+export async function runProkeralaReportSmoke(env: Env, chartId: string): Promise<{
+  report: VedicPaidReport;
+  chartFacts: ReturnType<typeof buildVedicAiChartInput>;
+}> {
+  const row = await env.DB.prepare('SELECT chart_json FROM vedic_charts WHERE id = ?')
+    .bind(chartId).first<{ chart_json: string }>();
+  if (!row) throw new Error('PROKERALA_SMOKE_CHART_NOT_FOUND');
+  const chart = JSON.parse(row.chart_json) as VedicChartData;
+  if (chart.provider !== 'prokerala' || !chart.calculationData?.d1) {
+    throw new Error('PROKERALA_SMOKE_CHART_REQUIRED');
+  }
+  if (!env.OPENAI_API_KEY) throw new Error('PROKERALA_SMOKE_AI_NOT_CONFIGURED');
+  const report = await generatePaidReport(env, 'complete', chart, null, 'zh-Hant');
+  return { report, chartFacts: buildVedicAiChartInput(chart) };
+}
+
 export async function getVedicPaidReport(req: Request, env: Env): Promise<Response> {
   const body = await readBody<{
     chart_id?: string; chart_token?: string; order_id?: string; order_token?: string; language?: 'zh-Hant' | 'en';
@@ -2743,7 +2743,8 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
     .bind(resolvedChartId).first<StoredChart>();
   if (!chartRow) return badRequest(req, env, '找不到星盤資料');
   const chart = hydrateChartData(JSON.parse(chartRow.chart_json) as VedicChartData);
-  const transits = scope === 'complete' ? await loadCurrentTransits(env) : null;
+  // This migration has no verified current-transit input; never call the retired provider.
+  const transits = null;
 
   if (scope === 'complete') {
     const headings = reportHeadings('complete', language);

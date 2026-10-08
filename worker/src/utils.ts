@@ -20,6 +20,10 @@ export interface Env {
   GOOGLE_CLIENT_ID?: string;
   VEDASTRO_API_KEY?: string;
   VEDASTRO_API_BASE?: string;
+  PROKERALA_CLIENT_ID?: string;
+  PROKERALA_CLIENT_SECRET?: string;
+  PROKERALA_VERIFICATION_ENABLED?: string;
+  PROKERALA_VERIFY_LIMITER?: RateLimit;
 }
 
 export interface SessionUser {

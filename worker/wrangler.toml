@@ -59,3 +59,11 @@ MAIL_FROM_ADDRESS = "crystalfield101@crystalfield101.com"
 MAIL_FROM_NAME    = "晶域心語"
 # Reply-To 是用戶按「回覆」會去到的信箱
 MAIL_REPLY_TO     = "wadehuang77@gmail.com"
+
+[[ratelimits]]
+name = "PROKERALA_VERIFY_LIMITER"
+namespace_id = "101196809"
+
+  [ratelimits.simple]
+  limit = 1
+  period = 60
