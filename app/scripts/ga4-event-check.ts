@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises';
+import { runInNewContext } from 'node:vm';
+
 type SentEvent = { name: string; params: Record<string, unknown> };
 
 class MemoryStorage {
@@ -29,6 +32,40 @@ const analytics = await import('../src/lib/ga4.ts');
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
+
+const sourceHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+const initialization = sourceHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+assert(initialization, 'Google tag initialization must exist');
+assert(
+  (sourceHtml.match(/googletagmanager\.com\/gtag\/js\?id=G-FY6V8NJNHW/g) ?? []).length === 1,
+  'Load the existing Google tag exactly once',
+);
+for (const pathname of [
+  '/', '/oracle', '/numerology', '/human-design', '/vedic-astrology',
+  '/en/', '/en/oracle', '/en/numerology', '/en/human-design', '/en/vedic-astrology',
+  '/login', '/en/login', '/checkout/return', '/en/checkout/return',
+  '/admin', '/admin/settings', '/en/admin', '/en/admin/settings',
+]) {
+  const dataLayer: ArrayLike<unknown>[] = [];
+  runInNewContext(initialization, {
+    window: { dataLayer, location: { pathname } },
+    dataLayer,
+  });
+  const configs = dataLayer.filter((entry) => entry[0] === 'config');
+  assert(configs.length === 1, `${pathname}: configure the Google tag exactly once`);
+  assert(configs[0][1] === 'G-FY6V8NJNHW', 'Do not change the Measurement ID');
+  const settings = configs[0][2];
+  assert(
+    typeof settings === 'object' && settings !== null && 'send_page_view' in settings
+      && settings.send_page_view === !/^\/(?:en\/)?admin(?:\/|$)/.test(pathname),
+    `${pathname}: Google tag owns initial page views with existing admin exclusion`,
+  );
+  assert(!dataLayer.some((entry) => entry[0] === 'event'), 'Initialization must not also emit manual events');
+}
+const pageTracking = await readFile(new URL('../src/hooks/usePageViewTracking.ts', import.meta.url), 'utf8');
+assert(!/\bgtag\b/.test(pageTracking), 'Router tracking must not duplicate Enhanced Measurement page views');
+assert(pageTracking.includes("trackEvent('page_view'"), 'Preserve the separate first-party KPI event');
+assert(pageTracking.includes("window.fbq?.('track', 'PageView')"), 'Preserve existing Meta Pixel tracking');
 
 function count(name: string): number {
   return events.filter((event) => event.name === name).length;

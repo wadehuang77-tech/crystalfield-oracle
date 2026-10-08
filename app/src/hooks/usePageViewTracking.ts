@@ -25,16 +25,6 @@ export function usePageViewTracking() {
       return;
     }
 
-    const pagePath = `${location.pathname}${location.search}`;
-
-    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-      window.gtag('event', 'page_view', {
-        page_path: pagePath,
-        page_location: window.location.href,
-        page_title: document.title,
-      });
-    }
-
     trackEvent('page_view', {
       path: location.pathname,
       search: location.search,

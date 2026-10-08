@@ -136,9 +136,9 @@ for (const privatePath of [
 }
 
 const sourceHtml = await readFile(join(appDir, '..', 'index.html'), 'utf8');
-assert.match(sourceHtml, /gtag\('config',\s*'G-[^']+',\s*\{\s*send_page_view:\s*false\s*\}\)/);
+assert.equal(count(sourceHtml, /gtag\('config',\s*'G-FY6V8NJNHW'/g), 1, 'Initialize the existing Google tag once');
 const pageTracking = await readFile(join(appDir, '..', 'src', 'hooks', 'usePageViewTracking.ts'), 'utf8');
 assert.match(pageTracking, /lastPageKeyRef\.current === pageKey/);
-assert.equal(count(pageTracking, /gtag\('event',\s*'page_view'/g), 1, 'SPA route tracking must emit one GA4 page_view');
+assert.doesNotMatch(pageTracking, /\bgtag\b/, 'Enhanced Measurement owns GA4 page views; do not also emit them from the router');
 
 console.log(`Prerender SEO checks passed for ${prerenderRoutes.length} routes, sitemap, robots, alternates, JSON-LD, utility noindex headers, and GA4 initialization.`);

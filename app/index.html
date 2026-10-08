@@ -6,7 +6,10 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-FY6V8NJNHW', { send_page_view: false });
+      // Enhanced Measurement owns page views; keep initial admin visits excluded.
+      gtag('config', 'G-FY6V8NJNHW', {
+        send_page_view: !/^\/(?:en\/)?admin(?:\/|$)/.test(window.location.pathname)
+      });
     </script>
 
     <meta charset="UTF-8" />
