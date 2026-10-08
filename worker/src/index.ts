@@ -75,6 +75,7 @@ import { getMyTarotEntitlement, getTarotEntitlement, startMyTarotTrial } from '.
 import { validateRegistrationIdentity } from './registration';
 import { createVedicChart, getVedicPaidReport } from './vedicAstrology';
 import { verifyProkerala } from './prokeralaVerification';
+import { handleVedicReportProgress, findVedicReportProgress } from './vedicReportJobs';
 import {
   adminDeleteVedicReview, adminListVedicReviews, adminUpdateVedicReview, adminVedicReviewStats,
   getMyVedicReview, listPublicVedicReviews, upsertVedicReview,
@@ -134,6 +135,11 @@ export default {
     }
 
     try {
+      if (path === '/api/vedic-astrology/reports/status') return await findVedicReportProgress(req, env);
+      const progress = path.match(/^\/api\/vedic-astrology\/reports\/([a-f0-9-]{36})\/status$/);
+      if (progress) return await handleVedicReportProgress(req, env, progress[1]);
+      const sectionRetry = path.match(/^\/api\/vedic-astrology\/reports\/([a-f0-9-]{36})\/sections\/([1-9])\/retry$/);
+      if (sectionRetry) return await handleVedicReportProgress(req, env, sectionRetry[1], Number(sectionRetry[2]) - 1);
       if (path === '/api/admin/prokerala/verify' || path === '/api/admin/prokerala/oauth-diagnose'
         || path === '/api/admin/prokerala/report-smoke') {
         return await verifyProkerala(req, env);

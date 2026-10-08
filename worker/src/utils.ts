@@ -24,6 +24,7 @@ export interface Env {
   PROKERALA_CLIENT_SECRET?: string;
   PROKERALA_VERIFICATION_ENABLED?: string;
   PROKERALA_VERIFY_LIMITER?: RateLimit;
+  VEDIC_REPORT_WORKFLOW?: Workflow<import('./vedicReportWorkflowRunner').VedicReportJobInput>;
 }
 
 export interface SessionUser {

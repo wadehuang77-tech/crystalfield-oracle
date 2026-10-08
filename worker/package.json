@@ -14,6 +14,8 @@
     "test:registration-profile": "node --experimental-strip-types scripts/registration-profile-check.ts",
     "test:health": "tsx scripts/health-check.ts",
     "test:prokerala": "tsx scripts/prokerala-verification-check.ts",
+    "test:vedic-progress": "tsx scripts/vedic-progress-check.ts",
+    "test:vedic-workflow": "tsx scripts/vedic-workflow-runtime-check.ts",
     "test:vedic-smoke": "tsx scripts/vedic-astrology-smoke.ts",
     "test:calculation-auth": "tsx scripts/calculation-auth-check.ts",
     "test:human-design-report-locale": "tsx scripts/human-design-report-locale-check.ts",

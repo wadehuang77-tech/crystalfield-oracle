@@ -18,7 +18,7 @@
 #   7. wrangler deploy
 
 name = "bolt-tarot-api"
-main = "src/index.ts"
+main = "src/entry.ts"
 compatibility_date = "2026-04-24"
 compatibility_flags = ["nodejs_compat"]
 account_id = "9c7e7a59a9512d771d6e322c6927859b"
@@ -67,3 +67,8 @@ namespace_id = "101196809"
   [ratelimits.simple]
   limit = 1
   period = 60
+
+[[workflows]]
+name = "vedic-report-generation"
+binding = "VEDIC_REPORT_WORKFLOW"
+class_name = "VedicReportWorkflow"

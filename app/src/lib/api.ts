@@ -13,10 +13,11 @@ interface ApiOptions {
   body?: unknown;
   query?: Record<string, string | number | undefined>;
   timeoutMs?: number;
+  signal?: AbortSignal;
 }
 
 async function req<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
-  const { method = 'GET', body, query, timeoutMs } = opts;
+  const { method = 'GET', body, query, timeoutMs, signal } = opts;
 
   let url = `${BASE}${path}`;
   if (query) {
@@ -27,8 +28,11 @@ async function req<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T>
     if (qs) url += `?${qs}`;
   }
 
-  const controller = timeoutMs ? new AbortController() : null;
-  const timeoutId = controller
+  const controller = timeoutMs || signal ? new AbortController() : null;
+  const abort = () => controller?.abort(signal?.reason);
+  if (signal?.aborted) abort();
+  signal?.addEventListener('abort', abort, { once: true });
+  const timeoutId = controller && timeoutMs
     ? window.setTimeout(() => controller.abort(), timeoutMs)
     : 0;
 
@@ -42,12 +46,13 @@ async function req<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T>
       signal: controller?.signal,
     });
   } catch (err) {
-    if (controller?.signal.aborted) {
+    if (controller?.signal.aborted && !signal?.aborted) {
       throw new Error('請求逾時，請稍後再試');
     }
     throw err;
   } finally {
     if (timeoutId) window.clearTimeout(timeoutId);
+    signal?.removeEventListener('abort', abort);
   }
 
   const contentType = res.headers.get('content-type') || '';
@@ -401,6 +406,15 @@ export const tarotEntitlementApi = {
 };
 
 export interface VedicChartData {
+  presentation?: {
+    ascendantLongitude: number;
+    moonNakshatra: { name: string | null; pada: number | null };
+    planets: VedicPosition[];
+    houses: Record<string, { sign: string; lord: string }>;
+    d9: { ascendant: string; positions: VedicPosition[] } | null;
+    d10: { ascendant: string; positions: VedicPosition[] } | null;
+    dasha: { mahaDasha: string; antarDasha: string | null };
+  };
   ayanamsa: 'LAHIRI';
   lagna: string;
   sunSign: string;
@@ -469,12 +483,49 @@ export interface VedicReportGenerationStatus {
 }
 
 export interface VedicReportResponse {
+  progressive?: VedicReportProgress;
   scope: string;
   report?: VedicReport;
   cached: boolean;
   transientFallback?: boolean;
   retryable?: boolean;
   generation?: VedicReportGenerationStatus[];
+}
+
+export interface VedicPosition {
+  name: string;
+  sign: string;
+  longitude: number;
+  signDegree: number;
+  house?: number;
+  nakshatra?: { name: string; pada?: number };
+  retrograde?: boolean;
+}
+
+export interface VedicReportProgress {
+  title?: string;
+  introduction?: string;
+  closing?: string;
+  legacy?: boolean;
+  reportId?: string;
+  chartId?: string;
+  language: 'zh-Hant' | 'en';
+  reportStatus: 'pending' | 'generating' | 'completed' | 'partial_failed' | 'failed';
+  totalSections: number;
+  completedSections: number;
+  needsStart?: boolean;
+  safeErrorCode?: string;
+  sections: Array<{
+    key: string;
+    title: string;
+    status: 'pending' | 'generating' | 'completed' | 'failed';
+    content?: VedicReport['sections'][number];
+    generatedAt?: string;
+    safeErrorCode?: string;
+    retryable: boolean;
+    attempts?: number;
+    latencyMs?: number;
+  }>;
 }
 
 export interface VedicReview {
@@ -509,14 +560,22 @@ export interface VedicChartResponse {
 }
 
 export const vedicAstrologyApi = {
+  getReportProgress: (id: string, language: 'zh-Hant' | 'en', signal?: AbortSignal) =>
+    req<VedicReportProgress>(`/api/vedic-astrology/reports/${encodeURIComponent(id)}/status`, { query: { language }, signal }),
+  findReportProgress: (orderId: string, language: 'zh-Hant' | 'en', signal?: AbortSignal) =>
+    req<VedicReportProgress>('/api/vedic-astrology/reports/status', { query: { order_id: orderId, language }, signal }),
+  retrySection: (id: string, section: number, language: 'zh-Hant' | 'en') =>
+    req<VedicReportProgress>(`/api/vedic-astrology/reports/${encodeURIComponent(id)}/sections/${section}/retry`, {
+      method: 'POST', body: { language },
+    }),
   createChart: (body: { birth_date: string; birth_time: string; birth_place: string; consent: boolean }) =>
     req<VedicChartResponse>('/api/vedic-astrology/charts', {
       method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 75000,
     }),
 
-  getPaidReport: (body: { chart_id?: string; chart_token?: string; order_id: string; order_token: string }) =>
+  getPaidReport: (body: { chart_id?: string; chart_token?: string; order_id: string; order_token: string }, signal?: AbortSignal) =>
     req<VedicReportResponse>('/api/vedic-astrology/reports', {
-      method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 300000,
+      method: 'POST', body: { ...body, language: activeContentLanguage() }, timeoutMs: 300000, signal,
     }),
   getReview: (body: { order_id: string; order_token: string }) =>
     req<{ review: VedicReview | null }>('/api/vedic-astrology/reviews/current', { method: 'POST', body }),

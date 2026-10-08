@@ -15,6 +15,8 @@ import {
 import { BirthLocationResolutionError, resolveBirthLocation } from './vedicGeocoding';
 import { calculateProkeralaChart, ProkeralaError, type ProkeralaChart, type ProkeralaTiming } from './prokerala';
 import { normalizeProkeralaVedic } from './prokeralaVedic';
+import { startVedicReport } from './vedicReportJobs';
+import type { ReportLanguage } from './vedicReportStore';
 
 export const VEDASTRO_DEFAULT_API_BASE = 'https://vedastro.zaishi.net/api';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
@@ -119,14 +121,14 @@ export interface VedicForecastPeriod {
   interpretation: VedicForecastInterpretation;
 }
 
-interface VedicReportSection {
+export interface VedicReportSection {
   heading: string;
   consultation: string;
   evidence: VedicEvidence[];
   timeline?: VedicForecastPeriod[];
 }
 
-interface VedicPaidReport {
+export interface VedicPaidReport {
   formatVersion: number;
   title: string;
   introduction: string;
@@ -360,16 +362,37 @@ function hydrateChartData(chart: VedicChartData): VedicChartData {
   return chart;
 }
 
-function publicChartData(chart: VedicChartData): Omit<
-  VedicChartData,
-  'planetLongitudes' | 'lagnaLongitude' | 'divisionalCharts'
-> {
+export function publicChartData(chart: VedicChartData) {
   const { planetLongitudes, lagnaLongitude, divisionalCharts, calculationData, ...publicChart } = chart;
   void planetLongitudes;
   void lagnaLongitude;
   void divisionalCharts;
   void calculationData;
-  return { ...publicChart, ayanamsa: 'LAHIRI' as const };
+  const presentPosition = (p: ProkeralaChart['planets'][number]) => ({
+    name: p.name, sign: p.sign, longitude: p.longitude, signDegree: p.sign_degree,
+    ...(p.house === undefined ? {} : { house: p.house }),
+    ...(p.nakshatra ? { nakshatra: {
+      name: p.nakshatra.name,
+      ...(p.nakshatra.pada === undefined ? {} : { pada: p.nakshatra.pada }),
+    } } : {}),
+    ...(p.retrograde === undefined ? {} : { retrograde: p.retrograde }),
+  });
+  return {
+    ...publicChart, ayanamsa: 'LAHIRI' as const,
+    presentation: {
+      ascendantLongitude: lagnaLongitude,
+      moonNakshatra: chart.nakshatra,
+      planets: calculationData?.planets.map(presentPosition) ?? [],
+      houses: chart.houses,
+      d9: calculationData ? {
+        ascendant: divisionalCharts.d9.lagna, positions: calculationData.d9.planets.map(presentPosition),
+      } : null,
+      d10: calculationData ? {
+        ascendant: divisionalCharts.d10.lagna, positions: calculationData.d10.planets.map(presentPosition),
+      } : null,
+      dasha: { mahaDasha: chart.mahaDasha, antarDasha: chart.antarDasha },
+    },
+  };
 }
 
 function expandReading(text: string, additions: string[], minChars = FREE_READING_MIN_CHARS): string {
@@ -1571,7 +1594,7 @@ const EN_REPORT_SECTION_HEADINGS: Record<VedicReportScope, string[]> = {
   ],
 };
 
-function reportHeadings(scope: VedicReportScope, language: 'zh-Hant' | 'en'): string[] {
+export function reportHeadings(scope: VedicReportScope, language: 'zh-Hant' | 'en'): string[] {
   return language === 'en' ? EN_REPORT_SECTION_HEADINGS[scope] : REPORT_SECTION_HEADINGS[scope];
 }
 
@@ -2291,6 +2314,7 @@ async function generatePaidReportPart(
   generationAttempt = 0,
   requestedSectionIndexes?: number[],
   language: 'zh-Hant' | 'en' = 'zh-Hant',
+  singleAttempt = false,
 ) {
   const sectionHeadings = reportHeadings(scope, language);
   const sectionIndexes = requestedSectionIndexes || sectionHeadings.map((_, index) => index);
@@ -2478,6 +2502,7 @@ async function generatePaidReportPart(
   };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 120_000);
+  let awaitingUpstream = true;
   try {
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
@@ -2496,12 +2521,26 @@ async function generatePaidReportPart(
         max_output_tokens: requestedSectionIndexes ? (includeForecast ? 18000 : 14000) : (scope === 'full' || scope === 'complete' ? 22000 : 6000),
       }),
     });
-    if (!response.ok) throw new Error(`OpenAI report failed: ${response.status}`);
+    if (!response.ok) {
+      if (singleAttempt) {
+        const retry = response.headers.get('Retry-After');
+        const seconds = retry && /^\d+$/.test(retry) ? Number(retry)
+          : retry ? Math.max(0, (Date.parse(retry) - Date.now()) / 1000) : 1;
+        await response.body?.cancel();
+        throw new VedicSectionError(
+          response.status === 429 ? 'SECTION_RATE_LIMITED' : response.status >= 500 ? 'SECTION_UPSTREAM_FAILED' : 'SECTION_AUTH_OR_REQUEST_FAILED',
+          response.status === 429 || response.status >= 500,
+          Number.isFinite(seconds) ? Math.ceil(seconds * 1000) : 61000,
+        );
+      }
+      throw new Error(`OpenAI report failed: ${response.status}`);
+    }
     const responsePayload = await response.json() as {
       status?: string;
       incomplete_details?: { reason?: string } | null;
       [key: string]: unknown;
     };
+    awaitingUpstream = false;
     if (responsePayload.status === 'incomplete') {
       throw new Error(`OpenAI report incomplete: ${responsePayload.incomplete_details?.reason || 'unknown'}`);
     }
@@ -2577,6 +2616,12 @@ async function generatePaidReportPart(
     });
     return { formatVersion: VEDIC_REPORT_FORMAT_VERSION, title, introduction, ...(consultationQuestion ? { consultationQuestion } : {}), sections, closing };
   } catch (error) {
+    if (singleAttempt) {
+      if (error instanceof VedicSectionError) throw error;
+      if (controller.signal.aborted) throw new VedicSectionError('SECTION_TIMEOUT', true);
+      if (error instanceof TypeError && awaitingUpstream) throw new VedicSectionError('SECTION_TRANSPORT_FAILED', true);
+      throw new VedicSectionError('SECTION_VALIDATION_FAILED', false);
+    }
     if (env.OPENAI_API_KEY && generationAttempt < 1) {
       console.warn('VEDIC_REPORT_REGENERATE', { attempt: generationAttempt + 1, reason: error instanceof Error ? error.message : 'unknown' });
       return generatePaidReportPart(env, scope, chart, transits, generationAttempt + 1, requestedSectionIndexes, language);
@@ -2592,6 +2637,17 @@ async function generatePaidReportPart(
   } finally {
     clearTimeout(timer);
   }
+}
+
+export class VedicSectionError extends Error {
+  constructor(readonly code: string, readonly retryable: boolean, readonly retryAfterMs = 1000) {
+    super(code);
+  }
+}
+
+export function generateVedicSectionOnce(env: Env, chart: VedicChartData, index: number, language: ReportLanguage) {
+  if (!env.OPENAI_API_KEY) throw new VedicSectionError('SECTION_NOT_CONFIGURED', false);
+  return generatePaidReportPart(env, 'complete', chart, null, 0, [index], language, true);
 }
 
 class VedicBatchGenerationError extends Error {
@@ -2710,11 +2766,11 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
 
   const scope = order.item_id.replace(/^vedic_/, '') as VedicReportScope;
   if (!REPORT_SCOPES.includes(scope)) return badRequest(req, env, '印度占星商品設定錯誤');
+  if (scope === 'complete') return startVedicReport(req, env, resolvedChartId, orderId, language);
   const existing = await env.DB.prepare(
     'SELECT content_json FROM vedic_reports WHERE order_id = ?'
   ).bind(orderId).first<{ content_json: string }>();
   let existingNeedsRefresh = false;
-  let existingDraft: Partial<VedicReportDraft> | null = null;
   if (existing) {
     try {
       const cachedContent = readLocalizedVedicReport(existing.content_json, language);
@@ -2722,9 +2778,7 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
         existingNeedsRefresh = true;
       } else {
         const existingReport = cachedContent as Partial<VedicPaidReport> & Partial<VedicReportDraft>;
-        if (existingReport.generationOnly) existingDraft = existingReport;
-        existingNeedsRefresh = scope === 'complete'
-          && !validateCompleteVedicReport(existingReport as VedicPaidReport, language);
+        existingNeedsRefresh = !!existingReport.generationOnly;
         if (!existingNeedsRefresh) return json(req, env, { scope, report: existingReport, cached: true });
       }
     } catch {
@@ -2745,108 +2799,6 @@ export async function getVedicPaidReport(req: Request, env: Env): Promise<Respon
   const chart = hydrateChartData(JSON.parse(chartRow.chart_json) as VedicChartData);
   // This migration has no verified current-transit input; never call the retired provider.
   const transits = null;
-
-  if (scope === 'complete') {
-    const headings = reportHeadings('complete', language);
-    const previousGeneration = Array.isArray(existingDraft?.generation) ? existingDraft.generation : [];
-    const previousSections = Array.isArray(existingDraft?.sections) ? existingDraft.sections : [];
-    const draft: VedicReportDraft = {
-      generationOnly: true,
-      formatVersion: VEDIC_REPORT_FORMAT_VERSION,
-      updatedAt: new Date().toISOString(),
-      title: cleanText(existingDraft?.title, 120),
-      introduction: cleanText(existingDraft?.introduction, 3000),
-      closing: cleanText(existingDraft?.closing, 2000),
-      sections: headings.map((_, index) => previousSections[index] || null),
-      generation: headings.map((heading, index) => {
-        const previous = previousGeneration.find((item) => item.section === index + 1);
-        const completed = !!previousSections[index];
-        return {
-          section: index + 1,
-          heading,
-          status: completed ? 'completed' : 'pending',
-          attempts: Number(previous?.attempts || 0),
-          ...(!completed && previous?.error ? { error: previous.error } : {}),
-        };
-      }),
-    };
-    // Generate up to three independent sections per request. Mobile browsers do
-    // not need to remain alive for nine consecutive long HTTP round trips, and
-    // one rejected section cannot discard successful siblings in the same batch.
-    const nextIndexes = draft.sections
-      .map((section, index) => ({ section, index, attempts: draft.generation[index].attempts }))
-      .filter((item) => !item.section && item.attempts < 6)
-      .sort((left, right) => left.attempts - right.attempts || left.index - right.index)
-      .slice(0, 3)
-      .map((item) => item.index);
-    if (nextIndexes.length > 0) {
-      const results = await Promise.allSettled(nextIndexes.map((index) =>
-        generatePaidReportPart(env, scope, chart, transits, 0, [index], language)
-      ));
-      results.forEach((result, batchIndex) => {
-        const index = nextIndexes[batchIndex];
-        const state = draft.generation[index];
-        if (result.status === 'fulfilled') {
-          const partial = result.value;
-          draft.sections[index] = partial.sections[0];
-          draft.title ||= partial.title;
-          draft.introduction ||= partial.introduction;
-          draft.closing = partial.closing || draft.closing;
-          draft.generation[index] = { ...state, status: 'completed', attempts: state.attempts + 1 };
-          return;
-        }
-        draft.generation[index] = {
-          ...state,
-          status: 'failed',
-          attempts: state.attempts + 1,
-          error: result.reason instanceof Error ? result.reason.message : 'generation_failed',
-        };
-      });
-      draft.updatedAt = new Date().toISOString();
-    }
-
-    const complete = draft.sections.every((section): section is VedicReportSection => !!section);
-    if (complete) {
-      const completedReport: VedicPaidReport = {
-        formatVersion: VEDIC_REPORT_FORMAT_VERSION,
-        title: draft.title || (language === 'en' ? EN_SCOPE_NAMES.complete : '完整人生地圖｜9 大印度占星深度解析'),
-        introduction: draft.introduction,
-        sections: draft.sections as VedicReportSection[],
-        closing: draft.closing,
-      };
-      if (validateCompleteVedicReport(completedReport, language)) {
-        if (existing) {
-          await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
-            .bind(writeLocalizedVedicReport(existing?.content_json, language, completedReport), draft.updatedAt, orderId).run();
-        } else {
-          await env.DB.prepare(
-            `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
-             VALUES (?, ?, ?, ?, ?, ?)`
-          ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, writeLocalizedVedicReport(undefined, language, completedReport), draft.updatedAt).run();
-        }
-        return json(req, env, { scope, report: completedReport, cached: false }, { status: 201 });
-      }
-      draft.generation = draft.generation.map((item) => ({ ...item, status: 'failed', error: 'combined_report_quality_failed' }));
-    }
-
-    if (existing) {
-      await env.DB.prepare('UPDATE vedic_reports SET content_json = ?, created_at = ? WHERE order_id = ?')
-        .bind(writeLocalizedVedicReport(existing?.content_json, language, draft), draft.updatedAt, orderId).run();
-    } else {
-      await env.DB.prepare(
-        `INSERT INTO vedic_reports (id, chart_id, order_id, scope, content_json, created_at)
-         VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(crypto.randomUUID(), resolvedChartId, orderId, scope, writeLocalizedVedicReport(undefined, language, draft), draft.updatedAt).run();
-    }
-    const retryable = draft.sections.some((section, index) => !section && draft.generation[index].attempts < 6);
-    return json(req, env, {
-      scope,
-      cached: false,
-      transientFallback: true,
-      retryable,
-      generation: draft.generation,
-    }, { status: 202 });
-  }
 
   let report: VedicPaidReport;
   try {

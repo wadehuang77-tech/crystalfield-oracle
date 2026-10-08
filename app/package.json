@@ -16,6 +16,7 @@
     "test:auth": "tsx scripts/auth-flow-check.ts",
     "test:payment-return": "tsx scripts/checkout-return-check.ts",
     "test:ga4": "tsx scripts/ga4-event-check.ts",
+    "test:vedic-progress": "tsx scripts/vedic-progress-check.ts",
     "test:tarot-deep-analysis": "tsx scripts/tarot-deep-analysis-check.ts",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },

@@ -22,7 +22,7 @@ import {
   vedicAstrologyApi,
   type VedicChartResponse,
   type VedicReport,
-  type VedicReportGenerationStatus,
+  type VedicReportProgress,
   type VedicReview,
 } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
@@ -30,6 +30,8 @@ import VedicAstrologySeoContent from './VedicAstrologySeoContent';
 import { getLanguageFromPath, t } from '../lib/i18n';
 import { useAuth } from '../contexts/AuthContext';
 import { calculationLoginRedirect } from '../lib/authLocale';
+import { pollVedicReport, terminalReport, persistedReportTimings } from '../lib/vedicReportPolling';
+import { VedicChartCore, VedicProgressiveReport } from '../components/VedicReportProgress';
 
 const SESSION_KEY = 'cf_vedic_chart_session';
 
@@ -143,17 +145,17 @@ type LifeQuestion = {
   points: readonly string[];
 };
 
-function saveChart(chart: VedicChartResponse, userId: string) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ chart, userId }));
+function saveChart(chart: VedicChartResponse, userId: string, visibleAt?: number) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ chart, userId, visibleAt }));
 }
 
-function loadChart(userId: string): VedicChartResponse | null {
+function loadChart(userId: string): { chart: VedicChartResponse; visibleAt?: number } | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as { chart?: VedicChartResponse; userId?: string };
+    const parsed = JSON.parse(raw) as { chart?: VedicChartResponse; userId?: string; visibleAt?: number };
     if (parsed.userId !== userId || !parsed.chart?.chart_id || !parsed.chart.chart_token) return null;
-    return parsed.chart;
+    return { chart: parsed.chart, visibleAt: parsed.visibleAt };
   } catch {
     return null;
   }
@@ -165,7 +167,7 @@ export default function VedicAstrologyPage() {
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`vedic.${key}`, language) : fallback;
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthPlace: '' });
   const [chart, setChart] = useState<VedicChartResponse | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -173,23 +175,37 @@ export default function VedicAstrologyPage() {
   const [report, setReport] = useState<VedicReport | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
-  const [reportGeneration, setReportGeneration] = useState<VedicReportGenerationStatus[]>([]);
+  const [reportProgress, setReportProgress] = useState<VedicReportProgress | null>(null);
+  const [progressRefresh, setProgressRefresh] = useState(0);
+  const [retryingSection, setRetryingSection] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const restoreRef = useRef(false);
+  const chartVisibleAt = useRef<{ chartId: string; epochMs: number } | null>(null);
+  const progressContext = useRef('');
+  const timingMarks = useRef(new Set<string>());
   const returnOrderId = searchParams.get('order_id');
   const returnOrderToken = searchParams.get('order_token');
-  const returnToMarker = searchParams.get('return_to');
   const currentChartId = chart?.chart_id;
   const currentChartToken = chart?.chart_token;
+  const currentUserId = user?.id;
+  const visibleReportContext = `${currentUserId}:${returnOrderId}:${language}:${currentChartId ?? ''}`;
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
       sessionStorage.removeItem(SESSION_KEY);
       setChart(null);
+      setReport(null);
+      setReportProgress(null);
+      setReportLoading(false);
+      setReportError('');
+      setRetryingSection(null);
+      progressContext.current = '';
+      chartVisibleAt.current = null;
       return;
     }
-    setChart(loadChart(user.id));
+    const saved = loadChart(user.id);
+    setChart(saved?.chart ?? null);
+    chartVisibleAt.current = saved?.visibleAt ? { chartId: saved.chart.chart_id, epochMs: saved.visibleAt } : null;
   }, [authLoading, user]);
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
 
@@ -204,72 +220,100 @@ export default function VedicAstrologyPage() {
   };
 
   useEffect(() => {
-    if (restoreRef.current) return;
     const orderId = returnOrderId;
     const orderToken = returnOrderToken;
-    if (!orderId || !orderToken) return;
+    if (authLoading || !currentUserId || !orderId || !orderToken) return;
     let cancelled = false;
-    const loadPaidReport = async (attempt = 0): Promise<void> => {
-      try {
-        const result = await vedicAstrologyApi.getPaidReport({
-          chart_id: currentChartId,
-          chart_token: currentChartToken,
-          order_id: orderId,
-          order_token: orderToken,
-        });
-        if (cancelled) return;
-        setReportGeneration(result.generation || []);
-        if (result.transientFallback || !result.report) {
-          setReport(null);
-          if (result.retryable && attempt < 20) {
-            setReportLoading(true);
-            await new Promise((resolve) => window.setTimeout(resolve, 600));
-            return loadPaidReport(attempt + 1);
+    const controller = new AbortController();
+    let stopPolling: (() => void) | undefined;
+    const receive = (value: VedicReportProgress) => {
+      if (cancelled) return;
+      setReportProgress(value);
+      setReportLoading(!terminalReport(value.reportStatus));
+      setReportError('');
+      const visible = chartVisibleAt.current;
+      if (visible && visible.chartId === value.chartId) {
+        for (const metric of persistedReportTimings(value, visible.epochMs)) {
+          const key = `${language}:${metric.metric}`;
+          if (!timingMarks.current.has(key)) {
+            timingMarks.current.add(key);
+            console.info('[vedic-ux-timing]', metric);
           }
-          setReportError(language === 'en' ? 'The in-depth report is not ready yet. No fallback text was shown. Please use the button below to retry safely.' : '完整深度報告尚未生成成功。系統沒有顯示備援模板，請使用下方按鈕安全重試。');
-          return;
         }
-        setReport(result.report);
-        setReportError('');
-        if (returnToMarker) {
-          const next = new URLSearchParams(window.location.search);
-          next.delete('return_to');
-          setSearchParams(next, { replace: true });
-        }
-        window.setTimeout(() => document.getElementById('vedic-paid-report')?.scrollIntoView({ behavior: 'smooth' }), 100);
-      } catch (reason) {
-        if (cancelled) return;
-        // A section can finish and be persisted by the Worker even if the browser
-        // loses that individual response. Keep polling the paid order so the UI
-        // can recover the completed report instead of leaving it hidden.
-        if (attempt < 20) {
-          setReportLoading(true);
-          setReportError(language === 'en' ? 'Your in-depth guidance is still being completed. The report will be retrieved again automatically.' : '深度指引正在完成，網路連線中斷後正在自動重新取得…');
-          await new Promise((resolve) => window.setTimeout(resolve, 1500));
-          return loadPaidReport(attempt + 1);
-        }
-        setReportError(reason instanceof Error ? reason.message : language === 'en' ? 'The unlocked report could not be retrieved.' : '無法取得已解鎖報告');
-      } finally {
-        if (!cancelled) setReportLoading(false);
       }
     };
-    // Defer starting until after React's effect cleanup cycle. In StrictMode the
-    // first effect is mounted and immediately cleaned up; starting synchronously
-    // would let that cancelled request generate one section while the guarded
-    // second effect never continues with the remaining sections.
+    const begin = async () => {
+      try {
+        setReportLoading(true);
+        let value = await vedicAstrologyApi.findReportProgress(orderId, language, controller.signal);
+        if (cancelled) return;
+        if (currentChartId && value.chartId && currentChartId !== value.chartId) {
+          throw new Error('REPORT_CHART_MISMATCH');
+        }
+        if (value.needsStart || value.legacy) {
+          const result = await vedicAstrologyApi.getPaidReport({
+            chart_id: currentChartId, chart_token: currentChartToken, order_id: orderId, order_token: orderToken,
+          }, controller.signal);
+          if (cancelled) return;
+          if (value.legacy) {
+            if (!result.report) throw new Error('Report unavailable');
+            setReport(result.report);
+            setReportLoading(false);
+            return;
+          }
+          if (!result.progressive) throw new Error('Report status unavailable');
+          value = result.progressive;
+        }
+        receive(value);
+        if (value.reportId && !terminalReport(value.reportStatus)) {
+          const id = value.reportId;
+          stopPolling = pollVedicReport(signal => vedicAstrologyApi.getReportProgress(id, language, signal), receive,
+            () => {
+              setReportLoading(false);
+              setReportError(language === 'en' ? 'Progress could not be retrieved. Your saved sections are preserved.' : '暫時無法取得進度，已保存的解析仍會保留。');
+            }, { hidden: () => document.hidden });
+        }
+      } catch {
+        if (!cancelled) setReportError(language === 'en' ? 'The authorized report could not be retrieved. Please try again.' : '暫時無法取得已解鎖報告，請稍後再試。');
+      } finally {
+        if (!cancelled && !stopPolling) setReportLoading(false);
+      }
+    };
     const startTimer = window.setTimeout(() => {
-      if (cancelled || restoreRef.current) return;
-      restoreRef.current = true;
-      setReportLoading(true);
+      if (cancelled) return;
+      const context = `${currentUserId}:${orderId}:${language}:${currentChartId ?? ''}`;
+      if (progressContext.current !== context) {
+        setReport(null);
+        setReportProgress(null);
+        setRetryingSection(null);
+        progressContext.current = context;
+      }
       setReportError('');
-      setError('');
-      void loadPaidReport();
+      void begin();
     }, 0);
     return () => {
       cancelled = true;
+      controller.abort();
+      stopPolling?.();
       window.clearTimeout(startTimer);
     };
-  }, [currentChartId, currentChartToken, language, returnOrderId, returnOrderToken, returnToMarker, setSearchParams]);
+  }, [authLoading, currentUserId, currentChartId, currentChartToken, language, returnOrderId, returnOrderToken, progressRefresh]);
+
+  const retrySection = async (section: number, key: string) => {
+    if (!reportProgress?.reportId || retryingSection) return;
+    const context = progressContext.current;
+    setRetryingSection(key);
+    try {
+      const value = await vedicAstrologyApi.retrySection(reportProgress.reportId, section, language);
+      if (progressContext.current !== context) return;
+      setReportProgress(value);
+      setProgressRefresh(value => value + 1);
+    } catch {
+      if (progressContext.current === context) setReportError(language === 'en' ? 'This section could not be retried.' : '此段解析暫時無法重試。');
+    } finally {
+      if (progressContext.current === context) setRetryingSection(null);
+    }
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -290,6 +334,8 @@ export default function VedicAstrologyPage() {
     setError('');
     setIsCalculating(true);
     setReport(null);
+    setReportProgress(null);
+    const submittedAt = performance.now();
     try {
       const result = await vedicAstrologyApi.createChart({
         birth_date: form.birthDate,
@@ -299,6 +345,13 @@ export default function VedicAstrologyPage() {
       });
       setChart(result);
       saveChart(result, user.id);
+      requestAnimationFrame(() => {
+        const visibleAt = Date.now();
+        chartVisibleAt.current = { chartId: result.chart_id, epochMs: visibleAt };
+        saveChart(result, user.id, visibleAt);
+        timingMarks.current.clear();
+        console.info('[vedic-ux-timing]', { metric: 'T1', elapsedMs: Math.round(performance.now() - submittedAt) });
+      });
       window.setTimeout(() => document.getElementById('vedic-free-results')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : language === 'en' ? 'Chart calculation failed. Please try again later.' : '星盤計算失敗，請稍後再試');
@@ -330,6 +383,10 @@ export default function VedicAstrologyPage() {
       setCheckoutLoading('');
     }
   };
+
+  const visibleProgress = progressContext.current === visibleReportContext ? reportProgress : null;
+  const visibleReport = progressContext.current === visibleReportContext ? report : null;
+  const chartUnlocked = !!visibleReport || (!!visibleProgress && visibleProgress.chartId === currentChartId);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#070312] text-white">
@@ -379,7 +436,17 @@ export default function VedicAstrologyPage() {
 
         <VedicAstrologySeoContent />
 
-        {chart && <FreeResults chart={chart} language={language} />}
+        {chart && <>
+          <div role="status" className="mx-auto mt-10 max-w-5xl rounded-xl border border-amber-300/20 p-4 text-amber-100">
+            {language === 'en' ? 'Birth chart calculation complete ✓' : '出生盤計算完成 ✓'} · {chartUnlocked
+              ? visibleProgress && !terminalReport(visibleProgress.reportStatus)
+                ? language === 'en' ? 'Your in-depth AI reading is being generated' : 'AI 深度解析產生中'
+                : language === 'en' ? 'Your unlocked reading is available below' : '已解鎖解析顯示於下方'
+              : language === 'en' ? 'In-depth interpretation awaits unlock' : '深度解析待解鎖'}
+          </div>
+          <FreeResults chart={chart} language={language} />
+          <VedicChartCore chart={chart.chart} language={language} />
+        </>}
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">
@@ -393,9 +460,12 @@ export default function VedicAstrologyPage() {
           </section>
         )}
 
-        {reportLoading && <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center bg-[#070312]/88 px-5 backdrop-blur-md"><div className="w-full max-w-md rounded-[2rem] border border-amber-300/35 bg-slate-950/95 p-8 text-center shadow-[0_0_70px_rgba(217,70,239,0.25)]"><Loader2 className="mx-auto h-10 w-10 animate-spin text-amber-300" /><h2 className="mt-6 font-serif text-2xl text-amber-50">深度指引正在生成／重新生成</h2><p className="mt-4 text-lg leading-8 text-violet-100/80">請等候約 1～2 分鐘</p><p className="mt-2 text-sm leading-6 text-violet-100/50">只有通過完整性檢查的個人化報告才會顯示，暫時備援文字不會冒充付費報告。</p>{reportGeneration.length > 0 && <ul className="mt-5 max-h-40 space-y-1 overflow-y-auto text-left text-xs text-violet-100/60">{reportGeneration.map((item) => <li key={item.section}>第 {item.section} 項：{item.status === 'completed' ? '已完成' : item.status === 'failed' ? '重新生成中' : '生成中'}</li>)}</ul>}</div></div>}
-        {reportError && !reportLoading && <div role="alert" className="fixed inset-x-4 top-24 z-50 mx-auto max-w-lg rounded-2xl border border-rose-300/35 bg-slate-950/95 p-6 text-center shadow-2xl"><p className="font-semibold text-rose-100">完整深度指引尚未生成成功</p><p className="mt-2 text-sm leading-6 text-rose-100/70">{reportError}</p>{reportGeneration.length > 0 && <ul className="mt-4 rounded-xl border border-white/10 p-3 text-left text-xs text-rose-100/65">{reportGeneration.filter((item) => item.status !== 'completed').map((item) => <li key={item.section}>第 {item.section} 項：{item.error || '等待重新生成'}</li>)}</ul>}<button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-600 px-5 py-3 font-medium text-white">安全重試已付款報告</button></div>}
-        {report && returnOrderId && returnOrderToken && <PaidReport report={report} orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
+        {reportLoading && !reportProgress && <p role="status" className="mt-10 text-center text-violet-100">{language === 'en' ? 'Retrieving your authorized reading…' : '正在取得已解鎖解析…'}</p>}
+        {reportError && <div role="alert" className="mx-auto mt-6 max-w-5xl rounded-xl border border-rose-300/30 p-5 text-rose-100"><p>{reportError}</p><button type="button" onClick={() => setProgressRefresh(value => value + 1)} className="mt-3 rounded-lg border border-white/20 px-4 py-2">{language === 'en' ? 'Retrieve saved progress' : '重新取得已保存進度'}</button></div>}
+        {visibleProgress && <VedicProgressiveReport progress={visibleProgress} language={language} onRetry={(section, key) => void retrySection(section, key)} retrying={retryingSection} />}
+        {visibleProgress?.reportStatus === 'completed' && returnOrderId && returnOrderToken &&
+          <VedicReviewForm orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
+        {visibleReport && returnOrderId && returnOrderToken && <PaidReport report={visibleReport} orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
         <PublicVedicReviews language={language} />
       </main>
     </div>
