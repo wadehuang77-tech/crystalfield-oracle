@@ -22,6 +22,7 @@ interface OraclePricingPlansProps {
 export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
   const { user } = useAuth();
   const location = useLocation();
+  const isEnglish = location.pathname.startsWith('/en/');
   const [entitlement, setEntitlement] = useState<TarotEntitlement | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string>(TAROT_SUBSCRIPTION_PLANS[0].id);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,8 +34,8 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
     void tarotEntitlementApi.me().then(({ entitlement: value }) => {
       setEntitlement(value);
       trackViewTarotSubscription();
-    }).catch((cause) => setCheckoutError(cause instanceof Error ? cause.message : '無法確認塔羅權限'));
-  }, [user]);
+    }).catch(() => setCheckoutError(isEnglish ? 'Unable to verify tarot access.' : '無法確認塔羅權限'));
+  }, [isEnglish, user]);
 
   const subscribe = async (planId: string) => {
     const selectedPlan = TAROT_SUBSCRIPTION_PLANS.find(plan => plan.id === planId);
@@ -45,10 +46,10 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
     try {
       const { ecpay, admin_unlocked } = await checkoutApi.createOrder(planId);
       if (admin_unlocked) { window.location.assign(currentPath); return; }
-      if (!ecpay) throw new Error('結帳資料缺失，請重試');
+      if (!ecpay) throw new Error(isEnglish ? 'Checkout information is unavailable. Please try again.' : '結帳資料缺失，請重試');
       trackTarotPaymentStarted(planId, selectedPrice);
-      submitToEcpay(ecpay, () => { setCheckoutError('跳轉至綠界失敗，請稍後再試'); setIsLoading(false); });
-    } catch (cause) { setCheckoutError(cause instanceof Error ? cause.message : '結帳失敗，請稍後再試'); setIsLoading(false); }
+      submitToEcpay(ecpay, () => { setCheckoutError(isEnglish ? 'Could not open the payment page. Please try again.' : '跳轉至綠界失敗，請稍後再試'); setIsLoading(false); });
+    } catch { setCheckoutError(isEnglish ? 'Checkout failed. Please try again.' : '結帳失敗，請稍後再試'); setIsLoading(false); }
   };
 
   if (!user || entitlement?.status === 'login_required') return <div className="mt-6"><TarotLoginGate theme="dark" /></div>;
@@ -61,11 +62,11 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
         <p className="mt-2 text-sm text-amber-100/75">全站帳號共可免費完整占卜 3 次；月費期間內，方案涵蓋的牌陣可無限次占卜。</p>
         <strong className="mt-2 block text-sm text-white/80">剩餘免費次數：{entitlement.free_readings_remaining}</strong>
       </div>
-      <TarotSubscriptionDetails selectedPlanId={selectedPlanId} onSelect={setSelectedPlanId} disabled={isLoading || entitlement.plan_tier > 0} />
-      {(error || checkoutError) && <p className="mb-4 text-center text-sm text-red-300">{error || checkoutError}</p>}
-      {entitlement.plan_tier > 0 && <p className="mt-4 text-center text-sm text-amber-100/70">目前方案權益至 {entitlement.current_period_end ? new Date(entitlement.current_period_end).toLocaleDateString('zh-TW') : '到期日尚未確認'}；如需更換方案，請先取消續訂並於權益到期後再選擇。</p>}
-      <button disabled={isLoading || entitlement.status === 'payment_pending' || entitlement.plan_tier > 0} onClick={() => void subscribe(selectedPlanId)} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-4 py-3 font-semibold text-white disabled:opacity-50">{entitlement.status === 'payment_pending' ? '付款確認中' : isLoading ? '跳轉至綠界…' : `立即訂閱 NT$${TAROT_SUBSCRIPTION_PLANS.find(plan => plan.id === selectedPlanId)?.price ?? 600}／月`}</button>
-      <p className="mt-3 text-center text-xs text-amber-100/55">點擊後將前往綠界完成付款。付款成功後才會開通會員資格。</p>
+      <TarotSubscriptionDetails selectedPlanId={selectedPlanId} onSelect={setSelectedPlanId} disabled={isLoading || entitlement.plan_tier > 0} language={isEnglish ? 'en' : 'zh-Hant'} />
+      {(error || checkoutError) && <p className="mb-4 text-center text-sm text-red-300">{isEnglish && error ? 'There was a problem with this request. Please try again.' : error || checkoutError}</p>}
+      {entitlement.plan_tier > 0 && <p className="mt-4 text-center text-sm text-amber-100/70">{isEnglish ? `Your current plan is active until ${entitlement.current_period_end ? new Date(entitlement.current_period_end).toLocaleDateString('en-US') : 'the end date is unavailable'}. To change plans, cancel renewal and choose another plan after your access expires.` : `目前方案權益至 ${entitlement.current_period_end ? new Date(entitlement.current_period_end).toLocaleDateString('zh-TW') : '到期日尚未確認'}；如需更換方案，請先取消續訂並於權益到期後再選擇。`}</p>}
+      <button disabled={isLoading || entitlement.status === 'payment_pending' || entitlement.plan_tier > 0} onClick={() => void subscribe(selectedPlanId)} className="mt-6 w-full rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-4 py-3 font-semibold text-white disabled:opacity-50">{entitlement.status === 'payment_pending' ? (isEnglish ? 'Payment processing' : '付款確認中') : isLoading ? (isEnglish ? 'Opening payment page…' : '跳轉至綠界…') : isEnglish ? `Subscribe for NT$${TAROT_SUBSCRIPTION_PLANS.find(plan => plan.id === selectedPlanId)?.price ?? 600}/month` : `立即訂閱 NT$${TAROT_SUBSCRIPTION_PLANS.find(plan => plan.id === selectedPlanId)?.price ?? 600}／月`}</button>
+      <p className="mt-3 text-center text-xs text-amber-100/55">{isEnglish ? 'You will be redirected to ECPay. Membership access begins after successful payment.' : '點擊後將前往綠界完成付款。付款成功後才會開通會員資格。'}</p>
     </article>
   );
 }

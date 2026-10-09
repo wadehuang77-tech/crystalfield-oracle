@@ -1,6 +1,7 @@
 import { Sparkles, Check, ArrowRight } from 'lucide-react';
 
-export default function TarotCourseCTA() {
+export default function TarotCourseCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
   return (
     <section className="mt-14 sm:mt-20 mb-10 sm:mb-14 max-w-2xl mx-auto px-4">
       <div className="ornamental-divider mb-8">
@@ -16,21 +17,22 @@ export default function TarotCourseCTA() {
             <Sparkles className="w-6 h-6" strokeWidth={1.4} />
           </div>
           <h3 className="font-serif text-xl sm:text-2xl text-blue-100 leading-snug tracking-[0.1em]">
-            想讓占卜結果<br/>真正發生改變?
+            {isEnglish ? <>Ready to turn insight<br />into meaningful change?</> : <>想讓占卜結果<br/>真正發生改變?</>}
           </h3>
         </div>
 
         <div className="border-t border-b border-blue-500/15 py-5 mb-6">
           <p className="text-sm text-blue-200/85 leading-loose text-center">
-            你已經看見訊息。<br/>
-            但真正的轉化,來自<span className="text-blue-300 font-semibold">「能量調整」</span>。
+            {isEnglish
+              ? <>You have received the message.<br />Transformation can begin with <span className="text-blue-300 font-semibold">intentional energy work</span>.</>
+              : <>你已經看見訊息。<br/>但真正的轉化,來自<span className="text-blue-300 font-semibold">「能量調整」</span>。</>}
           </p>
         </div>
 
         <div className="space-y-3 mb-7 max-w-xs mx-auto">
-          <Bullet>放大占卜效果</Bullet>
-          <Bullet>清理阻塞能量</Bullet>
-          <Bullet>加速事情改變</Bullet>
+          <Bullet>{isEnglish ? 'Deepen your reflection' : '放大占卜效果'}</Bullet>
+          <Bullet>{isEnglish ? 'Explore what may feel stuck' : '清理阻塞能量'}</Bullet>
+          <Bullet>{isEnglish ? 'Move forward with intention' : '加速事情改變'}</Bullet>
         </div>
 
         <a
@@ -39,7 +41,7 @@ export default function TarotCourseCTA() {
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full !justify-center"
         >
-          立 即 學 習 水 晶 陣 療 癒
+          {isEnglish ? 'Explore Crystal Grid Healing' : '立 即 學 習 水 晶 陣 療 癒'}
           <ArrowRight className="w-4 h-4" strokeWidth={1.4} />
         </a>
       </div>

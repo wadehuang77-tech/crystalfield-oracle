@@ -36,6 +36,7 @@ function isShareCancelled(error: unknown): boolean {
 
 export default function ShareReadingSection(props: ShareReadingSectionProps) {
   const { className = '' } = props;
+  const isEnglish = props.language === 'en';
   const data = useMemo(() => normalizeShareData(props), [props]);
   const [loading, setLoading] = useState<SharePlatform | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
@@ -84,7 +85,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
 
   const fail = (platform: SharePlatform, method: string) => {
     trackShareEvent('tarot_share_error', data, platform, method);
-    setNotice({ tone: 'error', text: '分享準備失敗，請稍後再試。' });
+    setNotice({ tone: 'error', text: isEnglish ? 'Could not prepare the share. Please try again.' : '分享準備失敗，請稍後再試。' });
   };
 
   const handleFacebook = async () => {
@@ -94,7 +95,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
     if (popup) popup.opener = null;
     if (!popup) {
       fail('facebook', method);
-      setNotice({ tone: 'error', text: '瀏覽器阻擋了分享視窗，請允許彈出式視窗後再試。' });
+      setNotice({ tone: 'error', text: isEnglish ? 'Your browser blocked the share window. Allow pop-ups and try again.' : '瀏覽器阻擋了分享視窗，請允許彈出式視窗後再試。' });
       setLoading(null);
       return;
     }
@@ -102,7 +103,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
       const url = await getShareUrl();
       const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
       popup.location.href = shareUrl;
-      complete('facebook', method, '已開啟 Facebook 分享視窗；分享文字可另外複製。');
+      complete('facebook', method, isEnglish ? 'Facebook sharing opened. You can also copy the reading text.' : '已開啟 Facebook 分享視窗；分享文字可另外複製。');
     } catch {
       popup?.close();
       fail('facebook', method);
@@ -116,7 +117,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
     const blob = await getImage();
     let url = PUBLIC_SITE_URL;
     try { url = await getShareUrl(); } catch { /* 分享 API 暫時不可用時仍可使用原生分享。 */ }
-    const file = new File([blob], '晶域心語-占卜結果.jpg', { type: 'image/jpeg' });
+    const file = new File([blob], isEnglish ? 'CrystalField-tarot-reading.jpg' : '晶域心語-占卜結果.jpg', { type: 'image/jpeg' });
     const shareData: ShareData = { title: `${data.deckName}・${data.spreadName}`, text: buildShareText(data, url), url };
     if (navigator.canShare?.({ files: [file] })) shareData.files = [file];
     await navigator.share(shareData);
@@ -128,12 +129,12 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
     start('threads', method);
     try {
       if (await nativeShare()) {
-        complete('threads', method, '已開啟系統分享，請選擇 Threads。');
+        complete('threads', method, isEnglish ? 'System sharing opened. Choose Threads to continue.' : '已開啟系統分享，請選擇 Threads。');
       } else {
         let url = PUBLIC_SITE_URL;
         try { url = await getShareUrl(); } catch { /* 仍提供可複製的安全首頁網址。 */ }
         await copyText(buildShareText(data, url));
-        complete('threads', method, '分享文字已複製，請開啟 Threads 貼上發布。');
+        complete('threads', method, isEnglish ? 'The text was copied. Open Threads and paste it into your post.' : '分享文字已複製，請開啟 Threads 貼上發布。');
       }
     } catch (error) {
       if (!isShareCancelled(error)) fail('threads', method);
@@ -147,15 +148,15 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
     start('instagram', method);
     try {
       if (await nativeShare()) {
-        complete('instagram', method, '已開啟系統分享，請選擇 Instagram。');
+        complete('instagram', method, isEnglish ? 'System sharing opened. Choose Instagram to continue.' : '已開啟系統分享，請選擇 Instagram。');
       } else {
         const blob = await getImage();
         let url = PUBLIC_SITE_URL;
         try { url = await getShareUrl(); } catch { /* 圖片下載與文字複製不依賴分享頁。 */ }
-        downloadBlob(blob, '晶域心語-占卜結果.jpg');
+        downloadBlob(blob, isEnglish ? 'CrystalField-tarot-reading.jpg' : '晶域心語-占卜結果.jpg');
         trackShareEvent('tarot_share_image_download', data, 'instagram', method);
         await copyText(buildShareText(data, url));
-        complete('instagram', method, '分享圖片已下載、文字已複製，請開啟 Instagram 發布。');
+        complete('instagram', method, isEnglish ? 'The image was downloaded and the text copied. Open Instagram to share them.' : '分享圖片已下載、文字已複製，請開啟 Instagram 發布。');
       }
     } catch (error) {
       if (!isShareCancelled(error)) fail('instagram', method);
@@ -171,7 +172,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
       let url: string;
       try { url = await getShareUrl(); } catch { url = 'https://www.crystalfield101.com/'; }
       await copyText(buildShareText(data, url));
-      complete('copy', method, '分享文字已複製');
+      complete('copy', method, isEnglish ? 'Reading text copied.' : '分享文字已複製');
     } catch {
       fail('copy', method);
     } finally {
@@ -180,10 +181,10 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
   };
 
   const buttons = [
-    { id: 'facebook' as const, label: '分享到 Facebook', icon: Facebook, action: handleFacebook },
-    { id: 'threads' as const, label: '分享到 Threads', icon: MessageCircle, action: handleThreads },
-    { id: 'instagram' as const, label: '分享到 Instagram', icon: Instagram, action: handleInstagram },
-    { id: 'copy' as const, label: '複製分享文字', icon: Clipboard, action: handleCopy },
+    { id: 'facebook' as const, label: isEnglish ? 'Share on Facebook' : '分享到 Facebook', icon: Facebook, action: handleFacebook },
+    { id: 'threads' as const, label: isEnglish ? 'Share on Threads' : '分享到 Threads', icon: MessageCircle, action: handleThreads },
+    { id: 'instagram' as const, label: isEnglish ? 'Share on Instagram' : '分享到 Instagram', icon: Instagram, action: handleInstagram },
+    { id: 'copy' as const, label: isEnglish ? 'Copy reading text' : '複製分享文字', icon: Clipboard, action: handleCopy },
   ];
 
   if (data.cards.length === 0) return null;
@@ -192,6 +193,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
     {props.deepAnalysis && (
       <TarotDeepAnalysisRecommendations
         {...props.deepAnalysis}
+        language={props.language}
         resultKey={data.cards.map(({ cardKey }) => cardKey).join(':')}
       />
     )}
@@ -199,8 +201,12 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
       <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-purple-500/15 blur-3xl" />
       <div className="relative text-center">
         <Sparkles className="mx-auto mb-3 h-7 w-7 text-amber-200" aria-hidden="true" />
-        <h2 id="share-reading-title" className="font-serif text-xl tracking-wide text-purple-50 sm:text-2xl">把這份宇宙訊息分享給朋友</h2>
-        <p className="mt-2 text-sm leading-relaxed text-purple-200/75">只分享牌名與簡短訊息，不會包含你的個人資料或完整解讀。</p>
+        <h2 id="share-reading-title" className="font-serif text-xl tracking-wide text-purple-50 sm:text-2xl">
+          {isEnglish ? 'Share this reading' : '把這份宇宙訊息分享給朋友'}
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-purple-200/75">
+          {isEnglish ? 'Only card names and a short message are shared—not your personal data or full interpretation.' : '只分享牌名與簡短訊息，不會包含你的個人資料或完整解讀。'}
+        </p>
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {buttons.map(({ id, label, icon: Icon, action }) => (
             <button
@@ -211,7 +217,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
               className="group flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-purple-200/20 bg-white/[0.06] px-4 py-3 text-sm font-medium text-purple-50 transition hover:border-amber-200/45 hover:bg-purple-400/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 disabled:cursor-wait disabled:opacity-60"
             >
               {loading === id ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Icon className="h-5 w-5 text-amber-200 transition group-hover:scale-110" aria-hidden="true" />}
-              {loading === id ? '正在準備分享…' : label}
+              {loading === id ? (isEnglish ? 'Preparing to share…' : '正在準備分享…') : label}
             </button>
           ))}
         </div>

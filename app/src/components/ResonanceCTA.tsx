@@ -5,7 +5,8 @@ import { publicApi, PublicButtonLink } from '../lib/api';
 
 const AI_TAROT_BUTTON_KEY = 'resonance-ai-tarot-design';
 
-function QRCodeModal({ onClose }: { onClose: () => void }) {
+function QRCodeModal({ onClose, language }: { onClose: () => void; language: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -24,15 +25,15 @@ function QRCodeModal({ onClose }: { onClose: () => void }) {
         </button>
 
         <div className="text-center mb-6">
-          <h3 className="text-xl font-bold text-blue-100 mb-2">預約深度療癒解析</h3>
-          <p className="text-blue-100/60 text-sm">掃描 QR Code，立即加入 LINE 預約</p>
+          <h3 className="text-xl font-bold text-blue-100 mb-2">{isEnglish ? 'Book a Personal Session' : '預約深度療癒解析'}</h3>
+          <p className="text-blue-100/60 text-sm">{isEnglish ? 'Scan the QR code to connect on LINE.' : '掃描 QR Code，立即加入 LINE 預約'}</p>
         </div>
 
         <div className="flex justify-center mb-6">
           <div className="bg-white rounded-2xl p-4 shadow-xl">
             <img
               src={qrImage}
-              alt="預約 LINE QR Code"
+              alt={isEnglish ? 'LINE booking QR code' : '預約 LINE QR Code'}
               className="w-56 h-56 object-contain"
             />
           </div>
@@ -44,18 +45,19 @@ function QRCodeModal({ onClose }: { onClose: () => void }) {
           rel="noopener noreferrer"
           className="block w-full py-3 bg-gradient-to-r from-blue-500 to-blue-500 hover:from-blue-400 hover:to-blue-400 text-blue-100 font-semibold text-center rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg"
         >
-          直接開啟 LINE 聯繫
+          {isEnglish ? 'Open LINE to get in touch' : '直接開啟 LINE 聯繫'}
         </a>
 
         <p className="text-blue-100/30 text-xs text-center mt-4">
-          一對一深度對談，協助你找到根源問題與轉化方向
+          {isEnglish ? 'A one-on-one conversation to explore your concerns and possible next steps.' : '一對一深度對談，協助你找到根源問題與轉化方向'}
         </p>
       </div>
     </div>
   );
 }
 
-export function ResonanceCTA() {
+export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 'en' } = {}) {
+  const isEnglish = language === 'en';
   const [showQR, setShowQR] = useState(false);
   const [aiTarotLink, setAiTarotLink] = useState<PublicButtonLink | null>(null);
 
@@ -88,14 +90,15 @@ export function ResonanceCTA() {
             <Sparkles className="w-8 h-8 text-blue-300 animate-pulse" />
           </div>
           <h3 className="text-2xl sm:text-3xl font-bold text-blue-100 mb-3">
-            如果這次占卜讓你有共鳴
+            {isEnglish ? 'If this reading resonates with you' : '如果這次占卜讓你有共鳴'}
           </h3>
           <p className="text-blue-100/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-            代表你已經準備好進入下一個階段
+            {isEnglish ? 'You may be ready to explore your next chapter.' : '代表你已經準備好進入下一個階段'}
           </p>
           <p className="text-blue-100/50 text-sm sm:text-base mt-3 max-w-xl mx-auto leading-relaxed">
-            有些問題，塔羅只能提醒<br />
-            真正的轉變，需要更深層的引導
+            {isEnglish
+              ? <>Tarot can offer a helpful perspective.<br />Deeper guidance may help you reflect on meaningful change.</>
+              : <>有些問題，塔羅只能提醒<br />真正的轉變，需要更深層的引導</>}
           </p>
         </div>
 
@@ -109,10 +112,10 @@ export function ResonanceCTA() {
               <Calendar className="w-8 h-8 text-blue-100 flex-shrink-0" />
               <div>
                 <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                  想為你的品牌建置專屬塔羅系統？
+                  {isEnglish ? 'Looking to create a tarot system for your brand?' : '想為你的品牌建置專屬塔羅系統？'}
                 </h4>
                 <p className="text-blue-100 text-xs sm:text-sm">
-                  按此預約諮詢
+                  {isEnglish ? 'Book a consultation' : '按此預約諮詢'}
                 </p>
               </div>
             </div>
@@ -130,10 +133,10 @@ export function ResonanceCTA() {
                 <Sparkles className="w-8 h-8 text-blue-100 flex-shrink-0" />
                 <div className="text-left">
                   <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                    解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開
+                    {isEnglish ? 'Discover AI Tarot Design: From Prompting to Online Spreads' : '解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開'}
                   </h4>
                   <p className="text-blue-100 text-xs sm:text-sm">
-                    免費線上說明會｜教你如何用 AI 設計塔羅牌，零基礎打造高質感的個人牌卡
+                    {isEnglish ? 'Free online session: Learn how to design tarot cards with AI, even as a beginner.' : '免費線上說明會｜教你如何用 AI 設計塔羅牌，零基礎打造高質感的個人牌卡'}
                   </p>
                 </div>
               </div>
@@ -147,10 +150,10 @@ export function ResonanceCTA() {
                 <Sparkles className="w-8 h-8 text-blue-100 flex-shrink-0" />
                 <div className="text-left">
                   <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                    解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開
+                    {isEnglish ? 'Discover AI Tarot Design: From Prompting to Online Spreads' : '解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開'}
                   </h4>
                   <p className="text-blue-100 text-xs sm:text-sm">
-                    報名尚未開放
+                    {isEnglish ? 'Registration is not open yet' : '報名尚未開放'}
                   </p>
                 </div>
               </div>
@@ -160,12 +163,12 @@ export function ResonanceCTA() {
 
         <div className="text-center mt-6">
           <p className="text-blue-100/30 text-sm italic">
-            轉變的開始，就在你願意踏出這一步
+            {isEnglish ? 'Change can begin with one intentional step.' : '轉變的開始，就在你願意踏出這一步'}
           </p>
         </div>
       </div>
 
-      {showQR && <QRCodeModal onClose={() => setShowQR(false)} />}
+      {showQR && <QRCodeModal onClose={() => setShowQR(false)} language={language} />}
     </>
   );
 }

@@ -14,6 +14,7 @@ export interface ShareReadingData {
   spreadName: string;
   cards: ShareReadingCard[];
   summary: string;
+  language?: 'zh-Hant' | 'en';
 }
 
 export type SharePlatform = 'facebook' | 'threads' | 'instagram' | 'copy';
@@ -24,11 +25,13 @@ function compactText(value: string, max = 180): string {
 }
 
 export function normalizeShareData(data: ShareReadingData): ShareReadingData {
+  const language = data.language ?? 'zh-Hant';
   return {
     deckId: compactText(data.deckId, 60),
     deckName: compactText(data.deckName, 80),
     spreadName: compactText(data.spreadName, 80),
-    summary: compactText(data.summary, 180) || '宇宙正在提醒我，答案一直都在自己的內心。',
+    summary: compactText(data.summary, 180) || (language === 'en' ? 'Take a moment to reflect on what feels meaningful to you.' : '宇宙正在提醒我，答案一直都在自己的內心。'),
+    language,
     cards: data.cards.slice(0, 12).map((card) => ({
       cardKey: compactText(card.cardKey, 100),
       name: compactText(card.name, 80),
@@ -39,6 +42,10 @@ export function normalizeShareData(data: ShareReadingData): ShareReadingData {
 
 export function buildShareText(input: ShareReadingData, resultUrl = PUBLIC_SITE_URL): string {
   const data = normalizeShareData(input);
+  if (data.language === 'en') {
+    const cardLines = data.cards.map((card) => card.position ? `${card.position}: ${card.name}` : card.name).join('\n');
+    return `I just completed a ${data.deckName} · ${data.spreadName} reading ✨\n\nCards drawn:\n${cardLines}\n\nA message to reflect on:\n${data.summary}\n\nExplore a tarot reading for yourself:\n${resultUrl}\n\n#CrystalField #TarotReading #FreeTarot`;
+  }
   const cardLines = data.cards.map((card) => card.position ? `${card.position}：${card.name}` : card.name).join('\n');
   return `我剛完成了【${data.deckName}・${data.spreadName}】✨\n\n這次抽到：\n${cardLines}\n\n宇宙給我的訊息是：\n${data.summary}\n\n你也來看看塔羅牌想告訴你什麼：\n${resultUrl}\n\n#晶域心語 #塔羅占卜 #免費占卜 #韋德老師`;
 }
@@ -172,7 +179,7 @@ export async function createShareImage(input: ShareReadingData): Promise<Blob> {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#f2d58d';
   ctx.font = '600 34px "Noto Serif TC", serif';
-  ctx.fillText('✦ 晶域心語 ✦', 540, 130);
+  ctx.fillText(data.language === 'en' ? '✦ CrystalField ✦' : '✦ 晶域心語 ✦', 540, 130);
   ctx.fillStyle = '#fff7e2';
   ctx.font = '700 48px "Noto Serif TC", serif';
   ctx.fillText(data.deckName, 540, 200);
@@ -228,13 +235,13 @@ export async function createShareImage(input: ShareReadingData): Promise<Blob> {
   ctx.textAlign = 'left';
   ctx.fillStyle = '#f2d58d';
   ctx.font = '600 25px "Noto Sans TC", sans-serif';
-  ctx.fillText('宇宙給你的訊息', 105, messageY);
+  ctx.fillText(data.language === 'en' ? 'A message for reflection' : '宇宙給你的訊息', 105, messageY);
   ctx.fillStyle = '#f8f2ff';
   ctx.font = '28px "Noto Serif TC", serif';
   const usedHeight = drawWrappedText(ctx, data.summary, 105, messageY + 48, 870, 44, 4);
   ctx.fillStyle = '#bba9db';
   ctx.font = '22px "Noto Sans TC", sans-serif';
-  ctx.fillText('免費占卜・www.crystalfield101.com', 105, Math.min(1250, messageY + 78 + usedHeight));
+  ctx.fillText(data.language === 'en' ? 'Free tarot reading · www.crystalfield101.com' : '免費占卜・www.crystalfield101.com', 105, Math.min(1250, messageY + 78 + usedHeight));
 
   return await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('image encode failed')), 'image/jpeg', 0.9);

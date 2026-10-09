@@ -11,6 +11,7 @@ import { trackTarotCrossSellClick, trackTarotDeepAnalysisRecommendationsView } f
 
 interface TarotDeepAnalysisRecommendationsProps extends TrustedTarotResultState {
   resultKey: string;
+  language?: 'zh-Hant' | 'en';
 }
 
 const viewedResultKeys = new Set<string>();
@@ -51,7 +52,9 @@ export function TarotDeepAnalysisRecommendations({
   hasFullAccess,
   resultComplete,
   resultKey,
+  language,
 }: TarotDeepAnalysisRecommendationsProps) {
+  const isEnglish = language === 'en';
   const shouldShow = shouldShowDeepAnalysisRecommendations({ hasFullAccess, resultComplete });
   const exposureKey = `${deckId}:${spreadId}:${resultKey}`;
 
@@ -63,6 +66,32 @@ export function TarotDeepAnalysisRecommendations({
 
   if (!shouldShow) return null;
 
+  const cards = isEnglish
+    ? [
+        {
+          destination: 'numerology' as const,
+          title: 'Numerology',
+          description: 'Explore your core traits, natural strengths, life lessons, relationship patterns, and personal-year themes through your date of birth.',
+          button: 'Explore Numerology',
+          icon: Fingerprint,
+        },
+        {
+          destination: 'human_design' as const,
+          title: 'Human Design',
+          description: 'Learn about your energy type, profile, inner authority, and a decision-making approach that may suit you.',
+          button: 'Explore Human Design',
+          icon: Compass,
+        },
+        {
+          destination: 'vedic_astrology' as const,
+          title: 'Vedic Astrology',
+          description: 'Explore themes of purpose, career, relationships, and personal growth through a Vedic birth chart.',
+          button: 'Explore Vedic Astrology',
+          icon: Orbit,
+        },
+      ]
+    : recommendations;
+
   return (
     <section
       className="my-8 overflow-hidden rounded-3xl border border-amber-300/25 bg-gradient-to-br from-slate-950/95 via-indigo-950/85 to-purple-950/80 p-5 shadow-[0_0_50px_rgba(245,158,11,0.12)] sm:p-8"
@@ -70,23 +99,27 @@ export function TarotDeepAnalysisRecommendations({
       data-testid="tarot-deep-analysis-recommendations"
     >
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-xs font-semibold tracking-[0.28em] text-amber-300/80">更深入的分析，請點：</p>
+        <p className="text-xs font-semibold tracking-[0.28em] text-amber-300/80">
+          {isEnglish ? 'EXPLORE MORE PERSONAL INSIGHTS' : '更深入的分析，請點：'}
+        </p>
         <h2 id="tarot-deep-analysis-title" className="mt-3 font-serif text-2xl text-amber-50 sm:text-3xl">
-          想看更深入的人生分析？
+          {isEnglish ? 'Want to explore your personal blueprint further?' : '想看更深入的人生分析？'}
         </h2>
         <p className="mt-4 text-sm leading-7 text-slate-200/80 sm:text-base">
-          塔羅可以看見你當下的能量與問題方向。若想進一步了解自己的天賦、人生課題、感情模式與未來趨勢，歡迎繼續探索以下深度分析。
+          {isEnglish
+            ? 'Tarot offers a perspective on the themes surrounding you now. To explore your strengths, life lessons, relationship patterns, and future possibilities from other perspectives, discover these in-depth readings.'
+            : '塔羅可以看見你當下的能量與問題方向。若想進一步了解自己的天賦、人生課題、感情模式與未來趨勢，歡迎繼續探索以下深度分析。'}
         </p>
       </div>
 
       <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {recommendations.map(({ destination, title, description, button, icon: Icon }) => (
+        {cards.map(({ destination, title, description, button, icon: Icon }) => (
           <article key={destination} className="flex min-w-0 flex-col rounded-2xl border border-amber-200/20 bg-white/[0.055] p-5 text-left shadow-lg">
             <Icon className="h-7 w-7 text-amber-300" aria-hidden="true" />
             <h3 className="mt-4 font-serif text-xl text-amber-50">{title}</h3>
             <p className="mt-3 flex-1 text-sm leading-6 text-slate-200/75">{description}</p>
             <Link
-              to={DEEP_ANALYSIS_ROUTES[destination]}
+              to={`${isEnglish ? '/en' : ''}${DEEP_ANALYSIS_ROUTES[destination]}`}
               onClick={() => trackTarotCrossSellClick(destination, deckId, spreadId)}
               className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-amber-300/35 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-100 transition hover:border-amber-200/70 hover:bg-amber-300/20 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
