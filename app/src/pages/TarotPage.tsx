@@ -638,7 +638,7 @@ function TarotPage() {
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button onClick={performDraw} disabled={isDrawing} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-xl shadow-lg hover:shadow-orange-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                   <Sparkles className="w-5 h-5" strokeWidth={1.4} />
-                  抽 牌
+                  {t('tarot.drawCards', language)}
                 </button>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-orange-500/30 rounded-xl hover:bg-slate-700/60 hover:border-orange-400/50 transition-all text-orange-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />

@@ -178,6 +178,7 @@ export default function VedicAstrologyPage() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
   const [reportProgress, setReportProgress] = useState<VedicReportProgress | null>(null);
+  const [progressReconnecting, setProgressReconnecting] = useState(false);
   const [progressRefresh, setProgressRefresh] = useState(0);
   const [retryingSection, setRetryingSection] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -200,6 +201,7 @@ export default function VedicAstrologyPage() {
       setReportProgress(null);
       setReportLoading(false);
       setReportError('');
+      setProgressReconnecting(false);
       setRetryingSection(null);
       progressContext.current = '';
       chartVisibleAt.current = null;
@@ -231,6 +233,7 @@ export default function VedicAstrologyPage() {
     const receive = (value: VedicReportProgress) => {
       if (cancelled) return;
       setReportProgress(value);
+      setProgressReconnecting(false);
       setReportLoading(!terminalReport(value.reportStatus));
       setReportError('');
       const visible = chartVisibleAt.current;
@@ -270,10 +273,7 @@ export default function VedicAstrologyPage() {
         if (value.reportId && !terminalReport(value.reportStatus)) {
           const id = value.reportId;
           stopPolling = pollVedicReport(signal => vedicAstrologyApi.getReportProgress(id, language, signal), receive,
-            () => {
-              setReportLoading(false);
-              setReportError(language === 'en' ? 'Progress could not be retrieved. Your saved sections are preserved.' : '暫時無法取得進度，已保存的解析仍會保留。');
-            }, { hidden: () => document.hidden });
+            () => setProgressReconnecting(true), { hidden: () => document.hidden });
         }
       } catch {
         if (!cancelled) setReportError(language === 'en' ? 'The authorized report could not be retrieved. Please try again.' : '暫時無法取得已解鎖報告，請稍後再試。');
@@ -287,6 +287,7 @@ export default function VedicAstrologyPage() {
       if (progressContext.current !== context) {
         setReport(null);
         setReportProgress(null);
+        setProgressReconnecting(false);
         setRetryingSection(null);
         progressContext.current = context;
       }
@@ -402,6 +403,10 @@ export default function VedicAstrologyPage() {
           </p>
         </section>
 
+        {reportLoading && !reportProgress && <p role="status" className="mt-6 text-center text-violet-100">{language === 'en' ? 'Retrieving your authorized reading…' : '正在取得已解鎖解析…'}</p>}
+        {reportError && <div role="alert" className="mx-auto mt-6 max-w-5xl rounded-xl border border-rose-300/30 p-5 text-rose-100"><p>{reportError}</p><button type="button" onClick={() => setProgressRefresh(value => value + 1)} className="mt-3 rounded-lg border border-white/20 px-4 py-2">{language === 'en' ? 'Retrieve saved progress' : '重新取得已保存進度'}</button></div>}
+        {visibleProgress && <VedicProgressiveReport progress={visibleProgress} language={language} onRetry={(section, key) => void retrySection(section, key)} retrying={retryingSection} reconnecting={progressReconnecting} />}
+
         <section className="mx-auto mt-12 max-w-3xl rounded-[2rem] border border-amber-300/25 bg-slate-950/55 p-6 shadow-[0_0_70px_rgba(168,85,247,0.16)] backdrop-blur-xl sm:p-10">
           <div className="mb-7 flex items-center gap-3">
             <span className="rounded-2xl border border-amber-300/30 bg-amber-300/10 p-3 text-amber-200"><Orbit /></span>
@@ -462,9 +467,6 @@ export default function VedicAstrologyPage() {
           </section>
         )}
 
-        {reportLoading && !reportProgress && <p role="status" className="mt-10 text-center text-violet-100">{language === 'en' ? 'Retrieving your authorized reading…' : '正在取得已解鎖解析…'}</p>}
-        {reportError && <div role="alert" className="mx-auto mt-6 max-w-5xl rounded-xl border border-rose-300/30 p-5 text-rose-100"><p>{reportError}</p><button type="button" onClick={() => setProgressRefresh(value => value + 1)} className="mt-3 rounded-lg border border-white/20 px-4 py-2">{language === 'en' ? 'Retrieve saved progress' : '重新取得已保存進度'}</button></div>}
-        {visibleProgress && <VedicProgressiveReport progress={visibleProgress} language={language} onRetry={(section, key) => void retrySection(section, key)} retrying={retryingSection} />}
         {visibleProgress?.reportStatus === 'completed' && returnOrderId && returnOrderToken &&
           <VedicReviewForm orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
         {visibleReport && returnOrderId && returnOrderToken && <PaidReport report={visibleReport} orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}

@@ -19,10 +19,16 @@ export const HUMAN_DESIGN_FAQS = faqs;
 
 const englishFaqs = [
   ['What is Human Design?', 'Human Design is a self-reflection system that uses birth data to create an energy chart and explore type, strategy, inner authority, profile, definition, and energy centers.'],
-  ['How is a Human Design chart calculated?', 'The chart uses your birth date, time, and city. Birth time can affect the result, so use the most reliable information available.'],
+  ['How is a Human Design chart calculated?', 'The chart is calculated from your birth date, time, and city or birthplace. Birth time can affect the result, so use the most reliable information available.'],
+  ['What birth information do I need?', 'You need your date of birth, the most accurate birth time available, and your birth city or location.'],
+  ['What if I do not know my exact birth time?', 'Check a birth certificate or another reliable record if possible. Do not guess or treat a chart based on an estimated time as fully accurate.'],
   ['What are the five energy types?', 'The five commonly used types are Generator, Manifesting Generator, Projector, Manifestor, and Reflector.'],
+  ['What is a Human Design strategy?', 'Strategy is a way to observe how you engage with decisions and opportunities, not a rule you must follow. Its focus differs by energy type.'],
   ['What is inner authority?', 'Inner authority is a way to observe your decision-making process through emotional clarity, bodily response, intuition, will, voice, or time.'],
+  ['What is a Human Design profile?', 'A profile combines two line numbers, such as 1/3, 2/4, or 4/6, and offers a lens for reflecting on learning, relationships, and life experience.'],
+  ['Does a Human Design chart change over time?', 'The chart calculated from your birth information does not change over time. Your understanding of it and the insights you gain from personal experimentation may develop with experience.'],
   ['Can Human Design replace medical or psychological care?', 'No. It is a self-reflection and experimentation tool and does not replace qualified professional support.'],
+  ['What can I view for free in a Human Design report?', 'The site provides an entry point to create a chart and view report information. Access to full report content and other features depends on the site’s current membership and unlock settings; not every report section is necessarily free.'],
   ['Is my birth data public?', 'Birth data is not placed in public SEO content or the sitemap. Storage and sharing follow the site authentication, authorization, and privacy systems.'],
 ];
 
@@ -42,7 +48,12 @@ export default function HumanDesignSeoContent() {
       <div><h2 className="mb-3 text-2xl font-semibold text-white">What can a Human Design report include?</h2><p className="leading-8">A report may cover type, profile, strategy, inner authority, definition, energy centers, gifts, relationships, career direction, and practical reflection prompts. Free and paid sections depend on the site's access settings.</p></div>
       <div><h2 className="mb-3 text-2xl font-semibold text-white">How should I use a chart?</h2><p className="leading-8">Choose one low-risk situation and observe your body, emotions, timing, and boundaries before and after a decision. Keep what helps you understand yourself more clearly and set aside anything that does not match your lived experience.</p></div>
       <div><h2 className="mb-4 text-2xl font-semibold text-white">FAQ</h2><div className="space-y-3">{englishFaqs.map(([question, answer]) => <details key={question} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"><summary className="cursor-pointer font-semibold text-cyan-100">{question}</summary><p className="mt-2 leading-7">{answer}</p></details>)}</div></div>
-      <nav className="border-t border-white/10 pt-5 text-sm" aria-label="Related Human Design reading"><h2 className="mb-3 text-2xl font-semibold text-white">Related Human Design reading</h2><div className="flex flex-wrap gap-x-5 gap-y-2">{[['The five energy types', '/en/human-design/types'], ['Generator', '/en/human-design/generator'], ['Inner authority', '/en/human-design/authority'], ['Profile', '/en/human-design/profile'], ['Birth time', '/en/human-design/birth-time']].map(([label, href]) => <a key={href} className="text-cyan-300 underline" href={href}>{label}</a>)}</div></nav>
+      <nav className="border-t border-white/10 pt-5 text-sm" aria-label="Related Human Design reading"><h2 className="mb-3 text-2xl font-semibold text-white">Related Human Design reading</h2><div className="flex flex-wrap gap-x-5 gap-y-2">{[['The five energy types', '/en/human-design/types'], ['Generator', '/en/human-design/generator'], ['Manifesting Generator', '/en/human-design/manifesting-generator'], ['Projector', '/en/human-design/projector'], ['Manifestor', '/en/human-design/manifestor'], ['Reflector', '/en/human-design/reflector'], ['Inner authority', '/en/human-design/authority'], ['Profile', '/en/human-design/profile'], ['Birth time and chart calculation', '/en/human-design/birth-time']].map(([label, href]) => <a key={href} className="text-cyan-300 underline" href={href}>{label}</a>)}</div></nav>
+      <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-sm" aria-label="Explore other services">
+        <a className="text-cyan-300 underline" href="/en/oracle">Explore Tarot and Oracle Cards</a>
+        <a className="text-cyan-300 underline" href="/en/human-design">Explore Human Design</a>
+        <a className="text-cyan-300 underline" href="/en/vedic-astrology">Explore Vedic Astrology</a>
+      </nav>
     </section>;
   }
   return <section className="relative mt-12 w-full max-w-3xl space-y-10 text-left text-white/75">

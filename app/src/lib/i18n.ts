@@ -150,6 +150,7 @@ export const translations = {
       prepareTitle: '準備抽牌',
       prepareDescription: '靜心感受，當你準備好時點擊下方按鈕',
       draw: '抽牌',
+      drawCards: '抽牌',
       chooseAgain: '重新選擇牌陣',
     },
     privacy: {
@@ -481,6 +482,7 @@ export const translations = {
       prepareTitle: 'Prepare for Your Reading',
       prepareDescription: 'Take a quiet moment, then draw when you feel ready.',
       draw: 'Draw a Card',
+      drawCards: 'Draw Cards',
       chooseAgain: 'Choose Another Spread',
     },
     privacy: {

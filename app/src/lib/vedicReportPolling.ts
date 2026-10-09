@@ -4,6 +4,10 @@ export function terminalReport(status: VedicReportProgress['reportStatus']): boo
   return status === 'completed' || status === 'partial_failed' || status === 'failed';
 }
 
+export function vedicReportPercentage(completedSections: number): number {
+  return Math.round(Math.min(9, Math.max(0, completedSections)) / 9 * 100);
+}
+
 export function persistedReportTimings(value: VedicReportProgress, visibleAt: number) {
   const completed = value.sections.filter(s => s.status === 'completed');
   const times = completed.map(s => s.generatedAt ? Date.parse(s.generatedAt) : NaN);
@@ -38,7 +42,9 @@ export function pollVedicReport(
         timer = schedule(() => { void tick(); }, options.hidden() ? 12000 : 3000);
       }
     } catch {
-      if (!controller.signal.aborted) fail();
+      if (controller.signal.aborted) return;
+      fail();
+      timer = schedule(() => { void tick(); }, options.hidden() ? 12000 : 3000);
     }
   }
   void tick();

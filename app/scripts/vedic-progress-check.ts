@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
-import { pollVedicReport, terminalReport, persistedReportTimings } from '../src/lib/vedicReportPolling';
+import { pollVedicReport, terminalReport, persistedReportTimings, vedicReportPercentage } from '../src/lib/vedicReportPolling';
 import type { VedicChartData, VedicReportProgress } from '../src/lib/api';
 import type * as Components from '../src/components/VedicReportProgress';
 
@@ -45,6 +45,31 @@ assert.equal(delay, 12000);
 stop();
 assert.ok(signal?.aborted);
 assert.equal(scheduled, undefined, 'Unmount cancels timer and request');
+assert.deepEqual([0, 1, 3, 4, 5, 9].map(vedicReportPercentage), [0, 11, 33, 44, 56, 100]);
+assert.equal(vedicReportPercentage(10), 100, 'Progress is capped at the nine report sections');
+let retryTimer: (() => void) | undefined;
+let retryDelay = 0;
+let retryCalls = 0;
+let retryFailures = 0;
+let recoveredCompletedSections = 0;
+const stopRetry = pollVedicReport(async () => {
+  retryCalls++;
+  if (retryCalls === 1) throw new Error('Temporary status outage');
+  return { ...progress, completedSections: 4 };
+}, value => { recoveredCompletedSections = value.completedSections; }, () => { retryFailures++; }, {
+  hidden: () => false,
+  schedule: (fn, ms) => { assert.equal(retryTimer, undefined); retryTimer = fn; retryDelay = ms; return 2; },
+  cancel: () => { retryTimer = undefined; },
+});
+await flush();
+assert.equal(retryFailures, 1);
+assert.equal(recoveredCompletedSections, 0, 'A failed GET does not overwrite the last confirmed progress');
+assert.equal(retryDelay, 3000, 'Status polling automatically reconnects after a temporary failure');
+const retryNow = retryTimer!; retryTimer = undefined; retryNow();
+await flush();
+assert.equal(retryCalls, 2);
+assert.equal(recoveredCompletedSections, 4, 'The next successful status refresh updates saved progress');
+stopRetry();
 for (const status of ['completed', 'partial_failed', 'failed'] as const) {
   assert.ok(terminalReport(status));
   const cancel = pollVedicReport(async () => ({ ...progress, reportStatus: status }), () => {}, () => assert.fail(), {
@@ -94,6 +119,33 @@ try {
     assert.match(html, /aria-busy="true"/);
     assert.match(html, /min-w-0/); assert.match(html, /break-words/);
     assert.match(html, language === 'en' ? /Completed/ : /已完成/);
+    assert.match(html, /aria-valuenow="33"/);
+    assert.match(html, language === 'en' ? /1–3 minutes/ : /1～3 分鐘/);
+    assert.match(html, language === 'en' ? /Leaving or closing the page will not stop the generation workflow/ : /已啟動的生成流程仍會繼續/);
+    const reconnecting = renderToStaticMarkup(React.createElement(VedicProgressiveReport, {
+      progress, language, onRetry: () => {}, retrying: null, reconnecting: true,
+    }));
+    assert.match(reconnecting, language === 'en' ? /Keeping the last confirmed progress and reconnecting/ : /保留上次確認的進度，正在重新連線/);
+    for (const [completedSections, expected] of [[0, 0], [1, 11], [4, 44], [5, 56]] as const) {
+      const percentHtml = renderToStaticMarkup(React.createElement(VedicProgressiveReport, {
+        progress: { ...progress, completedSections }, language, onRetry: () => {}, retrying: null,
+      }));
+      assert.match(percentHtml, new RegExp(`aria-valuenow="${expected}"`));
+    }
+    const completed = renderToStaticMarkup(React.createElement(VedicProgressiveReport, {
+      progress: {
+        ...progress, reportStatus: 'completed', completedSections: 9,
+        sections: Array.from({ length: 9 }, (_, index) => ({
+          ...progress.sections[0], key: `section-${index + 1}`, title: `Completed section ${index + 1}`,
+          content: { heading: `Completed section ${index + 1}`, consultation: `Saved interpretation ${index + 1}`, evidence: [] },
+        })),
+      },
+      language, onRetry: () => {}, retrying: null,
+    }));
+    assert.match(completed, /aria-valuenow="100"/);
+    assert.match(completed, language === 'en' ? /All nine readings are complete/ : /九大解析已完成/);
+    assert.match(completed, language === 'en' ? /Completed section 9/ : /最新完成的解析/);
+    assert.doesNotMatch(completed, language === 'en' ? /1–3 minutes/ : /1～3 分鐘/);
     const failed = renderToStaticMarkup(React.createElement(VedicProgressiveReport, {
       progress: { ...progress, reportStatus: 'partial_failed', sections: [...progress.sections.slice(0, 3),
         { ...progress.sections[3], status: 'failed', retryable: true }] },
