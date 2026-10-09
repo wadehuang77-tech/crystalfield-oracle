@@ -45,6 +45,13 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
 
 export type CheckoutLocale = 'en' | 'zh-TW';
 
+export function checkoutItemName(item: SpreadCatalogItem, locale: CheckoutLocale): string {
+  if (locale === 'en' && item.id === 'vedic_complete') {
+    return 'Vedic Astrology | Complete Life Map';
+  }
+  return item.name;
+}
+
 export function normalizeCheckoutLocale(value: unknown): CheckoutLocale {
   return value === 'en' || value === 'zh-TW' ? value : 'zh-TW';
 }

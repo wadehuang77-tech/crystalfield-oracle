@@ -64,6 +64,7 @@ try {
   const paid = renderToStaticMarkup(React.createElement(PaidOption, { ...option, language: 'en' }));
   assert.doesNotMatch(paid, chinese);
   assert.match(paid, /Complete Life Map/);
+  assert.match(paid, /Nine In-Depth Vedic Astrology Readings/);
   assert.match(paid, /NT\$699/);
   assert.match(paid, /NT\$999/);
   assert.match(paid, /Unlock this guidance/);

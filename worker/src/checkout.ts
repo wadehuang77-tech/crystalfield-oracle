@@ -2,6 +2,7 @@ import { signJwt, verifyJwt } from './auth';
 import {
   buildAioCheckOutForm,
   buildEcpayBrowserReturnUrls,
+  checkoutItemName,
   checkoutReturnPath,
   makeMerchantTradeNo,
   normalizeCheckoutReturnTo,
@@ -80,6 +81,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const returnTo = normalizeCheckoutReturnTo(body.return_to, locale);
   const item = SPREAD_CATALOG[body.spread_id];
   if (!item) return badRequest(req, env, '商品代號錯誤');
+  const itemName = checkoutItemName(item, locale);
   const isNumerologyCheckout = item.id.startsWith('numerology_');
   const isHumanDesignCheckout = item.id.startsWith('human_design_');
   const isVedicCheckout = item.id.startsWith('vedic_');
@@ -235,7 +237,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     return json(req, env, {
       order_id: orderId,
       merchant_trade_no: merchantTradeNo,
-      item_name: item.name,
+      item_name: itemName,
       amount: item.amount,
       ecpay: null,
       admin_unlocked: true,
@@ -272,8 +274,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     hashIV,
     merchantTradeNo,
     amount:          item.amount,
-    itemName:        item.name,
-    tradeDesc:       `晶域心語 — ${item.name}`,
+    itemName,
+    tradeDesc:       locale === 'en' ? `Crystal Field | ${itemName}` : `晶域心語 — ${item.name}`,
     returnURL:       `${apiOrigin}/api/ecpay-webhook`,
     clientBackURL:   browserReturnUrls.clientBackURL,
     orderResultURL:  browserReturnUrls.orderResultURL,
@@ -291,7 +293,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   return json(req, env, {
     order_id: orderId,
     merchant_trade_no: merchantTradeNo,
-    item_name: item.name,
+    item_name: itemName,
     amount: item.amount,
     ecpay: form,
     order_token: orderToken,
