@@ -49,7 +49,10 @@ for (const route of prerenderRoutes) {
   for (const [, json] of structuredData) {
     const parsed = JSON.parse(json.replaceAll('\\u003c', '<'));
     assert.ok(parsed && typeof parsed === 'object', `${route.path || '/'}: valid JSON-LD`);
-    assert.doesNotMatch(json, /AggregateRating|Review|datePublished|dateModified|"author"|"publisher"/i);
+    assert.doesNotMatch(
+      json,
+      /"@type"\s*:\s*"(?:AggregateRating|Review)"|"(?:datePublished|dateModified|author|publisher)"\s*:/i,
+    );
   }
 
   const expectedAlternate = route.alternatePath;
@@ -67,6 +70,91 @@ for (const route of prerenderRoutes) {
       );
     }
   }
+}
+
+const vedicLanding = JSON.parse(await readFile(
+  join(appDir, '..', 'src', 'data', 'vedic-astrology', 'landing.json'),
+  'utf8',
+));
+const vedicLandingChecks = [
+  {
+    path: 'vedic-astrology',
+    language: 'zh-Hant',
+    content: vedicLanding.zhHant,
+    headings: [
+      '印度占星是什麼？',
+      '吠陀占星（Vedic Astrology）',
+      '印度占星與西洋占星有何不同？',
+      '出生盤 D1 是什麼？',
+      'D9 Navamsa',
+      'D10 Dasamsa',
+      '月宿 Nakshatra 與 Pada',
+      'Vimshottari Dasha 大運系統',
+      '感情、婚姻、事業與財富',
+      '免費出生盤與付費九大深度解析有何差別？',
+      '如何取得自己的印度占星報告？',
+    ],
+    languageLinks: ['/', '/oracle', '/numerology', '/human-design'],
+  },
+  {
+    path: 'en/vedic-astrology',
+    language: 'en',
+    content: vedicLanding.en,
+    headings: [
+      'What Is Vedic Astrology (Jyotish)?',
+      'Vedic and Western Astrology',
+      'What Is the D1 Birth Chart?',
+      'D9 Navamsa: Relationships and Maturity',
+      'D10 Dasamsa: Career Themes',
+      'Nakshatra and Pada',
+      'Vimshottari Dasha Periods',
+      'Relationships, Marriage, Career, and Wealth',
+      'Free Birth Chart and Nine In-Depth Readings',
+      'How to Get Your Vedic Astrology Report',
+    ],
+    languageLinks: ['/en/', '/en/oracle', '/en/numerology', '/en/human-design'],
+  },
+];
+for (const { path, language, content, headings, languageLinks } of vedicLandingChecks) {
+  const html = htmlByPath.get(path);
+  assert.ok(html, `${path}: prerendered Vedic landing page required`);
+  const escaped = (value) => value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+  assert.ok(html.includes(`<title>${escaped(content.title)}</title>`), `${path}: requested SEO title`);
+  assert.ok(html.includes(`name="description" content="${escaped(content.description)}"`), `${path}: requested SEO description`);
+  assert.ok(html.includes(`<h1`) && html.includes(`>${escaped(content.h1)}</h1>`), `${path}: requested H1`);
+  for (const heading of headings) {
+    assert.ok(html.includes(heading), `${path}: visible section "${heading}"`);
+  }
+  for (const link of languageLinks) {
+    assert.ok(html.includes(`href="${link}"`), `${path}: server-rendered internal link to ${link}`);
+  }
+  assert.match(html, /<meta\s+property="og:title"/i, `${path}: Open Graph metadata`);
+  assert.match(html, /<meta\s+name="twitter:card"/i, `${path}: Twitter Card metadata`);
+
+  const [jsonLdBlock] = [...html.matchAll(/<script\s+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
+  const structuredData = JSON.parse(jsonLdBlock[1].replaceAll('\\u003c', '<'));
+  const structuredNodes = Array.isArray(structuredData) ? structuredData : [structuredData];
+  const webpage = structuredNodes.find((item) => item['@type'] === 'WebPage');
+  const breadcrumbs = structuredNodes.find((item) => item['@type'] === 'BreadcrumbList');
+  const faq = structuredNodes.find((item) => item['@type'] === 'FAQPage');
+  assert.equal(webpage?.inLanguage, language, `${path}: localized WebPage JSON-LD`);
+  assert.ok(breadcrumbs, `${path}: matching visible breadcrumb JSON-LD`);
+  assert.deepEqual(
+    breadcrumbs.itemListElement.map(({ name }) => name),
+    language === 'en' ? ['Home', 'Vedic Astrology'] : ['首頁', '印度占星'],
+    `${path}: BreadcrumbList matches the visible breadcrumb labels`,
+  );
+  assert.ok(faq, `${path}: FAQPage only for visible FAQs`);
+  assert.deepEqual(
+    faq.mainEntity.map(({ name, acceptedAnswer }) => [name, acceptedAnswer.text]),
+    content.faq,
+    `${path}: FAQ JSON-LD matches visible FAQ copy`,
+  );
+  assert.doesNotMatch(html.match(/<div id="root"[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? '', /\b(?:birth_date|birth_time|birth_place|chart_id|chart_token|order_token)\b/i, `${path}: no private chart or order data`);
 }
 
 const sitemap = await readFile(join(distDir, 'sitemap.xml'), 'utf8');

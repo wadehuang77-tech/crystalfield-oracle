@@ -371,9 +371,9 @@ export const translations = {
       unlockFree: 'Enter your email to unlock the free report', viewFreeReport: 'View Free Report', channels: 'Key channels detected',
     },
     vedic: {
-      eyebrow: 'Vedic Astrology · A Map for Reflection',
-      title: 'Free Vedic Astrology Chart: Explore Your Birth Chart and Life Cycles',
-      description: 'Enter your date, accurate birth time, and birthplace to create a Vedic chart. Explore your ascendant, planets, lunar mansion, and life cycles as perspectives for self-reflection.',
+      eyebrow: 'Vedic Astrology · Kundli, Nakshatra & Dasha',
+      title: 'Vedic Astrology Birth Chart & Personalized Insights',
+      description: 'Explore a Vedic astrology birth chart, ascendant, nine planets, Nakshatra, Pada, Dasha, relationships, career, and wealth themes. Enter your birth details to create a chart, with optional AI-powered in-depth readings.',
       formTitle: 'Enter Your Birth Details', accuracy: 'A more accurate birth time supports more reliable ascendant and house calculations.',
       birthDate: 'Date of Birth', birthTime: 'Time of Birth', birthHour: 'Hour', birthMinute: 'Minute',
       timeHint: 'Use the 24-hour clock. For example, select 20:30 for 8:30 PM.',

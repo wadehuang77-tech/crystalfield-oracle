@@ -56,6 +56,7 @@ const renderApp = (path) => renderToString(createElement(
 const renderedRoot = (path) => `<div id="root" data-prerendered="true" data-prerender-year="${renderYear}">${renderApp(path)}</div>`;
 const articleData = JSON.parse(await readFile(join(appDir, '..', 'src', 'data', 'human-design', 'articles.json'), 'utf8'));
 const vedicArticleData = JSON.parse(await readFile(join(appDir, '..', 'src', 'data', 'vedic-astrology', 'articles.json'), 'utf8'));
+const vedicLandingContent = JSON.parse(await readFile(join(appDir, '..', 'src', 'data', 'vedic-astrology', 'landing.json'), 'utf8'));
 const generatedPaths = [];
 const pages = [
   ['', '晶域心語｜塔羅、生命靈數、人類圖與印度占星', '晶域心語結合塔羅牌占卜、生命靈數、人類圖與印度占星，提供自我探索工具，協助你整理當下課題、個人天賦與人生方向。', '晶域心語', '晶域心語是一個結合塔羅牌占卜、生命靈數、人類圖與印度占星的自我探索平台，協助使用者理解當下課題、個人天賦、能量特質與人生方向。'],
@@ -69,7 +70,7 @@ const pages = [
   ['osho', '奧修禪卡線上占卜｜覺察情緒與內在狀態｜晶域心語', '透過奧修禪卡單張與三張牌陣，覺察目前情緒、內在卡點及生命狀態，從當下意識中找到更清楚的行動方向。', '奧修禪卡', '奧修禪卡把注意力帶回當下，適合覺察目前情緒、內在卡點與生命狀態。單張牌用於即時觀察，三張牌可從過去、現在、未來或身心靈角度整理意識。'],
   ['numerology', '免費生命靈數｜生日數字、缺失數與流年解析｜晶域心語', '輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，進一步探索缺失數字、感情模式、事業方向、個人流年及適合的水晶能量。', '免費生命靈數計算：從生日探索天賦、缺失數字與人生方向', '輸入出生日期進行生命靈數計算，了解生日數字、基礎天賦、缺失數字與個人流年，並將數字自我探索與水晶能量建議整合參考。'],
   ['human-design', '免費人類圖計算｜能量類型、人生角色與內在權威｜晶域心語', '輸入出生年月日、出生時間與地點，免費查看人類圖能量類型、人生角色、策略、內在權威與定義，探索適合自己的決策方式、天賦及生命節奏。', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。'],
-  ['vedic-astrology', '免費印度占星命盤｜前世業力、人生使命與未來運勢｜晶域心語', '輸入出生年月日、時間與地點，免費查看印度占星出生盤、上升、行星、月宿與大運指引，進一步探索前世業力、人生使命、感情、財富、事業及未來3～5年趨勢。', '免費印度占星命盤：探索前世業力、人生使命與未來趨勢', '輸入出生年月日、準確出生時間與出生地點，建立你的印度占星出生盤，查看上升、行星、月宿與人生週期，從前世業力、今生課題、感情、財富、事業及未來趨勢理解自己的生命方向。'],
+  ['vedic-astrology', vedicLandingContent.zhHant.title, vedicLandingContent.zhHant.description, vedicLandingContent.zhHant.h1, vedicLandingContent.zhHant.intro],
 ];
 for (const [slug, article] of Object.entries(articleData)) {
   pages.push([
@@ -132,8 +133,18 @@ for (const route of chineseRoutes) {
   const jsonLd = [
     { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'zh-Hant' },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: '晶域心語', item: pageUrl('oracle') },
-      { '@type': 'ListItem', position: 2, name: h1, item: canonical },
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: path === 'vedic-astrology' ? '首頁' : '晶域心語',
+        item: pageUrl(path === 'vedic-astrology' ? '' : 'oracle'),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: path === 'vedic-astrology' ? '印度占星' : h1,
+        item: canonical,
+      },
     ] },
   ];
   if (path === 'numerology') {
@@ -162,22 +173,11 @@ for (const route of chineseRoutes) {
     );
   }
   if (path === 'vedic-astrology') {
-    const faq = [
-      ['印度占星是什麼？', '印度占星也常稱為吠陀占星或 Vedic Astrology，是以出生日期、時間與地點建立星盤，整理生命週期與自我探索方向的文化性占星系統。'],
-      ['印度占星和西洋占星有什麼不同？', '兩者使用的黃道系統、星座位置與判讀方法可能不同；印度占星通常也重視月宿、羅喉與計都、大運週期，以及 D9、D10 分盤。'],
-      ['印度占星需要哪些出生資料？', '需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響上升、宮位與分盤。'],
-      ['不知道準確出生時間可以計算嗎？', '可以先整理可確認的資料，但結果應保留不確定性；請查閱出生證明或戶籍資料，不要自行捏造出生時間。'],
-      ['什麼是羅喉與計都？', '計都可作為熟悉模式與過去慣性的象徵，羅喉可作為今生成長方向的象徵；兩者需要放在完整星盤中一起觀察。'],
-      ['什麼是印度占星大運？', '大運用來整理不同人生階段的主題，次週期提供更細的時間層次，仍需結合本命盤與當下行運，不代表事件必然發生。'],
-      ['什麼是月宿 Nakshatra？', '月宿 Nakshatra 是將黃道細分後觀察月亮位置的系統，可作為理解情緒反應、傾向與生命節奏的參考。'],
-      ['D9 九分盤可以看什麼？', 'D9 九分盤可用來觀察婚姻、承諾、價值與生命成熟度，但需要可靠出生時間，並與 D1 本命盤一起判讀。'],
-      ['D10 十分盤可以看什麼？', 'D10 十分盤可用來觀察職涯、社會角色、責任與專業發展，不應脫離 D1 本命盤單獨下結論。'],
-      ['印度占星可以看前世嗎？', '前世業力是占星象徵與自我探索的語言，不能當成已被證實的歷史事實。'],
-      ['印度占星可以預測未來嗎？', '印度占星可用來整理週期與可能的主題，不能保證特定事件一定發生，也不取代現實判斷。'],
-      ['晶域心語有哪些印度占星內容可以免費查看？', '入口會先建立星盤並提供免費指引；完整深度解析的內容範圍依網站現有解鎖設定顯示。'],
-      ['我的出生資料會被公開嗎？', '出生資料不會放入公開 SEO 內容或 Sitemap；實際保存與分享依網站登入、授權及隱私政策機制處理。'],
-      ['印度占星可以代替醫療、心理、法律或財務建議嗎？', '不可以。印度占星適合自我覺察與生命週期整理，相關專業問題請尋求合格專業人士協助。'],
-    ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
+    const faq = vedicLandingContent.zhHant.faq.map(([name, text]) => ({
+      '@type': 'Question',
+      name,
+      acceptedAnswer: { '@type': 'Answer', text },
+    }));
     jsonLd.push(
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
     );
@@ -274,7 +274,7 @@ const englishPages = [
   ['osho', 'Osho Zen Tarot Reading | Crystal Field', 'Choose a single-card or three-card Osho Zen Tarot spread to reflect on your present state of mind.', 'Osho Zen Tarot', 'Reflect on the present moment, your inner state, and the choices available to you.'],
   ['numerology', 'Free Numerology Reading | Crystal Field', 'Enter your birth date to explore your life path number, strengths, missing numbers, personal-year themes, and crystal associations.', 'Free Numerology Reading', 'Explore your numbers as prompts for reflecting on strengths, life themes, and direction.'],
   ['human-design', 'Free Human Design Chart | Crystal Field', 'Create a Human Design chart from your birth date, time, and place. Explore your Type, Profile, Strategy, and Inner Authority.', 'Free Human Design Chart', 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.'],
-  ['vedic-astrology', 'Free Vedic Astrology Birth Chart | Crystal Field', 'Create a Vedic astrology birth chart and explore your ascendant, planetary placements, lunar mansion, and life cycles.', 'Free Vedic Astrology Chart', 'Explore chart placements and life cycles as perspectives for self-reflection.'],
+  ['vedic-astrology', vedicLandingContent.en.title, vedicLandingContent.en.description, vedicLandingContent.en.h1, vedicLandingContent.en.intro],
 ];
 
 const englishPagesBySlug = new Map(englishPages.map((page) => [page[0], page]));
@@ -292,10 +292,28 @@ for (const route of englishRoutes) {
   const jsonLd = [
     { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: 'en' },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Crystal Field', item: pageUrl('en/oracle') },
-      { '@type': 'ListItem', position: 2, name: h1, item: canonical },
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: path === 'en/vedic-astrology' ? 'Home' : 'Crystal Field',
+        item: pageUrl(path === 'en/vedic-astrology' ? 'en' : 'en/oracle'),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: path === 'en/vedic-astrology' ? 'Vedic Astrology' : h1,
+        item: canonical,
+      },
     ] },
   ];
+  if (path === 'en/vedic-astrology') {
+    const faq = vedicLandingContent.en.faq.map(([name, text]) => ({
+      '@type': 'Question',
+      name,
+      acceptedAnswer: { '@type': 'Answer', text },
+    }));
+    jsonLd.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq });
+  }
   const head = `
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
