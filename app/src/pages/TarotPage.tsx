@@ -99,6 +99,14 @@ const CELTIC_CROSS_POSITIONS_EN = [
   'Present Situation', 'Challenge / Obstacle', 'Root / Past', 'Recent Past', 'Possible Future',
   'Near Future', 'Inner Attitude', 'External Influences', 'Hopes / Fears', 'Potential Outcome',
 ] as const;
+const CELTIC_CROSS_LAYOUT_POSITIONS = [
+  '現況', '挑戰', '根源', '過去', '目標',
+  '未來', '自己', '環境', '希望/恐懼', '結果',
+] as const;
+const CELTIC_CROSS_LAYOUT_POSITIONS_EN = [
+  'Present', 'Challenge', 'Root', 'Past', 'Goal',
+  'Future', 'Self', 'Environment', 'Hopes / Fears', 'Outcome',
+] as const;
 const PAST_LIFE_POSITIONS_EN = [
   'Past-Life Identity', 'A Defining Event', 'Its Lasting Influence', 'Patterns in This Life',
   'Recurring Patterns', 'What to Release', 'Reflection and Healing',
@@ -618,26 +626,17 @@ function TarotPage() {
               {spreadType === 'celtic' && (
                 <div className="max-w-3xl mx-auto mb-8 px-1 sm:px-4">
                   <div className="grid grid-cols-5 gap-x-1.5 gap-y-5 sm:gap-x-4 sm:gap-y-6">
-                    {[
-                      { pos: 1, name: '現況' },
-                      { pos: 2, name: '挑戰' },
-                      { pos: 3, name: '根源' },
-                      { pos: 4, name: '過去' },
-                      { pos: 5, name: '目標' },
-                      { pos: 6, name: '未來' },
-                      { pos: 7, name: '自己' },
-                      { pos: 8, name: '環境' },
-                      { pos: 9, name: '希望/恐懼' },
-                      { pos: 10, name: '結果' }
-                    ].map((card) => (
-                      <div key={card.pos} className="min-w-0 flex flex-col items-center gap-1.5 sm:gap-2">
+                    {CELTIC_CROSS_LAYOUT_POSITIONS_EN.map((englishPosition, index) => (
+                      <div key={index} className="min-w-0 flex flex-col items-center gap-1.5 sm:gap-2">
                         <div className="relative w-full max-w-[5.5rem] sm:max-w-[6.5rem] aspect-[2/3] bg-slate-800/80 border border-orange-500/30 rounded-md sm:rounded-lg shadow-md flex items-center justify-center">
                           <span className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-orange-600/80 rounded-full text-[10px] sm:text-xs font-bold border border-orange-300/60 shadow">
-                            {card.pos}
+                            {index + 1}
                           </span>
                           <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400/30" />
                         </div>
-                        <p className="min-h-[1.75rem] text-[9px] sm:text-xs text-orange-100 text-center leading-tight break-keep">{card.name}</p>
+                        <p className="min-h-[1.75rem] text-[9px] sm:text-xs text-orange-100 text-center leading-tight break-keep">
+                          {isEnglish ? englishPosition : CELTIC_CROSS_LAYOUT_POSITIONS[index]}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -646,15 +645,7 @@ function TarotPage() {
 
               {spreadType === 'pastlife' && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-w-5xl mx-auto mb-8">
-                  {[
-                    '前世身份能量',
-                    '前世關鍵事件',
-                    '帶來的影響',
-                    '今生呈現的問題',
-                    '重複的模式',
-                    '靈魂要釋放的',
-                    '解鎖與療癒方式'
-                  ].map((position, index) => (
+                  {(isEnglish ? PAST_LIFE_POSITIONS_EN : PAST_LIFE_POSITIONS).map((position, index) => (
                     <div key={index} className="bg-slate-800/80 border border-orange-500/30 rounded-lg p-3">
                       <div className="flex flex-col items-center gap-2">
                         <span className="flex items-center justify-center w-7 h-7 bg-orange-600/50 rounded-full text-xs font-bold border border-orange-400/50">
