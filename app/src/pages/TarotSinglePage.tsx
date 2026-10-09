@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { RotateCcw, Sparkles } from 'lucide-react';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -45,6 +46,8 @@ interface DrawnCard {
 }
 
 function TarotSinglePage() {
+  const language = useRouteLanguage();
+  const isEnglish = language === 'en';
   const [deck, setDeck] = useState<CardPreview[] | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
   const [drawnCard, setDrawnCard] = useState<DrawnCard | null>(null);
@@ -129,6 +132,7 @@ function TarotSinglePage() {
     cardKey: drawnCard?.preview.card_key ?? null,
     reversed: drawnCard?.isReversed,
     enabled: !!(hasDrawn && revealed && drawnCard && !drawnCard.unlocked),
+    language,
   });
 
   useEffect(() => {
@@ -177,7 +181,7 @@ function TarotSinglePage() {
           <div className="flex justify-end mb-6">
             <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-orange-500/30 rounded-xl hover:bg-slate-700/60 hover:border-orange-400/50 transition-all text-orange-200 !text-xs">
               <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-              重新抽牌
+              {isEnglish ? 'Draw Again' : '重新抽牌'}
             </button>
           </div>
         )}
@@ -205,14 +209,14 @@ function TarotSinglePage() {
             >
               <span className="flex items-center gap-3">
                 <Sparkles className="w-6 h-6 animate-pulse" />
-                {deck ? '抽取你的牌卡' : '載入牌組中…'}
+                {deck ? (isEnglish ? 'Draw a Card' : '抽取你的牌卡') : (isEnglish ? 'Loading cards…' : '載入牌組中…')}
                 <Sparkles className="w-6 h-6 animate-pulse" />
               </span>
             </button>
           </div>
         )}
 
-        {isDrawing && <CardShuffleAnimation />}
+        {isDrawing && <CardShuffleAnimation message={isEnglish ? 'Revealing your card…' : undefined} />}
 
         {hasDrawn && drawnCard && (
           <div className={`transition-all duration-700 ${revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>

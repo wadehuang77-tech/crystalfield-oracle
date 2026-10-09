@@ -14,7 +14,7 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
-import { localizeCardLabel, t } from '../lib/i18n';
+import { getLocalizedPath, localizeCardLabel, t } from '../lib/i18n';
 
 interface LightworkerGated {
   cosmicMessage: string;
@@ -72,7 +72,7 @@ function LightworkerPage() {
   };
 
   const handleCelticCrossClick = () => {
-    navigate('/lightworker/celtic-cross');
+    navigate(getLocalizedPath('/lightworker/celtic-cross', language));
   };
 
   const reset = () => {
@@ -227,20 +227,20 @@ function LightworkerPage() {
                 disabled={!deck || deck.length === 0}
                 className="px-10 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl hover:from-cyan-500 hover:to-blue-500 transition-all shadow-xl hover:shadow-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium"
               >
-                {deck ? '抽 牌' : '載 入 中'}
+                {deck ? (language === 'en' ? 'Draw a Card' : '抽 牌') : (language === 'en' ? 'Loading…' : '載 入 中')}
               </button>
               <button
                 onClick={reset}
                 className="px-8 py-3 bg-slate-800/60 border-2 border-cyan-500/30 rounded-xl hover:bg-slate-700/60 hover:border-cyan-400/50 transition-all text-cyan-200 inline-flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
-                返 回
+                {language === 'en' ? 'Back' : '返 回'}
               </button>
             </div>
           </section>
         )}
 
-        {isShuffling && <CardShuffleAnimation message="連 接 高 我 中" />}
+        {isShuffling && <CardShuffleAnimation message={language === 'en' ? 'Connecting with your inner wisdom…' : '連 接 高 我 中'} />}
 
         {drawnPreview && hasDrawn && (
           <section className="max-w-3xl mx-auto space-y-10">
@@ -356,7 +356,7 @@ function LightworkerPage() {
                 className="px-8 py-3 bg-slate-800/60 border-2 border-cyan-500/30 rounded-xl hover:bg-slate-700/60 hover:border-cyan-400/50 transition-all text-cyan-200 inline-flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
-                重 新 抽 牌
+                {language === 'en' ? 'Draw Again' : '重 新 抽 牌'}
               </button>
             </div>
           </section>

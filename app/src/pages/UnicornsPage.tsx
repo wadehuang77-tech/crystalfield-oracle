@@ -21,7 +21,7 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
-import { localizeCardLabel, t } from '../lib/i18n';
+import { getLocalizedPath, localizeCardLabel, t } from '../lib/i18n';
 
 const SPREAD_ID = 'unicorns_three';
 
@@ -104,11 +104,11 @@ export default function UnicornsPage() {
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
         TAROT_SUBSCRIPTION.id,
       );
-      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
-      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
-      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
+      if (admin_unlocked) { navigate(`${getLocalizedPath('/checkout/return', language)}?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError(language === 'en' ? 'Checkout details are unavailable. Please try again.' : '結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError(language === 'en' ? 'Could not open the payment page. Please try again.' : '跳轉至綠界失敗'); setIsCheckingOut(false); });
     } catch (err) {
-      setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
+      setUnlockError(language === 'en' ? 'Checkout failed. Please try again.' : err instanceof Error ? err.message : '結帳失敗,請稍後再試');
       setIsCheckingOut(false);
     }
   };
@@ -169,17 +169,17 @@ export default function UnicornsPage() {
       try {
         const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== SPREAD_ID) {
-          setRestoreReason(`此訂單是 ${order.item_id},不是 ${SPREAD_ID}`);
+          setRestoreReason(language === 'en' ? `This order is for ${order.item_id}, not ${SPREAD_ID}.` : `此訂單是 ${order.item_id},不是 ${SPREAD_ID}`);
           setRestoreState('error');
           return;
         }
         if (order.status !== 'paid') {
-          setRestoreReason(`訂單狀態為 ${order.status},非 paid`);
+          setRestoreReason(language === 'en' ? `Order status is ${order.status}, not paid.` : `訂單狀態為 ${order.status},非 paid`);
           setRestoreState('error');
           return;
         }
         if (!order.picks) {
-          setRestoreReason('訂單沒有 picks 資料');
+          setRestoreReason(language === 'en' ? 'This order has no saved card picks.' : '訂單沒有 picks 資料');
           setRestoreState('error');
           return;
         }
@@ -188,7 +188,7 @@ export default function UnicornsPage() {
           .filter((c): c is CardPreview => !!c)
           .map((preview) => ({ preview, unlocked: null }));
         if (slots.length !== order.picks.length) {
-          setRestoreReason(`牌組對不上:訂單 ${order.picks.length} 張,但只在牌組找到 ${slots.length} 張`);
+          setRestoreReason(language === 'en' ? `The saved cards do not match this deck: expected ${order.picks.length}, found ${slots.length}.` : `牌組對不上:訂單 ${order.picks.length} 張,但只在牌組找到 ${slots.length} 張`);
           setRestoreState('error');
           return;
         }
@@ -199,7 +199,7 @@ export default function UnicornsPage() {
 
         try {
           const picks = slots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
-          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id, orderToken);
+          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id, orderToken, language);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setDrawnCards((prev) => prev.map((s) => ({
             ...s,
@@ -207,7 +207,7 @@ export default function UnicornsPage() {
           })));
           setIsLocallyUnlocked(true);
         } catch (err) {
-          setUnlockError(err instanceof Error ? err.message : '解鎖失敗,請稍後再試');
+          setUnlockError(language === 'en' ? 'Could not restore the reading. Please try again.' : err instanceof Error ? err.message : '解鎖失敗,請稍後再試');
         }
         setRestoreState('done');
       } catch (e) {
@@ -215,7 +215,7 @@ export default function UnicornsPage() {
         setRestoreState('error');
       }
     })();
-  }, [searchParams, deck]);
+  }, [searchParams, deck, language]);
 
   const singleGate = useSingleCardGate({
     spreadId: 'unicorns_single',
@@ -239,6 +239,7 @@ export default function UnicornsPage() {
     spreadId: SPREAD_ID,
     picks: threePicks,
     enabled: spreadType === 'three' && drawnCards.length === 3 && !isLocallyUnlocked,
+    language,
   });
 
   useEffect(() => {
@@ -346,15 +347,15 @@ export default function UnicornsPage() {
           )}
 
           {showCardLayout && drawnCards.length === 0 && !isDrawing && spreadType === 'single' && (
-            <DrawPrep onDraw={drawSingleCard} onCancel={resetDraw} disabled={!deck} />
+            <DrawPrep onDraw={drawSingleCard} onCancel={resetDraw} disabled={!deck} language={language} />
           )}
 
           {showCardLayout && drawnCards.length === 0 && !isDrawing && spreadType === 'three' && (
             <section className="max-w-2xl mx-auto text-center py-8">
 
-              <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">三 張 牌 陣</h2>
+              <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">{language === 'en' ? 'Three-Card Spread' : '三 張 牌 陣'}</h2>
               <p className="text-sm text-pink-300/85 leading-loose mb-12">
-                獨角獸將引領你看見過去、現在與未來的魔法連結
+                {language === 'en' ? 'Let the unicorns guide you through the magical connections between your past, present, and future.' : '獨角獸將引領你看見過去、現在與未來的魔法連結'}
               </p>
               <div className="flex justify-center mb-12 gap-4">
                 {[0, 1, 2].map((i) => (
@@ -367,28 +368,28 @@ export default function UnicornsPage() {
               </div>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button onClick={performThreeCardDraw} disabled={!deck} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-medium rounded-xl shadow-lg hover:shadow-pink-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                  抽 牌
+                  {language === 'en' ? 'Draw Cards' : '抽 牌'}
                 </button>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                  返 回
+                  {language === 'en' ? 'Back' : '返 回'}
                 </button>
               </div>
             </section>
           )}
 
-          {isDrawing && <CardShuffleAnimation />}
+          {isDrawing && <CardShuffleAnimation message={language === 'en' ? 'Unicorn magic is gathering…' : undefined} />}
 
           {drawnCards.length > 0 && (
             <section className="max-w-3xl mx-auto space-y-10">
 
               <div className="text-center">
                 <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">
-                  {spreadType === 'three' ? '三 張 牌 陣 指 引' : '此 刻 指 引'}
+                  {spreadType === 'three' ? (language === 'en' ? 'Three-Card Guidance' : '三 張 牌 陣 指 引') : (language === 'en' ? 'Guidance for This Moment' : '此 刻 指 引')}
                 </h2>
                 <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
                   <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                  重 新 抽 牌
+                  {language === 'en' ? 'Draw Again' : '重 新 抽 牌'}
                 </button>
               </div>
 
@@ -403,13 +404,15 @@ export default function UnicornsPage() {
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                         {drawnCards.map((slot, index) => {
-                          const positions = ['過去', '現在', '未來'];
+                          const positions = language === 'en' ? ['Past', 'Present', 'Future'] : ['過去', '現在', '未來'];
                           const previewKw = (slot.preview.preview as { keywords?: string[] }).keywords ?? [];
                           return (
                             <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl !p-5">
                               <p className="text-pink-200 text-sm tracking-[0.4em] uppercase text-center mb-3">{positions[index]}</p>
-                              <h3 className="deck-name text-xl text-pink-100 text-center mb-1">{slot.preview.name}</h3>
-                              <p className="text-xs text-pink-400/80 text-center tracking-wider mb-3">{slot.preview.name_secondary}</p>
+                              <h3 className="deck-name text-xl text-pink-100 text-center mb-1">{language === 'en' ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name}</h3>
+                              {language !== 'en' && slot.preview.name_secondary && (
+                                <p className="text-xs text-pink-400/80 text-center tracking-wider mb-3">{slot.preview.name_secondary}</p>
+                              )}
                               {previewKw.length > 0 && (
                                 <div className="flex flex-wrap gap-1 justify-center mb-3">
                                   {previewKw.slice(0, 3).map((keyword, idx) => (
@@ -426,7 +429,7 @@ export default function UnicornsPage() {
                                   </p>
                                 </div>
                               )}
-                              <p className="mt-2 text-[0.65rem] text-pink-400/70 tracking-wide text-center">前 30% 預覽</p>
+                              <p className="mt-2 text-[0.65rem] text-pink-400/70 tracking-wide text-center">{language === 'en' ? '30% preview' : '前 30% 預覽'}</p>
                             </div>
                           );
                         })}
@@ -434,28 +437,29 @@ export default function UnicornsPage() {
                       {threeGate.phase === 'loading' && (
                         <div className="flex items-center justify-center gap-3 py-6 text-pink-300 text-sm tracking-wide">
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          解鎖中…
+                          {language === 'en' ? 'Unlocking…' : '解鎖中…'}
                         </div>
                       )}
                       {threeGate.phase === 'login_gate' && (
                         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 text-center space-y-5">
                           <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
-                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">登入後享有 3 次免費占卜</h3>
+                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">{language === 'en' ? 'Get 3 Free Readings After Signing In' : '登入後享有 3 次免費占卜'}</h3>
                           <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">
-                            登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。
+                            {language === 'en' ? 'Sign in to get 3 free readings across all decks. One free credit is used when you complete a full spread.' : '登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。'}
                           </p>
                           <InlineEmailUnlock
                             onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
                             readingType={SPREAD_ID}
                             theme="dark"
+                            language={language}
                           />
                         </div>
                       )}
                       {threeGate.phase === 'paywall' && (
                         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 text-center space-y-5">
                           <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
-                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.3em]">解鎖完整獨角獸訊息</h3>
-                          <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">展開三張牌的完整解讀，揭示過去、現在、未來的能量脈絡。</p>
+                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.3em]">{language === 'en' ? 'Unlock the Full Unicorn Reading' : '解鎖完整獨角獸訊息'}</h3>
+                          <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">{language === 'en' ? 'Explore the full interpretation of all three cards and reflect on the energies of your past, present, and future.' : '展開三張牌的完整解讀，揭示過去、現在、未來的能量脈絡。'}</p>
                           <OraclePricingPlans spreadId={SPREAD_ID} onSingleCheckout={handleCheckoutThree} singleLoading={isCheckingOut} error={unlockError} />
                         </div>
                       )}
@@ -464,19 +468,23 @@ export default function UnicornsPage() {
                     <div className="space-y-6">
                       <BundleCreditStatus spreadId={SPREAD_ID} remaining={threeGate.bundleRemaining} />
                       {drawnCards.map((slot, index) => {
-                        const labels = ['過去的能量根源', '當下的能量焦點', '未來的能量趨勢'];
-                        const sym = ['過', '現', '未'][index];
+                        const labels = language === 'en'
+                          ? ['Past Influences', 'Present Focus', 'Emerging Possibilities']
+                          : ['過去的能量根源', '當下的能量焦點', '未來的能量趨勢'];
+                        const sym = language === 'en' ? ['1', '2', '3'][index] : ['過', '現', '未'][index];
                         const g = (slot.unlocked!.gated as unknown as UnicornGated);
                         return (
                           <div key={slot.preview.id} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 shadow-xl">
                             <div className="flex items-center gap-4 mb-5 pb-4 border-b border-pink-500/15">
                               <div className="chapter-glyph text-3xl">{sym}</div>
-                              <h3 className="deck-name text-xl text-pink-100">{labels[index]} — {slot.preview.name}</h3>
+                              <h3 className="deck-name text-xl text-pink-100">{labels[index]} — {language === 'en' ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name}</h3>
                             </div>
                             <div className="space-y-4">
                               {POINTS_LABELS.slice(0, 5).map(([k, label]) => (
                                 <div key={k}>
-                                  <h4 className="text-pink-200 text-sm tracking-[0.4em] uppercase mb-2">{label}</h4>
+                                  <h4 className="text-pink-200 text-sm tracking-[0.4em] uppercase mb-2">{language === 'en'
+                                    ? ['Card Symbols', 'Core Message', 'Energy', 'Life Theme', 'Practical Guidance', 'Healing Reflection', 'Personal Growth'][POINTS_LABELS.findIndex(([key]) => key === k)]
+                                    : label}</h4>
                                   <p className="text-sm text-pink-200/85 leading-loose">{g[k]}</p>
                                 </div>
                               ))}
@@ -570,14 +578,15 @@ export default function UnicornsPage() {
 
               <ShareReadingSection
                 deckId="unicorns"
-                deckName="獨角獸塔羅"
-                spreadName={spreadType === 'three' ? '三張牌陣' : '單張牌陣'}
+                deckName={language === 'en' ? 'Unicorn Oracle' : '獨角獸塔羅'}
+                spreadName={spreadType === 'three' ? (language === 'en' ? 'Three-Card Spread' : '三張牌陣') : (language === 'en' ? 'Single-Card Reading' : '單張牌陣')}
                 cards={drawnCards.map((slot, index) => ({
                   cardKey: slot.preview.card_key,
-                  name: slot.preview.name,
-                  position: spreadType === 'three' ? ['過去', '現在', '未來'][index] : undefined,
+                  name: language === 'en' ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name,
+                  position: spreadType === 'three' ? (language === 'en' ? ['Past', 'Present', 'Future'][index] : ['過去', '現在', '未來'][index]) : undefined,
                 }))}
-                summary={drawnCards[0]?.preview.preview_excerpt || '獨角獸正在提醒你，你本來的樣子就很有力量。'}
+                summary={drawnCards[0]?.preview.preview_excerpt || (language === 'en' ? 'The unicorns remind you that your own nature already holds strength.' : '獨角獸正在提醒你，你本來的樣子就很有力量。')}
+                language={language}
                 deepAnalysis={{
                   deckId: 'unicorns',
                   spreadId: spreadType === 'three' ? 'unicorns_three' : 'unicorns_single',
@@ -621,7 +630,7 @@ export default function UnicornsPage() {
           </p>
           <button onClick={() => setShowDrawPage(true)} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
             <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-            返 回 抽 牌
+            {language === 'en' ? 'Back to Reading' : '返 回 抽 牌'}
           </button>
         </section>
 
@@ -750,12 +759,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function DrawPrep({ onDraw, onCancel, disabled }: { onDraw: () => void; onCancel: () => void; disabled: boolean }) {
+function DrawPrep({ onDraw, onCancel, disabled, language }: { onDraw: () => void; onCancel: () => void; disabled: boolean; language: 'zh-Hant' | 'en' }) {
   return (
     <section className="max-w-2xl mx-auto text-center py-8">
-      <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
+      <h2 className="font-serif text-3xl text-pink-100 tracking-[0.3em] mb-5">{language === 'en' ? 'Prepare to Draw' : '準 備 抽 牌'}</h2>
       <p className="text-sm sm:text-base text-pink-300/85 mb-12 leading-loose">
-        閉上眼睛,感受獨角獸的魔法能量,當你準備好時點擊下方按鈕
+        {language === 'en' ? 'Close your eyes and connect with the unicorns’ magic. Draw when you feel ready.' : '閉上眼睛,感受獨角獸的魔法能量,當你準備好時點擊下方按鈕'}
       </p>
       <div className="flex justify-center mb-12">
         <div className="w-44 sm:w-56">
@@ -766,11 +775,11 @@ function DrawPrep({ onDraw, onCancel, disabled }: { onDraw: () => void; onCancel
       </div>
       <div className="flex flex-col sm:flex-row justify-center gap-4">
         <button onClick={onDraw} disabled={disabled} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-medium rounded-xl shadow-lg hover:shadow-pink-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-          抽 牌
+          {language === 'en' ? 'Draw a Card' : '抽 牌'}
         </button>
         <button onClick={onCancel} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-pink-500/30 rounded-xl hover:bg-slate-700/60 hover:border-pink-400/50 transition-all text-pink-200">
           <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-          返 回
+          {language === 'en' ? 'Back' : '返 回'}
         </button>
       </div>
     </section>

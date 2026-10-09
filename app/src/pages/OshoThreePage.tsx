@@ -16,6 +16,8 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
+import { getLocalizedPath } from '../lib/i18n';
 
 const SPREAD_ID = 'osho_three';
 
@@ -42,6 +44,8 @@ interface ThreeCardReading {
 
 export default function OshoThreePage() {
   const navigate = useNavigate();
+  const language = useRouteLanguage();
+  const isEnglish = language === 'en';
   const [searchParams] = useSearchParams();
   const { cards: deck, error: deckError } = useDeck('osho');
   const [reading, setReading] = useState<ThreeCardReading | null>(null);
@@ -96,7 +100,7 @@ export default function OshoThreePage() {
       try {
         const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== SPREAD_ID || order.status !== 'paid' || !order.picks) {
-          setUnlockError('無法還原此訂單(item_id/status/picks 不符)');
+          setUnlockError(isEnglish ? 'This paid order could not be restored.' : '無法還原此訂單(item_id/status/picks 不符)');
           return;
         }
         const find = (pos: number): CardPreview | undefined => {
@@ -108,7 +112,7 @@ export default function OshoThreePage() {
         const outer = find(2);
         const integration = find(3);
         if (!inner || !outer || !integration) {
-          setUnlockError('牌組對不上,無法還原');
+          setUnlockError(isEnglish ? 'The saved cards could not be matched to this deck.' : '牌組對不上,無法還原');
           return;
         }
         const baseReading: ThreeCardReading = {
@@ -124,14 +128,19 @@ export default function OshoThreePage() {
             { card_key: outer.card_key,       position: 2 },
             { card_key: integration.card_key, position: 3 },
           ];
-          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id, orderToken);
+          const unlocked = await unlockSpreadCards(SPREAD_ID, picks, order.id, orderToken, language);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           const synth = (slot: { preview: CardPreview }): FullCard | null => {
             const u = byKey.get(slot.preview.card_key);
             if (!u) return null;
             const m = (u.gated as { meanings?: OshoMeanings }).meanings;
             if (!m) return null;
-            return { card_key: slot.preview.card_key, name: u.name, subtitle: u.name_secondary ?? '', meanings: m };
+            return {
+              card_key: slot.preview.card_key,
+              name: isEnglish ? u.name_secondary ?? u.name : u.name,
+              subtitle: isEnglish ? '' : u.name_secondary ?? '',
+              meanings: m,
+            };
           };
           setReading({
             inner:       { ...baseReading.inner,       full: synth(baseReading.inner) },
@@ -140,13 +149,13 @@ export default function OshoThreePage() {
           });
           setIsLocallyUnlocked(true);
         } catch (err) {
-          setUnlockError(err instanceof Error ? err.message : '解鎖失敗,請稍後再試');
+          setUnlockError(isEnglish ? 'Unable to unlock this reading. Please try again.' : err instanceof Error ? err.message : '解鎖失敗,請稍後再試');
         }
       } catch (e) {
-        setUnlockError(e instanceof Error ? `還原訂單失敗:${e.message}` : '還原訂單失敗');
+        setUnlockError(isEnglish ? 'Unable to restore this order. Please try again.' : e instanceof Error ? `還原訂單失敗:${e.message}` : '還原訂單失敗');
       }
     })();
-  }, [searchParams, deck]);
+  }, [searchParams, deck, isEnglish, language]);
 
   const handleCheckout = async () => {
     if (!reading || isCheckingOut) return;
@@ -156,11 +165,11 @@ export default function OshoThreePage() {
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
         TAROT_SUBSCRIPTION.id,
       );
-      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
-      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
-      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
+      if (admin_unlocked) { navigate(`${getLocalizedPath('/checkout/return', language)}?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError(isEnglish ? 'Checkout details are unavailable. Please try again.' : '結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError(isEnglish ? 'Could not open the payment page. Please try again.' : '跳轉至綠界失敗'); setIsCheckingOut(false); });
     } catch (err) {
-      setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
+      setUnlockError(isEnglish ? 'Checkout failed. Please try again.' : err instanceof Error ? err.message : '結帳失敗,請稍後再試');
       setIsCheckingOut(false);
     }
   };
@@ -175,6 +184,7 @@ export default function OshoThreePage() {
     spreadId: SPREAD_ID,
     picks,
     enabled: !!reading && !isLocallyUnlocked,
+    language,
   });
 
   const handleEmailUnlock = async (email: string) => {
@@ -190,7 +200,12 @@ export default function OshoThreePage() {
       if (!u) return null;
       const m = (u.gated as { meanings?: OshoMeanings }).meanings;
       if (!m) return null;
-      return { card_key: slot.preview.card_key, name: u.name, subtitle: u.name_secondary ?? '', meanings: m };
+      return {
+        card_key: slot.preview.card_key,
+        name: isEnglish ? u.name_secondary ?? u.name : u.name,
+        subtitle: isEnglish ? '' : u.name_secondary ?? '',
+        meanings: m,
+      };
     };
     setReading((current) => current ? {
       inner:       { ...current.inner,       full: synth(current.inner) },
@@ -198,7 +213,7 @@ export default function OshoThreePage() {
       integration: { ...current.integration, full: synth(current.integration) },
     } : null);
     setIsLocallyUnlocked(true);
-  }, [gate.unlockedCards]);
+  }, [gate.unlockedCards, isEnglish]);
 
   if (!reading && !isRevealing) {
     return (
@@ -206,39 +221,41 @@ export default function OshoThreePage() {
         <div className="max-w-4xl mx-auto p-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-serif mb-4 bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
-              三張牌陣
+              {isEnglish ? 'Three-Card Spread' : '三張牌陣'}
             </h1>
-            <p className="text-teal-200/80 text-lg mb-6">適合用於深度冥想或了解個人身心狀態</p>
+            <p className="text-teal-200/80 text-lg mb-6">
+              {isEnglish ? 'A reflective spread for meditation and exploring your inner state.' : '適合用於深度冥想或了解個人身心狀態'}
+            </p>
 
 
             <div className="max-w-2xl mx-auto space-y-4 text-left bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-6">
               <div className="flex items-start gap-3">
                 <span className="text-teal-300 font-bold text-lg">1.</span>
                 <div>
-                  <h3 className="text-teal-200 font-semibold mb-1">內在感受 (Inner)</h3>
-                  <p className="text-teal-100/70 text-sm">你的靈魂現在想告訴你什麼？</p>
+                  <h3 className="text-teal-200 font-semibold mb-1">{isEnglish ? 'Inner Experience' : '內在感受 (Inner)'}</h3>
+                  <p className="text-teal-100/70 text-sm">{isEnglish ? 'What might your inner self be asking you to notice?' : '你的靈魂現在想告訴你什麼？'}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <span className="text-cyan-300 font-bold text-lg">2.</span>
                 <div>
-                  <h3 className="text-cyan-200 font-semibold mb-1">外在表現 (Outer)</h3>
-                  <p className="text-cyan-100/70 text-sm">世界是如何看待你的，或是環境對你的影響。</p>
+                  <h3 className="text-cyan-200 font-semibold mb-1">{isEnglish ? 'Outer Expression' : '外在表現 (Outer)'}</h3>
+                  <p className="text-cyan-100/70 text-sm">{isEnglish ? 'How others may see you, or how your surroundings may affect you.' : '世界是如何看待你的，或是環境對你的影響。'}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <span className="text-teal-300 font-bold text-lg">3.</span>
                 <div>
-                  <h3 className="text-teal-200 font-semibold mb-1">整合建議 (Integration)</h3>
-                  <p className="text-teal-100/70 text-sm">如何平衡內外，達到中心點的寧靜。</p>
+                  <h3 className="text-teal-200 font-semibold mb-1">{isEnglish ? 'Integration' : '整合建議 (Integration)'}</h3>
+                  <p className="text-teal-100/70 text-sm">{isEnglish ? 'Consider how to balance inner and outer influences and find a sense of calm.' : '如何平衡內外，達到中心點的寧靜。'}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {deckError && <p className="text-center text-red-300 mb-6">{deckError}</p>}
+          {deckError && <p className="text-center text-red-300 mb-6">{isEnglish ? 'Unable to load the Osho deck. Please try again.' : deckError}</p>}
 
           <div className="flex flex-col items-center gap-8">
             <div className="flex gap-6 mb-8">
@@ -258,7 +275,7 @@ export default function OshoThreePage() {
             >
               <div className="flex items-center gap-3">
                 <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
-                <span className="text-xl font-medium">{deck ? '開始抽牌' : '載入牌組中…'}</span>
+                <span className="text-xl font-medium">{deck ? (isEnglish ? 'Draw Three Cards' : '開始抽牌') : (isEnglish ? 'Loading deck…' : '載入牌組中…')}</span>
                 <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
               </div>
             </button>
@@ -272,7 +289,7 @@ export default function OshoThreePage() {
   if (isRevealing) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900">
-        <CardShuffleAnimation message="禪　心　牌　陣　顯　現　中" />
+        <CardShuffleAnimation message={isEnglish ? 'Revealing your three-card reading' : '禪　心　牌　陣　顯　現　中'} />
       </div>
     );
   }
@@ -293,10 +310,10 @@ export default function OshoThreePage() {
     return (
       <div className={`bg-slate-800/60 backdrop-blur-sm border-2 ${borderClass} rounded-xl p-6`}>
         <div className="text-center mb-4">
-          <h3 className={`text-2xl font-serif ${titleColor} mb-1`}>{label}</h3>
-          <p className={`text-sm ${subColor} italic mb-3`}>{label_en}</p>
-          <h2 className={`text-3xl font-serif ${nameColor} mb-1`}>{slot.preview.name}</h2>
-          {slot.preview.name_secondary && (
+          <h3 className={`text-2xl font-serif ${titleColor} mb-1`}>{isEnglish ? label_en : label}</h3>
+          {!isEnglish && <p className={`text-sm ${subColor} italic mb-3`}>{label_en}</p>}
+          <h2 className={`text-3xl font-serif ${nameColor} mb-1`}>{isEnglish ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name}</h2>
+          {slot.preview.name_secondary && !isEnglish && (
             <p className={`${italicColor} italic text-sm`}>{slot.preview.name_secondary}</p>
           )}
         </div>
@@ -309,11 +326,11 @@ export default function OshoThreePage() {
                 </p>
               </div>
               <p className={`mt-3 text-[0.65rem] ${hintColor} tracking-wide text-center`}>
-                前 30% 預覽
+                {isEnglish ? '30% preview' : '前 30% 預覽'}
               </p>
             </>
           ) : (
-            <p className={`${hintColor} text-sm text-center`}>解鎖後可看完整解讀</p>
+            <p className={`${hintColor} text-sm text-center`}>{isEnglish ? 'Unlock to read the full interpretation' : '解鎖後可看完整解讀'}</p>
           )}
         </div>
       </div>
@@ -333,10 +350,10 @@ export default function OshoThreePage() {
     return (
       <div className={`bg-slate-800/60 backdrop-blur-sm border-2 ${borderClass} rounded-xl p-6`}>
         <div className="text-center mb-6">
-          <h3 className={`text-2xl font-serif ${titleColor} mb-1`}>{label}</h3>
-          <p className={`text-sm ${subColor} italic mb-3`}>{label_en}</p>
+          <h3 className={`text-2xl font-serif ${titleColor} mb-1`}>{isEnglish ? label_en : label}</h3>
+          {!isEnglish && <p className={`text-sm ${subColor} italic mb-3`}>{label_en}</p>}
           <h2 className={`text-3xl font-serif ${nameColor} mb-1`}>{full.name}</h2>
-          <p className={`${italicColor} italic text-sm`}>{full.subtitle}</p>
+          {!isEnglish && <p className={`${italicColor} italic text-sm`}>{full.subtitle}</p>}
         </div>
         <div className="space-y-4">
           {sections.map((s) => (
@@ -354,8 +371,8 @@ export default function OshoThreePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif mb-2 text-teal-100">你的三張牌陣</h1>
-          <p className="text-teal-300/70">內在與外在的整合之旅</p>
+          <h1 className="text-3xl font-serif mb-2 text-teal-100">{isEnglish ? 'Your Three-Card Reading' : '你的三張牌陣'}</h1>
+          <p className="text-teal-300/70">{isEnglish ? 'A journey of inner and outer integration' : '內在與外在的整合之旅'}</p>
         </div>
 
         {unlockError && (
@@ -367,35 +384,42 @@ export default function OshoThreePage() {
         {!isLocallyUnlocked ? (
           <div className="space-y-6 mb-8">
             <div className="grid lg:grid-cols-3 gap-8">
-              {previewSlot(reading.inner,       '內在感受', 'Inner',       'teal')}
-              {previewSlot(reading.outer,       '外在表現', 'Outer',       'cyan')}
+              {previewSlot(reading.inner,       '內在感受', 'Inner Experience',       'teal')}
+              {previewSlot(reading.outer,       '外在表現', 'Outer Expression',       'cyan')}
               {previewSlot(reading.integration, '整合建議', 'Integration', 'teal')}
             </div>
             {gate.phase === 'loading' && (
               <div className="flex items-center justify-center gap-3 py-6 text-teal-300 text-sm tracking-wide">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                解鎖中…
+                {isEnglish ? 'Unlocking your reading…' : '解鎖中…'}
               </div>
             )}
             {gate.phase === 'login_gate' && (
               <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8 text-center space-y-5">
                 <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
-                <h3 className="font-serif text-2xl text-teal-100">登入後享有 3 次免費占卜</h3>
+                <h3 className="font-serif text-2xl text-teal-100">{isEnglish ? 'Sign in for 3 free readings' : '登入後享有 3 次免費占卜'}</h3>
                 <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">
-                  登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。
+                  {isEnglish
+                    ? 'Use your three free readings across all decks. Each completed spread uses one reading.'
+                    : '登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。'}
                 </p>
                 <InlineEmailUnlock
                   onUnlocked={(email) => { void handleEmailUnlock(email); }}
                   readingType={SPREAD_ID}
                   theme="dark"
+                  language={language}
                 />
               </div>
             )}
             {gate.phase === 'paywall' && (
               <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8 text-center space-y-5">
                 <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
-                <h3 className="font-serif text-2xl text-teal-100">解鎖完整奧修三張牌陣</h3>
-                <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">展開三張牌的完整解讀，揭示內在、外在與整合的能量脈絡。</p>
+                <h3 className="font-serif text-2xl text-teal-100">{isEnglish ? 'Unlock the Full Osho Three-Card Reading' : '解鎖完整奧修三張牌陣'}</h3>
+                <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">
+                  {isEnglish
+                    ? 'Explore the full interpretations and themes connecting your inner experience, outer expression, and integration.'
+                    : '展開三張牌的完整解讀，揭示內在、外在與整合的能量脈絡。'}
+                </p>
                 <OraclePricingPlans spreadId={SPREAD_ID} onSingleCheckout={handleCheckout} singleLoading={isCheckingOut} error={unlockError} />
               </div>
             )}
@@ -405,24 +429,26 @@ export default function OshoThreePage() {
             <div className="space-y-8 mb-8">
               <BundleCreditStatus spreadId={SPREAD_ID} remaining={gate.bundleRemaining} />
               <div className="grid lg:grid-cols-3 gap-8">
-                {fullSlot(reading.inner.full!, '內在感受', 'Inner', 'teal', [
-                  { heading: '當下能量狀態', key: 'currentEnergy' },
-                  { heading: '情緒與潛意識', key: 'emotionalInsight' },
+                {fullSlot(reading.inner.full!, '內在感受', 'Inner Experience', 'teal', [
+                  { heading: isEnglish ? 'Current Energy' : '當下能量狀態', key: 'currentEnergy' },
+                  { heading: isEnglish ? 'Emotions and the Unconscious' : '情緒與潛意識', key: 'emotionalInsight' },
                 ])}
-                {fullSlot(reading.outer.full!, '外在表現', 'Outer', 'cyan', [
-                  { heading: '今日指引 / 靈性訊息', key: 'dailyGuidance' },
-                  { heading: '卡關點解析', key: 'blockageAnalysis' },
+                {fullSlot(reading.outer.full!, '外在表現', 'Outer Expression', 'cyan', [
+                  { heading: isEnglish ? 'Guidance for Today' : '今日指引 / 靈性訊息', key: 'dailyGuidance' },
+                  { heading: isEnglish ? 'Understanding Obstacles' : '卡關點解析', key: 'blockageAnalysis' },
                 ])}
                 {fullSlot(reading.integration.full!, '整合建議', 'Integration', 'teal', [
-                  { heading: '冥想入口', key: 'meditationEntry' },
+                  { heading: isEnglish ? 'Meditation Prompt' : '冥想入口', key: 'meditationEntry' },
                 ])}
               </div>
               <div className="max-w-4xl mx-auto bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8">
-                <h3 className="text-2xl font-serif text-teal-200 mb-6 text-center">整體解讀</h3>
+                <h3 className="text-2xl font-serif text-teal-200 mb-6 text-center">{isEnglish ? 'Putting the Reading Together' : '整體解讀'}</h3>
                 <div className="space-y-6 text-teal-100/90 leading-relaxed">
                   <div className="bg-slate-900/40 border border-teal-500/20 rounded-lg p-6">
                     <p className="text-base leading-loose whitespace-pre-line">
-                      {generateThreeCardInterpretation({
+                      {isEnglish
+                        ? `${reading.inner.full!.name} invites you to reflect on your inner experience. ${reading.outer.full!.name} offers a perspective on how you show up in the world and what may be influencing you. ${reading.integration.full!.name} brings these themes together with a prompt for finding balance. Consider which ideas resonate with your circumstances and what small, practical step feels right for you.`
+                        : generateThreeCardInterpretation({
                         inner:       { id: Number(reading.inner.preview.card_key)       || 0, name: reading.inner.full!.name,       subtitle: reading.inner.full!.subtitle,       meanings: reading.inner.full!.meanings },
                         outer:       { id: Number(reading.outer.preview.card_key)       || 0, name: reading.outer.full!.name,       subtitle: reading.outer.full!.subtitle,       meanings: reading.outer.full!.meanings },
                         integration: { id: Number(reading.integration.preview.card_key) || 0, name: reading.integration.full!.name, subtitle: reading.integration.full!.subtitle, meanings: reading.integration.full!.meanings },
@@ -430,7 +456,11 @@ export default function OshoThreePage() {
                     </p>
                   </div>
                   <div className="border-t border-teal-500/30 pt-6">
-                    <p className="text-center text-teal-200/70 italic text-sm">這三張牌共同指引你找到內在與外在的平衡點，達到中心的寧靜。讓這些訊息在你心中迴響，找到屬於你的整合之道。</p>
+                    <p className="text-center text-teal-200/70 italic text-sm">
+                      {isEnglish
+                        ? 'Together, these cards offer perspectives on balancing inner and outer influences. Let the themes settle, then choose an approach that feels grounded and true to you.'
+                        : '這三張牌共同指引你找到內在與外在的平衡點，達到中心的寧靜。讓這些訊息在你心中迴響，找到屬於你的整合之道。'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -438,28 +468,29 @@ export default function OshoThreePage() {
           ) : (
             <div className="space-y-6 mb-8">
               <div className="grid lg:grid-cols-3 gap-8">
-                {previewSlot(reading.inner,       '內在感受', 'Inner',       'teal')}
-                {previewSlot(reading.outer,       '外在表現', 'Outer',       'cyan')}
+                {previewSlot(reading.inner,       '內在感受', 'Inner Experience',       'teal')}
+                {previewSlot(reading.outer,       '外在表現', 'Outer Expression',       'cyan')}
                 {previewSlot(reading.integration, '整合建議', 'Integration', 'teal')}
               </div>
               <div className="flex items-center justify-center gap-3 py-6 text-teal-300 text-sm tracking-wide">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                正在為你載入完整解讀…
+                {isEnglish ? 'Loading your full reading…' : '正在為你載入完整解讀…'}
               </div>
             </div>
           )
         )}
 
         <ShareReadingSection
+          language={language}
           deckId="osho"
-          deckName="奧修禪卡"
-          spreadName="三張牌陣"
+          deckName={isEnglish ? 'Osho Zen Tarot' : '奧修禪卡'}
+          spreadName={isEnglish ? 'Three-Card Spread' : '三張牌陣'}
           cards={[
-            { cardKey: reading.inner.preview.card_key, name: reading.inner.preview.name, position: '內在感受' },
-            { cardKey: reading.outer.preview.card_key, name: reading.outer.preview.name, position: '外在表現' },
-            { cardKey: reading.integration.preview.card_key, name: reading.integration.preview.name, position: '整合建議' },
+            { cardKey: reading.inner.preview.card_key, name: isEnglish ? reading.inner.preview.name_secondary ?? reading.inner.preview.name : reading.inner.preview.name, position: isEnglish ? 'Inner Experience' : '內在感受' },
+            { cardKey: reading.outer.preview.card_key, name: isEnglish ? reading.outer.preview.name_secondary ?? reading.outer.preview.name : reading.outer.preview.name, position: isEnglish ? 'Outer Expression' : '外在表現' },
+            { cardKey: reading.integration.preview.card_key, name: isEnglish ? reading.integration.preview.name_secondary ?? reading.integration.preview.name : reading.integration.preview.name, position: isEnglish ? 'Integration' : '整合建議' },
           ]}
-          summary={reading.integration.preview.preview_excerpt || reading.inner.preview.preview_excerpt || '回到此時此刻，看清內在真正的聲音。'}
+          summary={reading.integration.preview.preview_excerpt || reading.inner.preview.preview_excerpt || (isEnglish ? 'Return to the present and listen for what feels true within.' : '回到此時此刻，看清內在真正的聲音。')}
           deepAnalysis={{
             deckId: 'osho', spreadId: 'osho_three',
             hasFullAccess: isLocallyUnlocked,
@@ -467,7 +498,7 @@ export default function OshoThreePage() {
           }}
         />
 
-        <TarotCourseCTA />
+        <TarotCourseCTA language={language} />
 
         <div className="flex justify-center">
           <button
@@ -475,7 +506,7 @@ export default function OshoThreePage() {
             className="group flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl hover:from-teal-500 hover:to-cyan-500 transition-all shadow-xl hover:shadow-teal-500/50 hover:scale-105"
           >
             <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-            <span className="text-lg font-medium">重新抽牌</span>
+            <span className="text-lg font-medium">{isEnglish ? 'Draw Again' : '重新抽牌'}</span>
           </button>
         </div>
 

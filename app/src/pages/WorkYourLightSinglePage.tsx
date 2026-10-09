@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
+import { getLocalizedPath } from '../lib/i18n';
 import { RotateCcw, Sparkles } from 'lucide-react';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -35,6 +37,9 @@ interface WorkYourLightGated {
 function WorkYourLightSinglePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const language = useRouteLanguage();
+  const isEnglish = language === 'en';
+  const text = (zh: string, en: string) => isEnglish ? en : zh;
 
   const [deck, setDeck] = useState<CardPreview[] | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
@@ -53,9 +58,9 @@ function WorkYourLightSinglePage() {
     let cancelled = false;
     cardsApi.deckPreview('work_your_light')
       .then((res) => { if (!cancelled) setDeck(res.cards); })
-      .catch((err) => { if (!cancelled) setDeckError(err instanceof Error ? err.message : '無法載入牌組'); });
+      .catch((err) => { if (!cancelled) setDeckError(isEnglish ? 'Could not load the card deck.' : err instanceof Error ? err.message : '無法載入牌組'); });
     return () => { cancelled = true; };
-  }, []);
+  }, [isEnglish]);
 
   useEffect(() => {
     if (!deck || drawnPreview) return;
@@ -110,7 +115,7 @@ function WorkYourLightSinglePage() {
       setHasDrawn(true);
 
       trackEvent('card_drawn', {
-        cardName: pick.name_secondary ?? pick.name,
+        cardName: pick.name,
         readingType: 'work_your_light_single',
       });
 
@@ -124,13 +129,14 @@ function WorkYourLightSinglePage() {
     setUnlocked(null);
     setHasDrawn(false);
     setRevealed(false);
-    navigate('/work-your-light-single');
+    navigate(getLocalizedPath('/work-your-light-single', language));
   };
 
   const gate = useSingleCardGate({
     spreadId: 'work_your_light_single',
     cardKey: drawnPreview?.card_key ?? null,
     enabled: !!(hasDrawn && revealed && drawnPreview && !unlocked),
+    language,
   });
 
   useEffect(() => {
@@ -158,13 +164,13 @@ function WorkYourLightSinglePage() {
             <Sparkles className="w-20 h-20 text-violet-300 opacity-80" />
           </div>
           <h1 className="text-4xl md:text-6xl font-serif mb-4 tracking-wide text-violet-100 drop-shadow-lg">
-            光之訊息塔羅 - 深度解說
+            {text('光之訊息塔羅 - 深度解說', 'Work Your Light Oracle — In-Depth Reading')}
           </h1>
           <p className="text-2xl md:text-3xl font-serif text-violet-200/90 mb-6">
             Work Your Light Oracle - Deep Interpretation
           </p>
           <p className="text-violet-200/70 text-lg md:text-xl font-light tracking-wider max-w-2xl mx-auto">
-            單張牌陣 • 深度靈性解讀
+            {text('單張牌陣 • 深度靈性解讀', 'Single-Card Spread • In-Depth Spiritual Reflection')}
           </p>
         </header>
 
@@ -180,32 +186,32 @@ function WorkYourLightSinglePage() {
                   className="group relative px-12 py-6 bg-gradient-to-r from-violet-600 to-violet-600 hover:from-violet-500 hover:to-violet-500 rounded-2xl text-xl font-medium shadow-2xl hover:shadow-violet-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-violet-400 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                  <span className="relative text-violet-100 tracking-wide">{deck ? '抽取神聖訊息' : '載入牌組中…'}</span>
+                  <span className="relative text-violet-100 tracking-wide">{deck ? text('抽取神聖訊息', 'Draw a Message') : text('載入牌組中…', 'Loading cards…')}</span>
                 </button>
                 <p className="mt-6 text-violet-200/60 text-sm tracking-wider">
-                  靜下心來,專注於你的問題,然後點擊按鈕
+                  {text('靜下心來,專注於你的問題,然後點擊按鈕', 'Take a quiet moment to focus on your question, then draw a card.')}
                 </p>
               </div>
 
               <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-violet-500/20 rounded-2xl p-8 shadow-lg">
-                <h3 className="text-violet-200 text-xl font-medium mb-4 tracking-wide">關於光之訊息單張牌陣</h3>
+                <h3 className="text-violet-200 text-xl font-medium mb-4 tracking-wide">{text('關於光之訊息單張牌陣', 'About the Work Your Light Single-Card Spread')}</h3>
                 <div className="space-y-4 text-violet-100/80 leading-relaxed">
                   <p>
-                    光之訊息塔羅單張牌陣提供深度的靈性解讀,每張牌包含五個核心面向:
+                    {text('光之訊息塔羅單張牌陣提供深度的靈性解讀,每張牌包含五個核心面向:', 'This single-card oracle reading offers an in-depth reflection through five themes:')}
                   </p>
                   <ul className="space-y-2 ml-4">
-                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>核心含意</strong> - 這張牌的基本訊息與核心意涵</span></li>
-                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>高我訊息</strong> - 來自你更高自我的智慧指引</span></li>
-                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>靈性指引</strong> - 具體的修煉建議與行動方向</span></li>
-                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>能量特質</strong> - 這張牌攜帶的能量頻率與作用</span></li>
-                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>適合提問</strong> - 這張牌最能回應的問題類型</span></li>
+                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>{text('核心含意', 'Core Meaning')}</strong> — {text('這張牌的基本訊息與核心意涵', 'The card’s central theme and message')}</span></li>
+                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>{text('高我訊息', 'Higher-Self Message')}</strong> — {text('來自你更高自我的智慧指引', 'A prompt to consider your own inner wisdom')}</span></li>
+                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>{text('靈性指引', 'Spiritual Guidance')}</strong> — {text('具體的修煉建議與行動方向', 'Ideas for reflection and possible next steps')}</span></li>
+                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>{text('能量特質', 'Energy Qualities')}</strong> — {text('這張牌攜帶的能量頻率與作用', 'The qualities and themes associated with the card')}</span></li>
+                    <li className="flex items-start gap-2"><span className="text-violet-400 mt-1">•</span><span><strong>{text('適合提問', 'Questions to Explore')}</strong> — {text('這張牌最能回應的問題類型', 'Questions this card may help you reflect on')}</span></li>
                   </ul>
                 </div>
               </div>
             </>
           )}
 
-          {isDrawing && <CardShuffleAnimation />}
+          {isDrawing && <CardShuffleAnimation message={isEnglish ? 'Your message is being revealed…' : undefined} />}
 
           {hasDrawn && drawnPreview && revealed && (
             <div className="space-y-8 animate-fade-in">
@@ -217,11 +223,11 @@ function WorkYourLightSinglePage() {
                     </div>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-serif text-violet-100 mb-2 tracking-wide">
-                    {drawnPreview.name_secondary ?? drawnPreview.name}
-                  </h2>
-                  <p className="text-xl md:text-2xl text-violet-200/80 font-light mb-2">
                     {drawnPreview.name}
-                  </p>
+                  </h2>
+                  {!isEnglish && drawnPreview.name_secondary && (
+                    <p className="text-xl md:text-2xl text-violet-200/80 font-light mb-2">{drawnPreview.name_secondary}</p>
+                  )}
                   {previewSuit && (
                     <p className="text-violet-300/60 text-sm tracking-wider">
                       {previewSuit}
@@ -232,14 +238,14 @@ function WorkYourLightSinglePage() {
                 {!isUnlocked && (
                   <>
                     {gate.phase === 'loading' && (
-                      <div className="text-center text-violet-300/70 py-6 tracking-wider">解鎖中…</div>
+                      <div className="text-center text-violet-300/70 py-6 tracking-wider">{text('解鎖中…', 'Unlocking…')}</div>
                     )}
                     {gate.phase === 'login_gate' && (
                       <>
                         <div className="bg-gradient-to-r from-violet-600/25 to-violet-600/25 rounded-xl p-6 border-2 border-violet-400/50">
                           <h3 className="text-violet-100 text-xl font-medium mb-4 tracking-wide flex items-center gap-2">
-                            <span className="font-serif text-xl text-violet-400 mr-1 tracking-[0.1em]">一</span>
-                            牌面核心訊息
+                            <span className="font-serif text-xl text-violet-400 mr-1 tracking-[0.1em]">{text('一', '1')}</span>
+                            {text('牌面核心訊息', 'Core Card Message')}
                           </h3>
                           {drawnPreview.preview_excerpt && (
                             <div className="bg-slate-900/50 rounded-lg p-4 border border-violet-400/30 relative">
@@ -247,12 +253,13 @@ function WorkYourLightSinglePage() {
                               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-950/95 pointer-events-none rounded-b-lg"></div>
                             </div>
                           )}
-                          <p className="text-violet-200/60 text-xs mt-3">前 30% 預覽，登入後享有 3 次免費占卜</p>
+                          <p className="text-violet-200/60 text-xs mt-3">{text('前 30% 預覽，登入後享有 3 次免費占卜', 'Previewing the first 30%. Sign in to get 3 free readings.')}</p>
                         </div>
                         <InlineEmailUnlock
                           onUnlocked={handleUnlocked}
                           readingType="work_your_light_single"
                           theme="dark"
+                          language={language}
                           cardUnlock={{ spread_id: 'work_your_light_single', card_key: drawnPreview.card_key }}
                         />
                       </>
@@ -260,7 +267,7 @@ function WorkYourLightSinglePage() {
                     <MembershipGate
                       isOpen={gate.showMembership}
                       onClose={() => gate.setShowMembership(false)}
-                      resumePath="/work-your-light-single"
+                      resumePath={getLocalizedPath('/work-your-light-single', language)}
                       pendingSingleDraw={drawnPreview ? {
                         spread_id: 'work_your_light_single',
                         card_key: drawnPreview.card_key,
@@ -274,7 +281,7 @@ function WorkYourLightSinglePage() {
                     <div className="bg-slate-900/30 rounded-xl p-6 border border-violet-500/20">
                       <h3 className="text-violet-300 text-lg font-medium mb-3 tracking-wide flex items-center gap-2">
                         <span className="w-2 h-2 bg-slate-800/30 rounded-full"></span>
-                        核心含意
+                        {text('核心含意', 'Core Meaning')}
                       </h3>
                       <p className="leading-relaxed text-violet-100/90">
                         {deep?.coreMeaning ?? gated?.coreMeaning ?? ''}
@@ -285,7 +292,7 @@ function WorkYourLightSinglePage() {
                       <div className="bg-slate-900/30 rounded-xl p-6 border border-violet-500/20">
                         <h3 className="text-violet-300 text-lg font-medium mb-3 tracking-wide flex items-center gap-2">
                           <span className="w-2 h-2 bg-slate-800/30 rounded-full"></span>
-                          高我訊息
+                          {text('高我訊息', 'Higher-Self Message')}
                         </h3>
                         <p className="leading-relaxed text-violet-100/90">{deep.higherSelfMessage}</p>
                       </div>
@@ -295,7 +302,7 @@ function WorkYourLightSinglePage() {
                       <div className="bg-slate-900/30 rounded-xl p-6 border border-violet-500/20">
                         <h3 className="text-violet-300 text-lg font-medium mb-3 tracking-wide flex items-center gap-2">
                           <span className="w-2 h-2 bg-slate-800/30 rounded-full"></span>
-                          靈性指引
+                          {text('靈性指引', 'Spiritual Guidance')}
                         </h3>
                         <p className="leading-relaxed text-violet-100/90">{deep.spiritualGuidance}</p>
                       </div>
@@ -305,7 +312,7 @@ function WorkYourLightSinglePage() {
                       <div className="bg-slate-900/30 rounded-xl p-6 border border-violet-500/20">
                         <h3 className="text-violet-300 text-lg font-medium mb-3 tracking-wide flex items-center gap-2">
                           <span className="w-2 h-2 bg-slate-800/30 rounded-full"></span>
-                          能量特質
+                          {text('能量特質', 'Energy Qualities')}
                         </h3>
                         <p className="leading-relaxed text-violet-100/90">{deep.energyQualities}</p>
                       </div>
@@ -315,7 +322,7 @@ function WorkYourLightSinglePage() {
                       <div className="bg-gradient-to-r from-violet-500/20 to-violet-500/20 rounded-xl p-6 border border-violet-400/30">
                         <h3 className="text-violet-200 text-lg font-medium mb-3 tracking-wide flex items-center gap-2">
                           <span className="w-2 h-2 bg-slate-800/30 rounded-full"></span>
-                          適合提問
+                          {text('適合提問', 'Questions to Explore')}
                         </h3>
                         <p className="leading-relaxed text-violet-100/90">{deep.suitableQuestions}</p>
                       </div>
@@ -325,7 +332,7 @@ function WorkYourLightSinglePage() {
                       <div className="bg-slate-900/30 rounded-xl p-6 border border-violet-500/20">
                         <h3 className="text-violet-300 text-lg font-medium mb-3 tracking-wide flex items-center gap-2">
                           <span className="w-2 h-2 bg-slate-800/30 rounded-full"></span>
-                          行動建議
+                          {text('行動建議', 'Action Guidance')}
                         </h3>
                         <p className="leading-relaxed text-violet-100/90">{gated.actionGuidance}</p>
                       </div>
@@ -336,10 +343,11 @@ function WorkYourLightSinglePage() {
 
               <ShareReadingSection
                 deckId="work_your_light"
-                deckName="Lightwork 光之訊息"
-                spreadName="單張牌陣"
+                deckName={text('光之訊息', 'Work Your Light Oracle')}
+                spreadName={text('單張牌陣', 'Single-Card Reading')}
                 cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
-                summary={drawnPreview.preview_excerpt || '宇宙正在提醒你，你本來的樣子就充滿光芒。'}
+                summary={drawnPreview.preview_excerpt || text('宇宙正在提醒你，你本來的樣子就充滿光芒。', 'A reminder to reconnect with the light and wisdom already within you.')}
+                language={language}
                 deepAnalysis={{
                   deckId: 'work_your_light', spreadId: 'work_your_light_single',
                   hasFullAccess: isUnlocked,
@@ -356,7 +364,7 @@ function WorkYourLightSinglePage() {
                   className="group flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-slate-800/50 to-slate-800/50 hover:from-violet-600/60 hover:to-violet-600/60 border border-violet-500/30 rounded-xl transition-all duration-300 hover:scale-105"
                 >
                   <RotateCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-                  <span className="tracking-wide">重新抽牌</span>
+                  <span className="tracking-wide">{text('重新抽牌', 'Draw Again')}</span>
                 </button>
               </div>
             </div>

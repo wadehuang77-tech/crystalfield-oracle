@@ -98,7 +98,7 @@ function WorkYourLightPage() {
 
           <div className="flex flex-col items-center gap-4">
             <Link
-              to="/cosmic-cross"
+              to={getLocalizedPath('/cosmic-cross', language)}
               className="group relative w-full flex-1"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />

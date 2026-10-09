@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
+import { getLocalizedPath } from '../lib/i18n';
 import { RefreshCw, Sparkles } from 'lucide-react';
 import { cardsApi, type CardPreview, type UnlockedCard } from '../lib/api';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -25,6 +27,9 @@ interface OshoGated {
 }
 
 export default function OshoSinglePage() {
+  const language = useRouteLanguage();
+  const isEnglish = language === 'en';
+  const text = (zh: string, en: string) => isEnglish ? en : zh;
   const [deck, setDeck] = useState<CardPreview[] | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
   const [drawnPreview, setDrawnPreview] = useState<CardPreview | null>(null);
@@ -39,9 +44,9 @@ export default function OshoSinglePage() {
     let cancelled = false;
     cardsApi.deckPreview('osho')
       .then((res) => { if (!cancelled) setDeck(res.cards); })
-      .catch((err) => { if (!cancelled) setDeckError(err instanceof Error ? err.message : '無法載入牌組'); });
+      .catch((err) => { if (!cancelled) setDeckError(isEnglish ? 'Could not load the card deck.' : err instanceof Error ? err.message : '無法載入牌組'); });
     return () => { cancelled = true; };
-  }, []);
+  }, [isEnglish]);
 
   useEffect(() => {
     if (!deck || drawnPreview) return;
@@ -94,6 +99,7 @@ export default function OshoSinglePage() {
     spreadId: 'osho_single',
     cardKey: drawnPreview?.card_key ?? null,
     enabled: !!(drawnPreview && !isRevealing && !unlocked),
+    language,
   });
 
   useEffect(() => {
@@ -116,33 +122,33 @@ export default function OshoSinglePage() {
         <div className="max-w-4xl mx-auto p-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-serif mb-4 bg-gradient-to-r from-teal-300 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
-              單張牌陣
+              {text('單張牌陣', 'Single-Card Reading')}
             </h1>
-            <p className="text-teal-200/80 text-lg mb-2">覺察當下，照見內在</p>
-            <p className="text-teal-300/60 text-sm">靜心片刻，讓你的直覺引導你</p>
+            <p className="text-teal-200/80 text-lg mb-2">{text('覺察當下，照見內在', 'Be present and reflect inward')}</p>
+            <p className="text-teal-300/60 text-sm">{text('靜心片刻，讓你的直覺引導你', 'Pause for a moment and let your intuition guide you')}</p>
           </div>
 
           <section className="mx-auto mb-10 rounded-2xl border border-teal-400/30 bg-gradient-to-br from-teal-500/10 via-slate-900/85 to-cyan-500/10 px-5 py-6 sm:px-8 sm:py-8 shadow-[0_0_32px_rgba(45,212,191,0.12)]">
             <p className="text-center text-base sm:text-lg font-semibold leading-loose text-teal-100">
-              深呼吸，放下大腦的分析與評斷，在這裡與真實的自己相遇。
+              {text('深呼吸，放下大腦的分析與評斷，在這裡與真實的自己相遇。', 'Take a deep breath and set aside analysis and judgment. Meet yourself as you are in this moment.')}
             </p>
 
             <div className="mt-7 border-t border-teal-400/20 pt-6">
               <h2 className="mb-5 text-center text-lg sm:text-xl font-semibold tracking-wide text-cyan-100">
-                【當下覺察三步驟】
+                {text('【當下覺察三步驟】', 'Three Steps for Present-Moment Awareness')}
               </h2>
               <ol className="space-y-4 text-sm sm:text-base leading-loose text-teal-50/90">
                 <li className="flex items-start gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">1</span>
-                  <p><strong className="text-teal-100">放鬆肩膀與嘴角</strong>：將注意力從大腦轉移到胸口的呼吸。</p>
+                  <p><strong className="text-teal-100">{text('放鬆肩膀與嘴角', 'Relax your shoulders and jaw')}</strong>: {text('將注意力從大腦轉移到胸口的呼吸。', 'Shift your attention from your thoughts to the breath in your chest.')}</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">2</span>
-                  <p><strong className="text-teal-100">在心中默想</strong>：「此刻，我需要覺察到什麼？請指引我看清當下的真相。」</p>
+                  <p><strong className="text-teal-100">{text('在心中默想', 'Reflect inward')}</strong>: “{text('此刻，我需要覺察到什麼？請指引我看清當下的真相。', 'What do I need to become aware of right now? Help me see this moment clearly.')}”</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-300/50 bg-teal-500/15 font-semibold text-teal-200">3</span>
-                  <p><strong className="text-teal-100">憑直覺抽一張牌</strong>：開啟專屬於你的靈魂覺察時刻。</p>
+                  <p><strong className="text-teal-100">{text('憑直覺抽一張牌', 'Draw a card intuitively')}</strong>: {text('開啟專屬於你的靈魂覺察時刻。', 'Begin a moment of personal reflection.')}</p>
                 </li>
               </ol>
             </div>
@@ -170,7 +176,7 @@ export default function OshoSinglePage() {
             >
               <div className="flex items-center gap-3">
                 <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
-                <span className="text-xl font-medium">{deck ? '抽一張牌' : '載入牌組中…'}</span>
+                <span className="text-xl font-medium">{deck ? text('抽一張牌', 'Draw a Card') : text('載入牌組中…', 'Loading cards…')}</span>
                 <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
               </div>
             </button>
@@ -184,7 +190,7 @@ export default function OshoSinglePage() {
   if (isRevealing) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900">
-        <CardShuffleAnimation message="禪　心　顯　現　中" />
+        <CardShuffleAnimation message={isEnglish ? 'Your card is being revealed…' : '禪　心　顯　現　中'} />
       </div>
     );
   }
@@ -196,12 +202,12 @@ export default function OshoSinglePage() {
       <div className="max-w-6xl mx-auto p-8">
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif mb-2 text-teal-100">你抽到的牌</h1>
+          <h1 className="text-3xl font-serif mb-2 text-teal-100">{text('你抽到的牌', 'Your Card')}</h1>
         </div>
 
         <div className="text-center mb-6">
           <h2 className="text-4xl font-serif mb-2 text-teal-100">{drawnPreview.name}</h2>
-          {drawnPreview.name_secondary && (
+          {!isEnglish && drawnPreview.name_secondary && (
             <p className="text-teal-300/80 text-lg italic">{drawnPreview.name_secondary}</p>
           )}
         </div>
@@ -210,11 +216,11 @@ export default function OshoSinglePage() {
           <div className="space-y-6">
             {isUnlocked && meanings && (
               <>
-                <MeaningCard accent="teal" index="1" title="當下能量狀態" body={meanings.currentEnergy} />
-                <MeaningCard accent="cyan" index="2" title="今日指引 / 靈性訊息" body={meanings.dailyGuidance} />
-                <MeaningCard accent="teal" index="3" title="情緒與潛意識" body={meanings.emotionalInsight} />
-                <MeaningCard accent="cyan" index="4" title="卡關點解析" body={meanings.blockageAnalysis} />
-                <MeaningCard accent="teal" index="5" title="冥想入口" body={meanings.meditationEntry} />
+                <MeaningCard accent="teal" index="1" title={text('當下能量狀態', 'Present Energy')} body={meanings.currentEnergy} />
+                <MeaningCard accent="cyan" index="2" title={text('今日指引 / 靈性訊息', 'Daily Guidance / Inner Message')} body={meanings.dailyGuidance} />
+                <MeaningCard accent="teal" index="3" title={text('情緒與潛意識', 'Emotions and the Subconscious')} body={meanings.emotionalInsight} />
+                <MeaningCard accent="cyan" index="4" title={text('卡關點解析', 'Patterns and Obstacles')} body={meanings.blockageAnalysis} />
+                <MeaningCard accent="teal" index="5" title={text('冥想入口', 'Meditation Prompt')} body={meanings.meditationEntry} />
 
               </>
             )}
@@ -222,14 +228,14 @@ export default function OshoSinglePage() {
             {!isUnlocked && (
               <>
                 {gate.phase === 'loading' && (
-                  <div className="text-center text-teal-300/70 py-6 tracking-wider">解鎖中…</div>
+                  <div className="text-center text-teal-300/70 py-6 tracking-wider">{text('解鎖中…', 'Unlocking…')}</div>
                 )}
                 {gate.phase === 'login_gate' && (
                   <>
                     <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-6">
                       <h3 className="text-xl font-semibold mb-3 text-teal-200 flex items-center gap-3">
                         <span className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-teal-400/50 text-sm font-serif text-teal-200">1</span>
-                        當下能量狀態
+                        {text('當下能量狀態', 'Present Energy')}
                       </h3>
                       {drawnPreview.preview_excerpt && (
                         <div className="bg-slate-900/50 rounded-lg p-4 border border-teal-400/30 relative">
@@ -237,12 +243,13 @@ export default function OshoSinglePage() {
                           <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900/95 pointer-events-none rounded-b-lg" />
                         </div>
                       )}
-                      <p className="text-teal-200/60 text-xs mt-3">前 30% 預覽，登入後享有 3 次免費占卜</p>
+                      <p className="text-teal-200/60 text-xs mt-3">{text('前 30% 預覽，登入後享有 3 次免費占卜', 'Previewing the first 30%. Sign in to get 3 free readings.')}</p>
                     </div>
                     <InlineEmailUnlock
                       onUnlocked={handleUnlocked}
                       readingType="osho_single"
                       theme="dark"
+                      language={language}
                       cardUnlock={{ spread_id: 'osho_single', card_key: drawnPreview.card_key }}
                     />
                   </>
@@ -250,7 +257,7 @@ export default function OshoSinglePage() {
                 <MembershipGate
                   isOpen={gate.showMembership}
                   onClose={() => gate.setShowMembership(false)}
-                  resumePath="/osho/single"
+                  resumePath={getLocalizedPath('/osho/single', language)}
                   pendingSingleDraw={drawnPreview ? {
                     spread_id: 'osho_single',
                     card_key: drawnPreview.card_key,
@@ -263,10 +270,11 @@ export default function OshoSinglePage() {
 
         <ShareReadingSection
           deckId="osho"
-          deckName="奧修禪卡"
-          spreadName="單張牌陣"
+          deckName={text('奧修禪卡', 'Osho Zen Tarot')}
+          spreadName={text('單張牌陣', 'Single-Card Reading')}
           cards={[{ cardKey: drawnPreview.card_key, name: drawnPreview.name }]}
-          summary={drawnPreview.preview_excerpt || '放下分析與評斷，答案會在當下自然浮現。'}
+          summary={drawnPreview.preview_excerpt || text('放下分析與評斷，答案會在當下自然浮現。', 'Set aside analysis and judgment; insight can emerge from meeting the present moment.')}
+          language={language}
           deepAnalysis={{
             deckId: 'osho', spreadId: 'osho_single',
             hasFullAccess: isUnlocked,
@@ -284,7 +292,7 @@ export default function OshoSinglePage() {
             className="group flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl hover:from-teal-500 hover:to-cyan-500 transition-all shadow-xl hover:shadow-teal-500/50 hover:scale-105"
           >
             <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-            <span className="text-lg font-medium">重新抽牌</span>
+            <span className="text-lg font-medium">{text('重新抽牌', 'Draw Again')}</span>
           </button>
         </div>
 

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Clipboard, Facebook, Instagram, Loader2, MessageCircle, Sparkles } from 'lucide-react';
+import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { shareApi } from '../lib/api';
 import { TarotDeepAnalysisRecommendations } from './TarotDeepAnalysisRecommendations';
 import type { TrustedTarotResultState } from '../lib/tarot-deep-analysis';
@@ -36,7 +37,9 @@ function isShareCancelled(error: unknown): boolean {
 
 export default function ShareReadingSection(props: ShareReadingSectionProps) {
   const { className = '' } = props;
-  const isEnglish = props.language === 'en';
+  const routeLanguage = useRouteLanguage();
+  const language = props.language ?? routeLanguage;
+  const isEnglish = language === 'en';
   const data = useMemo(() => normalizeShareData(props), [props]);
   const [loading, setLoading] = useState<SharePlatform | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
@@ -193,7 +196,7 @@ export default function ShareReadingSection(props: ShareReadingSectionProps) {
     {props.deepAnalysis && (
       <TarotDeepAnalysisRecommendations
         {...props.deepAnalysis}
-        language={props.language}
+        language={language}
         resultKey={data.cards.map(({ cardKey }) => cardKey).join(':')}
       />
     )}

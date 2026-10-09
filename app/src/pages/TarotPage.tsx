@@ -683,7 +683,7 @@ function TarotPage() {
             </div>
           )}
 
-          {isDrawing && <CardShuffleAnimation />}
+          {isDrawing && <CardShuffleAnimation message={isEnglish ? 'Shuffling your cards…' : undefined} />}
 
           {hasDrawn && drawnCards.length > 0 && (
             <div className="space-y-8">

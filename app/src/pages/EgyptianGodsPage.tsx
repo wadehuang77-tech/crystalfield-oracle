@@ -3,7 +3,7 @@ import CardShuffleAnimation from '../components/CardShuffleAnimation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { ArrowRight, Lock, RotateCcw } from 'lucide-react';
-import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
+import { getPastLifePositionGuide, type PastLifeCardPosition } from '../utils/pastLifeInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
 import { CrystalReminderBar } from '../components/CrystalReminderBar';
 import { useCrystalPromo } from '../hooks/useCrystalPromo';
@@ -23,7 +23,7 @@ import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
-import { localizeCardLabel, t } from '../lib/i18n';
+import { getLocalizedPath, localizeCardLabel, t } from '../lib/i18n';
 
 type SpreadType = 'single' | 'pastlife';
 
@@ -53,8 +53,77 @@ const PASTLIFE_POSITIONS = [
   '解鎖與療癒方式',
 ];
 
-function EgyptianPastlifePreviewCard({ slot, index }: { slot: PastlifeSlot; index: number }) {
-  const positionGuide = getPastLifePositionGuide(index);
+const PASTLIFE_POSITIONS_EN = [
+  'Past-Life Identity',
+  'Defining Event',
+  'Lasting Influence',
+  'Present-Day Patterns',
+  'Recurring Themes',
+  'What to Release',
+  'Reflection and Healing',
+];
+
+const PASTLIFE_GUIDES_EN: PastLifeCardPosition[] = [
+  {
+    index: 0,
+    title: 'Past-Life Identity',
+    sectionTitle: '🧩 Past-Life Identity',
+    emotionalHook: 'Some patterns may feel older than the situation you are facing today.',
+    guideText: (cardMeaning, godStory) =>
+      `${godStory ? `**The story of this deity:**\n${godStory}\n\n` : ''}As a symbol for reflection, this card may represent a role or quality you recognize in yourself:\n\n${cardMeaning}\n\nConsider what this role may have required of you, and whether those expectations still serve you now.`,
+  },
+  {
+    index: 1,
+    title: 'Defining Event',
+    sectionTitle: '⚡ Defining Event',
+    emotionalHook: 'This card invites you to reflect on a story or turning point that may feel unfinished.',
+    guideText: (cardMeaning, godStory) =>
+      `${godStory ? `**A mythic perspective:**\n${godStory}\n\n` : ''}This card offers an image of a significant choice or turning point:\n\n${cardMeaning}\n\nReflect on what may have been left unsaid or unresolved in a similar situation in your life today.`,
+  },
+  {
+    index: 2,
+    title: 'Lasting Influence',
+    sectionTitle: '🌊 Lasting Influence',
+    guideText: (cardMeaning) =>
+      `${cardMeaning}\n\nPast experiences can shape the ways we protect ourselves. Notice whether a familiar response—such as withdrawing, staying strong, or avoiding uncertainty—still feels useful, or whether another response might be possible now.`,
+  },
+  {
+    index: 3,
+    title: 'Present-Day Patterns',
+    sectionTitle: '🔍 Present-Day Patterns',
+    guideText: (cardMeaning) =>
+      `This card can help you notice situations that bring up tension, hesitation, or a sense of being stuck.\n\n${cardMeaning}\n\nEven when a situation is new, old expectations may influence how it feels. Pause and consider what is different this time and what support could help you respond with care.`,
+  },
+  {
+    index: 4,
+    title: 'Recurring Themes',
+    sectionTitle: '🔄 Recurring Themes',
+    guideText: (cardMeaning) =>
+      `This card invites you to look for themes that seem to repeat:\n\n${cardMeaning}\n\nNotice what is similar—and what is different—across these experiences. Reflection can help you identify choices that are available to you now.`,
+  },
+  {
+    index: 5,
+    title: 'What to Release',
+    sectionTitle: '💫 What to Release',
+    guideText: (cardMeaning) =>
+      `${cardMeaning}\n\nYou are allowed to make choices that differ from old expectations. Consider what you may be ready to set down, what deserves to be acknowledged, and what would help you move forward at your own pace.`,
+  },
+  {
+    index: 6,
+    title: 'Reflection and Healing',
+    sectionTitle: '🔑 Reflection and Healing',
+    guideText: (cardMeaning) =>
+      `${cardMeaning}\n\nA small change in how you respond can open up new possibilities. Think about one grounded step that would support your wellbeing, such as setting a boundary, writing down your thoughts, or speaking with someone you trust. This reading is a reflective tool, not a guarantee of a particular outcome.`,
+  },
+];
+
+function getLocalizedPastLifeGuide(index: number, language: 'zh-Hant' | 'en'): PastLifeCardPosition {
+  return language === 'en' ? PASTLIFE_GUIDES_EN[index] ?? PASTLIFE_GUIDES_EN[0] : getPastLifePositionGuide(index);
+}
+
+function EgyptianPastlifePreviewCard({ slot, index, language }: { slot: PastlifeSlot; index: number; language: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
+  const positionGuide = getLocalizedPastLifeGuide(index, language);
   return (
     <article className="relative min-w-0 pt-4" data-egyptian-preview-card={index + 1}>
       <span className="absolute left-1/2 top-0 z-20 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border border-yellow-100/70 bg-amber-600 text-sm font-semibold text-white shadow-[0_0_18px_rgba(245,158,11,0.55)]">
@@ -71,22 +140,22 @@ function EgyptianPastlifePreviewCard({ slot, index }: { slot: PastlifeSlot; inde
               <p className="mt-1 text-[0.68rem] leading-relaxed text-yellow-200">{slot.position}</p>
             </div>
             <div className="border-t border-yellow-300/25 pt-3">
-              <p className="font-serif text-base leading-snug text-yellow-50">{slot.preview.name}</p>
-              {slot.preview.name_secondary && (
+              <p className="font-serif text-base leading-snug text-yellow-50">{isEnglish ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name}</p>
+              {slot.preview.name_secondary && !isEnglish && (
                 <p className="mt-1 text-[0.68rem] leading-relaxed text-yellow-200">{slot.preview.name_secondary}</p>
               )}
             </div>
             <div className="space-y-2 text-left">
-              <h4 className="text-center font-serif text-xs text-yellow-100">牌義解讀（前 30% 預覽）</h4>
+              <h4 className="text-center font-serif text-xs text-yellow-100">{isEnglish ? 'Card Interpretation (30% Preview)' : '牌義解讀（前 30% 預覽）'}</h4>
               {slot.preview.preview_excerpt ? (
                 <p className="whitespace-pre-line text-xs leading-6 text-yellow-50">
                   {slot.preview.preview_excerpt}
                 </p>
               ) : (
-                <p className="text-center text-xs leading-6 text-yellow-50">解鎖後可查看完整牌義解讀</p>
+                <p className="text-center text-xs leading-6 text-yellow-50">{isEnglish ? 'Unlock to view the full card interpretation' : '解鎖後可查看完整牌義解讀'}</p>
               )}
               <p className="border-t border-yellow-300/20 pt-2 text-center text-[0.62rem] leading-5 tracking-wide text-yellow-200">
-                前 30% 預覽・向下捲動閱讀
+                {isEnglish ? 'First 30% preview · Scroll to read' : '前 30% 預覽・向下捲動閱讀'}
               </p>
             </div>
           </div>
@@ -162,7 +231,7 @@ function EgyptianGodsPage() {
         const drawn = pickRandomCards(deck, 7);
         setPastlifeSlots(drawn.map((preview, i) => ({
           preview,
-          position: PASTLIFE_POSITIONS[i],
+          position: language === 'en' ? PASTLIFE_POSITIONS_EN[i] : PASTLIFE_POSITIONS[i],
           full: null,
         })));
       }
@@ -199,18 +268,18 @@ function EgyptianGodsPage() {
       try {
         const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== 'egyptian_pastlife' || order.status !== 'paid' || !order.picks) {
-          setUnlockError('無法還原此訂單(item_id/status/picks 不符)');
+          setUnlockError(copy('restoreOrderMismatch', '無法還原此訂單(item_id/status/picks 不符)'));
           return;
         }
         const slots = order.picks
           .map<PastlifeSlot | null>((p, i) => {
             const preview = deck.find((c) => c.card_key === p.card_key);
             if (!preview) return null;
-            return { preview, position: PASTLIFE_POSITIONS[i], full: null };
+            return { preview, position: language === 'en' ? PASTLIFE_POSITIONS_EN[i] : PASTLIFE_POSITIONS[i], full: null };
           })
           .filter((s): s is PastlifeSlot => !!s);
         if (slots.length !== order.picks.length) {
-          setUnlockError('牌組對不上,無法還原');
+          setUnlockError(copy('restoreDeckMismatch', '牌組對不上,無法還原'));
           return;
         }
         setSpreadType('pastlife');
@@ -220,7 +289,7 @@ function EgyptianGodsPage() {
 
         try {
           const picks = slots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
-          const unlocked = await unlockSpreadCards('egyptian_pastlife', picks, order.id, orderToken);
+          const unlocked = await unlockSpreadCards('egyptian_pastlife', picks, order.id, orderToken, language);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setPastlifeSlots((prev) => prev.map((s) => {
             const u = byKey.get(s.preview.card_key);
@@ -230,21 +299,21 @@ function EgyptianGodsPage() {
               ...s,
               full: {
                 ...(u.gated as unknown as EgyptianGated),
-                titleChinese: u.name,
-                title: u.name_secondary ?? '',
+                titleChinese: language === 'en' ? u.name_secondary ?? u.name : u.name,
+                title: language === 'en' ? '' : u.name_secondary ?? '',
                 symbol: previewSymbol,
               },
             };
           }));
           setIsPastlifeUnlocked(true);
         } catch (err) {
-          setUnlockError(err instanceof Error ? err.message : '解鎖失敗,請稍後再試');
+          setUnlockError(err instanceof Error && language !== 'en' ? err.message : copy('unlockFailed', '解鎖失敗,請稍後再試'));
         }
       } catch (e) {
-        setUnlockError(e instanceof Error ? `還原訂單失敗:${e.message}` : '還原訂單失敗');
+        setUnlockError(e instanceof Error && language !== 'en' ? `還原訂單失敗:${e.message}` : copy('restoreOrderFailed', '還原訂單失敗'));
       }
     })();
-  }, [searchParams, deck]);
+  }, [searchParams, deck, language]);
 
   const handleSpreadTypeChange = (newSpreadType: SpreadType) => {
     setSpreadType(newSpreadType);
@@ -259,11 +328,11 @@ function EgyptianGodsPage() {
       const { ecpay, order_id, admin_unlocked } = await checkoutApi.createOrder(
         TAROT_SUBSCRIPTION.id,
       );
-      if (admin_unlocked) { navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`); return; }
-      if (!ecpay) { setUnlockError('結帳資料缺失,請重試'); setIsCheckingOut(false); return; }
-      submitToEcpay(ecpay, () => { setUnlockError('跳轉至綠界失敗'); setIsCheckingOut(false); });
+      if (admin_unlocked) { navigate(`${getLocalizedPath('/checkout/return', language)}?order_id=${encodeURIComponent(order_id)}`); return; }
+      if (!ecpay) { setUnlockError(copy('checkoutMissing', '結帳資料缺失,請重試')); setIsCheckingOut(false); return; }
+      submitToEcpay(ecpay, () => { setUnlockError(copy('checkoutRedirectFailed', '跳轉至綠界失敗')); setIsCheckingOut(false); });
     } catch (err) {
-      setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
+      setUnlockError(err instanceof Error && language !== 'en' ? err.message : copy('checkoutFailed', '結帳失敗,請稍後再試'));
       setIsCheckingOut(false);
     }
   };
@@ -272,6 +341,7 @@ function EgyptianGodsPage() {
     spreadId: 'egyptian_single',
     cardKey: singlePreview?.card_key ?? null,
     enabled: !!(singlePreview && hasDrawn && spreadType === 'single' && !singleUnlocked),
+    language,
   });
 
   useEffect(() => {
@@ -288,6 +358,7 @@ function EgyptianGodsPage() {
     spreadId: 'egyptian_pastlife',
     picks: pastlifePicks,
     enabled: hasDrawn && pastlifeSlots.length === 7 && !isPastlifeUnlocked,
+    language,
   });
 
   useEffect(() => {
@@ -299,11 +370,16 @@ function EgyptianGodsPage() {
       const previewSymbol = (s.preview.preview as { symbol?: string }).symbol ?? '';
       return {
         ...s,
-        full: { ...(u.gated as unknown as EgyptianGated), titleChinese: u.name, title: u.name_secondary ?? '', symbol: previewSymbol },
+        full: {
+          ...(u.gated as unknown as EgyptianGated),
+          titleChinese: language === 'en' ? u.name_secondary ?? u.name : u.name,
+          title: language === 'en' ? '' : u.name_secondary ?? '',
+          symbol: previewSymbol,
+        },
       };
     }));
     setIsPastlifeUnlocked(true);
-  }, [pastlifeGate.unlockedCards]);
+  }, [pastlifeGate.unlockedCards, language]);
 
   const singleGated = singleUnlocked?.gated as unknown as EgyptianGated | undefined;
   const isSingleUnlocked = !!singleGated;
@@ -406,17 +482,17 @@ function EgyptianGodsPage() {
             </div>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button onClick={drawCard} disabled={!deck || deck.length === 0} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-medium rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                抽 牌
+                {copy('draw', '抽 牌')}
               </button>
               <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-yellow-500/30 rounded-xl hover:bg-slate-700/60 hover:border-yellow-400/50 transition-all text-yellow-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                返 回
+                {copy('back', '返 回')}
               </button>
             </div>
           </section>
         )}
 
-        {isDrawing && <CardShuffleAnimation message="神 祇 傳 遞 訊 息 中" />}
+        {isDrawing && <CardShuffleAnimation message={language === 'en' ? 'Receiving a message from the oracle' : '神 祇 傳 遞 訊 息 中'} />}
 
         {hasDrawn && spreadType === 'single' && singlePreview && (
           <section className="max-w-3xl mx-auto space-y-10">
@@ -426,9 +502,9 @@ function EgyptianGodsPage() {
                   <DeckSigil />
                 </div>
                 <h2 className="font-serif text-3xl sm:text-4xl text-yellow-100 mb-3 tracking-[0.25em]">
-                  {singlePreview.name_secondary || singlePreview.name}
+                  {language === 'en' ? singlePreview.name : singlePreview.name_secondary || singlePreview.name}
                 </h2>
-                {singlePreview.name_secondary && (
+                {language !== 'en' && singlePreview.name_secondary && (
                   <p className="text-sm tracking-[0.32em] text-yellow-400/80">{singlePreview.name}</p>
                 )}
               </div>
@@ -436,7 +512,7 @@ function EgyptianGodsPage() {
               <div className="pt-8 space-y-6">
                 {singleSymbol && (
                   <div>
-                    <h3 className="text-yellow-200 text-sm tracking-[0.4em] uppercase mb-3">牌 卡 象 徵</h3>
+                    <h3 className="text-yellow-200 text-sm tracking-[0.4em] uppercase mb-3">{language === 'en' ? 'Card Symbolism' : '牌 卡 象 徵'}</h3>
                     <p className="text-yellow-100/90 leading-loose whitespace-pre-line">{singleSymbol}</p>
                   </div>
                 )}
@@ -444,7 +520,7 @@ function EgyptianGodsPage() {
                 {!isSingleUnlocked && (
                   <>
                     <div>
-                      <h3 className="text-yellow-200 text-sm tracking-[0.4em] uppercase mb-3">牌 面 訊 息</h3>
+                      <h3 className="text-yellow-200 text-sm tracking-[0.4em] uppercase mb-3">{language === 'en' ? 'Card Message' : '牌 面 訊 息'}</h3>
                       {singlePreview.preview_excerpt && (
                         <div className="relative">
                           <p className="text-yellow-100/90 leading-loose whitespace-pre-line">{singlePreview.preview_excerpt}</p>
@@ -452,24 +528,25 @@ function EgyptianGodsPage() {
                         </div>
                       )}
                       <p className="mt-3 text-xs text-yellow-400/70 tracking-wide">
-                        前 30% 預覽 — 登入後享有 3 次免費占卜
+                        {language === 'en' ? '30% preview · Sign in to get 3 free readings' : '前 30% 預覽 — 登入後享有 3 次免費占卜'}
                       </p>
                     </div>
                     {singleGate.phase === 'loading' && (
-                      <div className="text-center text-yellow-300/70 py-4 tracking-wider">解鎖中…</div>
+                      <div className="text-center text-yellow-300/70 py-4 tracking-wider">{copy('unlocking', '解鎖中…')}</div>
                     )}
                     {singleGate.phase === 'login_gate' && (
                       <InlineEmailUnlock
                         onUnlocked={handleEmailSubmitted}
                         readingType="egyptian_gods_single"
                         theme="dark"
+                        language={language}
                         cardUnlock={{ spread_id: 'egyptian_single', card_key: singlePreview.card_key }}
                       />
                     )}
                     <MembershipGate
                       isOpen={singleGate.showMembership}
                       onClose={() => singleGate.setShowMembership(false)}
-                      resumePath="/egyptian-gods?spread=single"
+                      resumePath={getLocalizedPath('/egyptian-gods?spread=single', language)}
                       pendingSingleDraw={singlePreview ? {
                         spread_id: 'egyptian_single',
                         card_key: singlePreview.card_key,
@@ -480,12 +557,12 @@ function EgyptianGodsPage() {
 
                 {isSingleUnlocked && singleGated && (
                   <>
-                    <Section title="核心含意">{singleGated.coreMeaning}</Section>
-                    <Section title="核心能量">{singleGated.coreEnergy}</Section>
-                    <Section title="指引">{singleGated.guidance}</Section>
-                    <Section title="靈魂提醒">{singleGated.soulReminder}</Section>
-                    <Section title="可以問的問題">{singleGated.questions}</Section>
-                    <Section title="能量重點">{singleGated.energyFocus}</Section>
+                    <Section title={language === 'en' ? 'Core Meaning' : '核心含意'}>{singleGated.coreMeaning}</Section>
+                    <Section title={language === 'en' ? 'Core Energy' : '核心能量'}>{singleGated.coreEnergy}</Section>
+                    <Section title={language === 'en' ? 'Guidance' : '指引'}>{singleGated.guidance}</Section>
+                    <Section title={language === 'en' ? 'Soul Reminder' : '靈魂提醒'}>{singleGated.soulReminder}</Section>
+                    <Section title={language === 'en' ? 'Questions to Explore' : '可以問的問題'}>{singleGated.questions}</Section>
+                    <Section title={language === 'en' ? 'Energy Focus' : '能量重點'}>{singleGated.energyFocus}</Section>
                   </>
                 )}
               </div>
@@ -493,10 +570,11 @@ function EgyptianGodsPage() {
 
             <ShareReadingSection
               deckId="egyptian_gods"
-              deckName="埃及神諭"
-              spreadName="單張牌陣"
+              deckName={language === 'en' ? 'Egyptian Oracle' : '埃及神諭'}
+              spreadName={language === 'en' ? 'Single-Card Reading' : '單張牌陣'}
               cards={[{ cardKey: singlePreview.card_key, name: singlePreview.name }]}
-              summary={singlePreview.preview_excerpt || '埃及諸神正在以古老智慧，為你照亮眼前的道路。'}
+              summary={singlePreview.preview_excerpt || (language === 'en' ? 'The Egyptian oracle offers an ancient perspective to help illuminate the path before you.' : '埃及諸神正在以古老智慧，為你照亮眼前的道路。')}
+              language={language}
               deepAnalysis={{
                 deckId: 'egyptian_gods', spreadId: 'egyptian_single',
                 hasFullAccess: isSingleUnlocked,
@@ -509,7 +587,7 @@ function EgyptianGodsPage() {
             <div className="flex justify-center">
               <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-yellow-500/30 rounded-xl hover:bg-slate-700/60 hover:border-yellow-400/50 transition-all text-yellow-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重 新 抽 牌
+                {copy('drawAgain', '重 新 抽 牌')}
               </button>
             </div>
           </section>
@@ -518,10 +596,11 @@ function EgyptianGodsPage() {
         {hasDrawn && spreadType === 'pastlife' && pastlifeSlots.length === 7 && (
           <section className="max-w-6xl mx-auto space-y-10">
             <div className="text-center">
-              <h2 className="font-serif text-3xl sm:text-4xl text-yellow-100 tracking-[0.3em] mb-4">前世因果解鎖陣</h2>
+              <h2 className="font-serif text-3xl sm:text-4xl text-yellow-100 tracking-[0.3em] mb-4">{copy('pastlifeTitle', '前世因果解鎖陣')}</h2>
               <p className="text-sm sm:text-base text-yellow-300/80 leading-loose max-w-2xl mx-auto">
-                你的靈魂記得所有的故事。<br />
-                這些牌卡將揭開前世今生的因果連結,帶你走向真正的釋放與療癒。
+                {language === 'en'
+                  ? <>Use these seven cards to reflect on recurring themes, personal history, and the connections you experience in your life today.</>
+                  : <>你的靈魂記得所有的故事。<br />這些牌卡將揭開前世今生的因果連結,帶你走向真正的釋放與療癒。</>}
               </p>
             </div>
 
@@ -530,39 +609,40 @@ function EgyptianGodsPage() {
                 <div className="space-y-8 sm:space-y-10">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
                     {pastlifeSlots.slice(0, 4).map((slot, index) => (
-                      <EgyptianPastlifePreviewCard key={index} slot={slot} index={index} />
+                      <EgyptianPastlifePreviewCard key={index} slot={slot} index={index} language={language} />
                     ))}
                   </div>
                   <div className="mx-auto grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:w-3/4 lg:grid-cols-3">
                     {pastlifeSlots.slice(4).map((slot, index) => (
-                      <EgyptianPastlifePreviewCard key={index + 4} slot={slot} index={index + 4} />
+                      <EgyptianPastlifePreviewCard key={index + 4} slot={slot} index={index + 4} language={language} />
                     ))}
                   </div>
                 </div>
 
                 {pastlifeGate.phase === 'loading' && (
-                  <div className="text-center text-yellow-300/70 py-6 tracking-wider">解鎖中…</div>
+                  <div className="text-center text-yellow-300/70 py-6 tracking-wider">{copy('unlocking', '解鎖中…')}</div>
                 )}
                 {pastlifeGate.phase === 'login_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-yellow-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">登入後享有 3 次免費占卜</h3>
+                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.2em]">{copy('signInFreeReadings', '登入後享有 3 次免費占卜')}</h3>
                     <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
-                      登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。
+                      {copy('freeReadingsDescription', '登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。')}
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handlePastlifeEmailSubmitted(email); }}
                       readingType="egyptian_pastlife"
                       theme="dark"
+                      language={language}
                     />
                   </div>
                 )}
                 {pastlifeGate.phase === 'paywall' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-yellow-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.3em]">解鎖完整前世因果訊息</h3>
+                    <h3 className="font-serif text-2xl text-yellow-100 tracking-[0.3em]">{copy('unlockFullPastlife', '解鎖完整前世因果訊息')}</h3>
                     <p className="text-sm text-yellow-300/85 leading-loose max-w-md mx-auto">
-                      解鎖七張牌的完整靈魂解讀,揭開你前世與今生的連結。
+                      {copy('unlockPastlifeDescription', '解鎖七張牌的完整靈魂解讀,揭開你前世與今生的連結。')}
                     </p>
                     <OraclePricingPlans spreadId="egyptian_pastlife" onSingleCheckout={handleCheckoutPastlife} singleLoading={isCheckingOut} error={unlockError} />
                   </div>
@@ -574,7 +654,7 @@ function EgyptianGodsPage() {
               <div className="space-y-6">
                 <BundleCreditStatus spreadId="egyptian_pastlife" remaining={pastlifeGate.bundleRemaining} />
                 {pastlifeSlots.map((slot, index) => {
-                  const positionGuide = getPastLifePositionGuide(index);
+                  const positionGuide = getLocalizedPastLifeGuide(index, language);
                   if (!slot.full) return null;
                   const interpretationText = positionGuide.guideText(slot.full.coreEnergy, slot.full.godStory);
                   return (
@@ -597,12 +677,12 @@ function EgyptianGodsPage() {
                             )}
                             {slot.full.symbol && (
                               <div className="mb-3">
-                                <p className="text-xs text-yellow-400/85 tracking-[0.18em] mb-1">牌卡象徵</p>
+                                <p className="text-xs text-yellow-400/85 tracking-[0.18em] mb-1">{copy('cardSymbols', '牌卡象徵')}</p>
                                 <p className="text-xs text-yellow-200/85 leading-loose">{slot.full.symbol}</p>
                               </div>
                             )}
                             <div>
-                              <p className="text-xs text-yellow-400/85 tracking-[0.18em] mb-1">神的故事</p>
+                              <p className="text-xs text-yellow-400/85 tracking-[0.18em] mb-1">{copy('deityStory', '神的故事')}</p>
                               <p className="text-xs text-yellow-200/85 leading-loose">{slot.full.godStory}</p>
                             </div>
                           </div>
@@ -614,7 +694,7 @@ function EgyptianGodsPage() {
                               <p className="text-sm text-yellow-300/90 leading-loose">{positionGuide.emotionalHook}</p>
                             </div>
                           )}
-                          <h4 className="text-yellow-200 text-sm tracking-[0.4em] uppercase mb-4">靈 魂 訊 息</h4>
+                          <h4 className="text-yellow-200 text-sm tracking-[0.4em] uppercase mb-4">{copy('soulMessage', '靈 魂 訊 息')}</h4>
                           <div className="text-yellow-100/90 leading-loose whitespace-pre-line">
                             {interpretationText.split('\n\n').map((paragraph, pIndex) => {
                               const parts = paragraph.split(/(\*\*.*?\*\*)/g);
@@ -639,15 +719,16 @@ function EgyptianGodsPage() {
             )}
 
             <ShareReadingSection
+              language={language}
               deckId="egyptian_gods"
-              deckName="埃及神諭"
-              spreadName="前世因果解鎖陣"
+              deckName={copy('title', '埃及神諭')}
+              spreadName={copy('pastlifeTitle', '前世因果解鎖陣')}
               cards={pastlifeSlots.map((slot) => ({
                 cardKey: slot.preview.card_key,
-                name: slot.preview.name,
+                name: language === 'en' ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name,
                 position: slot.position,
               }))}
-              summary={pastlifeSlots[0]?.preview.preview_excerpt || '古老神諭正在協助你看見靈魂記憶與今生課題。'}
+              summary={pastlifeSlots[0]?.preview.preview_excerpt || copy('pastlifeShareSummary', '古老神諭正在協助你看見靈魂記憶與今生課題。')}
               deepAnalysis={{
                 deckId: 'egyptian_gods', spreadId: 'egyptian_pastlife',
                 hasFullAccess: isPastlifeUnlocked,
@@ -655,14 +736,14 @@ function EgyptianGodsPage() {
               }}
             />
 
-            {isPastlifeUnlocked && <ResonanceCTA />}
+            {isPastlifeUnlocked && <ResonanceCTA language={language} />}
 
-            <TarotCourseCTA />
+            <TarotCourseCTA language={language} />
 
             <div className="flex justify-center pt-4">
               <button onClick={resetDraw} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-yellow-500/30 rounded-xl hover:bg-slate-700/60 hover:border-yellow-400/50 transition-all text-yellow-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重 新 抽 牌
+                {copy('drawAgain', '重 新 抽 牌')}
               </button>
             </div>
           </section>

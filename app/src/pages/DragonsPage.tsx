@@ -21,7 +21,7 @@ import { saveMultiSpreadEmail } from '../lib/multiSpreadEmail';
 import { consumePendingSingleDraw } from '../lib/pendingDraw';
 import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart } from '../lib/ga4';
-import { localizeCardLabel, t } from '../lib/i18n';
+import { getLocalizedPath, localizeCardLabel, t } from '../lib/i18n';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 
 interface DragonGated {
@@ -130,20 +130,20 @@ function DragonsPage() {
         TAROT_SUBSCRIPTION.id,
       );
       if (admin_unlocked) {
-        navigate(`/checkout/return?order_id=${encodeURIComponent(order_id)}`);
+        navigate(`${getLocalizedPath('/checkout/return', language)}?order_id=${encodeURIComponent(order_id)}`);
         return;
       }
       if (!ecpay) {
-        setUnlockError('結帳資料缺失,請重試');
+        setUnlockError(language === 'en' ? 'Checkout details are unavailable. Please try again.' : '結帳資料缺失,請重試');
         setIsCheckingOut(false);
         return;
       }
       submitToEcpay(ecpay, () => {
-        setUnlockError('跳轉至綠界失敗 — 請確認瀏覽器未阻擋自動表單送出後重試');
+        setUnlockError(language === 'en' ? 'Could not open the payment page. Check whether your browser blocked the redirect, then try again.' : '跳轉至綠界失敗 — 請確認瀏覽器未阻擋自動表單送出後重試');
         setIsCheckingOut(false);
       });
     } catch (err) {
-      setUnlockError(err instanceof Error ? err.message : '結帳失敗,請稍後再試');
+      setUnlockError(language === 'en' ? 'Checkout failed. Please try again.' : err instanceof Error ? err.message : '結帳失敗,請稍後再試');
       setIsCheckingOut(false);
     }
   };
@@ -180,7 +180,7 @@ function DragonsPage() {
       try {
         const { order } = await checkoutApi.getOrder(orderId, orderToken);
         if (order.item_id !== 'dragons_three' || order.status !== 'paid' || !order.picks) {
-          setUnlockError('無法還原此訂單(item_id/status/picks 不符)');
+          setUnlockError(language === 'en' ? 'This order cannot be restored because its details are invalid or it has not been paid.' : '無法還原此訂單(item_id/status/picks 不符)');
           return;
         }
         const slots = order.picks
@@ -188,7 +188,7 @@ function DragonsPage() {
           .filter((c): c is CardPreview => !!c)
           .map((preview) => ({ preview, full: null as ThreeSlot['full'] }));
         if (slots.length !== order.picks.length) {
-          setUnlockError('牌組對不上,無法還原');
+          setUnlockError(language === 'en' ? 'The saved cards do not match this deck, so the reading cannot be restored.' : '牌組對不上,無法還原');
           return;
         }
         setSpreadType('three');
@@ -198,7 +198,7 @@ function DragonsPage() {
 
         try {
           const picks = slots.map((s, i) => ({ card_key: s.preview.card_key, position: i + 1 }));
-          const unlocked = await unlockSpreadCards('dragons_three', picks, order.id, orderToken);
+          const unlocked = await unlockSpreadCards('dragons_three', picks, order.id, orderToken, language);
           const byKey = new Map(unlocked.map((u) => [u.card_key, u]));
           setThreeSlots((prev) => prev.map((s) => {
             const u = byKey.get(s.preview.card_key);
@@ -216,18 +216,19 @@ function DragonsPage() {
           }));
           setIsThreeUnlocked(true);
         } catch (err) {
-          setUnlockError(err instanceof Error ? err.message : '解鎖失敗,請稍後再試');
+          setUnlockError(language === 'en' ? 'Could not restore the reading. Please try again.' : err instanceof Error ? err.message : '解鎖失敗,請稍後再試');
         }
       } catch (e) {
-        setUnlockError(e instanceof Error ? `還原訂單失敗:${e.message}` : '還原訂單失敗');
+        setUnlockError(language === 'en' ? 'Could not restore this order. Please try again.' : e instanceof Error ? `還原訂單失敗:${e.message}` : '還原訂單失敗');
       }
     })();
-  }, [searchParams, deck]);
+  }, [searchParams, deck, language]);
 
   const singleGate = useSingleCardGate({
     spreadId: 'dragons_single',
     cardKey: singlePreview?.card_key ?? null,
     enabled: !!(singlePreview && hasDrawn && !singleUnlocked),
+    language,
   });
 
   useEffect(() => {
@@ -244,6 +245,7 @@ function DragonsPage() {
     spreadId: 'dragons_three',
     picks: threePicks,
     enabled: hasDrawn && threeSlots.length > 0 && !isThreeUnlocked,
+    language,
   });
 
   useEffect(() => {
@@ -354,14 +356,14 @@ function DragonsPage() {
         )}
 
         {showCardLayout && !isShuffling && !hasDrawn && spreadType === 'single' && (
-          <DrawPrep onDraw={drawCard} onCancel={reset} disabled={!deck} hint="閉上眼睛,感受龍族的能量" />
+          <DrawPrep onDraw={drawCard} onCancel={reset} disabled={!deck} language={language} hint={language === 'en' ? 'Close your eyes and connect with the dragon’s energy.' : '閉上眼睛,感受龍族的能量'} />
         )}
 
         {showCardLayout && !isShuffling && !hasDrawn && spreadType === 'three' && (
           <section className="max-w-2xl mx-auto text-center py-8">
-            <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">三 張 牌 陣</h2>
+            <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">{language === 'en' ? 'Three-Card Spread' : '三 張 牌 陣'}</h2>
             <p className="text-sm sm:text-base text-emerald-300/85 mb-8 leading-loose">
-              龍族將引領你看見過去、現在與未來的智慧連結
+              {language === 'en' ? 'Let the dragon oracle guide you through the wisdom of your past, present, and future.' : '龍族將引領你看見過去、現在與未來的智慧連結'}
             </p>
 
             <div className="flex justify-center mb-12 gap-4">
@@ -375,36 +377,36 @@ function DragonsPage() {
             </div>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button onClick={performThreeCardDraw} disabled={!deck} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                抽 牌
+                {language === 'en' ? 'Draw Cards' : '抽 牌'}
               </button>
               <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                返 回
+                {language === 'en' ? 'Back' : '返 回'}
               </button>
             </div>
           </section>
         )}
 
-        {isShuffling && <CardShuffleAnimation message="龍 族 火 焰 翻 湧 中" />}
+        {isShuffling && <CardShuffleAnimation message={language === 'en' ? 'Dragon fire is gathering…' : '龍 族 火 焰 翻 湧 中'} />}
 
         {threeSlots.length > 0 && hasDrawn && (
           <section className="max-w-3xl mx-auto space-y-10">
             <div className="text-center">
-              <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-3">過   現   未</h2>
-              <p className="text-sm text-emerald-300/80">龍族為你揭示時間之流的智慧</p>
+              <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-3">{language === 'en' ? 'Past · Present · Future' : '過   現   未'}</h2>
+              <p className="text-sm text-emerald-300/80">{language === 'en' ? 'Explore the wisdom of the past, present, and future through the dragon oracle.' : '龍族為你揭示時間之流的智慧'}</p>
             </div>
 
             {!isThreeUnlocked && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {threeSlots.map((slot, index) => {
-                    const titles = ['過去', '現在', '未來'];
+                    const titles = language === 'en' ? ['Past', 'Present', 'Future'] : ['過去', '現在', '未來'];
                     const previewKw = (slot.preview.preview as { keywords?: string[] }).keywords ?? [];
                     return (
                       <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl !p-5">
                         <p className="text-emerald-200 text-sm tracking-[0.4em] uppercase text-center mb-3">{titles[index]}</p>
-                        <h3 className="deck-name text-xl text-emerald-100 text-center mb-1">{slot.preview.name}</h3>
-                        {slot.preview.name_secondary && (
+                        <h3 className="deck-name text-xl text-emerald-100 text-center mb-1">{language === 'en' ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name}</h3>
+                        {language !== 'en' && slot.preview.name_secondary && (
                           <p className="text-xs tracking-[0.2em] text-emerald-400/80 text-center mb-3">{slot.preview.name_secondary}</p>
                         )}
                         {previewKw.length > 0 && (
@@ -424,7 +426,7 @@ function DragonsPage() {
                           </div>
                         )}
                         <p className="mt-2 text-[0.65rem] text-emerald-400/70 tracking-wide text-center">
-                          前 30% 預覽
+                          {language === 'en' ? '30% preview' : '前 30% 預覽'}
                         </p>
                       </div>
                     );
@@ -432,28 +434,29 @@ function DragonsPage() {
                 </div>
 
                 {threeGate.phase === 'loading' && (
-                  <div className="text-center text-emerald-300/70 py-6 tracking-wider">解鎖中…</div>
+                  <div className="text-center text-emerald-300/70 py-6 tracking-wider">{language === 'en' ? 'Unlocking…' : '解鎖中…'}</div>
                 )}
                 {threeGate.phase === 'login_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">登入後享有 3 次免費占卜</h3>
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">{language === 'en' ? 'Get 3 Free Readings After Signing In' : '登入後享有 3 次免費占卜'}</h3>
                     <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
-                      登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。
+                      {language === 'en' ? 'Sign in to get 3 free readings across all decks. One free credit is used when you complete a full spread.' : '登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。'}
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
                       readingType="dragons_three"
                       theme="dark"
+                      language={language}
                     />
                   </div>
                 )}
                 {threeGate.phase === 'paywall' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.3em]">解鎖完整龍族訊息</h3>
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.3em]">{language === 'en' ? 'Unlock the Full Dragon Reading' : '解鎖完整龍族訊息'}</h3>
                     <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
-                      展開三張牌的完整解讀,揭示過去、現在、未來的能量脈絡。
+                      {language === 'en' ? 'Explore the full interpretation of all three cards and reflect on the energies of your past, present, and future.' : '展開三張牌的完整解讀,揭示過去、現在、未來的能量脈絡。'}
                     </p>
                     <OraclePricingPlans spreadId="dragons_three" onSingleCheckout={handleUnlockThree} singleLoading={isCheckingOut} error={unlockError} />
                   </div>
@@ -467,18 +470,18 @@ function DragonsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {threeSlots.map((slot, index) => {
                     if (!slot.full) return null;
-                    const titles = ['過去', '現在', '未來'];
+                    const titles = language === 'en' ? ['Past', 'Present', 'Future'] : ['過去', '現在', '未來'];
                     return (
                       <div key={index} className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl !p-5">
                         <p className="text-emerald-200 text-sm tracking-[0.4em] uppercase text-center mb-3">{titles[index]}</p>
-                        <h3 className="deck-name text-lg text-emerald-100 text-center mb-1">{slot.full.name}</h3>
-                        {slot.full.nameEn && (
+                        <h3 className="deck-name text-lg text-emerald-100 text-center mb-1">{language === 'en' ? slot.full.nameEn || slot.full.name : slot.full.name}</h3>
+                        {language !== 'en' && slot.full.nameEn && (
                           <p className="text-xs tracking-[0.2em] text-emerald-400/80 text-center mb-4">{slot.full.nameEn}</p>
                         )}
                         <div className="space-y-4 pt-4 border-t border-emerald-500/15">
-                          <ThreeSection title="龍族訊息">{slot.full.message}</ThreeSection>
-                          <ThreeSection title="行動指引">{slot.full.guidance}</ThreeSection>
-                          <ThreeSection title="能量頻率">{slot.full.energy}</ThreeSection>
+                          <ThreeSection title={language === 'en' ? 'Dragon Message' : '龍族訊息'}>{slot.full.message}</ThreeSection>
+                          <ThreeSection title={language === 'en' ? 'Guidance' : '行動指引'}>{slot.full.guidance}</ThreeSection>
+                          <ThreeSection title={language === 'en' ? 'Energy' : '能量頻率'}>{slot.full.energy}</ThreeSection>
                         </div>
                       </div>
                     );
@@ -489,14 +492,15 @@ function DragonsPage() {
 
             <ShareReadingSection
               deckId="dragons"
-              deckName="龍族塔羅"
-              spreadName="三張牌陣"
+              deckName={language === 'en' ? 'Dragon Oracle' : '龍族塔羅'}
+              spreadName={language === 'en' ? 'Three-Card Spread' : '三張牌陣'}
               cards={threeSlots.map((slot, index) => ({
                 cardKey: slot.preview.card_key,
-                name: slot.preview.name,
-                position: ['過去', '現在', '未來'][index],
+                name: language === 'en' ? slot.preview.name_secondary ?? slot.preview.name : slot.preview.name,
+                position: language === 'en' ? ['Past', 'Present', 'Future'][index] : ['過去', '現在', '未來'][index],
               }))}
-              summary={threeSlots[0]?.preview.preview_excerpt || '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。'}
+              summary={threeSlots[0]?.preview.preview_excerpt || (language === 'en' ? 'The dragon oracle invites you to release what drains you and find the courage to move forward.' : '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。')}
+              language={language}
               deepAnalysis={{
                 deckId: 'dragons', spreadId: 'dragons_three',
                 hasFullAccess: isThreeUnlocked,
@@ -511,7 +515,7 @@ function DragonsPage() {
             <div className="flex justify-center pt-4">
               <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重 新 抽 牌
+                {language === 'en' ? 'Draw Again' : '重 新 抽 牌'}
               </button>
             </div>
           </section>
@@ -527,7 +531,7 @@ function DragonsPage() {
                 <h2 className="font-serif text-3xl sm:text-4xl text-emerald-100 mb-3 tracking-[0.25em]">
                   {singlePreview.name}
                 </h2>
-                {singlePreview.name_secondary && (
+                {language !== 'en' && singlePreview.name_secondary && (
                   <p className="text-sm tracking-[0.32em] text-emerald-400/80">{singlePreview.name_secondary}</p>
                 )}
                 {singlePreviewKw.length > 0 && (
@@ -545,7 +549,7 @@ function DragonsPage() {
                 {!isSingleUnlocked && (
                   <>
                     <div>
-                      <h3 className="text-emerald-200 text-sm tracking-[0.4em] uppercase mb-4">牌 面 訊 息</h3>
+                      <h3 className="text-emerald-200 text-sm tracking-[0.4em] uppercase mb-4">{language === 'en' ? 'Card Message' : '牌 面 訊 息'}</h3>
                       {singlePreview.preview_excerpt && (
                         <div className="relative">
                           <p className="text-emerald-100/90 leading-loose whitespace-pre-line">{singlePreview.preview_excerpt}</p>
@@ -553,7 +557,7 @@ function DragonsPage() {
                         </div>
                       )}
                       <p className="mt-4 text-xs text-emerald-400/70 tracking-wide">
-                        前 30% 預覽 — 登入後享有 3 次免費占卜
+                        {language === 'en' ? '30% preview · Sign in to get 3 free readings' : '前 30% 預覽 — 登入後享有 3 次免費占卜'}
                       </p>
                     </div>
                     {singleGate.phase === 'loading' && (
@@ -564,13 +568,14 @@ function DragonsPage() {
                         onUnlocked={handleSingleEmailSubmitted}
                         readingType="dragons_single"
                         theme="dark"
+                        language={language}
                         cardUnlock={{ spread_id: 'dragons_single', card_key: singlePreview.card_key }}
                       />
                     )}
                     <MembershipGate
                       isOpen={singleGate.showMembership}
                       onClose={() => singleGate.setShowMembership(false)}
-                      resumePath="/dragons?spread=single"
+                      resumePath={getLocalizedPath('/dragons?spread=single', language)}
                       pendingSingleDraw={singlePreview ? {
                         spread_id: 'dragons_single',
                         card_key: singlePreview.card_key,
@@ -581,10 +586,10 @@ function DragonsPage() {
 
                 {isSingleUnlocked && singleGated && (
                   <>
-                    <Section title="龍族訊息">{singleGated.message}</Section>
-                    <Section title="行動指引">{singleGated.guidance}</Section>
+                    <Section title={language === 'en' ? 'Dragon Message' : '龍族訊息'}>{singleGated.message}</Section>
+                    <Section title={language === 'en' ? 'Guidance' : '行動指引'}>{singleGated.guidance}</Section>
                     <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl border-l-2 border-l-emerald-500/70">
-                      <h3 className="text-emerald-200 text-sm tracking-[0.4em] uppercase mb-3">能 量 建 議</h3>
+                      <h3 className="text-emerald-200 text-sm tracking-[0.4em] uppercase mb-3">{language === 'en' ? 'Energy Guidance' : '能 量 建 議'}</h3>
                       <p className="text-emerald-100/90 leading-loose whitespace-pre-line">{singleGated.energy}</p>
                     </div>
                   </>
@@ -594,10 +599,11 @@ function DragonsPage() {
 
             <ShareReadingSection
               deckId="dragons"
-              deckName="龍族塔羅"
-              spreadName="單張牌陣"
+              deckName={language === 'en' ? 'Dragon Oracle' : '龍族塔羅'}
+              spreadName={language === 'en' ? 'Single-Card Reading' : '單張牌陣'}
               cards={[{ cardKey: singlePreview.card_key, name: singlePreview.name }]}
-              summary={singlePreview.preview_excerpt || '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。'}
+              summary={singlePreview.preview_excerpt || (language === 'en' ? 'The dragon oracle invites you to release what drains you and find the courage to move forward.' : '龍族正在為你斬斷消耗，點燃突破現狀的勇氣。')}
+              language={language}
               deepAnalysis={{
                 deckId: 'dragons', spreadId: 'dragons_single',
                 hasFullAccess: isSingleUnlocked,
@@ -610,7 +616,7 @@ function DragonsPage() {
             <div className="flex justify-center">
               <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-                重 新 抽 牌
+                {language === 'en' ? 'Draw Again' : '重 新 抽 牌'}
               </button>
             </div>
           </section>
@@ -649,10 +655,10 @@ function ThreeSection({ title, children }: { title: string; children: React.Reac
 
 
 
-function DrawPrep({ onDraw, onCancel, disabled, hint }: { onDraw: () => void; onCancel: () => void; disabled: boolean; hint: string }) {
+function DrawPrep({ onDraw, onCancel, disabled, hint, language }: { onDraw: () => void; onCancel: () => void; disabled: boolean; hint: string; language: 'zh-Hant' | 'en' }) {
   return (
     <section className="max-w-2xl mx-auto text-center py-8">
-      <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">準 備 抽 牌</h2>
+      <h2 className="font-serif text-3xl text-emerald-100 tracking-[0.3em] mb-5">{language === 'en' ? 'Prepare to Draw' : '準 備 抽 牌'}</h2>
       <p className="text-sm sm:text-base text-emerald-300/85 mb-12 leading-loose">{hint}</p>
       <div className="flex justify-center mb-12">
         <div className="w-44 sm:w-56">
@@ -663,11 +669,11 @@ function DrawPrep({ onDraw, onCancel, disabled, hint }: { onDraw: () => void; on
       </div>
       <div className="flex flex-col sm:flex-row justify-center gap-4">
         <button onClick={onDraw} disabled={disabled} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium rounded-xl shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-          抽 牌
+          {language === 'en' ? 'Draw a Card' : '抽 牌'}
         </button>
         <button onClick={onCancel} className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-slate-800/60 border-2 border-emerald-500/30 rounded-xl hover:bg-slate-700/60 hover:border-emerald-400/50 transition-all text-emerald-200">
           <RotateCcw className="w-4 h-4" strokeWidth={1.4} />
-          返 回
+          {language === 'en' ? 'Back' : '返 回'}
         </button>
       </div>
     </section>
