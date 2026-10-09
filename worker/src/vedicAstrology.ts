@@ -2177,6 +2177,10 @@ function traditionalChineseLength(value: string): number {
   return (value.match(/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) || []).length;
 }
 
+export function containsCjkText(value: string): boolean {
+  return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af\uf900-\ufaff]/u.test(value);
+}
+
 function qualityLength(value: string, language: 'zh-Hant' | 'en'): number {
   return language === 'en' ? value.trim().split(/\s+/).filter(Boolean).length : traditionalChineseLength(value);
 }
@@ -2241,6 +2245,18 @@ function consultationHasDepth(value: string, minimumLength: number, kind: 'secti
 }
 
 export function validateCompleteVedicReport(report: VedicPaidReport, language: 'zh-Hant' | 'en' = 'zh-Hant'): boolean {
+  const containsUnexpectedCjk = language === 'en' && [
+    report.title, report.introduction, report.consultationQuestion || '', report.closing,
+    ...report.sections.flatMap((section) => [
+      section.heading,
+      section.consultation,
+      ...(section.timeline || []).flatMap((period) => [
+        period.displayLabel,
+        period.interpretation.consultation,
+      ]),
+    ]),
+  ].some(containsCjkText);
+  if (containsUnexpectedCjk) return false;
   return report.formatVersion === VEDIC_REPORT_FORMAT_VERSION
     && report.sections.length === reportHeadings('complete', language).length
     && report.sections.every((section, index) => section.heading === reportHeadings('complete', language)[index]
@@ -2599,6 +2615,19 @@ async function generatePaidReportPart(
       if (length > 1200) sectionQualityReasons.push(`period_${period.id}_too_long_${length}`);
     });
     if (reportHasDuplicateSentences(sections, language)) sectionQualityReasons.push('duplicate_or_high_similarity');
+    const containsUnexpectedCjk = language === 'en' && [
+      title, introduction, consultationQuestion, closing,
+      ...sections.flatMap((section) => [
+        section.heading, section.consultation,
+        ...(section.timeline || []).flatMap((period) => [
+          period.displayLabel, period.interpretation.consultation,
+        ]),
+      ]),
+    ].some(containsCjkText);
+    if (containsUnexpectedCjk && singleAttempt) {
+      throw new VedicSectionError('SECTION_LANGUAGE_MISMATCH', true);
+    }
+    if (containsUnexpectedCjk) sectionQualityReasons.push('non_english_text');
     const invalidGeneratedSections = sectionQualityReasons.length > 0;
     if (!title || !introduction || sections.length !== sectionIndexes.length || invalidGeneratedSections) {
       const reasons = [

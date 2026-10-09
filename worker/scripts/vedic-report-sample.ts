@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildVedicFallbackReport, buildVedicForecastPeriods, mergeVedicForecastInterpretations, validateCompleteVedicReport, auditCompleteVedicReport, VEDIC_REPORT_FORMAT_VERSION, type VedicChartData } from '../src/vedicAstrology.ts';
+import { buildVedicFallbackReport, buildVedicForecastPeriods, mergeVedicForecastInterpretations, reportHeadings, validateCompleteVedicReport, auditCompleteVedicReport, containsCjkText, VEDIC_REPORT_FORMAT_VERSION, type VedicChartData } from '../src/vedicAstrology.ts';
 
 const chart: VedicChartData = {
   ayanamsa: 'LAHIRI', lagna: 'Capricorn', sunSign: 'Libra', moonSign: 'Libra', moonNakshatra: 'Chitra - Pada 4',
@@ -41,6 +41,31 @@ assert.throws(() => mergeVedicForecastInterpretations(skeleton, missing, chart),
 assert.throws(() => mergeVedicForecastInterpretations(skeleton, { ...ai, period_1: { consultation: '太短' } }, chart), /VEDIC_FORECAST_AI_INCOMPLETE/);
 
 const report = buildVedicFallbackReport('complete', chart, null);
+assert.equal(containsCjkText('A natural English Vedic report'), false);
+assert.equal(containsCjkText('這是中文報告'), true);
+const englishText = (section: number, length: number) =>
+  Array.from({ length }, (_, word) => `w${(word * 7919 + section * 104729).toString(36)}`).join(' ');
+const englishReport = {
+  ...report,
+  title: 'Personal Vedic Astrology Report',
+  introduction: 'This report explores the supplied chart.',
+  closing: 'Use these reflections as options, not certainty.',
+  sections: report.sections.map((section, index) => ({
+    ...section,
+    heading: reportHeadings('complete', 'en')[index],
+    consultation: englishText(index, 400),
+    ...(section.timeline ? {
+      timeline: section.timeline.map((period, periodIndex) => ({
+        ...period,
+        displayLabel: 'Jupiter / Saturn',
+        interpretation: { ...period.interpretation, consultation: englishText(index + periodIndex + 10, 260) },
+      })),
+    } : {}),
+  })),
+};
+assert.equal(validateCompleteVedicReport(englishReport, 'en'), true, 'valid English report should pass');
+assert.equal(validateCompleteVedicReport({ ...englishReport, introduction: '這是中文報告' }, 'en'), false,
+  'Chinese prose must not be accepted in an English report');
 assert.equal(report.formatVersion, VEDIC_REPORT_FORMAT_VERSION);
 assert.equal(report.sections.length, 9);
 assert.equal(validateCompleteVedicReport(report), false, 'the compact deterministic fallback must not be mistaken for a premium AI report');
