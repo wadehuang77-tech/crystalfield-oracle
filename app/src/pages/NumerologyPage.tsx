@@ -75,7 +75,7 @@ export default function NumerologyPage() {
   const navigate = useNavigate();
   const language = getLanguageFromPath(location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`numerology.${key}`, language) : fallback;
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authError } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
   const [oracleCard, setOracleCard] = useState<OracleCard | null>(null);
@@ -259,7 +259,7 @@ export default function NumerologyPage() {
 
   // ── Actions ─────────────────────────────────────────────────────
   const handleSubmit = async (date: string, useOracle: boolean) => {
-    if (authLoading) return;
+    if (authLoading || authError) return;
     const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
     if (loginUrl) {
       navigate(loginUrl);

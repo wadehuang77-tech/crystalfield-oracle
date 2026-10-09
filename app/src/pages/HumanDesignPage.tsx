@@ -121,7 +121,7 @@ function AnalysingScreen() {
 }
 
 export default function HumanDesignPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authError } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const language = getLanguageFromPath(location.pathname);
@@ -164,7 +164,7 @@ export default function HumanDesignPage() {
   };
 
   const handleCalculate = (birthDate: string, birthTime: string, birthCity: string) => {
-    if (authLoading) return;
+    if (authLoading || authError) return;
     const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
     if (loginUrl) {
       navigate(loginUrl);

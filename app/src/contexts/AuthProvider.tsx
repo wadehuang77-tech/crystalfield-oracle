@@ -1,28 +1,35 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { authApi, type SessionUser } from '../lib/api';
 import { AuthContext, type UserMetadata } from './AuthContext';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<Error | null>(null);
+
+  const refreshAuth = useCallback(async () => {
+    setLoading(true);
+    setAuthError(null);
+    try {
+      const { user } = await authApi.me();
+      setUser(user);
+    } catch (error) {
+      setUser(null);
+      setAuthError(error instanceof Error ? error : new Error('Unable to verify your sign-in status.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { user } = await authApi.me();
-        setUser(user);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    void refreshAuth();
+  }, [refreshAuth]);
 
   const signUp = async (email: string, password: string, metadata: UserMetadata) => {
     try {
       const { user } = await authApi.signUp({ email, password, ...metadata });
       setUser(user);
+      setAuthError(null);
       return { error: null };
     } catch (err) {
       return { error: err instanceof Error ? err : new Error('signup failed') };
@@ -33,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { user } = await authApi.signIn(email, password);
       setUser(user);
+      setAuthError(null);
       return { error: null };
     } catch (err) {
       return { error: err instanceof Error ? err : new Error('signin failed') };
@@ -43,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { user } = await authApi.signInWithGoogle(credential, csrfToken);
       setUser(user);
+      setAuthError(null);
       return { error: null };
     } catch (err) {
       return { error: err instanceof Error ? err : new Error('Google 登入失敗') };
@@ -56,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear local auth state even when the remote session is already unavailable.
     }
     setUser(null);
+    setAuthError(null);
   };
 
   const requestPasswordReset = async (email: string) => {
@@ -89,6 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       user,
       loading,
+      authError,
+      refreshAuth,
       signUp,
       signIn,
       signInWithGoogle,

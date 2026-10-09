@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
 import { t } from '../../lib/i18n';
+import { AuthRequiredBirthDate } from '../AuthRequiredBirthDate';
 
 interface Props {
   onSubmit: (date: string, useOracle: boolean) => void;
@@ -96,6 +97,7 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Date inputs */}
+        <AuthRequiredBirthDate>
         <div>
           <div style={{
             fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase',
@@ -136,6 +138,7 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
             />
           </div>
         </div>
+        </AuthRequiredBirthDate>
 
         {/* Submit */}
         <button

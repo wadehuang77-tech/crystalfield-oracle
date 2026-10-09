@@ -13,6 +13,8 @@ export interface UserMetadata {
 export interface AuthContextType {
   user: SessionUser | null;
   loading: boolean;
+  authError: Error | null;
+  refreshAuth: () => Promise<void>;
   signUp: (email: string, password: string, metadata: UserMetadata) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: (credential: string, csrfToken: string) => Promise<{ error: Error | null }>;

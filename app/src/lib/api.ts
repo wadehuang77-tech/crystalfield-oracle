@@ -270,7 +270,7 @@ export const authApi = {
 
   signOut: () => req<{ ok: true }>('/api/auth/signout', { method: 'POST' }),
 
-  me: () => req<{ authenticated: boolean; user: SessionUser | null }>('/api/auth/me'),
+  me: () => req<{ authenticated: boolean; user: SessionUser | null }>('/api/auth/me', { timeoutMs: 10_000 }),
 
   requestPasswordReset: (email: string) =>
     req<{ ok: true }>('/api/auth/request-password-reset', {

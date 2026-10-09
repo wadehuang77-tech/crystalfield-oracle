@@ -30,6 +30,7 @@ import VedicAstrologySeoContent from './VedicAstrologySeoContent';
 import { getLanguageFromPath, t } from '../lib/i18n';
 import { useAuth } from '../contexts/AuthContext';
 import { calculationLoginRedirect } from '../lib/authLocale';
+import { AuthRequiredBirthDate } from '../components/AuthRequiredBirthDate';
 import { pollVedicReport, terminalReport, persistedReportTimings } from '../lib/vedicReportPolling';
 import { VedicChartCore, VedicProgressiveReport } from '../components/VedicReportProgress';
 import { englishVedicFreeResults } from '../lib/vedicFreeReading';
@@ -164,7 +165,7 @@ function loadChart(userId: string): { chart: VedicChartResponse; visibleAt?: num
 }
 
 export default function VedicAstrologyPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
@@ -320,6 +321,11 @@ export default function VedicAstrologyPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (authLoading) return;
+    if (authError) {
+      setError(language === 'en' ? 'We could not verify your sign-in status. Please try again.' : '目前無法確認登入狀態，請重試。');
+      return;
+    }
     if (!form.birthPlace.trim()) {
       setError(language === 'en' ? 'Enter your birthplace.' : '未填出生地點');
       return;
@@ -414,7 +420,9 @@ export default function VedicAstrologyPage() {
           </div>
           <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
             <Field label={copy('birthDate', '出生年月日')}>
-              <input type="date" required value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="vedic-input" />
+              <AuthRequiredBirthDate>
+                <input type="date" required value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="vedic-input" />
+              </AuthRequiredBirthDate>
             </Field>
             <Field label={copy('birthTime', '出生時間')}>
               <div className="grid grid-cols-2 gap-3">
