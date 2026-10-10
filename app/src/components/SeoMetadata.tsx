@@ -16,11 +16,11 @@ export type SeoConfig = {
 
 const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
   '/maya-calendar': {
-    title: 'Dreamspell 瑪雅 13 月亮曆與 KIN 計算｜晶域心語',
-    description: '認識現代 Dreamspell 13 月亮曆、20 太陽圖騰與 13 銀河音調。Google 會員可免費計算 KIN，探索每日自我覺察指引。',
+    title: '探索你的馬雅星際生命密碼｜晶域心語',
+    description: '透過出生日期，認識你的天賦、性格特質與人生方向。免費查詢 KIN，探索 Dreamspell 太陽圖騰與銀河音調，發現屬於你的生命藍圖。',
     canonical: 'https://www.crystalfield101.com/maya-calendar/',
-    h1: 'Dreamspell 瑪雅 13 月亮曆',
-    intro: 'Dreamspell 是現代 13 月亮曆系統，不等同於傳統瑪雅 Tzolk’in 曆法。結果僅供自我覺察，不是命運預測。',
+    h1: '探索你的馬雅星際生命密碼',
+    intro: 'Dreamspell 是現代 13 月亮曆系統，並非傳統馬雅 Tzolk’in 曆法。內容僅供自我探索，不是科學、醫療或未來事件預測。',
   },
   '/': {
     title: '晶域心語｜塔羅、生命靈數、人類圖與印度占星',
@@ -144,10 +144,10 @@ export const PUBLIC_SEO: Record<string, SeoConfig> = {
 
 const ENGLISH_PUBLIC_SEO: Record<string, Pick<SeoConfig, 'title' | 'description' | 'h1' | 'intro'>> = {
   '/maya-calendar': {
-    title: 'Dreamspell Maya 13 Moon Calendar and KIN Calculator | Crystal Field',
-    description: 'Explore the modern Dreamspell 13 Moon calendar, 20 solar seals and 13 galactic tones. Google members can calculate KIN for free and reflect on daily themes.',
-    h1: 'Dreamspell Maya 13 Moon Calendar',
-    intro: 'Dreamspell is a modern 13 Moon calendar, not the traditional Maya Tzolk’in calendar. Results support reflection, not prediction.',
+    title: 'Discover Your Galactic Life Signature | CrystalField101',
+    description: 'Explore your strengths, personality, and sense of direction with Dreamspell. Find your KIN for free and discover your solar seal, galactic tone, and life blueprint.',
+    h1: 'Discover Your Galactic Life Signature',
+    intro: 'Dreamspell is a modern 13 Moon calendar system, not the traditional Maya Tzolk’in calendar. Its symbolic insights are for self-reflection, not scientific claims, medical advice, or predictions.',
   },
   '/': { title: 'Crystal Field | Tarot, Numerology, Human Design and Vedic Astrology', description: 'Explore tarot readings, numerology, Human Design, and Vedic astrology as tools for reflection and self-discovery.', h1: 'Crystal Field', intro: 'Explore tarot, numerology, Human Design, and Vedic astrology to reflect on your strengths, questions, and next steps.' },
   '/oracle': { title: 'Free Tarot and Oracle Card Readings | Crystal Field', description: 'Explore seven tarot and oracle decks, including Rider-Waite, Lightworker, Unicorn, Dragon, Egyptian, Work Your Light, and Osho Zen Tarot.', h1: 'Free Tarot and Oracle Card Readings', intro: 'Choose a deck and spread to reflect on your question, current circumstances, and possible next steps.' },

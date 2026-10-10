@@ -39,6 +39,8 @@ try {
       const hero = page.locator('[data-maya-hero]');
       const heading = hero.getByRole('heading', { level: 1, name: en ? 'Discover Your Galactic Life Signature' : '探索你的馬雅星際生命密碼', exact: true });
       await heading.waitFor();
+      assert.equal(await page.title(), en ? 'Discover Your Galactic Life Signature | CrystalField101' : '探索你的馬雅星際生命密碼｜晶域心語');
+      assert.match(await page.locator('meta[name="description"]').getAttribute('content') || '', en ? /Find your KIN for free/ : /免費查詢 KIN/);
       const subtitle = hero.locator('[data-maya-subtitle]');
       assert.equal(await subtitle.innerText(), en
         ? 'Explore your strengths, personality, and sense of direction—starting with your birth date.'
