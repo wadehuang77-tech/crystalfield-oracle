@@ -1,15 +1,18 @@
 # Dreamspell 星際靈魂使命藍圖 Pro：本地開發與驗證
 
-## 商品文案與手機展示優化（2026-10-10，本地未發布）
+## 商品文案與手機展示優化（2026-10-10，已正式發布）
 
 - 中文名稱保留「星際靈魂使命藍圖 Pro」，副標題改為「探索你的天賦與生命方向，把對自己的理解化為日常行動。」；一般消費者不再看見內部商品 ID、權限實作或自動生成流程說明。
 - 開放狀態下呈現 15 大生命解析、個人星際身份圖、五大神諭、13 階段生命波符及 90 天生命實踐計畫。完整報告功能以既有狀態判定；未開放／尚未驗證時不呈現已可使用特色，保留僅購買權限的警告。
 - 中文 CTA「解鎖我的星際生命藍圖 · NT$699」／英文「Unlock My Galactic Life Blueprint · NT$699」。金額一律由既有 [商品設定](../app/src/lib/mayaPro.ts) 讀取；管理者／已購／繼續生成狀態文字保留。
 - [共用商品文案](../app/src/lib/mayaPremiumCopy.ts) 與 [介紹展示](../app/src/components/maya/MayaPremiumProductIntro.tsx) 同步套用首頁／會員介紹及專用商品頁；手機先展示名稱、核心價值、價格與 CTA，再展示特色。專用頁首屏 CTA 只捲至既有出生資料表單，不付款或生成；表單原操作不變。
-- 保留 Dreamspell 非傳統馬雅曆法、非科學預測之簡短說明。付款／權限／歷史訂單／報告生成／快取／D1／AI API 邏輯不變。本輪不自動 commit／push 或部署。
+- 保留 Dreamspell 非傳統馬雅曆法、非科學預測之簡短說明。付款／權限／歷史訂單／報告生成／快取／D1／AI API 邏輯不變。開發當時未發布，後依使用者「PUSH 部署」明確授權正式發布。
 - 新增 [中英文商品文案測試](../app/scripts/maya-premium-copy-check.ts)，並更新直接相關既有介面 selector；下方既有發布記錄保留。
 - PASS：TypeScript、相關 ESLint、production Build／45-route SEO；30 個新文案／首屏／未開放與 config 失敗案例、56 個按鈕／商品／AI gate、76 個付費返回／管理者／所有權案例、48 個完整報告閱讀／生成 UI、36 個既有 Pro 模式、24 個雙人付款同意與表單案例。測試付款／生成採本地攔截，真實 AI／付款 0。
 - 首次並行 Vite 瀏覽器回歸出現頁面載入／商品狀態等待逾時；改為逐套執行後完整通過。既有 LINE public asset／bundle 大小與部分導頁關閉時 proxy 警告保留，未宣稱真人登入或正式付款驗收。
+- 已 push main，正式程式 commit `355f1aa5f9ccfefbff037213cb15d9451102e225`；Pages deployment `d1dd13b7-dea3-4dc4-a79e-0e53f03f39f1`。使用前次正式來源加六個指定展示檔案隔離建置，未含無關未提交 GA4／Vedic 修改，以 `[skip ci]` 避免重複 Worker／Pages 部署。
+- 正式 30 個中英文 × 三尺寸首頁／Pro／雙人及 synthetic 未購會員／管理者 UI PASS：新名稱／副標題／特色／價格／CTA、手機首屏與無水平溢出；正式 config GET 確認報告開放，私人身分／資料／權益為明確模擬，未宣稱真人會員生成驗收。實際 AI／付款／資料寫入 0。
+- 380 source／63 dist hashes 保存，正式 JS 與隔離產物 SHA256 相符；Worker deployment `f15039ab-f757-42e7-896f-bc18c3b43b91`／bindings、D1 schema／ledger／counts／content／管理者訂單數與發布前相同。未部署 Worker、未 migration、未改 Secrets。
 
 ## 最新更新：單次付費解鎖、自動生成（2026-10-10）
 

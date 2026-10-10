@@ -1,14 +1,17 @@
 # Dreamspell 雙人星際共振・靈魂關係藍圖 V2
 
-## 商品文案與手機展示優化（2026-10-10，本地未發布）
+## 商品文案與手機展示優化（2026-10-10，已正式發布）
 
 - 保留中文名稱「雙人星際共振・靈魂關係藍圖」，副標題「看見彼此的特質與需要，探索更理解、更有共鳴的相處方式。」；英文採自然的關係探索文案。一般消費者不顯示商品內部 ID、歷史 699 權益說明或技術流程。
 - 完整報告開放時凸顯 12 大關係解析、雙人星際共振圖、五大神諭、生命波符比較、A／B／共同視角及 90 天共振計畫。未開放或 config 失敗時不宣稱功能可交付，保留未開放提示及既有 access-only 同意流程。
 - CTA「解鎖雙人關係藍圖 · NT$899」／「Unlock Our Relationship Blueprint · NT$899」，價格從 [既有商品設定](../app/src/lib/mayaRelationship.ts) 讀取；未改商品、綠界金流、D1、AI API、會員權限或歷史訂單／權益。
 - 首頁與專用頁重用 [文案](../app/src/lib/mayaPremiumCopy.ts)／[商品介紹](../app/src/components/maya/MayaPremiumProductIntro.tsx)，手機先顯示名稱、價值、價格、CTA。專用頁首屏 CTA 只捲至原出生資料／同意表單，不觸發付款或生成；管理者／既有權限狀態不变。
-- 保留簡短自我探索與非科學預測說明；新增 [商品文案測試](../app/scripts/maya-premium-copy-check.ts)。本輪只本地修改，不自動 commit／push 或部署。下方為歷史紀錄。
+- 保留簡短自我探索與非科學預測說明；新增 [商品文案測試](../app/scripts/maya-premium-copy-check.ts)。開發當時未發布，後依使用者「PUSH 部署」明確授權正式發布。下方為歷史紀錄。
 - PASS：TypeScript、相關 ESLint、production Build／45-route SEO；30 個文案與首屏案例、56 個按鈕／商品／gate、76 個解鎖返回／管理者／所有權、48 個完整報告 UI、36 個既有 Pro 模式、24 個雙人付款同意／表單案例。完整12篇／15篇與快取閱讀以本地 fixture 驗證；真實 AI／付款 0。
 - 首次並行 Vite 回歸遇到載入／狀態等待逾時，逐套完整重跑通過；既有 public asset／大型 bundle／部分關閉導頁 proxy 警告仍保留，不將模擬測試稱為真實會員／金流驗收。
+- 已 push main；正式程式 commit `355f1aa5f9ccfefbff037213cb15d9451102e225`，Pages deployment `d1dd13b7-dea3-4dc4-a79e-0e53f03f39f1`。隔離來源只更新六個商品展示檔案，未包含無關 GA4／Vedic 變更，以 `[skip ci]` 避免重複部署。
+- 正式 30 個雙語／三尺寸首頁及兩商品頁檢查 PASS，實際 config 確認可交付狀態；會員／管理者身分／資料／權益明確 synthetic，驗證新特色、CTA、價格、首屏、隱藏 ID 与無水平溢出，不宣稱真人付款／生成驗收。AI／付款／資料寫入 0。
+- 保存 380 source／63 dist hashes 並比對正式 JS SHA256 一致；Worker deployment／bindings、D1 schema／ledger／counts／content／管理者訂單數與發布前相同，未部署 Worker、未 migration 或改 Secrets。
 
 ## 最新更新：單次付費解鎖、自動生成（2026-10-10）
 
