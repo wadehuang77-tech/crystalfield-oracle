@@ -59,7 +59,7 @@ const vedicArticleData = JSON.parse(await readFile(join(appDir, '..', 'src', 'da
 const vedicLandingContent = JSON.parse(await readFile(join(appDir, '..', 'src', 'data', 'vedic-astrology', 'landing.json'), 'utf8'));
 const generatedPaths = [];
 const pages = [
-  ['maya-calendar', 'Dreamspell 瑪雅 13 月亮曆與 KIN 計算｜晶域心語', '認識現代 Dreamspell 13 月亮曆、20 太陽圖騰與 13 銀河音調。Google 會員可免費計算 KIN，探索每日自我覺察指引。', 'Dreamspell 瑪雅 13 月亮曆', 'Dreamspell 是現代 13 月亮曆系統，不等同於傳統瑪雅 Tzolk’in 曆法。結果僅供自我覺察，不是命運預測。'],
+  ['maya-calendar', '探索你的馬雅星際生命密碼｜晶域心語', '透過出生日期，認識你的天賦、性格特質與人生方向。免費查詢 KIN，探索 Dreamspell 太陽圖騰與銀河音調，發現屬於你的生命藍圖。', '探索你的馬雅星際生命密碼', 'Dreamspell 是現代 13 月亮曆系統，並非傳統馬雅 Tzolk’in 曆法。內容僅供自我探索，不是科學、醫療或未來事件預測。'],
   ['', '晶域心語｜塔羅、生命靈數、人類圖與印度占星', '晶域心語結合塔羅牌占卜、生命靈數、人類圖與印度占星，提供自我探索工具，協助你整理當下課題、個人天賦與人生方向。', '晶域心語', '晶域心語是一個結合塔羅牌占卜、生命靈數、人類圖與印度占星的自我探索平台，協助使用者理解當下課題、個人天賦、能量特質與人生方向。'],
   ['oracle', '免費塔羅牌占卜｜7套塔羅與神諭卡線上抽牌｜晶域心語', '免費體驗7套線上塔羅與神諭卡，包含偉特塔羅、光行者神諭、獨角獸塔羅、龍族塔羅、埃及神諭、光之訊息與奧修禪卡，探索感情、事業、前世因果與靈魂指引。', '免費塔羅牌占卜：7套塔羅與神諭卡線上抽牌', '晶域心語提供七套塔羅與神諭卡線上抽牌入口，依照你的問題選擇牌卡與牌陣，用於自我覺察、整理當下方向與下一步行動。'],
   ['tarot', '偉特塔羅線上占卜｜單張、三張與凱爾特十字｜晶域心語', '線上體驗偉特塔羅牌占卜，可選擇單張、三張、凱爾特十字及前世因果解鎖陣，探索感情、工作、財運與目前行動方向。', '偉特塔羅', '偉特塔羅以清楚的圖像象徵整理現實處境，適合思考感情發展、工作與事業、財運方向和目前的行動選擇。本網站提供單張、三張、凱爾特十字與前世因果解鎖陣。'],
@@ -264,7 +264,7 @@ for (const route of chineseRoutes) {
 }
 
 const englishPages = [
-  ['maya-calendar', 'Dreamspell Maya 13 Moon Calendar and KIN Calculator | Crystal Field', 'Explore the modern Dreamspell 13 Moon calendar, 20 solar seals and 13 galactic tones. Google members can calculate KIN for free and reflect on daily themes.', 'Dreamspell Maya 13 Moon Calendar', 'Dreamspell is a modern 13 Moon calendar, not the traditional Maya Tzolk’in calendar. Results support reflection, not prediction.'],
+  ['maya-calendar', 'Discover Your Galactic Life Signature | CrystalField101', 'Explore your strengths, personality, and sense of direction with Dreamspell. Find your KIN for free and discover your solar seal, galactic tone, and life blueprint.', 'Discover Your Galactic Life Signature', 'Dreamspell is a modern 13 Moon calendar system, not the traditional Maya Tzolk’in calendar. Its symbolic insights are for self-reflection, not scientific claims, medical advice, or predictions.'],
   ['', 'Crystal Field | Tarot, Numerology, Human Design and Vedic Astrology', 'Explore tarot readings, numerology, Human Design, and Vedic astrology as tools for reflection and self-discovery.', 'Crystal Field', 'Crystal Field is a self-discovery platform that blends tarot readings, numerology, Human Design, and Vedic astrology to help you understand your current life lessons, gifts, energy patterns, and life direction.'],
   ['oracle', 'Free Tarot and Oracle Card Readings | Crystal Field', 'Explore seven tarot and oracle decks, choose a spread, and reflect on your question and possible next steps.', 'Free Tarot and Oracle Card Readings', 'Choose a topic, write down your question, and explore a deck and spread selected for reflection.'],
   ['tarot', 'Online Rider-Waite Tarot Reading | Crystal Field', 'Choose a single card, three-card spread, Celtic Cross, or past-life pattern spread for reflection on relationships, work, and life direction.', 'Rider-Waite Tarot', 'Use Rider-Waite imagery and symbolism to reflect on your circumstances and choices.'],

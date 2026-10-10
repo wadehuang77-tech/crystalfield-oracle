@@ -5,6 +5,7 @@ import { MAYA_PRO_PRODUCT, MAYA_PRO_VERSION, validateMayaProReport } from '../..
 import { estimateProCost, mockMayaProReport } from './mayaProPrompt';
 import { mayaProPaymentEnabled } from './mayaPayments';
 import { premiumLiveEnabled, PremiumError, routePremiumReports } from './mayaPremiumLive';
+import { premiumAdminAccess, premiumAdminGrant } from './mayaPremiumAdmin';
 
 interface ProRow {
   id: string; entitlement_id: string; order_id: string; profile_id: string; request_fingerprint: string;
@@ -64,6 +65,10 @@ export async function routeMayaPro(req: Request, env: Env): Promise<Response> {
     const access = async (entitlementId: string) => {
       const current = await readSession(req, env, true);
       if (!current || current.id !== user.id) throw new ProError(401, 'LOGIN_REQUIRED');
+      if (premiumLiveEnabled(env)) {
+        const admin = await premiumAdminAccess(req, env, user.id, MAYA_PRO_PRODUCT.code, entitlementId);
+        if (admin) return admin;
+      }
       const row = (await grants(entitlementId)).results[0];
       if (!row) throw new ProError(403, 'PAYMENT_REQUIRED');
       return row;
@@ -72,7 +77,9 @@ export async function routeMayaPro(req: Request, env: Env): Promise<Response> {
       return await routePremiumReports(req, env, user.id, MAYA_PRO_PRODUCT.code, locale, access);
     }
     if (url.pathname === '/api/maya/pro/entitlements' && req.method === 'GET') {
-      return respond({ entitlements: (await grants(null)).results.map(row => ({ id: row.id, product_code: MAYA_PRO_PRODUCT.code })) });
+      const admin = premiumLiveEnabled(env) ? await premiumAdminGrant(req, env, user.id, MAYA_PRO_PRODUCT.code) : null;
+      return respond({ entitlements: [...(admin ? [{ id: admin.id, product_code: MAYA_PRO_PRODUCT.code, source: admin.source }] : []),
+        ...(await grants(null)).results.map(row => ({ id: row.id, order_id: row.order_id, product_code: MAYA_PRO_PRODUCT.code }))] });
     }
     if (url.pathname === '/api/maya/pro/reports' && req.method === 'GET') {
       if (!localEnabled(env)) return respond({ reports: [], reason: 'PRO_LOCAL_ONLY' });

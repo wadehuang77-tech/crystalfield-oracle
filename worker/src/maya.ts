@@ -402,7 +402,7 @@ export async function routeMayaApi(req: Request, env: Env): Promise<Response> {
       return respond({ id: row.id, status: 'completed', report: storedReport(completed) });
     }
     if (path === '/api/maya/entitlements' && req.method === 'GET') {
-      const rows = await env.DB.prepare('SELECT id, product_code, status FROM maya_entitlements WHERE user_id = ?').bind(user.id).all<{ id: string; product_code: MayaProductCode; status: string }>();
+      const rows = await env.DB.prepare('SELECT id, order_id, product_code, status FROM maya_entitlements WHERE user_id = ?').bind(user.id).all<{ id: string; order_id: string; product_code: MayaProductCode; status: string }>();
       const active = [];
       for (const row of rows.results) {
         try {

@@ -45,8 +45,8 @@ try {
   results.push({ width: 390, locale: 'en', stage: 'all-features-disabled', status: 'PASS' });
   memberEnabled = true;
   await disabledPage.reload();
-  await disabledPage.getByRole('heading', { name: 'Dreamspell Maya 13 Moon Calendar', exact: true }).waitFor();
-  assert.ok(await disabledPage.getByRole('button', { name: 'Sign in with Google to calculate' }).isDisabled());
+  await disabledPage.getByRole('heading', { name: 'Discover Your Galactic Life Signature', exact: true }).waitFor();
+  assert.ok(await disabledPage.locator('[data-maya-hero]').getByRole('button', { name: 'Find My KIN for Free' }).isDisabled());
   assert.deepEqual(deniedRequests, []);
   results.push({ width: 390, locale: 'en', stage: 'public-only-no-member-requests', status: 'PASS' });
   configurationFailed = true;
@@ -160,7 +160,7 @@ try {
       validateMayaCheckoutForm({ ...testForm, endpoint: 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5',
         fields: { ...testForm.fields, MerchantID: '87654321' } }, 'production');
       await layout('introduction');
-      await page.getByRole('button', { name: label('Google 登入後免費計算', 'Sign in with Google to calculate'), exact: true }).click();
+      await page.locator('[data-maya-hero]').getByRole('button', { name: label('免費查詢我的 KIN', 'Find My KIN for Free'), exact: true }).click();
       await page.waitForURL(`**${prefix}/login?**`);
       assert.equal(new URL(page.url()).searchParams.get('redirect'), member);
       await page.getByText('Google test configuration unavailable', { exact: true }).waitFor();

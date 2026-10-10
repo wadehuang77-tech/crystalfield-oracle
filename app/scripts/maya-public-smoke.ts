@@ -47,9 +47,9 @@ try {
     const response = await page.goto(`${frontend}${locale === 'en' ? '/en' : ''}/maya-calendar`);
     assert.equal(response?.status(), 200);
     assert.match(response!.headers()['x-robots-tag'], /noindex/);
-    await page.getByRole('heading', { name: locale === 'en' ? 'Dreamspell Maya 13 Moon Calendar' : 'Dreamspell 瑪雅 13 月亮曆', exact: true }).waitFor();
+    await page.getByRole('heading', { name: locale === 'en' ? 'Discover Your Galactic Life Signature' : '探索你的馬雅星際生命密碼', exact: true }).waitFor();
     assert.equal(await page.locator('input[type=date]').count(), 0);
-    assert.ok(await page.getByRole('button', { name: locale === 'en' ? 'Sign in with Google to calculate' : 'Google 登入後免費計算', exact: true }).isDisabled());
+    assert.ok(await page.locator('[data-maya-hero]').getByRole('button', { name: locale === 'en' ? 'Find My KIN for Free' : '免費查詢我的 KIN', exact: true }).isDisabled());
     assert.ok(!origins.has('https://api.crystalfield101.com'));
     assert.ok(origins.has(api));
     assert.deepEqual(errors, []);

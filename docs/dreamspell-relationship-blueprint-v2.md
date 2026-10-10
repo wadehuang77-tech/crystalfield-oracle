@@ -1,5 +1,17 @@
 # Dreamspell 雙人星際共振・靈魂關係藍圖 V2
 
+## 最新更新：單次付費解鎖、自動生成（2026-10-10）
+
+付款前確認兩人生日、關係類型及同意，按「付費解鎖 · NT$899」；同分頁返回並取得後端已驗證的同訂單 paid／有效權限後，自動生成十二篇報告與 90 天計畫，不再要求第二個生成按鈕。管理者免費、舊 NT$699 權益、三種視角、中文 500 字上限、成本／快取／所有權防護不變。生日變更、錯誤訂單或未知失敗不自動生成／重試，不重複付款。
+
+Worker version `b5ff91aa-b922-47b0-9720-f5bc525468b1`、Pages `5fd76a70-b6cb-4179-be4f-c44f4d26c410` 已部署；76 新流程、既有回歸、types／lint／build 與正式 42 UI／匿名隔離 PASS。無 migration、Secrets／金流改動或 commit／push；本輪實際 AI／交易 0，真人正式付款＋生成 NOT RUN。須保持返回頁開啟，這不是伺服器背景生成。詳見 [四方案最新解鎖流程](dreamspell-production-ecpay-installation.md)；下方為歷史紀錄。
+
+## 最新更新：指定管理者免費正式生成（2026-10-10）
+
+`wadehuang77@gmail.com` 經後端有效 Session 與 D1 email 雙重確認，可免 NT$899 商品費使用雙人報告；仍需本人與對方出生資料、關係類型及同意。管理者 grant／零金額訂單按商品獨立，不解鎖其他會員或錯用個人 Pro 權限。普通會員 NT$899 與歷史 NT$699 權益不變；不呼叫綠界。讀取／繼續重驗管理者資格，保留十二篇、雙方／共同視角、90 天計畫、500 字上限與成本／快取防護。
+
+Worker version `9ff45559-8d8b-411f-bfab-21a762fc076c`、Pages `3536adb0-046f-4b27-9523-3ef6d814868d` 已部署；schema／ledger／資料計數與 bindings 完全不變，無 migration。管理者兩商品完整 Mock 與權限撤銷／冒用、既有付費回歸、36 UI＋4 catalogue、types／相關 lint／build PASS；正式 24 個 synthetic 會員 UI 與匿名隔離 PASS。真人管理者 Live 生成 NOT RUN，本輪 AI／付款 0。程式為未提交 Dreamspell-only overlay，未 commit／push。詳見 [管理者最新狀態](dreamspell-admin-preview.md)。
+
 最新發布授權：使用者明確接受現有驗證範圍，要求直接正式開通Pro與雙人生成、套用030、commit／push／部署；不要求再等待真實中文十二篇完整重驗。500字上限與其他內容／成本／權限檢查維持，未完成驗證不改稱PASS。詳見 [正式直接開通授權](dreamspell-soul-mission-pro-699.md)。
 
 已正式開通：程式 `cda1f7e`、Worker version `12195bfa-646c-4311-a319-092d12bfc3be`、Pages `e14abcde-d901-4ebe-9cf5-6a795e080c8c`；030套用成功。正式雙人 `payment=true/reportAvailable=true`，Pro `payment=true/liveAi=true`。中英文三尺寸public與24個synthetic會員UI檢查PASS，匿名GET／POST授權隔離PASS。取消下限後真實完整中文12篇仍NOT RUN，本次部署AI呼叫0，不宣稱此驗收PASS。

@@ -55,7 +55,7 @@ if (!testOrigin(frontend) || !testOrigin(api) || process.env.MAYA_E2E_AUTHORIZED
       pass('introduction');
       const oauthResponse = page.waitForResponse((response) => response.url() === `${api}/api/auth/google` && response.request().method() === 'POST', { timeout: 600_000 });
       void oauthResponse.catch(() => undefined);
-      await page.getByRole('button', { name: label('Google 登入後免費計算', 'Sign in with Google to calculate'), exact: true }).click();
+      await page.locator('[data-maya-hero]').getByRole('button', { name: label('免費查詢我的 KIN', 'Find My KIN for Free'), exact: true }).click();
       console.log(`${locale}: manually sign in with a test account that has no entitlement for this product (use a separate account for each locale). Do not provide credentials to the test runner.`);
       assert.equal((await oauthResponse).status(), 200);
       await page.waitForURL(`${frontend}${prefix}/maya-calendar/member`, { timeout: 600_000 });

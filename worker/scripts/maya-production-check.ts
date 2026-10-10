@@ -198,7 +198,8 @@ test('Pro checkout offline: independent product, signed callback, localized retu
     assert.equal(await count('maya_entitlements', order.order_id), 0);
     const access = await call('pro/entitlements', undefined, token, target);
     assert.equal(access.status, 200, await access.clone().text());
-    assert.ok((await access.json() as { entitlements: Array<{ product_code: string }> }).entitlements.some(e => e.product_code === MAYA_PRO_PRODUCT.code));
+    assert.ok((await access.json() as { entitlements: Array<{ product_code: string; order_id: string }> }).entitlements
+      .some(e => e.product_code === MAYA_PRO_PRODUCT.code && e.order_id === order.order_id));
     assert.deepEqual((await (await call('pro/entitlements', undefined, other, target)).json() as { entitlements: unknown[] }).entitlements, []);
     assert.equal((await call(`checkout/${order.order_id}`, undefined, other, target)).status, 404);
     assert.equal((await call('pro/reports', { profile_id: profile.id, product_code: MAYA_PRO_PRODUCT.code, locale }, token, target)).status, 503);
@@ -248,7 +249,8 @@ test('Independent relationship 899 orders never unlock legacy/Pro/499; historica
     assert.ok(grant);
     const mine = await call('relationship/entitlements', undefined, token, target);
     assert.equal(mine.status, 200);
-    assert.ok((await mine.json() as { entitlements: Array<{ id: string }> }).entitlements.some(e => e.id === grant.id));
+    assert.ok((await mine.json() as { entitlements: Array<{ id: string; order_id: string }> }).entitlements
+      .some(e => e.id === grant.id && e.order_id === fresh.order_id));
     await env.DB.prepare("UPDATE maya_relationship_entitlements SET expires_at='2000-01-01' WHERE id=?").bind(grant.id).run();
     const expired = (await (await call('relationship/entitlements', undefined, token, target)).json() as { entitlements: Array<{ id: string }> }).entitlements;
     assert.ok(!expired.some(e => e.id === grant.id));
@@ -275,10 +277,10 @@ test('Independent relationship 899 orders never unlock legacy/Pro/499; historica
   assert.equal((await callback(await fieldsFor(retry))).status, 200);
   const access = await call('entitlements');
   assert.equal(access.status, 200);
-  const grants = (await access.json() as { entitlements: Array<{ id: string }> }).entitlements;
+  const grants = (await access.json() as { entitlements: Array<{ id: string; order_id: string }> }).entitlements;
   for (const order of [historical]) {
     const grant = await env.DB.prepare('SELECT id FROM maya_entitlements WHERE order_id=?').bind(order.order_id).first<{ id: string }>();
-    assert.ok(grant && grants.some(item => item.id === grant.id));
+    assert.ok(grant && grants.some(item => item.id === grant.id && item.order_id === order.order_id));
   }
   const grant = await env.DB.prepare('SELECT id FROM maya_entitlements WHERE order_id=?').bind(historical.order_id).first<{ id: string }>();
   assert.ok(grant);

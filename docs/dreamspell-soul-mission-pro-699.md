@@ -1,5 +1,17 @@
 # Dreamspell 星際靈魂使命藍圖 Pro：本地開發與驗證
 
+## 最新更新：單次付費解鎖、自動生成（2026-10-10）
+
+先確認個人出生資料，按「付費解鎖 · NT$699」付款；同分頁返回後，後端確認本人訂單 paid 與同訂單有效權限，即自動完成既有十五篇生成，不再要求第二個生成按鈕。指定管理者按「管理者免費解鎖」直接生成，已購者按「解鎖／查看報告」使用快取／既有授權。未付款、缺少明確請求、生日變更或錯誤訂單不自動生成。需保持返回頁開啟；中斷／未知 provider outcome 不任意重試。
+
+Worker version `b5ff91aa-b922-47b0-9720-f5bc525468b1`、Pages `5fd76a70-b6cb-4179-be4f-c44f4d26c410` 已部署；76 新流程、既有回歸、types／lint／build 與正式 42 UI／匿名隔離 PASS。無 migration、Secrets／金流改動或 commit／push；本輪實際 AI／交易 0，真人正式付款＋生成 NOT RUN。完整實作、測試及限制見 [四方案最新解鎖流程](dreamspell-production-ecpay-installation.md)；下方保留歷史發布紀錄。
+
+## 最新更新：指定管理者免費正式生成（2026-10-10）
+
+`wadehuang77@gmail.com` 經後端有效 Session 與 D1 email 雙重確認，可免 NT$699 商品費使用 Pro；一般會員仍需本人有效付費權限。GET 提供商品獨立虛擬管理者 grant，不建立訂單；驗證出生資料後的明確生成 POST 才建立零金額 `maya_admin`／`complimentary` 訂單。不走綠界，不改歷史訂單。讀取／繼續重驗身分，沿用成本上限、並發防護與 D1 快取。
+
+Worker version `9ff45559-8d8b-411f-bfab-21a762fc076c`、Pages `3536adb0-046f-4b27-9523-3ef6d814868d` 已部署；schema／ledger／資料計數與 bindings 完全不變，無 migration。兩商品完整 Mock、權限撤銷／冒用、付費回歸、36 UI＋4 catalogue、types／相關 lint／build PASS；正式 24 個 synthetic 會員 UI 與匿名隔離 PASS。真人管理者 Live 生成 NOT RUN，本輪 AI／付款 0。程式為未提交 Dreamspell-only overlay，未 commit／push。完整規則及發布證據見 [管理者最新狀態](dreamspell-admin-preview.md)。
+
 ## 正式生成直接開通授權（2026-10-10）
 
 ### 已部署結果

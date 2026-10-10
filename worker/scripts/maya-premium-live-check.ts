@@ -291,3 +291,63 @@ test('Chinese relationship chapters share live storage; hard budgets and three-a
   await check(await call('pro', `reports/${invalidJob.id}/advance`, 'en', {}));
   assert.equal(calls, before + 3);
 });
+
+test('Verified named admin generates both premium products without payment; spoofed email and revoked identity fail closed', async () => {
+  await env.DB.prepare('CREATE TABLE IF NOT EXISTS admins(id TEXT PRIMARY KEY)').run();
+  await env.DB.prepare("INSERT INTO profiles(id,email) VALUES('premium-admin','wadehuang77@gmail.com')").run();
+  tokens.set('premium-admin', await signJwt({ sub: 'premium-admin', email: 'wadehuang77@gmail.com' }, env.JWT_SECRET));
+  tokens.set('spoofed-admin', await signJwt({ sub: 'other', email: 'wadehuang77@gmail.com' }, env.JWT_SECRET));
+  for (const [role, date] of [['personal', '1987-07-26'], ['relationship', '1990-01-01']]) {
+    const s = mayaForDate(date, 'en');
+    await env.DB.prepare(`INSERT INTO maya_kin_profiles(id,user_id,role,birth_date,kin_number,solar_seal,galactic_tone,wavespell,castle,calculation_version)
+      VALUES(?,'premium-admin',?,?,?,?,?,?,?,?)`).bind(`admin-${role}`, role, date, s.kin_number, s.solar_seal_number,
+        s.tone_number, s.wavespell, s.castle, MAYA_CALCULATION_VERSION).run();
+  }
+  const target = { ...env, MAYA_ADMIN_LIVE_ENABLED: 'true' };
+  const paidBefore = await env.DB.prepare("SELECT COUNT(*) AS n FROM orders WHERE item_type='maya'").first();
+  const pro = mockMayaProReport('1987-07-26', 'en');
+  const pair = relationshipTestFixture('1987-07-26', '1990-01-01', 'en');
+  for (const kind of ['pro', 'relationship'] as const) {
+    const product = kind === 'pro' ? MAYA_PRO_PRODUCT : MAYA_RELATIONSHIP_PRODUCT;
+    const beforeOrders = await env.DB.prepare("SELECT COUNT(*) AS n FROM orders WHERE user_id='premium-admin'").first();
+    const list = await check<{ entitlements: Array<{ id: string; source: string }> }>(await call(kind, 'entitlements', 'en', undefined, 'premium-admin', target));
+    const grant = list.entitlements[0];
+    assert.equal(grant.source, 'admin_complimentary');
+    assert.deepEqual(await env.DB.prepare("SELECT COUNT(*) AS n FROM orders WHERE user_id='premium-admin'").first(), beforeOrders, 'GET must not create complimentary orders');
+    const spoofed = await check<{ entitlements: Array<{ source?: string }> }>(await call(kind, 'entitlements', 'en', undefined, 'spoofed-admin', target));
+    assert.ok(!spoofed.entitlements.some(e => e.source === 'admin_complimentary'));
+    const input = { profile_id: 'admin-personal', entitlement_id: grant.id, product_code: product.code, locale: 'en',
+      ...(kind === 'relationship' ? { relationship_profile_id: 'admin-relationship', relationship_type: 'friends', consent: true } : {}) };
+    await check(await call(kind, 'reports', 'en', input, 'other', target), 403);
+    await check(await call(kind, 'reports', 'en', input, 'premium-admin', { ...target, MAYA_ADMIN_LIVE_ENABLED: 'false' }), 403);
+    const created = await check<Result>(await call(kind, 'reports', 'en', input, 'premium-admin', target));
+    const order = await env.DB.prepare('SELECT amount,status,item_type,item_id,ecpay_trade_no FROM orders WHERE id=?').bind(grant.id).first();
+    assert.deepEqual(order, { amount: 0, status: 'complimentary', item_type: 'maya_admin', item_id: product.code, ecpay_trade_no: null });
+    let result = created;
+    for (let i = 0; i < (kind === 'pro' ? 15 : 12); i++) {
+      if (kind === 'pro') responseContent = textForPro(pro, i);
+      else {
+        const { interpretation, perspectives, lifeExamples, reflectionQuestions, actionSteps } = pair.sections[i];
+        responseContent = { interpretation, perspectives, lifeExamples, reflectionQuestions, actionSteps,
+          ...(i === 11 ? { ninetyDayPlan: pair.ninetyDayPlan } : {}) };
+      }
+      result = await check<Result>(await call(kind, `reports/${created.id}/advance`, 'en', {}, 'premium-admin', target));
+    }
+    assert.equal(result.status, 'completed');
+    const before = calls;
+    await check(await call(kind, `reports/${created.id}`, 'en', undefined, 'premium-admin', target));
+    await check(await call(kind, 'reports', 'en', input, 'premium-admin', target));
+    assert.equal(calls, before, 'Saved complimentary reports do not regenerate');
+    await check(await call(kind, `reports/${created.id}`, 'en', undefined, 'other', target), 404);
+    await env.DB.prepare("UPDATE profiles SET email='revoked@example.test' WHERE id='premium-admin'").run();
+    await check(await call(kind, `reports/${created.id}`, 'en', undefined, 'premium-admin', target), 403);
+    await env.DB.prepare("UPDATE profiles SET email='wadehuang77@gmail.com' WHERE id='premium-admin'").run();
+    const budget = await env.DB.prepare('SELECT reserved_twd FROM maya_premium_ai_budgets WHERE order_id=?').bind(grant.id).first<{ reserved_twd: number }>();
+    assert.ok(budget && budget.reserved_twd > 0 && budget.reserved_twd <= PREMIUM_LIMITS.orderCapTwd);
+  }
+  assert.deepEqual(await env.DB.prepare("SELECT COUNT(*) AS n FROM orders WHERE item_type='maya'").first(), paidBefore);
+  const paymentRecords = await env.DB.prepare(`SELECT
+    (SELECT COUNT(*) FROM maya_pro_payment_orders WHERE user_id='premium-admin') +
+    (SELECT COUNT(*) FROM maya_relationship_payment_orders WHERE user_id='premium-admin') AS n`).first();
+  assert.deepEqual(paymentRecords, { n: 0 });
+});

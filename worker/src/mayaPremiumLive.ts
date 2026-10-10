@@ -1,5 +1,6 @@
 import { mayaAiMode, MAYA_AI_MODEL } from './mayaAi';
 import { json, readBody, type Env } from './utils';
+import { premiumAdminAccess } from './mayaPremiumAdmin';
 import { isMayaDate, mayaForDate, MAYA_CALCULATION_VERSION, type MayaLocale } from '../../app/src/lib/maya';
 import { BLUEPRINT_CHAPTERS, blueprintEvidence, blueprintQualityIssues, LIFE_BLUEPRINT_UNSUPPORTED, LIFE_BLUEPRINT_VERSION,
   type BlueprintSection, type LifeBlueprintV2, type NinetyDayStage } from '../../app/src/lib/mayaLifeBlueprint';
@@ -377,6 +378,16 @@ export async function routePremiumReports(req: Request, env: Env, userId: string
     if (pair && !RELATIONSHIP_TYPES.includes(fields.relationship_type as RelationshipType)) throw new PremiumError('INVALID_INPUT', 400);
     const inputs: Inputs = { a: a.date, b: b?.date ?? null, relationshipType: pair ? fields.relationship_type as RelationshipType : null };
     const fingerprint = JSON.stringify([userId, a.id, b?.id ?? null, inputs, locale, version(product)]);
+    if (grant.source === 'admin_complimentary') {
+      const admin = await premiumAdminAccess(req, env, userId, product, grant.id);
+      if (!admin) throw new PremiumError('PAYMENT_REQUIRED', 403);
+      await env.DB.prepare(`INSERT OR IGNORE INTO orders(id,merchant_trade_no,user_id,email,item_type,item_id,item_name,amount,status)
+        VALUES(?,?,?,?,'maya_admin',?,?,0,'complimentary')`)
+        .bind(admin.order_id, `A${admin.id.slice(6, 25)}`, userId, admin.email, product, `Admin complimentary ${product}`).run();
+      const order = await env.DB.prepare("SELECT id FROM orders WHERE id=? AND user_id=? AND item_id=? AND item_type='maya_admin' AND amount=0 AND status='complimentary'")
+        .bind(admin.order_id, userId, product).first();
+      if (!order) throw new PremiumError('PAYMENT_REQUIRED', 403);
+    }
     await env.DB.prepare(`INSERT OR IGNORE INTO maya_premium_reports
       (id,user_id,order_id,entitlement_id,product_code,locale,report_version,profile_id,relationship_profile_id,request_fingerprint,inputs)
       VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(crypto.randomUUID(), userId, grant.order_id, grant.id, product, locale, version(product), a.id, b?.id ?? null,

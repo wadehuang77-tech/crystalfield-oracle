@@ -28,7 +28,7 @@ export default function MayaProPage() {
   const [orderStatus, setOrderStatus] = useState('');
   const checkoutKey = useRef<string | null>(null);
   const returnedOrder = new URLSearchParams(location.search).get('maya_order');
-  const [data, setData] = useState<{ identity: string; report: MayaProReport | null; profile: MayaProfile | null; access: string | null; reports: Array<{ id: string; status: string }> } | null>(null);
+  const [data, setData] = useState<{ identity: string; report: MayaProReport | null; profile: MayaProfile | null; access: string | null; complimentary: boolean; reports: Array<{ id: string; status: string }> } | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const identity = `${user?.id ?? ''}:${locale}:${id ?? ''}`;
@@ -67,7 +67,7 @@ export default function MayaProPage() {
         setOrderStatus(order?.status ?? '');
         if (selected?.report && !validateMayaProReport(selected.report, selected.report.kinNumber, locale)) throw new Error(en ? 'Invalid Pro report version or evidence.' : 'Pro 報告版本或依據不符。');
         setData({ identity, report: selected?.report ?? null, profile: profiles.profiles.find(item => item.role === 'personal') ?? null,
-          access: access.entitlements[0]?.id ?? null, reports: reports.reports });
+          access: access.entitlements[0]?.id ?? null, complimentary: access.entitlements[0]?.source === 'admin_complimentary', reports: reports.reports });
       }).catch(cause => { if (!controller.signal.aborted) setError(localizeAuthError(cause instanceof Error ? cause.message : '', language, en ? 'Unable to load Pro data.' : '無法讀取 Pro 資料。')); })
       .finally(() => { if (!controller.signal.aborted) setBusy(false); });
     return () => controller.abort();
@@ -80,7 +80,7 @@ export default function MayaProPage() {
       <p className="maya-caption">{liveAi
         ? t('獨立個人商品；十五篇正式 AI 象徵解讀與程式視覺化。生成成功後儲存，閱讀不重複生成或扣款。', 'Independent personal product: fifteen live AI reflection chapters and programmatic visuals. Completed reports are saved; reading does not regenerate or charge.')
         : t('獨立個人商品；雙人關係合盤新訂單 NT$899。Live AI 報告尚未開放，付款僅取得 Pro 商品權限，不會交付 Mock 作為付費報告。', 'Independent personal product; new relationship orders cost NT$899. Live AI reports are not available. Payment grants Pro access only; Mock content is never delivered as a paid report.')}</p>
-      <button type="button" className="mt-4 rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+      {(!liveAi || !user) && <button type="button" className="mt-4 rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={!configReady || !payment || busy || !user || !visible || !!visible.access}
         onClick={async () => {
           if (!payment || !visible || visible.access || busy) return;
@@ -95,7 +95,8 @@ export default function MayaProPage() {
           } catch (cause) {
             if (identityRef.current === requestedIdentity) setError(localizeAuthError(cause instanceof Error ? cause.message : '', language, en ? 'Pro checkout failed.' : 'Pro 付款請求失敗。'));
           } finally { if (identityRef.current === requestedIdentity) setBusy(false); }
-        }}>{visible?.access ? t('已取得商品權限', 'Product access granted') : t('綠界付款', 'ECPay checkout')} · NT$699</button>
+        }}>{visible?.complimentary ? t('管理者免費使用', 'Complimentary admin access') : visible?.access ? t('已取得商品權限', 'Product access granted') : t('付費解鎖', 'Pay to unlock')} · NT$699</button>}
+      {visible?.complimentary && <p>{t('後端已驗證管理者免費權限，無需付款。AI 成本與內容檢查仍適用。', 'Complimentary admin access is verified by the server. No payment is required; AI cost and content checks still apply.')}</p>}
       {configReady && !payment && <p>{t('Pro 付款尚未啟用。', 'Pro checkout is not enabled.')}</p>}
       <nav className="flex flex-wrap gap-4">
         <Link to={getLocalizedPath('/maya-calendar', language)}>{t('馬雅曆首頁', 'Maya Calendar home')}</Link>
@@ -105,10 +106,11 @@ export default function MayaProPage() {
     {error && <p role="alert">{error}</p>}
     {!configReady || loading ? <p role="status">{t('正在驗證 Pro 狀態…', 'Checking Pro availability...')}</p> : !user ? <p>{t('請使用既有會員登入。', 'Sign in with your existing account.')}</p> : !enabled ? <p>{t('Pro 目前僅供本地開發測試，正式功能尚未開放。', 'Pro is limited to local development tests and is not available in production.')}</p> : <>
       <p role="status">{busy ? t('讀取中…', 'Loading...') : localMock ? t('本地 Mock 模式，沒有付費 AI 呼叫。', 'Local Mock mode; no paid AI calls.') : liveAi ? t('正式 AI 生成模式；閱讀已儲存報告不呼叫 AI。', 'Live AI generation; reading saved reports does not call AI.') : t('Pro 會員權限模式；報告生成尚未開放。', 'Pro member access mode; report generation is not available yet.')}</p>
-      {orderStatus && <p role="status">{t('後端付款狀態', 'Server payment status')}: {orderStatus}
+      {!liveAi && orderStatus && <p role="status">{t('後端付款狀態', 'Server payment status')}: {orderStatus}
         {orderStatus === 'pending' && <button className="ml-3 underline" onClick={() => window.location.reload()}>{t('重新整理狀態（不重新付款）', 'Refresh status (does not charge again)')}</button>}
       </p>}
-      {liveAi && visible && <MayaPremiumReportManager key={identity} kind="pro" locale={locale} userId={user.id} accessId={visible.access} selectedId={id} />}
+      {liveAi && visible && <MayaPremiumReportManager key={identity} kind="pro" locale={locale} userId={user.id} accessId={visible.access} selectedId={id}
+        returnedOrder={returnedOrder} complimentary={visible.complimentary} payment={payment} />}
       {!liveAi && !visible?.report && <section className="maya-cosmic-panel">
         <p>{t('沒有可閱讀的已授權 Pro 報告。不會自動生成內容。', 'No authorized Pro report is available. Content is not generated automatically.')}</p>
         {localMock && <button className="rounded-xl bg-cyan-300 px-4 py-3 text-slate-950 disabled:opacity-50" type="button" disabled={busy || !visible?.profile || !visible.access}

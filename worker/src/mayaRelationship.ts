@@ -3,6 +3,7 @@ import { mayaRelationshipPaymentEnabled } from './mayaPayments';
 import { mayaSessionFeatures } from './mayaFeatures';
 import { isAllowedOrigin, json, readSession, type Env } from './utils';
 import { premiumLiveEnabled, PremiumError, routePremiumReports } from './mayaPremiumLive';
+import { premiumAdminAccess, premiumAdminGrant } from './mayaPremiumAdmin';
 
 export async function routeMayaRelationship(req: Request, env: Env): Promise<Response> {
   const url = new URL(req.url);
@@ -29,7 +30,7 @@ export async function routeMayaRelationship(req: Request, env: Env): Promise<Res
     if (!(await mayaSessionFeatures(req, env, user)).member) return reject(503, 'FEATURE_DISABLED', '會員功能尚未開放。', 'Member features are unavailable.');
     const grants = async (entitlementId: string | null) => {
       if (!mayaRelationshipPaymentEnabled(env)) return respond({ entitlements: [] });
-      const rows = await env.DB.prepare(`SELECT e.id,e.product_code FROM maya_relationship_entitlements e
+      const rows = await env.DB.prepare(`SELECT e.id,e.order_id,e.product_code FROM maya_relationship_entitlements e
         JOIN orders o ON o.id=e.order_id JOIN maya_relationship_payment_orders p ON p.order_id=o.id
         WHERE e.user_id=? AND (? IS NULL OR e.id=?) AND o.user_id=e.user_id AND p.user_id=e.user_id
           AND e.product_code=? AND o.item_id=e.product_code AND p.product_code=e.product_code
@@ -38,18 +39,24 @@ export async function routeMayaRelationship(req: Request, env: Env): Promise<Res
           AND o.ecpay_trade_no IS NOT NULL AND p.trade_no=o.ecpay_trade_no
           AND julianday(e.starts_at)<=julianday('now') AND (e.expires_at IS NULL OR julianday(e.expires_at)>julianday('now'))
         ORDER BY e.created_at DESC LIMIT 100`).bind(user.id, entitlementId, entitlementId,
-          MAYA_RELATIONSHIP_PRODUCT.code, MAYA_RELATIONSHIP_PRODUCT.price).all<{ id: string; product_code: string }>();
+          MAYA_RELATIONSHIP_PRODUCT.code, MAYA_RELATIONSHIP_PRODUCT.price).all<{ id: string; order_id: string; product_code: string }>();
       return rows.results;
     };
     if (url.pathname === '/api/maya/relationship/entitlements' && req.method === 'GET') {
       const rows = await grants(null);
-      return rows instanceof Response ? rows : respond({ entitlements: rows });
+      const admin = premiumLiveEnabled(env) && mayaRelationshipPaymentEnabled(env)
+        ? await premiumAdminGrant(req, env, user.id, MAYA_RELATIONSHIP_PRODUCT.code) : null;
+      return rows instanceof Response ? rows : respond({ entitlements: [
+        ...(admin ? [{ id: admin.id, product_code: MAYA_RELATIONSHIP_PRODUCT.code, source: admin.source }] : []), ...rows,
+      ] });
     }
     if (url.pathname.startsWith('/api/maya/relationship/reports')) {
       if (premiumLiveEnabled(env) && mayaRelationshipPaymentEnabled(env)) {
         return await routePremiumReports(req, env, user.id, MAYA_RELATIONSHIP_PRODUCT.code, en ? 'en' : 'zh-TW', async id => {
           const current = await readSession(req, env, true);
           if (!current || current.id !== user.id) throw new PremiumError('LOGIN_REQUIRED', 401);
+          const admin = await premiumAdminAccess(req, env, user.id, MAYA_RELATIONSHIP_PRODUCT.code, id);
+          if (admin) return admin;
           const rows = await grants(id);
           if (rows instanceof Response || !rows[0]) throw new PremiumError('PAYMENT_REQUIRED', 403);
           const grant = await env.DB.prepare('SELECT order_id FROM maya_relationship_entitlements WHERE id=? AND user_id=?')

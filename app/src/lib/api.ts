@@ -8,12 +8,12 @@ import { MAYA_RELATIONSHIP_PRODUCT, type RelationshipReport, type RelationshipTy
 
 export const mayaRelationshipApi = {
   config: (locale: MayaLocale, signal?: AbortSignal) => req<{ product: typeof MAYA_RELATIONSHIP_PRODUCT; payment: boolean; reportAvailable: boolean }>('/api/maya/relationship/config', { query: { locale }, signal }),
-  entitlements: (locale: MayaLocale, signal?: AbortSignal) => req<{ entitlements: Array<{ id: string; product_code: string }> }>('/api/maya/relationship/entitlements', { query: { locale }, signal }),
+  entitlements: (locale: MayaLocale, signal?: AbortSignal) => req<{ entitlements: Array<{ id: string; order_id?: string; product_code: string; source?: string }> }>('/api/maya/relationship/entitlements', { query: { locale }, signal }),
 };
 
 export const mayaProApi = {
   config: (signal?: AbortSignal) => req<{ enabled: boolean; mode: 'local_mock_only' | 'production_entitlement'; payment: boolean; liveAi: boolean }>('/api/maya/pro/config', { signal }),
-  entitlements: (locale: MayaLocale, signal?: AbortSignal) => req<{ entitlements: Array<{ id: string; product_code: string }> }>('/api/maya/pro/entitlements', { query: { locale }, signal }),
+  entitlements: (locale: MayaLocale, signal?: AbortSignal) => req<{ entitlements: Array<{ id: string; order_id?: string; product_code: string; source?: string }> }>('/api/maya/pro/entitlements', { query: { locale }, signal }),
   reports: (locale: MayaLocale, signal?: AbortSignal) => req<{ reports: Array<{ id: string; status: string }> }>('/api/maya/pro/reports', { query: { locale }, signal }),
   report: (id: string, locale: MayaLocale, signal?: AbortSignal) => req<{ id: string; status: string; report: MayaProReport | null }>(`/api/maya/pro/reports/${encodeURIComponent(id)}`, { query: { locale }, signal }),
   createReport: (profile_id: string, entitlement_id: string, locale: MayaLocale) => req<{ id: string; status: string }>('/api/maya/pro/reports', {
@@ -64,7 +64,7 @@ export const mayaApi = {
   reports: (locale: MayaLocale, signal?: AbortSignal) =>
     req<{ reports: MayaReportEntry[] }>('/api/maya/reports', { query: { locale }, signal }),
   entitlements: (locale: MayaLocale, signal?: AbortSignal) =>
-    req<{ entitlements: Array<{ id: string; product_code: MayaProductCode; status: string }> }>('/api/maya/entitlements', { query: { locale }, signal }),
+    req<{ entitlements: Array<{ id: string; order_id?: string; product_code: MayaProductCode; status: string }> }>('/api/maya/entitlements', { query: { locale }, signal }),
   createReport: (body: { locale: MayaLocale; product_code: MayaProductCode; profile_id: string; relationship_profile_id?: string; entitlement_id: string; idempotency_key: string }) =>
     req<{ id: string; status: string; report: MayaReport | null }>('/api/maya/reports', { method: 'POST', query: { locale: body.locale }, body }),
   report: (id: string, locale: MayaLocale, signal?: AbortSignal) =>

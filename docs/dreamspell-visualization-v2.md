@@ -1,5 +1,33 @@
 # Dreamspell 星際生命藍圖視覺化 2.0
 
+## 最新本地文案優化（2026-10-10，未部署）
+
+- 中文首頁改用「探索你的馬雅星際生命密碼」、指定副標題與介紹全文；英文改為「Discover Your Galactic Life Signature」及自然的美式英文介紹。三個特色區塊對應星際身份、生命藍圖與重要關係。
+- 主要 CTA 與本地 KIN 表單改為「免費查詢我的 KIN / Find My KIN for Free」，導覽改為認識馬雅曆／今日星際能量／我的生命藍圖。只更換文字與展示順序，主要 CTA 保留原登入／會員入口，本地表單仍不傳送或儲存生日。
+- 手機主標題使用緊湊行高、副標題分層；CTA 移到長介紹之前、手機全寬。系統性質保留：現代 Dreamspell 並非傳統 Maya Tzolk’in，僅供自我探索，非科學／醫療／未來預測。
+- Mock 說明僅於已登入且後端 `admin_preview` 有效時顯示；一般訪客與會員、即使 AI 未開放，也不顯示管理者測試文案。不修改後端管理者判定、功能 gate、正式金流或 AI 設定。
+- 內容：[MayaCalendarPage](../app/src/pages/MayaCalendarPage.tsx)、[MayaVisualization](../app/src/components/maya/MayaVisualization.tsx)；中英文 SEO title／description／prerender h1 同步於 [prerender](../app/scripts/prerender.mjs)，避免預渲染與 React 首頁標題不一致。
+- 新增 [首頁文案測試](../app/scripts/maya-home-copy-check.ts)；調整 [compact page check](../app/scripts/maya-compact-page-check.ts) 與既有 maya-browser／maya-external-e2e／maya-public-smoke 的改名 CTA selector，後三項本輪未跑外部或舊環境完整流程。
+- PASS：18 個中英文訪客／會員／管理者 × 390／768／1440px 首頁案例；實測 844px 高首屏中的主標題、副標題及 CTA 均完全可見、無水平溢出。KIN34 基準、2月29日拒絕、CTA 登入／會員路由、Mock 文案隔離不變。
+- PASS：18 compact／報告頁案例、36 paid／unpaid／admin 按鈕、4 catalogue、8 basic／full AI gate 回歸。App TypeScript、相關 ESLint、production Build 與 45-route SEO 通過，既有 LINE asset／大型 bundle 警告保留。
+- 首次首頁測試在頁面導向會員後過早關閉造成本地 proxy 連線警告；改為等待會員資料／按鈕掛載後完整重跑通過，不將此測試當真實登入／付款驗收。所有會員／管理者 API 為明確本地攔截。
+- 本次只完成本地修改與驗證，**未部署、未 commit／push**，AI／付款／profile 寫入呼叫 0。下方為先前已部署介面狀態。
+
+## 最新介面精簡與正式發布（2026-10-10）
+
+依使用者截圖與後續確認，只精簡 `/maya-calendar`、`/maya-calendar/member` 及英文 `/en` 對應入口：
+
+- 保留「260 KIN 星際矩陣」標題、圖騰／音調／出生 KIN 資訊卡、免費本地計算及身份卡下載。
+- 不渲染 260 格表格、表格捲動／鍵盤說明；不渲染會員歷史報告與資料管理／確認刪除區塊。會員頁也不再讀取已移除的報告列表。
+- 專用歷史／單份報告路由仍保留，付費 Pro／雙人報告的完整矩陣與導覽不變；後端資料、訂單、權益及刪除 API 未刪除或修改。沒有以 DELETE 清除實際資料。
+- 修改 [MayaCalendarPage](../app/src/pages/MayaCalendarPage.tsx)、[MayaVisualization](../app/src/components/maya/MayaVisualization.tsx)、[TzolkinMatrix](../app/src/components/maya/TzolkinMatrix.tsx)。`showGrid` 預設 true，只由首頁／會員頁關閉，不影響報告元件既有使用。
+- 新增 [介面精簡測試](../app/scripts/maya-compact-page-check.ts)：18 個首頁／會員／單份報告 × 雙語 × 390／768／1440px PASS；保留正確 KIN34 卡、首頁本地計算、報告完整260格／授權文字，移除區塊不在 DOM，首頁／會員不 fetch history，AI／付款／刪除呼叫 0。
+- 既有視覺資料／SVG／Adapter 3 tests、TypeScript、相關 ESLint、隔離正式 Build 與 45-route SEO PASS。測試 report-list 首次精確次數斷言遇到既有重渲染兩次讀取，改測真正要求：精簡頁 0、報告頁仍能讀取後完整重驗 PASS。
+- Pages 已部署 `68635761-9d40-454d-9ed6-9ae80c94e468`；正式12個雙語／尺寸首頁及 synthetic 會員 UI PASS。首次 smoke 未攔截會員專用 checkout config 導致匿名401而無出生資料，補齊明確 synthetic member config 後重驗；並排除非 Maya analytics POST 計數，不宣稱真人登入驗收。
+- 378 source hashes 核對；Worker deployment／bindings、D1 schema／ledger／counts／content 完全維持前次，未部署 Worker、未 migration、未呼叫 AI／金流／刪除資料，未 commit／push。發布為前次隔離正式目錄加未提交前端 overlay，排除無關 GA4／Vedic 變更。
+
+下方 Phase 2 開發／未部署狀態保留為歷史紀錄。
+
 日期：2026-10-10。Phase 2：本地 React＋TypeScript＋SVG＋CSS 開發與驗證。
 
 **結果：視覺化、資料映射、版本 Adapter、既有授權回歸、響應式及本地下載 PASS。AI API 呼叫次數：0。沒有部署。**

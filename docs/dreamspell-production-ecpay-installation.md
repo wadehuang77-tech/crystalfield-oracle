@@ -2,6 +2,48 @@
 
 日期：2026-10-10，Asia/Taipei。
 
+## 最新更新：四方案「付費解鎖」後自動生成（2026-10-10）
+
+本節為最新狀態；下方付款開通與人工生成操作是歷史紀錄。
+
+| 商品 | 價格 | 正式入口 |
+|---|---|---|
+| `MAYA_BASIC_199` | NT$199 | `/maya-calendar/member` |
+| `MAYA_FULL_499` | NT$499 | `/maya-calendar/member` |
+| `MAYA_SOUL_MISSION_PRO_699` | NT$699 | `/maya-calendar/pro` |
+| `MAYA_RELATIONSHIP_899` | NT$899 | `/maya-calendar/relationship` |
+
+英文入口沿用 `/en` 前綴。四個公開 CTA 同步改成「付費解鎖 / Pay to unlock」，不改商品 ID、價格或歷史 `MAYA_RELATIONSHIP_699` 權益。
+
+### 操作與防護
+
+1. 先登入、儲存並確認出生資料；Pro／雙人頁也能在付款前輸入。雙人需另一人資料、關係類型與同意。
+2. 按一次「付費解鎖」，確認真實金額後前往既有綠界。已購買者按「解鎖／查看報告」，指定管理者按「管理者免費解鎖」直接使用既有授權生成，皆不重新付款。
+3. 付款返回同一瀏覽器分頁後，自動查詢本人後端訂單，再取得 **同一 order_id 與商品** 的有效 entitlement。只接受 `paid` 與同語言；pending 最多查詢 30 次、間隔 2 秒，仍待確認時提示稍後重新整理，不重複付款。
+4. 只有付款前明確儲存的解鎖請求能自動生成。sessionStorage 按 user／locale／order 分隔，保存選定 profile ID、生日快照、雙人類型／同意及冪等鍵；不保存完整報告。比較付款前後生日，資料變更時阻止自動生成，請本人確認，不猜測替代資料。
+5. 自動流程使用原本生成 API／逐章 advance，不需第二個「生成報告」按鈕。`waiting→started→completed` 與同步 in-flight guard 防止 Strict Mode／雙擊／重整重複發送；成功 Pro／雙人 report ID 留在請求中，重整只 GET 既有報告。
+6. 後端仍逐次驗證 Session、商品、本人 profile／order／entitlement、管理者資格、成本／並發／重試限制；新增 entitlement DTO 的 order_id 只用來比對訂單，不作為授權憑證。
+7. **生成需保持返回頁面開啟，不是付款 callback 的伺服器背景工作。** 關閉／中斷、缺少分頁請求、換瀏覽器、清除 storage 或未知錯誤不會偷偷重試 AI；可用本人既有權限確認資料後繼續，不必再次付款。單純開頁、讀取歷史、failed／foreign／wrong-locale／wrong-product／wrong-grant 返回都不自動生成。
+
+### 修改與驗證
+
+- 前端：[MayaCalendarPage](../app/src/pages/MayaCalendarPage.tsx)、[MayaProPage](../app/src/pages/MayaProPage.tsx)、[MayaRelationshipPage](../app/src/pages/MayaRelationshipPage.tsx)、[MayaPremiumReportManager](../app/src/components/maya/MayaPremiumReportManager.tsx)、[mayaUnlock](../app/src/lib/mayaUnlock.ts)、[useMayaPaymentReturn](../app/src/hooks/useMayaPaymentReturn.ts)、[api](../app/src/lib/api.ts)。
+- 後端僅補授權列表 order_id：[maya](../worker/src/maya.ts)、[mayaPro](../worker/src/mayaPro.ts)、[mayaRelationship](../worker/src/mayaRelationship.ts)。不改綠界 checkout／callback／金額、OAuth、KIN 公式或其他命理系統。
+- 新增 [四商品單次解鎖 browser check](../app/scripts/maya-unlock-browser-check.ts) 與 `test:maya-unlock-browser` script；更新既有 payment-buttons／premium-live browser checks 及 [production payment checks](../worker/scripts/maya-production-check.ts) 的訂單映射斷言。
+- **PASS**：76 新流程案例（四商品、雙語、390／768／1440px、普通付款／管理者、pending→paid／grant 延遲、重新整理零追加生成、失敗／跨訂單／語言／商品／缺請求／生日變更隔離）。
+- **PASS**：48 既有 premium 讀取／生成 UI、36 paid／unpaid／admin 按鈕、4 catalogue、8 基礎／完整商品 AI gate；Worker 16 payment 回歸，以及新增 order_id 斷言後的兩組精確回歸。
+- **PASS**：App／Worker types、Worker test types、相關 ESLint、隔離 production build／45 routes SEO、編輯器 diagnostics。既有大型 bundle／LINE public asset warnings 未改。
+- 最初新 browser checks 因隱藏 SVG title 與被拒絕訂單不應掛載 manager 的等待條件失敗；改為等待實際可見報告／拒絕狀態後重跑完整案例 PASS，不將初次失敗省略或視為正式交易驗收。
+- **實際 AI／正式付款呼叫 0**；24 次 checkout 與 48 次 create 全為本地 Playwright 攔截，不能當作官方綠界或真實 OpenAI 端到端驗收。
+
+### 正式發布證據
+
+- Worker deployment `f15039ab-f757-42e7-896f-bc18c3b43b91`，version `b5ff91aa-b922-47b0-9720-f5bc525468b1`，100%。
+- Pages `5fd76a70-b6cb-4179-be4f-c44f4d26c410`，正式中英文頁已更新。
+- 正式 6 個公開四按鈕頁面與 36 個 synthetic paid／unpaid／admin UI（共 42）PASS；實際公開設定、匿名 reports／entitlements GET 及生成 POST 401 PASS。**真人登入、實際付款返回與正式 AI 完整生成 NOT RUN**。
+- 378 source／63 dist 雜湊核對；前後兩庫 schema、ledger、資料計數／內容、foreign keys、bindings／Secrets metadata 與開關完全不變，無 D1 migration。
+- 以先前隔離正式目錄增量 overlay 發布，排除無關 GA4／Vedic dirty changes；repository HEAD `e05ce107de9fb095e93aa63f3cefec19d55f6ffc` 不是全部已部署程式 SHA，本輪未 commit／push。私有 release manifest 保存來源、前後部署與驗證結果。
+
 ## 後續授權更新：正式會員、付款與 Live AI 已啟用
 
 2026-10-10 15:45（Asia/Taipei）更新。下方原安裝報告是 15:34 的歷史關閉狀態，本節為最新狀態。

@@ -8,7 +8,7 @@ import SolarSealIcon from './SolarSealIcon';
 import TzolkinMatrix from './TzolkinMatrix';
 import './mayaVisualization.css';
 
-export default function MayaVisualization({ locale, profile, publicPage }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean }) {
+export default function MayaVisualization({ locale, profile, publicPage, showMatrixGrid = true }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean; showMatrixGrid?: boolean }) {
   const en = locale === 'en';
   const t = (zh: string, english: string) => en ? english : zh;
   const [birthDate, setBirthDate] = useState('');
@@ -31,7 +31,7 @@ export default function MayaVisualization({ locale, profile, publicPage }: { loc
         setCalculated({ kin: mayaForDate(birthDate, locale).kin_number, date: birthDate });
       }}>
         <label>{t('出生日期（僅本地計算）', 'Birth date (local calculation only)')}<input type="date" min="1900-01-01" max={taipeiDate()} required value={birthDate} onChange={event => setBirthDate(event.target.value)} /></label>
-        <button type="submit">{t('免費查看 KIN 身份卡', 'View free KIN identity card')}</button>
+        <button type="submit">{t('免費查詢我的 KIN', 'Find My KIN for Free')}</button>
       </form>
       {error && <p role="alert">{error}</p>}
     </section>}
@@ -52,6 +52,6 @@ export default function MayaVisualization({ locale, profile, publicPage }: { loc
         <p>{galacticToneVisual(tone.number, locale).keywordLabel}</p>
       </li>)}</ol>
     </details>}
-    <TzolkinMatrix key={`${locale}:${identity?.kin ?? 'public'}`} locale={locale} birthKin={identity?.kin} />
+    <TzolkinMatrix key={`${locale}:${identity?.kin ?? 'public'}`} locale={locale} birthKin={identity?.kin} showGrid={showMatrixGrid} />
   </div>;
 }

@@ -21,7 +21,7 @@ export default function MayaRelationshipPage() {
   const [reportAvailable, setReportAvailable] = useState(false);
   const [busy, setBusy] = useState(false);
   const [accepted, setAccepted] = useState(false);
-  const [member, setMember] = useState<{ identity: string; access: string | null; orderStatus: string } | null>(null);
+  const [member, setMember] = useState<{ identity: string; access: string | null; complimentary: boolean; orderStatus: string } | null>(null);
   const identity = `${user?.id ?? ''}:${locale}:${location.search}`;
   const current = useRef(identity); current.current = identity;
   const key = useRef<string | null>(null);
@@ -51,7 +51,8 @@ export default function MayaRelationshipPage() {
       .then(([access, order]) => {
         if (controller.signal.aborted) return;
         if (order && order.product_code !== MAYA_RELATIONSHIP_PRODUCT.code) throw new Error(en ? 'This is not a relationship order.' : '這不是新版雙人訂單。');
-        setMember({ identity, access: access.entitlements.find(e => e.product_code === MAYA_RELATIONSHIP_PRODUCT.code)?.id ?? null, orderStatus: order?.status ?? '' });
+        const grant = access.entitlements.find(e => e.product_code === MAYA_RELATIONSHIP_PRODUCT.code);
+        setMember({ identity, access: grant?.id ?? null, complimentary: grant?.source === 'admin_complimentary', orderStatus: order?.status ?? '' });
       }).catch(cause => {
         if (!controller.signal.aborted) setError(localizeAuthError(cause instanceof Error ? cause.message : '', language, en ? 'Unable to verify member access.' : '無法確認會員權限。'));
       }).finally(() => { if (!controller.signal.aborted) setBusy(false); });
@@ -68,13 +69,13 @@ export default function MayaRelationshipPage() {
           : '真實付款：NT$899 取得十二篇雙人報告與程式視覺化權限。AI 提供象徵反思，不是科學診斷或預言。不提供自動續扣。'
         : en ? 'Real payment: NT$899 buys this product entitlement only. The twelve-chapter report and paired visualizations are not available for delivery. No Mock report will be supplied as paid content. No recurring billing.'
           : '真實付款：NT$899 目前僅購買此商品權限。十二篇報告與雙人視覺化尚無法交付，不會以 Mock 冒充付費內容。不提供自動續扣。'}</p>
-      {payment && user && !visible?.access && <label className="my-4 flex items-start gap-3">
+      {!reportAvailable && payment && user && !visible?.access && <label className="my-4 flex items-start gap-3">
         <input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} />
         {reportAvailable ? en ? 'I understand this is a real NT$899 charge, not a recurring subscription.' : '我了解這是真實 NT$899 扣款，不是自動續扣訂閱。'
           : en ? 'I understand this is a real NT$899 charge for access only, with no relationship report available now.'
             : '我了解這是真實 NT$899 扣款，目前僅取得商品權限，尚無雙人報告可交付。'}
       </label>}
-      <button disabled={!ready || !payment || loading || busy || (!!user && (!visible || !accepted || !!visible.access))}
+      {(!reportAvailable || !user) && <button disabled={!ready || !payment || loading || busy || (!!user && (!visible || !accepted || !!visible.access))}
         onClick={async () => {
           if (!user) {
             const redirect = calculationLoginRedirect(false, location.pathname, location.search);
@@ -94,10 +95,11 @@ export default function MayaRelationshipPage() {
             if (current.current === requested) setError(localizeAuthError(cause instanceof Error ? cause.message : '', language, en ? 'Checkout failed. Please retry.' : '付款請求失敗，請重試。'));
           } finally { if (current.current === requested) setBusy(false); }
         }} className="rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">
-        {visible?.access ? en ? 'Product access granted' : '已取得商品權限' : en ? 'ECPay checkout' : '綠界付款'} · NT$899
-      </button>
+        {visible?.complimentary ? en ? 'Complimentary admin access' : '管理者免費使用' : visible?.access ? en ? 'Product access granted' : '已取得商品權限' : en ? 'Pay to unlock' : '付費解鎖'} · NT$899
+      </button>}
+      {visible?.complimentary && <p>{en ? 'Complimentary admin access is verified by the server. No payment is required; AI cost and content checks still apply.' : '後端已驗證管理者免費權限，無需付款。AI 成本與內容檢查仍適用。'}</p>}
       {ready && !payment && <p>{en ? 'Checkout is not enabled.' : '付款尚未啟用。'}</p>}
-      {visible?.orderStatus && <p role="status">{en ? 'Server payment status' : '後端付款狀態'}: {visible.orderStatus}
+      {!reportAvailable && visible?.orderStatus && <p role="status">{en ? 'Server payment status' : '後端付款狀態'}: {visible.orderStatus}
         {visible.orderStatus === 'pending' && <button className="ml-3 underline" onClick={() => window.location.reload()}>{en ? 'Refresh status (no new charge)' : '重新確認狀態（不重新扣款）'}</button>}
       </p>}
       {!ready && !error && <p role="status">{en ? 'Checking product settings...' : '正在確認商品設定…'}</p>}
@@ -109,6 +111,7 @@ export default function MayaRelationshipPage() {
       </nav>
     </section>
     {reportAvailable && user && visible && <MayaPremiumReportManager key={identity} kind="relationship"
-      locale={locale} userId={user.id} accessId={visible.access} />}
+      locale={locale} userId={user.id} accessId={visible.access} returnedOrder={returnedOrder}
+      complimentary={visible.complimentary} payment={payment} />}
   </main>;
 }

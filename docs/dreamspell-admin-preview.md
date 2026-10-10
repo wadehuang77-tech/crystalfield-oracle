@@ -1,5 +1,25 @@
 # 管理者免費 Mock 驗收
 
+## 最新更新：管理者單次免費解鎖（2026-10-10）
+
+指定帳號的 NT$199／499／Pro699／雙人899，現在使用「管理者免費解鎖」直接生成，不需再按第二個生成按鈕。先確認本人生日，雙人另需另一人資料、關係類型及同意；同樣受後端雙重身分確認、所有權、成本／並發限制。普通會員改按「付費解鎖」，付款返回後自動生成，未授權不生成。未知錯誤／中斷可用既有權限繼續，不重新付款。
+
+已部署 Worker version `b5ff91aa-b922-47b0-9720-f5bc525468b1`、Pages `5fd76a70-b6cb-4179-be4f-c44f4d26c410`；本地四方案雙語三尺寸免費／付款流程與正式 synthetic 管理者 UI PASS，真人管理者正式 AI 生成仍 NOT RUN，本輪真實 AI／付款 0。沒有 migration／Secrets／OAuth 變更或 commit／push。詳見 [最新四方案解鎖流程](dreamspell-production-ecpay-installation.md)；下方操作是歷史紀錄。
+
+## 最新狀態：指定管理者正式 Pro／雙人免商品費（2026-10-10）
+
+本節取代下方歷史功能狀態；原 Mock 預覽與舊版管理者 Live 流程保留。
+
+- `wadehuang77@gmail.com` 原有 Dreamspell NT$199／499 免費能力不變；新增獨立 `MAYA_SOUL_MISSION_PRO_699` 與 `MAYA_RELATIONSHIP_899` 免費生成及閱讀。
+- 後端驗證有效 Session、指定 email、D1 本人 email 及既有管理者／Live 開關；前端只接受後端 `admin_complimentary` 權限，不以 email 或 CSS 解鎖。每次讀取／繼續均重驗，撤銷身分或能力後拒絕。
+- 中文／英文商品頁顯示「管理者免費使用 / Complimentary admin access」，購買按鈕停用；完成本人生日、雙人資料及同意後，使用既有報告生成管理介面，不呼叫綠界 checkout。
+- GET 權限不建立訂單；明確 POST 建立報告且輸入驗證通過後，建立本人、商品獨立、金額 0、status `complimentary`、item_type `maya_admin` 的訂單。不是付款交易，不寫綠界付款紀錄，不改普通會員已購權益。
+- AI 仍有實際供應商成本，沿用每章預留 NT$0.11、每報告 NT$2、同訂單雙語 NT$4 上限、並發與重試防護；成功報告存 D1，重新閱讀不生成。
+- 本地兩商品完整 15＋12 篇 Mock 生成、快取、冒用 email／跨會員／身分撤銷／成本與零付款：PASS；既有付費雙人及 provider-error／並發兩組回歸 PASS。36 個雙語三尺寸未購買／已購買／管理者 UI 與 4 個商品目錄案例 PASS；TypeScript／相關 ESLint／production build／45-route SEO PASS。
+- 正式指定帳號唯讀查詢匹配 1 筆；正式公開設定與 24 個 synthetic 會員雙語三尺寸 UI、匿名 GET／POST 401 隔離 PASS。**真人管理者正式登入及完整 Live AI 生成 NOT RUN**，不能將攔截會員 UI 當成正式身分驗收。本輪實際 AI／checkout 呼叫均 0。
+- Worker deployment `bc3de41c-5560-46b6-983e-deaf60a58c03`，version `9ff45559-8d8b-411f-bfab-21a762fc076c`；Pages `3536adb0-046f-4b27-9523-3ef6d814868d`。376 source／63 dist 雜湊核對，前後 D1 schema／ledger／counts／content、bindings／功能開關完全相同；沒有 migration、Secrets、OAuth 或其他命理系統變更。
+- 發布使用前次隔離正式目錄加未提交 Dreamspell overlay；repository HEAD `e05ce107de9fb095e93aa63f3cefec19d55f6ffc`，不是全部已部署程式的 commit SHA。本輪未 commit／push。私有發布 manifest 保存來源與部署識別。
+
 管理者可使用現有會員系統登入，前往 `/maya-calendar/member` 或 `/en/maya-calendar/member`。這是免費功能驗收，不是正式付款或 Live AI 開放。
 
 ## 2026-10-10 正式部署

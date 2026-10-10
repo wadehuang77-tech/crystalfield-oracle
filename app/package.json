@@ -32,6 +32,7 @@
     "test:maya-visualization-browser": "tsx scripts/maya-visualization-browser-check.ts",
     "test:maya-pro-browser": "tsx scripts/maya-pro-browser-check.ts",
     "test:maya-premium-live-browser": "tsx scripts/maya-premium-live-browser-check.ts",
+    "test:maya-unlock-browser": "tsx scripts/maya-unlock-browser-check.ts",
     "typecheck:maya-acceptance": "tsc --noEmit -p tsconfig.maya-acceptance.json",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
