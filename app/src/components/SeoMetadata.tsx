@@ -15,6 +15,13 @@ export type SeoConfig = {
 };
 
 const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
+  '/maya-calendar': {
+    title: 'Dreamspell 瑪雅 13 月亮曆與 KIN 計算｜晶域心語',
+    description: '認識現代 Dreamspell 13 月亮曆、20 太陽圖騰與 13 銀河音調。Google 會員可免費計算 KIN，探索每日自我覺察指引。',
+    canonical: 'https://www.crystalfield101.com/maya-calendar/',
+    h1: 'Dreamspell 瑪雅 13 月亮曆',
+    intro: 'Dreamspell 是現代 13 月亮曆系統，不等同於傳統瑪雅 Tzolk’in 曆法。結果僅供自我覺察，不是命運預測。',
+  },
   '/': {
     title: '晶域心語｜塔羅、生命靈數、人類圖與印度占星',
     description: '晶域心語結合塔羅牌占卜、生命靈數、人類圖與印度占星，提供自我探索工具，協助你整理當下課題、個人天賦與人生方向。',
@@ -136,6 +143,12 @@ export const PUBLIC_SEO: Record<string, SeoConfig> = {
 };
 
 const ENGLISH_PUBLIC_SEO: Record<string, Pick<SeoConfig, 'title' | 'description' | 'h1' | 'intro'>> = {
+  '/maya-calendar': {
+    title: 'Dreamspell Maya 13 Moon Calendar and KIN Calculator | Crystal Field',
+    description: 'Explore the modern Dreamspell 13 Moon calendar, 20 solar seals and 13 galactic tones. Google members can calculate KIN for free and reflect on daily themes.',
+    h1: 'Dreamspell Maya 13 Moon Calendar',
+    intro: 'Dreamspell is a modern 13 Moon calendar, not the traditional Maya Tzolk’in calendar. Results support reflection, not prediction.',
+  },
   '/': { title: 'Crystal Field | Tarot, Numerology, Human Design and Vedic Astrology', description: 'Explore tarot readings, numerology, Human Design, and Vedic astrology as tools for reflection and self-discovery.', h1: 'Crystal Field', intro: 'Explore tarot, numerology, Human Design, and Vedic astrology to reflect on your strengths, questions, and next steps.' },
   '/oracle': { title: 'Free Tarot and Oracle Card Readings | Crystal Field', description: 'Explore seven tarot and oracle decks, including Rider-Waite, Lightworker, Unicorn, Dragon, Egyptian, Work Your Light, and Osho Zen Tarot.', h1: 'Free Tarot and Oracle Card Readings', intro: 'Choose a deck and spread to reflect on your question, current circumstances, and possible next steps.' },
   '/privacy': { title: 'Privacy Policy | Crystal Field', description: 'Learn how Crystal Field collects, uses, retains, and protects information when you use our website and services.', h1: 'Crystal Field Privacy Policy', intro: 'This policy explains how we handle information when you use Crystal Field.' },

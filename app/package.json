@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prerender.mjs && node scripts/verify-prerender-seo.mjs",
+    "build:maya-test": "vite build --config vite.maya-test.config.ts --mode maya-test",
+    "check:maya-environment": "node scripts/maya-environment-check.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "smoke": "node scripts/smoke-test.mjs",
@@ -19,6 +21,18 @@
     "test:vedic-progress": "tsx scripts/vedic-progress-check.ts",
     "test:vedic-locale": "tsx scripts/vedic-locale-check.ts",
     "test:tarot-deep-analysis": "tsx scripts/tarot-deep-analysis-check.ts",
+    "test:dreamspell": "tsx --test src/lib/dreamspell.test.ts",
+    "test:maya-routes": "tsx scripts/maya-route-check.ts",
+    "test:maya-browser": "tsx scripts/maya-browser-check.ts",
+    "test:maya-admin-preview-ui": "tsx scripts/maya-admin-preview-ui-check.ts",
+    "test:maya-public-smoke": "tsx scripts/maya-public-smoke.ts",
+    "test:maya-external-e2e": "tsx scripts/maya-external-e2e.ts",
+    "test:maya-references": "tsx --test scripts/maya-reference-check.ts",
+    "test:maya-visualization": "tsx --test scripts/maya-visualization-check.ts",
+    "test:maya-visualization-browser": "tsx scripts/maya-visualization-browser-check.ts",
+    "test:maya-pro-browser": "tsx scripts/maya-pro-browser-check.ts",
+    "test:maya-premium-live-browser": "tsx scripts/maya-premium-live-browser-check.ts",
+    "typecheck:maya-acceptance": "tsc --noEmit -p tsconfig.maya-acceptance.json",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
@@ -28,7 +42,9 @@
     "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
+    "playwright": "^1.56.1",
     "@eslint/js": "^9.9.1",
+    "@types/node": "^22.20.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

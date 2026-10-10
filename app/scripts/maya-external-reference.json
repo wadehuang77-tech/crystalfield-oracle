@@ -1,0 +1,2728 @@
+{
+  "method": "Original retrieved external calculators replayed in isolated Chrome; all outbound resources blocked. No project engine or reimplemented formula used.",
+  "retrieved_at": "2026-10-10T03:40:17.387Z",
+  "sources": [
+    {
+      "url": "https://lawoftime.org/decode/",
+      "anchor": "2002-07-26 KIN 49; year/month stepping",
+      "sha256": "85e60823b9b21978c2fc3b748bafddc5383f05af043f9d4b495d2e4b090823a9"
+    },
+    {
+      "url": "https://galacticark.org/dreamspell-kin-calculator",
+      "script_url": "https://galacticark.org/wp-content/plugins/dreamspell_KIN_calculator_v1.3/dreamspell-calculator.js?ver=1.0.0",
+      "anchor": "2025-12-10 KIN 1; Julian-day arithmetic",
+      "sha256": "6a95c4fa842f4d56b1f888870f47c64cc28a17ad933d6750e0cda11125fcd7cb"
+    }
+  ],
+  "cases": [
+    {
+      "date": "1900-01-01",
+      "law_of_time_kin": 53,
+      "law_of_time_name": "Red Magnetic Skywalker",
+      "ark_kin": 53,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "1900-02-28",
+      "law_of_time_kin": 111,
+      "law_of_time_name": "Blue Resonant Monkey",
+      "ark_kin": 111,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "1900-03-01",
+      "law_of_time_kin": 112,
+      "law_of_time_name": "Yellow Galactic Human",
+      "ark_kin": 112,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "1900-07-25",
+      "law_of_time_kin": 258,
+      "law_of_time_name": "White Spectral Mirror",
+      "ark_kin": 258,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "1900-07-26",
+      "law_of_time_kin": 259,
+      "law_of_time_name": "Blue Crystal Storm",
+      "ark_kin": 259,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "1912-02-28",
+      "law_of_time_kin": 71,
+      "law_of_time_name": "Blue Rhythmic Monkey",
+      "ark_kin": 71,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "1912-02-29",
+      "law_of_time_kin": 71,
+      "law_of_time_name": "Blue Rhythmic Monkey",
+      "ark_kin": 71,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "1912-03-01",
+      "law_of_time_kin": 72,
+      "law_of_time_name": "Yellow Resonant Human",
+      "ark_kin": 72,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "1920-12-31",
+      "law_of_time_kin": 177,
+      "law_of_time_name": "Red Galactic Earth",
+      "ark_kin": 177,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "1921-01-01",
+      "law_of_time_kin": 178,
+      "law_of_time_name": "White Solar Mirror",
+      "ark_kin": 178,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Solar",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "1939-07-25",
+      "law_of_time_kin": 193,
+      "law_of_time_name": "Red Spectral Skywalker",
+      "ark_kin": 193,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "1939-07-26",
+      "law_of_time_kin": 194,
+      "law_of_time_name": "White Crystal Wizard",
+      "ark_kin": 194,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "1945-08-15",
+      "law_of_time_kin": 64,
+      "law_of_time_name": "Yellow Crystal Seed",
+      "ark_kin": 64,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "1950-01-01",
+      "law_of_time_kin": 103,
+      "law_of_time_name": "Blue Crystal Night",
+      "ark_kin": 103,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "1960-02-28",
+      "law_of_time_kin": 171,
+      "law_of_time_name": "Blue Lunar Monkey",
+      "ark_kin": 171,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "1960-02-29",
+      "law_of_time_kin": 171,
+      "law_of_time_name": "Blue Lunar Monkey",
+      "ark_kin": 171,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "1960-03-01",
+      "law_of_time_kin": 172,
+      "law_of_time_name": "Yellow Electric Human",
+      "ark_kin": 172,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Electric",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "1969-07-20",
+      "law_of_time_kin": 218,
+      "law_of_time_name": "White Planetary Mirror",
+      "ark_kin": 218,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "1970-01-01",
+      "law_of_time_kin": 123,
+      "law_of_time_name": "Blue Rhythmic Night",
+      "ark_kin": 123,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "1976-07-25",
+      "law_of_time_kin": 178,
+      "law_of_time_name": "White Solar Mirror",
+      "ark_kin": 178,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Solar",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "1976-07-26",
+      "law_of_time_kin": 179,
+      "law_of_time_name": "Blue Planetary Storm",
+      "ark_kin": 179,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "1987-07-25",
+      "law_of_time_kin": 33,
+      "law_of_time_name": "Red Resonant Skywalker",
+      "ark_kin": 33,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "1987-07-26",
+      "law_of_time_kin": 34,
+      "law_of_time_name": "White Galactic Wizard",
+      "ark_kin": 34,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "1987-07-27",
+      "law_of_time_kin": 35,
+      "law_of_time_name": "Blue Solar Eagle",
+      "ark_kin": 35,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Solar",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "1988-02-28",
+      "law_of_time_kin": 251,
+      "law_of_time_name": "Blue Self-Existing Monkey",
+      "ark_kin": 251,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "1988-02-29",
+      "law_of_time_kin": 251,
+      "law_of_time_name": "Blue Self-Existing Monkey",
+      "ark_kin": 251,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "1988-03-01",
+      "law_of_time_kin": 252,
+      "law_of_time_name": "Yellow Overtone Human",
+      "ark_kin": 252,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "1999-12-31",
+      "law_of_time_kin": 152,
+      "law_of_time_name": "Yellow Solar Human",
+      "ark_kin": 152,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Solar",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2000-01-01",
+      "law_of_time_kin": 153,
+      "law_of_time_name": "Red Planetary Skywalker",
+      "ark_kin": 153,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2000-02-28",
+      "law_of_time_kin": 211,
+      "law_of_time_name": "Blue Electric Monkey",
+      "ark_kin": 211,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Electric",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2000-02-29",
+      "law_of_time_kin": 211,
+      "law_of_time_name": "Blue Electric Monkey",
+      "ark_kin": 211,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Electric",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2000-03-01",
+      "law_of_time_kin": 212,
+      "law_of_time_name": "Yellow Self-Existing Human",
+      "ark_kin": 212,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2002-07-25",
+      "law_of_time_kin": 48,
+      "law_of_time_name": "Yellow Solar Star",
+      "ark_kin": 48,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Solar",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2002-07-26",
+      "law_of_time_kin": 49,
+      "law_of_time_name": "Red Planetary Moon",
+      "ark_kin": 49,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2012-12-21",
+      "law_of_time_kin": 207,
+      "law_of_time_name": "Blue Crystal Hand",
+      "ark_kin": 207,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2024-02-28",
+      "law_of_time_kin": 131,
+      "law_of_time_name": "Blue Magnetic Monkey",
+      "ark_kin": 131,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2024-02-29",
+      "law_of_time_kin": 131,
+      "law_of_time_name": "Blue Magnetic Monkey",
+      "ark_kin": 131,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2024-03-01",
+      "law_of_time_kin": 132,
+      "law_of_time_name": "Yellow Lunar Human",
+      "ark_kin": 132,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2025-07-25",
+      "law_of_time_kin": 123,
+      "law_of_time_name": "Blue Rhythmic Night",
+      "ark_kin": 123,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2025-07-26",
+      "law_of_time_kin": 124,
+      "law_of_time_name": "Yellow Resonant Seed",
+      "ark_kin": 124,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2025-12-10",
+      "law_of_time_kin": 1,
+      "law_of_time_name": "Red Magnetic Dragon",
+      "ark_kin": 1,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2026-07-25",
+      "law_of_time_kin": 228,
+      "law_of_time_name": "Yellow Resonant Star",
+      "ark_kin": 228,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-26",
+      "law_of_time_kin": 229,
+      "law_of_time_name": "Red Galactic Moon",
+      "ark_kin": 229,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-10-10",
+      "law_of_time_kin": 45,
+      "law_of_time_name": "Red Rhythmic Serpent",
+      "ark_kin": 45,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2025-12-11",
+      "law_of_time_kin": 2,
+      "law_of_time_name": "White Lunar Wind",
+      "ark_kin": 2,
+      "ark_seal": "White Wind",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-12",
+      "law_of_time_kin": 3,
+      "law_of_time_name": "Blue Electric Night",
+      "ark_kin": 3,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Electric",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-13",
+      "law_of_time_kin": 4,
+      "law_of_time_name": "Yellow Self-Existing Seed",
+      "ark_kin": 4,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-14",
+      "law_of_time_kin": 5,
+      "law_of_time_name": "Red Overtone Serpent",
+      "ark_kin": 5,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-15",
+      "law_of_time_kin": 6,
+      "law_of_time_name": "White Rhythmic World-Bridger",
+      "ark_kin": 6,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-16",
+      "law_of_time_kin": 7,
+      "law_of_time_name": "Blue Resonant Hand",
+      "ark_kin": 7,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-17",
+      "law_of_time_kin": 8,
+      "law_of_time_name": "Yellow Galactic Star",
+      "ark_kin": 8,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-18",
+      "law_of_time_kin": 9,
+      "law_of_time_name": "Red Solar Moon",
+      "ark_kin": 9,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Solar",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-19",
+      "law_of_time_kin": 10,
+      "law_of_time_name": "White Planetary Dog",
+      "ark_kin": 10,
+      "ark_seal": "White Dog",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-20",
+      "law_of_time_kin": 11,
+      "law_of_time_name": "Blue Spectral Monkey",
+      "ark_kin": 11,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-21",
+      "law_of_time_kin": 12,
+      "law_of_time_name": "Yellow Crystal Human",
+      "ark_kin": 12,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-22",
+      "law_of_time_kin": 13,
+      "law_of_time_name": "Red Cosmic Skywalker",
+      "ark_kin": 13,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 1
+    },
+    {
+      "date": "2025-12-23",
+      "law_of_time_kin": 14,
+      "law_of_time_name": "White Magnetic Wizard",
+      "ark_kin": 14,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-24",
+      "law_of_time_kin": 15,
+      "law_of_time_name": "Blue Lunar Eagle",
+      "ark_kin": 15,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-25",
+      "law_of_time_kin": 16,
+      "law_of_time_name": "Yellow Electric Warrior",
+      "ark_kin": 16,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Electric",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-26",
+      "law_of_time_kin": 17,
+      "law_of_time_name": "Red Self-Existing Earth",
+      "ark_kin": 17,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-27",
+      "law_of_time_kin": 18,
+      "law_of_time_name": "White Overtone Mirror",
+      "ark_kin": 18,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-28",
+      "law_of_time_kin": 19,
+      "law_of_time_name": "Blue Rhythmic Storm",
+      "ark_kin": 19,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-29",
+      "law_of_time_kin": 20,
+      "law_of_time_name": "Yellow Resonant Sun",
+      "ark_kin": 20,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-30",
+      "law_of_time_kin": 21,
+      "law_of_time_name": "Red Galactic Dragon",
+      "ark_kin": 21,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2025-12-31",
+      "law_of_time_kin": 22,
+      "law_of_time_name": "White Solar Wind",
+      "ark_kin": 22,
+      "ark_seal": "White Wind",
+      "ark_tone": "Solar",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2026-01-01",
+      "law_of_time_kin": 23,
+      "law_of_time_name": "Blue Planetary Night",
+      "ark_kin": 23,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2026-01-02",
+      "law_of_time_kin": 24,
+      "law_of_time_name": "Yellow Spectral Seed",
+      "ark_kin": 24,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2026-01-03",
+      "law_of_time_kin": 25,
+      "law_of_time_name": "Red Crystal Serpent",
+      "ark_kin": 25,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2026-01-04",
+      "law_of_time_kin": 26,
+      "law_of_time_name": "White Cosmic World-Bridger",
+      "ark_kin": 26,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 2
+    },
+    {
+      "date": "2026-01-05",
+      "law_of_time_kin": 27,
+      "law_of_time_name": "Blue Magnetic Hand",
+      "ark_kin": 27,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-06",
+      "law_of_time_kin": 28,
+      "law_of_time_name": "Yellow Lunar Star",
+      "ark_kin": 28,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-07",
+      "law_of_time_kin": 29,
+      "law_of_time_name": "Red Electric Moon",
+      "ark_kin": 29,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Electric",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-08",
+      "law_of_time_kin": 30,
+      "law_of_time_name": "White Self-Existing Dog",
+      "ark_kin": 30,
+      "ark_seal": "White Dog",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-09",
+      "law_of_time_kin": 31,
+      "law_of_time_name": "Blue Overtone Monkey",
+      "ark_kin": 31,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-10",
+      "law_of_time_kin": 32,
+      "law_of_time_name": "Yellow Rhythmic Human",
+      "ark_kin": 32,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-11",
+      "law_of_time_kin": 33,
+      "law_of_time_name": "Red Resonant Skywalker",
+      "ark_kin": 33,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-12",
+      "law_of_time_kin": 34,
+      "law_of_time_name": "White Galactic Wizard",
+      "ark_kin": 34,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-13",
+      "law_of_time_kin": 35,
+      "law_of_time_name": "Blue Solar Eagle",
+      "ark_kin": 35,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Solar",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-14",
+      "law_of_time_kin": 36,
+      "law_of_time_name": "Yellow Planetary Warrior",
+      "ark_kin": 36,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-15",
+      "law_of_time_kin": 37,
+      "law_of_time_name": "Red Spectral Earth",
+      "ark_kin": 37,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-16",
+      "law_of_time_kin": 38,
+      "law_of_time_name": "White Crystal Mirror",
+      "ark_kin": 38,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-17",
+      "law_of_time_kin": 39,
+      "law_of_time_name": "Blue Cosmic Storm",
+      "ark_kin": 39,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 3
+    },
+    {
+      "date": "2026-01-18",
+      "law_of_time_kin": 40,
+      "law_of_time_name": "Yellow Magnetic Sun",
+      "ark_kin": 40,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-19",
+      "law_of_time_kin": 41,
+      "law_of_time_name": "Red Lunar Dragon",
+      "ark_kin": 41,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-20",
+      "law_of_time_kin": 42,
+      "law_of_time_name": "White Electric Wind",
+      "ark_kin": 42,
+      "ark_seal": "White Wind",
+      "ark_tone": "Electric",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-21",
+      "law_of_time_kin": 43,
+      "law_of_time_name": "Blue Self-Existing Night",
+      "ark_kin": 43,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-22",
+      "law_of_time_kin": 44,
+      "law_of_time_name": "Yellow Overtone Seed",
+      "ark_kin": 44,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-23",
+      "law_of_time_kin": 45,
+      "law_of_time_name": "Red Rhythmic Serpent",
+      "ark_kin": 45,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-24",
+      "law_of_time_kin": 46,
+      "law_of_time_name": "White Resonant World-Bridger",
+      "ark_kin": 46,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-25",
+      "law_of_time_kin": 47,
+      "law_of_time_name": "Blue Galactic Hand",
+      "ark_kin": 47,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-26",
+      "law_of_time_kin": 48,
+      "law_of_time_name": "Yellow Solar Star",
+      "ark_kin": 48,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Solar",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-27",
+      "law_of_time_kin": 49,
+      "law_of_time_name": "Red Planetary Moon",
+      "ark_kin": 49,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-28",
+      "law_of_time_kin": 50,
+      "law_of_time_name": "White Spectral Dog",
+      "ark_kin": 50,
+      "ark_seal": "White Dog",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-29",
+      "law_of_time_kin": 51,
+      "law_of_time_name": "Blue Crystal Monkey",
+      "ark_kin": 51,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-30",
+      "law_of_time_kin": 52,
+      "law_of_time_name": "Yellow Cosmic Human",
+      "ark_kin": 52,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 4
+    },
+    {
+      "date": "2026-01-31",
+      "law_of_time_kin": 53,
+      "law_of_time_name": "Red Magnetic Skywalker",
+      "ark_kin": 53,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-01",
+      "law_of_time_kin": 54,
+      "law_of_time_name": "White Lunar Wizard",
+      "ark_kin": 54,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-02",
+      "law_of_time_kin": 55,
+      "law_of_time_name": "Blue Electric Eagle",
+      "ark_kin": 55,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Electric",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-03",
+      "law_of_time_kin": 56,
+      "law_of_time_name": "Yellow Self-Existing Warrior",
+      "ark_kin": 56,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-04",
+      "law_of_time_kin": 57,
+      "law_of_time_name": "Red Overtone Earth",
+      "ark_kin": 57,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-05",
+      "law_of_time_kin": 58,
+      "law_of_time_name": "White Rhythmic Mirror",
+      "ark_kin": 58,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-06",
+      "law_of_time_kin": 59,
+      "law_of_time_name": "Blue Resonant Storm",
+      "ark_kin": 59,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-07",
+      "law_of_time_kin": 60,
+      "law_of_time_name": "Yellow Galactic Sun",
+      "ark_kin": 60,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-08",
+      "law_of_time_kin": 61,
+      "law_of_time_name": "Red Solar Dragon",
+      "ark_kin": 61,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Solar",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-09",
+      "law_of_time_kin": 62,
+      "law_of_time_name": "White Planetary Wind",
+      "ark_kin": 62,
+      "ark_seal": "White Wind",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-10",
+      "law_of_time_kin": 63,
+      "law_of_time_name": "Blue Spectral Night",
+      "ark_kin": 63,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-11",
+      "law_of_time_kin": 64,
+      "law_of_time_name": "Yellow Crystal Seed",
+      "ark_kin": 64,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-12",
+      "law_of_time_kin": 65,
+      "law_of_time_name": "Red Cosmic Serpent",
+      "ark_kin": 65,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 5
+    },
+    {
+      "date": "2026-02-13",
+      "law_of_time_kin": 66,
+      "law_of_time_name": "White Magnetic World-Bridger",
+      "ark_kin": 66,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-14",
+      "law_of_time_kin": 67,
+      "law_of_time_name": "Blue Lunar Hand",
+      "ark_kin": 67,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-15",
+      "law_of_time_kin": 68,
+      "law_of_time_name": "Yellow Electric Star",
+      "ark_kin": 68,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Electric",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-16",
+      "law_of_time_kin": 69,
+      "law_of_time_name": "Red Self-Existing Moon",
+      "ark_kin": 69,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-17",
+      "law_of_time_kin": 70,
+      "law_of_time_name": "White Overtone Dog",
+      "ark_kin": 70,
+      "ark_seal": "White Dog",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-18",
+      "law_of_time_kin": 71,
+      "law_of_time_name": "Blue Rhythmic Monkey",
+      "ark_kin": 71,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-19",
+      "law_of_time_kin": 72,
+      "law_of_time_name": "Yellow Resonant Human",
+      "ark_kin": 72,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-20",
+      "law_of_time_kin": 73,
+      "law_of_time_name": "Red Galactic Skywalker",
+      "ark_kin": 73,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-21",
+      "law_of_time_kin": 74,
+      "law_of_time_name": "White Solar Wizard",
+      "ark_kin": 74,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Solar",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-22",
+      "law_of_time_kin": 75,
+      "law_of_time_name": "Blue Planetary Eagle",
+      "ark_kin": 75,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-23",
+      "law_of_time_kin": 76,
+      "law_of_time_name": "Yellow Spectral Warrior",
+      "ark_kin": 76,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-24",
+      "law_of_time_kin": 77,
+      "law_of_time_name": "Red Crystal Earth",
+      "ark_kin": 77,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-25",
+      "law_of_time_kin": 78,
+      "law_of_time_name": "White Cosmic Mirror",
+      "ark_kin": 78,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 6
+    },
+    {
+      "date": "2026-02-26",
+      "law_of_time_kin": 79,
+      "law_of_time_name": "Blue Magnetic Storm",
+      "ark_kin": 79,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-02-27",
+      "law_of_time_kin": 80,
+      "law_of_time_name": "Yellow Lunar Sun",
+      "ark_kin": 80,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-02-28",
+      "law_of_time_kin": 81,
+      "law_of_time_name": "Red Electric Dragon",
+      "ark_kin": 81,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Electric",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-01",
+      "law_of_time_kin": 82,
+      "law_of_time_name": "White Self-Existing Wind",
+      "ark_kin": 82,
+      "ark_seal": "White Wind",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-02",
+      "law_of_time_kin": 83,
+      "law_of_time_name": "Blue Overtone Night",
+      "ark_kin": 83,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-03",
+      "law_of_time_kin": 84,
+      "law_of_time_name": "Yellow Rhythmic Seed",
+      "ark_kin": 84,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-04",
+      "law_of_time_kin": 85,
+      "law_of_time_name": "Red Resonant Serpent",
+      "ark_kin": 85,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-05",
+      "law_of_time_kin": 86,
+      "law_of_time_name": "White Galactic World-Bridger",
+      "ark_kin": 86,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-06",
+      "law_of_time_kin": 87,
+      "law_of_time_name": "Blue Solar Hand",
+      "ark_kin": 87,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Solar",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-07",
+      "law_of_time_kin": 88,
+      "law_of_time_name": "Yellow Planetary Star",
+      "ark_kin": 88,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-08",
+      "law_of_time_kin": 89,
+      "law_of_time_name": "Red Spectral Moon",
+      "ark_kin": 89,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-09",
+      "law_of_time_kin": 90,
+      "law_of_time_name": "White Crystal Dog",
+      "ark_kin": 90,
+      "ark_seal": "White Dog",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-10",
+      "law_of_time_kin": 91,
+      "law_of_time_name": "Blue Cosmic Monkey",
+      "ark_kin": 91,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 7
+    },
+    {
+      "date": "2026-03-11",
+      "law_of_time_kin": 92,
+      "law_of_time_name": "Yellow Magnetic Human",
+      "ark_kin": 92,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-12",
+      "law_of_time_kin": 93,
+      "law_of_time_name": "Red Lunar Skywalker",
+      "ark_kin": 93,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-13",
+      "law_of_time_kin": 94,
+      "law_of_time_name": "White Electric Wizard",
+      "ark_kin": 94,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Electric",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-14",
+      "law_of_time_kin": 95,
+      "law_of_time_name": "Blue Self-Existing Eagle",
+      "ark_kin": 95,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-15",
+      "law_of_time_kin": 96,
+      "law_of_time_name": "Yellow Overtone Warrior",
+      "ark_kin": 96,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-16",
+      "law_of_time_kin": 97,
+      "law_of_time_name": "Red Rhythmic Earth",
+      "ark_kin": 97,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-17",
+      "law_of_time_kin": 98,
+      "law_of_time_name": "White Resonant Mirror",
+      "ark_kin": 98,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-18",
+      "law_of_time_kin": 99,
+      "law_of_time_name": "Blue Galactic Storm",
+      "ark_kin": 99,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-19",
+      "law_of_time_kin": 100,
+      "law_of_time_name": "Yellow Solar Sun",
+      "ark_kin": 100,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Solar",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-20",
+      "law_of_time_kin": 101,
+      "law_of_time_name": "Red Planetary Dragon",
+      "ark_kin": 101,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-21",
+      "law_of_time_kin": 102,
+      "law_of_time_name": "White Spectral Wind",
+      "ark_kin": 102,
+      "ark_seal": "White Wind",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-22",
+      "law_of_time_kin": 103,
+      "law_of_time_name": "Blue Crystal Night",
+      "ark_kin": 103,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-23",
+      "law_of_time_kin": 104,
+      "law_of_time_name": "Yellow Cosmic Seed",
+      "ark_kin": 104,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 8
+    },
+    {
+      "date": "2026-03-24",
+      "law_of_time_kin": 105,
+      "law_of_time_name": "Red Magnetic Serpent",
+      "ark_kin": 105,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-03-25",
+      "law_of_time_kin": 106,
+      "law_of_time_name": "White Lunar World-Bridger",
+      "ark_kin": 106,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-03-26",
+      "law_of_time_kin": 107,
+      "law_of_time_name": "Blue Electric Hand",
+      "ark_kin": 107,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Electric",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-03-27",
+      "law_of_time_kin": 108,
+      "law_of_time_name": "Yellow Self-Existing Star",
+      "ark_kin": 108,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-03-28",
+      "law_of_time_kin": 109,
+      "law_of_time_name": "Red Overtone Moon",
+      "ark_kin": 109,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-03-29",
+      "law_of_time_kin": 110,
+      "law_of_time_name": "White Rhythmic Dog",
+      "ark_kin": 110,
+      "ark_seal": "White Dog",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-03-30",
+      "law_of_time_kin": 111,
+      "law_of_time_name": "Blue Resonant Monkey",
+      "ark_kin": 111,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-03-31",
+      "law_of_time_kin": 112,
+      "law_of_time_name": "Yellow Galactic Human",
+      "ark_kin": 112,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-04-01",
+      "law_of_time_kin": 113,
+      "law_of_time_name": "Red Solar Skywalker",
+      "ark_kin": 113,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Solar",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-04-02",
+      "law_of_time_kin": 114,
+      "law_of_time_name": "White Planetary Wizard",
+      "ark_kin": 114,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-04-03",
+      "law_of_time_kin": 115,
+      "law_of_time_name": "Blue Spectral Eagle",
+      "ark_kin": 115,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-04-04",
+      "law_of_time_kin": 116,
+      "law_of_time_name": "Yellow Crystal Warrior",
+      "ark_kin": 116,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-04-05",
+      "law_of_time_kin": 117,
+      "law_of_time_name": "Red Cosmic Earth",
+      "ark_kin": 117,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 9
+    },
+    {
+      "date": "2026-04-06",
+      "law_of_time_kin": 118,
+      "law_of_time_name": "White Magnetic Mirror",
+      "ark_kin": 118,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-07",
+      "law_of_time_kin": 119,
+      "law_of_time_name": "Blue Lunar Storm",
+      "ark_kin": 119,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-08",
+      "law_of_time_kin": 120,
+      "law_of_time_name": "Yellow Electric Sun",
+      "ark_kin": 120,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Electric",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-09",
+      "law_of_time_kin": 121,
+      "law_of_time_name": "Red Self-Existing Dragon",
+      "ark_kin": 121,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-10",
+      "law_of_time_kin": 122,
+      "law_of_time_name": "White Overtone Wind",
+      "ark_kin": 122,
+      "ark_seal": "White Wind",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-11",
+      "law_of_time_kin": 123,
+      "law_of_time_name": "Blue Rhythmic Night",
+      "ark_kin": 123,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-12",
+      "law_of_time_kin": 124,
+      "law_of_time_name": "Yellow Resonant Seed",
+      "ark_kin": 124,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-13",
+      "law_of_time_kin": 125,
+      "law_of_time_name": "Red Galactic Serpent",
+      "ark_kin": 125,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-14",
+      "law_of_time_kin": 126,
+      "law_of_time_name": "White Solar World-Bridger",
+      "ark_kin": 126,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Solar",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-15",
+      "law_of_time_kin": 127,
+      "law_of_time_name": "Blue Planetary Hand",
+      "ark_kin": 127,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-16",
+      "law_of_time_kin": 128,
+      "law_of_time_name": "Yellow Spectral Star",
+      "ark_kin": 128,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-17",
+      "law_of_time_kin": 129,
+      "law_of_time_name": "Red Crystal Moon",
+      "ark_kin": 129,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-18",
+      "law_of_time_kin": 130,
+      "law_of_time_name": "White Cosmic Dog",
+      "ark_kin": 130,
+      "ark_seal": "White Dog",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 10
+    },
+    {
+      "date": "2026-04-19",
+      "law_of_time_kin": 131,
+      "law_of_time_name": "Blue Magnetic Monkey",
+      "ark_kin": 131,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-20",
+      "law_of_time_kin": 132,
+      "law_of_time_name": "Yellow Lunar Human",
+      "ark_kin": 132,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-21",
+      "law_of_time_kin": 133,
+      "law_of_time_name": "Red Electric Skywalker",
+      "ark_kin": 133,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Electric",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-22",
+      "law_of_time_kin": 134,
+      "law_of_time_name": "White Self-Existing Wizard",
+      "ark_kin": 134,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-23",
+      "law_of_time_kin": 135,
+      "law_of_time_name": "Blue Overtone Eagle",
+      "ark_kin": 135,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-24",
+      "law_of_time_kin": 136,
+      "law_of_time_name": "Yellow Rhythmic Warrior",
+      "ark_kin": 136,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-25",
+      "law_of_time_kin": 137,
+      "law_of_time_name": "Red Resonant Earth",
+      "ark_kin": 137,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-26",
+      "law_of_time_kin": 138,
+      "law_of_time_name": "White Galactic Mirror",
+      "ark_kin": 138,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-27",
+      "law_of_time_kin": 139,
+      "law_of_time_name": "Blue Solar Storm",
+      "ark_kin": 139,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Solar",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-28",
+      "law_of_time_kin": 140,
+      "law_of_time_name": "Yellow Planetary Sun",
+      "ark_kin": 140,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-29",
+      "law_of_time_kin": 141,
+      "law_of_time_name": "Red Spectral Dragon",
+      "ark_kin": 141,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-04-30",
+      "law_of_time_kin": 142,
+      "law_of_time_name": "White Crystal Wind",
+      "ark_kin": 142,
+      "ark_seal": "White Wind",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-05-01",
+      "law_of_time_kin": 143,
+      "law_of_time_name": "Blue Cosmic Night",
+      "ark_kin": 143,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 11
+    },
+    {
+      "date": "2026-05-02",
+      "law_of_time_kin": 144,
+      "law_of_time_name": "Yellow Magnetic Seed",
+      "ark_kin": 144,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-03",
+      "law_of_time_kin": 145,
+      "law_of_time_name": "Red Lunar Serpent",
+      "ark_kin": 145,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-04",
+      "law_of_time_kin": 146,
+      "law_of_time_name": "White Electric World-Bridger",
+      "ark_kin": 146,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Electric",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-05",
+      "law_of_time_kin": 147,
+      "law_of_time_name": "Blue Self-Existing Hand",
+      "ark_kin": 147,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-06",
+      "law_of_time_kin": 148,
+      "law_of_time_name": "Yellow Overtone Star",
+      "ark_kin": 148,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-07",
+      "law_of_time_kin": 149,
+      "law_of_time_name": "Red Rhythmic Moon",
+      "ark_kin": 149,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-08",
+      "law_of_time_kin": 150,
+      "law_of_time_name": "White Resonant Dog",
+      "ark_kin": 150,
+      "ark_seal": "White Dog",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-09",
+      "law_of_time_kin": 151,
+      "law_of_time_name": "Blue Galactic Monkey",
+      "ark_kin": 151,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-10",
+      "law_of_time_kin": 152,
+      "law_of_time_name": "Yellow Solar Human",
+      "ark_kin": 152,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Solar",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-11",
+      "law_of_time_kin": 153,
+      "law_of_time_name": "Red Planetary Skywalker",
+      "ark_kin": 153,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-12",
+      "law_of_time_kin": 154,
+      "law_of_time_name": "White Spectral Wizard",
+      "ark_kin": 154,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-13",
+      "law_of_time_kin": 155,
+      "law_of_time_name": "Blue Crystal Eagle",
+      "ark_kin": 155,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-14",
+      "law_of_time_kin": 156,
+      "law_of_time_name": "Yellow Cosmic Warrior",
+      "ark_kin": 156,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 12
+    },
+    {
+      "date": "2026-05-15",
+      "law_of_time_kin": 157,
+      "law_of_time_name": "Red Magnetic Earth",
+      "ark_kin": 157,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-16",
+      "law_of_time_kin": 158,
+      "law_of_time_name": "White Lunar Mirror",
+      "ark_kin": 158,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-17",
+      "law_of_time_kin": 159,
+      "law_of_time_name": "Blue Electric Storm",
+      "ark_kin": 159,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Electric",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-18",
+      "law_of_time_kin": 160,
+      "law_of_time_name": "Yellow Self-Existing Sun",
+      "ark_kin": 160,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-19",
+      "law_of_time_kin": 161,
+      "law_of_time_name": "Red Overtone Dragon",
+      "ark_kin": 161,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-20",
+      "law_of_time_kin": 162,
+      "law_of_time_name": "White Rhythmic Wind",
+      "ark_kin": 162,
+      "ark_seal": "White Wind",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-21",
+      "law_of_time_kin": 163,
+      "law_of_time_name": "Blue Resonant Night",
+      "ark_kin": 163,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-22",
+      "law_of_time_kin": 164,
+      "law_of_time_name": "Yellow Galactic Seed",
+      "ark_kin": 164,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-23",
+      "law_of_time_kin": 165,
+      "law_of_time_name": "Red Solar Serpent",
+      "ark_kin": 165,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Solar",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-24",
+      "law_of_time_kin": 166,
+      "law_of_time_name": "White Planetary World-Bridger",
+      "ark_kin": 166,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-25",
+      "law_of_time_kin": 167,
+      "law_of_time_name": "Blue Spectral Hand",
+      "ark_kin": 167,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-26",
+      "law_of_time_kin": 168,
+      "law_of_time_name": "Yellow Crystal Star",
+      "ark_kin": 168,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-27",
+      "law_of_time_kin": 169,
+      "law_of_time_name": "Red Cosmic Moon",
+      "ark_kin": 169,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 13
+    },
+    {
+      "date": "2026-05-28",
+      "law_of_time_kin": 170,
+      "law_of_time_name": "White Magnetic Dog",
+      "ark_kin": 170,
+      "ark_seal": "White Dog",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-05-29",
+      "law_of_time_kin": 171,
+      "law_of_time_name": "Blue Lunar Monkey",
+      "ark_kin": 171,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-05-30",
+      "law_of_time_kin": 172,
+      "law_of_time_name": "Yellow Electric Human",
+      "ark_kin": 172,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Electric",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-05-31",
+      "law_of_time_kin": 173,
+      "law_of_time_name": "Red Self-Existing Skywalker",
+      "ark_kin": 173,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-01",
+      "law_of_time_kin": 174,
+      "law_of_time_name": "White Overtone Wizard",
+      "ark_kin": 174,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-02",
+      "law_of_time_kin": 175,
+      "law_of_time_name": "Blue Rhythmic Eagle",
+      "ark_kin": 175,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-03",
+      "law_of_time_kin": 176,
+      "law_of_time_name": "Yellow Resonant Warrior",
+      "ark_kin": 176,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-04",
+      "law_of_time_kin": 177,
+      "law_of_time_name": "Red Galactic Earth",
+      "ark_kin": 177,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-05",
+      "law_of_time_kin": 178,
+      "law_of_time_name": "White Solar Mirror",
+      "ark_kin": 178,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Solar",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-06",
+      "law_of_time_kin": 179,
+      "law_of_time_name": "Blue Planetary Storm",
+      "ark_kin": 179,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-07",
+      "law_of_time_kin": 180,
+      "law_of_time_name": "Yellow Spectral Sun",
+      "ark_kin": 180,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-08",
+      "law_of_time_kin": 181,
+      "law_of_time_name": "Red Crystal Dragon",
+      "ark_kin": 181,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-09",
+      "law_of_time_kin": 182,
+      "law_of_time_name": "White Cosmic Wind",
+      "ark_kin": 182,
+      "ark_seal": "White Wind",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 14
+    },
+    {
+      "date": "2026-06-10",
+      "law_of_time_kin": 183,
+      "law_of_time_name": "Blue Magnetic Night",
+      "ark_kin": 183,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-11",
+      "law_of_time_kin": 184,
+      "law_of_time_name": "Yellow Lunar Seed",
+      "ark_kin": 184,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-12",
+      "law_of_time_kin": 185,
+      "law_of_time_name": "Red Electric Serpent",
+      "ark_kin": 185,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Electric",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-13",
+      "law_of_time_kin": 186,
+      "law_of_time_name": "White Self-Existing World-Bridger",
+      "ark_kin": 186,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-14",
+      "law_of_time_kin": 187,
+      "law_of_time_name": "Blue Overtone Hand",
+      "ark_kin": 187,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-15",
+      "law_of_time_kin": 188,
+      "law_of_time_name": "Yellow Rhythmic Star",
+      "ark_kin": 188,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-16",
+      "law_of_time_kin": 189,
+      "law_of_time_name": "Red Resonant Moon",
+      "ark_kin": 189,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-17",
+      "law_of_time_kin": 190,
+      "law_of_time_name": "White Galactic Dog",
+      "ark_kin": 190,
+      "ark_seal": "White Dog",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-18",
+      "law_of_time_kin": 191,
+      "law_of_time_name": "Blue Solar Monkey",
+      "ark_kin": 191,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Solar",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-19",
+      "law_of_time_kin": 192,
+      "law_of_time_name": "Yellow Planetary Human",
+      "ark_kin": 192,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-20",
+      "law_of_time_kin": 193,
+      "law_of_time_name": "Red Spectral Skywalker",
+      "ark_kin": 193,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-21",
+      "law_of_time_kin": 194,
+      "law_of_time_name": "White Crystal Wizard",
+      "ark_kin": 194,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-22",
+      "law_of_time_kin": 195,
+      "law_of_time_name": "Blue Cosmic Eagle",
+      "ark_kin": 195,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 15
+    },
+    {
+      "date": "2026-06-23",
+      "law_of_time_kin": 196,
+      "law_of_time_name": "Yellow Magnetic Warrior",
+      "ark_kin": 196,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-06-24",
+      "law_of_time_kin": 197,
+      "law_of_time_name": "Red Lunar Earth",
+      "ark_kin": 197,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-06-25",
+      "law_of_time_kin": 198,
+      "law_of_time_name": "White Electric Mirror",
+      "ark_kin": 198,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Electric",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-06-26",
+      "law_of_time_kin": 199,
+      "law_of_time_name": "Blue Self-Existing Storm",
+      "ark_kin": 199,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-06-27",
+      "law_of_time_kin": 200,
+      "law_of_time_name": "Yellow Overtone Sun",
+      "ark_kin": 200,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-06-28",
+      "law_of_time_kin": 201,
+      "law_of_time_name": "Red Rhythmic Dragon",
+      "ark_kin": 201,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-06-29",
+      "law_of_time_kin": 202,
+      "law_of_time_name": "White Resonant Wind",
+      "ark_kin": 202,
+      "ark_seal": "White Wind",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-06-30",
+      "law_of_time_kin": 203,
+      "law_of_time_name": "Blue Galactic Night",
+      "ark_kin": 203,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-07-01",
+      "law_of_time_kin": 204,
+      "law_of_time_name": "Yellow Solar Seed",
+      "ark_kin": 204,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Solar",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-07-02",
+      "law_of_time_kin": 205,
+      "law_of_time_name": "Red Planetary Serpent",
+      "ark_kin": 205,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-07-03",
+      "law_of_time_kin": 206,
+      "law_of_time_name": "White Spectral World-Bridger",
+      "ark_kin": 206,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-07-04",
+      "law_of_time_kin": 207,
+      "law_of_time_name": "Blue Crystal Hand",
+      "ark_kin": 207,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-07-05",
+      "law_of_time_kin": 208,
+      "law_of_time_name": "Yellow Cosmic Star",
+      "ark_kin": 208,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 16
+    },
+    {
+      "date": "2026-07-06",
+      "law_of_time_kin": 209,
+      "law_of_time_name": "Red Magnetic Moon",
+      "ark_kin": 209,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-07",
+      "law_of_time_kin": 210,
+      "law_of_time_name": "White Lunar Dog",
+      "ark_kin": 210,
+      "ark_seal": "White Dog",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-08",
+      "law_of_time_kin": 211,
+      "law_of_time_name": "Blue Electric Monkey",
+      "ark_kin": 211,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Electric",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-09",
+      "law_of_time_kin": 212,
+      "law_of_time_name": "Yellow Self-Existing Human",
+      "ark_kin": 212,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-10",
+      "law_of_time_kin": 213,
+      "law_of_time_name": "Red Overtone Skywalker",
+      "ark_kin": 213,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-11",
+      "law_of_time_kin": 214,
+      "law_of_time_name": "White Rhythmic Wizard",
+      "ark_kin": 214,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-12",
+      "law_of_time_kin": 215,
+      "law_of_time_name": "Blue Resonant Eagle",
+      "ark_kin": 215,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-13",
+      "law_of_time_kin": 216,
+      "law_of_time_name": "Yellow Galactic Warrior",
+      "ark_kin": 216,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-14",
+      "law_of_time_kin": 217,
+      "law_of_time_name": "Red Solar Earth",
+      "ark_kin": 217,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Solar",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-15",
+      "law_of_time_kin": 218,
+      "law_of_time_name": "White Planetary Mirror",
+      "ark_kin": 218,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-16",
+      "law_of_time_kin": 219,
+      "law_of_time_name": "Blue Spectral Storm",
+      "ark_kin": 219,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-17",
+      "law_of_time_kin": 220,
+      "law_of_time_name": "Yellow Crystal Sun",
+      "ark_kin": 220,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-18",
+      "law_of_time_kin": 221,
+      "law_of_time_name": "Red Cosmic Dragon",
+      "ark_kin": 221,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 17
+    },
+    {
+      "date": "2026-07-19",
+      "law_of_time_kin": 222,
+      "law_of_time_name": "White Magnetic Wind",
+      "ark_kin": 222,
+      "ark_seal": "White Wind",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-20",
+      "law_of_time_kin": 223,
+      "law_of_time_name": "Blue Lunar Night",
+      "ark_kin": 223,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-21",
+      "law_of_time_kin": 224,
+      "law_of_time_name": "Yellow Electric Seed",
+      "ark_kin": 224,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Electric",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-22",
+      "law_of_time_kin": 225,
+      "law_of_time_name": "Red Self-Existing Serpent",
+      "ark_kin": 225,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-23",
+      "law_of_time_kin": 226,
+      "law_of_time_name": "White Overtone World-Bridger",
+      "ark_kin": 226,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-24",
+      "law_of_time_kin": 227,
+      "law_of_time_name": "Blue Rhythmic Hand",
+      "ark_kin": 227,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-27",
+      "law_of_time_kin": 230,
+      "law_of_time_name": "White Solar Dog",
+      "ark_kin": 230,
+      "ark_seal": "White Dog",
+      "ark_tone": "Solar",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-28",
+      "law_of_time_kin": 231,
+      "law_of_time_name": "Blue Planetary Monkey",
+      "ark_kin": 231,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-29",
+      "law_of_time_kin": 232,
+      "law_of_time_name": "Yellow Spectral Human",
+      "ark_kin": 232,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-30",
+      "law_of_time_kin": 233,
+      "law_of_time_name": "Red Crystal Skywalker",
+      "ark_kin": 233,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-07-31",
+      "law_of_time_kin": 234,
+      "law_of_time_name": "White Cosmic Wizard",
+      "ark_kin": 234,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 18
+    },
+    {
+      "date": "2026-08-01",
+      "law_of_time_kin": 235,
+      "law_of_time_name": "Blue Magnetic Eagle",
+      "ark_kin": 235,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-02",
+      "law_of_time_kin": 236,
+      "law_of_time_name": "Yellow Lunar Warrior",
+      "ark_kin": 236,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-03",
+      "law_of_time_kin": 237,
+      "law_of_time_name": "Red Electric Earth",
+      "ark_kin": 237,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Electric",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-04",
+      "law_of_time_kin": 238,
+      "law_of_time_name": "White Self-Existing Mirror",
+      "ark_kin": 238,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-05",
+      "law_of_time_kin": 239,
+      "law_of_time_name": "Blue Overtone Storm",
+      "ark_kin": 239,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-06",
+      "law_of_time_kin": 240,
+      "law_of_time_name": "Yellow Rhythmic Sun",
+      "ark_kin": 240,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-07",
+      "law_of_time_kin": 241,
+      "law_of_time_name": "Red Resonant Dragon",
+      "ark_kin": 241,
+      "ark_seal": "Red Dragon",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-08",
+      "law_of_time_kin": 242,
+      "law_of_time_name": "White Galactic Wind",
+      "ark_kin": 242,
+      "ark_seal": "White Wind",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-09",
+      "law_of_time_kin": 243,
+      "law_of_time_name": "Blue Solar Night",
+      "ark_kin": 243,
+      "ark_seal": "Blue Night",
+      "ark_tone": "Solar",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-10",
+      "law_of_time_kin": 244,
+      "law_of_time_name": "Yellow Planetary Seed",
+      "ark_kin": 244,
+      "ark_seal": "Yellow Seed",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-11",
+      "law_of_time_kin": 245,
+      "law_of_time_name": "Red Spectral Serpent",
+      "ark_kin": 245,
+      "ark_seal": "Red Serpent",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-12",
+      "law_of_time_kin": 246,
+      "law_of_time_name": "White Crystal World-Bridger",
+      "ark_kin": 246,
+      "ark_seal": "White Worldbridger",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-13",
+      "law_of_time_kin": 247,
+      "law_of_time_name": "Blue Cosmic Hand",
+      "ark_kin": 247,
+      "ark_seal": "Blue Hand",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 19
+    },
+    {
+      "date": "2026-08-14",
+      "law_of_time_kin": 248,
+      "law_of_time_name": "Yellow Magnetic Star",
+      "ark_kin": 248,
+      "ark_seal": "Yellow Star",
+      "ark_tone": "Magnetic",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-15",
+      "law_of_time_kin": 249,
+      "law_of_time_name": "Red Lunar Moon",
+      "ark_kin": 249,
+      "ark_seal": "Red Moon",
+      "ark_tone": "Lunar",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-16",
+      "law_of_time_kin": 250,
+      "law_of_time_name": "White Electric Dog",
+      "ark_kin": 250,
+      "ark_seal": "White Dog",
+      "ark_tone": "Electric",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-17",
+      "law_of_time_kin": 251,
+      "law_of_time_name": "Blue Self-Existing Monkey",
+      "ark_kin": 251,
+      "ark_seal": "Blue Monkey",
+      "ark_tone": "Self-Existing",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-18",
+      "law_of_time_kin": 252,
+      "law_of_time_name": "Yellow Overtone Human",
+      "ark_kin": 252,
+      "ark_seal": "Yellow Human",
+      "ark_tone": "Overtone",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-19",
+      "law_of_time_kin": 253,
+      "law_of_time_name": "Red Rhythmic Skywalker",
+      "ark_kin": 253,
+      "ark_seal": "Red Skywalker",
+      "ark_tone": "Rhythmic",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-20",
+      "law_of_time_kin": 254,
+      "law_of_time_name": "White Resonant Wizard",
+      "ark_kin": 254,
+      "ark_seal": "White Wizard",
+      "ark_tone": "Resonant",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-21",
+      "law_of_time_kin": 255,
+      "law_of_time_name": "Blue Galactic Eagle",
+      "ark_kin": 255,
+      "ark_seal": "Blue Eagle",
+      "ark_tone": "Galactic",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-22",
+      "law_of_time_kin": 256,
+      "law_of_time_name": "Yellow Solar Warrior",
+      "ark_kin": 256,
+      "ark_seal": "Yellow Warrior",
+      "ark_tone": "Solar",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-23",
+      "law_of_time_kin": 257,
+      "law_of_time_name": "Red Planetary Earth",
+      "ark_kin": 257,
+      "ark_seal": "Red Earth",
+      "ark_tone": "Planetary",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-24",
+      "law_of_time_kin": 258,
+      "law_of_time_name": "White Spectral Mirror",
+      "ark_kin": 258,
+      "ark_seal": "White Mirror",
+      "ark_tone": "Spectral",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-25",
+      "law_of_time_kin": 259,
+      "law_of_time_name": "Blue Crystal Storm",
+      "ark_kin": 259,
+      "ark_seal": "Blue Storm",
+      "ark_tone": "Crystal",
+      "ark_wavespell": 20
+    },
+    {
+      "date": "2026-08-26",
+      "law_of_time_kin": 260,
+      "law_of_time_name": "Yellow Cosmic Sun",
+      "ark_kin": 260,
+      "ark_seal": "Yellow Sun",
+      "ark_tone": "Cosmic",
+      "ark_wavespell": 20
+    }
+  ]
+}

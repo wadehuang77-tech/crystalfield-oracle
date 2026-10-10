@@ -1,6 +1,11 @@
 import { verifyJwt } from './auth';
 
 export interface Env {
+  MAYA_PRO_LOCAL_ENABLED?: string;
+  MAYA_PRO_PAYMENT_ENABLED?: string;
+  MAYA_RELATIONSHIP_V2_PAYMENT_ENABLED?: string;
+  MAYA_PRO_REPORT_CAP_TWD?: string;
+  MAYA_PREMIUM_LIVE_ENABLED?: string;
   DB: D1Database;
   DB_CARDS: D1Database;
   JWT_SECRET: string;
@@ -25,6 +30,24 @@ export interface Env {
   PROKERALA_VERIFICATION_ENABLED?: string;
   PROKERALA_VERIFY_LIMITER?: RateLimit;
   VEDIC_REPORT_WORKFLOW?: Workflow<import('./vedicReportWorkflowRunner').VedicReportJobInput>;
+  MAYA_AI_MODE?: string;
+  MAYA_CONTENT_SOURCE?: string;
+  MAYA_AI_TEST_CAP_ENABLED?: string;
+  MAYA_PUBLIC_ENABLED?: string;
+  MAYA_MEMBER_ENABLED?: string;
+  MAYA_MEMBER_TEST_USER_IDS?: string;
+  MAYA_ADMIN_PREVIEW_ENABLED?: string;
+  MAYA_ADMIN_LIVE_ENABLED?: string;
+  MAYA_PAYMENT_ENABLED?: string;
+  MAYA_AI_ENABLED?: string;
+  MAYA_PAYMENT_API_ORIGIN?: string;
+  MAYA_PAYMENT_FRONTEND_ORIGIN?: string;
+  MAYA_SANDBOX_ENABLED?: string;
+  MAYA_SANDBOX_MERCHANT_ID?: string;
+  MAYA_SANDBOX_HASH_KEY?: string;
+  MAYA_SANDBOX_HASH_IV?: string;
+  MAYA_SANDBOX_API_ORIGIN?: string;
+  MAYA_SANDBOX_FRONTEND_ORIGIN?: string;
 }
 
 export interface SessionUser {
@@ -125,7 +148,7 @@ function parseCookie(header: string | null): Record<string, string> {
   return out;
 }
 
-export async function readSession(req: Request, env: Env): Promise<SessionUser | null> {
+export async function readSession(req: Request, env: Env, failClosed = false): Promise<SessionUser | null> {
   const cookies = parseCookie(req.headers.get('Cookie'));
   let token: string | null = cookies[COOKIE_NAME] || null;
   if (!token) {
@@ -145,7 +168,8 @@ export async function readSession(req: Request, env: Env): Promise<SessionUser |
     if (!row) return null;
     const currentGen = row.token_generation ?? 0;
     if (tokenGen !== currentGen) return null;
-  } catch {
+  } catch (error) {
+    if (failClosed) throw error;
   }
 
   return { id: payload.sub, email: payload.email };

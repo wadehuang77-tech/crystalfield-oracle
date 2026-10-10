@@ -65,6 +65,7 @@ import {
   revokeHumanDesignShare,
 } from './humanDesignShareResults';
 import { googleAuthConfig, googleSignin } from './googleAuth';
+import { routeMayaPayment } from './mayaPayments';
 import {
   adminGetMember,
   adminListMembers,
@@ -103,6 +104,8 @@ import {
   validEmail,
 } from './utils';
 
+import { routeMayaApi } from './maya';
+import { routeMayaSandbox } from './mayaSandbox';
 const SESSION_SEC = 60 * 60 * 24 * 7;
 
 export default {
@@ -129,12 +132,23 @@ export default {
     const isMutating = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
     const isEcpayBack = path === '/api/ecpay-webhook'
       || path === '/api/payments/ecpay/tarot-period-return'
-      || path === '/api/checkout/result';
-    if (isMutating && !isEcpayBack && !isAllowedOrigin(req, env)) {
+      || path === '/api/checkout/result'
+      || path === '/api/maya/sandbox/callback'
+      || path === '/api/maya/sandbox/result';
+    const isMayaPaymentBack = path === '/api/maya/payments/callback' || path === '/api/maya/payments/result';
+    if (isMutating && !isEcpayBack && !isMayaPaymentBack && !isAllowedOrigin(req, env)) {
       return await forbidden(req, env, 'Bad origin');
     }
 
     try {
+      if (path.startsWith('/api/maya/payments/')) return await routeMayaPayment(req, env, true);
+      if (path === '/api/maya/checkout' || path.startsWith('/api/maya/checkout/')) {
+        return await routeMayaPayment(req, env, env.MAYA_PAYMENT_ENABLED === 'true');
+      }
+      if (path.startsWith('/api/maya/sandbox/')) {
+        return await routeMayaSandbox(req, env);
+      }
+      if (path.startsWith('/api/maya/')) return await routeMayaApi(req, env);
       if (path === '/api/vedic-astrology/reports/status') return await findVedicReportProgress(req, env);
       const progress = path.match(/^\/api\/vedic-astrology\/reports\/([a-f0-9-]{36})\/status$/);
       if (progress) return await handleVedicReportProgress(req, env, progress[1]);
@@ -1287,6 +1301,10 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
   }>();
   const now = new Date().toISOString();
   const rawCallback = JSON.stringify(params);
+
+  if (order?.item_type === 'maya_sandbox' || order?.item_type === 'maya' || order?.item_type === 'maya_admin') {
+    return new Response('0|Use the matching Maya payment callback', { status: 400 });
+  }
 
   if (!order) {
     const tradeDate = parseEcpayDate(params.MerchantTradeDate);

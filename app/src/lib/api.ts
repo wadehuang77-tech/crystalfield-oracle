@@ -1,8 +1,76 @@
 import { trackBeginCheckout, trackUnlockClick } from './ga4';
 import { getCheckoutLocaleFromPath } from './i18n';
+import type { MayaDaily, MayaLocale, MayaProductCode, MayaProfile, MayaReport, MayaReportEntry, MayaFeatures } from './maya';
+import type { MayaCheckoutForm } from './mayaCheckout';
+import type { VersionedLifeBlueprintReport } from './mayaLifeBlueprintStorage';
+import { MAYA_PRO_PRODUCT, type MayaProReport } from './mayaPro';
+import { MAYA_RELATIONSHIP_PRODUCT, type RelationshipReport, type RelationshipType } from './mayaRelationship';
+
+export const mayaRelationshipApi = {
+  config: (locale: MayaLocale, signal?: AbortSignal) => req<{ product: typeof MAYA_RELATIONSHIP_PRODUCT; payment: boolean; reportAvailable: boolean }>('/api/maya/relationship/config', { query: { locale }, signal }),
+  entitlements: (locale: MayaLocale, signal?: AbortSignal) => req<{ entitlements: Array<{ id: string; product_code: string }> }>('/api/maya/relationship/entitlements', { query: { locale }, signal }),
+};
+
+export const mayaProApi = {
+  config: (signal?: AbortSignal) => req<{ enabled: boolean; mode: 'local_mock_only' | 'production_entitlement'; payment: boolean; liveAi: boolean }>('/api/maya/pro/config', { signal }),
+  entitlements: (locale: MayaLocale, signal?: AbortSignal) => req<{ entitlements: Array<{ id: string; product_code: string }> }>('/api/maya/pro/entitlements', { query: { locale }, signal }),
+  reports: (locale: MayaLocale, signal?: AbortSignal) => req<{ reports: Array<{ id: string; status: string }> }>('/api/maya/pro/reports', { query: { locale }, signal }),
+  report: (id: string, locale: MayaLocale, signal?: AbortSignal) => req<{ id: string; status: string; report: MayaProReport | null }>(`/api/maya/pro/reports/${encodeURIComponent(id)}`, { query: { locale }, signal }),
+  createReport: (profile_id: string, entitlement_id: string, locale: MayaLocale) => req<{ id: string; status: string }>('/api/maya/pro/reports', {
+    method: 'POST', query: { locale }, body: { product_code: MAYA_PRO_PRODUCT.code, profile_id, entitlement_id, locale },
+  }),
+};
+
+export interface PremiumReportResult {
+  id: string; status: 'processing' | 'completed' | 'blocked'; report: MayaProReport | RelationshipReport | null;
+  completedSections: number; totalSections: number; reason: string | null;
+}
+export const mayaPremiumApi = {
+  reports: (kind: 'pro' | 'relationship', locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ reports: Array<{ id: string; status: string }> }>(`/api/maya/${kind}/reports`, { query: { locale }, signal }),
+  report: (kind: 'pro' | 'relationship', id: string, locale: MayaLocale, signal?: AbortSignal) =>
+    req<PremiumReportResult>(`/api/maya/${kind}/reports/${encodeURIComponent(id)}`, { query: { locale }, signal }),
+  create: (kind: 'pro' | 'relationship', body: { profile_id: string; entitlement_id: string; locale: MayaLocale;
+    product_code: string; relationship_profile_id?: string; relationship_type?: RelationshipType; consent?: boolean }, signal?: AbortSignal) =>
+    req<PremiumReportResult>(`/api/maya/${kind}/reports`, { method: 'POST', query: { locale: body.locale }, body, signal }),
+  advance: (kind: 'pro' | 'relationship', id: string, locale: MayaLocale, signal?: AbortSignal) =>
+    req<PremiumReportResult>(`/api/maya/${kind}/reports/${encodeURIComponent(id)}/advance`, {
+      method: 'POST', query: { locale }, body: {}, signal, timeoutMs: 75000,
+    }),
+};
 
 const BASE = import.meta.env.VITE_API_BASE
   || (import.meta.env.PROD ? 'https://api.crystalfield101.com' : '');
+
+export const mayaApi = {
+  adminReport: (body: { locale: MayaLocale; product_code: MayaProductCode; profile_id: string; relationship_profile_id?: string; idempotency_key: string }) =>
+    req<{ id: string; status: string; report: MayaReport | null }>('/api/maya/admin-reports', { method: 'POST', query: { locale: body.locale }, body }),
+  adminPreview: (body: { locale: MayaLocale; product_code: MayaProductCode; profile_id: string; relationship_profile_id?: string }) =>
+    req<{ mode: 'admin_mock_preview'; persisted: false; report: MayaReport }>('/api/maya/admin-preview', { method: 'POST', query: { locale: body.locale }, body }),
+  config: (signal?: AbortSignal) => req<MayaFeatures>('/api/maya/config', { signal }),
+  checkoutConfig: (locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ enabled: boolean; mode: 'sandbox' | 'production' }>('/api/maya/checkout/config', { query: { locale }, signal }),
+  checkout: (product_code: MayaProductCode | typeof MAYA_PRO_PRODUCT.code | typeof MAYA_RELATIONSHIP_PRODUCT.code, locale: MayaLocale, idempotency_key: string) =>
+    req<MayaCheckoutForm>('/api/maya/checkout', { method: 'POST', query: { locale }, body: { product_code, locale, idempotency_key } }),
+  checkoutStatus: (id: string, locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ order_id: string; product_code: MayaProductCode | typeof MAYA_PRO_PRODUCT.code | typeof MAYA_RELATIONSHIP_PRODUCT.code; locale: MayaLocale; status: string; amount: number }>(`/api/maya/checkout/${encodeURIComponent(id)}`, { query: { locale }, signal }),
+  calculate: (birth_date: string, locale: MayaLocale, role: 'personal' | 'relationship' = 'personal') =>
+    req<{ profile: MayaProfile }>('/api/maya/calculate', { method: 'POST', query: { locale }, body: { birth_date, locale, role } }),
+  profiles: (locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ profiles: MayaProfile[] }>('/api/maya/profile', { query: { locale }, signal }),
+  daily: (locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ daily: MayaDaily }>('/api/maya/daily', { query: { locale }, signal }),
+  premium: (locale: MayaLocale) => req('/api/maya/daily/premium', { query: { locale } }),
+  reports: (locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ reports: MayaReportEntry[] }>('/api/maya/reports', { query: { locale }, signal }),
+  entitlements: (locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ entitlements: Array<{ id: string; product_code: MayaProductCode; status: string }> }>('/api/maya/entitlements', { query: { locale }, signal }),
+  createReport: (body: { locale: MayaLocale; product_code: MayaProductCode; profile_id: string; relationship_profile_id?: string; entitlement_id: string; idempotency_key: string }) =>
+    req<{ id: string; status: string; report: MayaReport | null }>('/api/maya/reports', { method: 'POST', query: { locale: body.locale }, body }),
+  report: (id: string, locale: MayaLocale, signal?: AbortSignal) =>
+    req<{ id: string; status: string; report: VersionedLifeBlueprintReport | null }>(`/api/maya/reports/${encodeURIComponent(id)}`, { query: { locale }, signal }),
+  deleteData: (locale: MayaLocale) => req<{ deleted: boolean }>('/api/maya/profile', { method: 'DELETE', query: { locale } }),
+};
 
 function activeContentLanguage(): 'zh-Hant' | 'en' {
   return typeof window !== 'undefined' && /^\/en(?:\/|$)/.test(window.location.pathname) ? 'en' : 'zh-Hant';

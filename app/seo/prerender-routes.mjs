@@ -6,6 +6,7 @@ const readArticleSlugs = (fileName) => Object.keys(JSON.parse(
 ));
 
 const publicLandingSlugs = [
+  'maya-calendar',
   'oracle',
   'tarot',
   'lightworker',

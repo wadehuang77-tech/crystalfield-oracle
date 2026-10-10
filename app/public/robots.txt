@@ -14,6 +14,8 @@ Allow: /work-your-light
 Allow: /osho
 Allow: /numerology
 Allow: /human-design
+Allow: /maya-calendar
+Allow: /en/maya-calendar
 Allow: /human-design/types
 Allow: /human-design/generator
 Allow: /human-design/manifesting-generator

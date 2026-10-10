@@ -31,6 +31,9 @@ import NumerologyPage from './pages/NumerologyPage';
 import MembershipPage from './pages/MembershipPage';
 import PageHeader from './components/PageHeader';
 import HumanDesignPage from './pages/HumanDesignPage';
+import MayaCalendarPage from './pages/MayaCalendarPage';
+import MayaProPage from './pages/MayaProPage';
+import MayaRelationshipPage from './pages/MayaRelationshipPage';
 import PrivacyPage from './pages/PrivacyPage';
 import VedicAstrologyPage from './pages/VedicAstrologyPage';
 import VedicAstrologyArticlePage from './pages/VedicAstrologyArticlePage';
@@ -43,6 +46,15 @@ import { getLanguageFromPath, getLocalizedPath } from './lib/i18n';
 import { RenderYearProvider } from './contexts/RenderYearContext';
 
 const routeConfig = [
+  { path: '/maya-calendar', element: <MayaCalendarPage /> },
+  { path: '/maya-calendar/relationship', element: <MayaRelationshipPage /> },
+  { path: '/maya-calendar/pro', element: <MayaProPage /> },
+  { path: '/maya-calendar/pro/reports/:id', element: <MayaProPage /> },
+  { path: '/maya-calendar/member', element: <MayaCalendarPage /> },
+  { path: '/maya-calendar/results', element: <MayaCalendarPage /> },
+  { path: '/maya-calendar/daily', element: <MayaCalendarPage /> },
+  { path: '/maya-calendar/reports', element: <MayaCalendarPage /> },
+  { path: '/maya-calendar/reports/:id', element: <MayaCalendarPage /> },
   { path: '/', element: <LandingPage /> },
   { path: '/oracle', element: <HomePage /> },
   { path: '/home', element: <Navigate to="/oracle" replace /> },

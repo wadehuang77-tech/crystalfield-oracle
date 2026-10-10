@@ -1,5 +1,53 @@
 /app-shell
   X-Robots-Tag: noindex, nofollow
+/maya-calendar/relationship
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/relationship/*
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/relationship
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/relationship/*
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/pro
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/pro/*
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/pro
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/pro/*
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/member
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/member/
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/member
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/member/
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/results
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/results/
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/results
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/results/
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/daily
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/daily/
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/daily
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/daily/
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/reports
+  X-Robots-Tag: noindex, nofollow
+/maya-calendar/reports/*
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/reports
+  X-Robots-Tag: noindex, nofollow
+/en/maya-calendar/reports/*
+  X-Robots-Tag: noindex, nofollow
 /app-shell.html
   X-Robots-Tag: noindex, nofollow
 /admin

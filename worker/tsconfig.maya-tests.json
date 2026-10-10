@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types", "node"]
+  },
+  "include": ["scripts/maya-phase2-check.ts", "scripts/maya-sandbox-check.ts", "scripts/maya-d1-initialization.ts", "scripts/maya-production-check.ts", "scripts/maya-deployment-check.ts", "scripts/maya-blueprint-v2-check.ts", "scripts/maya-pro-check.ts", "scripts/maya-pro-api-check.ts", "scripts/maya-premium-live-check.ts"]
+}

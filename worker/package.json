@@ -13,6 +13,14 @@
     "test:admin-members": "node --experimental-strip-types scripts/admin-members-check.ts",
     "test:registration-profile": "node --experimental-strip-types scripts/registration-profile-check.ts",
     "test:health": "tsx scripts/health-check.ts",
+    "test:maya": "tsx --test scripts/maya-phase2-check.ts",
+    "test:maya-pro": "tsx --test scripts/maya-pro-check.ts scripts/maya-pro-api-check.ts",
+    "test:maya-premium-live": "tsx --test scripts/maya-premium-live-check.ts",
+    "test:maya-admin-preview": "tsx --test scripts/maya-admin-preview-check.ts",
+    "test:maya-sandbox": "tsx --test scripts/maya-sandbox-check.ts",
+    "test:maya-production": "tsx --test scripts/maya-production-check.ts",
+    "test:maya-deployment": "tsx --test scripts/maya-deployment-check.ts",
+    "typecheck:maya-tests": "tsc --noEmit -p tsconfig.maya-tests.json",
     "test:prokerala": "tsx scripts/prokerala-verification-check.ts",
     "test:vedic-progress": "tsx scripts/vedic-progress-check.ts",
     "test:vedic-workflow": "tsx scripts/vedic-workflow-runtime-check.ts",
@@ -29,6 +37,8 @@
     "types": "wrangler types"
   },
   "devDependencies": {
+    "@types/node": "^22.20.5",
+    "miniflare": "4.20260625.0",
     "@eslint/js": "^9.9.1",
     "@cloudflare/workers-types": "^4.20260101.0",
     "@types/tz-lookup": "^6.1.2",

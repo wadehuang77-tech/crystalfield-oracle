@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": ["scripts/maya-browser-check.ts", "scripts/maya-reference-check.ts", "scripts/maya-external-e2e.ts", "scripts/maya-visualization-check.ts", "scripts/maya-visualization-browser-check.ts", "scripts/maya-pro-browser-check.ts", "scripts/maya-premium-live-browser-check.ts", "scripts/maya-relationship-payment-browser-check.ts", "vite.maya-test.config.ts"]
+}

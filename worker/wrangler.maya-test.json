@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "crystalfield-maya-sandbox-api",
+  "main": "src/mayaTestEntry.ts",
+  "compatibility_date": "2026-04-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "9c7e7a59a9512d771d6e322c6927859b",
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [],
+  "vars": {
+    "ENV": "dev",
+    "MAYA_PUBLIC_ENABLED": "true",
+    "MAYA_MEMBER_ENABLED": "false",
+    "MAYA_PAYMENT_ENABLED": "false",
+    "MAYA_AI_ENABLED": "false",
+    "MAYA_AI_MODE": "mock",
+    "MAYA_AI_TEST_CAP_ENABLED": "true",
+    "MAYA_CONTENT_SOURCE": "cards",
+    "MAYA_SANDBOX_ENABLED": "false",
+    "MAYA_SANDBOX_MERCHANT_ID": "3002607",
+    "MAYA_SANDBOX_API_ORIGIN": "https://crystalfield-maya-sandbox-api.wadehuang77.workers.dev",
+    "MAYA_SANDBOX_FRONTEND_ORIGIN": "https://crystalfield-maya-sandbox.pages.dev",
+    "ALLOWED_ORIGINS": "https://crystalfield-maya-sandbox.pages.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "crystalfield-maya-sandbox-customer",
+      "database_id": "1ad83812-c5ac-425d-b1bd-fbcd539919fa",
+      "migrations_dir": "../d1/migrations",
+      "remote": false
+    },
+    {
+      "binding": "DB_CARDS",
+      "database_name": "crystalfield-maya-sandbox-cards",
+      "database_id": "71cd2302-f5a3-483c-a838-187d7b858e4c",
+      "migrations_dir": "../d1/cards-migrations",
+      "remote": false
+    }
+  ]
+}
