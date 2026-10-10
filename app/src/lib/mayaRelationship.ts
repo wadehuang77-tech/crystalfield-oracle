@@ -91,7 +91,7 @@ export function validateRelationshipReport(value: unknown): value is Relationshi
       ...(i === 11 ? report.ninetyDayPlan.flatMap(s => [...s.actionSteps, ...s.reflectionQuestions]) : [])].join('\n');
     const count = chineseCharacterCount(text);
     const words = text.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/gu)?.length ?? 0;
-    if (report.locale === 'zh-TW' && (count < 350 || count > 500 || /[这为与疗财爱际问长发]/u.test(text))) return false;
+    if (report.locale === 'zh-TW' && (count > 500 || /[这为与疗财爱际问长发]/u.test(text))) return false;
     if (report.locale === 'en' && (count !== 0 || words < 120 || words > 450)) return false;
     if (/保證.*(?:財富|收益)|治癒疾病|必定.*發財|guaranteed (?:wealth|returns)|cure disease|you will become rich|compatibility score|合盤分數|\bKIN\s*\d/iu.test(text)) return false;
     for (const paragraph of [section.interpretation, ...Object.values(section.perspectives), ...section.lifeExamples]) {

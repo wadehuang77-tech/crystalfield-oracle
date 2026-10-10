@@ -1,5 +1,19 @@
 # Dreamspell 雙人星際共振・靈魂關係藍圖 V2
 
+最新發布授權：使用者明確接受現有驗證範圍，要求直接正式開通Pro與雙人生成、套用030、commit／push／部署；不要求再等待真實中文十二篇完整重驗。500字上限與其他內容／成本／權限檢查維持，未完成驗證不改稱PASS。詳見 [正式直接開通授權](dreamspell-soul-mission-pro-699.md)。
+
+## 最新品質規則修訂（2026-10-10）
+
+依使用者指示，取消**雙人中文**章節的350漢字硬性下限：349字可接受，350～500字僅為撰寫目標，500字上限仍保留。Worker逐章驗證、完整報告Schema、初始Prompt與品質重試提示同步調整，不再因中文總字數不足而拒絕或要求補字。完整章節、A／B／共同視角、生活情境／提問／行動、90天計畫、已驗證資料、重複內容與安全檢查維持。英文120～450字及個人Pro字數規則不變。
+
+新增精確349字與300字接受、超過500字／空白視角拒絕、英文／Pro下限不變測試；雙人中文十二篇的本地生成／儲存測試使用第8篇349字內容。這是本地規則變更，不將先前未完成十二篇的真實AI驗證改標PASS，也不重置已blocked的job。本次不呼叫AI、不執行migration030、不自動部署／commit／push；正式開通仍需完成十二篇驗證。
+
+本次驗證：上述3組相關測試PASS（包含十二篇本地生成完成與第8篇349字），Worker測試typecheck／相關ESLint PASS，App typecheck／相關ESLint／production build及45route SEO PASS。既有bundle大小warning不影響建置成功。本輪新增AI呼叫0，正式功能開關未改。
+
+報告全面開通驗證（2026-10-10）：本輪真實雙人英文12篇PASS，但中文第8篇3次嘗試後349漢字，低於350下限，**FAIL／BLOCKED**。使用者授權條件為全部通過才開通，因此正式報告生成仍false、migration030未套用、新包未部署；本輪70次request attempts與保守NT$3.302657預算記錄詳見 [全面開通驗證與限制](dreamspell-soul-mission-pro-699.md)。沒有降低字數要求或以Mock宣稱完成。
+
+最新狀態（2026-10-10）：使用者明確接受只購買權限，授權migration031與部署；NT$699 Pro及NT$899雙人付款均開通，深度報告生成仍關閉。正式Worker version `9cc4240a-d175-42aa-86b4-6dd94e9774e1`、Pages `9ae41ab1-c73b-42d0-b646-5c6c8be570a3`。双人告知／勾選仍保留；本次未操作真實checkout或扣款。詳見 [最新權限付款驗證與限制](dreamspell-soul-mission-pro-699.md)。
+
 後續 commit／push／部署授權：使用者選擇只發布Dreamspell程式，保持未通過功能關閉，不開放十二篇報告。NT$899維持既有「僅購買權限」狀態，migration030／031本次不執行。詳見 [Pro關閉功能發布記錄](dreamspell-soul-mission-pro-699.md)。
 
 關閉功能版本已正式部署：Worker `f88d83dd-b8a4-466b-aadc-2216f0b9ef2b`、Pages `24ad6f94-de88-41a2-8e8d-e9dd205dbd95`。正式中英文390px／1440px測試PASS，後端價格899／付款true／報告false，匿名報告與權限API 401。正式schema與ledger沒有變動。本次未建立真實交易、未呼叫AI；中文Live品質仍BLOCKED，不宣稱十二篇已正式交付。

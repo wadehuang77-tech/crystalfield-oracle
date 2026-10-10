@@ -75,11 +75,13 @@ export async function routeMayaPro(req: Request, env: Env): Promise<Response> {
       return respond({ entitlements: (await grants(null)).results.map(row => ({ id: row.id, product_code: MAYA_PRO_PRODUCT.code })) });
     }
     if (url.pathname === '/api/maya/pro/reports' && req.method === 'GET') {
+      if (!localEnabled(env)) return respond({ reports: [], reason: 'PRO_LOCAL_ONLY' });
       const rows = await env.DB.prepare('SELECT id,locale,status,created_at FROM maya_pro_reports WHERE user_id=? AND locale=? ORDER BY created_at DESC LIMIT 100').bind(user.id, locale).all();
       return respond({ reports: rows.results });
     }
     const match = url.pathname.match(/^\/api\/maya\/pro\/reports\/([a-zA-Z0-9_-]{1,80})$/);
     if (match && req.method === 'GET') {
+      if (!localEnabled(env)) throw new ProError(503, 'PRO_LOCAL_ONLY');
       const row = await env.DB.prepare('SELECT * FROM maya_pro_reports WHERE id=? AND user_id=? AND locale=?').bind(match[1], user.id, locale).first<ProRow>();
       if (!row) throw new ProError(404, 'NOT_FOUND');
       await access(row.entitlement_id);

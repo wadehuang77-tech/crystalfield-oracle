@@ -81,9 +81,9 @@ export default function MayaProPage() {
         ? t('獨立個人商品；十五篇正式 AI 象徵解讀與程式視覺化。生成成功後儲存，閱讀不重複生成或扣款。', 'Independent personal product: fifteen live AI reflection chapters and programmatic visuals. Completed reports are saved; reading does not regenerate or charge.')
         : t('獨立個人商品；雙人關係合盤新訂單 NT$899。Live AI 報告尚未開放，付款僅取得 Pro 商品權限，不會交付 Mock 作為付費報告。', 'Independent personal product; new relationship orders cost NT$899. Live AI reports are not available. Payment grants Pro access only; Mock content is never delivered as a paid report.')}</p>
       <button type="button" className="mt-4 rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-        disabled={!configReady || !payment || busy || !user || !visible || (!liveAi && !visible.profile) || !!visible.access}
+        disabled={!configReady || !payment || busy || !user || !visible || !!visible.access}
         onClick={async () => {
-          if (!payment || !visible || (!liveAi && !visible.profile) || visible.access || busy) return;
+          if (!payment || !visible || visible.access || busy) return;
           if (!window.confirm(liveAi ? t('前往綠界真實付款 NT$699，取得個人 Pro 報告權限？不自動續扣。', 'Proceed to real ECPay payment of NT$699 for your personal Pro report? No recurring billing.')
             : t('將前往綠界正式付款 NT$699。Live AI 報告尚未開放，本次僅購買 Pro 商品權限，無法立即取得付費解讀。確定繼續？', 'Continue to live ECPay payment of NT$699? Live AI reports are not available; this buys Pro access only, with no paid interpretation available immediately. Continue?'))) return;
           const requestedIdentity = identity;
@@ -95,7 +95,7 @@ export default function MayaProPage() {
           } catch (cause) {
             if (identityRef.current === requestedIdentity) setError(localizeAuthError(cause instanceof Error ? cause.message : '', language, en ? 'Pro checkout failed.' : 'Pro 付款請求失敗。'));
           } finally { if (identityRef.current === requestedIdentity) setBusy(false); }
-        }}>{t('綠界付款', 'ECPay checkout')} · NT$699</button>
+        }}>{visible?.access ? t('已取得商品權限', 'Product access granted') : t('綠界付款', 'ECPay checkout')} · NT$699</button>
       {configReady && !payment && <p>{t('Pro 付款尚未啟用。', 'Pro checkout is not enabled.')}</p>}
       <nav className="flex flex-wrap gap-4">
         <Link to={getLocalizedPath('/maya-calendar', language)}>{t('馬雅曆首頁', 'Maya Calendar home')}</Link>

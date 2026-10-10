@@ -29,6 +29,29 @@ export function premiumLiveEnabled(env: Env): boolean {
   return env.MAYA_PREMIUM_LIVE_ENABLED === 'true' && env.MAYA_AI_ENABLED === 'true'
     && env.MAYA_AI_MODE === 'live' && !!env.OPENAI_API_KEY;
 }
+export function premiumRevisionFeedback(value: unknown, locale: MayaLocale, pair = false): string {
+  const fields = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+  const strings = (value: unknown): string[] => Array.isArray(value) ? value.filter((s): s is string => typeof s === 'string') : [];
+  const perspectives = fields.perspectives && typeof fields.perspectives === 'object' && !Array.isArray(fields.perspectives)
+    ? Object.values(fields.perspectives).filter((s): s is string => typeof s === 'string') : [];
+  const plan = Array.isArray(fields.ninetyDayPlan) ? fields.ninetyDayPlan.flatMap((stage: unknown) => {
+    if (!stage || typeof stage !== 'object' || Array.isArray(stage)) return [];
+    const row = stage as Record<string, unknown>;
+    return [...strings(row.actionSteps), ...strings(row.reflectionQuestions)];
+  }) : [];
+  const text = [typeof fields.interpretation === 'string' ? fields.interpretation : '', ...perspectives,
+    ...strings(fields.lifeExamples), ...strings(fields.reflectionQuestions), ...strings(fields.actionSteps), ...plan].join('\n');
+  const chars = text.match(/[\u3400-\u9fff]/gu)?.length ?? 0;
+  const words = text.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/gu)?.length ?? 0;
+  if (locale === 'en') return `Measured reader text: ${words} English words and ${chars} Chinese characters. Revise to 180–350 English words total, including viewpoints and all plan items; no Chinese. Repair missing evidence identifiers or structure. Retain distinct substantive viewpoints and specific actions.`;
+  if (pair) return `目前${chars}個漢字。雙人中文章節沒有總字數下限，349字可接受；350至500字僅為寫作目標，500字仍是上限。不要因字數不足補字或擴寫；修正缺漏依據、格式、重複內容或空白視角。若超過500字，刪減重複描述但保留三視角、具體建議與全部計畫項目。只計讀者可見漢字，不含欄位名；不得用套話或字數宣告填充內容。`;
+  const adjustment = chars < 350
+    ? `目前只有${chars}個漢字，距350字硬性下限仍差${350 - chars}字。保留原稿的有效內容，另外增加${440 - chars}至${470 - chars}個漢字：擴充具體生活情境、可調整選擇與不同視角；不要把原稿改短。`
+    : chars > 500
+      ? `目前${chars}個漢字，超過500字上限。刪減${chars - 470}至${chars - 420}個漢字的重複描述，保留依據、不同視角與所有計畫項目。`
+      : `目前${chars}個漢字，字數已在規格內。保留字數，修正缺漏依據、格式或重複內容。`;
+  return `${adjustment}完整JSON內可閱讀文字總計目標440至470個漢字，硬性範圍350至500；只數漢字，不含標點、數字、英文、欄位名。包含三視角與全部計畫項目。不得用套話、重複段落或字數宣告補字；必須有新增的具體反思價值。`;
+}
 function identifier(value: unknown): string {
   if (typeof value !== 'string' || !/^[a-zA-Z0-9_-]{1,80}$/.test(value)) throw new PremiumError('INVALID_INPUT', 400);
   return value;
@@ -74,10 +97,12 @@ export function premiumPrompt(product: Product, inputs: Inputs, locale: MayaLoca
   const system = [
     'Write one structured JSON chapter of an optional Dreamspell symbolic self-reflection report. No Markdown, HTML or extra fields.',
     locale === 'en' ? 'Natural English only, no Chinese. Total 120–450 words across ALL fields, including perspectives and plan.'
-      : '只用自然繁體中文。全部文字合計350至500個中文字，包含三視角與九十天計畫；第十二章解析要簡短，保留字數給計畫。',
+      : pair ? '只用自然繁體中文。全部文字目標350至500個中文字，但沒有總字數下限；349字可接受，內容完整即可，不要補字。500字是硬性上限，包含三視角與九十天計畫。只計漢字，不計標點、數字、英文或JSON欄位名稱。'
+        : '只用自然繁體中文。全部文字合計350至500個中文字，目標440字；只計算漢字，不計標點、數字、英文或JSON欄位名稱。包含三視角與九十天計畫；第十二章解析要簡短，保留字數給計畫。',
     locale === 'zh-TW' ? plan
-      ? '第十二章字數分配：interpretation約100中文字；每個三視角約25字（僅雙人）；情境約40字、提問約20字、行動約30字；計畫18項每項約8至10字。總字數必須至少350字且不超過500字。'
-      : pair ? '字數分配：interpretation約180至200中文字；a、b、shared三視角各約40字；lifeExamples一項約45字；reflectionQuestions一項約20字；actionSteps一項約35字。總計約400至440中文字，切勿縮成300字。'
+      ? pair ? '第十二章建議字數分配：interpretation約100中文字；每個三視角約25字；情境約40字、提問約20字、行動約30字；計畫18項每項約8至10字。沒有總字數下限，保留完整計畫及三視角，總計不得超過500字。'
+        : '第十二章字數分配：interpretation約100中文字；情境約40字、提問約20字、行動約30字；計畫18項每項約8至10字。總字數必須至少350字且不超過500字。'
+      : pair ? '建議字數分配：interpretation約180至200中文字；a、b、shared三視角各約40字；lifeExamples一項約45字；reflectionQuestions一項約20字；actionSteps一項約35字。以完整且不重複的內容為優先，不以總字數下限限制。'
         : '字數分配：interpretation必須寫約290至310個中文字的完整深度解析，不能縮成兩三句；lifeExamples一項約55中文字，reflectionQuestions一項約25中文字，actionSteps一項約45中文字。合計約420至440個中文字，切勿縮成300字。'
       : '',
     locale === 'en' ? plan
@@ -169,7 +194,7 @@ function validateSection(value: unknown, product: Product, inputs: Inputs, local
   const chars = allText.match(/[\u3400-\u9fff]/gu)?.length ?? 0;
   const words = allText.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/gu)?.length ?? 0;
   if (locale === 'en' && (chars !== 0 || words < 120 || words > 450)
-    || locale === 'zh-TW' && (chars < (index >= 12 && !pair ? 250 : 350) || chars > 500 || /[这为与疗财爱际问长发]/u.test(allText))
+    || locale === 'zh-TW' && (!pair && chars < (index >= 12 ? 250 : 350) || chars > 500 || /[这为与疗财爱际问长发]/u.test(allText))
     || /保證.*(?:財富|收益)|治癒疾病|必定.*發財|guaranteed (?:wealth|returns)|cure disease|you will become rich|\bKIN\s*[=:：]?\s*\d/iu.test(allText)
     || !s.interpretation.includes(basis.solarSeal.name) || !s.interpretation.includes(basis.galacticTone.name)
     || previous.some(p => p.interpretation.trim() === s.interpretation.trim())) throw new PremiumError('AI_SCHEMA_INVALID');
@@ -217,13 +242,9 @@ async function advance(env: Env, row: Row, authorize: () => Promise<unknown>) {
   if (rejected) {
     if (rejected.attempts >= 3) throw new PremiumError('AI_RETRY_LIMIT');
     const bad: TextSection = JSON.parse(rejected.content ?? 'null');
-    const count = JSON.stringify(bad).match(/[\u3400-\u9fff]/gu)?.length ?? 0;
-    const words = JSON.stringify(bad).match(/[A-Za-z]+(?:['’][A-Za-z]+)*/gu)?.length ?? 0;
     prompt.user = JSON.stringify({ ...JSON.parse(prompt.user), previousRejectedDraft: bad,
-      revisionTask: row.locale === 'zh-TW'
-        ? `修改這份草稿，使全部文字合計約420個中文字（包含三視角及計畫），不可少於350或超過500。過短時請補充具體生活情境、可調整的選擇與各自觀點，不要只換句話說。`
-        : 'Revise this draft to 180–350 total words, INCLUDING perspectives and any plan. Retain all literal evidence identifiers.' });
-    prompt.system += `\nA previous JSON attempt failed quality checks (${count} Chinese characters; approximately ${words} English words across all fields). Rewrite with ALL required seal AND tone identifiers. Keep total English text 120–400 words INCLUDING the plan. Keep Chinese total 350–500 characters INCLUDING the plan. Expand substantive analysis only if too short; shorten the interpretation and lists if too long, never add padding.`;
+      revisionTask: premiumRevisionFeedback(bad, row.locale, row.product_code === MAYA_RELATIONSHIP_PRODUCT.code) });
+    prompt.system += '\nRevise the previous draft using the measured reader-text length in revisionTask. Preserve useful substantive content and ALL literal seal AND tone identifiers. Return the complete revised JSON, not an appendix or a length tally.';
   }
   const request = { model: MAYA_AI_MODEL, max_completion_tokens: PREMIUM_LIMITS.outputTokens,
     messages: [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.user }],

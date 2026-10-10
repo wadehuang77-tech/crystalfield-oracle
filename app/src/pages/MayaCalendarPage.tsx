@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { mayaApi } from '../lib/api';
+import { mayaApi, mayaProApi, mayaRelationshipApi } from '../lib/api';
 import { calculationLoginRedirect, localizeAuthError } from '../lib/authLocale';
 import { getLanguageFromPath, getLocalizedPath } from '../lib/i18n';
 import { submitMayaCheckout } from '../lib/mayaCheckout';
@@ -43,6 +43,8 @@ export default function MayaCalendarPage() {
   const [features, setFeatures] = useState<MayaFeatures>(MAYA_DISABLED_FEATURES);
   const [configLoading, setConfigLoading] = useState(true);
   const [configError, setConfigError] = useState('');
+  const [premiumAvailability, setPremiumAvailability] = useState<{ pro: boolean; relationship: boolean } | null>(null);
+  const [premiumConfigError, setPremiumConfigError] = useState('');
   const [orderStatus, setOrderStatus] = useState('');
   const returnedOrder = new URLSearchParams(location.search).get('maya_order');
   const keys = useRef(new Map<string, string>());
@@ -52,6 +54,19 @@ export default function MayaCalendarPage() {
   const personal = dataIdentity === identity ? profiles.find((profile) => profile.role === 'personal') : undefined;
   const partner = dataIdentity === identity ? profiles.find((profile) => profile.role === 'relationship') : undefined;
   const visibleReport = dataIdentity === identity ? report : null;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setPremiumAvailability(null); setPremiumConfigError('');
+    Promise.all([mayaProApi.config(controller.signal), mayaRelationshipApi.config(locale, controller.signal)])
+      .then(([pro, relationship]) => {
+        if (typeof pro.liveAi !== 'boolean' || typeof relationship.reportAvailable !== 'boolean') throw new Error('Invalid premium availability');
+        if (!controller.signal.aborted) setPremiumAvailability({ pro: pro.liveAi, relationship: relationship.reportAvailable });
+      }).catch(() => {
+        if (!controller.signal.aborted) setPremiumConfigError(en ? 'Premium report availability could not be verified. Please check the product page before purchasing.' : '無法確認進階報告狀態，購買前請查看商品頁。');
+      });
+    return () => controller.abort();
+  }, [locale, en, user?.id]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -303,14 +318,21 @@ export default function MayaCalendarPage() {
     <section className={panel} data-relationship-product={MAYA_RELATIONSHIP_PRODUCT.code}>
       <h2 className="text-2xl">{en ? MAYA_RELATIONSHIP_PRODUCT.en : MAYA_RELATIONSHIP_PRODUCT.zh}</h2>
       <p className="my-3">NT${MAYA_RELATIONSHIP_PRODUCT.price} · {MAYA_RELATIONSHIP_PRODUCT.code}</p>
-      <p>{t('獨立雙人商品。NT$899目前僅購買商品權限，十二篇報告與雙人視覺化尚無法交付；既有699雙人權益保留。', 'Separate relationship product. NT$899 currently buys access only; twelve chapters and paired visualizations are not available for delivery. Existing 699 relationship access is preserved.')}</p>
+      <p>{premiumAvailability?.relationship
+        ? t('獨立雙人商品。NT$899 提供十二篇雙人象徵解讀、三種關係視角、程式視覺化與90天實踐計畫。會員取得權限後自行啟動生成，成功後儲存；既有699雙人權益保留。', 'Separate relationship product. NT$899 provides twelve symbolic reflection chapters, three relationship perspectives, programmatic visuals and a 90-day practice plan. Members explicitly start generation after obtaining access; completed reports are saved. Existing 699 relationship access is preserved.')
+        : premiumAvailability ? t('獨立雙人商品。NT$899目前僅購買商品權限，十二篇報告與雙人視覺化尚無法交付；既有699雙人權益保留。', 'Separate relationship product. NT$899 currently buys access only; twelve chapters and paired visualizations are not available for delivery. Existing 699 relationship access is preserved.')
+          : t('正在確認雙人報告生成狀態；購買前請查看商品頁。', 'Checking relationship report availability; check the product page before purchasing.')}</p>
+      {premiumConfigError && <p role="alert">{premiumConfigError}</p>}
       <Link className="mt-3 block underline" to={localized('/maya-calendar/relationship')}>{t('查看雙人藍圖開發狀態', 'View relationship blueprint availability')}</Link>
       <Link className={`${button} mt-3 inline-block`} to={localized('/maya-calendar/relationship')}>{t('綠界付款', 'ECPay checkout')} · NT$899</Link>
     </section>
     <section className={panel}>
       <h2 className="text-2xl">{en ? MAYA_PRO_PRODUCT.en : MAYA_PRO_PRODUCT.zh}</h2>
       <p className="my-3">NT${MAYA_PRO_PRODUCT.price} · {MAYA_PRO_PRODUCT.code}</p>
-      <p>{t('全新獨立個人商品；雙人關係合盤新訂單為 NT$899。Pro 付款依獨立功能開關開放，Live AI 報告尚未開放。', 'Independent personal product; new relationship orders cost NT$899. Pro checkout has a separate availability gate; Live AI reports are not available yet.')}</p>
+      <p>{premiumAvailability?.pro
+        ? t('獨立個人商品。NT$699 提供十五篇星際靈魂使命象徵解讀、五大神諭與波符視覺化。會員取得權限後自行啟動生成，成功後儲存，再次閱讀不重複生成或扣款。', 'Independent personal product. NT$699 provides fifteen symbolic soul-mission chapters with oracle and wavespell visuals. Members explicitly start generation after obtaining access; completed reports are saved and reading again does not regenerate or charge.')
+        : premiumAvailability ? t('全新獨立個人商品；雙人關係合盤新訂單為 NT$899。Pro 付款依獨立功能開關開放，Live AI 報告尚未開放。', 'Independent personal product; new relationship orders cost NT$899. Pro checkout has a separate availability gate; Live AI reports are not available yet.')
+          : t('正在確認 Pro 報告生成狀態；購買前請查看商品頁。', 'Checking Pro report availability; check the product page before purchasing.')}</p>
       <Link className={`${button} mt-3 inline-block`} to={localized('/maya-calendar/pro')}>{t('綠界付款', 'ECPay checkout')} · NT${MAYA_PRO_PRODUCT.price}</Link>
       <Link className="mt-3 block underline" to={localized('/maya-calendar/pro')}>{t('查看 Pro 功能與狀態', 'View Pro features and availability')}</Link>
     </section>

@@ -1,5 +1,49 @@
 # Dreamspell 星際靈魂使命藍圖 Pro：本地開發與驗證
 
+## 正式生成直接開通授權（2026-10-10）
+
+使用者在要求commit／push／部署後，另行明確選擇「直接開通，接受目前驗證範圍」：接受取消雙人中文350字下限後，本地十二篇測試PASS，但真實中文完整十二篇尚未重新驗證。授權正式migration030、Worker／Pages部署與NT$699／899 Live生成。此授權取代先前必須四份真實報告全部PASS才開通的發布條件，不把未完成驗證改稱PASS。
+
+- 正式保留雙人中文500字上限／結構／依據檢查與個人Pro、英文原規則；付款／會員／所有權、最多3次品質嘗試、未知AI結果阻擋、每份NT$2／同訂單雙語NT$4規劃成本上限不變。
+- 僅套用030至現有正式customer D1；031已安裝，不執行026，不重設會員／訂單／報告，不修改Secret。正式開通後生成需本人商品權限與明確操作，讀取不自動生成，成功JSON存D1。
+- 新正式包由目前version `9cc4240a-d175-42aa-86b4-6dd94e9774e1` 的隔離包overlay建立，保留其他系统正式程式；375source hashes與dist hashes另存，commit本身不是歷史overlay全量重建的唯一依據。
+- 發布前Worker／App typecheck、相關ESLint、Worker dry-run、frontend build／45route SEO PASS；前次3個字數／十二篇本地生成測試及相關型別檢查PASS。此次不再呼叫AI或執行正式付款。
+- 發布前schema／ledger／原bindings唯讀核對，TimeTravel bookmark `00001410-00000000-00005100-6ba15d5dc76c7f6c8b50b240cba25c4b`；先前Worker／Pages IDs保留作rollback參照。若須暫停premium，保留030／031與付款callback相容，關閉生成不刪資料；不自動restore正式D1。
+- 只提交Dreamspell修改（含先前699開通修補與測試）；其他印度占星／GA4等修改不提交、不部署。commit使用 `[skip ci]`，以免重複一般部署；發布結果部署後補記。
+
+最新規格修訂：使用者取消雙人中文每篇350漢字硬性下限，349字可接受；500字上限、結構及資料依據檢查保留。個人Pro原本字數規格不變。詳見 [雙人品質規則修訂](dreamspell-relationship-blueprint-v2.md)。本地修改未部署，不表示先前未完成的真實十二篇驗證已通過。
+
+## 報告全面開通請求：本輪驗證未通過（2026-10-10）
+
+使用者要求報告生成全開，並授權「最多80次隔離AI驗證、預估成本上限NT$4，全部通過才套用030／部署／開通；未通過保持關閉」。
+
+- **PASS**：修正品質重試的字數計量，僅計算讀者可見文字，不計JSON欄位與計畫ID；短稿明確提供缺少字數與需增加的具體內容，長稿提供刪減幅度。仍維持350～500漢字、最多3次品質嘗試及成本上限，沒有補字或降低驗收門檻。
+- **PASS**：本輪真實Pro英文15篇、中文15篇、雙人英文12篇均完成Schema驗證與D1本地儲存／讀取cache驗證；成功報告再次讀取／create不呼叫AI。各完成報告規劃成本約NT$0.124992／0.30360225／0.12406275。
+- **FAIL**：本輪雙人中文第8篇（金錢與共享資源）3次品質嘗試後仍只有349個漢字，低於350硬性下限。前次第11篇不足問題不能視為整體已解決。此限制仍正常阻止不合格付費JSON完成。
+- **BLOCKED**：第8篇已耗盡3次嘗試，測試job不得直接重置為成功；剩下授權10次呼叫不足以重新完整驗證12篇中文報告。按使用者「全部通過才開通」條件停止，不套用030、不發布本輪新包、不啟用premium。
+- 本輪實際OpenAI request attempts共70（47＋23），包含一次preview工具中斷後的未知結果。第一輪Wrangler4.105中断，新版4.149續驗時previewhealth计數重置；因此修正測試runner為每次網路請求前持久化campaignledger，以client端跨preview重啟的總帳為準，不採preview計數冒稱總數。
+- NT$4規劃上限內保守campaign reserve為NT$3.302657：已完成三份報告費用合計NT$0.552657，剩餘25次請求全部按NT$0.11保留（含未知／拒絕／未完成章節）。這是保守計畫預算，不是OpenAI實際帳單。兩個隔離preview已停止，沒有正式DB／金流bindings。
+- **PASS**：本地premium6測試、48組中英文390／768／1440px UI、24組付款按鈕及4組public商品介紹狀態、13個KIN／外部參考／視覺映射測試；Worker與acceptance測試typecheck、相關lint、隔離發布包App／Worker typecheck與45route build／SEO通過。
+- **PASS**：主商品頁新增讀取Pro／雙人config的可用性說明，未開通時保留只買權限告知；開通後才顯示完整篇章生成說明，載入錯誤明確提示、不呼叫AI。此修改尚未部署。
+- 本輪發布前記錄正式Worker `9cc4240a-d175-42aa-86b4-6dd94e9774e1`、Pages `9ae41ab1-c73b-42d0-b646-5c6c8be570a3`、TimeTravel bookmark `0000140e-0000006a-00005100-41438385347d79ee24426ab7c1637dbe`；没有restore或migration030。
+- 最終正式HTTPS config核對：Pro付款true／liveAi false，雙人付款true／reportAvailable false。既有199／499不改動。本輪沒有真實付款、未使用真實會員資料、未commit／push。
+
+## 最新正式狀態：NT$699／899 權限付款開通（2026-10-10）
+
+使用者另行明確授權：「授權開通兩個付款按鈕，接受目前僅購買權限」，包含正式 additive migration031與部署。以下狀態取代先前Pro付款關閉狀態，**不取代報告品質BLOCKED**。
+
+- **PASS**：正式 `MAYA_PRO_PAYMENT_ENABLED=true`、`MAYA_RELATIONSHIP_V2_PAYMENT_ENABLED=true`；獨立商品金額分別699與899。
+- **PASS**：`MAYA_PREMIUM_LIVE_ENABLED=false`、`MAYA_PRO_LOCAL_ENABLED=false`；付款前中英文保留只取得權限、尚無新版報告交付的告知，雙人仍需勾選理解扣款。
+- **PASS**：仅購買Pro權限不要求先存出生資料；已取得權限者按鈕顯示「已取得商品權限」並停用。Pro報告關閉時清單回應空清單與明確reason，不查詢未建的local報告表；直接報告／生成仍503，不交付Mock。
+- **PASS**：正式只套用 `031_maya_pro_payment.sql`，新增3表／1索引；025／027／028／029與所有既有schema／ledger row保留，沒有026／030。正式既有會員／訂單／報告aggregate counts不變，foreign-key check空，既有Secret bindings不變，唯一vars變更為Pro付款false→true。
+- **PASS**：發布前Time Travel bookmark `0000140a-00000000-00005100-8d69d0bc4da46f89e53e80a099a2114c`。舊Worker version `f88d83dd-b8a4-466b-aadc-2216f0b9ef2b`、Pages `24ad6f94-de88-41a2-8e8d-e9dd205dbd95`記錄為開通前目標；一旦有新Pro真實訂單，不可直接回退至不認識Pro callback的舊關閉版本或restore D1，應用保持031與callback相容的前向修補。
+- **PASS**：Worker deployment `a2bc6c3f-76c0-4354-abd3-83cb678ebd84`，version `9cc4240a-d175-42aa-86b4-6dd94e9774e1`；Pages deployment `9ae41ab1-c73b-42d0-b646-5c6c8be570a3`。此為上一正式包的Dreamspell隔離overlay，373d206是Git base而非完整新程式commit；本次未另行commit／push。
+- **PASS**：374 source／63 dist hashes、隔離Worker typecheck／lint／dry-run、App typecheck／lint／build／45 SEO routes。既有完整payment suite的15個測試通過；新增031測試初次因共用測試DB已有local表而FAIL，調整執行順序後3個相關金流／歷史權益測試全PASS，原Pro5測試PASS，test typecheck PASS。
+- **PASS**：`app/scripts/maya-payment-buttons-check.ts` 的24個中英文390／768／1440px、未購買／已購買、無出生profile UI測試；取消真實付款確認後不送checkout。正式HTTPS config、public付款links、匿名API401／登入導回，以及12組正式頁面搭配synthetic會員狀態的付款按鈕／告知／無overflow測試PASS。
+- **NOT RUN**：真实已登入會員的正式checkout／付款／有效正式callback驗收。本次未使用真實會員登入或偽造正式session，synthetic會員UI不可冒稱真實會員端到端驗收；後端授權與回調以隔離D1離線測試驗證。
+- **NOT RUN**：本次付費AI與checkout呼叫皆0，沒有真實扣款。其他系統與Google OAuth沒有修改。
+- **BLOCKED**：完整premium Live文字品質／報告正式交付仍未開放；699／899按鈕開通不代表報告完成。
+
 ## 後續提交與關閉功能發布授權
 
 2026-10-10，使用者要求 commit／push／部署，並明確選擇「只提交 Dreamspell，部署但維持未通過功能關閉」。此為發布程式碼而非開啟未通過的付費內容：

@@ -137,6 +137,30 @@ beforeEach(async () => {
 afterEach(() => { globalThis.fetch = originalFetch; });
 after(async () => { await mf.dispose(); });
 
+test('Pro entitlement-only release uses migration031 without local report tables or AI calls', async () => {
+  await migrate('migrations/031_maya_pro_payment.sql');
+  const target = { ...env, MAYA_PRO_PAYMENT_ENABLED: 'true', MAYA_PREMIUM_LIVE_ENABLED: 'false' };
+  globalThis.fetch = async () => { throw new Error('Entitlement-only release must not call a provider'); };
+  const reportTable = await env.DB.prepare("SELECT name FROM sqlite_master WHERE name='maya_pro_reports'").first();
+  assert.equal(reportTable, null);
+  const config = await call('pro/config', undefined, null, target);
+  const settings = await config.json() as { enabled: boolean; payment: boolean; liveAi: boolean };
+  assert.deepEqual([settings.enabled, settings.payment, settings.liveAi], [true, true, false]);
+  for (const locale of ['en', 'zh-TW'] as const) {
+    const response = await call(`pro/reports?locale=${locale}`, undefined, token, target);
+    assert.equal(response.status, 200, await response.clone().text());
+    assert.deepEqual(await response.json(), { reports: [], reason: 'PRO_LOCAL_ONLY' });
+    assert.equal((await call(`pro/reports/unavailable?locale=${locale}`, undefined, token, target)).status, 503);
+    assert.equal((await call(`pro/reports?locale=${locale}`, undefined, null, target)).status, 401);
+    const order = await checkout(MAYA_PRO_PRODUCT.code, locale, crypto.randomUUID(), target);
+    assert.equal(order.fields.TotalAmount, '699');
+    assert.equal(await (await callback(await fieldsFor(order), 'callback', target)).text(), '1|OK');
+    assert.equal(await count('maya_pro_entitlements', order.order_id), 1);
+    assert.equal((await call('pro/reports', { locale }, token, target)).status, 503);
+  }
+  assert.equal(requests.length, 0);
+});
+
 test('Pro checkout offline: independent product, signed callback, localized return, ownership and refund revocation', async () => {
   await migrate('maya-pro-local-schema.sql');
   const target = { ...env, MAYA_PRO_PAYMENT_ENABLED: 'true' };

@@ -5,7 +5,7 @@ import { Miniflare } from 'miniflare';
 import { signJwt } from '../src/auth';
 import { routeMayaApi } from '../src/maya';
 import { mockMayaProReport } from '../src/mayaProPrompt';
-import { PREMIUM_LIMITS } from '../src/mayaPremiumLive';
+import { PREMIUM_LIMITS, premiumRevisionFeedback, premiumPrompt } from '../src/mayaPremiumLive';
 import { mayaForDate, MAYA_CALCULATION_VERSION } from '../../app/src/lib/maya';
 import { validateMayaProReport, MAYA_PRO_PRODUCT, type MayaProReport } from '../../app/src/lib/mayaPro';
 import { validateRelationshipReport, MAYA_RELATIONSHIP_PRODUCT, type RelationshipReport } from '../../app/src/lib/mayaRelationship';
@@ -207,9 +207,65 @@ test('Six distinct birth pairs validate both languages with twelve fixed IDs, ca
     }
   }
 });
+test('Quality revisions use measured reader text, exclude JSON metadata and require substantive missing characters', () => {
+  const draft = { interpretation: '文'.repeat(200), perspectives: { a: '甲'.repeat(30), b: '乙'.repeat(30), shared: '丙'.repeat(30) },
+    lifeExamples: ['例'.repeat(20)], reflectionQuestions: ['問'.repeat(10)], actionSteps: ['行'.repeat(20)] };
+  const feedback = premiumRevisionFeedback(draft, 'zh-TW');
+  assert.match(feedback, /只有340個漢字/);
+  assert.match(feedback, /另外增加100至130個漢字/);
+  assert.match(feedback, /硬性範圍350至500/);
+  assert.match(premiumRevisionFeedback({ ...draft, interpretation: '文'.repeat(370) }, 'zh-TW'), /超過500字上限/);
+  assert.match(premiumRevisionFeedback({ interpretation: 'one two', ninetyDayPlan: [
+    { id: 'awareness', startDay: 1, actionSteps: ['three'], reflectionQuestions: ['four'] },
+  ] }, 'en'), /4 English words/);
+  assert.match(premiumRevisionFeedback(null, 'zh-TW'), /只有0個漢字/);
+  const pairFeedback = premiumRevisionFeedback(draft, 'zh-TW', true);
+  assert.match(pairFeedback, /沒有總字數下限/);
+  assert.doesNotMatch(pairFeedback, /距350字硬性下限|另外增加/);
+  for (const index of [7, 11]) {
+    const prompt = premiumPrompt(MAYA_RELATIONSHIP_PRODUCT.code,
+      { a: '1987-07-26', b: '1990-01-01', relationshipType: 'friends' }, 'zh-TW', index, []);
+    assert.match(prompt.system, /沒有總字數下限/);
+    assert.doesNotMatch(prompt.system, /必須至少350字|切勿縮成300字/);
+  }
+});
+function shortenChineseChapter(report: RelationshipReport, index: number, target: number) {
+  const section = report.sections[index];
+  const text = [section.interpretation, ...Object.values(section.perspectives), ...section.lifeExamples,
+    ...section.reflectionQuestions, ...section.actionSteps].join('');
+  const remove = (text.match(/[\u3400-\u9fff]/gu)?.length ?? 0) - target;
+  const original = section.interpretation.match(/[\u3400-\u9fff]/gu)?.length ?? 0;
+  assert.ok(remove >= 0 && original - remove >= 60);
+  let seen = 0;
+  section.interpretation = section.interpretation.replace(/[\u3400-\u9fff]/gu, character => ++seen <= original - remove ? character : '');
+  const shortened = [section.interpretation, ...Object.values(section.perspectives), ...section.lifeExamples,
+    ...section.reflectionQuestions, ...section.actionSteps].join('');
+  assert.equal(shortened.match(/[\u3400-\u9fff]/gu)?.length, target);
+}
+test('Chinese relationship has no total character minimum; upper bound, structure and other products remain enforced', () => {
+  for (const target of [349, 300]) {
+    const report = relationshipTestFixture('1987-07-26', '1990-01-01', 'zh-TW');
+    shortenChineseChapter(report, 7, target);
+    assert.ok(validateRelationshipReport(report), `${target} characters must be accepted`);
+    const emptyPerspective = structuredClone(report);
+    emptyPerspective.sections[7].perspectives.b = '';
+    assert.ok(!validateRelationshipReport(emptyPerspective));
+    const excessive = structuredClone(report);
+    excessive.sections[7].interpretation += '文'.repeat(501);
+    assert.ok(!validateRelationshipReport(excessive));
+  }
+  const english = relationshipTestFixture('1987-07-26', '1990-01-01', 'en');
+  english.sections[7] = { ...english.sections[7], interpretation: 'Short', perspectives: { a: 'A', b: 'B', shared: 'Shared' },
+    lifeExamples: ['Example'], reflectionQuestions: ['Question?'], actionSteps: ['Act'] };
+  assert.ok(!validateRelationshipReport(english));
+  const pro = mockMayaProReport('1987-07-26', 'zh-TW');
+  pro.parts.a.blueprint.sections[7].interpretation = pro.parts.a.blueprint.sections[7].interpretation.slice(0, 65);
+  assert.ok(!validateMayaProReport(pro, 34, 'zh-TW'));
+});
 test('Chinese relationship chapters share live storage; hard budgets and three-attempt quality limits are enforced', async () => {
   const input = { ...await fixture('pairzh', 'relationship'), locale: 'zh-TW' };
   const fixtureReport = relationshipTestFixture('1987-07-26', '1990-01-01', 'zh-TW');
+  shortenChineseChapter(fixtureReport, 7, 349);
   const created = await check<Result>(await call('relationship', 'reports', 'zh-TW', input));
   let result = created;
   for (let i = 0; i < 12; i++) {
