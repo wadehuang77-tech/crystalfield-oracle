@@ -1,6 +1,14 @@
 # Dreamspell 星際生命藍圖視覺化 2.0
 
-## 最新本地文案優化（2026-10-10，未部署）
+## 最新文案正式發布（2026-10-10）
+
+- 已依使用者「PUSH 部署」授權提交並推送 main：累積 Dreamspell 功能／文案 commit `5e136bcaa21ce151ebd621bf6377d4d6b0b5befa`，正式前端程式 commit `af2cfaec3a1c516af46ff99f9271eec11ca61605`。使用 `[skip ci]` 避免重複自動部署，以前次正式隔離來源加指定前端 overlay 發布，未納入未提交 GA4／Vedic 變更。
+- 正式 Pages deployment：`360a62b1-03f9-4678-ab40-f62c92184df0`；中文及英文正式首頁已更新。首輪正式檢查找到 React runtime SEO 覆寫預渲染新標題，已同步修正 [SeoMetadata](../app/src/components/SeoMetadata.tsx)，加入 title／description 回歸斷言並重建、重新部署。
+- PASS：18 個正式網站中英文 × 390／768／1440px × 訪客／synthetic 會員／synthetic 管理者檢查，涵蓋新主標題、首屏副標題與 CTA、三個特色、SEO、Mock 文案隔離、KIN34 與水平溢出。訪客使用正式匿名 API；會員／管理者身分與 config 為明確攔截，不宣稱真人登入或實際管理者生成驗收。
+- PASS：修正後 TypeScript、相關 ESLint、18 個本地首頁回歸、production Build、45-route SEO；正式 JS asset SHA256 與隔離 dist 相符，保存 378 source／63 dist hashes。
+- Worker deployment `f15039ab-f757-42e7-896f-bc18c3b43b91`、bindings、D1 schema／migration ledger／counts／content／管理者訂單數均與發布前一致。未重新部署 Worker、未 migration、未改 Secrets、金流或 AI 設定；實際 AI／付款／生日寫入呼叫 0。
+
+以下保留本地開發驗證紀錄：
 
 - 中文首頁改用「探索你的馬雅星際生命密碼」、指定副標題與介紹全文；英文改為「Discover Your Galactic Life Signature」及自然的美式英文介紹。三個特色區塊對應星際身份、生命藍圖與重要關係。
 - 主要 CTA 與本地 KIN 表單改為「免費查詢我的 KIN / Find My KIN for Free」，導覽改為認識馬雅曆／今日星際能量／我的生命藍圖。只更換文字與展示順序，主要 CTA 保留原登入／會員入口，本地表單仍不傳送或儲存生日。
@@ -11,7 +19,7 @@
 - PASS：18 個中英文訪客／會員／管理者 × 390／768／1440px 首頁案例；實測 844px 高首屏中的主標題、副標題及 CTA 均完全可見、無水平溢出。KIN34 基準、2月29日拒絕、CTA 登入／會員路由、Mock 文案隔離不變。
 - PASS：18 compact／報告頁案例、36 paid／unpaid／admin 按鈕、4 catalogue、8 basic／full AI gate 回歸。App TypeScript、相關 ESLint、production Build 與 45-route SEO 通過，既有 LINE asset／大型 bundle 警告保留。
 - 首次首頁測試在頁面導向會員後過早關閉造成本地 proxy 連線警告；改為等待會員資料／按鈕掛載後完整重跑通過，不將此測試當真實登入／付款驗收。所有會員／管理者 API 為明確本地攔截。
-- 本次只完成本地修改與驗證，**未部署、未 commit／push**，AI／付款／profile 寫入呼叫 0。下方為先前已部署介面狀態。
+- 文案開發當時只完成本地修改與驗證，AI／付款／profile 寫入呼叫 0；後续部署與 commit／push 結果見本節最上方。下方為先前已部署介面狀態。
 
 ## 最新介面精簡與正式發布（2026-10-10）
 
