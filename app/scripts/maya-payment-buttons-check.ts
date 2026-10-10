@@ -4,6 +4,7 @@ import { createServer } from 'vite';
 import { MAYA_PRO_PRODUCT } from '../src/lib/mayaPro';
 import { MAYA_RELATIONSHIP_PRODUCT } from '../src/lib/mayaRelationship';
 import { mayaForDate } from '../src/lib/maya';
+import { mayaPremiumCopy } from '../src/lib/mayaPremiumCopy';
 
 const server = await createServer({ server: { host: '127.0.0.1', port: 5231, strictPort: true } });
 await server.listen();
@@ -37,12 +38,14 @@ try {
         throw new Error(`Unexpected API ${req.method()} ${url.pathname}`);
       });
       await page.goto(`http://127.0.0.1:5231${locale === 'en' ? '/en' : ''}/maya-calendar/${kind}`, { waitUntil: 'domcontentloaded' });
-      const button = page.getByRole('button', { name: `${admin ? locale === 'en' ? 'Unlock free admin report' : '管理者免費解鎖' : paid ? locale === 'en' ? 'Product access granted' : '已取得商品權限' : locale === 'en' ? 'Pay to unlock' : '付費解鎖'} · NT$${product.price}`, exact: true });
+      const button = page.getByRole('button', { name: paid
+        ? `${admin ? locale === 'en' ? 'Unlock free admin report' : '管理者免費解鎖' : locale === 'en' ? 'Product access granted' : '已取得商品權限'} · NT$${product.price}`
+        : mayaPremiumCopy(kind, locale).cta, exact: true });
       if (paid) {
         await button.waitFor();
         assert.equal(await button.isDisabled(), true);
         if (admin) {
-          await page.getByText(locale === 'en' ? /Complimentary admin access is verified by the server/ : /後端已驗證管理者免費權限/).waitFor();
+          await page.getByText(locale === 'en' ? 'This report is complimentary for administrators.' : '管理者可免費使用此報告。', { exact: true }).waitFor();
           await page.locator(`[data-premium-report-manager="${kind}"]`).waitFor();
         }
       } else {
@@ -80,13 +83,11 @@ try {
       throw new Error(`Unexpected catalogue API ${url.pathname}`);
     });
     await page.goto(`http://127.0.0.1:5231${locale === 'en' ? '/en' : ''}/maya-calendar`, { waitUntil: 'domcontentloaded' });
-    const phrase = enabled ? locale === 'en' ? /NT\$699 provides fifteen/ : /NT\$699 提供十五篇/
-      : locale === 'en' ? /Pro checkout has a separate availability gate/ : /Pro 付款依獨立功能開關開放/;
-    await page.getByText(phrase).waitFor();
+    const proIntro = page.locator('[data-premium-product-intro="pro"]');
+    await proIntro.getByText(enabled ? mayaPremiumCopy('pro', locale).features[0] : mayaPremiumCopy('pro', locale).unavailable, { exact: true }).waitFor();
     const text = await page.locator('main').innerText();
     assert.doesNotMatch(text, /舊版雙人關係合盤|Legacy Relationship Blueprint/);
-    assert.match(text, enabled ? locale === 'en' ? /NT\$899 provides twelve/ : /NT\$899 提供十二篇/
-      : locale === 'en' ? /NT\$899 currently buys access only/ : /NT\$899目前僅購買商品權限/);
+    await page.locator('[data-premium-product-intro="relationship"]').getByText(enabled ? mayaPremiumCopy('relationship', locale).features[0] : mayaPremiumCopy('relationship', locale).unavailable, { exact: true }).waitFor();
     await page.close();
   }
   console.log('PASS four bilingual public catalogue availability cases; API generation calls=0');

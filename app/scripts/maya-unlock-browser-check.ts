@@ -7,6 +7,7 @@ import { MAYA_RELATIONSHIP_PRODUCT } from '../src/lib/mayaRelationship';
 import { mockMayaProReport } from '../../worker/src/mayaProPrompt';
 import { relationshipTestFixture } from '../src/lib/mayaRelationshipFixture';
 import { MAYA_PRODUCTION_ENDPOINT } from '../src/lib/mayaCheckout';
+import { mayaPremiumCopy } from '../src/lib/mayaPremiumCopy';
 
 const server = await createServer({ server: { host: '127.0.0.1', port: 5234, strictPort: true } });
 await server.listen();
@@ -95,7 +96,8 @@ try {
         throw new Error(`Unexpected API ${req.method()} ${url.pathname}`);
       });
       await page.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
-      const name = `${admin ? locale === 'en' ? 'Unlock free admin report' : '管理者免費解鎖' : locale === 'en' ? 'Pay to unlock' : '付費解鎖'} · NT$${product.price}`;
+      const name = !admin && product.kind ? mayaPremiumCopy(product.kind, locale).cta
+        : `${admin ? locale === 'en' ? 'Unlock free admin report' : '管理者免費解鎖' : locale === 'en' ? 'Pay to unlock' : '付費解鎖'} · NT$${product.price}`;
       const button = page.getByRole('button', { name, exact: true });
       await button.waitFor();
       if (product.kind === 'relationship') {

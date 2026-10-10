@@ -84,10 +84,10 @@ try {
       assert.equal(await page.locator('[data-pro-report-version]').count(), 0);
       assert.ok(!calls.includes('/api/maya/pro/reports') && !calls.includes('/api/maya/profile'));
     } else if (mode === 'checkout') {
-      const button = page.getByRole('button', { name: locale === 'en' ? 'ECPay checkout · NT$699' : '綠界付款 · NT$699', exact: true });
+      const button = page.getByRole('button', { name: locale === 'en' ? 'Unlock My Galactic Life Blueprint · NT$699' : '解鎖我的星際生命藍圖 · NT$699', exact: true });
       await button.waitFor();
-      await page.getByText(locale === 'en' ? 'Pro member access mode; report generation is not available yet.' : 'Pro 會員權限模式；報告生成尚未開放。', { exact: true }).waitFor();
-      await page.locator('button:not([disabled])').filter({ hasText: locale === 'en' ? 'ECPay checkout · NT$699' : '綠界付款 · NT$699' }).waitFor();
+      await page.getByText(locale === 'en' ? 'The full report is not available yet.' : '完整報告尚未開放。', { exact: true }).waitFor();
+      await page.locator('button:not([disabled])').filter({ hasText: locale === 'en' ? 'Unlock My Galactic Life Blueprint · NT$699' : '解鎖我的星際生命藍圖 · NT$699' }).waitFor();
       assert.ok(await button.isEnabled());
       assert.equal(await page.locator('[data-pro-report-version]').count(), 0);
       await button.click();

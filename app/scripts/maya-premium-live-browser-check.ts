@@ -61,8 +61,8 @@ try {
         else await page.locator('button:not([disabled])').filter({ hasText: 'NT$899' }).waitFor();
         assert.equal(await page.locator(selector).count(), 0);
       } else if (state === 'unpaid') {
-        await page.getByText(locale === 'en' ? 'Active, owned product access is required to generate or read a full report.'
-          : '需本人有效商品權限才能生成或讀取完整報告。', { exact: true }).waitFor();
+        await page.getByText(locale === 'en' ? 'Unlock your report to explore the full blueprint.'
+          : '解鎖後即可探索完整藍圖。', { exact: true }).waitFor();
         assert.equal(await page.locator(selector).count(), 0);
       } else {
         if (state === 'paid') {

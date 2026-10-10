@@ -8,6 +8,7 @@ import MayaRelationshipReportView from './MayaRelationshipReportView';
 import { submitMayaCheckout, validateMayaCheckoutForm } from '../../lib/mayaCheckout';
 import { readMayaUnlockIntent, saveMayaUnlockIntent } from '../../lib/mayaUnlock';
 import useMayaPaymentReturn from '../../hooks/useMayaPaymentReturn';
+import { mayaPremiumCopy } from '../../lib/mayaPremiumCopy';
 
 export default function MayaPremiumReportManager({ kind, locale, userId, accessId, selectedId, returnedOrder = null, complimentary = false, payment = true }: {
   kind: 'pro' | 'relationship'; locale: MayaLocale; userId: string; accessId: string | null; selectedId?: string;
@@ -102,8 +103,8 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   async function unlock(signal: AbortSignal) {
     if (grant) return generate(signal);
     if (!payment) throw new Error(t('付款尚未啟用。', 'Checkout is not enabled.'));
-    if (!window.confirm(t(`確認付費解鎖 NT$${product.price}？付款經後端確認後自動生成報告，不自動續扣。`,
-      `Pay NT$${product.price} to unlock? Your report will start automatically after server-verified payment. No recurring billing.`))) return;
+    if (!window.confirm(t(`確認支付 NT$${product.price} 解鎖報告？不自動續扣。`,
+      `Pay NT$${product.price} to unlock your report? No recurring billing.`))) return;
     checkoutKey.current ??= crypto.randomUUID();
     const form = await mayaApi.checkout(product.code, locale, checkoutKey.current);
     if (signal.aborted) return;
@@ -119,14 +120,14 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   const report = result?.report;
   const validPro = report?.productCode === MAYA_PRO_PRODUCT.code && validateMayaProReport(report, report.kinNumber, locale) && report.provider === 'openai';
   const validPair = report?.productCode === MAYA_RELATIONSHIP_PRODUCT.code && validateRelationshipReport(report) && report.locale === locale;
-  return <section className="space-y-5" data-premium-report-manager={kind}>
-    {!grant && <p>{t('需本人有效商品權限才能生成或讀取完整報告。', 'Active, owned product access is required to generate or read a full report.')}</p>}
+  return <section id={`maya-premium-${kind}`} className="scroll-mt-6 space-y-5" data-premium-report-manager={kind}>
+    {!grant && <p>{t('解鎖後即可探索完整藍圖。', 'Unlock your report to explore the full blueprint.')}</p>}
     {paidReturn && <p role="status">{t('後端付款狀態', 'Server payment status')}: {paidReturn.status}</p>}
     {paidReturn?.error && <p role="alert">{paidReturn.error}</p>}
     <>
       {!report && <section className="maya-cosmic-panel space-y-4">
         <h2>{t('報告出生資料', 'Birth data for this report')}</h2>
-        <p>{t('同一訂單與語言固定綁定出生資料及關係類型。成功後儲存，再次閱讀不生成或扣款。', 'Each order and language is bound to its birth data and relationship type. Successful reports are saved; reading again does not generate or charge.')}</p>
+        <p>{t('選擇這份藍圖使用的出生資料；完成後可隨時回來閱讀。', 'Choose the birth data for your blueprint. Return anytime to read your completed report.')}</p>
         {(['personal', ...(kind === 'relationship' ? ['relationship'] : [])] as const).map(role => <div key={role} className="space-y-2">
           <label className="block">{role === 'personal' ? 'A' : 'B'} · {t('既有出生資料', 'Saved birth data')}
             <select className="ml-2 bg-slate-900 p-2" value={role === 'personal' ? a : b} disabled={busy || !!result}
@@ -153,12 +154,13 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
           <label className="flex gap-3"><input type="checkbox" checked={consent} disabled={busy || !!result} onChange={e => setConsent(e.target.checked)} />
             {t('已取得另一人的同意，允許儲存生日與生成雙人反思報告。', 'I have the other person’s consent to store their birth date and generate this shared reflection report.')}</label>
         </>}
-        <button className="rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:opacity-50"
+        <button className="w-full rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:opacity-50 sm:w-auto"
           disabled={!loaded || busy || !a || kind === 'relationship' && (!b || !consent) || result?.status === 'blocked'
             || !!returnedOrder && !grant || !grant && !payment}
-          onClick={() => run(unlock)}>{busy ? t('生成中…', 'Generating...') : result?.status === 'processing' ? t('繼續生成（不重新付款）', 'Continue report (no new payment)')
-            : complimentary ? t('管理者免費解鎖', 'Unlock free admin report') : grant ? t('解鎖／查看報告', 'Unlock / view report') : t('付費解鎖', 'Pay to unlock')} · NT${product.price}</button>
-        <p>{t('先確認出生資料。付款成功返回後會自動生成，請保持頁面開啟；若中斷或失敗，可在此繼續，不必重新付款。', 'Confirm your birth data first. Generation starts automatically after a verified payment return; keep this page open. If interrupted or failed, continue here without paying again.')}</p>
+          onClick={() => run(unlock)}>{!busy && result?.status !== 'processing' && !complimentary && !grant ? mayaPremiumCopy(kind, locale).cta
+            : `${busy ? t('生成中…', 'Generating...') : result?.status === 'processing' ? t('繼續生成（不重新付款）', 'Continue report (no new payment)')
+              : complimentary ? t('管理者免費解鎖', 'Unlock free admin report') : t('解鎖／查看報告', 'Unlock / view report')} · NT$${product.price}`}</button>
+        <p className="text-sm text-slate-400">{t('報告準備期間請保持頁面開啟；若中斷，可回來繼續，無需再次購買。', 'Keep this page open while your report is being prepared. If interrupted, return to continue without another purchase.')}</p>
       </section>}
       {result && <p role="status">{result.completedSections}/{result.totalSections} · {result.status}
         {result.reason && ` · ${result.reason}`}</p>}

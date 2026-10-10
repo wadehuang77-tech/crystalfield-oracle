@@ -10,7 +10,8 @@ import useMayaPaymentReturn from '../hooks/useMayaPaymentReturn';
 import MayaVisualization from '../components/maya/MayaVisualization';
 import LifeBlueprintNavigator from '../components/maya/LifeBlueprintNavigator';
 import type { VersionedLifeBlueprintReport } from '../lib/mayaLifeBlueprintStorage';
-import { MAYA_PRO_PRODUCT } from '../lib/mayaPro';
+import MayaPremiumProductIntro from '../components/maya/MayaPremiumProductIntro';
+import { mayaPremiumCopy } from '../lib/mayaPremiumCopy';
 import { MAYA_RELATIONSHIP_PRODUCT } from '../lib/mayaRelationship';
 import { MAYA_PRODUCTS, MAYA_DISABLED_FEATURES, taipeiDate, type MayaLocale, type MayaFeatures, type MayaDaily, type MayaProductCode, type MayaProfile, type MayaReportEntry, type MayaSignature } from '../lib/maya';
 
@@ -365,25 +366,15 @@ export default function MayaCalendarPage() {
       })}</div>
     </section>
     <section className={panel} data-relationship-product={MAYA_RELATIONSHIP_PRODUCT.code}>
-      <h2 className="text-2xl">{en ? MAYA_RELATIONSHIP_PRODUCT.en : MAYA_RELATIONSHIP_PRODUCT.zh}</h2>
-      <p className="my-3">NT${MAYA_RELATIONSHIP_PRODUCT.price} · {MAYA_RELATIONSHIP_PRODUCT.code}</p>
-      <p>{premiumAvailability?.relationship
-        ? t('獨立雙人商品。NT$899 提供十二篇雙人象徵解讀、三種關係視角、程式視覺化與90天實踐計畫。先確認資料，付費解鎖返回後自動生成並儲存；既有699雙人權益保留。', 'Separate relationship product. NT$899 provides twelve symbolic reflection chapters, three relationship perspectives, programmatic visuals and a 90-day practice plan. Confirm your data, then pay to unlock; generation starts after the verified return and reports are saved. Existing 699 relationship access is preserved.')
-        : premiumAvailability ? t('獨立雙人商品。NT$899目前僅購買商品權限，十二篇報告與雙人視覺化尚無法交付；既有699雙人權益保留。', 'Separate relationship product. NT$899 currently buys access only; twelve chapters and paired visualizations are not available for delivery. Existing 699 relationship access is preserved.')
-          : t('正在確認雙人報告生成狀態；購買前請查看商品頁。', 'Checking relationship report availability; check the product page before purchasing.')}</p>
+      <MayaPremiumProductIntro kind="relationship" locale={locale} available={premiumAvailability?.relationship ?? null} headingLevel={2}>
+        <Link className={`${button} text-center`} to={localized('/maya-calendar/relationship')}>{mayaPremiumCopy('relationship', locale).cta}</Link>
+      </MayaPremiumProductIntro>
       {premiumConfigError && <p role="alert">{premiumConfigError}</p>}
-      <Link className="mt-3 block underline" to={localized('/maya-calendar/relationship')}>{t('查看雙人藍圖開發狀態', 'View relationship blueprint availability')}</Link>
-      <Link className={`${button} mt-3 inline-block`} to={localized('/maya-calendar/relationship')}>{t('付費解鎖', 'Pay to unlock')} · NT$899</Link>
     </section>
     <section className={panel}>
-      <h2 className="text-2xl">{en ? MAYA_PRO_PRODUCT.en : MAYA_PRO_PRODUCT.zh}</h2>
-      <p className="my-3">NT${MAYA_PRO_PRODUCT.price} · {MAYA_PRO_PRODUCT.code}</p>
-      <p>{premiumAvailability?.pro
-        ? t('獨立個人商品。NT$699 提供十五篇星際靈魂使命象徵解讀、五大神諭與波符視覺化。先確認資料，付費解鎖返回後自動生成並儲存，再次閱讀不重複生成或扣款。', 'Independent personal product. NT$699 provides fifteen symbolic soul-mission chapters with oracle and wavespell visuals. Confirm your data, then pay to unlock; generation starts after the verified return. Saved reports do not regenerate or charge when read again.')
-        : premiumAvailability ? t('全新獨立個人商品；雙人關係合盤新訂單為 NT$899。Pro 付款依獨立功能開關開放，Live AI 報告尚未開放。', 'Independent personal product; new relationship orders cost NT$899. Pro checkout has a separate availability gate; Live AI reports are not available yet.')
-          : t('正在確認 Pro 報告生成狀態；購買前請查看商品頁。', 'Checking Pro report availability; check the product page before purchasing.')}</p>
-      <Link className={`${button} mt-3 inline-block`} to={localized('/maya-calendar/pro')}>{t('付費解鎖', 'Pay to unlock')} · NT${MAYA_PRO_PRODUCT.price}</Link>
-      <Link className="mt-3 block underline" to={localized('/maya-calendar/pro')}>{t('查看 Pro 功能與狀態', 'View Pro features and availability')}</Link>
+      <MayaPremiumProductIntro kind="pro" locale={locale} available={premiumAvailability?.pro ?? null} headingLevel={2}>
+        <Link className={`${button} text-center`} to={localized('/maya-calendar/pro')}>{mayaPremiumCopy('pro', locale).cta}</Link>
+      </MayaPremiumProductIntro>
     </section>
     {privatePage && user && <>
       {!compactPage && <section className={panel}>
