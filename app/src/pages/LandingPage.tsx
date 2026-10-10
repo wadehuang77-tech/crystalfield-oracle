@@ -184,6 +184,9 @@ export default function LandingPage() {
           <div className="mx-auto mt-10 max-w-6xl px-6 sm:mt-14">
             <VedicEntryCard language={language} />
           </div>
+          <div className="mx-auto mt-7 max-w-6xl px-6">
+            <MayaEntryCard language={language} />
+          </div>
         </section>
       </main>
 
@@ -451,6 +454,37 @@ function HumanDesignArtwork() {
 }
 
 // ─── Vedic Astrology featured entry ─────────────────────────────────────────
+function MayaEntryCard({ language }: { language: 'zh-Hant' | 'en' }) {
+  const isEnglish = language === 'en';
+  return (
+    <Link
+      to={getLocalizedPath('/maya-calendar', language)}
+      aria-label={isEnglish ? 'Open the Maya Calendar homepage' : '進入瑪雅曆首頁'}
+      className="group relative block overflow-hidden rounded-[2rem] border border-cyan-300/35 bg-gradient-to-br from-[#071d29] via-[#10132d] to-[#160828] no-underline shadow-[0_18px_70px_rgba(6,182,212,0.15)] transition duration-500 hover:-translate-y-1 hover:border-cyan-200/65"
+    >
+      <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full border border-cyan-200/20 sm:right-8 sm:top-8">
+        <div className="absolute inset-7 rounded-full border border-amber-200/25" />
+        <div className="absolute inset-14 rounded-full border border-cyan-200/30 bg-cyan-300/10 shadow-[0_0_55px_rgba(34,211,238,0.25)]" />
+        <div className="absolute inset-24 rounded-full bg-gradient-to-br from-cyan-100 to-cyan-600" />
+      </div>
+      <div className="relative z-10 px-7 py-10 sm:px-12 lg:max-w-[72%] lg:px-16">
+        <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-200/80">Dreamspell · {isEnglish ? '13 Moon Calendar' : '13 月亮曆'}</p>
+        <h3 className="mt-5 font-serif text-3xl font-bold text-cyan-50 sm:text-5xl">{isEnglish ? 'Maya Calendar' : '瑪雅曆'}</h3>
+        <p className="mt-4 max-w-2xl text-base leading-8 text-cyan-100/75 sm:text-lg">
+          {isEnglish ? 'Explore 260 KIN, 20 solar seals and 13 galactic tones through the modern Dreamspell calendar.' : '認識現代 Dreamspell 曆法，探索 260 KIN、20 太陽圖騰與 13 銀河音調。'}
+        </p>
+        <p className="mt-3 text-sm leading-7 text-cyan-100/60">
+          {isEnglish ? "A modern reflection system, distinct from the traditional Maya Tzolk’in calendar." : '現代自我覺察系統，不等同於傳統瑪雅 Tzolk’in 曆法。'}
+        </p>
+        <span className="mt-7 inline-flex items-center gap-3 rounded-full border border-cyan-200/30 bg-gradient-to-r from-cyan-600 to-indigo-600 px-7 py-3.5 font-semibold text-white transition group-hover:brightness-110">
+          {isEnglish ? 'Explore the Maya Calendar' : '進入瑪雅曆首頁'}
+          <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+        </span>
+      </div>
+    </Link>
+  );
+}
+
 function VedicEntryCard({ language }: { language: 'zh-Hant' | 'en' }) {
   const isEnglish = language === 'en';
   return (
