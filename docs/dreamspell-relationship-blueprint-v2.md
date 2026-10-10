@@ -2,6 +2,8 @@
 
 最新發布授權：使用者明確接受現有驗證範圍，要求直接正式開通Pro與雙人生成、套用030、commit／push／部署；不要求再等待真實中文十二篇完整重驗。500字上限與其他內容／成本／權限檢查維持，未完成驗證不改稱PASS。詳見 [正式直接開通授權](dreamspell-soul-mission-pro-699.md)。
 
+已正式開通：程式 `cda1f7e`、Worker version `12195bfa-646c-4311-a319-092d12bfc3be`、Pages `e14abcde-d901-4ebe-9cf5-6a795e080c8c`；030套用成功。正式雙人 `payment=true/reportAvailable=true`，Pro `payment=true/liveAi=true`。中英文三尺寸public與24個synthetic會員UI檢查PASS，匿名GET／POST授權隔離PASS。取消下限後真實完整中文12篇仍NOT RUN，本次部署AI呼叫0，不宣稱此驗收PASS。
+
 ## 最新品質規則修訂（2026-10-10）
 
 依使用者指示，取消**雙人中文**章節的350漢字硬性下限：349字可接受，350～500字僅為撰寫目標，500字上限仍保留。Worker逐章驗證、完整報告Schema、初始Prompt與品質重試提示同步調整，不再因中文總字數不足而拒絕或要求補字。完整章節、A／B／共同視角、生活情境／提問／行動、90天計畫、已驗證資料、重複內容與安全檢查維持。英文120～450字及個人Pro字數規則不變。

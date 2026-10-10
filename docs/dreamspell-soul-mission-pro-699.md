@@ -2,6 +2,16 @@
 
 ## 正式生成直接開通授權（2026-10-10）
 
+### 已部署結果
+
+- **PASS**：程式commit `cda1f7e62b85092ae6d7d5c22aee298de8b11751`已push main；一般CI部署未重複觸發。後續純文件commit不改變此Pages程式SHA。
+- **PASS**：正式customer D1只新增030的3表／1索引，031與全部既有ledger／schema保留，026未執行；原aggregate會員／訂單／報告counts不變，foreign-key check空，原Secret bindings不變。唯一新增功能狀態變更為 `MAYA_PREMIUM_LIVE_ENABLED=false→true`。
+- **PASS**：Worker deployment `0ec88936-b52c-4252-894a-90ef9fb0397f`，version `12195bfa-646c-4311-a319-092d12bfc3be`，100%；Pages `e14abcde-d901-4ebe-9cf5-6a795e080c8c`。375source／63dist hashes核對一致。
+- **PASS**：正式HTTPS Pro `payment=true/liveAi=true`、雙人 `payment=true/reportAvailable=true`，金額699／899。中文／英文390／768／1440px的public介紹及24個未購買／已購買synthetic會員UI檢查通過；已授權會員頁有生成管理介面，沒有生日資料仍阻擋生成。
+- **PASS**：正式匿名reports／entitlements GET與reports POST均401；匿名POST測試沒有建立job或觸發AI。Paid會員UI為synthetic瀏覽器資料，不宣称真實登入會員API驗收。
+- **NOT RUN**：取消中文下限後的真實中文完整12篇AI重驗與真實會員正式生成。本次部署／smoke新增AI與checkout呼叫0；先前隔離AI驗證及未完成狀態保持原記錄。
+- 已啟用既有生成流程：本人有效商品權限、明確生成／繼續操作、成本／並發／重試限制、D1成功JSON儲存、讀取不再生成。沒有修改其他系統、Secrets或舊商品權益。
+
 使用者在要求commit／push／部署後，另行明確選擇「直接開通，接受目前驗證範圍」：接受取消雙人中文350字下限後，本地十二篇測試PASS，但真實中文完整十二篇尚未重新驗證。授權正式migration030、Worker／Pages部署與NT$699／899 Live生成。此授權取代先前必須四份真實報告全部PASS才開通的發布條件，不把未完成驗證改稱PASS。
 
 - 正式保留雙人中文500字上限／結構／依據檢查與個人Pro、英文原規則；付款／會員／所有權、最多3次品質嘗試、未知AI結果阻擋、每份NT$2／同訂單雙語NT$4規劃成本上限不變。
