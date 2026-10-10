@@ -12,6 +12,18 @@
 - 发布前正式schema／ledger／bindings唯讀已核對；rollback Worker version `94f56401-ba2e-4672-ae9a-3332a77eaa87`，Pages `2efa8c68-2d18-4034-b484-60239ce7fa23`；D1bookmark `00001406-00000000-00005100-3fbac3dd36e14860802eba0b5904404c`，沒有restore。
 - Exact发布包 App／Worker typecheck、相關lint、frontend build／45 route SEO及Worker dry-run PASS；Pro關閉功能與全260規則回歸、既有塔羅付款回歸PASS。最終deployment IDs與HTTPS驗證於部署後補記。
 
+### 關閉功能正式發布結果
+
+- **PASS**：程式commit `b5c5e99fb2ed8b3bec3d97b264a778dd55a1e1b3` 已push到main；`[skip ci]`未觸發另一套自動部署。
+- **PASS**：Worker deployment `e3e4673c-2a56-49e8-a645-aba409f2c0b2`，version `f88d83dd-b8a4-466b-aadc-2216f0b9ef2b`，100%。
+- **PASS**：Pages deployment `24ad6f94-de88-41a2-8e8d-e9dd205dbd95`，正式網域已更新。Pages commit metadata為上述程式SHA；後續純文件commit不改變部署程式。
+- **PASS**：373份source與63份dist hash驗證一致；正式D1 schema、migration ledger、既有aggregate counts與所有原bindings完全不變，僅新增plain-text `MAYA_PREMIUM_LIVE_ENABLED=false`。
+- **PASS**：正式HTTPS Pro config顯示 `enabled=false/payment=false/liveAi=false`；雙人config為NT$899、`payment=true/reportAvailable=false`。
+- **PASS**：中文／英文390px與1440px正式頁，NT$899按鈕、權限限定說明、未登入導回同語系登入頁與水平溢出檢查。匿名entitlements／reports／profile／checkout-config皆401。
+- **NOT RUN**：本次正式checkout、實際扣款、付費AI呼叫、D1 migration030／031皆未執行；瀏覽器驗證阻擋付款與生成POST，本次AI與checkout呼叫為0。
+- **BLOCKED**：雙人中文Live第11篇三次嘗試後340字，仍未達350～500字規格。先前真實AI驗證不改稱全通過；Pro付款／新premium正式生成持續關閉。
+- 完整before／after audits、source／dist manifest、HTTPS smoke及screenshots存於本次私有session artifacts，未提交會員資料或Secret。
+
 ## 最新實作：正式生成程式已整合，整體發布仍 BLOCKED
 
 2026-10-10，續作正式 Pro／雙人報告：

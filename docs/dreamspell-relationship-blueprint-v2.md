@@ -2,6 +2,8 @@
 
 後續 commit／push／部署授權：使用者選擇只發布Dreamspell程式，保持未通過功能關閉，不開放十二篇報告。NT$899維持既有「僅購買權限」狀態，migration030／031本次不執行。詳見 [Pro關閉功能發布記錄](dreamspell-soul-mission-pro-699.md)。
 
+關閉功能版本已正式部署：Worker `f88d83dd-b8a4-466b-aadc-2216f0b9ef2b`、Pages `24ad6f94-de88-41a2-8e8d-e9dd205dbd95`。正式中英文390px／1440px測試PASS，後端價格899／付款true／報告false，匿名報告與權限API 401。正式schema與ledger沒有變動。本次未建立真實交易、未呼叫AI；中文Live品質仍BLOCKED，不宣稱十二篇已正式交付。
+
 ## 最新續作：十二篇與雙人視覺已實作，繁中Live品質驗證未通過
 
 新增固定十二篇：
