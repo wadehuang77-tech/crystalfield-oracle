@@ -1,11 +1,14 @@
 # Dreamspell 星際生命藍圖視覺化 2.0
 
-## 舊版雙人商品卡移除（2026-10-10，本地修改）
+## 舊版雙人商品卡移除（2026-10-10，正式發布）
 
 - 依截圖移除方案區的「舊版雙人關係合盤 NT$699」整張卡，包含管理者免費解鎖與 Mock 按鈕；中文／英文、歷史權益持有人及管理者均不再顯示。
 - 保留 `MAYA_RELATIONSHIP_699` 商品定義、歷史訂單、後端授權及專用歷史報告讀取；不刪除資料。個人 Pro NT$699、雙人 NT$899 與個人 NT$199／499 入口不變。
-- 更新 [方案按鈕測試](../app/scripts/maya-payment-buttons-check.ts)，覆蓋歷史權益與管理者隱藏舊卡及原商品 AI gate。此次尚未 commit／push 或部署。
+- 更新 [方案按鈕測試](../app/scripts/maya-payment-buttons-check.ts)，覆蓋歷史權益與管理者隱藏舊卡及原商品 AI gate。
 - PASS：36 個 Pro／新雙人按鈕、4 個公開方案、16 個會員／管理者／歷史權益及 AI gate 案例，7 個引擎／舊商品 Mock 報告測試。TypeScript、相關 ESLint、production Build 與 45-route SEO 通過；真實 AI／付款呼叫 0。
+- 已依使用者「PUSH 部署」授權推送 main；正式程式 commit `af6457692ec60ff96b162bdbde029c83361dd198`，Pages deployment `082b3a33-a221-45c5-9a48-2554f5d6fcd1`。隔離正式來源僅變更首頁元件，排除未提交 GA4／Vedic 工作；以 `[skip ci]` 避免重複部署。
+- 正式 18 個中英文 × 390／768／1440px × 訪客／synthetic 歷史權益會員／synthetic 管理者案例 PASS：舊卡、260格、資料管理、歷史列表均不在 DOM；KIN34 資訊卡、新商品與 Pro NT$699 連結保留。會員身分／出生資料／權益明確攔截，不宣稱真人登入或 AI 生成驗收。
+- 發布前後 Worker deployment／bindings、D1 schema／ledger／counts／content／管理者訂單數相同；378 source／63 dist hashes 保存，正式 JS 與部署產物雜湊相符。未部署 Worker、未 migration、未改 Secrets；實際 AI／付款／資料寫入呼叫 0。
 
 ## 最新文案正式發布（2026-10-10）
 
