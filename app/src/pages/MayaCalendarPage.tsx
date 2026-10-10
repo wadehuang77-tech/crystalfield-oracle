@@ -315,25 +315,24 @@ export default function MayaCalendarPage() {
       <h2 className="mb-4 text-2xl">{t('生命藍圖方案', 'Life blueprint plans')}</h2>
       {features.payment && features.ai && <p className="mb-4 rounded-xl border border-cyan-400 p-4 text-cyan-200">{t('先儲存出生資料，再按付費解鎖。付款成功返回並經後端確認後自動生成報告，不需再按生成；請保持頁面開啟。失敗會顯示狀態，不保證預測結果。', 'Save your birth data, then pay to unlock. After returning from server-verified payment, your report starts automatically without another generation click. Keep the page open. Failures display a status; no predictions are guaranteed.')}</p>}
       {features.payment && !features.ai && <p className="mb-4 rounded-xl border border-amber-400 p-4 text-amber-200" role="note">{t('正式付款已開放，但 AI 報告尚未開放。付款成功僅取得對應商品權限，目前無法產生或交付付費 AI 報告。請確認接受此限制再付款。', 'Live payments are available, but AI reports are not yet available. Successful payment grants the matching product entitlement only; paid AI reports cannot currently be generated or delivered. Pay only if you accept this limitation.')}</p>}
-      <div className="grid gap-4 md:grid-cols-3">{MAYA_PRODUCTS.map((product) => {
+      <div className="grid gap-4 md:grid-cols-3">{MAYA_PRODUCTS.filter((product) => product.code !== 'MAYA_RELATIONSHIP_699').map((product) => {
         const access = paidReturn?.product === product.code && paidReturn.accessId
           ? { id: paidReturn.accessId, product_code: product.code } : entitlements.find((entry) => entry.product_code === product.code);
-        if (product.code === 'MAYA_RELATIONSHIP_699' && (!privatePage || !user || (!access && !features.admin_preview && !features.admin_live))) return null;
         return <article key={product.code} className="rounded-xl border border-slate-700 p-4">
           <h3 className="text-xl">{en ? product.en : product.zh}</h3>
           <p className="my-3">NT${product.price}</p>
           <p className="mb-4 text-sm">{t('AI 自我覺察報告，未確認的神諭解析不包含在內。', 'AI reflection report. Unverified oracle interpretations are excluded.')}</p>
-          {privatePage && user ? <button className={button} disabled={busy || !personal || (product.code === 'MAYA_RELATIONSHIP_699' && !partner)
+          {privatePage && user ? <button className={button} disabled={busy || !personal
             || !!access && !features.ai
-            || (!access && !features.admin_live && !(sandboxEnabled || paymentEnabled)) || (product.code === 'MAYA_RELATIONSHIP_699' && !access && !features.admin_live)
+            || (!access && !features.admin_live && !(sandboxEnabled || paymentEnabled))
             || !!returnedOrder && paidReturn?.product === product.code && !paidReturn.accessId} onClick={() => void action(async (isCurrent) => {
             if (!personal) return;
-            const inputKey = JSON.stringify([personal, product.code === 'MAYA_RELATIONSHIP_699' ? partner : null, product.code, locale, access?.id ?? (features.admin_live ? 'admin' : 'checkout')]);
+            const inputKey = JSON.stringify([personal, null, product.code, locale, access?.id ?? (features.admin_live ? 'admin' : 'checkout')]);
             const key = keys.current.get(inputKey) ?? crypto.randomUUID();
             keys.current.set(inputKey, key);
             if (features.admin_live || access) {
               if (!features.ai) throw new Error(t('AI 報告尚未開放。', 'AI reports are not available.'));
-              await generateBasic(product.code, personal.id, product.code === 'MAYA_RELATIONSHIP_699' ? partner?.id : undefined,
+              await generateBasic(product.code, personal.id, undefined,
                 access?.id ?? null, features.admin_live === true, key, isCurrent);
               return;
             }
@@ -349,11 +348,10 @@ export default function MayaCalendarPage() {
           })}>{features.admin_live ? t('管理者免費解鎖', 'Unlock free admin report') : access ? features.ai ? t('解鎖／查看報告', 'Unlock / view report') : t('已取得權限；AI 報告尚未開放', 'Entitlement granted; AI reports unavailable')
             : t('付費解鎖', 'Pay to unlock')} · NT${product.price}</button>
             : <button className={button} disabled={!features.member} onClick={enter}>{t('登入查看報告權限', 'Sign in to check report access')}</button>}
-          {privatePage && user && features.admin_preview && <button className="mt-4 block text-sm text-cyan-200 underline disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !personal || (product.code === 'MAYA_RELATIONSHIP_699' && !partner)} onClick={() => void action(async (isCurrent) => {
+          {privatePage && user && features.admin_preview && <button className="mt-4 block text-sm text-cyan-200 underline disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !personal} onClick={() => void action(async (isCurrent) => {
             if (!personal) return;
             const result = await mayaApi.adminPreview({
               locale, product_code: product.code, profile_id: personal.id,
-              ...(product.code === 'MAYA_RELATIONSHIP_699' && partner ? { relationship_profile_id: partner.id } : {}),
             });
             if (!isCurrent()) return;
             if (result.mode !== 'admin_mock_preview' || result.persisted !== false || result.report.model_name !== 'mock-dreamspell-ai') throw new Error('Invalid admin preview response');

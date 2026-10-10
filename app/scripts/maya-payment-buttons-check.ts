@@ -84,12 +84,13 @@ try {
       : locale === 'en' ? /Pro checkout has a separate availability gate/ : /Pro 付款依獨立功能開關開放/;
     await page.getByText(phrase).waitFor();
     const text = await page.locator('main').innerText();
+    assert.doesNotMatch(text, /舊版雙人關係合盤|Legacy Relationship Blueprint/);
     assert.match(text, enabled ? locale === 'en' ? /NT\$899 provides twelve/ : /NT\$899 提供十二篇/
       : locale === 'en' ? /NT\$899 currently buys access only/ : /NT\$899目前僅購買商品權限/);
     await page.close();
   }
   console.log('PASS four bilingual public catalogue availability cases; API generation calls=0');
-  for (const locale of ['en', 'zh-TW'] as const) for (const ai of [false, true]) for (const product of ['MAYA_BASIC_199', 'MAYA_FULL_499'] as const) {
+  for (const locale of ['en', 'zh-TW'] as const) for (const ai of [false, true]) for (const product of ['MAYA_BASIC_199', 'MAYA_FULL_499'] as const) for (const admin of [false, true]) {
     const page = await browser.newPage();
     await page.route('**/*', route => {
       const req = route.request(), url = new URL(req.url());
@@ -97,24 +98,28 @@ try {
       if (!url.pathname.startsWith('/api/')) return url.origin === 'http://127.0.0.1:5231' ? route.continue() : route.abort();
       assert.equal(req.method(), 'GET', 'Loading owned access must not generate');
       if (url.pathname === '/api/auth/me') return reply({ authenticated: true, user: { id: 'owner', email: 'offline@example.test' } });
-      if (url.pathname === '/api/admin/check') return reply({ isAdmin: false });
-      if (url.pathname === '/api/maya/config') return reply({ public: true, member: true, payment: true, sandbox: false, ai });
+      if (url.pathname === '/api/admin/check') return reply({ isAdmin: admin });
+      if (url.pathname === '/api/maya/config') return reply({ public: true, member: true, payment: true, sandbox: false, ai, admin_live: admin, admin_preview: admin });
       if (url.pathname === '/api/maya/pro/config') return reply({ enabled: true, payment: true, mode: 'production_entitlement', liveAi: true });
       if (url.pathname === '/api/maya/relationship/config') return reply({ product: MAYA_RELATIONSHIP_PRODUCT, payment: true, reportAvailable: true });
       if (url.pathname === '/api/maya/checkout/config') return reply({ enabled: true, mode: 'production' });
       if (url.pathname === '/api/maya/profile') return reply({ profiles: [{ ...mayaForDate('1987-07-26', locale), id: 'personal', role: 'personal', birth_date: '1987-07-26' }] });
       if (url.pathname === '/api/maya/daily') return reply({ daily: null });
       if (url.pathname === '/api/maya/reports') return reply({ reports: [] });
-      if (url.pathname === '/api/maya/entitlements') return reply({ entitlements: [{ id: 'grant', product_code: product }] });
+      if (url.pathname === '/api/maya/entitlements') return reply({ entitlements: [{ id: 'grant', product_code: product }, { id: 'legacy-grant', product_code: 'MAYA_RELATIONSHIP_699' }] });
       throw new Error(`Unexpected feature-gate API ${url.pathname}`);
     });
     await page.goto(`http://127.0.0.1:5231${locale === 'en' ? '/en' : ''}/maya-calendar/member`, { waitUntil: 'domcontentloaded' });
-    const label = ai ? locale === 'en' ? 'Unlock / view report' : '解鎖／查看報告'
+    const label = admin && ai ? locale === 'en' ? 'Unlock free admin report' : '管理者免費解鎖'
+      : ai ? locale === 'en' ? 'Unlock / view report' : '解鎖／查看報告'
       : locale === 'en' ? 'Entitlement granted; AI reports unavailable' : '已取得權限；AI 報告尚未開放';
     const button = page.getByRole('button', { name: `${label} · NT$${product === 'MAYA_BASIC_199' ? 199 : 499}`, exact: true });
+    await page.getByRole('button', { name: locale === 'en' ? 'Share signature without birth data' : '分享公開印記（不包含生日）', exact: true }).waitFor();
     await button.waitFor();
     assert.equal(await button.isDisabled(), !ai);
+    assert.equal(await page.getByRole('heading', { name: locale === 'en' ? 'Legacy Relationship Blueprint' : '舊版雙人關係合盤', exact: true }).count(), 0);
+    assert.equal(await page.getByRole('button', { name: /NT\$699/, exact: false }).count(), 0, 'Legacy NT$699 unlock card must not return for historical owners or admins');
     await page.close();
   }
-  console.log('PASS eight owned basic/full bilingual AI feature-gate cases; generation/payment=0');
+  console.log('PASS sixteen owned basic/full bilingual AI feature-gate and legacy-card removal cases, including historical owners/admins; generation/payment=0');
 } finally { await browser.close(); await server.close(); }

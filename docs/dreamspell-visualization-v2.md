@@ -1,5 +1,12 @@
 # Dreamspell 星際生命藍圖視覺化 2.0
 
+## 舊版雙人商品卡移除（2026-10-10，本地修改）
+
+- 依截圖移除方案區的「舊版雙人關係合盤 NT$699」整張卡，包含管理者免費解鎖與 Mock 按鈕；中文／英文、歷史權益持有人及管理者均不再顯示。
+- 保留 `MAYA_RELATIONSHIP_699` 商品定義、歷史訂單、後端授權及專用歷史報告讀取；不刪除資料。個人 Pro NT$699、雙人 NT$899 與個人 NT$199／499 入口不變。
+- 更新 [方案按鈕測試](../app/scripts/maya-payment-buttons-check.ts)，覆蓋歷史權益與管理者隱藏舊卡及原商品 AI gate。此次尚未 commit／push 或部署。
+- PASS：36 個 Pro／新雙人按鈕、4 個公開方案、16 個會員／管理者／歷史權益及 AI gate 案例，7 個引擎／舊商品 Mock 報告測試。TypeScript、相關 ESLint、production Build 與 45-route SEO 通過；真實 AI／付款呼叫 0。
+
 ## 最新文案正式發布（2026-10-10）
 
 - 已依使用者「PUSH 部署」授權提交並推送 main：累積 Dreamspell 功能／文案 commit `5e136bcaa21ce151ebd621bf6377d4d6b0b5befa`，正式前端程式 commit `af2cfaec3a1c516af46ff99f9271eec11ca61605`。使用 `[skip ci]` 避免重複自動部署，以前次正式隔離來源加指定前端 overlay 發布，未納入未提交 GA4／Vedic 變更。
