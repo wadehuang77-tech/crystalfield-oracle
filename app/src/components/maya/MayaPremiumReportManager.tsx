@@ -34,6 +34,17 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   const running = useRef(false);
   const checkoutKey = useRef<string | null>(null);
   const autoAttempt = useRef<string | null>(null);
+  const personalDateInput = useRef<HTMLInputElement>(null);
+  const partnerDateInput = useRef<HTMLInputElement>(null);
+  const consentInput = useRef<HTMLInputElement>(null);
+  const missingInput = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (!busy && missingInput.current) {
+      missingInput.current.focus();
+      missingInput.current.scrollIntoView({ block: 'center' });
+      missingInput.current = null;
+    }
+  }, [busy, error]);
   useEffect(() => {
     const controller = new AbortController();
     active.current = controller;
@@ -101,6 +112,15 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     } catch (cause) { setError(cause instanceof Error ? cause.message : en ? 'Unable to resume the report request.' : '無法恢復報告請求。'); }
   }, [loaded, grant, returnedOrder, selectedId, userId, locale, product.code, run, generate, en]);
   async function unlock(signal: AbortSignal) {
+    if (!a || kind === 'relationship' && !b) {
+      const input = !a ? personalDateInput.current : partnerDateInput.current;
+      missingInput.current = input;
+      throw new Error(t('請先儲存報告所需的出生資料：個人報告需 A，雙人報告需 A 與 B。', 'Save the required birth data first: A for a personal report, A and B for a relationship report.'));
+    }
+    if (kind === 'relationship' && !consent) {
+      missingInput.current = consentInput.current;
+      throw new Error(t('請先勾選已取得另一人的同意，再解鎖雙人報告。', 'Confirm the other person’s consent before unlocking the relationship report.'));
+    }
     if (grant) return generate(signal);
     if (!payment) throw new Error(t('付款尚未啟用。', 'Checkout is not enabled.'));
     if (!window.confirm(t(`確認支付 NT$${product.price} 解鎖報告？不自動續扣。`,
@@ -136,10 +156,14 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
               {profiles.filter(p => p.role === role).map(p => <option key={p.id} value={p.id}>{p.birth_date} · KIN {p.kin_number}</option>)}
             </select>
           </label>
-          <label>{t('新增生日', 'Add birth date')} <input className="bg-slate-900 p-2" type="date" disabled={busy || !!result}
+          <label>{t('新增生日', 'Add birth date')} <input ref={role === 'personal' ? personalDateInput : partnerDateInput} className="bg-slate-900 p-2" type="date" disabled={busy || !!result}
             value={role === 'personal' ? dateA : dateB} onChange={e => role === 'personal' ? setDateA(e.target.value) : setDateB(e.target.value)} /></label>
-          <button className="ml-3 underline" disabled={busy || !!result || !(role === 'personal' ? dateA : dateB) || kind === 'relationship' && !consent}
+          <button className="ml-3 underline" disabled={busy || !!result || !(role === 'personal' ? dateA : dateB)}
             onClick={() => run(async signal => {
+              if (kind === 'relationship' && !consent) {
+                missingInput.current = consentInput.current;
+                throw new Error(t('請先勾選已取得另一人的同意，再儲存雙人報告資料。', 'Confirm the other person’s consent before saving relationship report data.'));
+              }
               const saved = await mayaApi.calculate(role === 'personal' ? dateA : dateB, locale, role === 'personal' ? 'personal' : 'relationship');
               if (signal.aborted) return;
               setProfiles(p => [saved.profile, ...p.filter(v => v.id !== saved.profile.id)]);
@@ -151,15 +175,18 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
             value={relation} onChange={e => setRelation(e.target.value as RelationshipType)}>
             {RELATIONSHIP_TYPES.map((v, i) => <option key={v} value={v}>{en ? ['Partners', 'Friends', 'Family', 'Colleagues'][i] : ['伴侶', '朋友', '家人', '同事'][i]}</option>)}
           </select></label>
-          <label className="flex gap-3"><input type="checkbox" checked={consent} disabled={busy || !!result} onChange={e => setConsent(e.target.checked)} />
+          <label className="flex gap-3"><input ref={consentInput} type="checkbox" checked={consent} disabled={busy || !!result} onChange={e => setConsent(e.target.checked)} />
             {t('已取得另一人的同意，允許儲存生日與生成雙人反思報告。', 'I have the other person’s consent to store their birth date and generate this shared reflection report.')}</label>
         </>}
         <button className="w-full rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:opacity-50 sm:w-auto"
-          disabled={!loaded || busy || !a || kind === 'relationship' && (!b || !consent) || result?.status === 'blocked'
+          disabled={!loaded || busy || result?.status === 'blocked'
             || !!returnedOrder && !grant || !grant && !payment}
           onClick={() => run(unlock)}>{!busy && result?.status !== 'processing' && !complimentary && !grant ? mayaPremiumCopy(kind, locale).cta
             : `${busy ? t('生成中…', 'Generating...') : result?.status === 'processing' ? t('繼續生成（不重新付款）', 'Continue report (no new payment)')
               : complimentary ? t('管理者免費解鎖', 'Unlock free admin report') : t('解鎖／查看報告', 'Unlock / view report')} · NT$${product.price}`}</button>
+        {(!a || kind === 'relationship' && (!b || !consent)) && <p className="text-amber-200">{kind === 'relationship'
+          ? t('解鎖前請儲存 A、B 雙方的出生資料，並勾選同意。', 'Before unlocking, save birth data for both A and B and confirm consent.')
+          : t('解鎖前請先儲存 A 的出生資料。', 'Save birth data for A before unlocking.')}</p>}
         <p className="text-sm text-slate-400">{t('報告準備期間請保持頁面開啟；若中斷，可回來繼續，無需再次購買。', 'Keep this page open while your report is being prepared. If interrupted, return to continue without another purchase.')}</p>
       </section>}
       {result && <p role="status">{result.completedSections}/{result.totalSections} · {result.status}

@@ -54,6 +54,7 @@ export default function MayaCalendarPage() {
   const paidReturn = useMayaPaymentReturn(privatePage ? user?.id : undefined, locale, returnedOrder);
   const autoAttempt = useRef<string | null>(null);
   const actionRunning = useRef(false);
+  const birthDateInput = useRef<HTMLInputElement>(null);
   const keys = useRef(new Map<string, string>());
   const identity = `${user?.id ?? ''}:${locale}:${id ?? ''}`;
   const identityRef = useRef(identity);
@@ -276,7 +277,7 @@ export default function MayaCalendarPage() {
             setReport(null);
           });
         }}>
-          <label>{t('出生日期', 'Birth date')}<input className="mt-2 block rounded-xl bg-slate-800 p-3" aria-label={t('出生日期', 'Birth date')} type="date" min="1900-01-01" max={taipeiDate()} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required /></label>
+          <label>{t('出生日期', 'Birth date')}<input ref={birthDateInput} className="mt-2 block rounded-xl bg-slate-800 p-3" aria-label={t('出生日期', 'Birth date')} type="date" min="1900-01-01" max={taipeiDate()} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required /></label>
           <button className={button} disabled={busy} type="submit">{t('儲存並免費計算', 'Save and calculate for free')}</button>
         </form>
         {personal && <>{signature(personal)}<p className="mt-5">{personal.free_summary}</p>
@@ -323,11 +324,16 @@ export default function MayaCalendarPage() {
           <h3 className="text-xl">{en ? product.en : product.zh}</h3>
           <p className="my-3">NT${product.price}</p>
           <p className="mb-4 text-sm">{t('AI 自我覺察報告，未確認的神諭解析不包含在內。', 'AI reflection report. Unverified oracle interpretations are excluded.')}</p>
-          {privatePage && user ? <button className={button} disabled={busy || !personal
+          {privatePage && user && !personal && <p className="mb-3 text-amber-200">{t('請先填寫出生日期並按「儲存並免費計算」，再解鎖報告。', 'Enter your birth date and choose “Save and calculate for free” before unlocking your report.')}</p>}
+          {privatePage && user ? <button className={button} disabled={busy
             || !!access && !features.ai
             || (!access && !features.admin_live && !(sandboxEnabled || paymentEnabled))
             || !!returnedOrder && paidReturn?.product === product.code && !paidReturn.accessId} onClick={() => void action(async (isCurrent) => {
-            if (!personal) return;
+            if (!personal) {
+              birthDateInput.current?.focus();
+              birthDateInput.current?.scrollIntoView({ block: 'center' });
+              throw new Error(t('請先填寫出生日期並按「儲存並免費計算」，再解鎖報告。', 'Enter your birth date and choose “Save and calculate for free” before unlocking your report.'));
+            }
             const inputKey = JSON.stringify([personal, null, product.code, locale, access?.id ?? (features.admin_live ? 'admin' : 'checkout')]);
             const key = keys.current.get(inputKey) ?? crypto.randomUUID();
             keys.current.set(inputKey, key);

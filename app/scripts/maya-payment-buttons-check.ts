@@ -43,7 +43,8 @@ try {
         : mayaPremiumCopy(kind, locale).cta, exact: true });
       if (paid) {
         await button.waitFor();
-        assert.equal(await button.isDisabled(), true);
+        if (admin) await page.locator('[data-premium-report-manager] button:not([disabled])').filter({ hasText: `NT$${product.price}` }).waitFor();
+        assert.equal(await button.isDisabled(), !admin);
         if (admin) {
           await page.getByText(locale === 'en' ? 'This report is complimentary for administrators.' : '管理者可免費使用此報告。', { exact: true }).waitFor();
           await page.locator(`[data-premium-report-manager="${kind}"]`).waitFor();
