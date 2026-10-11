@@ -72,7 +72,7 @@ try {
       await cta.click();
       await page.waitForURL(state === 'visitor' ? /\/login/ : new RegExp(`${prefix}/maya-calendar/member$`));
       if (state !== 'visitor') {
-        await page.getByRole('heading', { name: en ? 'Personal birth data and KIN' : '個人出生資料與 KIN', exact: true }).waitFor();
+        await page.getByRole('heading', { name: en ? 'Discover My Galactic Identity' : '探索我的馬雅星際身份', exact: true }).waitFor();
         await page.getByRole('button', { name: `${en ? 'Pay to unlock' : '付費解鎖'} · NT$199`, exact: true }).waitFor();
       }
       assert.deepEqual(errors, []);

@@ -193,9 +193,9 @@ export default function MayaCalendarPage() {
         ['KIN', value.kin_number],
         [t('太陽圖騰', 'Solar seal'), value.solar_seal],
         [t('銀河音調', 'Galactic tone'), value.galactic_tone],
-        [t('波符', 'Wavespell'), value.wavespell],
+        [t('生命波符', 'Wavespell'), value.wavespell],
         [t('城堡', 'Castle'), value.castle],
-        [t('計算版本', 'Calculation version'), value.calculation_version],
+        ...(features.admin_preview || features.admin_live ? [[t('計算版本（管理員除錯）', 'Calculation version (admin debug)'), value.calculation_version]] : []),
       ].map(([label, value]) => <div key={label} className="min-w-0"><dt className="text-sm text-slate-400">{label}</dt><dd className="break-words text-lg text-cyan-200">{value}</dd></div>)}
     </dl>;
   }
@@ -261,13 +261,12 @@ export default function MayaCalendarPage() {
         {orderStatus === 'pending' && <button className="mt-3 underline" onClick={() => window.location.reload()}>{t('重新整理付款狀態（不會重複扣款）', 'Refresh payment status (does not charge again)')}</button>}
       </div>}
     </div>
-    <MayaVisualization key={`${identity}:${privatePage}`} locale={locale} publicPage={!privatePage} profile={privatePage && user && dataIdentity === identity ? personal : undefined}
-      showMatrixGrid={!compactPage} />
+    {!privatePage && <MayaVisualization key={`${identity}:public`} locale={locale} publicPage showMatrixGrid={!compactPage} />}
     {!privatePage && <LifeBlueprintNavigator report={null} locale={locale} />}
     {privatePage && user && <>
       <section className={panel}>
-        <h2 className="mb-4 text-2xl">{t('個人出生資料與 KIN', 'Personal birth data and KIN')}</h2>
-        <form className="mb-5 flex flex-wrap items-end gap-4" onSubmit={(event) => {
+        <h2 className="mb-4 text-2xl">{t('探索我的馬雅星際身份', 'Discover My Galactic Identity')}</h2>
+        <form className="mb-5 grid grid-cols-1 items-end gap-4 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={(event) => {
           event.preventDefault();
           void action(async (isCurrent) => {
             const data = await mayaApi.calculate(birthDate, locale);
@@ -277,20 +276,28 @@ export default function MayaCalendarPage() {
             setReport(null);
           });
         }}>
-          <label>{t('出生日期', 'Birth date')}<input ref={birthDateInput} className="mt-2 block rounded-xl bg-slate-800 p-3" aria-label={t('出生日期', 'Birth date')} type="date" min="1900-01-01" max={taipeiDate()} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required /></label>
-          <button className={button} disabled={busy} type="submit">{t('儲存並免費計算', 'Save and calculate for free')}</button>
+          <label className="min-w-0">{t('請選擇你的出生日期', 'Choose your birth date')}<input ref={birthDateInput} className="mt-2 block min-h-12 w-full min-w-0 max-w-full rounded-xl bg-slate-800 p-3 text-base" aria-label={t('請選擇你的出生日期', 'Choose your birth date')} type="date" min="1900-01-01" max={taipeiDate()} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required /></label>
+          <button className={`${button} min-h-12 w-full sm:w-auto`} disabled={busy} type="submit">{t('免費探索我的星際印記', 'Discover My Galactic Signature — Free')}</button>
         </form>
-        {personal && <>{signature(personal)}<p className="mt-5">{personal.free_summary}</p>
-          <button className="mt-4 underline" onClick={() => void action(async () => {
+        {personal && <div className="space-y-4 rounded-xl border border-cyan-400/20 bg-slate-950/40 p-4 sm:p-5" data-maya-member-signature>
+          <h3 className="text-xl font-semibold text-cyan-100">{t('你的專屬馬雅星際印記', 'Your Personal Galactic Signature')}</h3>
+          {signature(personal)}
+          <p className="leading-relaxed text-slate-200">{t(
+            `你的星際印記結合了「${personal.solar_seal}」與「${personal.galactic_tone}」音調。把它當作一面溫柔的鏡子，留意生活中讓你感到自在的時刻，從一個小行動開始認識自己的可能。這是象徵性的自我探索，不是命運的定義。`,
+            `Your signature brings together ${personal.solar_seal} and the ${personal.galactic_tone} tone. Let these symbols be a gentle prompt to notice when you feel most like yourself, and try one small action that feels meaningful. This is an invitation to reflect, not a fixed description of who you are.`)}</p>
+          <button className="mt-4 min-h-11 underline disabled:opacity-50" disabled={busy} onClick={() => void action(async () => {
             const url = `https://www.crystalfield101.com${localized('/maya-calendar')}`;
             const text = `KIN ${personal.kin_number}: ${personal.solar_seal}, ${personal.galactic_tone}`;
             if (navigator.share) await navigator.share({ title: 'Dreamspell', text, url });
             else { await navigator.clipboard.writeText(`${text} ${url}`); setNotice(t('已複製不含生日的分享內容。', 'Copied share text without birth data.')); }
-          })}>{t('分享公開印記（不包含生日）', 'Share signature without birth data')}</button>
-        </>}
+          })}>{t('分享我的星際印記', 'Share My Galactic Signature')}</button>
+          <p className="text-sm text-slate-400">{t('分享內容不包含出生日期。', 'Your birth date is not included in the shared text.')}</p>
+          <a href="#maya-life-blueprint-plans" className="block rounded-xl border border-cyan-400/30 p-4 leading-relaxed text-cyan-200 underline underline-offset-4">{t('想更深入認識自己？探索完整星際生命藍圖。', 'Curious to go deeper? Explore your full Galactic Life Blueprint.')}</a>
+        </div>}
         <details className="mt-5">
-          <summary>{t('雙人關係資料（請先取得另一人同意）', 'Partner data (obtain their consent first)')}</summary>
-          <form className="mt-4 flex flex-wrap items-end gap-4" onSubmit={(event) => {
+          <summary>{t('探索雙人星際關係', 'Explore Your Connection')}</summary>
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">{t('請先取得另一人的明確同意，再輸入及儲存對方的出生日期。', 'Please get the other person’s permission before entering and saving their birth date.')}</p>
+          <form className="mt-4 grid grid-cols-1 items-end gap-4 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={(event) => {
             event.preventDefault();
             void action(async (isCurrent) => {
               const data = await mayaApi.calculate(partnerDate, locale, 'relationship');
@@ -298,12 +305,14 @@ export default function MayaCalendarPage() {
               setProfiles((previous) => [...previous.filter((item) => item.role !== 'relationship'), data.profile]);
             });
           }}>
-            <label>{t('另一人出生日期', 'Partner birth date')}<input className="mt-2 block rounded-xl bg-slate-800 p-3" type="date" min="1900-01-01" max={taipeiDate()} value={partnerDate} onChange={(event) => setPartnerDate(event.target.value)} required /></label>
-            <button className={button} disabled={busy} type="submit">{t('儲存另一人資料', 'Save partner profile')}</button>
+            <label className="min-w-0 sm:col-span-2">{t('另一人出生日期', 'Partner birth date')}<input className="mt-2 block min-h-12 w-full min-w-0 max-w-full rounded-xl bg-slate-800 p-3 text-base" type="date" min="1900-01-01" max={taipeiDate()} value={partnerDate} onChange={(event) => setPartnerDate(event.target.value)} required /></label>
+            <label className="flex items-start gap-3 text-sm leading-relaxed sm:col-span-2"><input className="mt-1 h-5 w-5 shrink-0" type="checkbox" required />{t('我已取得另一人的同意，允許儲存其出生日期。', 'I have their permission to save their birth date.')}</label>
+            <button className={`${button} min-h-12 w-full sm:w-auto`} disabled={busy} type="submit">{t('儲存另一人資料', 'Save partner profile')}</button>
           </form>
           {partner && <div className="mt-4">{signature(partner)}</div>}
         </details>
       </section>
+      <MayaVisualization key={`${identity}:${privatePage}`} locale={locale} publicPage={false} profile={personal} showMatrixGrid={!compactPage} />
       {daily && <section className={panel}>
         <h2 className="mb-4 text-2xl">{t('每日免費能量', 'Free daily energy')} · {daily.date}</h2>
         <p className="mb-4">Asia/Taipei (UTC+08:00)</p>
@@ -313,7 +322,7 @@ export default function MayaCalendarPage() {
         <button className={`${button} mt-4`} disabled={busy} onClick={() => void action(async () => { await mayaApi.premium(locale); })}>{t('深度每日指引（未來商品）', 'Premium daily guidance (future product)')}</button>
       </section>}
     </>}
-    <section className={panel}>
+    <section id="maya-life-blueprint-plans" className={`${panel} scroll-mt-6`}>
       <h2 className="mb-4 text-2xl">{t('生命藍圖方案', 'Life blueprint plans')}</h2>
       {features.payment && features.ai && <p className="mb-4 rounded-xl border border-cyan-400 p-4 text-cyan-200">{t('先儲存出生資料，再按付費解鎖。付款成功返回並經後端確認後自動生成報告，不需再按生成；請保持頁面開啟。失敗會顯示狀態，不保證預測結果。', 'Save your birth data, then pay to unlock. After returning from server-verified payment, your report starts automatically without another generation click. Keep the page open. Failures display a status; no predictions are guaranteed.')}</p>}
       {features.payment && !features.ai && <p className="mb-4 rounded-xl border border-amber-400 p-4 text-amber-200" role="note">{t('正式付款已開放，但 AI 報告尚未開放。付款成功僅取得對應商品權限，目前無法產生或交付付費 AI 報告。請確認接受此限制再付款。', 'Live payments are available, but AI reports are not yet available. Successful payment grants the matching product entitlement only; paid AI reports cannot currently be generated or delivered. Pay only if you accept this limitation.')}</p>}
@@ -324,15 +333,26 @@ export default function MayaCalendarPage() {
           <h3 className="text-xl">{en ? product.en : product.zh}</h3>
           <p className="my-3">NT${product.price}</p>
           <p className="mb-4 text-sm">{t('AI 自我覺察報告，未確認的神諭解析不包含在內。', 'AI reflection report. Unverified oracle interpretations are excluded.')}</p>
-          {privatePage && user && !personal && <p className="mb-3 text-amber-200">{t('請先填寫出生日期並按「儲存並免費計算」，再解鎖報告。', 'Enter your birth date and choose “Save and calculate for free” before unlocking your report.')}</p>}
+          {privatePage && user && !personal && <p className="mb-3 text-amber-200">{t('請先填寫出生日期並按「免費探索我的星際印記」，再解鎖報告。', 'Enter your birth date and choose “Discover My Galactic Signature — Free” before unlocking your report.')}</p>}
           {privatePage && user ? <button className={button} disabled={busy
             || !!access && !features.ai
             || (!access && !features.admin_live && !(sandboxEnabled || paymentEnabled))
             || !!returnedOrder && paidReturn?.product === product.code && !paidReturn.accessId} onClick={() => void action(async (isCurrent) => {
+            if ((access || features.admin_live) && !returnedOrder) {
+              const existing = await mayaApi.reports(locale);
+              if (!isCurrent()) return;
+              const completed = existing.reports.find(entry => entry.product_code === product.code
+                && entry.locale === locale && entry.report_status === 'completed'
+                && (entry.payment_status === 'paid' || features.admin_live && entry.payment_status === 'complimentary'));
+              if (completed) {
+                navigate(getLocalizedPath(`/maya-calendar/reports/${completed.id}`, language));
+                return;
+              }
+            }
             if (!personal) {
               birthDateInput.current?.focus();
               birthDateInput.current?.scrollIntoView({ block: 'center' });
-              throw new Error(t('請先填寫出生日期並按「儲存並免費計算」，再解鎖報告。', 'Enter your birth date and choose “Save and calculate for free” before unlocking your report.'));
+              throw new Error(t('請先填寫出生日期並按「免費探索我的星際印記」，再解鎖報告。', 'Enter your birth date and choose “Discover My Galactic Signature — Free” before unlocking your report.'));
             }
             const inputKey = JSON.stringify([personal, null, product.code, locale, access?.id ?? (features.admin_live ? 'admin' : 'checkout')]);
             const key = keys.current.get(inputKey) ?? crypto.randomUUID();

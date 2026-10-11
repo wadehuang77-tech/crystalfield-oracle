@@ -63,7 +63,7 @@ if (!testOrigin(frontend) || !testOrigin(api) || process.env.MAYA_E2E_AUTHORIZED
       assert.equal((await get(page, `/api/maya/checkout/config?locale=${locale}`)).data.enabled, true);
       pass('real-google-credential-server-accepted-and-localized-return');
       await page.locator('input[type=date]').first().fill('1987-07-26');
-      await page.getByRole('button', { name: label('儲存並免費計算', 'Save and calculate for free') }).click();
+      await page.getByRole('button', { name: label('免費探索我的星際印記', 'Discover My Galactic Signature — Free') }).click();
       await page.getByText(label('白色巫師', 'White Wizard'), { exact: true }).first().waitFor();
       await page.reload();
       await page.getByText(label('白色巫師', 'White Wizard'), { exact: true }).first().waitFor();
@@ -71,7 +71,8 @@ if (!testOrigin(frontend) || !testOrigin(api) || process.env.MAYA_E2E_AUTHORIZED
       await page.getByRole('heading', { name: new RegExp(label('每日免費能量', 'Free daily energy')) }).waitFor();
       pass('free-daily');
       if (code === 'MAYA_RELATIONSHIP_699') {
-        await page.getByText(label('雙人關係資料（請先取得另一人同意）', 'Partner data (obtain their consent first)'), { exact: true }).click();
+        await page.getByText(label('探索雙人星際關係', 'Explore Your Connection'), { exact: true }).click();
+        await page.getByRole('checkbox', { name: label('我已取得另一人的同意，允許儲存其出生日期。', 'I have their permission to save their birth date.') }).check();
         await page.locator('input[type=date]').nth(1).fill('2000-01-01');
         await page.getByRole('button', { name: label('儲存另一人資料', 'Save partner profile') }).click();
       }

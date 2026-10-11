@@ -112,6 +112,17 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     } catch (cause) { setError(cause instanceof Error ? cause.message : en ? 'Unable to resume the report request.' : '無法恢復報告請求。'); }
   }, [loaded, grant, returnedOrder, selectedId, userId, locale, product.code, run, generate, en]);
   async function unlock(signal: AbortSignal) {
+    if (grant && !returnedOrder && !result) {
+      const existing = await mayaPremiumApi.reports(kind, locale, signal);
+      if (signal.aborted) return;
+      setReports(existing.reports);
+      const completed = existing.reports.find(entry => entry.status === 'completed');
+      if (completed) {
+        const saved = await mayaPremiumApi.report(kind, completed.id, locale, signal);
+        if (!signal.aborted) setResult(saved);
+        return;
+      }
+    }
     if (!a || kind === 'relationship' && !b) {
       const input = !a ? personalDateInput.current : partnerDateInput.current;
       missingInput.current = input;

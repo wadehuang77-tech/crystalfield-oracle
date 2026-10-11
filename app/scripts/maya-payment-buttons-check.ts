@@ -116,7 +116,7 @@ try {
       : ai ? locale === 'en' ? 'Unlock / view report' : '解鎖／查看報告'
       : locale === 'en' ? 'Entitlement granted; AI reports unavailable' : '已取得權限；AI 報告尚未開放';
     const button = page.getByRole('button', { name: `${label} · NT$${product === 'MAYA_BASIC_199' ? 199 : 499}`, exact: true });
-    await page.getByRole('button', { name: locale === 'en' ? 'Share signature without birth data' : '分享公開印記（不包含生日）', exact: true }).waitFor();
+    await page.getByRole('button', { name: locale === 'en' ? 'Share My Galactic Signature' : '分享我的星際印記', exact: true }).waitFor();
     await button.waitFor();
     assert.equal(await button.isDisabled(), !ai);
     assert.equal(await page.getByRole('heading', { name: locale === 'en' ? 'Legacy Relationship Blueprint' : '舊版雙人關係合盤', exact: true }).count(), 0);

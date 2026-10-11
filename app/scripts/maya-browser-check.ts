@@ -170,7 +170,7 @@ try {
       authenticated = true;
       await page.goto(`${base}${member}`);
       await page.locator('input[type=date]').first().fill('1987-07-26');
-      await page.getByRole('button', { name: label('儲存並免費計算', 'Save and calculate for free') }).click();
+      await page.getByRole('button', { name: label('免費探索我的星際印記', 'Discover My Galactic Signature — Free') }).click();
       await page.getByText('34', { exact: true }).first().waitFor();
       await page.getByText(label('白色巫師', 'White Wizard'), { exact: true }).first().waitFor();
       await layout('birth-input-result-daily-plans');
@@ -179,7 +179,7 @@ try {
         assert.ok(await control.isDisabled());
       }
       await page.locator('input[type=date]').first().fill('2000-02-29');
-      await page.getByRole('button', { name: label('儲存並免費計算', 'Save and calculate for free') }).click();
+      await page.getByRole('button', { name: label('免費探索我的星際印記', 'Discover My Galactic Signature — Free') }).click();
       await page.getByRole('alert').filter({ hasText: label('2 月 29 日', 'February 29') }).waitFor();
       assert.equal(profiles[0].birth_date, '1987-07-26');
       await layout('leap-day-error-free-access');

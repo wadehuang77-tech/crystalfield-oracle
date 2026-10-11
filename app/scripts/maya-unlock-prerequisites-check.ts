@@ -12,6 +12,11 @@ let cases = 0;
 try {
   for (const locale of ['zh-TW', 'en'] as const) for (const price of [199, 499, 899]) {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await page.addInitScript({ content: `Object.defineProperty(navigator, 'share', {
+      configurable: true, value: async function(data) {
+        document.documentElement.dataset.testShare = JSON.stringify(data);
+      }
+    });` });
     const en = locale === 'en', pair = price === 899;
     const product = pair ? MAYA_RELATIONSHIP_PRODUCT.code : price === 199 ? 'MAYA_BASIC_199' : 'MAYA_FULL_499';
     let saves = 0, checkouts = 0;
@@ -52,7 +57,8 @@ try {
     assert.equal(await page.locator('input[type=date]').first().evaluate(el => el === document.activeElement), true);
     assert.equal(checkouts, 0, 'Missing profiles cannot create an order');
     const dates = page.locator('input[type=date]');
-    await dates.first().fill('1987-07-26');
+    const birthDate = price === 499 ? '1990-01-01' : '1987-07-26';
+    await dates.first().fill(birthDate);
     if (pair) {
       const save = page.getByRole('button', { name: en ? 'Save birth data' : '儲存出生資料', exact: true });
       await save.first().click();
@@ -73,14 +79,34 @@ try {
       assert.equal(checkouts, 0);
       await page.getByRole('checkbox').check();
     } else {
-      await page.getByRole('button', { name: en ? 'Save and calculate for free' : '儲存並免費計算', exact: true }).click();
-      await page.getByRole('button', { name: en ? 'Share signature without birth data' : '分享公開印記（不包含生日）', exact: true }).waitFor();
+      await page.getByRole('button', { name: en ? 'Discover My Galactic Signature — Free' : '免費探索我的星際印記', exact: true }).click();
+      await page.getByRole('button', { name: en ? 'Share My Galactic Signature' : '分享我的星際印記', exact: true }).waitFor();
+      const signature = page.locator('[data-maya-member-signature]');
+      await signature.getByRole('heading', { name: en ? 'Your Personal Galactic Signature' : '你的專屬馬雅星際印記' }).waitFor();
+      const expected = mayaForDate(birthDate, locale);
+      assert.deepEqual(await signature.locator('dd').allTextContents(), [String(expected.kin_number), expected.solar_seal,
+        expected.galactic_tone, String(expected.wavespell), String(expected.castle)]);
+      assert.equal(await page.getByText(/Calculation version|計算版本/).count(), 0);
+      await signature.getByRole('button').click();
+      await page.waitForFunction(() => document.documentElement.dataset.testShare !== undefined);
+      const shared = await page.locator('html').getAttribute('data-test-share');
+      assert.ok(shared?.includes(`KIN ${expected.kin_number}`));
+      assert.ok(!shared?.includes(birthDate));
+      assert.equal(await signature.getByRole('link').getAttribute('href'), '#maya-life-blueprint-plans');
+      await page.getByText(en ? 'Explore Your Connection' : '探索雙人星際關係', { exact: true }).click();
+      await dates.nth(1).fill('1992-03-15');
+      await page.getByRole('button', { name: en ? 'Save partner profile' : '儲存另一人資料', exact: true }).click();
+      assert.equal(saves, 1, 'Partner data requires consent');
+      await page.getByRole('checkbox', { name: en ? 'I have their permission to save their birth date.' : '我已取得另一人的同意，允許儲存其出生日期。' }).check();
+      await page.getByRole('button', { name: en ? 'Save partner profile' : '儲存另一人資料', exact: true }).click();
+      await page.waitForFunction(() => document.querySelector('details dl') !== null);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'Mobile layout fits the viewport');
     }
     page.once('dialog', dialog => dialog.accept());
     await unlock.click();
     await page.getByRole('alert').filter({ hasText: 'Offline checkout reached' }).waitFor();
     assert.equal(checkouts, 1);
-    assert.equal(saves, pair ? 2 : 1);
+    assert.equal(saves, 2);
     assert.deepEqual(errors, []);
     await page.close(); cases++;
   }
