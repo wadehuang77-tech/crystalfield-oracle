@@ -15,7 +15,7 @@ import type { VersionedLifeBlueprintReport } from '../lib/mayaLifeBlueprintStora
 import MayaPremiumProductIntro from '../components/maya/MayaPremiumProductIntro';
 import { mayaPremiumCopy } from '../lib/mayaPremiumCopy';
 import { MAYA_RELATIONSHIP_PRODUCT } from '../lib/mayaRelationship';
-import { MAYA_PRODUCTS, MAYA_DISABLED_FEATURES, taipeiDate, type MayaLocale, type MayaFeatures, type MayaDaily, type MayaProductCode, type MayaProfile, type MayaReportEntry, type MayaSignature } from '../lib/maya';
+import { MAYA_PRODUCTS, MAYA_DISABLED_FEATURES, isMayaDate, taipeiDate, type MayaLocale, type MayaFeatures, type MayaDaily, type MayaProductCode, type MayaProfile, type MayaReportEntry, type MayaSignature } from '../lib/maya';
 
 const panel = 'rounded-2xl border border-cyan-500/20 bg-slate-900 p-5 md:p-7';
 const button = 'rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50';
@@ -128,6 +128,7 @@ export default function MayaCalendarPage() {
     ]).then(([profileData, dailyData, reportData, accessData, selected, sandbox, order]) => {
       if (controller.signal.aborted || identityRef.current !== requestIdentity) return;
       setDataIdentity(requestIdentity);
+      setBirthDate(profileData.profiles.find(profile => profile.role === 'personal')?.birth_date ?? '');
       setProfiles(profileData.profiles); setDaily(dailyData.daily); setReports(reportData.reports);
       setEntitlements(accessData.entitlements); setReport(selected?.report ?? null);
       setSandboxEnabled(features.sandbox && sandbox.enabled === true && sandbox.mode === 'sandbox');
@@ -329,21 +330,21 @@ export default function MayaCalendarPage() {
     </>}
     <section id="maya-life-blueprint-plans" className={`${panel} scroll-mt-6`}>
       <h2 className="mb-4 text-2xl">{t('生命藍圖方案', 'Life blueprint plans')}</h2>
-      {features.payment && features.ai && <p className="mb-4 rounded-xl border border-cyan-400 p-4 text-cyan-200">{t('先儲存出生資料，再按付費解鎖。付款成功返回並經後端確認後自動生成報告，不需再按生成；請保持頁面開啟。失敗會顯示狀態，不保證預測結果。', 'Save your birth data, then pay to unlock. After returning from server-verified payment, your report starts automatically without another generation click. Keep the page open. Failures display a status; no predictions are guaranteed.')}</p>}
+      {features.payment && features.ai && <p className="mb-4 rounded-xl border border-cyan-400 p-4 text-cyan-200">{t('輸入出生年月日後，直接按 NT$199 或 NT$499 的解鎖按鈕；系統會自動儲存資料。付款成功返回並經後端確認後自動生成報告，請保持頁面開啟。', 'Enter your birth date and choose the NT$199 or NT$499 unlock button. Your profile is saved automatically. After returning from verified payment, your report starts automatically; keep the page open.')}</p>}
       {features.payment && !features.ai && <p className="mb-4 rounded-xl border border-amber-400 p-4 text-amber-200" role="note">{t('正式付款已開放，但 AI 報告尚未開放。付款成功僅取得對應商品權限，目前無法產生或交付付費 AI 報告。請確認接受此限制再付款。', 'Live payments are available, but AI reports are not yet available. Successful payment grants the matching product entitlement only; paid AI reports cannot currently be generated or delivered. Pay only if you accept this limitation.')}</p>}
       <div className="grid gap-4 md:grid-cols-3">{MAYA_PRODUCTS.filter((product) => product.code !== 'MAYA_RELATIONSHIP_699').map((product) => {
         const access = paidReturn?.product === product.code && paidReturn.accessId
           ? { id: paidReturn.accessId, product_code: product.code } : entitlements.find((entry) => entry.product_code === product.code);
-        return <article key={product.code} className="rounded-xl border border-slate-700 p-4">
+        return <article id={product.code} key={product.code} className="scroll-mt-20 rounded-xl border border-slate-700 p-4">
           <h3 className="text-xl">{en ? product.en : product.zh}</h3>
           <p className="my-3">NT${product.price}</p>
           <p className="mb-4 text-sm">{t('AI 自我覺察報告，未確認的神諭解析不包含在內。', 'AI reflection report. Unverified oracle interpretations are excluded.')}</p>
-          {privatePage && user && !personal && <p className="mb-3 text-amber-200">{t('請先填寫出生日期並按「免費探索我的星際印記」，再解鎖報告。', 'Enter your birth date and choose “Discover My Galactic Signature — Free” before unlocking your report.')}</p>}
+          {privatePage && user && !personal && <p className="mb-3 text-amber-200">{t('填寫上方出生日期後，直接按解鎖即可，不必先儲存。', 'Enter your birth date above, then unlock directly. No separate save step is needed.')}</p>}
           {privatePage && user ? <button className={button} disabled={busy
             || !!access && !features.ai
             || (!access && !features.admin_live && !(sandboxEnabled || paymentEnabled))
             || !!returnedOrder && paidReturn?.product === product.code && !paidReturn.accessId} onClick={() => void action(async (isCurrent) => {
-            if ((access || features.admin_live) && !returnedOrder) {
+            if ((access || features.admin_live) && !returnedOrder && personal && birthDate === personal.birth_date) {
               const existing = await mayaApi.reports(locale);
               if (!isCurrent()) return;
               const completed = existing.reports.find(entry => entry.product_code === product.code
@@ -354,17 +355,25 @@ export default function MayaCalendarPage() {
                 return;
               }
             }
-            if (!personal) {
+            if (!isMayaDate(birthDate)) {
               birthDateInput.current?.focus();
               birthDateInput.current?.scrollIntoView({ block: 'center' });
-              throw new Error(t('請先填寫出生日期並按「免費探索我的星際印記」，再解鎖報告。', 'Enter your birth date and choose “Discover My Galactic Signature — Free” before unlocking your report.'));
+              throw new Error(t('請輸入有效的出生日期（年月日），再按解鎖。', 'Enter a valid birth date, then unlock.'));
             }
-            const inputKey = JSON.stringify([personal, null, product.code, locale, access?.id ?? (features.admin_live ? 'admin' : 'checkout')]);
+            let unlockProfile = personal;
+            if (!unlockProfile || unlockProfile.birth_date !== birthDate) {
+              const saved = await mayaApi.calculate(birthDate, locale);
+              if (!isCurrent()) return;
+              unlockProfile = saved.profile;
+              setProfiles(previous => [...previous.filter(item => item.role !== 'personal'), saved.profile]);
+              setReport(null);
+            }
+            const inputKey = JSON.stringify([unlockProfile, null, product.code, locale, access?.id ?? (features.admin_live ? 'admin' : 'checkout')]);
             const key = keys.current.get(inputKey) ?? crypto.randomUUID();
             keys.current.set(inputKey, key);
             if (features.admin_live || access) {
               if (!features.ai) throw new Error(t('AI 報告尚未開放。', 'AI reports are not available.'));
-              await generateBasic(product.code, personal.id, undefined,
+              await generateBasic(product.code, unlockProfile.id, undefined,
                 access?.id ?? null, features.admin_live === true, key, isCurrent);
               return;
             }
@@ -375,7 +384,7 @@ export default function MayaCalendarPage() {
             if (!isCurrent()) return;
             validateMayaCheckoutForm(form, paymentEnabled ? 'production' : 'sandbox');
             if (features.ai) saveMayaUnlockIntent({ userId: user.id, locale, product: product.code, orderId: form.order_id,
-              profileId: personal.id, profileBirthDate: personal.birth_date, idempotencyKey: key, phase: 'waiting' });
+              profileId: unlockProfile.id, profileBirthDate: unlockProfile.birth_date, idempotencyKey: key, phase: 'waiting' });
             submitMayaCheckout(form, paymentEnabled ? 'production' : 'sandbox');
           })}>{features.admin_live ? t('管理者免費解鎖', 'Unlock free admin report') : access ? features.ai ? t('解鎖／查看報告', 'Unlock / view report') : t('已取得權限；AI 報告尚未開放', 'Entitlement granted; AI reports unavailable')
             : t('付費解鎖', 'Pay to unlock')} · NT${product.price}</button>

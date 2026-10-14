@@ -63,13 +63,15 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
         : '想進一步整理天賦、學習方式與日常互動，可以先試用免費印記查詢，再依自我探索需求選擇文字解讀。'}</p>
       <div className="mb-5 grid gap-4 sm:grid-cols-2">
         <article><h3 className="text-lg font-semibold">{en ? basic.en : basic.zh} · NT${basic.price}</h3>
-          <p className="mt-2">{en ? 'Three topics: life gifts, potential strengths and growth questions.' : '三項解讀：生命天賦、潛在優勢、成長課題。'}</p></article>
+          <p className="mt-2">{en ? 'Three topics: life gifts, potential strengths and growth questions.' : '三項解讀：生命天賦、潛在優勢、成長課題。'}</p>
+          <Link className={`${cta} mt-4`} to={`${member}#MAYA_BASIC_199`}>{en ? 'Unlock Life Gifts' : '解鎖個人生命天賦報告'} · NT${basic.price}</Link></article>
         <article><h3 className="text-lg font-semibold">{en ? full.en : full.zh} · NT${full.price}</h3>
           <p className="mt-2">{en ? 'Seven topics: the three personal topics, plus wavespell and castle index explanations, career and creativity, daily practice and relationship reflection.'
-            : '七項解讀：包含前三項，另有波符與城堡編號說明、事業與創造力、每日實踐、關係互動。'}</p></article>
+            : '七項解讀：包含前三項，另有波符與城堡編號說明、事業與創造力、每日實踐、關係互動。'}</p>
+          <Link className={`${cta} mt-4`} to={`${member}#MAYA_FULL_499`}>{en ? 'Unlock Full Life Blueprint' : '解鎖完整生命藍圖'} · NT${full.price}</Link></article>
       </div>
-      <p className="mb-4">{en ? 'To use a report, sign in, save a birth profile, check the product availability and unlock that product. Your own unlocked reports are available in the private member area; signing in alone does not unlock every product.'
-        : '使用流程：登入、儲存出生資料、確認方案開放狀態，再解鎖對應商品。本人已解鎖的報告在私人會員區查看；登入不代表自動取得所有商品權益。'}</p>
+      <p className="mb-4">{en ? 'Sign in, enter your birth date and choose the unlock button for your report. Your birth profile is saved automatically; no separate save step is needed. Reports start after verified payment, or immediately with existing access.'
+        : '使用流程：登入、輸入出生年月日，按下對應方案的解鎖按鈕；系統會自動儲存出生資料，不必先按儲存。付款驗證成功後開始解讀；已有權限可直接解鎖。'}</p>
       <Link className={cta} to={member}>{en ? 'Sign In to View Report Options' : '登入查看解讀方案與本人報告'}</Link>
     </section>
     {(['pro', 'relationship'] as const).map(kind => <section className={panel} id={`${kind}-blueprint`} key={kind}>
