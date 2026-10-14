@@ -4,6 +4,8 @@ export function formatOrderStatus(status: string): string {
     case 'pending':   return '待付款';
     case 'failed':    return '付款失敗';
     case 'cancelled': return '已取消';
+    case 'refunded':  return '已退款';
+    case 'revoked':   return '已撤銷';
     default:          return status;
   }
 }

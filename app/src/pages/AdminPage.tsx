@@ -755,7 +755,9 @@ function OrderStatusBadge({ status }: { status: AdminOrder['status'] }) {
     pending:   { label: '待付款', cls: 'border-blue-400/30 bg-blue-400/5 text-blue-300' },
     failed:    { label: '失敗',   cls: 'border-red-500/60 bg-red-600/15 text-blue-200' },
     cancelled: { label: '已取消', cls: 'border-red-500/40 bg-red-600/10 text-blue-300' },
-  }[status];
+    refunded:  { label: '已退款', cls: 'border-amber-500/40 bg-amber-500/10 text-amber-200' },
+    revoked:   { label: '已撤銷', cls: 'border-slate-500/40 bg-slate-500/10 text-slate-200' },
+  }[status] ?? { label: status || '未知狀態', cls: 'border-slate-500/40 bg-slate-500/10 text-slate-200' };
   return (
     <span className={`inline-block px-2 py-0.5 border text-xs tracking-wide ${cfg.cls}`}>
       {cfg.label}

@@ -812,7 +812,7 @@ export interface AdminOrder {
   item_id: string;
   item_name: string;
   amount: number;
-  status: 'pending' | 'paid' | 'failed' | 'cancelled';
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded' | 'revoked';
   ecpay_trade_no: string | null;
   ecpay_payment_type: string | null;
   created_at: string;
