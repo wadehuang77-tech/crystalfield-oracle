@@ -17,13 +17,21 @@
 /en/maya-calendar/pro/*
   X-Robots-Tag: noindex, nofollow
 /maya-calendar/member
-  X-Robots-Tag: noindex, nofollow
+  X-Robots-Tag: noindex, follow
 /maya-calendar/member/
-  X-Robots-Tag: noindex, nofollow
+  X-Robots-Tag: noindex, follow
 /en/maya-calendar/member
-  X-Robots-Tag: noindex, nofollow
+  X-Robots-Tag: noindex, follow
 /en/maya-calendar/member/
-  X-Robots-Tag: noindex, nofollow
+  X-Robots-Tag: noindex, follow
+/maya-member-shell
+  X-Robots-Tag: noindex, follow
+/maya-member-shell.html
+  X-Robots-Tag: noindex, follow
+/maya-member-shell-en
+  X-Robots-Tag: noindex, follow
+/maya-member-shell-en.html
+  X-Robots-Tag: noindex, follow
 /maya-calendar/results
   X-Robots-Tag: noindex, nofollow
 /maya-calendar/results/

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { mayaApi, mayaPremiumApi, type PremiumReportResult } from '../../lib/api';
-import type { MayaLocale, MayaProfile } from '../../lib/maya';
+import { isMayaDate, taipeiDate, type MayaLocale, type MayaProfile } from '../../lib/maya';
 import { MAYA_PRO_PRODUCT, validateMayaProReport } from '../../lib/mayaPro';
 import { MAYA_RELATIONSHIP_PRODUCT, RELATIONSHIP_TYPES, validateRelationshipReport, type RelationshipType } from '../../lib/mayaRelationship';
 import MayaProReportView from './MayaProReportView';
@@ -23,7 +23,6 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   const [a, setA] = useState(''), [b, setB] = useState('');
   const [dateA, setDateA] = useState(''), [dateB, setDateB] = useState('');
   const [relation, setRelation] = useState<RelationshipType>('partners');
-  const [consent, setConsent] = useState(false);
   const [result, setResult] = useState<PremiumReportResult | null>(null);
   const [reports, setReports] = useState<Array<{ id: string; status: string }>>([]);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -36,7 +35,6 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   const autoAttempt = useRef<string | null>(null);
   const personalDateInput = useRef<HTMLInputElement>(null);
   const partnerDateInput = useRef<HTMLInputElement>(null);
-  const consentInput = useRef<HTMLInputElement>(null);
   const missingInput = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     if (!busy && missingInput.current) {
@@ -48,7 +46,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   useEffect(() => {
     const controller = new AbortController();
     active.current = controller;
-    setProfiles([]); setResult(null); setReports([]); setError(''); setBusy(false); setA(''); setB(''); setConsent(false); setLoadedFor('');
+    setProfiles([]); setResult(null); setReports([]); setError(''); setBusy(false); setA(''); setB(''); setDateA(''); setDateB(''); setLoadedFor('');
     running.current = false;
     Promise.all([mayaApi.profiles(locale, controller.signal), grant ? mayaPremiumApi.reports(kind, locale, controller.signal) : Promise.resolve({ reports: [] }),
         grant && selectedId ? mayaPremiumApi.report(kind, selectedId, locale, controller.signal) : Promise.resolve(null)]).then(async ([p, list, report]) => {
@@ -64,7 +62,9 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
         setProfiles(p.profiles); setReports(list.reports); setResult(saved);
         setA(intent?.profileId ?? p.profiles.find(v => v.role === 'personal')?.id ?? '');
         setB(intent?.partnerId ?? p.profiles.find(v => v.role === 'relationship')?.id ?? '');
-        if (intent) { setRelation(intent.relationshipType ?? 'partners'); setConsent(intent.consent === true); }
+        setDateA(intent?.profileBirthDate ?? p.profiles.find(v => v.role === 'personal')?.birth_date ?? '');
+        setDateB(intent?.partnerBirthDate ?? p.profiles.find(v => v.role === 'relationship')?.birth_date ?? '');
+        if (intent) setRelation(intent.relationshipType ?? 'partners');
         setLoadedFor(loadIdentity);
       }).catch(cause => { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : en ? 'Unable to read reports.' : '無法讀取報告。'); });
     return () => { controller.abort(); if (active.current === controller) active.current = null; };
@@ -78,11 +78,13 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     catch (cause) { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : en ? 'Report request failed.' : '報告請求失敗。'); }
     finally { if (!controller.signal.aborted) { running.current = false; setBusy(false); } }
   }, [en]);
-  const generate = useCallback(async (signal: AbortSignal) => {
+  const recoverable = kind === 'relationship' && result?.status === 'blocked'
+    && result.completedSections >= 11 && ['AI_RETRY_LIMIT', 'AI_SCHEMA_INVALID'].includes(result.reason ?? '');
+  const generate = useCallback(async (signal: AbortSignal, profileA = a, profileB = b) => {
     if (!grant) throw new Error(en ? 'Verified product access is required.' : '需要已驗證的商品權限。');
-    let current = result?.status === 'processing' ? result : await mayaPremiumApi.create(kind, {
-      profile_id: a, entitlement_id: grant, locale, product_code: product.code,
-      ...(kind === 'relationship' ? { relationship_profile_id: b, relationship_type: relation, consent } : {}),
+    let current = result && (result.status === 'processing' || recoverable) ? result : await mayaPremiumApi.create(kind, {
+      profile_id: profileA, entitlement_id: grant, locale, product_code: product.code,
+      ...(kind === 'relationship' ? { relationship_profile_id: profileB, relationship_type: relation } : {}),
     }, signal);
     if (signal.aborted) return;
     setResult(current);
@@ -91,8 +93,24 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
       if (intent) saveMayaUnlockIntent({ ...intent, phase: 'started', reportId: current.id });
     }
     // A verified payment return resumes only the explicit, saved unlock request.
-    for (let i = 0; i < (kind === 'pro' ? 45 : 36) && current.status === 'processing' && !signal.aborted; i++) {
-      current = await mayaPremiumApi.advance(kind, current.id, locale, signal);
+    for (let i = 0; i < (kind === 'pro' ? 45 : 36) && (current.status === 'processing' || i === 0 && recoverable) && !signal.aborted; i++) {
+      try {
+        current = await mayaPremiumApi.advance(kind, current.id, locale, signal);
+      } catch (cause) {
+        if (signal.aborted) return;
+        // The server may have completed or blocked the report before the response
+        // failed. Refresh with GET only; never repeat a paid AI call blindly.
+        let refreshed: PremiumReportResult;
+        try { refreshed = await mayaPremiumApi.report(kind, current.id, locale, signal); }
+        catch { throw cause; }
+        if (signal.aborted) return;
+        current = refreshed;
+        setResult(current);
+        if (current.status === 'completed') break;
+        throw new Error(en
+          ? `Report paused at ${current.completedSections}/${current.totalSections}. Your saved chapters are retained; do not pay again. ${current.reason ?? (cause instanceof Error ? cause.message : '')}`
+          : `報告暫停於 ${current.completedSections}/${current.totalSections}，已完成章節已保留，請勿重複付款。${current.reason ?? (cause instanceof Error ? cause.message : '')}`);
+      }
       if (!signal.aborted) setResult(current);
     }
     if (!signal.aborted) setReports((await mayaPremiumApi.reports(kind, locale, signal)).reports);
@@ -100,7 +118,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
       const intent = readMayaUnlockIntent(userId, locale, returnedOrder, product.code);
       if (intent) saveMayaUnlockIntent({ ...intent, phase: 'completed' });
     }
-  }, [grant, en, result, kind, a, b, locale, product.code, relation, consent, returnedOrder, userId]);
+  }, [grant, en, result, kind, a, b, locale, product.code, relation, returnedOrder, userId, recoverable]);
   useEffect(() => {
     if (!loaded || !grant || !returnedOrder || selectedId || autoAttempt.current === returnedOrder) return;
     try {
@@ -112,6 +130,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     } catch (cause) { setError(cause instanceof Error ? cause.message : en ? 'Unable to resume the report request.' : '無法恢復報告請求。'); }
   }, [loaded, grant, returnedOrder, selectedId, userId, locale, product.code, run, generate, en]);
   async function unlock(signal: AbortSignal) {
+    if (grant && (result?.status === 'processing' || recoverable)) return generate(signal);
     if (grant && !returnedOrder && !result) {
       const existing = await mayaPremiumApi.reports(kind, locale, signal);
       if (signal.aborted) return;
@@ -123,28 +142,49 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
         return;
       }
     }
-    if (!a || kind === 'relationship' && !b) {
-      const input = !a ? personalDateInput.current : partnerDateInput.current;
-      missingInput.current = input;
-      throw new Error(t('請先儲存報告所需的出生資料：個人報告需 A，雙人報告需 A 與 B。', 'Save the required birth data first: A for a personal report, A and B for a relationship report.'));
+    let personal = profiles.find(v => v.id === a && v.role === 'personal');
+    let partner = profiles.find(v => v.id === b && v.role === 'relationship');
+    if (kind === 'relationship' && !result) {
+      for (const [date, input] of [[dateA, personalDateInput.current], [dateB, partnerDateInput.current]] as const) {
+        if (!isMayaDate(date) || date.slice(5) === '02-29') {
+          missingInput.current = input;
+          throw new Error(t('請輸入 A、B 雙方有效的出生日期（不支援 2 月 29 日）。', 'Enter valid birth dates for both A and B (February 29 is not supported).'));
+        }
+      }
+    } else if (!a || kind === 'relationship' && !b) {
+      missingInput.current = !a ? personalDateInput.current : partnerDateInput.current;
+      throw new Error(t('請先儲存報告所需的出生資料。', 'Save the required birth data first.'));
     }
-    if (kind === 'relationship' && !consent) {
-      missingInput.current = consentInput.current;
-      throw new Error(t('請先勾選已取得另一人的同意，再解鎖雙人報告。', 'Confirm the other person’s consent before unlocking the relationship report.'));
+    if (!grant) {
+      if (!payment) throw new Error(t('付款尚未啟用。', 'Checkout is not enabled.'));
+      if (!window.confirm(t(`確認支付 NT$${product.price} 解鎖報告？不自動續扣。`,
+        `Pay NT$${product.price} to unlock your report? No recurring billing.`))) return;
     }
-    if (grant) return generate(signal);
-    if (!payment) throw new Error(t('付款尚未啟用。', 'Checkout is not enabled.'));
-    if (!window.confirm(t(`確認支付 NT$${product.price} 解鎖報告？不自動續扣。`,
-      `Pay NT$${product.price} to unlock your report? No recurring billing.`))) return;
+    if (kind === 'relationship' && !result) {
+      // Carry the returned IDs through this request; React state updates are asynchronous.
+      if (personal?.birth_date !== dateA) {
+        personal = (await mayaApi.calculate(dateA, locale, 'personal')).profile;
+        if (signal.aborted) return;
+        setA(personal.id);
+        const saved = personal;
+        setProfiles(previous => [saved, ...previous.filter(v => v.id !== saved.id)]);
+      }
+      if (partner?.birth_date !== dateB) {
+        partner = (await mayaApi.calculate(dateB, locale, 'relationship')).profile;
+        if (signal.aborted) return;
+        setB(partner.id);
+        const saved = partner;
+        setProfiles(previous => [saved, ...previous.filter(v => v.id !== saved.id)]);
+      }
+    }
+    if (!personal || kind === 'relationship' && !partner) throw new Error(t('請先確認出生資料。', 'Confirm your birth data first.'));
+    if (grant) return generate(signal, personal.id, partner?.id);
     checkoutKey.current ??= crypto.randomUUID();
     const form = await mayaApi.checkout(product.code, locale, checkoutKey.current);
     if (signal.aborted) return;
     validateMayaCheckoutForm(form, 'production');
-    const personal = profiles.find(v => v.id === a && v.role === 'personal');
-    const partner = profiles.find(v => v.id === b && v.role === 'relationship');
-    if (!personal || kind === 'relationship' && !partner) throw new Error(t('請先確認出生資料。', 'Confirm your birth data first.'));
-    saveMayaUnlockIntent({ userId, locale, product: product.code, orderId: form.order_id, profileId: a, profileBirthDate: personal.birth_date,
-      ...(kind === 'relationship' && partner ? { partnerId: b, partnerBirthDate: partner.birth_date, relationshipType: relation, consent } : {}),
+    saveMayaUnlockIntent({ userId, locale, product: product.code, orderId: form.order_id, profileId: personal.id, profileBirthDate: personal.birth_date,
+      ...(kind === 'relationship' && partner ? { partnerId: partner.id, partnerBirthDate: partner.birth_date, relationshipType: relation } : {}),
       idempotencyKey: checkoutKey.current, phase: 'waiting' });
     submitMayaCheckout(form, 'production');
   }
@@ -158,46 +198,39 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     <>
       {!report && <section className="maya-cosmic-panel space-y-4">
         <h2>{t('報告出生資料', 'Birth data for this report')}</h2>
-        <p>{t('選擇這份藍圖使用的出生資料；完成後可隨時回來閱讀。', 'Choose the birth data for your blueprint. Return anytime to read your completed report.')}</p>
+        <p>{kind === 'relationship' ? t('輸入雙方生日，按解鎖即可自動儲存並開始處理；付款成功後自動生成報告。', 'Enter both birth dates and unlock. We’ll save them automatically and generate your report after payment is verified.') : t('選擇這份藍圖使用的出生資料；完成後可隨時回來閱讀。', 'Choose the birth data for your blueprint. Return anytime to read your completed report.')}</p>
         {(['personal', ...(kind === 'relationship' ? ['relationship'] : [])] as const).map(role => <div key={role} className="space-y-2">
-          <label className="block">{role === 'personal' ? 'A' : 'B'} · {t('既有出生資料', 'Saved birth data')}
+          {kind === 'pro' && <label className="block">{role === 'personal' ? 'A' : 'B'} · {t('既有出生資料', 'Saved birth data')}
             <select className="ml-2 bg-slate-900 p-2" value={role === 'personal' ? a : b} disabled={busy || !!result}
               onChange={e => role === 'personal' ? setA(e.target.value) : setB(e.target.value)}>
               <option value="">{t('選擇資料', 'Select a profile')}</option>
               {profiles.filter(p => p.role === role).map(p => <option key={p.id} value={p.id}>{p.birth_date} · KIN {p.kin_number}</option>)}
             </select>
-          </label>
-          <label>{t('新增生日', 'Add birth date')} <input ref={role === 'personal' ? personalDateInput : partnerDateInput} className="bg-slate-900 p-2" type="date" disabled={busy || !!result}
+          </label>}
+          <label>{kind === 'relationship' ? `${role === 'personal' ? 'A' : 'B'} · ${t('出生日期', 'Birth date')}` : t('新增生日', 'Add birth date')} <input ref={role === 'personal' ? personalDateInput : partnerDateInput} className="block min-h-12 w-full min-w-0 rounded-lg bg-slate-900 p-3 sm:w-auto" type="date" min="1900-01-01" max={taipeiDate()} disabled={busy || !!result}
             value={role === 'personal' ? dateA : dateB} onChange={e => role === 'personal' ? setDateA(e.target.value) : setDateB(e.target.value)} /></label>
-          <button className="ml-3 underline" disabled={busy || !!result || !(role === 'personal' ? dateA : dateB)}
+          {kind === 'pro' && <button className="ml-3 underline" disabled={busy || !!result || !(role === 'personal' ? dateA : dateB)}
             onClick={() => run(async signal => {
-              if (kind === 'relationship' && !consent) {
-                missingInput.current = consentInput.current;
-                throw new Error(t('請先勾選已取得另一人的同意，再儲存雙人報告資料。', 'Confirm the other person’s consent before saving relationship report data.'));
-              }
               const saved = await mayaApi.calculate(role === 'personal' ? dateA : dateB, locale, role === 'personal' ? 'personal' : 'relationship');
               if (signal.aborted) return;
               setProfiles(p => [saved.profile, ...p.filter(v => v.id !== saved.profile.id)]);
               if (role === 'personal') setA(saved.profile.id); else setB(saved.profile.id);
-            })}>{t('儲存出生資料', 'Save birth data')}</button>
+            })}>{t('儲存出生資料', 'Save birth data')}</button>}
         </div>)}
         {kind === 'relationship' && <>
           <label className="block">{t('關係類型', 'Relationship type')} <select className="bg-slate-900 p-2" disabled={busy || !!result}
             value={relation} onChange={e => setRelation(e.target.value as RelationshipType)}>
             {RELATIONSHIP_TYPES.map((v, i) => <option key={v} value={v}>{en ? ['Partners', 'Friends', 'Family', 'Colleagues'][i] : ['伴侶', '朋友', '家人', '同事'][i]}</option>)}
           </select></label>
-          <label className="flex gap-3"><input ref={consentInput} type="checkbox" checked={consent} disabled={busy || !!result} onChange={e => setConsent(e.target.checked)} />
-            {t('已取得另一人的同意，允許儲存生日與生成雙人反思報告。', 'I have the other person’s consent to store their birth date and generate this shared reflection report.')}</label>
+
         </>}
         <button className="w-full rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950 disabled:opacity-50 sm:w-auto"
-          disabled={!loaded || busy || result?.status === 'blocked'
+          disabled={!loaded || busy || result?.status === 'blocked' && !recoverable
             || !!returnedOrder && !grant || !grant && !payment}
           onClick={() => run(unlock)}>{!busy && result?.status !== 'processing' && !complimentary && !grant ? mayaPremiumCopy(kind, locale).cta
-            : `${busy ? t('生成中…', 'Generating...') : result?.status === 'processing' ? t('繼續生成（不重新付款）', 'Continue report (no new payment)')
+            : `${busy ? t('生成中…', 'Generating...') : result?.status === 'processing' || recoverable ? t('繼續生成（不重新付款）', 'Continue report (no new payment)')
               : complimentary ? t('管理者免費解鎖', 'Unlock free admin report') : t('解鎖／查看報告', 'Unlock / view report')} · NT$${product.price}`}</button>
-        {(!a || kind === 'relationship' && (!b || !consent)) && <p className="text-amber-200">{kind === 'relationship'
-          ? t('解鎖前請儲存 A、B 雙方的出生資料，並勾選同意。', 'Before unlocking, save birth data for both A and B and confirm consent.')
-          : t('解鎖前請先儲存 A 的出生資料。', 'Save birth data for A before unlocking.')}</p>}
+        {kind === 'pro' && !a && <p className="text-amber-200">{t('解鎖前請先儲存 A 的出生資料。', 'Save birth data for A before unlocking.')}</p>}
         <p className="text-sm text-slate-400">{t('報告準備期間請保持頁面開啟；若中斷，可回來繼續，無需再次購買。', 'Keep this page open while your report is being prepared. If interrupted, return to continue without another purchase.')}</p>
       </section>}
       {result && <p role="status">{result.completedSections}/{result.totalSections} · {result.status}

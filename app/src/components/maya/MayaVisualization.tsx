@@ -8,7 +8,7 @@ import SolarSealIcon from './SolarSealIcon';
 import TzolkinMatrix from './TzolkinMatrix';
 import './mayaVisualization.css';
 
-export default function MayaVisualization({ locale, profile, publicPage, showMatrixGrid = true }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean; showMatrixGrid?: boolean }) {
+export default function MayaVisualization({ locale, profile, publicPage, showMatrixGrid = true, enabled = true }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean; showMatrixGrid?: boolean; enabled?: boolean }) {
   const en = locale === 'en';
   const t = (zh: string, english: string) => en ? english : zh;
   const [birthDate, setBirthDate] = useState('');
@@ -21,7 +21,7 @@ export default function MayaVisualization({ locale, profile, publicPage, showMat
       <h2>{t('探索你的星際身份', 'Explore your galactic identity')}</h2>
       <p>{t('使用已驗證的 Dreamspell 引擎在瀏覽器計算；生日不傳送、不儲存。這不是付費解讀。', 'Calculate with the verified Dreamspell engine in your browser. Your date is not sent or saved. This is not a paid interpretation.')}</p>
       <form className="maya-free-form" onSubmit={event => {
-        event.preventDefault(); setError('');
+        event.preventDefault(); if (!enabled) return; setError('');
         if (!isMayaDate(birthDate)) {
           setCalculated(null); setError(t('請輸入 1900 年起至今天的有效日期。', 'Enter a valid date from 1900 through today.')); return;
         }
@@ -31,7 +31,7 @@ export default function MayaVisualization({ locale, profile, publicPage, showMat
         setCalculated({ kin: mayaForDate(birthDate, locale).kin_number, date: birthDate });
       }}>
         <label>{t('出生日期（僅本地計算）', 'Birth date (local calculation only)')}<input type="date" min="1900-01-01" max={taipeiDate()} required value={birthDate} onChange={event => setBirthDate(event.target.value)} /></label>
-        <button type="submit">{t('免費查詢我的 KIN', 'Find My KIN for Free')}</button>
+        <button type="submit" disabled={!enabled}>{t('免費查詢我的 KIN', 'Find My KIN for Free')}</button>
       </form>
       {error && <p role="alert">{error}</p>}
     </section>}

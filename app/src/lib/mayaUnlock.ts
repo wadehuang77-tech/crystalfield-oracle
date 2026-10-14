@@ -41,7 +41,7 @@ export function readMayaUnlockIntent(userId: string, locale: MayaLocale, orderId
     || typeof v.idempotencyKey !== 'string' || !v.idempotencyKey
     || !['waiting', 'started', 'completed'].includes(v.phase ?? '') || v.reportId !== undefined && typeof v.reportId !== 'string'
     || (product === MAYA_RELATIONSHIP_PRODUCT.code && (typeof v.partnerId !== 'string' || !v.partnerId || !isMayaDate(v.partnerBirthDate)
-      || v.consent !== true || !v.relationshipType || !RELATIONSHIP_TYPES.includes(v.relationshipType)))) {
+      || !v.relationshipType || !RELATIONSHIP_TYPES.includes(v.relationshipType)))) {
     throw new Error(invalid);
   }
   return v as MayaUnlockIntent;

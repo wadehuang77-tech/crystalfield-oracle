@@ -29,7 +29,7 @@ for (const route of prerenderRoutes) {
   assert.equal(count(html, /<div id="root"/gi), 1, `${route.path || '/'}: one React root`);
   assert.match(html, /<div id="root" data-prerendered="true"[^>]*>/, `${route.path || '/'}: hydrateable root marker`);
   assert.doesNotMatch(html, /id="seo-prerendered"/, `${route.path || '/'}: no parallel static SEO subtree`);
-  assert.equal(count(html, /<title(?:\s[^>]*)?>/gi), 1, `${route.path || '/'}: exactly one title`);
+  assert.equal(count(html.match(/<head>([\s\S]*?)<\/head>/i)?.[1] ?? '', /<title(?:\s[^>]*)?>/gi), 1, `${route.path || '/'}: exactly one document title (SVG titles label graphics)`);
   assert.equal(count(html, /<meta\s+name="description"/gi), 1, `${route.path || '/'}: one description`);
   assert.equal(count(html, /<link\s+rel="canonical"/gi), 1, `${route.path || '/'}: one canonical`);
   assert.equal(count(html, /<h1(?:\s[^>]*)?>/gi), 1, `${route.path || '/'}: exactly one H1`);
@@ -188,12 +188,15 @@ assert.match(shell, /<meta name="robots" content="noindex, nofollow"/i);
 assert.match(shell, /<script type="module"[^>]+src="\/assets\//, 'SPA shell must load the built application');
 for (const route of ['/login', '/en/login', '/admin', '/en/admin', '/checkout/return', '/en/checkout/return']) {
   for (const path of [route, `${route}/`]) {
-    assert.ok(redirects.split(/\r?\n/).includes(`${path} /app-shell 200`), `${path}: SPA route must have an explicit extensionless rewrite`);
+    const shell = route === '/maya-calendar/member' ? '/maya-member-shell' : route === '/en/maya-calendar/member' ? '/maya-member-shell-en' : '/app-shell';
+    assert.ok(redirects.split(/\r?\n/).includes(`${path} ${shell} 200`), `${path}: SPA route must have an explicit extensionless rewrite`);
   }
 }
 for (const line of redirects.trim().split(/\r?\n/)) {
   const [path, target, status] = line.split(/\s+/);
-  assert.equal(target, '/app-shell', `${path}: use the dedicated SPA shell`);
+  const expected = path.replace(/\/$/, '') === '/maya-calendar/member' ? '/maya-member-shell'
+    : path.replace(/\/$/, '') === '/en/maya-calendar/member' ? '/maya-member-shell-en' : '/app-shell';
+  assert.equal(target, expected, `${path}: use the dedicated SPA shell`);
   assert.equal(status, '200', `${path}: internal rewrite, not redirect`);
   assert.ok(!prerenderRoutes.some((route) => canonicalUrl(route.path) === `${siteUrl}${path}`), `${path}: do not rewrite public prerender routes`);
 }

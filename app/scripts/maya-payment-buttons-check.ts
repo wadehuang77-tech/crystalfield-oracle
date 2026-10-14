@@ -50,7 +50,6 @@ try {
           await page.locator(`[data-premium-report-manager="${kind}"]`).waitFor();
         }
       } else {
-        if (kind === 'relationship') await page.getByRole('checkbox').check();
         await page.locator('button:not([disabled])').filter({ hasText: `NT$${product.price}` }).waitFor();
         assert.equal(await button.isEnabled(), true, 'No birth profile is needed for entitlement-only checkout');
         const dialog = page.waitForEvent('dialog');

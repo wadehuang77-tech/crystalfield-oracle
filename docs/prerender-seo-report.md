@@ -1,6 +1,6 @@
 # Prerender SEO implementation report
 
-**Latest acceptance (2026-10-08, second preview): CONDITIONAL GO.** The two code blockers are fixed and verified at https://ddefc7c9.bolt-tarot-5ek.pages.dev. Public SEO, direct SPA routes, payment-query preservation, homepage hreflang, true 404, hydration and GA4 pass. Full authenticated/API/payment E2E remains NOT VERIFIED because preview CORS is blocked. The first-preview findings below are historical; the final section records the current results.
+**Latest acceptance (2026-10-08, production): INVESTIGATION REQUIRED.** Approved commit `88c6d592b6d0375649dcff311c991fe59144a3dd` was deployed to Pages production with explicit user authorization. Production SEO/routing/hydration, Tarot, Numerology, Human Design and user-assisted Google login passed. Vedic API returned upstream errors; GA4 emits a duplicate SPA page_view also reproducible on the previous deployment. No critical frontend regression requiring rollback was found. Earlier preview results below are historical; production evidence and the corrected GA4 assessment are recorded in the final section.
 
 ## Before
 
@@ -270,3 +270,121 @@ The user approved including the prior related, verified prerender/hydration/404 
 | AF. Local commit | `SEO: fix SPA fallback routes and English hreflang` (hash reported after creation) |
 | AG. Recommendation | CONDITIONAL GO |
 | AH. Remaining blockers | Complete authenticated/API feature, Google login and safe payment E2E in an authorized test environment before production. No remaining failures in this round's two code-fix objectives |
+
+## Authorized production deployment and verification
+
+### Preflight and final build
+
+- Approved/current HEAD: `88c6d592b6d0375649dcff311c991fe59144a3dd`.
+- Reviewed the approved 35-file commit scope: only SEO/prerender/routing/hydration implementation, verifiers and related docs. It contains no Worker/VedAstro changes, card or translation data, D1 data, pricing, membership policy or production secrets.
+- Frontend working files matched the approved commit before build and deployment. Existing dirty Worker/VedAstro work and unrelated untracked files were preserved.
+- Final `typecheck`, `build`, `seo:verify`, `test:hydration`, `test:auth`, `test:payment-return`, `test:ga4`, and `test:tarot-deep-analysis` passed. Static 404/no-catch-all assertions are included in the build verifier.
+- The unchanged Worker `test:ecpay-recurring` also passed in its isolated fake environment; it does not establish a real production transaction.
+
+### Deployment and rollback target
+
+| Field | Recorded value |
+|---|---|
+| Existing Pages project | `bolt-tarot` |
+| Production branch | `main` |
+| Previous production / rollback target | `90560580-b325-4d1c-a93d-8cd0dc475305` |
+| Previous served app asset | `/assets/index-Ba-pmJ1u.js` |
+| New production deployment | `a2b1474a-40f8-47c1-8aad-56e83f345e51` |
+| New deployment URL | https://a2b1474a.bolt-tarot-5ek.pages.dev |
+| Created time | `2026-10-08T00:55:47.608488Z` / `2026-10-08 08:55:47 +08:00` |
+| Deploy stage completed | `2026-10-08T00:55:49.018205Z` |
+| Approved deployment commit | `88c6d592b6d0375649dcff311c991fe59144a3dd` |
+| New served app asset | `/assets/index-C2sDGJjv.js` |
+| Environment/status | `production` / `success`, confirmed through Pages API |
+
+Only `app/dist` was uploaded to the existing Pages project. The deployment metadata accurately records `commit_dirty: true` because unrelated Worker files remain dirty; frontend sources were separately verified identical to the approved commit. There was no push or new commit, no Worker deployment, and no DNS/custom-domain, secret, OAuth, ECPay or membership/pricing configuration change.
+
+### Production SEO, routing and hydration
+
+Actual GETs to `https://www.crystalfield101.com` verified all 43 public canonical pages:
+
+- HTTP 200, `text/html`, correct title/description/production canonical, one H1, nonempty prerender root, crawlable internal links and one valid JSON-LD.
+- Correct reciprocal hreflang on all paired routes, including `/` and `/en/`.
+- No public `X-Robots-Tag: noindex`; raw public HTML retains `index, follow`.
+- The eight tested slashless non-home system URLs returned 308 to their corresponding trailing-slash public URL, not to `/`, and the final response was 200.
+- The four requested unknown paths returned actual HTTP 404.
+- `/sitemap.xml` and `/robots.txt` returned 200 and exactly matched the intended local/generated contents: 43 production-canonical public URLs, no private routes.
+
+Browser hydration on the ten specified Chinese/English entry routes had zero hydration warnings/errors, zero page errors, one H1/JSON-LD and preserved the parser-created heading node/text. No blank page occurred.
+
+All six direct utility routes returned 200 with no Location header and loaded the React application. Unauthenticated admin access followed the existing localized sign-in guards. Both return routes displayed their correct localized missing-order UI. `orderId=TEST123` remained in the URL; synthetic existing-format `order_id`, `order_token`, and encoded `return_to` also remained after React startup. An intentionally nonexistent synthetic order returned 404 from the order API and displayed the localized not-found message; this was not represented as successful payment.
+
+### Authorized-origin functional verification
+
+- Both production origins were permitted by CORS with exact reflected origins and credentials enabled. Browser credentialed GETs to auth, Google configuration and Chinese/English Tarot preview APIs succeeded. No CORS policy change was needed.
+- The user completed login in the shared browser and explicitly confirmed using the Google button. `/api/auth/me` then returned `authenticated: true` with a session user, without exposing identity/token details. Chinese and English sign-in UIs and Google button/configuration loading were also verified. Only the English successful OAuth return was exercised; a second Chinese OAuth transaction was not separately performed.
+- Tarot Chinese: entry, deck, single-card spread, draw and unlocked Chinese result passed.
+- Tarot English: entry, deck, single-card spread, draw and unlocked English result passed. Existing untranslated decorative labels were observed, but no translation/card data was changed and no new translation regression was attributed to this deployment.
+- Numerology Chinese/English: submitted `1968-09-06`, obtained life-path 3 and localized result content.
+- Human Design Chinese/English: submitted `1968-09-06`, `20:00`, `Taipei, Taiwan`, obtained the Manifesting Generator / 3/5 blueprint and opened both localized free reports. The app stored a server chart ID.
+- Vedic Chinese/English: the UI submitted the same test birth data but displayed a service rate-limit error. One interval-later API confirmation returned HTTP 502, code `VEDASTRO_UPSTREAM_FAILED`, in both languages, without a chart/result. This is FAIL for the requested result E2E, not a CORS limitation. No Worker or calculation-code change was attempted.
+
+Before writing any functional test chart/reading, the user explicitly authorized normal API-driven chart/reading writes and free-entitlement consumption for the signed-in test account. Those permitted writes are distinguished from forbidden manual D1 modification: no direct SQL, migration, schema or existing-data edits occurred. Human Design server chart persistence was confirmed. No paid order or charge was authorized or created.
+
+### Payment safety verification
+
+- Live catalog endpoint returned 200 and 18 entries; create-order OPTIONS returned 200.
+- Existing creation/checkout/return code and isolated automated ECPay/checkout-return tests were checked.
+- Both localized production return routes and existing order parameter handling were verified with a nonexistent synthetic order.
+- Successful production order creation, checkout initiation, ECPay confirmation and paid return are NOT VERIFIED. No unnecessary production order, real charge, payment callback or entitlement change was initiated by this verification.
+
+### Corrected GA4 assessment
+
+Previous preview/local tests counted only the application `dataLayer` events. That proxy missed a Google-tag-generated SPA event. Production testing instrumented browser `sendBeacon`/`fetch` collection calls and observed:
+
+| Step | Application dataLayer total | Actual GA collection page_view total |
+|---|---|---|
+| Direct `/en/oracle/` load | 1 | 1 |
+| SPA navigation to `/en/tarot` | 2 | 3 |
+
+The two navigation events share the `/en/tarot` page location: one contains the application's `page_path`, and one is emitted without it. The prior deployment `90560580` reproduced the same one-initial/two-navigation behavior, so this is not introduced by the approved prerender commit. `app/index.html`, `usePageViewTracking.ts`, `lib/ga4.ts` and `VedicAstrologyPage.tsx` were unchanged in that commit.
+
+GA4 single initial load is PASS, but the full requested one-page_view-per-SPA-navigation criterion is FAIL. Collection ingestion is also NOT VERIFIED because requests were aborted in the integrated browser. The exact remote Google-tag setting causing the second event has not been audited; no analytics setting or frontend tracking fix was made during production verification.
+
+### Rollback decision and protected systems
+
+No critical frontend blank-page, hydration, auth-initiation, payment-return, routing, canonical or public-noindex regression was found. Tarot, Numerology and Human Design succeeded. Vedic requests reached the unchanged backend and returned upstream failures; GA4 duplication reproduced on the previous deployment. Therefore Pages rollback was not required or executed. Stop further Vedic retries and investigate these separately; do not roll back Worker/VedAstro/D1.
+
+Final Pages API confirmed active production deployment `a2b1474a-40f8-47c1-8aad-56e83f345e51` with the unchanged custom-domain mappings. Protected Worker hashes remained identical to preflight. No Worker, secrets, card/translation data or production infrastructure changes were made.
+
+### Final production report
+
+| Item | Result |
+|---|---|
+| A. Approved commit | `88c6d592b6d0375649dcff311c991fe59144a3dd` |
+| B. Previous production deployment ID | `90560580-b325-4d1c-a93d-8cd0dc475305` |
+| C. New production deployment ID | `a2b1474a-40f8-47c1-8aad-56e83f345e51` |
+| D. Production deploy | PASS |
+| E. Production domain unchanged | YES |
+| F. Core SEO routes | PASS |
+| G. 43 prerender routes | 43/43 |
+| H. Raw production HTML | PASS |
+| I. Hydration | PASS |
+| J. Unknown routes HTTP 404 | PASS |
+| K. SPA direct routes | PASS |
+| L. Chinese Tarot E2E | PASS - single-card result with existing account entitlement |
+| M. English Tarot E2E | PASS - single-card English result with existing account entitlement |
+| N. Numerology ZH/EN | PASS |
+| O. Human Design ZH/EN | PASS |
+| P. Vedic Astrology ZH/EN | FAIL - rate-limit followed by HTTP 502 upstream failure |
+| Q. Production CORS | PASS |
+| R. Google Login | PASS - user-assisted English Google return/session; Chinese UI/initiation ready |
+| S. Payment flow | NOT VERIFIED end-to-end - safe return/catalog/automated checks passed, no paid order/charge |
+| T. GA4 | FAIL - one initial event, two actual events on SPA navigation; also reproduced on old deployment |
+| U. sitemap.xml | PASS |
+| V. robots.txt | PASS |
+| W. hreflang | PASS |
+| X. Production noindex accidentally present | NO - public pages; intended utility noindex retained |
+| Y. Worker deployed | NO |
+| Z. VedAstro modified | NO |
+| AA. D1 modified | YES only for separately user-authorized normal test chart/reading writes; NO manual data/schema/migration changes |
+| AB. Secrets modified | NO |
+| AC. 278 English cards modified | NO |
+| AD. Existing translations modified | NO |
+| AE. Rollback required | NO |
+| AF. Final recommendation | INVESTIGATION REQUIRED - Vedic upstream failures, GA4 SPA duplicate, and successful paid checkout remains unverified |

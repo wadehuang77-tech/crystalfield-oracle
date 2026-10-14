@@ -46,7 +46,7 @@ try {
   memberEnabled = true;
   await disabledPage.reload();
   await disabledPage.getByRole('heading', { name: 'Discover Your Galactic Life Signature', exact: true }).waitFor();
-  assert.ok(await disabledPage.locator('[data-maya-hero]').getByRole('button', { name: 'Find My KIN for Free' }).isDisabled());
+  assert.equal(await disabledPage.locator('[data-maya-hero]').getByRole('link', { name: 'Find My KIN for Free' }).getAttribute('aria-disabled'), 'true');
   assert.deepEqual(deniedRequests, []);
   results.push({ width: 390, locale: 'en', stage: 'public-only-no-member-requests', status: 'PASS' });
   configurationFailed = true;
@@ -160,7 +160,7 @@ try {
       validateMayaCheckoutForm({ ...testForm, endpoint: 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5',
         fields: { ...testForm.fields, MerchantID: '87654321' } }, 'production');
       await layout('introduction');
-      await page.locator('[data-maya-hero]').getByRole('button', { name: label('免費查詢我的 KIN', 'Find My KIN for Free'), exact: true }).click();
+      await page.locator('[data-maya-hero]').getByRole('link', { name: label('免費查詢我的 KIN', 'Find My KIN for Free'), exact: true }).click();
       await page.waitForURL(`**${prefix}/login?**`);
       assert.equal(new URL(page.url()).searchParams.get('redirect'), member);
       await page.getByText('Google test configuration unavailable', { exact: true }).waitFor();

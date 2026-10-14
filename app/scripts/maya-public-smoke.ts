@@ -49,7 +49,7 @@ try {
     assert.match(response!.headers()['x-robots-tag'], /noindex/);
     await page.getByRole('heading', { name: locale === 'en' ? 'Discover Your Galactic Life Signature' : '探索你的馬雅星際生命密碼', exact: true }).waitFor();
     assert.equal(await page.locator('input[type=date]').count(), 0);
-    assert.ok(await page.locator('[data-maya-hero]').getByRole('button', { name: locale === 'en' ? 'Find My KIN for Free' : '免費查詢我的 KIN', exact: true }).isDisabled());
+    assert.equal(await page.locator('[data-maya-hero]').getByRole('link', { name: locale === 'en' ? 'Find My KIN for Free' : '免費查詢我的 KIN', exact: true }).getAttribute('aria-disabled'), 'true');
     assert.ok(!origins.has('https://api.crystalfield101.com'));
     assert.ok(origins.has(api));
     assert.deepEqual(errors, []);

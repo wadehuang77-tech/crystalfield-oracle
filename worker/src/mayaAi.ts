@@ -1,6 +1,7 @@
 import { mayaFeatures } from './mayaFeatures';
 import type { Env } from './utils';
 import { validateMayaReport, type MayaReport } from '../../app/src/lib/maya';
+import { mayaMemberMessages } from './mayaMemberPrompt';
 
 export const MAYA_AI_MODEL = 'gpt-4o-mini';
 export const MAYA_AI_MAX_INPUT = 6000;
@@ -82,8 +83,10 @@ export async function generateMayaReport(
     if (row?.state === 'unknown' || row?.state === 'reserved') throw new MayaAiError('AI_OUTCOME_UNKNOWN');
     if (row?.state !== 'completed') {
       if (row && row.attempts >= 3) throw new MayaAiError('AI_RETRY_LIMIT');
-      const input = prompt(template, index);
-      if (new TextEncoder().encode(input).length > MAYA_AI_MAX_INPUT - 512) throw new MayaAiError('AI_INPUT_LIMIT');
+      const messages = template.product_code === 'MAYA_RELATIONSHIP_699'
+        ? [{ role: 'system' as const, content: prompt(template, index) }]
+        : mayaMemberMessages(template, index);
+      if (new TextEncoder().encode(JSON.stringify(messages)).length > MAYA_AI_MAX_INPUT - 512) throw new MayaAiError('AI_INPUT_LIMIT');
       // Reserve the worst-case cost BEFORE the network call, shared across both languages.
       // Reservations are never refunded automatically: uncertain provider outcomes may be billable.
       if (env.ENV === 'dev') {
@@ -111,7 +114,7 @@ export async function generateMayaReport(
           headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: MAYA_AI_MODEL, max_completion_tokens: MAYA_AI_MAX_OUTPUT,
-            messages: [{ role: 'system', content: input }],
+            messages,
             response_format: { type: 'json_schema', json_schema: {
               name: 'maya_reflection_section', strict: true,
               schema: { type: 'object', properties: { body: { type: 'string' } }, required: ['body'], additionalProperties: false },

@@ -31,6 +31,8 @@ try {
       const path = `${prefix}/maya-calendar/${product.kind ?? 'member'}`;
       const errors: string[] = [];
       let paid = false, statusReads = 0, grantReads = 0, creates = 0, advances = 0;
+      const savedRoles = new Set<string>(product.kind === 'relationship' && width === 390 ? [] : ['personal', 'relationship']);
+      let saves = 0;
       const total = product.kind === 'pro' ? 15 : product.kind === 'relationship' ? 12 : 0;
       const pro = mockMayaProReport('1987-07-26', locale); pro.provider = 'openai';
       const report = product.kind === 'pro' ? pro : product.kind === 'relationship'
@@ -67,10 +69,15 @@ try {
           statusReads++; paid = statusReads > 2;
           return reply({ order_id: 'order', product_code: product.code, locale, status: paid ? 'paid' : 'pending', amount: product.price });
         }
-        if (url.pathname === '/api/maya/profile') return reply({ profiles: [
-          { ...mayaForDate('1987-07-26', locale), id: 'personal', role: 'personal', birth_date: '1987-07-26' },
-          { ...mayaForDate('1990-01-01', locale), id: 'partner', role: 'relationship', birth_date: '1990-01-01' },
-        ] });
+        const profileFor = (role: string) => ({ ...mayaForDate(role === 'personal' ? '1987-07-26' : '1990-01-01', locale),
+          id: role === 'personal' ? 'personal' : 'partner', role, birth_date: role === 'personal' ? '1987-07-26' : '1990-01-01' });
+        if (url.pathname === '/api/maya/profile') return reply({ profiles: [...savedRoles].map(profileFor) });
+        if (url.pathname === '/api/maya/calculate') {
+          const input = req.postDataJSON();
+          assert.equal(input.birth_date, profileFor(input.role).birth_date);
+          savedRoles.add(input.role); saves++;
+          return reply({ profile: profileFor(input.role) });
+        }
         if (url.pathname === '/api/maya/daily') return reply({ daily: null });
         if (url.pathname.endsWith('/entitlements')) {
           if (paid) grantReads++;
@@ -84,7 +91,7 @@ try {
           const input = req.postDataJSON();
           assert.equal(input.profile_id, 'personal'); assert.equal(input.product_code, product.code);
           if (product.kind === 'relationship') {
-            assert.equal(input.relationship_profile_id, 'partner'); assert.equal(input.consent, true); assert.equal(input.relationship_type, 'friends');
+            assert.equal(input.relationship_profile_id, 'partner'); assert.equal(input.consent, undefined); assert.equal(input.relationship_type, 'friends');
           }
           creates++; syntheticCreates++;
           assert.equal(creates, 1, 'Exactly one create per unlock');
@@ -101,7 +108,11 @@ try {
       const button = page.getByRole('button', { name, exact: true });
       await button.waitFor();
       if (product.kind === 'relationship') {
-        await page.getByRole('checkbox').check();
+        assert.equal(await page.getByRole('checkbox').count(), 0);
+        if (width === 390) {
+          await page.locator('input[type=date]').nth(0).fill('1987-07-26');
+          await page.locator('input[type=date]').nth(1).fill('1990-01-01');
+        }
         await page.getByRole('combobox').last().selectOption('friends');
       }
       assert.equal(creates, 0, 'Browsing does not generate');
@@ -115,6 +126,7 @@ try {
           ? locale === 'en' ? 'AI Life Blueprint Report' : 'AI 生命藍圖報告'
           : locale === 'en' ? 'Existing report · legacy seven chapters' : '既有報告 · 舊版七篇', exact: true }).waitFor();
       }
+      assert.equal(saves, product.kind === 'relationship' && width === 390 ? 2 : 0);
       assert.equal(creates, 1);
       assert.equal(advances, total);
       assert.equal(await page.getByRole('button', { name: /生成正式報告|Generate live report/ }).count(), 0);

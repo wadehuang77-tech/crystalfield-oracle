@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import humanDesignArticles from '../data/human-design/articles.json';
 import vedicArticles from '../data/vedic-astrology/articles.json';
 import vedicLandingContent from '../data/vedic-astrology/landing.json';
+import { mayaMemberSeo, mayaSeoContent, mayaSeoStructuredData } from '../lib/mayaSeo';
 
 export type SeoConfig = {
   title: string;
@@ -16,10 +17,10 @@ export type SeoConfig = {
 
 const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
   '/maya-calendar': {
-    title: '探索你的馬雅星際生命密碼｜晶域心語',
-    description: '透過出生日期，認識你的天賦、性格特質與人生方向。免費查詢 KIN，探索 Dreamspell 太陽圖騰與銀河音調，發現屬於你的生命藍圖。',
+    title: mayaSeoContent('zh-TW').title,
+    description: mayaSeoContent('zh-TW').description,
     canonical: 'https://www.crystalfield101.com/maya-calendar/',
-    h1: '探索你的馬雅星際生命密碼',
+    h1: mayaSeoContent('zh-TW').h1,
     intro: 'Dreamspell 是現代 13 月亮曆系統，並非傳統馬雅 Tzolk’in 曆法。內容僅供自我探索，不是科學、醫療或未來事件預測。',
   },
   '/': {
@@ -144,9 +145,9 @@ export const PUBLIC_SEO: Record<string, SeoConfig> = {
 
 const ENGLISH_PUBLIC_SEO: Record<string, Pick<SeoConfig, 'title' | 'description' | 'h1' | 'intro'>> = {
   '/maya-calendar': {
-    title: 'Discover Your Galactic Life Signature | CrystalField101',
-    description: 'Explore your strengths, personality, and sense of direction with Dreamspell. Find your KIN for free and discover your solar seal, galactic tone, and life blueprint.',
-    h1: 'Discover Your Galactic Life Signature',
+    title: mayaSeoContent('en').title,
+    description: mayaSeoContent('en').description,
+    h1: mayaSeoContent('en').h1,
     intro: 'Dreamspell is a modern 13 Moon calendar system, not the traditional Maya Tzolk’in calendar. Its symbolic insights are for self-reflection, not scientific claims, medical advice, or predictions.',
   },
   '/': { title: 'Crystal Field | Tarot, Numerology, Human Design and Vedic Astrology', description: 'Explore tarot readings, numerology, Human Design, and Vedic astrology as tools for reflection and self-discovery.', h1: 'Crystal Field', intro: 'Explore tarot, numerology, Human Design, and Vedic astrology to reflect on your strengths, questions, and next steps.' },
@@ -187,6 +188,9 @@ function getCurrentLanguage(pathname: string): 'zh-Hant' | 'en' {
 function buildAlternateCanonicals(pathname: string): Record<'zh-Hant' | 'en', string> {
   const routePath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
   const normalizedBase = routePath.startsWith('/en') ? routePath.replace(/^\/en(?=\/|$)/, '') || '/' : routePath;
+  if (normalizedBase === '/maya-calendar/member') return {
+    'zh-Hant': `${SITE_URL}/maya-calendar/member`, en: `${SITE_URL}/en/maya-calendar/member`,
+  };
   const zh = `${SITE_URL}${normalizedBase === '/' ? '' : normalizedBase}/`;
   const en = `${SITE_URL}/en${normalizedBase === '/' ? '' : normalizedBase}/`;
   return { 'zh-Hant': zh, en };
@@ -251,6 +255,7 @@ function setJsonLd(data: unknown) {
 }
 
 function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Hant' | 'en') {
+  if (pathname === '/maya-calendar') return mayaSeoStructuredData(language === 'en' ? 'en' : 'zh-TW');
   const isVedicLanding = pathname === '/vedic-astrology';
   const breadcrumb = [
     {
@@ -405,14 +410,16 @@ export default function SeoMetadata() {
     const routePath = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
     const normalizedBase = routePath.startsWith('/en') ? routePath.replace(/^\/en(?=\/|$)/, '') || '/' : routePath;
     const seo = PUBLIC_SEO[normalizedBase] ?? PUBLIC_SEO[routePath];
-    const englishContentExists = Boolean(ENGLISH_PUBLIC_SEO[normalizedBase]);
+    const isMayaMember = normalizedBase === '/maya-calendar/member';
+    const memberSeo = isMayaMember ? mayaMemberSeo(language === 'en' ? 'en' : 'zh-TW') : null;
+    const englishContentExists = isMayaMember || Boolean(ENGLISH_PUBLIC_SEO[normalizedBase]);
     const englishSeo = language === 'en' ? ENGLISH_PUBLIC_SEO[normalizedBase] : undefined;
-    const title = englishSeo?.title ?? seo?.title ?? (language === 'en' ? 'Crystal Field' : SITE_NAME);
-    const description = englishSeo?.description ?? seo?.description ?? (language === 'en' ? 'Crystal Field offers tarot, oracle cards, and self-discovery services.' : '晶域心語提供塔羅、神諭卡與自我探索服務。');
+    const title = memberSeo?.title ?? englishSeo?.title ?? seo?.title ?? (language === 'en' ? 'Crystal Field' : SITE_NAME);
+    const description = memberSeo?.description ?? englishSeo?.description ?? seo?.description ?? (language === 'en' ? 'Crystal Field offers tarot, oracle cards, and self-discovery services.' : '晶域心語提供塔羅、神諭卡與自我探索服務。');
     const canonicalVariants = buildAlternateCanonicals(pathname);
     const canonical = canonicalVariants[language];
     const hasVedicResult = routePath === '/vedic-astrology' && Boolean(sessionStorage.getItem('cf_vedic_chart_session'));
-    const robots = noindexPaths.has(routePath) || Boolean(search) || hasVedicResult || (language === 'en' && !englishSeo)
+    const robots = isMayaMember || noindexPaths.has(routePath) || Boolean(search) || hasVedicResult || (language === 'en' && !englishSeo)
       ? 'noindex, follow'
       : seo || englishContentExists ? 'index, follow' : 'noindex, follow';
     document.title = title;
@@ -441,8 +448,9 @@ export default function SeoMetadata() {
     setMeta('twitter:description', description);
     setMeta('twitter:image', `${SITE_URL}/20260315_164545.jpg`);
     setCanonical(canonical);
-    setHreflang(pathname, englishContentExists);
-    if (seo) setJsonLd(buildStructuredData(normalizedBase, englishSeo ? { ...seo, ...englishSeo, canonical } : seo, language));
+    setHreflang(pathname, englishContentExists && !isMayaMember);
+    if (seo && !search) setJsonLd(buildStructuredData(normalizedBase, englishSeo ? { ...seo, ...englishSeo, canonical } : seo, language));
+    else document.head.querySelector('script[data-seo-jsonld]')?.remove();
   }, [pathname, search, language]);
 
   return null;

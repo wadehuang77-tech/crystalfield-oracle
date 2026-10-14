@@ -5,7 +5,7 @@ import { Miniflare } from 'miniflare';
 import { signJwt } from '../src/auth';
 import { routeMayaApi } from '../src/maya';
 import { mockMayaProReport } from '../src/mayaProPrompt';
-import { PREMIUM_LIMITS, premiumRevisionFeedback, premiumPrompt } from '../src/mayaPremiumLive';
+import { PREMIUM_LIMITS, premiumRevisionFeedback, premiumPrompt, premiumRequest } from '../src/mayaPremiumLive';
 import { mayaForDate, MAYA_CALCULATION_VERSION } from '../../app/src/lib/maya';
 import { validateMayaProReport, MAYA_PRO_PRODUCT, type MayaProReport } from '../../app/src/lib/mayaPro';
 import { validateRelationshipReport, MAYA_RELATIONSHIP_PRODUCT, type RelationshipReport } from '../../app/src/lib/mayaRelationship';
@@ -85,9 +85,56 @@ async function fixture(key: string, kind: 'pro' | 'relationship', date = '1987-0
   await env.DB.prepare(`INSERT INTO ${table}_entitlements(id,user_id,product_code,order_id,status,source,starts_at)
     VALUES(?,'owner',?,?,'active','verified_payment','2020-01-01')`).bind(`${key}-access`, code, `${key}-order`).run();
   return { profile_id: 'profile-personal', entitlement_id: `${key}-access`, product_code: code, locale: 'en',
-    ...(kind === 'relationship' ? { relationship_profile_id: 'profile-relationship', relationship_type: 'friends', consent: true } : {}) };
+    ...(kind === 'relationship' ? { relationship_profile_id: 'profile-relationship', relationship_type: 'friends' } : {}) };
 }
 type Result = { id: string; status: string; report: MayaProReport | RelationshipReport | null; reason: string; completedSections: number };
+test('Relationship final plan retry fits input budget and resumes eleven saved chapters', async () => {
+  const input = { ...await fixture('final-plan-retry', 'relationship'), locale: 'zh-TW' };
+  const created = await check<Result>(await call('relationship', 'reports', 'zh-TW', input));
+  const report = relationshipTestFixture('1987-07-26', '1990-01-01', 'zh-TW');
+  const texts = report.sections.map(section => ({ interpretation: section.interpretation,
+    perspectives: section.perspectives, lifeExamples: section.lifeExamples,
+    reflectionQuestions: section.reflectionQuestions, actionSteps: section.actionSteps }));
+  const final = { ...texts[11], ninetyDayPlan: report.ninetyDayPlan };
+  const rejected = { ...final, interpretation: final.interpretation + '待修正的冗長文字。'.repeat(30) };
+  const prompt = premiumPrompt(MAYA_RELATIONSHIP_PRODUCT.code,
+    { a: '1987-07-26', b: '1990-01-01', relationshipType: 'friends' }, 'zh-TW', 11, texts.slice(0, 11));
+  prompt.user = JSON.stringify({ ...JSON.parse(prompt.user), previousRejectedDraft: rejected,
+    revisionTask: premiumRevisionFeedback(rejected, 'zh-TW', true) });
+  const compact = premiumRequest(prompt);
+  assert.ok(new TextEncoder().encode(JSON.stringify(compact)).byteLength <= PREMIUM_LIMITS.inputBytes);
+  const supplied = JSON.parse(compact.messages[1].content);
+  assert.equal(supplied.previous.length, 11);
+  assert.deepEqual(supplied.previousRejectedDraft, rejected);
+  assert.deepEqual(compact.response_format.json_schema.schema, prompt.responseSchema);
+  await env.DB.batch(texts.slice(0, 11).map((text, i) => env.DB.prepare(
+    "INSERT INTO maya_premium_ai_sections(report_id,section_index,state,content,reserved_twd) VALUES(?,?,'completed',?,0.01)")
+    .bind(created.id, i, JSON.stringify(text))));
+  await env.DB.prepare("INSERT INTO maya_premium_ai_sections(report_id,section_index,state,content,reserved_twd) VALUES(?,11,'rejected',?,0.01)")
+    .bind(created.id, JSON.stringify(rejected)).run();
+  await env.DB.prepare('INSERT INTO maya_premium_ai_budgets(order_id,reserved_twd) VALUES(?,0.12)').bind('final-plan-retry-order').run();
+  responseContent = rejected;
+  const before = calls;
+  const done = await check<Result>(await call('relationship', `reports/${created.id}/advance`, 'zh-TW', {}));
+  assert.equal(done.status, 'completed');
+  assert.equal(done.completedSections, 12);
+  assert.equal(calls - before, 1);
+  assert.ok(validateRelationshipReport(done.report));
+  assert.equal((done.report as RelationshipReport).sections[11].interpretation, rejected.interpretation);
+  await env.DB.prepare("UPDATE maya_premium_reports SET status='blocked',report_content=NULL,last_error_code='AI_RETRY_LIMIT' WHERE id=?").bind(created.id).run();
+  await env.DB.prepare("UPDATE maya_premium_ai_sections SET state='rejected',attempts=3 WHERE report_id=? AND section_index=11").bind(created.id).run();
+  const recovered = await check<Result>(await call('relationship', `reports/${created.id}/advance`, 'zh-TW', {}));
+  assert.equal(recovered.status, 'completed');
+  assert.equal(recovered.completedSections, 12);
+  assert.equal(calls - before, 1, 'Recovery must reuse the saved draft without calling AI');
+  assert.ok(validateRelationshipReport(recovered.report));
+  await env.DB.prepare("UPDATE maya_premium_reports SET status='blocked',report_content=NULL,last_error_code='AI_RETRY_LIMIT' WHERE id=?").bind(created.id).run();
+  await env.DB.prepare("UPDATE maya_premium_ai_sections SET state='rejected',content=? WHERE report_id=? AND section_index=11")
+    .bind(JSON.stringify({ ...rejected, ninetyDayPlan: [] }), created.id).run();
+  const invalid = await check<Result>(await call('relationship', `reports/${created.id}/advance`, 'zh-TW', {}));
+  assert.equal(invalid.status, 'blocked', 'Recovery must still reject an incomplete plan');
+  assert.equal(calls - before, 1);
+});
 function textForPro(report: MayaProReport, index: number) {
   if (index < 12) {
     const { interpretation, lifeExamples, reflectionQuestions, actionSteps } = report.parts.a.blueprint.sections[index];
@@ -220,13 +267,18 @@ test('Quality revisions use measured reader text, exclude JSON metadata and requ
   ] }, 'en'), /4 English words/);
   assert.match(premiumRevisionFeedback(null, 'zh-TW'), /只有0個漢字/);
   const pairFeedback = premiumRevisionFeedback(draft, 'zh-TW', true);
-  assert.match(pairFeedback, /沒有總字數下限/);
+  assert.match(pairFeedback, /沒有字數上下限/);
   assert.doesNotMatch(pairFeedback, /距350字硬性下限|另外增加/);
   for (const index of [7, 11]) {
     const prompt = premiumPrompt(MAYA_RELATIONSHIP_PRODUCT.code,
       { a: '1987-07-26', b: '1990-01-01', relationshipType: 'friends' }, 'zh-TW', index, []);
-    assert.match(prompt.system, /沒有總字數下限/);
+    assert.match(prompt.system, /沒有字數上下限/);
     assert.doesNotMatch(prompt.system, /必須至少350字|切勿縮成300字/);
+    assert.doesNotMatch(prompt.system, /500|350|180–300|below 400/);
+    const english = premiumPrompt(MAYA_RELATIONSHIP_PRODUCT.code,
+      { a: '1987-07-26', b: '1990-01-01', relationshipType: 'friends' }, 'en', index, []);
+    assert.match(english.system, /No word or character limits/);
+    assert.doesNotMatch(english.system, /120–450|180–300|below 400/);
   }
 });
 function shortenChineseChapter(report: RelationshipReport, index: number, target: number) {
@@ -242,7 +294,7 @@ function shortenChineseChapter(report: RelationshipReport, index: number, target
     ...section.reflectionQuestions, ...section.actionSteps].join('');
   assert.equal(shortened.match(/[\u3400-\u9fff]/gu)?.length, target);
 }
-test('Chinese relationship has no total character minimum; upper bound, structure and other products remain enforced', () => {
+test('Relationship has no word limits; structure and other products remain enforced', () => {
   for (const target of [349, 300]) {
     const report = relationshipTestFixture('1987-07-26', '1990-01-01', 'zh-TW');
     shortenChineseChapter(report, 7, target);
@@ -252,11 +304,15 @@ test('Chinese relationship has no total character minimum; upper bound, structur
     assert.ok(!validateRelationshipReport(emptyPerspective));
     const excessive = structuredClone(report);
     excessive.sections[7].interpretation += '文'.repeat(501);
-    assert.ok(!validateRelationshipReport(excessive));
+    assert.ok(validateRelationshipReport(excessive));
   }
   const english = relationshipTestFixture('1987-07-26', '1990-01-01', 'en');
   english.sections[7] = { ...english.sections[7], interpretation: 'Short', perspectives: { a: 'A', b: 'B', shared: 'Shared' },
     lifeExamples: ['Example'], reflectionQuestions: ['Question?'], actionSteps: ['Act'] };
+  assert.ok(validateRelationshipReport(english));
+  english.sections[7].interpretation += ' detailed'.repeat(500);
+  assert.ok(validateRelationshipReport(english));
+  english.sections[7].interpretation = ' ';
   assert.ok(!validateRelationshipReport(english));
   const pro = mockMayaProReport('1987-07-26', 'zh-TW');
   pro.parts.a.blueprint.sections[7].interpretation = pro.parts.a.blueprint.sections[7].interpretation.slice(0, 65);

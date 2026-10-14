@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { MAYA_RELATIONSHIP_PRODUCT } from '../src/lib/mayaRelationship';
+import { mayaSeoContent } from '../src/lib/mayaSeo';
 
 const server = await createServer({ server: { host: '127.0.0.1', port: 5236, strictPort: true } });
 await server.listen();
@@ -39,14 +40,14 @@ try {
       const hero = page.locator('[data-maya-hero]');
       const heading = hero.getByRole('heading', { level: 1, name: en ? 'Discover Your Galactic Life Signature' : '探索你的馬雅星際生命密碼', exact: true });
       await heading.waitFor();
-      assert.equal(await page.title(), en ? 'Discover Your Galactic Life Signature | CrystalField101' : '探索你的馬雅星際生命密碼｜晶域心語');
+      assert.equal(await page.title(), mayaSeoContent(locale).title);
       assert.match(await page.locator('meta[name="description"]').getAttribute('content') || '', en ? /Find your KIN for free/ : /免費查詢 KIN/);
       const subtitle = hero.locator('[data-maya-subtitle]');
       assert.equal(await subtitle.innerText(), en
-        ? 'Explore your strengths, personality, and sense of direction—starting with your birth date.'
-        : '透過出生日期，認識你的天賦、性格特質與人生方向。');
-      if (!en) assert.ok((await hero.innerText()).includes('每個人都有專屬的馬雅星際印記（KIN）。透過 Dreamspell 13 月亮曆，你可以探索自己的太陽圖騰、銀河音調、內在潛能與生命成長課題。從認識自己開始，發現屬於你的生命藍圖。'));
-      const cta = hero.getByRole('button', { name: en ? 'Find My KIN for Free' : '免費查詢我的 KIN', exact: true });
+        ? mayaSeoContent('en').intro[0] : mayaSeoContent('zh-TW').intro[0]);
+      assert.ok((await hero.innerText()).includes(mayaSeoContent(locale).intro[1]));
+      const cta = hero.getByRole('link', { name: en ? 'Find My KIN for Free' : '免費查詢我的 KIN', exact: true });
+      await page.waitForFunction(() => document.querySelector('[data-maya-hero] a[aria-disabled="false"]') !== null);
       assert.equal(await cta.isEnabled(), true);
       for (const element of [heading, subtitle, cta]) {
         const bounds = await element.boundingBox();
@@ -54,13 +55,13 @@ try {
       }
       assert.equal(await page.locator('[data-maya-features] article').count(), 3);
       for (const [label, href] of [
-        [en ? 'About Dreamspell' : '認識馬雅曆', `${prefix}/maya-calendar`],
+        [en ? 'About Dreamspell' : '認識馬雅曆', `${prefix}/maya-calendar/`],
         [en ? "Today's Galactic Energy" : '今日星際能量', `${prefix}/maya-calendar/daily`],
         [en ? 'My Life Blueprint' : '我的生命藍圖', `${prefix}/maya-calendar/reports`],
       ]) assert.equal(await hero.getByRole('link', { name: label, exact: true }).getAttribute('href'), href);
       const mainText = await page.locator('main').innerText();
       assert.equal(/Mock/.test(mainText), state === 'admin', 'Mock copy must be admin-only, even with AI disabled');
-      assert.match(mainText, en ? /not the traditional Maya/ : /並非傳統馬雅/);
+      assert.match(mainText, en ? /not.*traditional Maya/ : /不是傳統馬雅|並非傳統馬雅/);
       if (en) assert.doesNotMatch(mainText.replace('繁體中文', ''), /[\u3400-\u9fff]/u);
       await page.locator('.maya-free-form input').fill('1987-07-26');
       await page.locator('.maya-free-form').getByRole('button', { name: en ? 'Find My KIN for Free' : '免費查詢我的 KIN', exact: true }).click();

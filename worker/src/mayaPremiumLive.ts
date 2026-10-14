@@ -44,8 +44,10 @@ export function premiumRevisionFeedback(value: unknown, locale: MayaLocale, pair
     ...strings(fields.lifeExamples), ...strings(fields.reflectionQuestions), ...strings(fields.actionSteps), ...plan].join('\n');
   const chars = text.match(/[\u3400-\u9fff]/gu)?.length ?? 0;
   const words = text.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/gu)?.length ?? 0;
+  if (pair) return locale === 'en'
+    ? 'No word or character limits. Repair missing evidence identifiers, structure, repeated content or empty viewpoints. Preserve substantive content, all three viewpoints and every ninety-day plan item. Do not pad or shorten text to meet a word count.'
+    : '雙人報告沒有字數上下限。修正缺漏依據、格式、重複內容或空白視角；保留完整解析、三視角、具體建議與全部九十天計畫項目。不要為了字數補字或刪減內容。';
   if (locale === 'en') return `Measured reader text: ${words} English words and ${chars} Chinese characters. Revise to 180–350 English words total, including viewpoints and all plan items; no Chinese. Repair missing evidence identifiers or structure. Retain distinct substantive viewpoints and specific actions.`;
-  if (pair) return `目前${chars}個漢字。雙人中文章節沒有總字數下限，349字可接受；350至500字僅為寫作目標，500字仍是上限。不要因字數不足補字或擴寫；修正缺漏依據、格式、重複內容或空白視角。若超過500字，刪減重複描述但保留三視角、具體建議與全部計畫項目。只計讀者可見漢字，不含欄位名；不得用套話或字數宣告填充內容。`;
   const adjustment = chars < 350
     ? `目前只有${chars}個漢字，距350字硬性下限仍差${350 - chars}字。保留原稿的有效內容，另外增加${440 - chars}至${470 - chars}個漢字：擴充具體生活情境、可調整選擇與不同視角；不要把原稿改短。`
     : chars > 500
@@ -97,20 +99,23 @@ export function premiumPrompt(product: Product, inputs: Inputs, locale: MayaLoca
   const plan = index === 11;
   const system = [
     'Write one structured JSON chapter of an optional Dreamspell symbolic self-reflection report. No Markdown, HTML or extra fields.',
-    locale === 'en' ? 'Natural English only, no Chinese. Total 120–450 words across ALL fields, including perspectives and plan.'
-      : pair ? '只用自然繁體中文。全部文字目標350至500個中文字，但沒有總字數下限；349字可接受，內容完整即可，不要補字。500字是硬性上限，包含三視角與九十天計畫。只計漢字，不計標點、數字、英文或JSON欄位名稱。'
+    ...(pair ? [
+      locale === 'en'
+        ? 'Natural English only, no Chinese. No word or character limits. Write complete, substantive content without padding or repetition.'
+        : '只用自然繁體中文。沒有字數上下限，也不限制各欄位字數；內容完整、具體且不重複，不要為了字數補字或刪減。',
+      'Include a complete interpretation, three distinct viewpoints, exactly ONE example, ONE question and ONE action. For the final chapter preserve all eighteen ninety-day plan items in addition to the chapter content.',
+    ] : [
+      locale === 'en' ? 'Natural English only, no Chinese. Total 120–450 words across ALL fields, including perspectives and plan.'
         : '只用自然繁體中文。全部文字合計350至500個中文字，目標440字；只計算漢字，不計標點、數字、英文或JSON欄位名稱。包含三視角與九十天計畫；第十二章解析要簡短，保留字數給計畫。',
-    locale === 'zh-TW' ? plan
-      ? pair ? '第十二章建議字數分配：interpretation約100中文字；每個三視角約25字；情境約40字、提問約20字、行動約30字；計畫18項每項約8至10字。沒有總字數下限，保留完整計畫及三視角，總計不得超過500字。'
-        : '第十二章字數分配：interpretation約100中文字；情境約40字、提問約20字、行動約30字；計畫18項每項約8至10字。總字數必須至少350字且不超過500字。'
-      : pair ? '建議字數分配：interpretation約180至200中文字；a、b、shared三視角各約40字；lifeExamples一項約45字；reflectionQuestions一項約20字；actionSteps一項約35字。以完整且不重複的內容為優先，不以總字數下限限制。'
+      locale === 'zh-TW' ? plan
+        ? '第十二章字數分配：interpretation約100中文字；情境約40字、提問約20字、行動約30字；計畫18項每項約8至10字。總字數必須至少350字且不超過500字。'
         : '字數分配：interpretation必須寫約290至310個中文字的完整深度解析，不能縮成兩三句；lifeExamples一項約55中文字，reflectionQuestions一項約25中文字，actionSteps一項約45中文字。合計約420至440個中文字，切勿縮成300字。'
-      : '',
-    locale === 'en' ? plan
-      ? 'PLAN CHAPTER LENGTH: interpretation 50–70 words; each viewpoint 15–20 words if a pair; exactly ONE example, ONE question and ONE action, each 8–12 words. Each of the 18 plan items is ONLY 4–7 words. Total including plan must stay below 400 words.'
-      : pair ? 'Use 90–120 interpretation words, 20–30 words per viewpoint, and exactly ONE example, ONE question and ONE action, each 10–20 words. Total 180–300 words.'
+        : '',
+      locale === 'en' ? plan
+        ? 'PLAN CHAPTER LENGTH: interpretation 50–70 words; each viewpoint 15–20 words if a pair; exactly ONE example, ONE question and ONE action, each 8–12 words. Each of the 18 plan items is ONLY 4–7 words. Total including plan must stay below 400 words.'
         : 'Use 130–170 interpretation words and exactly ONE example, ONE question and ONE action, each 10–20 words.'
-      : '',
+        : '',
+    ]),
     'Only use supplied verified symbols. Never calculate or invent KIN, pair KIN, oracle, wavespell, age periods or fortune cycles.',
     'Do not write KIN numbers in prose. Do not invent other seal/tone names. No scientific psychology claims, literal alien origins, actual biography, fate, wealth predictions, medical diagnosis/cures, compatibility scores or investment advice.',
     'Conditional examples, consent, autonomy, actionable experiments. Each chapter must have a distinct focus and non-repeated paragraphs.',
@@ -172,11 +177,11 @@ function validateSection(value: unknown, product: Product, inputs: Inputs, local
   const expected = ['interpretation', 'lifeExamples', 'reflectionQuestions', 'actionSteps',
     ...(pair ? ['perspectives'] : []), ...(index === 11 ? ['ninetyDayPlan'] : [])].sort().join(',');
   if (Object.keys(s).sort().join(',') !== expected || typeof s.interpretation !== 'string'
-    || s.interpretation.trim().length < 60 || ![s.lifeExamples, s.reflectionQuestions, s.actionSteps].every(v =>
-      Array.isArray(v) && v.length >= 1 && v.length <= 3 && v.every(t => typeof t === 'string' && t.trim().length > 0 && t.length < 4000))
-    || index === 11 && !validPracticePlan(s.ninetyDayPlan)
+    || s.interpretation.trim().length < (pair ? 1 : 60) || ![s.lifeExamples, s.reflectionQuestions, s.actionSteps].every(v =>
+      Array.isArray(v) && v.length >= 1 && v.length <= 3 && v.every(t => typeof t === 'string' && t.trim().length > 0 && (pair || t.length < 4000)))
+    || index === 11 && !validPracticePlan(s.ninetyDayPlan, pair ? Infinity : 2000)
     || pair && (!s.perspectives || Object.keys(s.perspectives).sort().join(',') !== 'a,b,shared'
-      || Object.values(s.perspectives).some(t => typeof t !== 'string' || t.trim().length < 20))) throw new PremiumError('AI_SCHEMA_INVALID');
+      || Object.values(s.perspectives).some(t => typeof t !== 'string' || t.trim().length < 1))) throw new PremiumError('AI_SCHEMA_INVALID');
   const basis = blueprintEvidence(mayaForDate(inputs.a, locale), locale);
   const section: BlueprintSection = { id: BLUEPRINT_CHAPTERS[Math.min(index, 11)].id, evidence: basis,
     interpretation: s.interpretation, lifeExamples: s.lifeExamples, reflectionQuestions: s.reflectionQuestions, actionSteps: s.actionSteps };
@@ -194,8 +199,8 @@ function validateSection(value: unknown, product: Product, inputs: Inputs, local
     ...(s.ninetyDayPlan?.flatMap(stage => [...stage.actionSteps, ...stage.reflectionQuestions]) ?? [])].join('\n');
   const chars = allText.match(/[\u3400-\u9fff]/gu)?.length ?? 0;
   const words = allText.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/gu)?.length ?? 0;
-  if (locale === 'en' && (chars !== 0 || words < 120 || words > 450)
-    || locale === 'zh-TW' && (!pair && chars < (index >= 12 ? 250 : 350) || chars > 500 || /[这为与疗财爱际问长发]/u.test(allText))
+  if (locale === 'en' && (chars !== 0 || !pair && (words < 120 || words > 450))
+    || locale === 'zh-TW' && (!pair && (chars < (index >= 12 ? 250 : 350) || chars > 500) || /[这为与疗财爱际问长发]/u.test(allText))
     || /保證.*(?:財富|收益)|治癒疾病|必定.*發財|guaranteed (?:wealth|returns)|cure disease|you will become rich|\bKIN\s*[=:：]?\s*\d/iu.test(allText)
     || !s.interpretation.includes(basis.solarSeal.name) || !s.interpretation.includes(basis.galacticTone.name)
     || previous.some(p => p.interpretation.trim() === s.interpretation.trim())) throw new PremiumError('AI_SCHEMA_INVALID');
@@ -222,7 +227,51 @@ async function boundedJson(response: Response): Promise<unknown> {
     return JSON.parse(text + decoder.decode());
   } finally { await reader.cancel(); }
 }
+export function premiumRequest(prompt: ReturnType<typeof premiumPrompt>) {
+  const user = JSON.parse(prompt.user);
+  const request = { model: MAYA_AI_MODEL, max_completion_tokens: PREMIUM_LIMITS.outputTokens,
+    messages: [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.user }],
+    response_format: { type: 'json_schema', json_schema: { name: 'dreamspell_premium_chapter', strict: true, schema: prompt.responseSchema } } };
+  // Keep every chapter represented, but shorten summaries before a plan revision
+  // exceeds the byte budget. Never trim the draft, evidence, or response schema.
+  for (const length of [48, 32, 16]) {
+    if (new TextEncoder().encode(JSON.stringify(request)).byteLength <= PREMIUM_LIMITS.inputBytes) return request;
+    if (!Array.isArray(user.previous)) break;
+    user.previous = user.previous.map((entry: { chapter: number; summary: string }) => ({
+      ...entry, summary: Array.from(entry.summary).slice(0, length).join(''),
+    }));
+    request.messages[1].content = JSON.stringify(user);
+  }
+  if (new TextEncoder().encode(JSON.stringify(request)).byteLength > PREMIUM_LIMITS.inputBytes) throw new PremiumError('AI_INPUT_LIMIT');
+  return request;
+}
 async function advance(env: Env, row: Row, authorize: () => Promise<unknown>) {
+  // Recheck a saved final draft under the relaxed relationship word rules.
+  // Recovery never resets retries or makes another billable provider request.
+  if (row.status === 'blocked' && row.product_code === MAYA_RELATIONSHIP_PRODUCT.code
+    && ['AI_RETRY_LIMIT', 'AI_SCHEMA_INVALID'].includes(row.last_error_code ?? '')) {
+    const saved = await env.DB.prepare('SELECT section_index,state,content FROM maya_premium_ai_sections WHERE report_id=? ORDER BY section_index')
+      .bind(row.id).all<{ section_index: number; state: string; content: string | null }>();
+    if (saved.results.length !== 12 || saved.results.some((s, i) => s.section_index !== i
+      || !s.content || (i < 11 ? s.state !== 'completed' : !['completed', 'rejected'].includes(s.state)))) return;
+    const inputs: Inputs = JSON.parse(row.inputs);
+    const texts: TextSection[] = [];
+    try {
+      for (const section of saved.results) texts.push(validateSection(JSON.parse(section.content!), row.product_code,
+        inputs, row.locale, section.section_index, texts));
+      const report = assemble(row.product_code, inputs, row.locale, texts);
+      await authorize();
+      await env.DB.batch([
+        env.DB.prepare("UPDATE maya_premium_reports SET status='completed',report_content=?,last_error_code=NULL,updated_at=datetime('now') WHERE id=? AND status='blocked' AND last_error_code IN ('AI_RETRY_LIMIT','AI_SCHEMA_INVALID')")
+          .bind(JSON.stringify(report), row.id),
+        env.DB.prepare("UPDATE maya_premium_ai_sections SET state='completed' WHERE report_id=? AND section_index=11 AND state='rejected' AND EXISTS(SELECT 1 FROM maya_premium_reports WHERE id=? AND status='completed')")
+          .bind(row.id, row.id),
+      ]);
+    } catch (error) {
+      if (!(error instanceof PremiumError) || error.code !== 'AI_SCHEMA_INVALID') throw error;
+    }
+    return;
+  }
   if (row.status !== 'processing') return;
   const inputs: Inputs = JSON.parse(row.inputs);
   const prior = await env.DB.prepare('SELECT section_index,state,content,attempts FROM maya_premium_ai_sections WHERE report_id=? ORDER BY section_index')
@@ -245,12 +294,9 @@ async function advance(env: Env, row: Row, authorize: () => Promise<unknown>) {
     const bad: TextSection = JSON.parse(rejected.content ?? 'null');
     prompt.user = JSON.stringify({ ...JSON.parse(prompt.user), previousRejectedDraft: bad,
       revisionTask: premiumRevisionFeedback(bad, row.locale, row.product_code === MAYA_RELATIONSHIP_PRODUCT.code) });
-    prompt.system += '\nRevise the previous draft using the measured reader-text length in revisionTask. Preserve useful substantive content and ALL literal seal AND tone identifiers. Return the complete revised JSON, not an appendix or a length tally.';
+    prompt.system += '\nRevise the previous draft following revisionTask. Preserve useful substantive content and ALL literal seal AND tone identifiers. Return the complete revised JSON, not an appendix or a length tally.';
   }
-  const request = { model: MAYA_AI_MODEL, max_completion_tokens: PREMIUM_LIMITS.outputTokens,
-    messages: [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.user }],
-    response_format: { type: 'json_schema', json_schema: { name: 'dreamspell_premium_chapter', strict: true, schema: prompt.responseSchema } } };
-  if (new TextEncoder().encode(JSON.stringify(request)).byteLength > PREMIUM_LIMITS.inputBytes) throw new PremiumError('AI_INPUT_LIMIT');
+  const request = premiumRequest(prompt);
   await authorize();
   await env.DB.prepare('INSERT OR IGNORE INTO maya_premium_ai_budgets(order_id) VALUES (?)').bind(row.order_id).run();
   const claimed = await env.DB.batch([
@@ -357,11 +403,10 @@ export async function routePremiumReports(req: Request, env: Env, userId: string
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new PremiumError('INVALID_INPUT', 400);
     const fields = body as Record<string, unknown>;
     const pair = product === MAYA_RELATIONSHIP_PRODUCT.code;
-    if (Object.keys(fields).sort().join(',') !== (pair
-      ? 'consent,entitlement_id,locale,product_code,profile_id,relationship_profile_id,relationship_type'
+    if (Object.keys(fields).filter(key => !pair || key !== 'consent').sort().join(',') !== (pair
+      ? 'entitlement_id,locale,product_code,profile_id,relationship_profile_id,relationship_type'
       : 'entitlement_id,locale,product_code,profile_id')
       || fields.product_code !== product || fields.locale !== locale) throw new PremiumError('INVALID_INPUT', 400);
-    if (pair && fields.consent !== true) throw new PremiumError('CONSENT_REQUIRED', 400);
     const grant = await access(identifier(fields.entitlement_id));
     if (grant.source === 'local_mock') throw new PremiumError('PAYMENT_REQUIRED', 403);
     const profile = async (value: unknown, role: string) => {

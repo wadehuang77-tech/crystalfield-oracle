@@ -68,7 +68,6 @@ try {
         if (state === 'paid') {
           await page.getByRole('button', { name: locale === 'en' ? 'Saved report · completed' : '已儲存報告 · completed' }).click();
         } else {
-          if (kind === 'relationship') await page.getByRole('checkbox').check();
           await page.getByRole('button', { name: `${locale === 'en' ? 'Unlock / view report' : '解鎖／查看報告'} · NT$${product.price}`, exact: true }).click();
         }
         await page.locator(selector).waitFor();

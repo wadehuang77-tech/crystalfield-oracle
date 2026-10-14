@@ -54,7 +54,7 @@ export function relationshipPerson(birthDate: string, locale: MayaLocale): Relat
   const kinNumber = mayaForDate(birthDate, locale).kin_number;
   return { birthDate, kinNumber, oracle: calculateDreamspellOracle(kinNumber, locale), wavespell: calculateDreamspellWavespell(kinNumber, locale) };
 }
-export function validPracticePlan(value: unknown): value is NinetyDayStage[] {
+export function validPracticePlan(value: unknown, maxItemLength = 2000): value is NinetyDayStage[] {
   const ids = ['awareness', 'action-adjustment', 'integration'];
   return Array.isArray(value) && value.length === 3 && value.every((s: unknown, i) => {
     if (!s || typeof s !== 'object') return false;
@@ -62,7 +62,7 @@ export function validPracticePlan(value: unknown): value is NinetyDayStage[] {
     return Object.keys(stage).sort().join(',') === 'actionSteps,endDay,id,reflectionQuestions,startDay'
       && stage.id === ids[i] && stage.startDay === i * 30 + 1 && stage.endDay === (i + 1) * 30
       && [stage.actionSteps, stage.reflectionQuestions].every(v => Array.isArray(v) && v.length >= 3 && v.length <= 6
-        && v.every(t => typeof t === 'string' && t.trim().length > 0 && t.length <= 2000));
+        && v.every(t => typeof t === 'string' && t.trim().length > 0 && t.length <= maxItemLength));
   });
 }
 export function validateRelationshipReport(value: unknown): value is RelationshipReport {
@@ -78,11 +78,11 @@ export function validateRelationshipReport(value: unknown): value is Relationshi
       if (JSON.stringify(person) !== JSON.stringify(relationshipPerson(person.birthDate, report.locale))) return false;
     }
   } catch { return false; }
-  if (!Array.isArray(report.sections) || report.sections.length !== 12 || !validPracticePlan(report.ninetyDayPlan)) return false;
+  if (!Array.isArray(report.sections) || report.sections.length !== 12 || !validPracticePlan(report.ninetyDayPlan, Infinity)) return false;
   const paragraphs = new Set<string>();
   for (const [i, section] of report.sections.entries()) {
     if (!section || Object.keys(section).sort().join(',') !== 'actionSteps,id,interpretation,lifeExamples,perspectives,reflectionQuestions'
-      || section.id !== RELATIONSHIP_CHAPTERS[i].id || typeof section.interpretation !== 'string'
+      || section.id !== RELATIONSHIP_CHAPTERS[i].id || typeof section.interpretation !== 'string' || !section.interpretation.trim()
       || !section.perspectives || Object.keys(section.perspectives).sort().join(',') !== 'a,b,shared'
       || Object.values(section.perspectives).some(t => typeof t !== 'string' || !t.trim())
       || ![section.lifeExamples, section.reflectionQuestions, section.actionSteps].every(v => Array.isArray(v) && v.length >= 1 && v.length <= 3 && v.every(t => typeof t === 'string' && !!t.trim()))) return false;
@@ -90,9 +90,8 @@ export function validateRelationshipReport(value: unknown): value is Relationshi
       ...section.reflectionQuestions, ...section.actionSteps,
       ...(i === 11 ? report.ninetyDayPlan.flatMap(s => [...s.actionSteps, ...s.reflectionQuestions]) : [])].join('\n');
     const count = chineseCharacterCount(text);
-    const words = text.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/gu)?.length ?? 0;
-    if (report.locale === 'zh-TW' && (count > 500 || /[这为与疗财爱际问长发]/u.test(text))) return false;
-    if (report.locale === 'en' && (count !== 0 || words < 120 || words > 450)) return false;
+    if (report.locale === 'zh-TW' && /[这为与疗财爱际问长发]/u.test(text)) return false;
+    if (report.locale === 'en' && count !== 0) return false;
     if (/保證.*(?:財富|收益)|治癒疾病|必定.*發財|guaranteed (?:wealth|returns)|cure disease|you will become rich|compatibility score|合盤分數|\bKIN\s*\d/iu.test(text)) return false;
     for (const paragraph of [section.interpretation, ...Object.values(section.perspectives), ...section.lifeExamples]) {
       const normalized = paragraph.toLowerCase().replace(/[\s\p{P}]/gu, '');

@@ -8,6 +8,8 @@ import { submitMayaCheckout, validateMayaCheckoutForm } from '../lib/mayaCheckou
 import { readMayaUnlockIntent, saveMayaUnlockIntent } from '../lib/mayaUnlock';
 import useMayaPaymentReturn from '../hooks/useMayaPaymentReturn';
 import MayaVisualization from '../components/maya/MayaVisualization';
+import MayaSeoLanding from '../components/maya/MayaSeoLanding';
+import { mayaMemberSeo } from '../lib/mayaSeo';
 import LifeBlueprintNavigator from '../components/maya/LifeBlueprintNavigator';
 import type { VersionedLifeBlueprintReport } from '../lib/mayaLifeBlueprintStorage';
 import MayaPremiumProductIntro from '../components/maya/MayaPremiumProductIntro';
@@ -30,6 +32,7 @@ export default function MayaCalendarPage() {
   const localized = (path: string) => getLocalizedPath(path, language);
   const privatePage = location.pathname.replace(/^\/en/, '').replace(/\/+$/, '') !== '/maya-calendar';
   const compactPage = ['/maya-calendar', '/maya-calendar/member'].includes(location.pathname.replace(/^\/en/, '').replace(/\/+$/, ''));
+  const memberPage = location.pathname.replace(/^\/en/, '').replace(/\/+$/, '') === '/maya-calendar/member';
   const [profiles, setProfiles] = useState<MayaProfile[]>([]);
   const [daily, setDaily] = useState<MayaDaily | null>(null);
   const [reports, setReports] = useState<MayaReportEntry[]>([]);
@@ -200,7 +203,9 @@ export default function MayaCalendarPage() {
     </dl>;
   }
 
-  if (configLoading) return <main className="p-8 text-white"><h1>{t('正在確認功能狀態…', 'Checking feature availability...')}</h1></main>;
+  if (!privatePage) return <MayaSeoLanding locale={locale} features={features} configLoading={configLoading} configError={configError}
+    availability={premiumAvailability} availabilityError={premiumConfigError} enter={enter} adminPreview={!!user && features.admin_preview === true} />;
+  if (configLoading) return <main className="p-8 text-white"><h1>{mayaMemberSeo(locale).h1}</h1><p role="status">{t('正在確認功能狀態…', 'Checking feature availability...')}</p><Link to={localized('/maya-calendar/')}>{memberPage ? t('馬雅曆免費解盤', 'Free Dreamspell KIN Calculator') : t('認識馬雅曆與免費 KIN 查詢', 'About Dreamspell and free KIN lookup')}</Link></main>;
   if (!features.public || (privatePage && !features.member)) {
     return <main className="p-8 text-white"><h1>{t('Dreamspell 尚未開放', 'Dreamspell is not available yet')}</h1>{(configError || error) && <p role="alert">{configError || error}</p>}</main>;
   }
@@ -213,7 +218,7 @@ export default function MayaCalendarPage() {
         <p className="text-cyan-300">Dreamspell · 13 Moon Calendar</p>
         <Link className="underline" to={getLocalizedPath(location.pathname.replace(/^\/en/, ''), en ? 'zh-Hant' : 'en')}>{en ? '繁體中文' : 'English'}</Link>
       </div>
-      <h1 className="max-w-3xl text-3xl font-bold leading-tight sm:text-4xl">{privatePage
+      <h1 className="max-w-3xl text-3xl font-bold leading-tight sm:text-4xl">{memberPage ? mayaMemberSeo(locale).h1 : privatePage
         ? t('Dreamspell 瑪雅 13 月亮曆', 'Dreamspell Maya 13 Moon Calendar')
         : t('探索你的馬雅星際生命密碼', 'Discover Your Galactic Life Signature')}</h1>
       {!privatePage && <p className="mt-3 max-w-2xl text-lg leading-relaxed text-cyan-100" data-maya-subtitle>{t(
@@ -221,7 +226,7 @@ export default function MayaCalendarPage() {
         'Explore your strengths, personality, and sense of direction—starting with your birth date.')}</p>}
       <nav className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3" aria-label={t('馬雅曆導覽', 'Dreamspell navigation')}>
         <button className={`${button} w-full sm:w-auto`} disabled={!features.member} onClick={enter}>{t('免費查詢我的 KIN', 'Find My KIN for Free')}</button>
-        <Link to={localized('/maya-calendar')}>{t('認識馬雅曆', 'About Dreamspell')}</Link>
+        <Link to={localized('/maya-calendar/')}>{memberPage ? t('馬雅曆免費解盤', 'Free Dreamspell KIN Calculator') : t('認識馬雅曆', 'About Dreamspell')}</Link>
         <Link to={localized('/maya-calendar/daily')}>{t('今日星際能量', "Today's Galactic Energy")}</Link>
         <Link to={localized('/maya-calendar/reports')}>{t('我的生命藍圖', 'My Life Blueprint')}</Link>
       </nav>

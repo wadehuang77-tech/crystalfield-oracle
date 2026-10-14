@@ -19,7 +19,7 @@ try {
     });` });
     const en = locale === 'en', pair = price === 899;
     const product = pair ? MAYA_RELATIONSHIP_PRODUCT.code : price === 199 ? 'MAYA_BASIC_199' : 'MAYA_FULL_499';
-    let saves = 0, checkouts = 0;
+    let saves = 0, checkouts = 0, failedPartnerSave = false;
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('**/*', async route => {
@@ -39,6 +39,10 @@ try {
       if (url.pathname === '/api/maya/calculate') {
         saves++;
         const input = req.postDataJSON();
+        if (pair && input.role === 'relationship' && !failedPartnerSave) {
+          failedPartnerSave = true;
+          return reply({ error: 'Offline save failed' }, 503);
+        }
         return reply({ profile: { ...mayaForDate(input.birth_date, locale), id: input.role,
           role: input.role, birth_date: input.birth_date } });
       }
@@ -60,24 +64,23 @@ try {
     const birthDate = price === 499 ? '1990-01-01' : '1987-07-26';
     await dates.first().fill(birthDate);
     if (pair) {
-      const save = page.getByRole('button', { name: en ? 'Save birth data' : '儲存出生資料', exact: true });
-      await save.first().click();
-      await page.getByRole('alert').filter({ hasText: en ? /consent/ : /同意/ }).waitFor();
-      assert.equal(saves, 0, 'No saving without relationship consent');
-      await page.getByRole('checkbox').check();
-      await save.first().click();
-      await page.getByRole('combobox').first().getByRole('option', { name: /1987-07-26/ }).waitFor({ state: 'attached' });
+      assert.equal(await page.getByRole('button', { name: en ? 'Save birth data' : '儲存出生資料', exact: true }).count(), 0);
+      assert.equal(await page.getByRole('checkbox').count(), 0);
       await unlock.click();
-      assert.equal(checkouts, 0, 'Both profiles are required');
+      await page.getByRole('alert').filter({ hasText: en ? /birth dates/ : /出生日期/ }).waitFor();
+      assert.equal(checkouts, 0, 'Both dates are required');
+      assert.equal(saves, 0, 'Validate both dates before saving either');
       assert.equal(await dates.nth(1).evaluate(el => el === document.activeElement), true);
       await dates.nth(1).fill('1990-01-01');
-      await save.nth(1).click();
-      await page.getByRole('combobox').nth(1).getByRole('option', { name: /1990-01-01/ }).waitFor({ state: 'attached' });
-      await page.getByRole('checkbox').uncheck();
+      page.once('dialog', dialog => dialog.dismiss());
       await unlock.click();
-      await page.getByRole('alert').filter({ hasText: en ? /consent/ : /同意/ }).waitFor();
-      assert.equal(checkouts, 0);
-      await page.getByRole('checkbox').check();
+      assert.equal(saves, 0, 'Cancelling checkout does not save dates');
+      page.once('dialog', dialog => dialog.accept());
+      await unlock.click();
+      await page.getByRole('alert').filter({ hasText: 'Offline save failed' }).waitFor();
+      assert.equal(checkouts, 0, 'A failed save must not start checkout');
+      assert.equal(saves, 2);
+
     } else {
       await page.getByRole('button', { name: en ? 'Discover My Galactic Signature — Free' : '免費探索我的星際印記', exact: true }).click();
       await page.getByRole('button', { name: en ? 'Share My Galactic Signature' : '分享我的星際印記', exact: true }).waitFor();
@@ -106,9 +109,9 @@ try {
     await unlock.click();
     await page.getByRole('alert').filter({ hasText: 'Offline checkout reached' }).waitFor();
     assert.equal(checkouts, 1);
-    assert.equal(saves, 2);
+    assert.equal(saves, pair ? 3 : 2, 'Retry only saves B again after its failure');
     assert.deepEqual(errors, []);
     await page.close(); cases++;
   }
-  console.log(`PASS ${cases} bilingual new-member unlock flows: missing data guidance, consent, save and checkout; no real payment or AI.`);
+  console.log(`PASS ${cases} bilingual new-member unlock flows: missing data guidance, member consent, automatic relationship save and checkout; no real payment or AI.`);
 } finally { await browser.close(); await server.close(); }
