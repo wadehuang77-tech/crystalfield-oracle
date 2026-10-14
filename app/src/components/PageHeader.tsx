@@ -127,7 +127,7 @@ export default function PageHeader() {
       }}>
 
         {/* Left: back button (empty on home) */}
-        <div>
+        <div className="flex items-center gap-3 whitespace-nowrap">
           {!isHome && (
             <button
               onClick={() => navigate(backTarget)}
@@ -136,6 +136,12 @@ export default function PageHeader() {
               <ArrowLeft style={{ width: 14, height: 14 }} strokeWidth={2.2} />
               {backLabel}
             </button>
+          )}
+          {normalizedPath.startsWith('/maya-calendar/') && (
+            <Link to={getLocalizedPath('/maya-calendar/', language)}
+              style={{ color: text, fontSize: 13, fontWeight: 500, padding: '4px 0' }}>
+              {language === 'en' ? 'Back to Maya' : '回馬雅曆'}
+            </Link>
           )}
         </div>
 
