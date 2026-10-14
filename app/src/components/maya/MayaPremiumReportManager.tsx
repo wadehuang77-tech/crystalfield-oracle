@@ -131,7 +131,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   }, [loaded, grant, returnedOrder, selectedId, userId, locale, product.code, run, generate, en]);
   async function unlock(signal: AbortSignal) {
     if (grant && (result?.status === 'processing' || recoverable)) return generate(signal);
-    if (grant && !returnedOrder && !result) {
+    if (grant && !returnedOrder && !result && profiles.some(p => p.id === a && p.birth_date === dateA)) {
       const existing = await mayaPremiumApi.reports(kind, locale, signal);
       if (signal.aborted) return;
       setReports(existing.reports);
@@ -144,11 +144,13 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     }
     let personal = profiles.find(v => v.id === a && v.role === 'personal');
     let partner = profiles.find(v => v.id === b && v.role === 'relationship');
-    if (kind === 'relationship' && !result) {
-      for (const [date, input] of [[dateA, personalDateInput.current], [dateB, partnerDateInput.current]] as const) {
+    if (!result) {
+      for (const [date, input] of ([[dateA, personalDateInput.current], ...(kind === 'relationship' ? [[dateB, partnerDateInput.current] as const] : [])] as const)) {
         if (!isMayaDate(date) || date.slice(5) === '02-29') {
           missingInput.current = input;
-          throw new Error(t('請輸入 A、B 雙方有效的出生日期（不支援 2 月 29 日）。', 'Enter valid birth dates for both A and B (February 29 is not supported).'));
+          throw new Error(kind === 'relationship'
+            ? t('請輸入 A、B 雙方有效的出生日期（不支援 2 月 29 日）。', 'Enter valid birth dates for both A and B (February 29 is not supported).')
+            : t('請輸入有效的出生日期（不支援 2 月 29 日），再按解鎖。', 'Enter a valid birth date (February 29 is not supported), then unlock.'));
         }
       }
     } else if (!a || kind === 'relationship' && !b) {
@@ -160,7 +162,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
       if (!window.confirm(t(`確認支付 NT$${product.price} 解鎖報告？不自動續扣。`,
         `Pay NT$${product.price} to unlock your report? No recurring billing.`))) return;
     }
-    if (kind === 'relationship' && !result) {
+    if (!result) {
       // Carry the returned IDs through this request; React state updates are asynchronous.
       if (personal?.birth_date !== dateA) {
         personal = (await mayaApi.calculate(dateA, locale, 'personal')).profile;
@@ -169,7 +171,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
         const saved = personal;
         setProfiles(previous => [saved, ...previous.filter(v => v.id !== saved.id)]);
       }
-      if (partner?.birth_date !== dateB) {
+      if (kind === 'relationship' && partner?.birth_date !== dateB) {
         partner = (await mayaApi.calculate(dateB, locale, 'relationship')).profile;
         if (signal.aborted) return;
         setB(partner.id);
@@ -198,24 +200,10 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     <>
       {!report && <section className="maya-cosmic-panel space-y-4">
         <h2>{t('報告出生資料', 'Birth data for this report')}</h2>
-        <p>{kind === 'relationship' ? t('輸入雙方生日，按解鎖即可自動儲存並開始處理；付款成功後自動生成報告。', 'Enter both birth dates and unlock. We’ll save them automatically and generate your report after payment is verified.') : t('選擇這份藍圖使用的出生資料；完成後可隨時回來閱讀。', 'Choose the birth data for your blueprint. Return anytime to read your completed report.')}</p>
+        <p>{kind === 'relationship' ? t('輸入雙方生日，按解鎖即可自動儲存並開始處理；付款成功後自動生成報告。', 'Enter both birth dates and unlock. We’ll save them automatically and generate your report after payment is verified.') : t('輸入出生年月日，直接按解鎖；系統會自動儲存資料，付款驗證成功後自動生成報告。', 'Enter your birth date and unlock directly. Your profile is saved automatically and your report starts after verified payment.')}</p>
         {(['personal', ...(kind === 'relationship' ? ['relationship'] : [])] as const).map(role => <div key={role} className="space-y-2">
-          {kind === 'pro' && <label className="block">{role === 'personal' ? 'A' : 'B'} · {t('既有出生資料', 'Saved birth data')}
-            <select className="ml-2 bg-slate-900 p-2" value={role === 'personal' ? a : b} disabled={busy || !!result}
-              onChange={e => role === 'personal' ? setA(e.target.value) : setB(e.target.value)}>
-              <option value="">{t('選擇資料', 'Select a profile')}</option>
-              {profiles.filter(p => p.role === role).map(p => <option key={p.id} value={p.id}>{p.birth_date} · KIN {p.kin_number}</option>)}
-            </select>
-          </label>}
           <label>{kind === 'relationship' ? `${role === 'personal' ? 'A' : 'B'} · ${t('出生日期', 'Birth date')}` : t('新增生日', 'Add birth date')} <input ref={role === 'personal' ? personalDateInput : partnerDateInput} className="block min-h-12 w-full min-w-0 rounded-lg bg-slate-900 p-3 sm:w-auto" type="date" min="1900-01-01" max={taipeiDate()} disabled={busy || !!result}
             value={role === 'personal' ? dateA : dateB} onChange={e => role === 'personal' ? setDateA(e.target.value) : setDateB(e.target.value)} /></label>
-          {kind === 'pro' && <button className="ml-3 underline" disabled={busy || !!result || !(role === 'personal' ? dateA : dateB)}
-            onClick={() => run(async signal => {
-              const saved = await mayaApi.calculate(role === 'personal' ? dateA : dateB, locale, role === 'personal' ? 'personal' : 'relationship');
-              if (signal.aborted) return;
-              setProfiles(p => [saved.profile, ...p.filter(v => v.id !== saved.profile.id)]);
-              if (role === 'personal') setA(saved.profile.id); else setB(saved.profile.id);
-            })}>{t('儲存出生資料', 'Save birth data')}</button>}
         </div>)}
         {kind === 'relationship' && <>
           <label className="block">{t('關係類型', 'Relationship type')} <select className="bg-slate-900 p-2" disabled={busy || !!result}
@@ -230,7 +218,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
           onClick={() => run(unlock)}>{!busy && result?.status !== 'processing' && !complimentary && !grant ? mayaPremiumCopy(kind, locale).cta
             : `${busy ? t('生成中…', 'Generating...') : result?.status === 'processing' || recoverable ? t('繼續生成（不重新付款）', 'Continue report (no new payment)')
               : complimentary ? t('管理者免費解鎖', 'Unlock free admin report') : t('解鎖／查看報告', 'Unlock / view report')} · NT$${product.price}`}</button>
-        {kind === 'pro' && !a && <p className="text-amber-200">{t('解鎖前請先儲存 A 的出生資料。', 'Save birth data for A before unlocking.')}</p>}
+        {kind === 'pro' && !a && <p className="text-amber-200">{t('填寫生日後直接解鎖，不必先按儲存。', 'Enter your birth date and unlock; no separate save step is needed.')}</p>}
         <p className="text-sm text-slate-400">{t('報告準備期間請保持頁面開啟；若中斷，可回來繼續，無需再次購買。', 'Keep this page open while your report is being prepared. If interrupted, return to continue without another purchase.')}</p>
       </section>}
       {result && <p role="status">{result.completedSections}/{result.totalSections} · {result.status}

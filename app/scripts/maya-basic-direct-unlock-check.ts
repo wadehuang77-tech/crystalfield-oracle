@@ -2,16 +2,18 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { mayaForDate } from '../src/lib/maya';
+import { mayaPremiumCopy } from '../src/lib/mayaPremiumCopy';
+import { MAYA_PRO_PRODUCT } from '../src/lib/mayaPro';
 
 const server = await createServer({ server: { host: '127.0.0.1', port: 5247, strictPort: true } });
 await server.listen();
 const browser = await chromium.launch({ channel: 'chrome' });
 let cases = 0;
 try {
-  for (const locale of ['zh-TW', 'en'] as const) for (const price of [199, 499]) {
+  for (const locale of ['zh-TW', 'en'] as const) for (const price of [199, 499, 699]) {
     const page = await browser.newPage();
     const prefix = locale === 'en' ? '/en' : '';
-    const product = price === 199 ? 'MAYA_BASIC_199' : 'MAYA_FULL_499';
+    const product = price === 199 ? 'MAYA_BASIC_199' : price === 499 ? 'MAYA_FULL_499' : MAYA_PRO_PRODUCT.code;
     const calls: string[] = [];
     const errors: string[] = [];
     let failSave = true;
@@ -25,7 +27,8 @@ try {
       if (url.pathname === '/api/admin/check') return reply({ isAdmin: false });
       if (url.pathname === '/api/track') return reply({ ok: true });
       if (url.pathname === '/api/maya/config') return reply({ public: true, member: true, payment: true, sandbox: false, ai: true });
-      if (url.pathname === '/api/maya/pro/config') return reply({ liveAi: true });
+      if (url.pathname === '/api/maya/pro/config') return reply({ enabled: true, payment: true, mode: 'production_entitlement', liveAi: true });
+      if (url.pathname === '/api/maya/pro/reports') return reply({ reports: [] });
       if (url.pathname === '/api/maya/relationship/config') return reply({ reportAvailable: true });
       if (url.pathname === '/api/maya/profile') return reply({ profiles: [] });
       if (url.pathname === '/api/maya/daily') return reply({ daily: null });
@@ -44,11 +47,13 @@ try {
       }
       throw new Error(`Unexpected request ${request.method()} ${url.pathname}`);
     });
-    await page.goto(`http://127.0.0.1:5247${prefix}/maya-calendar/`);
+    await page.goto(`http://127.0.0.1:5247${prefix}/maya-calendar/${price === 699 ? 'pro' : ''}`);
+    if (price !== 699) {
     const entry = page.locator(`#full-blueprint a[href$="#${product}"]`);
     assert.ok((await entry.textContent())?.includes(`NT$${price}`));
     await entry.click();
-    const unlock = page.getByRole('button', { name: `${locale === 'en' ? 'Pay to unlock' : '付費解鎖'} · NT$${price}`, exact: true });
+    }
+    const unlock = page.getByRole('button', { name: price === 699 ? mayaPremiumCopy('pro', locale).cta : `${locale === 'en' ? 'Pay to unlock' : '付費解鎖'} · NT$${price}`, exact: true });
     await unlock.click();
     await page.getByRole('alert').waitFor();
     assert.deepEqual(calls, []);
