@@ -15,6 +15,7 @@ try {
     const path = new URL(route.request().url()).pathname;
     const reply = (body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
     if (path.includes('free-unlock')) {
+      if (path.endsWith('free-unlock-single')) return reply({ card: { card_key: 'same-card', gated: {} }, entitlement_status: 'free_available' });
       if (used >= 3) return reply({ error: '免費占卜次數已用完', code: 'TAROT_FREE_QUOTA_EXHAUSTED' }, 403);
       used++;
       return reply({ card: { card_key: 'same-card', gated: {} }, cards: [{ card_key: 'same-card', gated: {} }], entitlement_status: 'free_available' });
@@ -66,19 +67,19 @@ try {
       await page.evaluate(({ multi, spread }) => window.mountGate(multi, spread), { multi, spread: `${deck}_${multi ? 'three' : 'single'}` });
       for (let n = 1; n <= 4; n++) {
         await page.getByRole('button', { name: 'Draw', exact: true }).click();
-        await page.waitForFunction(expected => document.querySelector('output')?.textContent === expected, n < 4 ? 'unlocked' : multi ? 'paywall' : 'membership_gate');
+        await page.waitForFunction(expected => document.querySelector('output')?.textContent === expected, !multi || n < 4 ? 'unlocked' : 'paywall');
         if (n < 4) {
           await page.getByRole('button', { name: 'Reset', exact: true }).click();
           await page.waitForFunction(() => document.querySelector('output')?.textContent === 'idle');
         }
       }
-      assert.equal(used, 3);
+      assert.equal(used, multi ? 3 : 0);
     }
   }
   for (const path of ['/tarot', '/lightworker', '/unicorns', '/dragons', '/egyptian-gods', '/work-your-light', '/osho', '/en/tarot']) {
     console.log('Checking payment entry:', path);
     await page.evaluate(path => window.mountBanner(path), path);
-    await page.getByRole('button', { name: /選擇付費方案|Choose a plan/ }).click();
+    await page.getByRole('button', { name: /選擇月費方案|Choose a plan/ }).click();
     await page.getByRole('button', { name: /立即訂閱 NT\$600/ }).click();
     await page.waitForFunction(() => window.payment?.method === 'post');
     assert.equal(await page.evaluate(() => window.payment.action), base + '/mock-payment');
@@ -89,7 +90,7 @@ try {
     pendingPlan = plan;
     for (const modal of [false, true]) {
       await page.evaluate(({ modal, plan }) => modal ? window.mountBanner('/tarot?resume=' + plan) : window.mountPricing(plan), { modal, plan });
-      if (modal) await page.getByRole('button', { name: /選擇付費方案/ }).click();
+      if (modal) await page.getByRole('button', { name: /選擇月費方案/ }).click();
       await page.getByRole('button', { name: '繼續月費會員付款', exact: true }).click();
       await page.waitForFunction(() => window.payment?.method === 'post');
       await page.evaluate(() => { window.payment = null; });
@@ -101,7 +102,7 @@ try {
     expectedPlan = plan;
     for (const modal of [false, true]) {
       await page.evaluate(({ modal, plan }) => modal ? window.mountBanner('/tarot?select=' + plan) : window.mountPricing('select-' + plan), { modal, plan });
-      if (modal) await page.getByRole('button', { name: /選擇付費方案/ }).click();
+      if (modal) await page.getByRole('button', { name: /選擇月費方案/ }).click();
       const card = page.locator('button[aria-pressed]').filter({ hasText: `NT$${price}` });
       await card.click();
       assert.equal(await card.getAttribute('aria-pressed'), 'true');

@@ -29,11 +29,11 @@ export function TarotLoginGate({ theme = 'dark' }: { theme?: 'light' | 'dark' })
         <span className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border ${dark ? 'border-blue-300/35 bg-blue-400/10 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-700'}`}>
           <Lock className="h-6 w-6" />
         </span>
-        <h3 className="text-xl font-bold">{isEnglish ? 'Sign in for 3 Free Full Readings' : '登入帳號，享有 3 次免費完整占卜'}</h3>
+        <h3 className="text-xl font-bold">{isEnglish ? 'Sign in for Unlimited Free Single-Card Readings' : '登入帳號，七種牌組單張占卜無限次免費'}</h3>
         <p className={`mt-2 text-sm leading-6 ${dark ? 'text-blue-100/70' : 'text-slate-600'}`}>
           {isEnglish
-            ? 'Use your three readings across all tarot and oracle decks. Each completed spread uses one reading.'
-            : '免費次數可跨所有塔羅與神諭卡牌組使用；每完成一個牌陣計 1 次。'}
+            ? 'Single-card readings never use your free credits. Multi-card spreads include three free readings across all decks; monthly plans are available after that.'
+            : '單張牌陣不扣免費額度；多張牌陣可跨牌組免費體驗 3 次，用完後可選擇月費方案。'}
         </p>
       </div>
       <div className={`mx-auto mb-6 grid max-w-2xl gap-2 text-left sm:grid-cols-3 ${dark ? 'text-blue-50' : 'text-slate-900'}`}>

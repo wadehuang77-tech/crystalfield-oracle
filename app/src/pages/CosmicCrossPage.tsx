@@ -418,12 +418,12 @@ function CosmicCrossPage() {
                         </div>
                       </div>
                       <h3 className="text-2xl font-serif text-orange-100 tracking-wide">
-                        {isEnglish ? 'Sign in for 3 free readings' : '登入後享有 3 次免費占卜'}
+                        {isEnglish ? 'Sign in for free single-card readings and 3 free multi-card readings' : '登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次'}
                       </h3>
                       <p className="text-orange-200/80 text-base leading-relaxed max-w-md mx-auto">
                         {isEnglish
                           ? 'Use your three free readings across all decks. Each completed spread uses one reading.'
-                          : '登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。'}
+                          : '登入後七種牌組的單張牌陣無限次免費，不扣額度；多張牌陣可跨牌組免費體驗 3 次。'}
                       </p>
                       <InlineEmailUnlock
                         onUnlocked={(email) => { void handleEmailUnlock(email); }}

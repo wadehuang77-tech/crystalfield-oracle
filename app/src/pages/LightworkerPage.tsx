@@ -284,8 +284,8 @@ function LightworkerPage() {
                       )}
                       <p className="mt-4 text-xs text-cyan-300/70 tracking-wide">
                         {language === 'en'
-                          ? 'First 30% preview — sign in for 3 free readings'
-                          : '前 30% 預覽 — 登入後享有 3 次免費占卜'}
+                          ? 'First 30% preview — sign in for unlimited free single-card readings'
+                          : '前 30% 預覽 — 登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次'}
                       </p>
                     </div>
                     {gate.phase === 'loading' && (

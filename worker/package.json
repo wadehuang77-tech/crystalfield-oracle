@@ -32,6 +32,7 @@
     "test:tarot-subscription": "tsx scripts/tarot-subscription-check.ts",
     "test:ecpay-recurring": "tsx scripts/ecpay-recurring-check.ts",
     "test:tarot-quota": "tsx scripts/tarot-trial-check.ts",
+    "test:tarot-single-free": "tsx scripts/tarot-single-free-check.ts",
     "test:english-card-previews": "tsx scripts/english-card-preview-check.ts",
     "test:tarot-trial": "tsx scripts/tarot-trial-check.ts",
     "types": "wrangler types"

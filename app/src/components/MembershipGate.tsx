@@ -79,7 +79,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
           <>
             <div className="mb-6 mt-2 text-center">
               <Crown className="mx-auto mb-4 h-12 w-12 text-amber-400" />
-              <h2 className="font-serif text-xl tracking-wider text-amber-100">免費占卜 3 次已用完，或目前方案尚未包含此牌陣</h2>
+              <h2 className="font-serif text-xl tracking-wider text-amber-100">多張牌陣免費體驗已用完，或目前方案尚未包含此牌陣</h2>
               <p className="mt-3 text-sm leading-6 text-amber-100/70">選擇適合你的月費方案；會員期間內，方案涵蓋的牌陣可無限次完整占卜。每月續訂，可取消後續續訂。</p>
               {entitlement.free_readings_remaining > 0 && <p className="mt-2 text-sm text-amber-100/60">尚有 {entitlement.free_readings_remaining} 次免費占卜可用於其他牌陣。</p>}
             </div>

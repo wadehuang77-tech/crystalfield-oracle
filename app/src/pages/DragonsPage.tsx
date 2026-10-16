@@ -439,9 +439,9 @@ function DragonsPage() {
                 {threeGate.phase === 'login_gate' && (
                   <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xl text-center space-y-5">
                     <Lock className="w-10 h-10 text-emerald-500 mx-auto" strokeWidth={1.2} />
-                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">{language === 'en' ? 'Get 3 Free Readings After Signing In' : '登入後享有 3 次免費占卜'}</h3>
+                    <h3 className="font-serif text-2xl text-emerald-100 tracking-[0.2em]">{language === 'en' ? 'Unlimited Free Single-Card Readings After Signing In' : '登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次'}</h3>
                     <p className="text-sm text-emerald-300/85 leading-loose max-w-md mx-auto">
-                      {language === 'en' ? 'Sign in to get 3 free readings across all decks. One free credit is used when you complete a full spread.' : '登入後可跨所有牌組免費占卜 3 次；完成一次完整牌陣會扣除一次免費額度。'}
+                      {language === 'en' ? 'Sign in for unlimited free single-card readings across all seven decks. Multi-card spreads include three free readings.' : '登入後七種牌組的單張牌陣無限次免費，不扣額度；多張牌陣可跨牌組免費體驗 3 次。'}
                     </p>
                     <InlineEmailUnlock
                       onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
@@ -557,7 +557,7 @@ function DragonsPage() {
                         </div>
                       )}
                       <p className="mt-4 text-xs text-emerald-400/70 tracking-wide">
-                        {language === 'en' ? '30% preview · Sign in to get 3 free readings' : '前 30% 預覽 — 登入後享有 3 次免費占卜'}
+                        {language === 'en' ? '30% preview · Sign in for free single-card readings and 3 free multi-card readings' : '前 30% 預覽 — 登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次'}
                       </p>
                     </div>
                     {singleGate.phase === 'loading' && (

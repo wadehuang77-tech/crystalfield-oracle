@@ -1,5 +1,5 @@
 import { getMembershipSummary } from './subscriptions';
-import { isTarotSubscriptionPlan, tarotSubscriptionPlan, tarotTierForSpread } from './tarotCatalog';
+import { isTarotSubscriptionPlan, tarotSubscriptionPlan, tarotTierForSpread, TAROT_SPREADS } from './tarotCatalog';
 import { Env, forbidden, json, readSession, unauthorized } from './utils';
 
 export const TAROT_FREE_READING_LIMIT = 3;
@@ -113,6 +113,10 @@ export async function authorizeTarotSpread(
   readingId: string,
 ): Promise<{ allowed: boolean; source: 'free' | 'subscription'; entitlement: TarotEntitlement }> {
   const entitlement = await getTarotEntitlement(env, userId);
+  // Authenticated single-card readings are unlimited and never consume quota.
+  if (TAROT_SPREADS[spreadId]?.card_count === 1) {
+    return { allowed: true, source: 'free', entitlement };
+  }
   if (entitlement.plan_tier >= tarotTierForSpread(spreadId)) {
     return { allowed: true, source: 'subscription', entitlement };
   }

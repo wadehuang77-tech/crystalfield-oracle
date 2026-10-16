@@ -334,9 +334,9 @@ function HomePage() {
         </section>
 
         <p className="mt-7 text-center text-sm leading-6 text-blue-100/70">
-          {!user && copy('guestInfo', '登入或註冊後即可免費占卜 3 次，亦可使用 Google 帳號註冊。')}
-          {user && entitlement?.status === 'free_available' && `剩餘免費占卜 ${entitlement.free_readings_remaining} 次。`}
-          {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && copy('browseOnly', '免費占卜次數已用完，請選擇月費方案繼續占卜。')}
+          {!user && copy('guestInfo', '登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次；可使用 Google 帳號註冊。')}
+          {user && entitlement?.status === 'free_available' && `單張牌陣無限次免費；多張牌陣剩餘免費 ${entitlement.free_readings_remaining} 次。`}
+          {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && copy('browseOnly', '單張牌陣仍可免費占卜；多張牌陣免費額度用完後，請選擇月費方案。')}
           {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && `目前會員可使用第 ${entitlement.plan_tier} 級方案所包含的牌陣。`}
         </p>
 
@@ -418,7 +418,7 @@ function HomePage() {
                 ['前世因果解锁阵是什么？', '这是七张牌的探索牌阵，用来分层观察前世今生连结与人生课题。'],
                 ['不知道该选哪一组牌怎么办？', '可依首页主题建议选择，也可以浏览七组牌卡介绍后凭直觉决定。'],
                 ['塔羅占卜結果可以代替專業意見嗎？', '不可以；醫療、心理、法律或投資問題請諮詢合格專業人士。'],
-                ['塔羅月費方案如何選擇？', '每個帳號跨所有牌組可免費完整占卜 3 次。NT$600/月包含單張與三張牌陣，NT$1,000/月另含前世因果陣，NT$1,500/月可使用全部牌組與牌陣；會員期間內，方案涵蓋的牌陣可無限次占卜。'],
+                ['塔羅月費方案如何選擇？', '登入後七種牌組的單張牌陣無限次免費；多張牌陣跨所有牌組可免費體驗 3 次。NT$600/月包含單張與三張牌陣，NT$1,000/月另含前世因果陣，NT$1,500/月可使用全部牌組與牌陣；會員期間內，方案涵蓋的牌陣可無限次占卜。'],
               ]).map(([questionText, answer]) => (
                 <details key={questionText} className="rounded-xl border border-blue-300/15 bg-slate-950/30 px-4 py-3">
                   <summary className="cursor-pointer font-semibold text-blue-50">{questionText}</summary>
