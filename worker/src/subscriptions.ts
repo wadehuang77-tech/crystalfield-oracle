@@ -819,7 +819,9 @@ export async function rejectDuplicateActiveMembership(env: Env, userId: string, 
   const latest = await getLatestMembershipRow(env, userId);
   if (!latest) return null;
   const summary = buildSummary(latest);
-  if (summary?.status === 'pending' && resumePlanId === (latest.plan_code ?? latest.item_id)) return null;
+  // An unpaid checkout is not an active membership. Allow choosing any plan;
+  // checkout reuses an existing pending order for the selected product.
+  if (summary?.status === 'pending' && resumePlanId && isTarotSubscriptionPlan(resumePlanId)) return null;
   if (summary?.is_active || summary?.status === 'pending' || summary?.status === 'cancelling') {
     return '你目前已有進行中的月費會員';
   }

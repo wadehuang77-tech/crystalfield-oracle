@@ -287,13 +287,13 @@ assert.equal(
 );
 
 assert.equal(await rejectDuplicateActiveMembership(env, userId, entryTarotPlan.id), null, 'resume the same pending monthly plan');
-assert.ok(await rejectDuplicateActiveMembership(env, userId, 'tarot_all_monthly_1500'), 'do not create a second recurring agreement');
+assert.equal(await rejectDuplicateActiveMembership(env, userId, 'tarot_all_monthly_1500'), null, 'unpaid members can select a different monthly plan');
 await db.prepare("UPDATE subscriptions SET created_at = '2020-01-01' WHERE user_id = ?").bind(userId).run();
 assert.equal(await rejectDuplicateActiveMembership(env, userId, entryTarotPlan.id), null, 'abandoned checkout remains resumable');
 assert.equal(deriveTarotEntitlement(await getMembershipSummary(env, userId), 3).plan_id, entryTarotPlan.id);
 await db.exec('CREATE TABLE admins (id TEXT PRIMARY KEY);');
-await db.exec("CREATE TABLE orders (id TEXT PRIMARY KEY, user_id TEXT, item_type TEXT, status TEXT, created_at TEXT, updated_at TEXT);");
-await db.prepare("INSERT INTO orders VALUES (?, ?, 'subscription', 'pending', '2020-01-01', '2020-01-01')").bind('order-recurring-test', userId).run();
+await db.exec("CREATE TABLE orders (id TEXT PRIMARY KEY, user_id TEXT, item_type TEXT, status TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT, merchant_trade_no TEXT, email TEXT, item_id TEXT, item_name TEXT, amount INTEGER, picks_payload TEXT);");
+await db.prepare("INSERT INTO orders (id, user_id, item_type, status, created_at) VALUES (?, ?, 'subscription', 'pending', '2020-01-01')").bind('order-recurring-test', userId).run();
 const checkoutEnv = { ...env, JWT_SECRET: 'test-checkout-secret', ECPAY_MERCHANT_ID: '3002607', ECPAY_HASH_KEY: 'test-hash-key', ECPAY_HASH_IV: 'test-hash-iv', ECPAY_ENV: 'stage' } as Env;
 const token = await signJwt({ sub: userId, email: 'member@example.test' }, checkoutEnv.JWT_SECRET, 3600);
 for (let attempt = 0; attempt < 2; attempt++) {
@@ -310,6 +310,22 @@ for (let attempt = 0; attempt < 2; attempt++) {
 }
 assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM subscriptions').first<{ count: number }>())?.count, 1);
 assert.equal((await db.prepare('SELECT status FROM orders').first<{ status: string }>())?.status, 'pending');
+const selectedOrders = new Map<string, string>([[entryTarotPlan.id, 'order-recurring-test']]);
+for (const planId of ['tarot_pastlife_monthly_1000', 'tarot_all_monthly_1500', entryTarotPlan.id, 'tarot_pastlife_monthly_1000']) {
+  const response = await createOrder(new Request('https://example.test/api/checkout/create-order', {
+    method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ spread_id: planId }),
+  }), checkoutEnv);
+  assert.equal(response.status, 200);
+  const result = await response.json() as { order_id: string; amount: number; ecpay: { fields: Record<string, string> } };
+  assert.equal(result.amount, SPREAD_CATALOG[planId].amount);
+  assert.equal(result.ecpay.fields.PeriodAmount, String(SPREAD_CATALOG[planId].amount));
+  if (selectedOrders.has(planId)) assert.equal(result.order_id, selectedOrders.get(planId));
+  selectedOrders.set(planId, result.order_id);
+}
+assert.equal(selectedOrders.size, 3);
+// Keep the original recurring lifecycle fixture isolated from the selection cases.
+await db.prepare('DELETE FROM subscriptions WHERE order_id != ?').bind('order-recurring-test').run();
 
 const firstParams = {
   MerchantTradeNo: merchantTradeNo, RtnCode: '1', RtnMsg: 'Succeeded', TradeAmt: '600',

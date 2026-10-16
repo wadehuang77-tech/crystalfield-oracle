@@ -9,6 +9,7 @@ try {
   let used = 0;
   let submitted = 0;
   let pendingPlan = null;
+  let expectedPlan = null;
   await page.route('**/tarot-test', route => route.fulfill({ contentType: 'text/html', body: '<div id="root"></div>' }));
   await page.route('**/api/**', route => {
     const path = new URL(route.request().url()).pathname;
@@ -20,7 +21,7 @@ try {
     }
     if (path === '/api/tarot/entitlement') return reply({ entitlement: { status: pendingPlan ? 'payment_pending' : 'expired', plan_id: pendingPlan, plan_tier: 0, free_readings_remaining: 0 } });
     if (path === '/api/checkout/create-order') {
-      assert.equal(route.request().postDataJSON().spread_id, pendingPlan || 'tarot_three_monthly_600');
+      assert.equal(route.request().postDataJSON().spread_id, expectedPlan || pendingPlan || 'tarot_three_monthly_600');
       submitted++;
       return reply({ ecpay: { endpoint: base + '/mock-payment', fields: { MerchantID: 'test' } } });
     }
@@ -95,6 +96,22 @@ try {
     }
   }
   assert.equal(submitted, 14);
+  pendingPlan = 'tarot_three_monthly_600';
+  for (const [plan, price] of [['tarot_three_monthly_600', 600], ['tarot_pastlife_monthly_1000', 1000], ['tarot_all_monthly_1500', 1500]]) {
+    expectedPlan = plan;
+    for (const modal of [false, true]) {
+      await page.evaluate(({ modal, plan }) => modal ? window.mountBanner('/tarot?select=' + plan) : window.mountPricing('select-' + plan), { modal, plan });
+      if (modal) await page.getByRole('button', { name: /選擇付費方案/ }).click();
+      const card = page.locator('button[aria-pressed]').filter({ hasText: `NT$${price}` });
+      await card.click();
+      assert.equal(await card.getAttribute('aria-pressed'), 'true');
+      await page.getByRole('button', { name: plan === pendingPlan ? '繼續月費會員付款' : `立即訂閱 NT$${price}／月`, exact: true }).click();
+      await page.waitForFunction(() => window.payment?.method === 'post');
+      await page.evaluate(() => { window.payment = null; });
+    }
+  }
+  assert.equal(submitted, 20);
+  console.log('PASS: all three plan cards are clickable with a pending checkout; selected plan submitted in both payment UIs.');
   console.log('PASS: all three pending monthly plans resume from inline pricing and membership modal.');
   console.log('PASS: 14 repeated-reading flows; 8 plan entry and payment form flows.');
 } finally {

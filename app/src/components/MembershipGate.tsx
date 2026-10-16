@@ -83,10 +83,10 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
               <p className="mt-3 text-sm leading-6 text-amber-100/70">選擇適合你的月費方案；會員期間內，方案涵蓋的牌陣可無限次完整占卜。每月續訂，可取消後續續訂。</p>
               {entitlement.free_readings_remaining > 0 && <p className="mt-2 text-sm text-amber-100/60">尚有 {entitlement.free_readings_remaining} 次免費占卜可用於其他牌陣。</p>}
             </div>
-            <TarotSubscriptionDetails selectedPlanId={selectedPlanId} onSelect={setSelectedPlanId} disabled={isProcessing || entitlement.status === 'payment_pending' || entitlement.plan_tier > 0} />
+            <TarotSubscriptionDetails selectedPlanId={selectedPlanId} onSelect={setSelectedPlanId} disabled={isProcessing || entitlement.plan_tier > 0} />
             {entitlement.plan_tier > 0 && <p className="mt-4 text-center text-sm text-amber-100/70">目前方案權益至 {taipei(entitlement.current_period_end)}。請先取消後續續訂，並於到期後再選擇其他方案。</p>}
             {error && <p className="mb-4 rounded-lg border border-red-500/40 bg-red-600/15 p-3 text-sm text-red-200">{error}</p>}
-            <button onClick={() => void subscribe()} disabled={isProcessing || entitlement.plan_tier > 0} className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-6 py-3 font-bold text-white disabled:opacity-50"><Sparkles className="h-4 w-4" />{isProcessing ? '跳轉至綠界…' : entitlement.status === 'payment_pending' ? '繼續月費會員付款' : `立即訂閱 NT$${TAROT_SUBSCRIPTION_PLANS.find(plan => plan.id === selectedPlanId)?.price ?? 600}／月`}</button>
+            <button onClick={() => void subscribe()} disabled={isProcessing || entitlement.plan_tier > 0} className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 px-6 py-3 font-bold text-white disabled:opacity-50"><Sparkles className="h-4 w-4" />{isProcessing ? '跳轉至綠界…' : entitlement.status === 'payment_pending' && selectedPlanId === entitlement.plan_id ? '繼續月費會員付款' : `立即訂閱 NT$${TAROT_SUBSCRIPTION_PLANS.find(plan => plan.id === selectedPlanId)?.price ?? 600}／月`}</button>
             <p className="mt-3 text-center text-xs leading-5 text-amber-100/55">點擊後將前往綠界完成付款。付款成功後才會開通會員資格。</p>
           </>
         )}

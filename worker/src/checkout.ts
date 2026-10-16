@@ -11,7 +11,6 @@ import {
   SPREAD_CATALOG,
 } from './ecpay';
 import {
-  getLatestMembershipRow,
   createPendingMembershipSubscription,
   markMembershipFirstPaymentPaid,
   rejectDuplicateActiveMembership,
@@ -134,7 +133,13 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   }
 
   const pendingMembership = user && isTarotSubscriptionPlan(item.id)
-    ? await getLatestMembershipRow(env, user.id) : null;
+    ? await env.DB.prepare(
+      `SELECT s.order_id, s.merchant_trade_no, s.status
+       FROM subscriptions s JOIN orders o ON o.id = s.order_id
+       WHERE s.user_id = ? AND COALESCE(s.plan_code, s.item_id) = ?
+         AND s.status = 'pending' AND o.status = 'pending'
+       ORDER BY s.created_at DESC LIMIT 1`,
+    ).bind(user.id, item.id).first<{ order_id: string; merchant_trade_no: string; status: string }>() : null;
   // Resume the original recurring agreement, even after leaving checkout.
   // Creating another agreement could result in duplicate recurring charges.
   const recentPending = pendingMembership?.status === 'pending'
