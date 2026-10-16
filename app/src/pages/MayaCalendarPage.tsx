@@ -1,3 +1,4 @@
+import MayaGenerationProgress from '../components/maya/MayaGenerationProgress';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -43,6 +44,8 @@ export default function MayaCalendarPage() {
   const [partnerDate, setPartnerDate] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [generation, setGeneration] = useState<'idle' | 'running' | 'error' | 'complete'>('idle');
+  const retryGeneration = useRef<((isCurrent: () => boolean) => Promise<void>) | null>(null);
   const [busy, setBusy] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [sandboxEnabled, setSandboxEnabled] = useState(false);
@@ -109,7 +112,7 @@ export default function MayaCalendarPage() {
     setProfiles([]); setReports([]); setReport(null); setDaily(null); setEntitlements([]); setDataIdentity('');
     setBirthDate(''); setPartnerDate(''); setError(''); setNotice(''); setDeleteConfirm(false);
     setSandboxEnabled(false); setPaymentEnabled(false); setOrderStatus('');
-    keys.current.clear();
+    keys.current.clear(); setGeneration('idle'); retryGeneration.current = null;
     if (!features.member || !user || !privatePage) {
       setBusy(false);
       return;
@@ -169,8 +172,25 @@ export default function MayaCalendarPage() {
     const body = { locale, product_code: product, profile_id: profileId, idempotency_key: key,
       ...(partnerId ? { relationship_profile_id: partnerId } : {}) };
     if (!admin && !accessId) throw new Error(locale === 'en' ? 'Verified product access is required.' : '需要已驗證的商品權限。');
-    const result = admin ? await mayaApi.adminReport(body) : await mayaApi.createReport({ ...body, entitlement_id: accessId ?? '' });
-    if (isCurrent()) navigate(getLocalizedPath(`/maya-calendar/reports/${result.id}`, language));
+    retryGeneration.current = current => generateBasic(product, profileId, partnerId, accessId, admin, key, current);
+    setGeneration('running');
+    try {
+      let result: Awaited<ReturnType<typeof mayaApi.report>> = admin ? await mayaApi.adminReport(body) : await mayaApi.createReport({ ...body, entitlement_id: accessId ?? '' });
+      while (isCurrent() && ['pending', 'processing'].includes(result.status)) {
+        await new Promise(resolve => window.setTimeout(resolve, 2000));
+        if (!isCurrent()) return;
+        result = await mayaApi.report(result.id, locale);
+      }
+      if (!isCurrent()) return;
+      const ready = result.report;
+      if (result.status !== 'completed' || !ready || 'reportVersion' in ready || ready.product_code !== product || ready.locale !== locale
+        || !ready.signature || !ready.usage || !Array.isArray(ready.sections) || ready.sections.length === 0
+        || !ready.sections.every(section => typeof section.heading === 'string' && typeof section.body === 'string' && section.body.trim())) {
+        throw new Error(locale === 'en' ? 'The report is not ready to display. Retry with your existing access; do not pay again.' : '報告尚未就緒或資料無法顯示，請使用原權限重試，勿重複付款。');
+      }
+      setGeneration('complete');
+      navigate(getLocalizedPath(`/maya-calendar/reports/${result.id}`, language));
+    } catch (cause) { if (isCurrent()) setGeneration('error'); throw cause; }
   }, [locale, language, navigate]);
   useEffect(() => {
     if (!features.ai || !user || !returnedOrder || !paidReturn?.accessId || dataIdentity !== identity
@@ -254,8 +274,10 @@ export default function MayaCalendarPage() {
         <p className="mt-3 leading-relaxed text-slate-300">{description}</p>
       </article>)}
     </section>}
+    {!id && generation !== 'idle' && <MayaGenerationProgress locale={locale} active={generation === 'running'} complete={generation === 'complete'}
+      error={generation === 'error' ? error : undefined} onRetry={generation === 'error' && !busy ? () => void action(current => retryGeneration.current?.(current) ?? Promise.resolve()) : undefined} />}
     <div aria-live="polite">
-      {busy && <p role="status">{t('載入中…', 'Loading...')}</p>}
+      {busy && generation !== 'running' && <p role="status">{t('載入中…', 'Loading...')}</p>}
       {error && <p role="alert" className="rounded-xl bg-rose-950 p-4 text-rose-200">{error}</p>}
       {notice && <p className="rounded-xl bg-slate-800 p-4">{notice}</p>}
       {paidReturn?.error && <p role="alert">{paidReturn.error}</p>}

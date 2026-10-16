@@ -24,6 +24,7 @@
     "test:dreamspell": "tsx --test src/lib/dreamspell.test.ts",
     "test:maya-routes": "tsx scripts/maya-route-check.ts",
     "test:maya-browser": "tsx scripts/maya-browser-check.ts",
+    "test:maya-generation-progress": "tsx scripts/maya-generation-progress-check.ts",
     "test:maya-admin-preview-ui": "tsx scripts/maya-admin-preview-ui-check.ts",
     "test:maya-public-smoke": "tsx scripts/maya-public-smoke.ts",
     "test:maya-external-e2e": "tsx scripts/maya-external-e2e.ts",

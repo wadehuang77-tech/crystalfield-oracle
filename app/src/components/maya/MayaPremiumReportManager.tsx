@@ -1,3 +1,4 @@
+import MayaGenerationProgress from './MayaGenerationProgress';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { mayaApi, mayaPremiumApi, type PremiumReportResult } from '../../lib/api';
 import { isMayaDate, taipeiDate, type MayaLocale, type MayaProfile } from '../../lib/maya';
@@ -25,6 +26,9 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   const [relation, setRelation] = useState<RelationshipType>('partners');
   const [result, setResult] = useState<PremiumReportResult | null>(null);
   const [reports, setReports] = useState<Array<{ id: string; status: string }>>([]);
+  const [generating, setGenerating] = useState(false);
+  const [generationAttempted, setGenerationAttempted] = useState(false);
+  const retryGeneration = useRef<((signal: AbortSignal) => Promise<void>) | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   const loadIdentity = JSON.stringify([grant, userId, locale, kind, selectedId, returnedOrder]);
   const [loadedFor, setLoadedFor] = useState('');
@@ -48,6 +52,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     active.current = controller;
     setProfiles([]); setResult(null); setReports([]); setError(''); setBusy(false); setA(''); setB(''); setDateA(''); setDateB(''); setLoadedFor('');
     running.current = false;
+    setGenerating(false); setGenerationAttempted(false); retryGeneration.current = null;
     Promise.all([mayaApi.profiles(locale, controller.signal), grant ? mayaPremiumApi.reports(kind, locale, controller.signal) : Promise.resolve({ reports: [] }),
         grant && selectedId ? mayaPremiumApi.report(kind, selectedId, locale, controller.signal) : Promise.resolve(null)]).then(async ([p, list, report]) => {
         if (controller.signal.aborted) return;
@@ -80,9 +85,12 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
   }, [en]);
   const recoverable = kind === 'relationship' && result?.status === 'blocked'
     && result.completedSections >= 11 && ['AI_RETRY_LIMIT', 'AI_SCHEMA_INVALID'].includes(result.reason ?? '');
-  const generate = useCallback(async (signal: AbortSignal, profileA = a, profileB = b) => {
+  const generate = useCallback(async (signal: AbortSignal, profileA = a, profileB = b, knownResult = result) => {
     if (!grant) throw new Error(en ? 'Verified product access is required.' : '需要已驗證的商品權限。');
-    let current = result && (result.status === 'processing' || recoverable) ? result : await mayaPremiumApi.create(kind, {
+    retryGeneration.current = nextSignal => generate(nextSignal, profileA, profileB);
+    setGenerationAttempted(true); setGenerating(true);
+    try {
+    let current = knownResult ? knownResult : await mayaPremiumApi.create(kind, {
       profile_id: profileA, entitlement_id: grant, locale, product_code: product.code,
       ...(kind === 'relationship' ? { relationship_profile_id: profileB, relationship_type: relation } : {}),
     }, signal);
@@ -113,11 +121,20 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
       }
       if (!signal.aborted) setResult(current);
     }
+    if (!signal.aborted && current.status === 'completed') {
+      const ready = current.report;
+      const valid = ready?.productCode === MAYA_PRO_PRODUCT.code
+        ? validateMayaProReport(ready, ready.kinNumber, locale) && ready.provider === 'openai'
+        : ready?.productCode === MAYA_RELATIONSHIP_PRODUCT.code && validateRelationshipReport(ready) && ready.locale === locale;
+      if (!valid) throw new Error(en ? 'The report could not be displayed. Retry to check its status; do not pay again.' : '報告資料無法顯示，請重試確認狀態，勿重複付款。');
+    }
+    if (!signal.aborted && current.status === 'blocked') throw new Error(current.reason || (en ? 'Report generation is blocked. Do not pay again.' : '報告生成已暫停，請勿重複付款。'));
     if (!signal.aborted) setReports((await mayaPremiumApi.reports(kind, locale, signal)).reports);
     if (!signal.aborted && returnedOrder && current.status === 'completed') {
       const intent = readMayaUnlockIntent(userId, locale, returnedOrder, product.code);
       if (intent) saveMayaUnlockIntent({ ...intent, phase: 'completed' });
     }
+    } finally { if (!signal.aborted) setGenerating(false); }
   }, [grant, en, result, kind, a, b, locale, product.code, relation, returnedOrder, userId, recoverable]);
   useEffect(() => {
     if (!loaded || !grant || !returnedOrder || selectedId || autoAttempt.current === returnedOrder) return;
@@ -197,6 +214,16 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
     {!grant && <p>{t('解鎖後即可探索完整藍圖。', 'Unlock your report to explore the full blueprint.')}</p>}
     {paidReturn && <p role="status">{t('後端付款狀態', 'Server payment status')}: {paidReturn.status}</p>}
     {paidReturn?.error && <p role="alert">{paidReturn.error}</p>}
+    {grant && !validPro && !validPair && (generationAttempted || result) && <MayaGenerationProgress locale={locale}
+      active={generating} completed={result?.completedSections ?? 0} total={result?.totalSections}
+      error={error || (result?.status === 'blocked' ? result.reason ?? 'Generation blocked' : undefined)}
+      onRetry={busy ? undefined : () => void run(async signal => {
+        if (!result) return retryGeneration.current?.(signal);
+        const saved = await mayaPremiumApi.report(kind, result.id, locale, signal);
+        if (signal.aborted) return;
+        setResult(saved);
+        await generate(signal, a, b, saved);
+      })} />}
     <>
       {!report && <section className="maya-cosmic-panel space-y-4">
         <h2>{t('報告出生資料', 'Birth data for this report')}</h2>
