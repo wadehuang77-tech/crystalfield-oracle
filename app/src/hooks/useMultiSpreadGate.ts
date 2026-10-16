@@ -35,6 +35,15 @@ export function useMultiSpreadGate({
   const attemptRef = useRef('');
 
   useEffect(() => {
+    if (picks?.length) return;
+    attemptRef.current = '';
+    setPhase('idle');
+    setError(null);
+    setUnlockedCards(null);
+    setUnlockSource(null);
+  }, [picks]);
+
+  useEffect(() => {
     const changed = () => { attemptRef.current = ''; setAccessVersion((value) => value + 1); };
     window.addEventListener('tarot-entitlement-changed', changed);
     return () => window.removeEventListener('tarot-entitlement-changed', changed);

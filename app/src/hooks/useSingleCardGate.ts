@@ -37,6 +37,15 @@ export function useSingleCardGate({
   const attemptRef = useRef('');
 
   useEffect(() => {
+    if (cardKey) return;
+    attemptRef.current = '';
+    setPhase('idle');
+    setError(null);
+    setUnlockedCard(null);
+    setShowMembership(false);
+  }, [cardKey]);
+
+  useEffect(() => {
     const changed = () => { attemptRef.current = ''; setAccessVersion((value) => value + 1); };
     window.addEventListener('tarot-entitlement-changed', changed);
     return () => window.removeEventListener('tarot-entitlement-changed', changed);
