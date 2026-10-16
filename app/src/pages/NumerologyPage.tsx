@@ -890,6 +890,7 @@ function NumerologySeoContent() {
         <Link className="text-purple-300 underline" to={getLocalizedPath('/oracle', language)}>{language === 'en' ? 'Explore Tarot and Oracle Cards' : '探索塔羅與神諭卡'}</Link>
         <Link className="text-purple-300 underline" to={getLocalizedPath('/human-design', language)}>{language === 'en' ? 'Explore Human Design' : '深入探索人類圖'}</Link>
         <Link className="text-purple-300 underline" to={getLocalizedPath('/vedic-astrology', language)}>{language === 'en' ? 'Explore Vedic Astrology' : '查看印度占星分析'}</Link>
+        <Link className="text-purple-300 underline" to={getLocalizedPath('/maya-calendar', language)}>{language === 'en' ? 'Explore Maya Calendar' : '查看瑪雅曆'}</Link>
       </nav>
     </section>
   );
