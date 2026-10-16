@@ -13,7 +13,9 @@ import {
   paymentBillingConfigForProduct,
   SPREAD_CATALOG,
 } from '../src/ecpay';
-import { checkoutResult } from '../src/checkout';
+import { checkoutResult, createOrder } from '../src/checkout';
+import { signJwt } from '../src/auth';
+import { deriveTarotEntitlement } from '../src/tarotEntitlements';
 import { getCheckoutLocaleFromPath } from '../../app/src/lib/i18n';
 import {
   addEcpayBillingPeriod,
@@ -21,6 +23,7 @@ import {
   createPendingMembershipSubscription,
   decideTarotEntitlement,
   getMembershipSummary,
+  rejectDuplicateActiveMembership,
   handleMembershipRecurringCallback,
   hasActiveTarotSubscription,
   markMembershipFirstPaymentPaid,
@@ -283,6 +286,31 @@ assert.equal(
   'client/localStorage state cannot turn a pending D1 subscription into an entitlement',
 );
 
+assert.equal(await rejectDuplicateActiveMembership(env, userId, entryTarotPlan.id), null, 'resume the same pending monthly plan');
+assert.ok(await rejectDuplicateActiveMembership(env, userId, 'tarot_all_monthly_1500'), 'do not create a second recurring agreement');
+await db.prepare("UPDATE subscriptions SET created_at = '2020-01-01' WHERE user_id = ?").bind(userId).run();
+assert.equal(await rejectDuplicateActiveMembership(env, userId, entryTarotPlan.id), null, 'abandoned checkout remains resumable');
+assert.equal(deriveTarotEntitlement(await getMembershipSummary(env, userId), 3).plan_id, entryTarotPlan.id);
+await db.exec('CREATE TABLE admins (id TEXT PRIMARY KEY);');
+await db.exec("CREATE TABLE orders (id TEXT PRIMARY KEY, user_id TEXT, item_type TEXT, status TEXT, created_at TEXT, updated_at TEXT);");
+await db.prepare("INSERT INTO orders VALUES (?, ?, 'subscription', 'pending', '2020-01-01', '2020-01-01')").bind('order-recurring-test', userId).run();
+const checkoutEnv = { ...env, JWT_SECRET: 'test-checkout-secret', ECPAY_MERCHANT_ID: '3002607', ECPAY_HASH_KEY: 'test-hash-key', ECPAY_HASH_IV: 'test-hash-iv', ECPAY_ENV: 'stage' } as Env;
+const token = await signJwt({ sub: userId, email: 'member@example.test' }, checkoutEnv.JWT_SECRET, 3600);
+for (let attempt = 0; attempt < 2; attempt++) {
+  const response = await createOrder(new Request('https://example.test/api/checkout/create-order', {
+    method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ spread_id: entryTarotPlan.id }),
+  }), checkoutEnv);
+  assert.equal(response.status, 200);
+  const result = await response.json() as { order_id: string; merchant_trade_no: string; ecpay: { fields: Record<string, string> } };
+  assert.equal(result.order_id, 'order-recurring-test');
+  assert.equal(result.merchant_trade_no, merchantTradeNo);
+  assert.equal(result.ecpay.fields.PeriodAmount, '600');
+  assert.equal(result.ecpay.fields.PeriodType, 'M');
+}
+assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM subscriptions').first<{ count: number }>())?.count, 1);
+assert.equal((await db.prepare('SELECT status FROM orders').first<{ status: string }>())?.status, 'pending');
+
 const firstParams = {
   MerchantTradeNo: merchantTradeNo, RtnCode: '1', RtnMsg: 'Succeeded', TradeAmt: '600',
   PeriodAmount: '600', PeriodType: 'M', Frequency: '1', ExecTimes: '99',
@@ -295,6 +323,7 @@ await markMembershipFirstPaymentPaid(env, {
   id: 'order-recurring-test', user_id: userId, merchant_trade_no: merchantTradeNo, amount: 600,
 }, firstParams);
 let chargeCount = await db.prepare('SELECT COUNT(*) AS count FROM subscription_charges').first<{ count: number }>();
+assert.ok(await rejectDuplicateActiveMembership(env, userId, entryTarotPlan.id), 'paid membership cannot start another agreement');
 assert.equal(chargeCount?.count, 1, 'first callback replay must not duplicate payment history');
 
 const secondParams = {

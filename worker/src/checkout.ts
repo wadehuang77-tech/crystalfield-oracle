@@ -11,7 +11,7 @@ import {
   SPREAD_CATALOG,
 } from './ecpay';
 import {
-  clearStalePendingMemberships,
+  getLatestMembershipRow,
   createPendingMembershipSubscription,
   markMembershipFirstPaymentPaid,
   rejectDuplicateActiveMembership,
@@ -97,8 +97,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     return unauthorized(req, env, '請先登入');
   }
   if (user && isTarotSubscriptionPlan(item.id)) {
-    await clearStalePendingMemberships(env, user.id);
-    const reason = await rejectDuplicateActiveMembership(env, user.id);
+    const reason = await rejectDuplicateActiveMembership(env, user.id, item.id);
     if (reason) return badRequest(req, env, reason);
   }
 
@@ -114,7 +113,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   if (user) {
     await env.DB.prepare(
       `UPDATE orders SET status = 'cancelled', updated_at = datetime('now')
-         WHERE user_id = ? AND status = 'pending'
+         WHERE user_id = ? AND status = 'pending' AND item_type != 'subscription'
            AND created_at < datetime('now', '-30 minutes')`
     ).bind(user.id).run().catch(() => {});
   }
@@ -134,7 +133,13 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
     picksPayload = JSON.stringify({ vedic_chart_id: chartId });
   }
 
-  const recentPending = user
+  const pendingMembership = user && isTarotSubscriptionPlan(item.id)
+    ? await getLatestMembershipRow(env, user.id) : null;
+  // Resume the original recurring agreement, even after leaving checkout.
+  // Creating another agreement could result in duplicate recurring charges.
+  const recentPending = pendingMembership?.status === 'pending'
+    ? { id: pendingMembership.order_id, merchant_trade_no: pendingMembership.merchant_trade_no }
+    : user
     ? await env.DB.prepare(
       `SELECT id, merchant_trade_no FROM orders
          WHERE user_id = ? AND item_id = ? AND status = 'pending'

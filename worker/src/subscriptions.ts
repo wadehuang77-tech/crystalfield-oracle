@@ -815,10 +815,11 @@ export async function cancelMyMembership(req: Request, env: Env): Promise<Respon
   return json(req, env, { membership: buildSummary(fresh) });
 }
 
-export async function rejectDuplicateActiveMembership(env: Env, userId: string): Promise<string | null> {
+export async function rejectDuplicateActiveMembership(env: Env, userId: string, resumePlanId?: string): Promise<string | null> {
   const latest = await getLatestMembershipRow(env, userId);
   if (!latest) return null;
   const summary = buildSummary(latest);
+  if (summary?.status === 'pending' && resumePlanId === (latest.plan_code ?? latest.item_id)) return null;
   if (summary?.is_active || summary?.status === 'pending' || summary?.status === 'cancelling') {
     return '你目前已有進行中的月費會員';
   }

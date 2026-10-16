@@ -77,7 +77,7 @@ export function deriveTarotEntitlement(
   return {
     status,
     has_access: paidAccess || used < TAROT_FREE_READING_LIMIT,
-    plan_id: paidAccess ? planId : null,
+    plan_id: paidAccess || status === 'payment_pending' ? planId : null,
     plan_tier: paidAccess ? planTier : 0,
     free_readings_used: used,
     free_readings_remaining: Math.max(0, TAROT_FREE_READING_LIMIT - used),

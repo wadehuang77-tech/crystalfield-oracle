@@ -8,6 +8,7 @@ try {
   page.on('pageerror', error => console.error(error.message));
   let used = 0;
   let submitted = 0;
+  let pendingPlan = null;
   await page.route('**/tarot-test', route => route.fulfill({ contentType: 'text/html', body: '<div id="root"></div>' }));
   await page.route('**/api/**', route => {
     const path = new URL(route.request().url()).pathname;
@@ -17,9 +18,9 @@ try {
       used++;
       return reply({ card: { card_key: 'same-card', gated: {} }, cards: [{ card_key: 'same-card', gated: {} }], entitlement_status: 'free_available' });
     }
-    if (path === '/api/tarot/entitlement') return reply({ entitlement: { status: 'expired', plan_tier: 0, free_readings_remaining: 0 } });
+    if (path === '/api/tarot/entitlement') return reply({ entitlement: { status: pendingPlan ? 'payment_pending' : 'expired', plan_id: pendingPlan, plan_tier: 0, free_readings_remaining: 0 } });
     if (path === '/api/checkout/create-order') {
-      assert.equal(route.request().postDataJSON().spread_id, 'tarot_three_monthly_600');
+      assert.equal(route.request().postDataJSON().spread_id, pendingPlan || 'tarot_three_monthly_600');
       submitted++;
       return reply({ ecpay: { endpoint: base + '/mock-payment', fields: { MerchantID: 'test' } } });
     }
@@ -42,6 +43,7 @@ try {
     const { useSingleCardGate } = await import('/src/hooks/useSingleCardGate.ts');
     const { useMultiSpreadGate } = await import('/src/hooks/useMultiSpreadGate.ts');
     const { TarotTrialStatusBanner } = await import('/src/components/TarotTrialStatusBanner.tsx');
+    const { OraclePricingPlans } = await import('/src/components/OraclePricingPlans.tsx');
     const h = React.createElement;
     const root = ReactDOM.createRoot(document.getElementById('root'));
     const auth = { user: { id: 'test' } };
@@ -54,6 +56,7 @@ try {
     }
     window.mountGate = (multi, spread) => root.render(h(AuthContext.Provider, { value: auth }, h(Harness, { key: spread, multi, spread })));
     window.mountBanner = path => root.render(h(AuthContext.Provider, { value: auth }, h(MemoryRouter, { key: path, initialEntries: [path] }, h(TarotTrialStatusBanner))));
+    window.mountPricing = key => root.render(h(AuthContext.Provider, { value: auth }, h(MemoryRouter, { key }, h(OraclePricingPlans, { spreadId: 'tarot_three' }))));
     HTMLFormElement.prototype.submit = function () { window.payment = { action: this.action, method: this.method }; };
   });
   for (const deck of ['tarot', 'lightworker', 'unicorns', 'dragons', 'egyptian', 'work_your_light', 'osho']) {
@@ -81,6 +84,18 @@ try {
     await page.evaluate(() => { window.payment = null; });
   }
   assert.equal(submitted, 8);
+  for (const plan of ['tarot_three_monthly_600', 'tarot_pastlife_monthly_1000', 'tarot_all_monthly_1500']) {
+    pendingPlan = plan;
+    for (const modal of [false, true]) {
+      await page.evaluate(({ modal, plan }) => modal ? window.mountBanner('/tarot?resume=' + plan) : window.mountPricing(plan), { modal, plan });
+      if (modal) await page.getByRole('button', { name: /選擇付費方案/ }).click();
+      await page.getByRole('button', { name: '繼續月費會員付款', exact: true }).click();
+      await page.waitForFunction(() => window.payment?.method === 'post');
+      await page.evaluate(() => { window.payment = null; });
+    }
+  }
+  assert.equal(submitted, 14);
+  console.log('PASS: all three pending monthly plans resume from inline pricing and membership modal.');
   console.log('PASS: 14 repeated-reading flows; 8 plan entry and payment form flows.');
 } finally {
   await browser.close();
