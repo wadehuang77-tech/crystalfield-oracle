@@ -470,6 +470,13 @@ function MayaEntryCard({ language }: { language: 'zh-Hant' | 'en' }) {
       <div className="relative z-10 px-7 py-10 sm:px-12 lg:max-w-[72%] lg:px-16">
         <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-200/80">Dreamspell · {isEnglish ? '13 Moon Calendar' : '13 月亮曆'}</p>
         <h3 className="mt-5 font-serif text-3xl font-bold text-cyan-50 sm:text-5xl">{isEnglish ? 'Maya Calendar' : '瑪雅曆'}</h3>
+        <p className="mt-6 font-serif text-2xl font-semibold leading-relaxed text-cyan-50 sm:text-3xl sm:leading-relaxed">
+          <span className="block">{isEnglish ? 'Discover your galactic signature' : '解讀你的星系印記'}</span>
+          <span className="block text-cyan-200">{isEnglish ? 'Rediscover your own rhythm of life' : '找回自己的生命節奏'}</span>
+        </p>
+        <p className="mt-3 max-w-2xl text-base leading-8 text-cyan-100/90 sm:text-lg">
+          {isEnglish ? 'From your gifts and relationships to your direction in life, begin a journey of self-discovery.' : '從天賦、關係到人生方向，開啟認識自己的旅程。'}
+        </p>
         <p className="mt-4 max-w-2xl text-base leading-8 text-cyan-100/75 sm:text-lg">
           {isEnglish ? 'Explore 260 KIN, 20 solar seals and 13 galactic tones through the modern Dreamspell calendar.' : '認識現代 Dreamspell 曆法，探索 260 KIN、20 太陽圖騰與 13 銀河音調。'}
         </p>
