@@ -92,5 +92,11 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
       </div>)}
     </section>
     <p className="text-sm leading-relaxed text-slate-400">{mayaPremiumCopy('pro', locale).disclaimer}</p>
+    <nav aria-label={en ? 'Explore other services' : '探索其他服務'} className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-sm">
+      <Link className="text-cyan-300 underline" to={`${prefix}/oracle`}>{en ? 'Tarot' : '塔羅牌'}</Link>
+      <Link className="text-cyan-300 underline" to={`${prefix}/numerology`}>{en ? 'Numerology' : '生命靈數'}</Link>
+      <Link className="text-cyan-300 underline" to={`${prefix}/human-design`}>{en ? 'Human Design' : '人類圖'}</Link>
+      <Link className="text-cyan-300 underline" to={`${prefix}/vedic-astrology`}>{en ? 'Vedic Astrology' : '印度占星'}</Link>
+    </nav>
   </main>;
 }
