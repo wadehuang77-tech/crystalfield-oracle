@@ -65,6 +65,7 @@ assert.deepEqual(DEEP_ANALYSIS_ROUTES, {
   numerology: '/numerology',
   human_design: '/human-design',
   vedic_astrology: '/vedic-astrology',
+  maya_calendar: '/maya-calendar',
 });
 for (const route of Object.values(DEEP_ANALYSIS_ROUTES)) {
   assert.ok(registeredRoutes.has(route), `Missing registered main route ${route}`);
@@ -78,6 +79,7 @@ for (const text of [
   '查看生命靈數',
   '查看人類圖',
   '查看印度占星',
+  '查看瑪雅曆',
 ]) assert.ok(componentSource.includes(text), `Missing recommendation copy: ${text}`);
 
 assert.equal((allPageSource.match(/<ShareReadingSection/g) ?? []).length, 13, 'Expected all 13 result render locations');
@@ -98,7 +100,7 @@ for (const spreadId of Object.keys(ORACLE_SPREADS)) {
 assert.ok(componentSource.includes('if (!shouldShow) return null'));
 assert.ok(!componentSource.includes('localStorage') && !componentSource.includes('sessionStorage'));
 assert.ok(componentSource.includes('viewedResultKeys.has(exposureKey)'), 'Exposure must be deduplicated by result');
-assert.ok(componentSource.includes('grid-cols-1') && componentSource.includes('sm:grid-cols-2') && componentSource.includes('lg:grid-cols-3'), 'Responsive 1/2/3-column layout is required');
+assert.ok(componentSource.includes('grid-cols-1') && componentSource.includes('sm:grid-cols-2') && componentSource.includes('xl:grid-cols-4'), 'Responsive 1/2/4-column layout is required');
 assert.ok(ga4Source.includes('tarot_deep_analysis_recommendations_view'));
 assert.ok(ga4Source.includes('tarot_cross_sell_click'));
 for (const safeParam of ['destination', 'source', 'deck_id', 'spread_id']) {

@@ -1,6 +1,6 @@
 import type { OracleDeckId, OracleSpreadId } from './oracle-catalog';
 
-export type DeepAnalysisDestination = 'numerology' | 'human_design' | 'vedic_astrology';
+export type DeepAnalysisDestination = 'numerology' | 'human_design' | 'vedic_astrology' | 'maya_calendar';
 
 export interface TrustedTarotResultState {
   deckId: OracleDeckId;
@@ -13,6 +13,7 @@ export const DEEP_ANALYSIS_ROUTES = {
   numerology: '/numerology',
   human_design: '/human-design',
   vedic_astrology: '/vedic-astrology',
+  maya_calendar: '/maya-calendar',
 } as const satisfies Record<DeepAnalysisDestination, string>;
 
 export function shouldShowDeepAnalysisRecommendations(

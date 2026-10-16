@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ArrowRight, Compass, Fingerprint, Orbit } from 'lucide-react';
+import { ArrowRight, Compass, Fingerprint, Orbit, CalendarDays } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   DEEP_ANALYSIS_ROUTES,
@@ -43,6 +43,13 @@ const recommendations: Array<{
     description: '從出生星盤深入探索前世業力、人生使命、事業方向、感情課題與未來趨勢。',
     button: '查看印度占星',
     icon: Orbit,
+  },
+  {
+    destination: 'maya_calendar',
+    title: '瑪雅曆',
+    description: '從出生日期探索你的銀河印記、生命天賦與內在節奏，認識自己的能量特質與人生方向。',
+    button: '查看瑪雅曆',
+    icon: CalendarDays,
   },
 ];
 
@@ -89,6 +96,13 @@ export function TarotDeepAnalysisRecommendations({
           button: 'Explore Vedic Astrology',
           icon: Orbit,
         },
+        {
+          destination: 'maya_calendar' as const,
+          title: 'Maya Calendar',
+          description: 'Explore your galactic signature, natural gifts, and personal rhythms through your date of birth.',
+          button: 'Explore Maya Calendar',
+          icon: CalendarDays,
+        },
       ]
     : recommendations;
 
@@ -112,7 +126,7 @@ export function TarotDeepAnalysisRecommendations({
         </p>
       </div>
 
-      <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(({ destination, title, description, button, icon: Icon }) => (
           <article key={destination} className="flex min-w-0 flex-col rounded-2xl border border-amber-200/20 bg-white/[0.055] p-5 text-left shadow-lg">
             <Icon className="h-7 w-7 text-amber-300" aria-hidden="true" />

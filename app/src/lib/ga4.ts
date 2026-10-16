@@ -43,7 +43,7 @@ type Ga4EventMap = {
   tarot_payment_success: { plan_id: string; value: number; currency: 'TWD'; transaction_id: string };
   tarot_payment_failed: { plan_id: string; value: number; currency: 'TWD' };
   tarot_deep_analysis_recommendations_view: { source: 'unlocked_tarot_result'; deck_id: OracleDeckId; spread_id: OracleSpreadId };
-  tarot_cross_sell_click: { destination: 'numerology' | 'human_design' | 'vedic_astrology'; source: 'unlocked_tarot_result'; deck_id: OracleDeckId; spread_id: OracleSpreadId };
+  tarot_cross_sell_click: { destination: 'numerology' | 'human_design' | 'vedic_astrology' | 'maya_calendar'; source: 'unlocked_tarot_result'; deck_id: OracleDeckId; spread_id: OracleSpreadId };
 };
 
 export type Ga4EventName = keyof Ga4EventMap;
@@ -214,7 +214,7 @@ export function trackTarotDeepAnalysisRecommendationsView(deckId: OracleDeckId, 
 }
 
 export function trackTarotCrossSellClick(
-  destination: 'numerology' | 'human_design' | 'vedic_astrology',
+  destination: 'numerology' | 'human_design' | 'vedic_astrology' | 'maya_calendar',
   deckId: OracleDeckId,
   spreadId: OracleSpreadId,
 ): void {
