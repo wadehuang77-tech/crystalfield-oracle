@@ -53,6 +53,7 @@ export default function HumanDesignSeoContent() {
         <a className="text-cyan-300 underline" href="/en/oracle">Explore Tarot and Oracle Cards</a>
         <a className="text-cyan-300 underline" href="/en/human-design">Explore Human Design</a>
         <a className="text-cyan-300 underline" href="/en/vedic-astrology">Explore Vedic Astrology</a>
+        <a className="text-cyan-300 underline" href="/en/maya-calendar">Explore Maya Calendar</a>
       </nav>
     </section>;
   }
@@ -88,6 +89,6 @@ export default function HumanDesignSeoContent() {
         ].map(([label, href]) => <a key={href} className="text-cyan-300 underline" href={href}>{label}</a>)}
       </div>
     </nav>
-    <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-sm"><a className="text-cyan-300 underline" href="/numerology">查看生命靈數分析</a><a className="text-cyan-300 underline" href="/vedic-astrology">探索印度占星</a><a className="text-cyan-300 underline" href="/oracle">體驗塔羅與神諭卡</a></nav>
+    <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-sm"><a className="text-cyan-300 underline" href="/numerology">查看生命靈數分析</a><a className="text-cyan-300 underline" href="/vedic-astrology">探索印度占星</a><a className="text-cyan-300 underline" href="/oracle">體驗塔羅與神諭卡</a><a className="text-cyan-300 underline" href="/maya-calendar">查看瑪雅曆</a></nav>
   </section>;
 }

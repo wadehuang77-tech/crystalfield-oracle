@@ -35,6 +35,7 @@ export default function VedicAstrologySeoContent() {
             <li><Link className="text-amber-300 underline" to="/en/oracle">Tarot and Oracle Cards</Link></li>
             <li><Link className="text-amber-300 underline" to="/en/numerology">Numerology</Link></li>
             <li><Link className="text-amber-300 underline" to="/en/human-design">Human Design</Link></li>
+            <li><Link className="text-amber-300 underline" to="/en/maya-calendar">Explore Maya Calendar</Link></li>
           </ul>
         </nav>
         <p className="text-sm leading-7 text-violet-200/65">Astrology is offered for cultural context and personal reflection. Past-life themes are not established historical facts, and no reading can guarantee a future event or replace medical, legal, psychological, or financial advice.</p>
@@ -71,6 +72,7 @@ export default function VedicAstrologySeoContent() {
           <li><Link className="text-amber-300 underline" to="/oracle">塔羅牌與神諭卡</Link></li>
           <li><Link className="text-amber-300 underline" to="/numerology">生命靈數</Link></li>
           <li><Link className="text-amber-300 underline" to="/human-design">人類圖</Link></li>
+          <li><Link className="text-amber-300 underline" to="/maya-calendar">查看瑪雅曆</Link></li>
         </ul>
       </nav>
       <p className="text-sm leading-7 text-violet-200/65">印度占星僅供文化理解與自我探索參考。前世業力並非已證實的歷史事實，占星也不保證未來事件或取代醫療、法律、心理及財務專業建議。</p>
