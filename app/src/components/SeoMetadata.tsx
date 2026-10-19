@@ -429,9 +429,18 @@ export default function SeoMetadata() {
     setProperty('og:locale', language === 'en' ? 'en_US' : 'zh_TW');
     setProperty('og:site_name', language === 'en' ? 'Crystal Field' : SITE_NAME);
     setProperty('og:title', title);
-    setProperty('og:description', description);
+    const mayaSocial = routePath === '/maya-calendar' ? mayaSeoContent(language === 'en' ? 'en' : 'zh-TW') : null;
+    setProperty('og:description', mayaSocial?.ogDescription ?? description);
     setProperty('og:url', canonical);
-    setProperty('og:image', `${SITE_URL}/20260315_164545.jpg`);
+    setProperty('og:image', mayaSocial?.image ?? `${SITE_URL}/20260315_164545.jpg`);
+    if (mayaSocial) {
+      setProperty('og:image:type', 'image/jpeg');
+      setProperty('og:image:width', '1200');
+      setProperty('og:image:height', '630');
+      setProperty('og:image:alt', language === 'en' ? 'Maya Calendar — discover your galactic signature' : '瑪雅曆：解讀你的星系印記，找回自己的生命節奏');
+    } else {
+      ['og:image:type', 'og:image:width', 'og:image:height', 'og:image:alt'].forEach(removeProperty);
+    }
     if (seo?.articleSection) {
       setProperty('article:section', seo.articleSection);
       setProperty('article:author', '韋德老師');
@@ -445,8 +454,8 @@ export default function SeoMetadata() {
     }
     setMeta('twitter:card', 'summary_large_image');
     setMeta('twitter:title', title);
-    setMeta('twitter:description', description);
-    setMeta('twitter:image', `${SITE_URL}/20260315_164545.jpg`);
+    setMeta('twitter:description', mayaSocial?.ogDescription ?? description);
+    setMeta('twitter:image', mayaSocial?.image ?? `${SITE_URL}/20260315_164545.jpg`);
     setCanonical(canonical);
     setHreflang(pathname, englishContentExists && !isMayaMember);
     if (seo && !search) setJsonLd(buildStructuredData(normalizedBase, englishSeo ? { ...seo, ...englishSeo, canonical } : seo, language));

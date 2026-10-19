@@ -213,6 +213,7 @@ for (const route of chineseRoutes) {
   const articleTags = article || vedicArticle
     ? `<meta property="article:section" content="${escapeHtml(article?.section || '印度占星知識專區')}" />`
     : '';
+  const mayaSocial = path === 'maya-calendar' ? mayaSeoContent('zh-TW') : path === 'en/maya-calendar' ? mayaSeoContent('en') : null;
   const head = `
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
@@ -223,14 +224,15 @@ for (const route of chineseRoutes) {
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:site_name" content="晶域心語" />
     <meta property="og:title" content="${escapeHtml(title)}" />
-    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:description" content="${escapeHtml(mayaSocial?.ogDescription ?? description)}" />
     <meta property="og:url" content="${canonical}" />
-    <meta property="og:image" content="${siteUrl}/20260315_164545.jpg" />
+    <meta property="og:image" content="${mayaSocial?.image ?? `${siteUrl}/20260315_164545.jpg`}" />
+    ${mayaSocial ? `<meta property="og:image:type" content="image/jpeg" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="Maya Calendar - Dreamspell galactic signature" />` : ''}
     ${articleTags}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
-    <meta name="twitter:description" content="${escapeHtml(description)}" />
-    <meta name="twitter:image" content="${siteUrl}/20260315_164545.jpg" />
+    <meta name="twitter:description" content="${escapeHtml(mayaSocial?.ogDescription ?? description)}" />
+    <meta name="twitter:image" content="${mayaSocial?.image ?? `${siteUrl}/20260315_164545.jpg`}" />
     <script type="application/ld+json" data-seo-jsonld>${escapeJson(jsonLd)}</script>`;
   const numerologyContent = path === 'numerology'
     ? `<section><h2>什麼是生命靈數？</h2><p>生命靈數是以出生日期中的數字進行整理的自我探索工具，可以從數字象徵觀察個人傾向、天賦與需要練習的方向。它不是對人生的固定預測。</p><h2>如何計算生命靈數？</h2><p>例如生日為 1990 年 12 月 31 日，可將 1+9+9+0+1+2+3+1 相加，得到 26，再將 2+6 相加得到 8。本系統會保留 11、22、33 等大師數字。</p><h2>什麼是缺失數字？</h2><p>缺失數字是出生日期中沒有出現的 1 到 9 數字，可作為性格、學習方向與自我覺察的參考。</p><h2>生命靈數常見問題</h2><details><summary>生命靈數怎麼算？</summary><p>將出生年月日的每個數字相加，再持續加總至個位數；本系統會保留 11、22、33 等大師數字。</p></details><details><summary>生命靈數可以看什麼？</summary><p>可以作為觀察天賦、工作、感情、個人流年、缺失數字與水晶能量的自我探索參考。</p></details><details><summary>生命靈數分析可以代替專業醫療或心理諮詢嗎？</summary><p>不可以；醫療或心理問題請尋求合格專業人士協助。</p></details><p><a href="${siteUrl}/oracle">探索塔羅與神諭卡</a> · <a href="${siteUrl}/human-design">深入探索人類圖</a> · <a href="${siteUrl}/vedic-astrology">查看印度占星分析</a></p></section>`
@@ -319,6 +321,7 @@ for (const route of englishRoutes) {
     }));
     jsonLd.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq });
   }
+  const mayaSocial = path === 'maya-calendar' ? mayaSeoContent('zh-TW') : path === 'en/maya-calendar' ? mayaSeoContent('en') : null;
   const head = `
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
@@ -329,13 +332,14 @@ for (const route of englishRoutes) {
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Crystal Field" />
     <meta property="og:title" content="${escapeHtml(title)}" />
-    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:description" content="${escapeHtml(mayaSocial?.ogDescription ?? description)}" />
     <meta property="og:url" content="${canonical}" />
-    <meta property="og:image" content="${siteUrl}/20260315_164545.jpg" />
+    <meta property="og:image" content="${mayaSocial?.image ?? `${siteUrl}/20260315_164545.jpg`}" />
+    ${mayaSocial ? `<meta property="og:image:type" content="image/jpeg" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="Maya Calendar - Dreamspell galactic signature" />` : ''}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
-    <meta name="twitter:description" content="${escapeHtml(description)}" />
-    <meta name="twitter:image" content="${siteUrl}/20260315_164545.jpg" />
+    <meta name="twitter:description" content="${escapeHtml(mayaSocial?.ogDescription ?? description)}" />
+    <meta name="twitter:image" content="${mayaSocial?.image ?? `${siteUrl}/20260315_164545.jpg`}" />
     <script type="application/ld+json" data-seo-jsonld>${escapeJson(jsonLd)}</script>`;
   const homeContent = slug === ''
     ? '<p>The homepage and service introductions are open to browse without login. Sign-in is only needed for member features and saving personal results.</p>'

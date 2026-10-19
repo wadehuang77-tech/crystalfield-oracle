@@ -4,9 +4,12 @@ export function mayaSeoContent(locale: MayaLocale) {
   const en = locale === 'en';
   return {
     title: en ? 'Free Dreamspell KIN Calculator & Galactic Signature | CrystalField101'
-      : '馬雅曆免費解盤｜探索星系印記與生命密碼－晶域心語',
+      : '免費馬雅13月亮曆查詢與個人KIN印記解析 | 晶域心語',
     description: en ? 'Enter your birth date to find your Dreamspell KIN, solar seal and galactic tone for free. Learn about the modern 13 Moon system and how free results differ from advanced readings.'
-      : '輸入出生日期，免費查詢馬雅曆 KIN、星系印記與銀河調性，從 Dreamspell／13月亮曆認識馬雅生命密碼。了解免費內容與進階解讀差異，作為日常自我探索的參考。',
+      : '想知道你的馬雅曆生日印記是什麼？透過晶域心語免費AI身心靈解析，快速查詢你的馬雅13月亮曆、圖騰能量與今日運勢。',
+    ogDescription: en ? 'Enter your birth date to discover your galactic signature, 20 solar seals and 13 galactic tones.'
+      : '輸入你的西元生日，立刻解鎖你的馬雅星系印記、20個圖騰與13調性專屬AI解析！',
+    image: 'https://www.crystalfield101.com/images/maya-calendar-cover.jpg',
     h1: en ? 'Free Dreamspell KIN Calculator: Explore Your Galactic Signature' : '馬雅曆免費解盤，探索你的星系印記與生命密碼',
     intro: en ? [
       'Enter your birth date to find your KIN, solar seal and galactic tone for free. The calculator runs in your browser; no sign-in, birth time or birthplace is needed.',
