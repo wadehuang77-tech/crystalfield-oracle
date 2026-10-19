@@ -1,3 +1,4 @@
+import { numerologyHome, numerologyArticles, numerologyStructuredData, type NumerologySlug } from '../lib/numerologySeo';
 import humanDesignFaqs from '../data/human-design/faqs.json';
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect } from 'react';
@@ -88,10 +89,8 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     intro: '奧修禪卡把注意力帶回當下，適合覺察目前情緒、內在卡點與生命狀態。單張牌用於即時觀察，三張牌可從過去、現在、未來或身心靈角度整理意識。',
   },
   '/numerology': {
-    title: '免費生命靈數｜生日數字、缺失數與流年解析｜晶域心語',
-    description: '輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，進一步探索缺失數字、感情模式、事業方向、個人流年及適合的水晶能量。',
+    ...numerologyHome,
     canonical: 'https://www.crystalfield101.com/numerology/',
-    h1: '免費生命靈數計算：從生日探索天賦、缺失數字與人生方向',
     intro: '輸入出生日期進行生命靈數計算，了解生日數字、基礎天賦、缺失數字與個人流年，並將數字自我探索與水晶能量建議整合參考。',
   },
   '/human-design': {
@@ -140,6 +139,10 @@ const VEDIC_ARTICLE_SEO: Record<string, SeoConfig> = Object.fromEntries(
 
 export const PUBLIC_SEO: Record<string, SeoConfig> = {
   ...BASE_PUBLIC_SEO,
+  ...Object.fromEntries(Object.entries(numerologyArticles).map(([slug, article]) => [`/numerology/${slug}`, {
+    title: article.title, description: article.description, h1: article.h1, intro: article.intro,
+    canonical: `https://www.crystalfield101.com/numerology/${slug}/`, articleSection: 'Numerology',
+  }])),
   ...HUMAN_DESIGN_ARTICLE_SEO,
   ...VEDIC_ARTICLE_SEO,
 };
@@ -256,6 +259,11 @@ function setJsonLd(data: unknown) {
 }
 
 function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Hant' | 'en') {
+  if (language !== 'en' && pathname === '/numerology') return numerologyStructuredData();
+  if (language !== 'en' && pathname.startsWith('/numerology/')) {
+    const slug = pathname.slice('/numerology/'.length) as NumerologySlug;
+    if (numerologyArticles[slug]) return numerologyStructuredData(slug);
+  }
   if (pathname === '/maya-calendar') return mayaSeoStructuredData(language === 'en' ? 'en' : 'zh-TW');
   const isVedicLanding = pathname === '/vedic-astrology';
   const breadcrumb = [
@@ -367,7 +375,7 @@ function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Han
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
     ];
   }
-  const items = Object.entries(PUBLIC_SEO).filter(([path]) => path !== '/oracle').map(([, item], index) => ({
+  const items = Object.entries(PUBLIC_SEO).filter(([path]) => path !== '/oracle' && !path.startsWith('/numerology/')).map(([, item], index) => ({
     '@type': 'ListItem', position: index + 1, name: item.h1, url: item.canonical, item: { '@type': 'Thing', name: item.h1, url: item.canonical },
   }));
   const faq = [
@@ -432,7 +440,12 @@ export default function SeoMetadata() {
     } else {
       ['og:image:type', 'og:image:width', 'og:image:height', 'og:image:alt'].forEach(removeProperty);
     }
-    if (seo?.articleSection) {
+    if (normalizedBase.startsWith('/numerology/') && seo?.articleSection) {
+      setProperty('article:section', 'Numerology');
+      setProperty('article:modified_time', numerologyArticles[normalizedBase.slice('/numerology/'.length) as NumerologySlug].updated);
+      removeProperty('article:author');
+      removeProperty('article:published_time');
+    } else if (seo?.articleSection) {
       setProperty('article:section', seo.articleSection);
       setProperty('article:author', '韋德老師');
       setProperty('article:published_time', '2026-09-17');

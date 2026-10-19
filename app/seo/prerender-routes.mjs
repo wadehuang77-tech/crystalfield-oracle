@@ -20,6 +20,7 @@ const publicLandingSlugs = [
   'vedic-astrology',
 ];
 
+const numerologyArticleSlugs = readArticleSlugs('numerology/articles.json');
 const humanDesignArticleSlugs = readArticleSlugs('human-design/articles.json');
 const vedicArticleSlugs = readArticleSlugs('vedic-astrology/articles.json');
 
@@ -29,6 +30,7 @@ const bilingualPaths = [
 ];
 
 export const prerenderRoutes = [
+  ...numerologyArticleSlugs.map(slug => ({ path: `numerology/${slug}`, language: 'zh-Hant' })),
   ...bilingualPaths.flatMap(({ zh, en }) => [
     { path: zh, language: 'zh-Hant', alternatePath: en },
     { path: en, language: 'en', alternatePath: zh },

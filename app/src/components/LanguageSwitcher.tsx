@@ -1,10 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getLanguageFromPath, getLocalizedPath, localeLabels } from '../lib/i18n';
+import { numerologyArticles } from '../lib/numerologySeo';
 
 export default function LanguageSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentLanguage = getLanguageFromPath(location.pathname);
+  // These public articles currently have Chinese content only.
+  if (Object.keys(numerologyArticles).some(slug => location.pathname.replace(/\/$/, '') === `/numerology/${slug}`)) return null;
 
   const handleToggle = () => {
     const nextLanguage = currentLanguage === 'en' ? 'zh-Hant' : 'en';

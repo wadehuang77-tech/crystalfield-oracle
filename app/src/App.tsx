@@ -1,3 +1,5 @@
+import NumerologyArticlePage from './pages/NumerologyArticlePage';
+import { numerologyArticles, type NumerologySlug } from './lib/numerologySeo';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthProvider';
@@ -108,11 +110,12 @@ const routeConfig = [
   { path: '/vedic-astrology/career-wealth', element: <VedicAstrologyArticlePage slug="career-wealth" /> },
 ] as const;
 
+const numerologyArticlePaths = Object.keys(numerologyArticles).map(slug => `/numerology/${slug}`);
 export const appRoutePaths = routeConfig.flatMap(({ path }) => (
   path === '/home'
     ? [path, '/en/home']
     : [path, getLocalizedPath(path, 'en')]
-));
+)).concat(numerologyArticlePaths);
 
 function DocumentLanguage() {
   const location = useLocation();
@@ -161,6 +164,7 @@ function RouterBody() {
 
             return routes;
           })}
+          {Object.keys(numerologyArticles).map(slug => <Route key={slug} path={`/numerology/${slug}`} element={<NumerologyArticlePage slug={slug as NumerologySlug} />} />)}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

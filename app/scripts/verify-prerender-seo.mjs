@@ -49,7 +49,13 @@ for (const route of prerenderRoutes) {
   for (const [, json] of structuredData) {
     const parsed = JSON.parse(json.replaceAll('\\u003c', '<'));
     assert.ok(parsed && typeof parsed === 'object', `${route.path || '/'}: valid JSON-LD`);
-    assert.doesNotMatch(
+    if (route.path.startsWith('numerology/')) {
+      const article = (Array.isArray(parsed) ? parsed : [parsed]).find(item => item['@type'] === 'Article');
+      assert.ok(article, 'Numerology article requires Article data');
+      assert.match(article.dateModified, /^\d{4}-\d{2}-\d{2}$/);
+      assert.ok(html.includes(`<time dateTime="${article.dateModified}">`) || html.includes(`<time datetime="${article.dateModified}">`), 'Update date must be visible');
+      assert.doesNotMatch(json, /"@type"\s*:\s*"(?:AggregateRating|Review)"|"(?:datePublished|author|publisher)"\s*:/i);
+    } else assert.doesNotMatch(
       json,
       /"@type"\s*:\s*"(?:AggregateRating|Review)"|"(?:datePublished|dateModified|author|publisher)"\s*:/i,
     );

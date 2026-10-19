@@ -46,6 +46,7 @@ const [{ StaticRouter }, { appRoutePaths, default: App }] = await Promise.all([
   vite.ssrLoadModule('/src/App.tsx'),
 ]);
 const { mayaSeoContent, mayaMemberSeo, mayaSeoStructuredData } = await vite.ssrLoadModule('/src/lib/mayaSeo.ts');
+const { numerologyHome, numerologyArticles, numerologyStructuredData } = await vite.ssrLoadModule('/src/lib/numerologySeo.ts');
 const normalizeRoutePath = (path) => {
   const normalized = `/${path.replace(/^\/+|\/+$/g, '')}`;
   return normalized === '/' ? '/' : `${normalized}/`;
@@ -71,10 +72,13 @@ const pages = [
   ['egyptian-gods', '埃及神諭卡占卜｜前世因果與人生課題解析｜晶域心語', '線上體驗埃及神諭卡，透過單張指引及七張前世因果解鎖陣，探索前世今生的連結、人生課題與靈魂成長方向。', '埃及神諭', '埃及神諭卡適合探索前世今生的連結、反覆出現的人生課題與靈魂成長方向。單張指引適合聚焦一個問題，七張前世因果解鎖陣則用來分層整理相關主題。'],
   ['work-your-light', '光之訊息卡占卜｜宇宙十字與靈魂藍圖指引｜晶域心語', '線上抽取Lightworker光之訊息卡，透過單張牌及宇宙十字牌陣，探索靈魂任務、內在潛能、能量狀態與行動指引。', '光之訊息', 'Lightworker 光之訊息卡適合在整理靈魂任務、內在潛能與能量狀態時使用。單張牌提供聚焦的訊息，宇宙十字牌陣則從多個角度整理靈魂藍圖與行動指引。'],
   ['osho', '奧修禪卡線上占卜｜覺察情緒與內在狀態｜晶域心語', '透過奧修禪卡單張與三張牌陣，覺察目前情緒、內在卡點及生命狀態，從當下意識中找到更清楚的行動方向。', '奧修禪卡', '奧修禪卡把注意力帶回當下，適合覺察目前情緒、內在卡點與生命狀態。單張牌用於即時觀察，三張牌可從過去、現在、未來或身心靈角度整理意識。'],
-  ['numerology', '免費生命靈數｜生日數字、缺失數與流年解析｜晶域心語', '輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，進一步探索缺失數字、感情模式、事業方向、個人流年及適合的水晶能量。', '免費生命靈數計算：從生日探索天賦、缺失數字與人生方向', '輸入出生日期進行生命靈數計算，了解生日數字、基礎天賦、缺失數字與個人流年，並將數字自我探索與水晶能量建議整合參考。'],
+  ['numerology', numerologyHome.title, numerologyHome.description, numerologyHome.h1, numerologyHome.description],
   ['human-design', '【免費人類圖查詢】個人人類圖跑圖與免費 AI 深度解析 | 晶域心語', '輸入出生年月日時分，立即免費生成你的個人人類圖！晶域心語提供 5 大類型、九大能量中心、內在權威與人生角色專屬 AI 深度解讀，帶你找回真實天賦。', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。'],
   ['vedic-astrology', vedicLandingContent.zhHant.title, vedicLandingContent.zhHant.description, vedicLandingContent.zhHant.h1, vedicLandingContent.zhHant.intro],
 ];
+for (const [slug, article] of Object.entries(numerologyArticles)) {
+  pages.push([`numerology/${slug}`, article.title, article.description, article.h1, article.intro]);
+}
 for (const [slug, article] of Object.entries(articleData)) {
   pages.push([
     `human-design/${slug}`,
@@ -205,7 +209,11 @@ for (const route of chineseRoutes) {
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
     );
   }
-  const ogType = article || vedicArticle ? 'article' : 'website';
+  const numerologyArticle = path.startsWith('numerology/') ? numerologyArticles[path.slice('numerology/'.length)] : null;
+  if (path === 'numerology' || numerologyArticle) {
+    jsonLd.splice(0, jsonLd.length, ...numerologyStructuredData(numerologyArticle ? path.slice('numerology/'.length) : undefined));
+  }
+  const ogType = article || vedicArticle || numerologyArticle ? 'article' : 'website';
   const articleTags = article || vedicArticle
     ? `<meta property="article:section" content="${escapeHtml(article?.section || '印度占星知識專區')}" />`
     : '';

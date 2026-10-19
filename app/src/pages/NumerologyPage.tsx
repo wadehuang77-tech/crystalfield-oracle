@@ -1,3 +1,5 @@
+import NumerologyPublicGuide from '../components/NumerologyPublicGuide';
+import { numerologyHome } from '../lib/numerologySeo';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useRouteLanguage } from '../hooks/useRouteLanguage';
@@ -78,6 +80,10 @@ export default function NumerologyPage() {
   const { user, loading: authLoading, authError } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
+  useEffect(() => {
+    const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (robots) robots.content = report || location.search ? 'noindex, follow' : 'index, follow';
+  }, [report, location.pathname, location.search]);
   const [oracleCard, setOracleCard] = useState<OracleCard | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('report');
@@ -601,14 +607,14 @@ export default function NumerologyPage() {
               className="font-serif text-4xl md:text-5xl leading-tight"
               style={{ filter: 'drop-shadow(0 0 16px rgba(251,191,36,0.3)) drop-shadow(0 0 36px rgba(196,181,253,0.18))' }}
             >
-              <span className="text-gradient-gold">{copy('title', '免費生命靈數計算：從生日探索天賦、缺失數字與人生方向')}</span>
+              <span className="text-gradient-gold">{copy('title', numerologyHome.h1)}</span>
               <br />
             </h1>
             <p
               className="font-serif text-sm leading-relaxed max-w-sm mx-auto"
               style={{ color: 'rgba(196,181,253,0.65)', fontSize: 15, lineHeight: 1.85 }}
             >
-              {copy('intro', '輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，再依需求探索缺失數字、個人流年與水晶能量。')}
+              {copy('intro', numerologyHome.description)}
             </p>
           </div>
 
@@ -622,7 +628,7 @@ export default function NumerologyPage() {
               boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(167,139,250,0.04), inset 0 1px 0 rgba(255,255,255,0.07)',
             }}
           >
-            <BirthDateForm onSubmit={handleSubmit} loading={loading || authLoading} />
+            <div id="calculator" className="scroll-mt-6"><BirthDateForm onSubmit={handleSubmit} loading={loading || authLoading} /></div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-8">
@@ -678,7 +684,7 @@ export default function NumerologyPage() {
             </div>
           </div>
 
-          <NumerologySeoContent />
+          {language === 'en' ? <NumerologySeoContent /> : <NumerologyPublicGuide />}
         </section>
 
       ) : (
