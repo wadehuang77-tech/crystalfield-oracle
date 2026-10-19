@@ -5,6 +5,7 @@ import { mayaSeoContent } from '../../lib/mayaSeo';
 import { mayaPremiumCopy } from '../../lib/mayaPremiumCopy';
 import MayaPremiumProductIntro from './MayaPremiumProductIntro';
 import MayaVisualization from './MayaVisualization';
+import MayaCalendarAbout from './MayaCalendarAbout';
 
 export default function MayaSeoLanding({ locale, features, configLoading, configError, availability, availabilityError, enter, adminPreview }: {
   locale: MayaLocale; features: MayaFeatures; configLoading: boolean; configError: string;
@@ -49,6 +50,7 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
     <div id="free-kin" className="scroll-mt-6">
       <MayaVisualization locale={locale} publicPage showMatrixGrid={false} enabled={!configLoading && features.public} />
     </div>
+    <MayaCalendarAbout locale={locale} />
     {content.sections.map(section => <section id={section.id} className={panel} key={section.id}>
       <h2 className="mb-4 text-2xl font-semibold">{section.heading}</h2>
       <p className="max-w-3xl leading-relaxed text-slate-200">{section.text}</p>
