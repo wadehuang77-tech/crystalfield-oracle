@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, MapPin, Calendar, Clock } from 'lucide-react';
 import HumanDesignSeoContent from './HumanDesignSeoContent';
+import HumanDesignTypesSection from './HumanDesignTypesSection';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { t } from '../../lib/i18n';
 import { AuthRequiredBirthDate } from '../../components/AuthRequiredBirthDate';
@@ -39,6 +40,8 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthCity: '' });
   const [timeParts, setTimeParts] = useState({ hour: '', minute: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [timeConfirmed, setTimeConfirmed] = useState(false);
+  const en = language === 'en';
   const hourOptions = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
   const minuteOptions = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
@@ -55,6 +58,7 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
     const nextErrors: Record<string, string> = {};
     if (!birthDate) nextErrors.birthDate = copy('dateError', '請選擇出生日期');
     if (!timeParts.hour || !timeParts.minute) nextErrors.birthTime = copy('timeError', '請輸入出生時間');
+    if (!timeConfirmed) nextErrors.timeConfirmed = en ? 'Please confirm the birth time and read the calculation limitation.' : '請確認出生時間並閱讀目前計算限制';
     if (!form.birthCity.trim()) nextErrors.birthCity = copy('cityError', '請輸入出生城市');
     setErrors(nextErrors);
     if (birthDate && Object.keys(nextErrors).length === 0) {
@@ -65,6 +69,7 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
   const updateBirthTime = (part: 'hour' | 'minute', value: string) => {
     const next = { ...timeParts, [part]: value };
     setTimeParts(next);
+    setTimeConfirmed(false);
     setForm({ ...form, birthTime: next.hour && next.minute ? `${next.hour}:${next.minute}` : '' });
   };
 
@@ -134,38 +139,50 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
 
               {/* Birth Time */}
               <div>
-                <label className="flex items-center gap-2 text-xs text-white/40 font-medium mb-2">
+                <label htmlFor="hd-birth-hour" className="flex items-center gap-2 text-sm text-white/70 font-medium mb-2">
                   <Clock className="w-3.5 h-3.5" />
-                  {copy('birthTime', '出生時間')}
+                  {en ? 'Local birth time (24-hour clock)' : '出生當地時間（24 小時制）'}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <select
+                    id="hd-birth-hour"
+                    aria-label={en ? 'Birth hour' : '出生時'}
+                    aria-describedby="hd-time-hint hd-timezone-hint hd-time-error"
+                    aria-invalid={!!errors.birthTime}
                     value={timeParts.hour}
                     onChange={e => updateBirthTime('hour', e.target.value)}
                     className={`${inputBase} ${errors.birthTime ? 'border-rose-400/50' : ''}`}
                   >
-                    <option value="">{copy('hour', '時')}</option>
+                    <option value="">{en ? 'Select hour' : '請選擇時（必填）'}</option>
                     {hourOptions.map(hour => (
                       <option key={hour} value={hour}>{hour}</option>
                     ))}
                   </select>
                   <select
+                    aria-label={en ? 'Birth minute' : '出生分'}
+                    aria-describedby="hd-time-hint hd-timezone-hint hd-time-error"
+                    aria-invalid={!!errors.birthTime}
                     value={timeParts.minute}
                     onChange={e => updateBirthTime('minute', e.target.value)}
                     className={`${inputBase} ${errors.birthTime ? 'border-rose-400/50' : ''}`}
                   >
-                    <option value="">{copy('minute', '分')}</option>
+                    <option value="">{en ? 'Select minute' : '請選擇分（必填）'}</option>
                     {minuteOptions.map(minute => (
                       <option key={minute} value={minute}>{minute}</option>
                     ))}
                   </select>
                 </div>
                 {errors.birthTime && (
-                  <p className="text-rose-400/80 text-xs mt-1.5">{errors.birthTime}</p>
+                  <p id="hd-time-error" role="alert" className="text-rose-300 text-sm mt-1.5">{errors.birthTime}</p>
                 )}
-                <p className="text-white/20 text-xs mt-1.5">
-                  {copy('timeHint', '請使用 24 小時制，例：上午 8 點為 08:00，晚上 8 點為 20:00')}
+                <p id="hd-time-hint" className="text-slate-300 text-sm leading-6 mt-2">
+                  {en ? 'No time is preselected. Midnight is 00:00, noon is 12:00, and 8 PM is 20:00. Select the actual minute; do not assume :00.' : '預設尚未選擇時間。凌晨 12 點為 00:00、中午為 12:00、晚上 8 點為 20:00；分鐘請依紀錄選擇，不要直接假設為整點。'}
                 </p>
+                <div id="hd-timezone-hint" className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-sm leading-6 text-slate-200">
+                  <p className="font-semibold text-cyan-200">{en ? 'Taiwan time reference: UTC+8 (Asia/Taipei)' : '台灣時間參考：UTC+8（Asia/Taipei）'}</p>
+                  <p className="mt-1">{en ? 'Enter the local time recorded at your birthplace, not your current device time. For births outside Taiwan or historical daylight-saving dates, the correct timezone must be verified separately.' : '請填出生地紀錄的當地時間，不是目前手機或電腦的時間。海外出生或涉及歷史夏令時間時，需另外核對出生當日的時區。'}</p>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-amber-200">{en ? 'If the time is unknown, check a reliable birth record first. An estimated time can change the chart; a noon estimate is not an accurate substitute.' : '若不確定時、分，建議先查閱可靠的出生紀錄；估計時間可能影響圖表，中午 12:00 不能當作準確時間的替代值。'}</p>
               </div>
 
               {/* Birth City */}
@@ -187,6 +204,14 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
               </div>
 
               {/* Submit */}
+              <div className="rounded-xl border border-amber-300/30 bg-amber-300/5 p-4 text-sm leading-6 text-amber-100">
+                <p id="hd-calculation-limit">{en ? 'Current limitation: this tool generates a simulated chart from your inputs. It does not yet perform timezone conversion or astronomical calculations, so it cannot provide an accurate Human Design chart.' : '目前計算限制：此工具依輸入資料產生模擬圖表，尚未進行時區換算與天文計算，因此不能提供準確的人類圖排盤。'}</p>
+                <label className="mt-3 flex cursor-pointer items-start gap-3">
+                  <input type="checkbox" checked={timeConfirmed} onChange={event => setTimeConfirmed(event.target.checked)} aria-describedby="hd-calculation-limit" className="mt-1 h-5 w-5 shrink-0 accent-cyan-300" />
+                  <span>{en ? 'I have checked the local birth hour and minute and understand this is a simulated chart.' : '我已核對出生當地的時、分，並了解目前結果為模擬圖表。'}</span>
+                </label>
+                {errors.timeConfirmed && <p role="alert" className="mt-2 text-rose-300">{errors.timeConfirmed}</p>}
+              </div>
               <button
                 type="submit"
                 disabled={disabled}
@@ -202,6 +227,7 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
               </button>
             </form>
           </div>
+          <HumanDesignTypesSection />
           <HumanDesignSeoContent />
         </div>
 

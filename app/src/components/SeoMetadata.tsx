@@ -1,3 +1,4 @@
+import humanDesignFaqs from '../data/human-design/faqs.json';
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -94,8 +95,8 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     intro: '輸入出生日期進行生命靈數計算，了解生日數字、基礎天賦、缺失數字與個人流年，並將數字自我探索與水晶能量建議整合參考。',
   },
   '/human-design': {
-    title: '免費人類圖計算｜能量類型、人生角色與內在權威｜晶域心語',
-    description: '輸入出生年月日、出生時間與地點，免費查看人類圖能量類型、人生角色、策略、內在權威與定義，探索適合自己的決策方式、天賦及生命節奏。',
+    title: '【免費人類圖查詢】個人人類圖跑圖與免費 AI 深度解析 | 晶域心語',
+    description: '輸入出生年月日時分，立即免費生成你的個人人類圖！晶域心語提供 5 大類型、九大能量中心、內在權威與人生角色專屬 AI 深度解讀，帶你找回真實天賦。',
     canonical: 'https://www.crystalfield101.com/human-design/',
     h1: '免費人類圖計算：看懂你的能量類型、人生角色與內在權威',
     intro: '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。',
@@ -291,20 +292,7 @@ function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Han
     ];
   }
   if (pathname === '/human-design') {
-    const faq = [
-      ['人類圖是什麼？', '人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。'],
-      ['人類圖怎麼計算？', '系統會依照出生年月日、時間與出生城市建立人類圖，並產生入口頁可查看的能量藍圖與後續報告內容。'],
-      ['計算人類圖需要哪些出生資料？', '需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響計算結果。'],
-      ['不知道準確出生時間怎麼辦？', '可以查閱出生證明或戶籍資料；不應自行捏造時間，也不應把估計時間產生的結果當成完全準確。'],
-      ['人類圖有哪5種能量類型？', '包括生產者、顯示生產者、投射者、顯示者與反映者。'],
-      ['人類圖的策略是什麼？', '策略是減少阻力的觀察方向，不是強迫自己遵守的規定；不同能量類型會有不同的策略重點。'],
-      ['什麼是內在權威？', '本系統實際支援情緒、薦骨、脾臟、意志力、自我投射與月亮週期等類型。'],
-      ['什麼是人生角色？', '人生角色由兩條線組合，例如 1/3、2/4、4/6，反映學習方式、關係互動與人生經驗。'],
-      ['人類圖結果會隨著時間改變嗎？', '出生資料產生的基本圖表不會因時間改變；你對圖表的理解會隨經驗累積而深化。'],
-      ['人類圖分析可以代替醫療或心理諮詢嗎？', '不可以。人類圖適合自我覺察與生活實驗，醫療或心理問題請尋求合格專業人士協助。'],
-      ['晶域心語的人類圖有哪些內容可以免費查看？', '入口會先建立人類圖並提供免費報告入口；完整內容依網站現有解鎖與會員設定顯示。'],
-      ['我的出生資料會公開嗎？', '出生資料不會放入公開 SEO 內容或 Sitemap；實際保存與分享依網站登入、授權及隱私政策機制處理。'],
-    ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
+    const faq = humanDesignFaqs.map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
     return [
       { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumb },
@@ -429,7 +417,10 @@ export default function SeoMetadata() {
     setProperty('og:locale', language === 'en' ? 'en_US' : 'zh_TW');
     setProperty('og:site_name', language === 'en' ? 'Crystal Field' : SITE_NAME);
     setProperty('og:title', title);
-    const mayaSocial = routePath === '/maya-calendar' ? mayaSeoContent(language === 'en' ? 'en' : 'zh-TW') : null;
+    const mayaSocial = routePath === '/human-design' && language !== 'en' ? {
+      ogDescription: '輸入出生時間，秒出人類圖！帶你一次看懂你的類型、內在權威、人生角色與 AI 專屬天賦解析。',
+      image: `${SITE_URL}/images/human-design-cover.jpg`,
+    } : routePath === '/maya-calendar' ? mayaSeoContent(language === 'en' ? 'en' : 'zh-TW') : null;
     setProperty('og:description', mayaSocial?.ogDescription ?? description);
     setProperty('og:url', canonical);
     setProperty('og:image', mayaSocial?.image ?? `${SITE_URL}/20260315_164545.jpg`);
@@ -437,7 +428,7 @@ export default function SeoMetadata() {
       setProperty('og:image:type', 'image/jpeg');
       setProperty('og:image:width', '1200');
       setProperty('og:image:height', '630');
-      setProperty('og:image:alt', language === 'en' ? 'Maya Calendar — discover your galactic signature' : '瑪雅曆：解讀你的星系印記，找回自己的生命節奏');
+      setProperty('og:image:alt', routePath === '/human-design' ? '晶域心語人類圖：探索你的類型、內在權威與人生角色' : language === 'en' ? 'Maya Calendar — discover your galactic signature' : '瑪雅曆：解讀你的星系印記，找回自己的生命節奏');
     } else {
       ['og:image:type', 'og:image:width', 'og:image:height', 'og:image:alt'].forEach(removeProperty);
     }

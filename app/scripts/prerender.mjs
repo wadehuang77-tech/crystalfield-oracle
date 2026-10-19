@@ -16,6 +16,7 @@ const appDir = dirname(fileURLToPath(import.meta.url));
 const distDir = join(appDir, '..', 'dist');
 const pageUrl = canonicalUrl;
 const routesByPath = new Map(prerenderRoutes.map((route) => [route.path, route]));
+const humanDesignFaqs = JSON.parse(await readFile(join(appDir, '..', 'src', 'data', 'human-design', 'faqs.json'), 'utf8'));
 const renderYear = new Date().getFullYear();
 const vite = await createServer({
   configFile: join(appDir, '..', 'vite.config.ts'),
@@ -71,7 +72,7 @@ const pages = [
   ['work-your-light', '光之訊息卡占卜｜宇宙十字與靈魂藍圖指引｜晶域心語', '線上抽取Lightworker光之訊息卡，透過單張牌及宇宙十字牌陣，探索靈魂任務、內在潛能、能量狀態與行動指引。', '光之訊息', 'Lightworker 光之訊息卡適合在整理靈魂任務、內在潛能與能量狀態時使用。單張牌提供聚焦的訊息，宇宙十字牌陣則從多個角度整理靈魂藍圖與行動指引。'],
   ['osho', '奧修禪卡線上占卜｜覺察情緒與內在狀態｜晶域心語', '透過奧修禪卡單張與三張牌陣，覺察目前情緒、內在卡點及生命狀態，從當下意識中找到更清楚的行動方向。', '奧修禪卡', '奧修禪卡把注意力帶回當下，適合覺察目前情緒、內在卡點與生命狀態。單張牌用於即時觀察，三張牌可從過去、現在、未來或身心靈角度整理意識。'],
   ['numerology', '免費生命靈數｜生日數字、缺失數與流年解析｜晶域心語', '輸入生日，免費查看生命靈數、生日數字與基礎天賦解析，進一步探索缺失數字、感情模式、事業方向、個人流年及適合的水晶能量。', '免費生命靈數計算：從生日探索天賦、缺失數字與人生方向', '輸入出生日期進行生命靈數計算，了解生日數字、基礎天賦、缺失數字與個人流年，並將數字自我探索與水晶能量建議整合參考。'],
-  ['human-design', '免費人類圖計算｜能量類型、人生角色與內在權威｜晶域心語', '輸入出生年月日、出生時間與地點，免費查看人類圖能量類型、人生角色、策略、內在權威與定義，探索適合自己的決策方式、天賦及生命節奏。', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。'],
+  ['human-design', '【免費人類圖查詢】個人人類圖跑圖與免費 AI 深度解析 | 晶域心語', '輸入出生年月日時分，立即免費生成你的個人人類圖！晶域心語提供 5 大類型、九大能量中心、內在權威與人生角色專屬 AI 深度解讀，帶你找回真實天賦。', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。'],
   ['vedic-astrology', vedicLandingContent.zhHant.title, vedicLandingContent.zhHant.description, vedicLandingContent.zhHant.h1, vedicLandingContent.zhHant.intro],
 ];
 for (const [slug, article] of Object.entries(articleData)) {
@@ -165,12 +166,7 @@ for (const route of chineseRoutes) {
     );
   }
   if (path === 'human-design') {
-    const faq = [
-      ['人類圖是什麼？', '人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。'],
-      ['人類圖怎麼計算？', '系統會依照出生年月日、時間與出生城市建立人類圖，並產生入口頁可查看的能量藍圖與後續報告內容。'],
-      ['計算人類圖需要哪些出生資料？', '需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響計算結果。'],
-      ['人類圖分析可以代替醫療或心理諮詢嗎？', '不可以。人類圖適合自我覺察與生活實驗，醫療或心理問題請尋求合格專業人士協助。'],
-    ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
+    const faq = humanDesignFaqs.map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
     jsonLd.push(
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
     );
@@ -213,7 +209,10 @@ for (const route of chineseRoutes) {
   const articleTags = article || vedicArticle
     ? `<meta property="article:section" content="${escapeHtml(article?.section || '印度占星知識專區')}" />`
     : '';
-  const mayaSocial = path === 'maya-calendar' ? mayaSeoContent('zh-TW') : path === 'en/maya-calendar' ? mayaSeoContent('en') : null;
+  const mayaSocial = path === 'human-design' ? {
+    ogDescription: '輸入出生時間，秒出人類圖！帶你一次看懂你的類型、內在權威、人生角色與 AI 專屬天賦解析。',
+    image: `${siteUrl}/images/human-design-cover.jpg`,
+  } : path === 'maya-calendar' ? mayaSeoContent('zh-TW') : path === 'en/maya-calendar' ? mayaSeoContent('en') : null;
   const head = `
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
@@ -227,7 +226,7 @@ for (const route of chineseRoutes) {
     <meta property="og:description" content="${escapeHtml(mayaSocial?.ogDescription ?? description)}" />
     <meta property="og:url" content="${canonical}" />
     <meta property="og:image" content="${mayaSocial?.image ?? `${siteUrl}/20260315_164545.jpg`}" />
-    ${mayaSocial ? `<meta property="og:image:type" content="image/jpeg" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="Maya Calendar - Dreamspell galactic signature" />` : ''}
+    ${mayaSocial ? `<meta property="og:image:type" content="image/jpeg" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="${path === 'human-design' ? '晶域心語人類圖：探索你的類型、內在權威與人生角色' : 'Maya Calendar - Dreamspell galactic signature'}" />` : ''}
     ${articleTags}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
