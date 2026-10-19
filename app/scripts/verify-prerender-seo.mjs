@@ -49,9 +49,9 @@ for (const route of prerenderRoutes) {
   for (const [, json] of structuredData) {
     const parsed = JSON.parse(json.replaceAll('\\u003c', '<'));
     assert.ok(parsed && typeof parsed === 'object', `${route.path || '/'}: valid JSON-LD`);
-    if (route.path.startsWith('numerology/')) {
+    if (route.path.startsWith('numerology/') || (route.path.startsWith('human-design/') && route.lastmod)) {
       const article = (Array.isArray(parsed) ? parsed : [parsed]).find(item => item['@type'] === 'Article');
-      assert.ok(article, 'Numerology article requires Article data');
+      assert.ok(article, 'Public article requires Article data');
       assert.match(article.dateModified, /^\d{4}-\d{2}-\d{2}$/);
       assert.ok(html.includes(`<time dateTime="${article.dateModified}">`) || html.includes(`<time datetime="${article.dateModified}">`), 'Update date must be visible');
       assert.doesNotMatch(json, /"@type"\s*:\s*"(?:AggregateRating|Review)"|"(?:datePublished|author|publisher)"\s*:/i);
@@ -172,7 +172,12 @@ assert.deepEqual(
   prerenderRoutes.map(({ path }) => canonicalUrl(path)).sort(),
   'sitemap URLs must exactly match generated public routes',
 );
-assert.doesNotMatch(sitemap, /<lastmod>/i, 'do not invent lastmod values');
+for (const entry of sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+  const url = entry[1].match(/<loc>(.*?)<\/loc>/)?.[1];
+  const route = prerenderRoutes.find(item => canonicalUrl(item.path) === url);
+  const lastmod = entry[1].match(/<lastmod>(.*?)<\/lastmod>/)?.[1];
+  assert.equal(lastmod, route?.lastmod, 'lastmod must come from a recorded content update');
+}
 assert.doesNotMatch(sitemap, /\/(?:admin|login|register|account|payment|callback|private)(?:\/|<)/i);
 
 const robots = await readFile(join(appDir, '..', 'public', 'robots.txt'), 'utf8');

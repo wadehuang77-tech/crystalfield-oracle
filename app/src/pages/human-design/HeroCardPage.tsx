@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
@@ -230,6 +231,7 @@ export default function HeroCardPage({ chart, birthDate, birthTime, birthCity, o
                     </span>
                   </div>
                 </div>
+                <Link className="mt-3 inline-block text-sm text-cyan-200 underline underline-offset-4" to={`${language === 'en' ? '/en' : ''}/human-design/${chart.type}/`}>{language === 'en' ? 'Read about this type and its strategy' : '閱讀此類型的策略與生活練習'}</Link>
               </div>
               {/* Center diagram */}
               <div className="flex flex-col items-center gap-1.5">

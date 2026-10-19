@@ -1,3 +1,4 @@
+import { humanDesignEnglishDescription, humanDesignHome, humanDesignStructuredData, humanDesignArticles as hdContent } from '../lib/humanDesignSeo';
 import { numerologyHome, numerologyArticles, numerologyStructuredData, type NumerologySlug } from '../lib/numerologySeo';
 import humanDesignFaqs from '../data/human-design/faqs.json';
 /* eslint-disable react-refresh/only-export-components */
@@ -94,10 +95,8 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     intro: '輸入出生日期進行生命靈數計算，了解生日數字、基礎天賦、缺失數字與個人流年，並將數字自我探索與水晶能量建議整合參考。',
   },
   '/human-design': {
-    title: '【免費人類圖查詢】個人人類圖跑圖與免費 AI 深度解析 | 晶域心語',
-    description: '輸入出生年月日時分，立即免費生成你的個人人類圖！晶域心語提供 5 大類型、九大能量中心、內在權威與人生角色專屬 AI 深度解讀，帶你找回真實天賦。',
+    ...humanDesignHome,
     canonical: 'https://www.crystalfield101.com/human-design/',
-    h1: '免費人類圖計算：看懂你的能量類型、人生角色與內在權威',
     intro: '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。',
   },
   '/vedic-astrology': {
@@ -166,7 +165,7 @@ const ENGLISH_PUBLIC_SEO: Record<string, Pick<SeoConfig, 'title' | 'description'
   '/cosmic-cross': { title: 'Cosmic Cross Tarot Spread | Crystal Field', description: 'Explore an eleven-card spread across several aspects of life and personal reflection.', h1: 'Cosmic Cross Spread', intro: 'Use the Cosmic Cross spread to reflect on several dimensions of your life.' },
   '/osho': { title: 'Osho Zen Tarot Reading | Crystal Field', description: 'Choose a single-card or three-card Osho Zen Tarot spread to reflect on your present state of mind.', h1: 'Osho Zen Tarot', intro: 'Reflect on the present moment, your inner state, and the choices available to you.' },
   '/numerology': { title: 'Free Numerology Reading | Crystal Field', description: 'Enter your birth date to explore your life path number, strengths, missing numbers, personal-year themes, and crystal associations.', h1: 'Free Numerology Reading', intro: 'Explore your numbers as prompts for reflecting on strengths, life themes, and direction.' },
-  '/human-design': { title: 'Free Human Design Chart | Crystal Field', description: 'Create a Human Design chart from your birth date, time, and place. Explore your Type, Profile, Strategy, and Inner Authority.', h1: 'Free Human Design Chart', intro: 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.' },
+  '/human-design': { title: 'Free Human Design Chart | Crystal Field', description: humanDesignEnglishDescription, h1: 'Free Human Design Chart', intro: 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.' },
   '/vedic-astrology': {
     title: vedicLandingContent.en.title,
     description: vedicLandingContent.en.description,
@@ -263,6 +262,11 @@ function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Han
   if (language !== 'en' && pathname.startsWith('/numerology/')) {
     const slug = pathname.slice('/numerology/'.length) as NumerologySlug;
     if (numerologyArticles[slug]) return numerologyStructuredData(slug);
+  }
+  if (language !== 'en' && pathname === '/human-design') return humanDesignStructuredData();
+  if (language !== 'en' && pathname.startsWith('/human-design/')) {
+    const slug = pathname.slice('/human-design/'.length);
+    if (hdContent[slug]) return humanDesignStructuredData(slug);
   }
   if (pathname === '/maya-calendar') return mayaSeoStructuredData(language === 'en' ? 'en' : 'zh-TW');
   const isVedicLanding = pathname === '/vedic-astrology';
@@ -426,7 +430,7 @@ export default function SeoMetadata() {
     setProperty('og:site_name', language === 'en' ? 'Crystal Field' : SITE_NAME);
     setProperty('og:title', title);
     const mayaSocial = routePath === '/human-design' && language !== 'en' ? {
-      ogDescription: '輸入出生時間，秒出人類圖！帶你一次看懂你的類型、內在權威、人生角色與 AI 專屬天賦解析。',
+      ogDescription: humanDesignHome.description,
       image: `${SITE_URL}/images/human-design-cover.jpg`,
     } : routePath === '/maya-calendar' ? mayaSeoContent(language === 'en' ? 'en' : 'zh-TW') : null;
     setProperty('og:description', mayaSocial?.ogDescription ?? description);
@@ -445,6 +449,13 @@ export default function SeoMetadata() {
       setProperty('article:modified_time', numerologyArticles[normalizedBase.slice('/numerology/'.length) as NumerologySlug].updated);
       removeProperty('article:author');
       removeProperty('article:published_time');
+    } else if (normalizedBase.startsWith('/human-design/') && seo?.articleSection) {
+      setProperty('article:section', seo.articleSection);
+      removeProperty('article:author');
+      removeProperty('article:published_time');
+      const updated = language !== 'en' ? hdContent[normalizedBase.slice('/human-design/'.length)]?.updated : undefined;
+      if (updated) setProperty('article:modified_time', updated);
+      else removeProperty('article:modified_time');
     } else if (seo?.articleSection) {
       setProperty('article:section', seo.articleSection);
       setProperty('article:author', '韋德老師');

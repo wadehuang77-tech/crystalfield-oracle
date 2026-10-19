@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
-import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
+import { humanDesignLimit } from '../../lib/humanDesignSeo';
 import articles from '../../data/human-design/articles.json';
 import englishArticles from '../../data/human-design/articles.en.json';
 
@@ -13,6 +14,8 @@ export type HumanDesignArticle = {
   sections: Array<{ heading: string; paragraphs: string[] }>;
   faq: Array<[string, string]>;
   related: Array<[string, string]>;
+  updated?: string;
+  sources?: Array<[string, string]>;
 };
 
 export const HUMAN_DESIGN_ARTICLES = articles as unknown as Record<string, HumanDesignArticle>;
@@ -35,9 +38,10 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
       </div>
       <article className="relative mx-auto max-w-4xl">
         <nav aria-label="麵包屑" className="mb-8 flex flex-wrap items-center gap-2 text-sm text-cyan-200/60">
-          <Link className="transition hover:text-cyan-100" to={isEnglish ? '/en/human-design' : '/human-design'}>{isEnglish ? 'Human Design' : '人類圖'}</Link>
+          <Link className="transition hover:text-cyan-100" to={isEnglish ? '/en/' : '/'}>{isEnglish ? 'Home' : '首頁'}</Link><span aria-hidden="true">/</span>
+          <Link className="transition hover:text-cyan-100" to={isEnglish ? '/en/human-design/' : '/human-design/'}>{isEnglish ? 'Human Design' : '人類圖'}</Link>
           <span aria-hidden="true">/</span>
-          <span className="text-white/80">{article.section}</span>
+          <span className="text-white/80">{article.h1}</span>
         </nav>
 
         <header className="rounded-3xl border border-cyan-200/15 bg-slate-950/55 p-7 shadow-2xl shadow-cyan-950/20 backdrop-blur sm:p-12">
@@ -47,13 +51,7 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
           </div>
           <h1 className="text-3xl font-semibold leading-tight text-white sm:text-5xl">{article.h1}</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-slate-200/80 sm:text-lg">{article.intro}</p>
-          <div className="mt-7 flex items-center gap-3 border-t border-white/10 pt-5 text-sm text-slate-300/70">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-200">
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <span>{isEnglish ? 'By Wade Huang | For self-reflection and practical experimentation' : '作者：韋德老師｜供自我覺察與生活實驗參考'}</span>
-          </div>
-          <p className="mt-3 text-sm text-slate-300/60">{isEnglish ? 'Updated: September 17, 2026' : '更新日期：2026 年 9 月 17 日'}</p>
+          {article.updated && <p className="mt-4 text-sm text-slate-300/70">{isEnglish ? 'Updated: ' : '更新日期：'}<time dateTime={article.updated}>{article.updated}</time></p>}
         </header>
 
         <div className="mt-10 space-y-10">
@@ -92,7 +90,8 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
             <p className="mt-3 max-w-2xl leading-8 text-slate-200/80">
               {isEnglish ? 'After learning the concepts, enter your birth details to create a chart and begin observing your type, inner authority, and profile. Keep room for your own judgment so the result supports your life instead of restricting your choices.' : '了解概念後，輸入自己的出生資料建立人類圖，從類型、內在權威和人生角色開始觀察。請保留判斷空間，讓結果服務於你的生活，而不是限制你的選擇。'}
             </p>
-            <Link className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-3 font-semibold text-white transition hover:from-blue-400 hover:to-cyan-400" to="/human-design">
+            <p className="mt-3 text-sm leading-7 text-slate-300">{isEnglish ? 'This tool currently generates simulated charts without astronomical or full timezone calculations; it cannot verify a personal chart.' : humanDesignLimit}</p>
+            <Link className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-3 font-semibold text-white transition hover:from-blue-400 hover:to-cyan-400" to={isEnglish ? '/en/human-design/#calculator' : '/human-design/#calculator'}>
               {isEnglish ? 'Calculate My Human Design Chart' : '免費計算我的人類圖'}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
@@ -110,6 +109,11 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
               ))}
             </div>
           </nav>
+          {article.sources && <section className="border-t border-white/10 pt-7">
+            <h2 className="text-xl font-semibold">教學來源</h2>
+            <p className="mt-3 text-sm leading-7 text-slate-300">以下為體系概念的原始教學來源；生活情境與練習為本站編寫，並非真實會員案例。來源不代表科學有效性的證明。</p>
+            <ul className="mt-3 space-y-3">{article.sources.map(([label, href]) => <li key={href}><a className="text-cyan-300 underline underline-offset-4" href={href}>{label}</a></li>)}</ul>
+          </section>}
         </div>
       </article>
     </main>

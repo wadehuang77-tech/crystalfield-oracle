@@ -47,6 +47,7 @@ const [{ StaticRouter }, { appRoutePaths, default: App }] = await Promise.all([
 ]);
 const { mayaSeoContent, mayaMemberSeo, mayaSeoStructuredData } = await vite.ssrLoadModule('/src/lib/mayaSeo.ts');
 const { numerologyHome, numerologyArticles, numerologyStructuredData } = await vite.ssrLoadModule('/src/lib/numerologySeo.ts');
+const { humanDesignEnglishDescription, humanDesignHome, humanDesignStructuredData } = await vite.ssrLoadModule('/src/lib/humanDesignSeo.ts');
 const normalizeRoutePath = (path) => {
   const normalized = `/${path.replace(/^\/+|\/+$/g, '')}`;
   return normalized === '/' ? '/' : `${normalized}/`;
@@ -73,7 +74,7 @@ const pages = [
   ['work-your-light', '光之訊息卡占卜｜宇宙十字與靈魂藍圖指引｜晶域心語', '線上抽取Lightworker光之訊息卡，透過單張牌及宇宙十字牌陣，探索靈魂任務、內在潛能、能量狀態與行動指引。', '光之訊息', 'Lightworker 光之訊息卡適合在整理靈魂任務、內在潛能與能量狀態時使用。單張牌提供聚焦的訊息，宇宙十字牌陣則從多個角度整理靈魂藍圖與行動指引。'],
   ['osho', '奧修禪卡線上占卜｜覺察情緒與內在狀態｜晶域心語', '透過奧修禪卡單張與三張牌陣，覺察目前情緒、內在卡點及生命狀態，從當下意識中找到更清楚的行動方向。', '奧修禪卡', '奧修禪卡把注意力帶回當下，適合覺察目前情緒、內在卡點與生命狀態。單張牌用於即時觀察，三張牌可從過去、現在、未來或身心靈角度整理意識。'],
   ['numerology', numerologyHome.title, numerologyHome.description, numerologyHome.h1, numerologyHome.description],
-  ['human-design', '【免費人類圖查詢】個人人類圖跑圖與免費 AI 深度解析 | 晶域心語', '輸入出生年月日時分，立即免費生成你的個人人類圖！晶域心語提供 5 大類型、九大能量中心、內在權威與人生角色專屬 AI 深度解讀，帶你找回真實天賦。', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。'],
+  ['human-design', humanDesignHome.title, humanDesignHome.description, humanDesignHome.h1, humanDesignHome.description],
   ['vedic-astrology', vedicLandingContent.zhHant.title, vedicLandingContent.zhHant.description, vedicLandingContent.zhHant.h1, vedicLandingContent.zhHant.intro],
 ];
 for (const [slug, article] of Object.entries(numerologyArticles)) {
@@ -213,12 +214,15 @@ for (const route of chineseRoutes) {
   if (path === 'numerology' || numerologyArticle) {
     jsonLd.splice(0, jsonLd.length, ...numerologyStructuredData(numerologyArticle ? path.slice('numerology/'.length) : undefined));
   }
+  if (path === 'human-design' || article) {
+    jsonLd.splice(0, jsonLd.length, ...humanDesignStructuredData(article ? articleSlug : undefined));
+  }
   const ogType = article || vedicArticle || numerologyArticle ? 'article' : 'website';
   const articleTags = article || vedicArticle
     ? `<meta property="article:section" content="${escapeHtml(article?.section || '印度占星知識專區')}" />`
     : '';
   const mayaSocial = path === 'human-design' ? {
-    ogDescription: '輸入出生時間，秒出人類圖！帶你一次看懂你的類型、內在權威、人生角色與 AI 專屬天賦解析。',
+    ogDescription: humanDesignHome.description,
     image: `${siteUrl}/images/human-design-cover.jpg`,
   } : path === 'maya-calendar' ? mayaSeoContent('zh-TW') : path === 'en/maya-calendar' ? mayaSeoContent('en') : null;
   const head = `
@@ -286,7 +290,7 @@ const englishPages = [
   ['work-your-light', 'Work Your Light Oracle Reading | Crystal Field', 'Explore a single card or Cosmic Cross spread with prompts for intuition, reflection, and personal growth.', 'Work Your Light', 'Use these cards to reconnect with your experience and consider what may help you move forward.'],
   ['osho', 'Osho Zen Tarot Reading | Crystal Field', 'Choose a single-card or three-card Osho Zen Tarot spread to reflect on your present state of mind.', 'Osho Zen Tarot', 'Reflect on the present moment, your inner state, and the choices available to you.'],
   ['numerology', 'Free Numerology Reading | Crystal Field', 'Enter your birth date to explore your life path number, strengths, missing numbers, personal-year themes, and crystal associations.', 'Free Numerology Reading', 'Explore your numbers as prompts for reflecting on strengths, life themes, and direction.'],
-  ['human-design', 'Free Human Design Chart | Crystal Field', 'Create a Human Design chart from your birth date, time, and place. Explore your Type, Profile, Strategy, and Inner Authority.', 'Free Human Design Chart', 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.'],
+  ['human-design', 'Free Human Design Chart | Crystal Field', humanDesignEnglishDescription, 'Free Human Design Chart', 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.'],
   ['vedic-astrology', vedicLandingContent.en.title, vedicLandingContent.en.description, vedicLandingContent.en.h1, vedicLandingContent.en.intro],
 ];
 

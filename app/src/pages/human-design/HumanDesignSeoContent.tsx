@@ -1,81 +1,40 @@
+import { Link } from 'react-router-dom';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
-
 import faqs from '../../data/human-design/faqs.json';
+import { humanDesignLimit, humanDesignReadingLinks } from '../../lib/humanDesignSeo';
 
 export const HUMAN_DESIGN_FAQS = faqs;
-
-const englishFaqs = [
-  ['What is Human Design?', 'Human Design is a self-reflection system that uses birth data to create an energy chart and explore type, strategy, inner authority, profile, definition, and energy centers.'],
-  ['How is a Human Design chart calculated?', 'The chart is calculated from your birth date, time, and city or birthplace. Birth time can affect the result, so use the most reliable information available.'],
-  ['What birth information do I need?', 'You need your date of birth, the most accurate birth time available, and your birth city or location.'],
-  ['What if I do not know my exact birth time?', 'Check a birth certificate or another reliable record if possible. Do not guess or treat a chart based on an estimated time as fully accurate.'],
-  ['What are the five energy types?', 'The five commonly used types are Generator, Manifesting Generator, Projector, Manifestor, and Reflector.'],
-  ['What is a Human Design strategy?', 'Strategy is a way to observe how you engage with decisions and opportunities, not a rule you must follow. Its focus differs by energy type.'],
-  ['What is inner authority?', 'Inner authority is a way to observe your decision-making process through emotional clarity, bodily response, intuition, will, voice, or time.'],
-  ['What is a Human Design profile?', 'A profile combines two line numbers, such as 1/3, 2/4, or 4/6, and offers a lens for reflecting on learning, relationships, and life experience.'],
-  ['Does a Human Design chart change over time?', 'The chart calculated from your birth information does not change over time. Your understanding of it and the insights you gain from personal experimentation may develop with experience.'],
-  ['Can Human Design replace medical or psychological care?', 'No. It is a self-reflection and experimentation tool and does not replace qualified professional support.'],
-  ['What can I view for free in a Human Design report?', 'The site provides an entry point to create a chart and view report information. Access to full report content and other features depends on the site’s current membership and unlock settings; not every report section is necessarily free.'],
-  ['Is my birth data public?', 'Birth data is not placed in public SEO content or the sitemap. Storage and sharing follow the site authentication, authorization, and privacy systems.'],
-];
-
 export default function HumanDesignSeoContent() {
-  const isEnglish = useRouteLanguage() === 'en';
-  if (isEnglish) {
-    const types = [
-      ['Generator', 'Observe what life places in front of you and notice whether your body has a genuine response before committing.'],
-      ['Manifesting Generator', 'Respond first, then let curiosity and speed guide exploration while informing people affected by your changes.'],
-      ['Projector', 'Protect your energy and share insight where you are genuinely recognized and invited to contribute.'],
-      ['Manifestor', 'Initiate from a clear impulse and inform the people affected without giving away your autonomy.'],
-      ['Reflector', 'Notice how people and environments affect you, and give important decisions enough time to become clear.'],
-    ];
-    return <section className="relative mt-12 w-full max-w-3xl space-y-10 text-left text-white/75">
-      <div><h2 className="mb-3 text-2xl font-semibold text-white">What is Human Design?</h2><p className="leading-8">Human Design is a self-reflection system that creates an energy chart from birth data. It offers prompts about type, strategy, inner authority, profile, definition, and energy centers. Use it as a practical experiment, not as a fixed prediction or a replacement for professional care.</p></div>
-      <div><h2 className="mb-4 text-2xl font-semibold text-white">The five energy types</h2><div className="space-y-4">{types.map(([title, text]) => <div key={title}><h3 className="text-lg font-semibold text-cyan-200">{title}</h3><p className="mt-1 leading-7">{text}</p></div>)}</div></div>
-      <div><h2 className="mb-3 text-2xl font-semibold text-white">What can a Human Design report include?</h2><p className="leading-8">A report may cover type, profile, strategy, inner authority, definition, energy centers, gifts, relationships, career direction, and practical reflection prompts. Free and paid sections depend on the site's access settings.</p></div>
-      <div><h2 className="mb-3 text-2xl font-semibold text-white">How should I use a chart?</h2><p className="leading-8">Choose one low-risk situation and observe your body, emotions, timing, and boundaries before and after a decision. Keep what helps you understand yourself more clearly and set aside anything that does not match your lived experience.</p></div>
-      <div><h2 className="mb-4 text-2xl font-semibold text-white">FAQ</h2><div className="space-y-3">{englishFaqs.map(([question, answer]) => <details key={question} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"><summary className="cursor-pointer font-semibold text-cyan-100">{question}</summary><p className="mt-2 leading-7">{answer}</p></details>)}</div></div>
-      <nav className="border-t border-white/10 pt-5 text-sm" aria-label="Related Human Design reading"><h2 className="mb-3 text-2xl font-semibold text-white">Related Human Design reading</h2><div className="flex flex-wrap gap-x-5 gap-y-2">{[['The five energy types', '/en/human-design/types'], ['Generator', '/en/human-design/generator'], ['Manifesting Generator', '/en/human-design/manifesting-generator'], ['Projector', '/en/human-design/projector'], ['Manifestor', '/en/human-design/manifestor'], ['Reflector', '/en/human-design/reflector'], ['Inner authority', '/en/human-design/authority'], ['Profile', '/en/human-design/profile'], ['Birth time and chart calculation', '/en/human-design/birth-time']].map(([label, href]) => <a key={href} className="text-cyan-300 underline" href={href}>{label}</a>)}</div></nav>
-      <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-sm" aria-label="Explore other services">
-        <a className="text-cyan-300 underline" href="/en/oracle">Explore Tarot and Oracle Cards</a>
-        <a className="text-cyan-300 underline" href="/en/human-design">Explore Human Design</a>
-        <a className="text-cyan-300 underline" href="/en/vedic-astrology">Explore Vedic Astrology</a>
-        <a className="text-cyan-300 underline" href="/en/maya-calendar">Explore Maya Calendar</a>
-      </nav>
-    </section>;
-  }
-  return <section className="relative mt-12 w-full max-w-3xl space-y-10 text-left text-white/75">
-    <div><h2 className="mb-3 text-2xl font-semibold text-white">什麼是人類圖？</h2><p className="leading-8">人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，並從能量類型、策略、內在權威、人生角色、定義及能量中心等方向進行探索。它適合作為自我探索、生活實驗與覺察工具，不宣稱能決定命運，也不取代醫療或其他專業諮詢。</p></div>
-    <div><h2 className="mb-3 text-2xl font-semibold text-white">人類圖計算需要哪些資料？</h2><p className="leading-8">需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響計算結果；如果不確定，可以查閱出生證明或戶籍資料，不應讓系統假裝估計結果完全準確，也不要自行捏造出生時間。</p></div>
-    <div><h2 className="mb-4 text-2xl font-semibold text-white">人類圖的5種能量類型</h2><div className="space-y-4">{[
-      ['生產者 Generator', '生產者通常以持續的生命力與回應作為觀察起點。當身體對外界的人事物有真實回應，投入過程可能帶來滿足感；策略重點是等待回應。'],
-      ['顯示生產者 Manifesting Generator', '顯示生產者常有多元興趣與較快的行動節奏，適合先回應，再依身體與現況行動，過程中允許探索與修正。'],
-      ['投射者 Projector', '投射者的觀察重點在洞察、引導與能量使用的節奏。被看見與認可時，分享觀點較容易形成交流；重要方向可練習等待正確邀請。'],
-      ['顯示者 Manifestor', '顯示者常帶有啟動與開創的行動力，適合觀察如何發起事情。行動前告知相關的人，可以減少誤解與阻力。'],
-      ['反映者 Reflector', '反映者對環境與群體氛圍較敏感，適合觀察不同環境中的身心感受。面對重要決定，可以給自己較完整的週期與時間。'],
-    ].map(([title, text]) => <div key={title}><h3 className="text-lg font-semibold text-cyan-200">{title}</h3><p className="mt-1 leading-7">{text}</p></div>)}</div></div>
-    <div><h2 className="mb-3 text-2xl font-semibold text-white">人類圖報告可以看到什麼？</h2><p className="leading-8">報告可能涉及能量類型、人生角色、人生策略、內在權威、定義、能量中心，以及天賦與優勢、關係與能量界線、職涯與生命方向和靈魂能量摘要。免費與付費內容依現有解鎖設定顯示，不代表整份報告全部免費。</p></div>
-    <div><h2 className="mb-3 text-2xl font-semibold text-white">什麼是人類圖策略？</h2><p className="leading-8">策略是減少阻力的觀察方向，不是強迫使用者遵守的規定。生產者與顯示生產者觀察等待回應；投射者等待正確邀請；顯示者行動前告知；反映者觀察環境並給自己足夠時間。</p></div>
-    <div><h2 className="mb-3 text-2xl font-semibold text-white">什麼是內在權威？</h2><p className="leading-8">本系統實際支援情緒、薦骨、脾臟、意志力、自我投射與月亮週期等權威類型，實際結果會依計算出的圖表顯示。</p></div>
-    <div><h2 className="mb-3 text-2xl font-semibold text-white">什麼是人生角色？</h2><p className="leading-8">人生角色由兩條線組合，例如 1/3、2/4、4/6，反映學習方式、關係互動及人生經驗，實際角色以計算結果為準。</p></div>
-    <div><h2 className="mb-3 text-2xl font-semibold text-white">為什麼選擇晶域心語人類圖？</h2><p className="leading-8">晶域心語由韋德老師建立。韋德老師擁有十年以上塔羅、水晶療癒及命理實務經驗，是水晶療癒老師與身心靈系統設計者，整合人類圖、生命靈數、塔羅、印度占星與水晶能量。</p></div>
-    <div><h2 className="mb-4 text-2xl font-semibold text-white">人類圖常見問題</h2><div className="space-y-3">{faqs.map(([question, answer]) => <details key={question} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"><summary className="cursor-pointer font-semibold text-cyan-100">{question}</summary><p className="mt-2 leading-7">{answer}</p></details>)}</div></div>
-    <nav className="border-t border-white/10 pt-5 text-sm" aria-label="人類圖延伸閱讀">
-      <h2 className="mb-3 text-2xl font-semibold text-white">人類圖延伸閱讀</h2>
-      <div className="flex flex-wrap gap-x-5 gap-y-2">
-        {[
-          ['五大能量類型', '/human-design/types'],
-          ['生產者 Generator', '/human-design/generator'],
-          ['顯示生產者', '/human-design/manifesting-generator'],
-          ['投射者 Projector', '/human-design/projector'],
-          ['顯示者 Manifestor', '/human-design/manifestor'],
-          ['反映者 Reflector', '/human-design/reflector'],
-          ['內在權威', '/human-design/authority'],
-          ['人生角色 Profile', '/human-design/profile'],
-          ['出生時間與計算', '/human-design/birth-time'],
-        ].map(([label, href]) => <a key={href} className="text-cyan-300 underline" href={href}>{label}</a>)}
-      </div>
+  const en = useRouteLanguage() === 'en';
+  const prefix = en ? '/en' : '';
+  const sections = en ? [
+    ['What is Human Design?', 'Human Design is a symbolic framework for self-reflection. Type, strategy, authority and profile offer different questions to explore; they are not scientifically established personality diagnoses or predictions.'],
+    ['Birth details and current limitations', 'Enter your recorded local birth date, time and city. Do not substitute an arbitrary time for an unknown one. This tool currently produces reproducible simulated charts without astronomical ephemerides or full timezone conversion. Even accurate inputs do not produce a verified personal chart.'],
+    ['Free access and paid readings', 'Public guides are readable without signing in. Personal calculation keeps the existing sign-in requirement and offers a free type entry point; core content and AI deep readings require the relevant paid access. Check the plan scope before purchasing.'],
+    ['Suggested reading order', 'Start with type and strategy, then authority, profile, and finally definition, centers and other details. Strategy concerns interaction with opportunities; authority concerns the decision process. A type alone cannot determine how every person should decide.'],
+  ] : [
+    ['人類圖是什麼？', '人類圖結合占星、易經、脈輪等象徵觀念，提供觀察互動、決策與學習方式的框架。它不是經科學證實的人格診斷，也不保證命運、成功或醫療效果。可以用來提出問題，但不必勉強讓生活符合某個標籤。'],
+    ['出生日期、時間與地點怎麼填？', '請使用西元出生日期、出生紀錄中的當地時分及出生城市，不要把目前所在地時間當成出生地時間。若不知道時、分，先查閱可靠紀錄，不要把任意填入或中午 12 點當作準確替代值；本站沒有出生時間校正功能。'],
+    ['目前工具的實際能力', humanDesignLimit],
+    ['免費結果與付費深度解析', '本頁與教學文章免登入。使用個人計算時維持原有登入規則，可先查看免費類型入口；完整核心內容與 AI 深度解析依方案及已取得權限解鎖，不是所有解析免費。購買前請核對內容範圍、價格與工具限制。'],
+    ['排圖後，建議依什麼順序閱讀？', '類型與策略 → 內在權威 → 人生角色 → 定義、中心及其他項目。先理解如何接觸機會，再看作出承諾的節奏，接著探索學習與關係經驗。中心顏色和人生角色回答不同問題，不要混成一個性格結論。'],
+  ];
+  const links = en ? [
+    ['The five types and strategies', 'types'], ['Generator', 'generator'], ['Manifesting Generator', 'manifesting-generator'],
+    ['Projector', 'projector'], ['Manifestor', 'manifestor'], ['Reflector', 'reflector'], ['Authority', 'authority'], ['Profile', 'profile'],
+  ] : humanDesignReadingLinks;
+  const questions = en ? [
+    ['Can an estimated birth time give an accurate result?', 'No. Check reliable records. This tool currently generates simulated charts and does not verify an accurate personal chart even with exact inputs.'],
+    ['Is every report free?', 'No. Public learning content is free to read; personal calculations require sign-in, and core or AI deep readings depend on paid access.'],
+    ['Why five types?', 'Manifesting Generators are presented separately for readability, but belong to the Generator family in the source system.'],
+  ] : faqs;
+  return <section className="relative mx-auto mt-10 w-full max-w-3xl space-y-8 text-left text-slate-300" aria-label={en ? 'Human Design beginner guide' : '人類圖新手閱讀導覽'}>
+    {sections.map(([heading, text]) => <section key={heading}><h2 className="mb-3 text-2xl font-semibold text-cyan-100">{heading}</h2><p className="text-base leading-8">{text}</p></section>)}
+    <nav aria-label={en ? 'Human Design reading guides' : '人類圖教學文章'}>
+      <h2 className="mb-4 text-2xl font-semibold text-cyan-100">{en ? 'Choose a reading guide' : '從一篇教學開始'}</h2>
+      <div className="grid gap-3 sm:grid-cols-2">{links.map(([label, slug]) => <Link key={slug} to={`${prefix}/human-design/${slug}/`} className="rounded-xl border border-cyan-200/20 bg-white/5 p-4 leading-7 text-cyan-200 underline underline-offset-4 hover:bg-white/10">{label}</Link>)}</div>
     </nav>
-    <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-5 text-sm"><a className="text-cyan-300 underline" href="/numerology">查看生命靈數分析</a><a className="text-cyan-300 underline" href="/vedic-astrology">探索印度占星</a><a className="text-cyan-300 underline" href="/oracle">體驗塔羅與神諭卡</a><a className="text-cyan-300 underline" href="/maya-calendar">查看瑪雅曆</a></nav>
+    <section><h2 className="mb-4 text-2xl font-semibold text-cyan-100">{en ? 'Frequently asked questions' : '人類圖常見問題'}</h2><div className="space-y-3">{questions.map(([q,a]) => <details key={q} className="rounded-xl border border-white/10 p-4"><summary className="cursor-pointer font-semibold text-cyan-100">{q}</summary><p className="mt-3 leading-7">{a}</p></details>)}</div></section>
+    <nav className="flex flex-wrap gap-4 border-t border-white/10 pt-5 text-sm" aria-label={en ? 'Other tools' : '其他探索工具'}>{[['numerology', '生命靈數', 'Numerology'], ['oracle', '塔羅占卜', 'Tarot'], ['vedic-astrology', '印度占星', 'Vedic Astrology'], ['maya-calendar', '瑪雅曆', 'Maya Calendar']].map(([path, zh, english]) => <Link key={path} to={`${prefix}/${path}/`} className="text-cyan-300 underline">{en ? english : zh}</Link>)}</nav>
   </section>;
 }

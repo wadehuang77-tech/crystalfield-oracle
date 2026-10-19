@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, MapPin, Calendar, Clock } from 'lucide-react';
 import HumanDesignSeoContent from './HumanDesignSeoContent';
 import HumanDesignTypesSection from './HumanDesignTypesSection';
+import { humanDesignHome } from '../../lib/humanDesignSeo';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { t } from '../../lib/i18n';
 import { AuthRequiredBirthDate } from '../../components/AuthRequiredBirthDate';
@@ -36,7 +37,7 @@ function parseEnglishBirthDate(value: string): string | null {
 export default function LandingPage({ onCalculate, disabled = false }: LandingPageProps) {
   const language = useRouteLanguage();
   const copy = (key: string, fallback: string) => language === 'en' ? t(`humanDesign.${key}`, language) : fallback;
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [form, setForm] = useState({ birthDate: '', birthTime: '', birthCity: '' });
   const [timeParts, setTimeParts] = useState({ hour: '', minute: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -80,7 +81,7 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
         <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-cyan-600/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative w-full max-w-md">
+      <div className="relative w-full max-w-4xl">
         {/* Brand */}
         <div
           className={`text-center mb-10 transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
@@ -97,9 +98,9 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-3">{copy('title', '免費人類圖計算：看懂你的能量類型、人生角色與內在權威')}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-3">{copy('title', humanDesignHome.h1)}</h1>
           <p className="text-white/40 text-sm leading-relaxed">
-            {copy('description', '輸入出生年月日、出生時間與出生地點，建立你的人類圖能量藍圖，了解自己的能量類型、策略、內在權威、人生角色與定義。結果適合作為自我覺察與生活實驗的參考，不是對人生的絕對定論。')}
+            {language === 'en' ? 'Sign in for a free type entry point and explore the public reading guides. Charts are currently simulated; core and AI deep readings require the relevant paid access.' : humanDesignHome.description}
           </p>
         </div>
 
@@ -107,7 +108,7 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
         <div
           className={`transition-all duration-700 delay-200 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="relative rounded-3xl overflow-hidden">
+          <div id="calculator" className="relative mx-auto max-w-md scroll-mt-6 rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-white/3 backdrop-blur-sm" />
             <div className="absolute inset-0 border border-white/8 rounded-3xl" />
 
@@ -203,8 +204,8 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
               </button>
             </form>
           </div>
-          <HumanDesignTypesSection />
           <HumanDesignSeoContent />
+          <HumanDesignTypesSection />
         </div>
 
         {/* Trust signals */}

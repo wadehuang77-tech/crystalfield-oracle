@@ -21,6 +21,7 @@ const publicLandingSlugs = [
 ];
 
 const numerologyArticleSlugs = readArticleSlugs('numerology/articles.json');
+const humanDesignArticleContent = JSON.parse(readFileSync(fileURLToPath(new URL('../src/data/human-design/articles.json', import.meta.url)), 'utf8'));
 const humanDesignArticleSlugs = readArticleSlugs('human-design/articles.json');
 const vedicArticleSlugs = readArticleSlugs('vedic-astrology/articles.json');
 
@@ -38,6 +39,7 @@ export const prerenderRoutes = [
   ...humanDesignArticleSlugs.map((slug) => ({
     path: `human-design/${slug}`,
     language: 'zh-Hant',
+    lastmod: humanDesignArticleContent[slug].updated,
   })),
   ...vedicArticleSlugs.map((slug) => ({
     path: `vedic-astrology/${slug}`,
@@ -67,7 +69,7 @@ export function createSitemap() {
         ].join('\n')
       : '';
 
-    return `  <url>\n    <loc>${canonicalUrl(route.path)}</loc>${alternates ? `\n${alternates}\n  ` : ''}</url>`;
+    return `  <url>\n    <loc>${canonicalUrl(route.path)}</loc>${route.lastmod ? `\n    <lastmod>${route.lastmod}</lastmod>` : ''}${alternates ? `\n${alternates}\n  ` : ''}</url>`;
   });
 
   return [

@@ -29,7 +29,7 @@ export default function HumanDesignTypesSection() {
         {en ? 'The 5 Human Design Types and Decision Strategies' : '人類圖 5 大類型與決策策略'}
       </h2>
       <p className="mt-4 text-base leading-8 text-slate-300">
-        {en ? 'After calculating your Human Design chart, explore your type as a starting point for self-observation. Read its strategy alongside your inner authority and your real-life circumstances.' : '完成人類圖查詢後，可以從自己的能量類型開始認識決策策略。五大類型提供不同的自我觀察方向，實際選擇仍需結合個人的內在權威、生活經驗與現實條件。'}
+        {en ? 'The five-category presentation includes Manifesting Generators within the Generator family. Read strategy alongside authority and the complete chart; this tool currently produces simulated results.' : '本站以五類呈現，其中顯示生產者屬於生產者家族。類型策略需搭配權威及完整圖表理解；本站目前為模擬結果，不據此確認個人類型。'}
       </p>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {types.map((type, index) => (
@@ -38,6 +38,7 @@ export default function HumanDesignTypesSection() {
             {!en && <p className="mt-1 text-sm tracking-wide text-slate-400" lang="en">{type.english}</p>}
             <p className="mt-4 text-base font-medium leading-7 text-cyan-200">{en ? type.strategyEn : type.strategy}</p>
             <p className="mt-2 text-base leading-8 text-slate-300">{en ? type.textEn : type.text}</p>
+            <Link className="mt-4 inline-block text-cyan-200 underline underline-offset-4" to={`${prefix}/human-design/${type.english.toLowerCase().replace(/ /g, '-')}/`}>{en ? `Read about ${type.english}` : `閱讀${type.name}的策略與練習`}</Link>
           </article>
         ))}
       </div>

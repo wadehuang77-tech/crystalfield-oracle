@@ -6,6 +6,7 @@ export default function LanguageSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentLanguage = getLanguageFromPath(location.pathname);
+  if (location.pathname.replace(/\/$/, '') === '/human-design/how-to-read') return null;
   // These public articles currently have Chinese content only.
   if (Object.keys(numerologyArticles).some(slug => location.pathname.replace(/\/$/, '') === `/numerology/${slug}`)) return null;
 

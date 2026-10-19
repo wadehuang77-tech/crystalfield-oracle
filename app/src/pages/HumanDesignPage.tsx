@@ -128,6 +128,10 @@ export default function HumanDesignPage() {
   const [params, setParams] = useSearchParams();
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
   const [page, setPage] = useState<Page>(() => (hasCheckoutReturn ? 'report' : 'landing'));
+  useEffect(() => {
+    const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (robots) robots.content = page !== 'landing' || location.search ? 'noindex, follow' : 'index, follow';
+  }, [page, location.pathname, location.search]);
   const [pageKey, setPageKey] = useState(0);
   const [chart, setChart] = useState<HDChart | null>(null);
   const [birthData, setBirthData] = useState({ date: '', time: '', city: '' });

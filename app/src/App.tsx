@@ -115,7 +115,7 @@ export const appRoutePaths = routeConfig.flatMap(({ path }) => (
   path === '/home'
     ? [path, '/en/home']
     : [path, getLocalizedPath(path, 'en')]
-)).concat(numerologyArticlePaths);
+)).concat(numerologyArticlePaths, ['/human-design/how-to-read']);
 
 function DocumentLanguage() {
   const location = useLocation();
@@ -165,6 +165,7 @@ function RouterBody() {
             return routes;
           })}
           {Object.keys(numerologyArticles).map(slug => <Route key={slug} path={`/numerology/${slug}`} element={<NumerologyArticlePage slug={slug as NumerologySlug} />} />)}
+          <Route path="/human-design/how-to-read" element={<HumanDesignArticlePage slug="how-to-read" />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
