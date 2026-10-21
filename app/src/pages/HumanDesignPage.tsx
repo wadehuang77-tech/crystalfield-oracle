@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { authUrlFor } from '../lib/authLocale';
 import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
 import ParticleBackground from '../components/human-design/ParticleBackground';
@@ -120,12 +121,13 @@ function AnalysingScreen() {
 }
 
 export default function HumanDesignPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
   const [params, setParams] = useSearchParams();
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
-  const [page, setPage] = useState<Page>(() => (hasCheckoutReturn ? 'report' : 'landing'));
+  const [page, setPage] = useState<Page>(() => (hasCheckoutReturn || params.has('checkout_login') ? 'report' : 'landing'));
   useEffect(() => {
     const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (robots) robots.content = page !== 'landing' || location.search ? 'noindex, follow' : 'index, follow';
@@ -240,8 +242,19 @@ export default function HumanDesignPage() {
     }
   }, [access, birthData, chart, chartId, email, language]);
 
+  const requireCheckoutLogin = () => {
+    if (authLoading) return false;
+    if (user) return true;
+    if (chart) persistState({ chart, chartId, birthData, access, email });
+    const returnParams = new URLSearchParams(location.search);
+    returnParams.set('checkout_login', '1');
+    navigate(authUrlFor(location.pathname, 'login', `${location.pathname}?${returnParams}`));
+    return false;
+  };
+
   const startBasicCheckout = async () => {
     if (!chart || checkoutLoading) return;
+    if (!requireCheckoutLogin()) return;
     markCheckoutReturn('basic');
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
@@ -269,6 +282,7 @@ export default function HumanDesignPage() {
 
   const startFullCheckout = async () => {
     if (!chart || checkoutLoading) return;
+    if (!requireCheckoutLogin()) return;
     markCheckoutReturn('full');
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);
@@ -296,6 +310,7 @@ export default function HumanDesignPage() {
 
   const startBundleCheckout = async () => {
     if (!chart || checkoutLoading) return;
+    if (!requireCheckoutLogin()) return;
     markCheckoutReturn('bundle');
     persistState({ chart, chartId, birthData, access, email });
     setCheckoutLoading(true);

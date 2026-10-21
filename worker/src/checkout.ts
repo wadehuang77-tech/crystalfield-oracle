@@ -83,6 +83,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const itemName = checkoutItemName(item, locale);
   const isNumerologyCheckout = item.id.startsWith('numerology_');
   const isHumanDesignCheckout = item.id.startsWith('human_design_');
+  if (!user && isHumanDesignCheckout) return unauthorized(req, env, '請先登入再購買人類圖報告');
   const isVedicCheckout = item.id.startsWith('vedic_');
   const shouldAdminInstantUnlock = isAdmin;
 
