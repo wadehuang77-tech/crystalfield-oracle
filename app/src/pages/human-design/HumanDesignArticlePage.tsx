@@ -109,11 +109,6 @@ export default function HumanDesignArticlePage({ slug }: HumanDesignArticlePageP
               ))}
             </div>
           </nav>
-          {article.sources && <section className="border-t border-white/10 pt-7">
-            <h2 className="text-xl font-semibold">教學來源</h2>
-            <p className="mt-3 text-sm leading-7 text-slate-300">以下為體系概念的原始教學來源；生活情境與練習為本站編寫，並非真實會員案例。來源不代表科學有效性的證明。</p>
-            <ul className="mt-3 space-y-3">{article.sources.map(([label, href]) => <li key={href}><a className="text-cyan-300 underline underline-offset-4" href={href}>{label}</a></li>)}</ul>
-          </section>}
         </div>
       </article>
     </main>
