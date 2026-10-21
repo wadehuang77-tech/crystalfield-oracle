@@ -1,3 +1,4 @@
+import './NumerologyPage.css';
 import NumerologyPublicGuide from '../components/NumerologyPublicGuide';
 import { numerologyHome } from '../lib/numerologySeo';
 import { useState, useEffect, useRef } from 'react';
@@ -593,10 +594,10 @@ export default function NumerologyPage() {
   };
 
   return (
-    <main className="min-h-screen">
+    <main className="numerology-page min-h-screen">
 
       {!report ? (
-        <section className="px-4 pt-4 pb-16 max-w-2xl mx-auto">
+        <section className="numerology-landing px-4 pt-4 pb-16 max-w-2xl mx-auto">
           <header className="text-center mb-12 space-y-4">
             <h1
               className="font-serif text-4xl md:text-5xl leading-tight"
@@ -614,7 +615,7 @@ export default function NumerologyPage() {
           </header>
 
           <div
-            className="rounded-3xl p-6 md:p-8 mb-10"
+            className="numerology-calculator rounded-3xl p-6 md:p-8 mb-10"
             style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.025) 100%)',
               border: '1px solid rgba(255,255,255,0.10)',
@@ -626,7 +627,7 @@ export default function NumerologyPage() {
             <div id="calculator" className="scroll-mt-6"><BirthDateForm onSubmit={handleSubmit} loading={loading} /></div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-8">
+          <div className="numerology-features grid grid-cols-2 gap-3 mb-8">
             {features.map((f, index) => (
               <div
                 key={f.title}
@@ -683,7 +684,7 @@ export default function NumerologyPage() {
         </section>
 
       ) : (
-        <section className="px-4 pb-16 max-w-2xl mx-auto">
+        <section className="numerology-results px-4 pb-16 max-w-2xl mx-auto">
           <div
             className="flex gap-1 rounded-2xl p-1 mb-6 sticky top-4"
             style={{

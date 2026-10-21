@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
 import { t } from '../../lib/i18n';
@@ -196,13 +196,17 @@ function NumberInput({
   inputStyle: React.CSSProperties;
   onChange: (v: string) => void;
 }) {
+  const inputId = useId();
   return (
     <div style={{ marginBottom: 0 }}>
-      <label style={{
+      <label htmlFor={inputId} style={{
         display: 'block', fontSize: 10, color: 'rgba(167,139,250,0.45)',
         marginBottom: 4, paddingLeft: 2, letterSpacing: '0.05em',
       }}>{label}</label>
       <input
+        id={inputId}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${inputId}-error` : undefined}
         type="tel"
         inputMode="numeric"
         pattern="[0-9]*"
@@ -219,7 +223,7 @@ function NumberInput({
         spellCheck={false}
       />
       {error && (
-        <span style={{ fontSize: 11, color: '#f87171', paddingLeft: 4, marginTop: 2, display: 'block' }}>
+        <span id={`${inputId}-error`} role="alert" style={{ fontSize: 11, color: '#f87171', paddingLeft: 4, marginTop: 2, display: 'block' }}>
           {error}
         </span>
       )}

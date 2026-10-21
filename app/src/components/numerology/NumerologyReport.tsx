@@ -85,7 +85,7 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
     : crystal);
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
+    <div className="numerology-report w-full max-w-2xl mx-auto space-y-6">
       {/* Life Path Hero */}
       <div
         className="rounded-3xl p-6 md:p-8 text-center relative overflow-hidden"

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { numerologyArticles, numerologyFaq } from '../lib/numerologySeo';
 
 export default function NumerologyPublicGuide() {
-  return <section className="mt-12 space-y-8 text-left text-purple-100/80" aria-label="生命靈數公開教學">
+  return <section className="numerology-public-guide mt-12 space-y-8 text-left text-purple-100/80" aria-label="生命靈數公開教學">
     <section><h2 className="mb-3 font-serif text-2xl text-purple-100">生命靈數是什麼？</h2><p className="leading-8">生命靈數把出生日期整理為數字，用象徵主題協助觀察天賦、習慣與選擇。可以把它當作寫日記與對話的起點，而不是固定性格、命運或職業的答案。</p></section>
     <section><h2 className="mb-3 font-serif text-2xl text-purple-100">如何使用本站計算器</h2><ol className="list-decimal space-y-2 pl-6 leading-8"><li>準備西元出生年月日，不需要時、分或出生地。</li><li>在上方計算器輸入生日並送出計算，不需登入。</li><li>先閱讀免費基礎結果；需要更深入內容時，再查看方案範圍與價格。</li></ol><p className="mt-3 leading-8">本頁介紹、以下虛構示範與所有教學文章均可免登入閱讀。基本計算免登入；會員與付費功能仍依原有授權流程提供。</p></section>
     <section><h2 className="mb-3 font-serif text-2xl text-purple-100">免費結果與付費深度報告有何差異？</h2><div className="grid gap-4 sm:grid-cols-2"><div className="rounded-2xl border border-purple-200/20 p-5"><h3 className="mb-2 text-lg font-semibold">免登入免費計算</h3><p className="leading-8">產生主命數、生日數與基礎結果，從數字認識自己的探索方向。</p></div><div className="rounded-2xl border border-purple-200/20 p-5"><h3 className="mb-2 text-lg font-semibold">依方案付費解鎖</h3><p className="leading-8">AI 深度解讀、進階內容與完整流年報告依方案開放，不代表所有解析免費。購買前請確認畫面的內容範圍與價格。</p></div></div></section>
