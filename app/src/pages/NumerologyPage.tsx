@@ -598,11 +598,11 @@ export default function NumerologyPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <main className="min-h-screen">
 
       {!report ? (
         <section className="px-4 pt-4 pb-16 max-w-2xl mx-auto">
-          <div className="text-center mb-12 space-y-4">
+          <header className="text-center mb-12 space-y-4">
             <h1
               className="font-serif text-4xl md:text-5xl leading-tight"
               style={{ filter: 'drop-shadow(0 0 16px rgba(251,191,36,0.3)) drop-shadow(0 0 36px rgba(196,181,253,0.18))' }}
@@ -616,7 +616,7 @@ export default function NumerologyPage() {
             >
               {copy('intro', numerologyHome.description)}
             </p>
-          </div>
+          </header>
 
           <div
             className="rounded-3xl p-6 md:p-8 mb-10"
@@ -814,7 +814,7 @@ export default function NumerologyPage() {
         />
       )}
 
-    </div>
+    </main>
   );
 }
 

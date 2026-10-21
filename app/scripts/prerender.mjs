@@ -244,6 +244,7 @@ for (const route of chineseRoutes) {
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(mayaSocial?.ogDescription ?? description)}" />
     <meta name="twitter:image" content="${mayaSocial?.image ?? `${siteUrl}/20260315_164545.jpg`}" />
+    ${path === 'numerology' ? '<meta property="og:image:alt" content="晶域心語：生命靈數計算與自我探索" /><meta name="twitter:image:alt" content="晶域心語：生命靈數計算與自我探索" />' : ''}
     <script type="application/ld+json" data-seo-jsonld>${escapeJson(jsonLd)}</script>`;
   const numerologyContent = path === 'numerology'
     ? `<section><h2>什麼是生命靈數？</h2><p>生命靈數是以出生日期中的數字進行整理的自我探索工具，可以從數字象徵觀察個人傾向、天賦與需要練習的方向。它不是對人生的固定預測。</p><h2>如何計算生命靈數？</h2><p>例如生日為 1990 年 12 月 31 日，可將 1+9+9+0+1+2+3+1 相加，得到 26，再將 2+6 相加得到 8。本系統會保留 11、22、33 等大師數字。</p><h2>什麼是缺失數字？</h2><p>缺失數字是出生日期中沒有出現的 1 到 9 數字，可作為性格、學習方向與自我覺察的參考。</p><h2>生命靈數常見問題</h2><details><summary>生命靈數怎麼算？</summary><p>將出生年月日的每個數字相加，再持續加總至個位數；本系統會保留 11、22、33 等大師數字。</p></details><details><summary>生命靈數可以看什麼？</summary><p>可以作為觀察天賦、工作、感情、個人流年、缺失數字與水晶能量的自我探索參考。</p></details><details><summary>生命靈數分析可以代替專業醫療或心理諮詢嗎？</summary><p>不可以；醫療或心理問題請尋求合格專業人士協助。</p></details><p><a href="${siteUrl}/oracle">探索塔羅與神諭卡</a> · <a href="${siteUrl}/human-design">深入探索人類圖</a> · <a href="${siteUrl}/vedic-astrology">查看印度占星分析</a></p></section>`

@@ -5,7 +5,7 @@ import { join, extname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { calculateNumerology } from '../src/lib/numerology';
-import { numerologyArticles, numerologyHome } from '../src/lib/numerologySeo';
+import { numerologyArticles, numerologyHome, numerologyFaq } from '../src/lib/numerologySeo';
 
 const dist = fileURLToPath(new URL('../dist/', import.meta.url));
 const paths = ['/numerology/', ...Object.keys(numerologyArticles).map(slug => `/numerology/${slug}/`)];
@@ -85,6 +85,21 @@ try {
         assert.equal(await page.locator('a[href="/numerology/#calculator"]').count(), 1);
       } else {
         assert.equal(await page.locator('#calculator').count(), 1);
+        assert.equal(await page.locator('main').count(), 1);
+        assert.equal(await page.locator('article[id^="life-path-"]').count(), 9);
+        for (let n = 1; n <= 9; n++) {
+          assert.equal(await page.locator(`#life-path-${n} h3`).count(), 1);
+          assert.equal(await page.locator(`#life-path-${n} dl > div`).count(), 3);
+          assert.equal(await page.locator(`a[href="/numerology/life-path-${n}/"]`).count(), 1);
+        }
+        const schema = JSON.parse(await page.locator('script[data-seo-jsonld]').textContent() ?? '[]');
+        const app = schema.find((item: { '@type': string }) => item['@type'] === 'SoftwareApplication');
+        assert.equal(app.offers.price, 0);
+        assert.equal(app.aggregateRating, undefined);
+        const faq = schema.find((item: { '@type': string }) => item['@type'] === 'FAQPage');
+        assert.deepEqual(faq.mainEntity.map((q: { name: string; acceptedAnswer: { text: string } }) => [q.name, q.acceptedAnswer.text]), numerologyFaq);
+        for (const [q, a] of numerologyFaq) assert.ok((await page.locator('#faq').textContent())?.includes(q) && (await page.locator('#faq').textContent())?.includes(a));
+        for (const selector of ['meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:image"]', 'meta[name="twitter:card"]', 'meta[name="twitter:image:alt"]']) assert.ok(await page.locator(selector).getAttribute('content'));
         assert.equal(await page.locator('link[hreflang="en"]').getAttribute('href'), 'https://www.crystalfield101.com/en/numerology/');
       }
       for (const width of [320, 375, 1280]) {

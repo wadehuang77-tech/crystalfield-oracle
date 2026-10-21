@@ -471,6 +471,12 @@ export default function SeoMetadata() {
     setMeta('twitter:title', title);
     setMeta('twitter:description', mayaSocial?.ogDescription ?? description);
     setMeta('twitter:image', mayaSocial?.image ?? `${SITE_URL}/20260315_164545.jpg`);
+    if (normalizedBase === '/numerology' && language !== 'en') {
+      setProperty('og:image:alt', '晶域心語：生命靈數計算與自我探索');
+      setMeta('twitter:image:alt', '晶域心語：生命靈數計算與自我探索');
+    } else {
+      document.querySelector('meta[name="twitter:image:alt"]')?.remove();
+    }
     setCanonical(canonical);
     setHreflang(pathname, englishContentExists && !isMayaMember);
     if (seo && !search) setJsonLd(buildStructuredData(normalizedBase, englishSeo ? { ...seo, ...englishSeo, canonical } : seo, language));
