@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useRouteLanguage } from '../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
 import ParticleBackground from '../components/human-design/ParticleBackground';
@@ -12,7 +12,6 @@ import { checkoutApi, humanDesignApi, humanDesignShareApi, type HumanDesignShare
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { useAuth } from '../contexts/AuthContext';
 import { getLanguageFromPath, t } from '../lib/i18n';
-import { calculationLoginRedirect } from '../lib/authLocale';
 import {
   getHumanDesignShareCapabilities,
   getHumanDesignShareProofs,
@@ -121,9 +120,8 @@ function AnalysingScreen() {
 }
 
 export default function HumanDesignPage() {
-  const { user, loading: authLoading, authError } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const language = getLanguageFromPath(location.pathname);
   const [params, setParams] = useSearchParams();
   const hasCheckoutReturn = params.has('order_id') || params.has('order_token');
@@ -168,12 +166,6 @@ export default function HumanDesignPage() {
   };
 
   const handleCalculate = (birthDate: string, birthTime: string, birthCity: string) => {
-    if (authLoading || authError) return;
-    const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
-    if (loginUrl) {
-      navigate(loginUrl);
-      return;
-    }
     let calculated: HDChart;
     try {
       calculated = calculateHDChart(birthDate, birthTime, birthCity);
@@ -191,6 +183,8 @@ export default function HumanDesignPage() {
     goTo('hero');
     persistState({ chart: calculated, chartId: '', birthData: nextBirthData, access: 'locked', email: '' });
 
+    // Guest previews stay local; saving a member chart remains authenticated.
+    if (!user) return;
     humanDesignApi
       .saveChart({
         birth_date: birthDate,
@@ -431,7 +425,7 @@ export default function HumanDesignPage() {
       </div>
 
       <main key={pageKey} className="relative page-enter" style={{ zIndex: 2 }}>
-        {page === 'landing' && <LandingPage onCalculate={handleCalculate} disabled={authLoading} />}
+        {page === 'landing' && <LandingPage onCalculate={handleCalculate} />}
         {page === 'hero' && chart && (
           <HeroCardPage
             chart={chart}
@@ -467,7 +461,7 @@ export default function HumanDesignPage() {
           </HumanDesignShareProvider>
         )}
         {page === 'report' && !chart && checkoutRestoring && <AnalysingScreen />}
-        {page === 'report' && !chart && !checkoutRestoring && <LandingPage onCalculate={handleCalculate} disabled={authLoading} />}
+        {page === 'report' && !chart && !checkoutRestoring && <LandingPage onCalculate={handleCalculate} />}
       </main>
     </div>
   );

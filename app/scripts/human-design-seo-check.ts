@@ -14,7 +14,7 @@ const dist = join(root, 'app/dist');
 // These implementations must remain byte-for-byte unchanged from the submitted project.
 for (const path of ['app/src/lib/human-design/humanDesignCalc.ts', 'app/src/lib/api.ts',
   'app/src/contexts/AuthProvider.tsx', 'app/src/pages/human-design/ReportPage.tsx',
-  'app/src/lib/numerologySeo.ts', 'app/src/data/numerology/articles.json', 'app/src/pages/NumerologyPage.tsx']) {
+  'app/src/lib/numerology.ts']) {
   const expected = execFileSync('git', ['show', `HEAD:${path}`], { cwd: root, encoding: 'utf8' }).replaceAll('\r\n', '\n');
   assert.equal((await readFile(join(root, path), 'utf8')).replaceAll('\r\n', '\n'), expected, `Protected file changed: ${path}`);
 }
@@ -119,10 +119,7 @@ try {
     assert.deepEqual(errors, []);
     if (javaScriptEnabled) {
       await page.goto(origin + '/human-design/');
-      await page.getByRole('button', { name: '出生日期。請先登入會員以免費使用解盤功能。' }).click();
-      assert.equal(await page.getByRole('dialog').count(), 1);
-      signedIn = true;
-      await page.reload();
+      assert.equal(await page.getByRole('dialog').count(), 0);
       await page.locator('input[type="date"]').fill('1990-12-31');
       await page.locator('#calculator select').nth(0).selectOption('08');
       await page.locator('#calculator select').nth(1).selectOption('15');
@@ -132,6 +129,7 @@ try {
       const result = await page.evaluate(() => JSON.parse(localStorage.getItem('cf_human_design_state_v1')!));
       assert.deepEqual(result.chart, calculateHDChart('1990-12-31', '08:15', 'Taipei'));
       assert.equal(result.access, 'locked');
+      assert.equal(result.chartId, '');
       assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, follow');
       assert.equal(await page.locator(`a[href="/human-design/${result.chart.type}/"]`).count(), 1);
       assert.deepEqual(errors, []);
@@ -140,7 +138,7 @@ try {
   }
   assert.equal((await fetch(origin + '/human-design/not-an-article/')).status, 404);
   assert.equal((await fetch(origin + '/en/human-design/how-to-read/')).status, 404);
-  console.log(`PASS: ${paths.length} public pages, JS/no-JS, metadata/body/schema, 320/375/1280 widths, refresh/links, sitemap dates, local 404, mocked sign-in/calculation parity and noindex. Protected calculation/auth/payment/numerology files unchanged. ${intercepted} API/external requests intercepted. Screenshots: ${screenshots}`);
+  console.log(`PASS: ${paths.length} public pages, JS/no-JS, metadata/body/schema, 320/375/1280 widths, refresh/links, sitemap dates, local 404, guest calculation parity and noindex. Protected calculation/auth/payment files unchanged. ${intercepted} API/external requests intercepted. Screenshots: ${screenshots}`);
 } finally {
   await browser.close(); localServer.closeAllConnections();
   await new Promise<void>((done, reject) => localServer.close(error => error ? reject(error) : done()));

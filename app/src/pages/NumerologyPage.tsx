@@ -77,7 +77,7 @@ export default function NumerologyPage() {
   const navigate = useNavigate();
   const language = getLanguageFromPath(location.pathname);
   const copy = (key: string, fallback: string) => language === 'en' ? t(`numerology.${key}`, language) : fallback;
-  const { user, loading: authLoading, authError } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
   useEffect(() => {
@@ -238,12 +238,14 @@ export default function NumerologyPage() {
     return () => { cancelled = true; };
   }, [authLoading, localTier, searchParams, setSearchParams, user]);
 
+  const previousUserId = useRef(user?.id);
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (previousUserId.current && !authLoading && !user) {
       setReport(null);
       setOracleCard(null);
       setActiveTab('report');
     }
+    previousUserId.current = user?.id;
   }, [authLoading, user]);
 
   useEffect(() => {
@@ -265,13 +267,6 @@ export default function NumerologyPage() {
 
   // ── Actions ─────────────────────────────────────────────────────
   const handleSubmit = async (date: string, useOracle: boolean) => {
-    if (authLoading || authError) return;
-    const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
-    if (loginUrl) {
-      navigate(loginUrl);
-      return;
-    }
-    if (!user) return;
     setLoading(true);
     await new Promise(r => setTimeout(r, 1200));
     const result = calculateNumerology(date);
@@ -280,7 +275,7 @@ export default function NumerologyPage() {
     clearForecastUnlock();
     setReport(result);
     setOracleCard(card);
-    localStorage.setItem(LAST_REPORT_STATE_KEY, JSON.stringify({ report: result, oracleCard: card, userId: user.id }));
+    localStorage.setItem(LAST_REPORT_STATE_KEY, JSON.stringify({ report: result, oracleCard: card, userId: user?.id ?? null }));
     setLoading(false);
   };
 
@@ -628,7 +623,7 @@ export default function NumerologyPage() {
               boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(167,139,250,0.04), inset 0 1px 0 rgba(255,255,255,0.07)',
             }}
           >
-            <div id="calculator" className="scroll-mt-6"><BirthDateForm onSubmit={handleSubmit} loading={loading || authLoading} /></div>
+            <div id="calculator" className="scroll-mt-6"><BirthDateForm onSubmit={handleSubmit} loading={loading} /></div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-8">

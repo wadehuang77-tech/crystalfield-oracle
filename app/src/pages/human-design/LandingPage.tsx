@@ -5,7 +5,6 @@ import HumanDesignTypesSection from './HumanDesignTypesSection';
 import { humanDesignHome } from '../../lib/humanDesignSeo';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { t } from '../../lib/i18n';
-import { AuthRequiredBirthDate } from '../../components/AuthRequiredBirthDate';
 
 interface LandingPageProps {
   onCalculate: (birthDate: string, birthTime: string, birthCity: string) => void;
@@ -114,7 +113,6 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
 
             <form onSubmit={handleSubmit} className="relative p-7 space-y-5">
               {/* Birth Date */}
-              <AuthRequiredBirthDate>
               <div>
                 <label className="flex items-center gap-2 text-xs text-white/40 font-medium mb-2">
                   <Calendar className="w-3.5 h-3.5" />
@@ -132,7 +130,6 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
                   <p className="text-rose-400/80 text-xs mt-1.5">{errors.birthDate}</p>
                 )}
               </div>
-              </AuthRequiredBirthDate>
 
               {/* Birth Time */}
               <div>

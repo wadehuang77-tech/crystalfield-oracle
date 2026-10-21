@@ -9,10 +9,10 @@ export const humanDesignArticles = articles as Record<string, HumanDesignArticle
 export const humanDesignHome = {
   title: '免費人類圖計算｜五大類型、人生角色與內在權威－晶域心語',
   h1: '免費人類圖計算，認識你的類型與決策方式',
-  description: '登入後免費查看人類圖類型入口，從公開新手指南認識策略、權威與人生角色。目前圖表為模擬結果；核心與 AI 深度解析依方案付費解鎖。',
+  description: '免登入免費查看人類圖類型入口，從公開新手指南認識策略、權威與人生角色。目前圖表為模擬結果；核心與 AI 深度解析依方案付費解鎖。',
   updated: '2026-10-19',
 };
-export const humanDesignEnglishDescription = 'Sign in for a free type preview and explore public guides to strategy, authority and profile. Charts are currently simulated; core and AI deep readings require paid access.';
+export const humanDesignEnglishDescription = 'Get a free type preview without signing in and explore public guides to strategy, authority and profile. Charts are currently simulated; core and AI deep readings require paid access.';
 export const humanDesignLimit = '本站目前依出生資料產生可重現的模擬圖表，尚未使用天文星曆與完整時區換算；即使資料正確，也不能視為準確的個人排盤。請將結果用於認識欄位，不據此確認個人類型或權威。';
 export const humanDesignReadingLinks = [
   ['人類圖怎麼看：新手閱讀指南', 'how-to-read'], ['五大類型與策略總覽', 'types'],

@@ -115,10 +115,7 @@ try {
     assert.deepEqual(hydrationErrors, []);
     if (js) {
       await page.goto(origin + '/numerology/');
-      await page.getByRole('button', { name: '出生日期。請先登入會員以免費使用解盤功能。' }).click();
-      assert.equal(await page.getByRole('dialog').count(), 1);
-      signedIn = true;
-      await page.reload();
+      assert.equal(await page.getByRole('dialog').count(), 0);
       const inputs = page.locator('#calculator input[type="tel"]');
       await inputs.nth(0).fill('1990');
       await inputs.nth(1).fill('12');
@@ -136,7 +133,7 @@ try {
   }
   assert.equal((await fetch(origin + '/numerology/does-not-exist/')).status, 404);
   assert.equal((await fetch(origin + '/en/numerology/life-path-1/')).status, 404);
-  console.log(`PASS: calculation examples, 5 pages with/without JS, hydration, 320/375/1280 layouts, canonical, hreflang, links, sitemap, local 404, mocked login gate/calculation, private-result noindex. ${blockedRequests} external/API requests intercepted; no live AI/payment calls.`);
+  console.log(`PASS: calculation examples, 5 pages with/without JS, hydration, 320/375/1280 layouts, canonical, hreflang, links, sitemap, local 404, guest calculation, private-result noindex. ${blockedRequests} external/API requests intercepted; no live AI/payment calls.`);
 } finally {
   await browser.close();
   server.closeAllConnections();
