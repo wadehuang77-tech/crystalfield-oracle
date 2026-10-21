@@ -1,3 +1,4 @@
+import './OracleDeckSelection.css';
 import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
 import {
   ChevronDown,
@@ -340,18 +341,18 @@ function HomePage() {
           {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && `目前會員可使用第 ${entitlement.plan_tier} 級方案所包含的牌陣。`}
         </p>
 
-        <details open className="mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">
+        <details open className="oracle-deck-selection mt-8 w-full max-w-3xl rounded-2xl border border-blue-300/15 bg-slate-950/35 px-4 py-3 text-blue-100/65">
           <summary className="cursor-pointer select-none py-1 text-center text-sm tracking-wide hover:text-blue-100">
             {copy('advanced', '進階選擇：我想自己選擇牌卡')}
           </summary>
-          <div className="mt-4 grid grid-cols-2 gap-2 border-t border-blue-300/10 pt-4 sm:grid-cols-3" onClick={handleAdvancedDeckSelect}>
+          <div className="oracle-deck-grid mt-4 border-t border-blue-300/10 pt-4" onClick={handleAdvancedDeckSelect}>
             {ADVANCED_DECKS.map((deck, index) => (
               <Link
                 key={deck.id}
                 to={getLocalizedPath(deck.path, language)}
                 data-deck-id={deck.id}
                 data-deck-name={language === 'en' ? translations.en.oraclePage.deckNames[index] : deck.name}
-                className="rounded-xl border border-blue-300/15 bg-blue-950/30 px-3 py-3 text-center text-sm text-blue-100/75 transition hover:border-blue-300/40 hover:text-blue-50"
+                className="oracle-deck-theme"
               >
                 {language === 'en' ? translations.en.oraclePage.deckNames[index] : deck.name}
               </Link>

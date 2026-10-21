@@ -1,0 +1,24 @@
+.oracle-deck-selection { max-width: 1152px; }
+.oracle-deck-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.oracle-deck-theme[data-deck-id="tarot"] { --deck-main: #7C3AED; --deck-bg: #F5F3FF; }
+.oracle-deck-theme[data-deck-id="lightworker"] { --deck-main: #2563EB; --deck-bg: #EFF6FF; }
+.oracle-deck-theme[data-deck-id="unicorns"] { --deck-main: #0F766E; --deck-bg: #F0FDFA; }
+.oracle-deck-theme[data-deck-id="dragons"] { --deck-main: #BE185D; --deck-bg: #FFF1F2; }
+.oracle-deck-theme[data-deck-id="egyptian_gods"] { --deck-main: #92400E; --deck-bg: #FFFBEB; }
+.oracle-deck-theme[data-deck-id="work_your_light"] { --deck-main: #4338CA; --deck-bg: #EEF2FF; }
+.oracle-deck-theme[data-deck-id="osho"] { --deck-main: #047857; --deck-bg: #ECFDF5; }
+.oracle-deck-theme {
+  color: #1e293b; background: var(--deck-bg);
+  border: 1px solid var(--deck-main); border-top: 6px solid var(--deck-main);
+  border-radius: 16px; padding: 24px; min-width: 0;
+  transition: box-shadow 160ms ease;
+}
+.oracle-deck-theme:hover { box-shadow: 0 0 0 1px var(--deck-main), 0 8px 24px #0003; }
+.oracle-deck-theme:focus-visible, .oracle-deck-theme a:focus-visible {
+  outline: 3px solid var(--deck-main); outline-offset: 4px;
+  box-shadow: 0 0 0 7px white;
+}
+a.oracle-deck-theme { display: flex; align-items: center; justify-content: center; min-height: 64px; text-align: center; font-size: 17px; font-weight: 700; text-decoration: none; }
+@media (min-width: 640px) { .oracle-deck-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (min-width: 1024px) { .oracle-deck-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media (prefers-reduced-motion: reduce) { .oracle-deck-theme { transition: none; } }
