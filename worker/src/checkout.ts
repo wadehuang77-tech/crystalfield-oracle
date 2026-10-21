@@ -85,6 +85,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const isHumanDesignCheckout = item.id.startsWith('human_design_');
   if (!user && isHumanDesignCheckout) return unauthorized(req, env, '請先登入再購買人類圖報告');
   const isVedicCheckout = item.id.startsWith('vedic_');
+  if (!user && isVedicCheckout) return unauthorized(req, env, '請先登入再購買印度占星報告');
   const shouldAdminInstantUnlock = isAdmin;
 
   // 塔羅不再以個別牌陣建立訂單；唯一塔羅商品不綁定抽牌內容。

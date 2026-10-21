@@ -29,8 +29,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import VedicAstrologySeoContent from './VedicAstrologySeoContent';
 import { getLanguageFromPath, t } from '../lib/i18n';
 import { useAuth } from '../contexts/AuthContext';
-import { calculationLoginRedirect } from '../lib/authLocale';
-import { AuthRequiredBirthDate } from '../components/AuthRequiredBirthDate';
+import { authUrlFor } from '../lib/authLocale';
 import { pollVedicReport, terminalReport, persistedReportTimings } from '../lib/vedicReportPolling';
 import { VedicChartCore, VedicProgressiveReport } from '../components/VedicReportProgress';
 import { englishVedicFreeResults } from '../lib/vedicFreeReading';
@@ -149,12 +148,12 @@ type LifeQuestion = {
 };
 
 function saveChart(chart: VedicChartResponse, userId: string, visibleAt?: number) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ chart, userId, visibleAt }));
+  sessionStorage.setItem(userId ? SESSION_KEY : `${SESSION_KEY}_guest`, JSON.stringify({ chart, userId, visibleAt }));
 }
 
 function loadChart(userId: string): { chart: VedicChartResponse; visibleAt?: number } | null {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
+    const raw = sessionStorage.getItem(userId ? SESSION_KEY : `${SESSION_KEY}_guest`);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { chart?: VedicChartResponse; userId?: string; visibleAt?: number };
     if (parsed.userId !== userId || !parsed.chart?.chart_id || !parsed.chart.chart_token) return null;
@@ -165,7 +164,7 @@ function loadChart(userId: string): { chart: VedicChartResponse; visibleAt?: num
 }
 
 export default function VedicAstrologyPage() {
-  const { user, loading: authLoading, authError } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
@@ -195,20 +194,15 @@ export default function VedicAstrologyPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) {
-      sessionStorage.removeItem(SESSION_KEY);
-      setChart(null);
-      setReport(null);
-      setReportProgress(null);
-      setReportLoading(false);
-      setReportError('');
-      setProgressReconnecting(false);
-      setRetryingSection(null);
-      progressContext.current = '';
-      chartVisibleAt.current = null;
-      return;
+    const guest = user && searchParams.has('checkout_login') ? loadChart('') : null;
+    const saved = guest ?? loadChart(user?.id ?? '');
+    if (guest && user) {
+      saveChart(guest.chart, user.id, guest.visibleAt);
+      sessionStorage.removeItem(`${SESSION_KEY}_guest`);
     }
-    const saved = loadChart(user.id);
+    setReport(null);
+    setReportProgress(null);
+    progressContext.current = '';
     setChart(saved?.chart ?? null);
     chartVisibleAt.current = saved?.visibleAt ? { chartId: saved.chart.chart_id, epochMs: saved.visibleAt } : null;
   }, [authLoading, user]);
@@ -321,11 +315,6 @@ export default function VedicAstrologyPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (authLoading) return;
-    if (authError) {
-      setError(language === 'en' ? 'We could not verify your sign-in status. Please try again.' : '目前無法確認登入狀態，請重試。');
-      return;
-    }
     if (!form.birthPlace.trim()) {
       setError(language === 'en' ? 'Enter your birthplace.' : '未填出生地點');
       return;
@@ -334,12 +323,6 @@ export default function VedicAstrologyPage() {
       setError(language === 'en' ? 'Complete your date of birth, birth time, and birthplace.' : '請完整填寫出生年月日、出生時間與出生地點');
       return;
     }
-    const loginUrl = calculationLoginRedirect(!!user, location.pathname, location.search, location.hash);
-    if (loginUrl) {
-      navigate(loginUrl);
-      return;
-    }
-    if (!user) return;
     setError('');
     setIsCalculating(true);
     setReport(null);
@@ -353,11 +336,11 @@ export default function VedicAstrologyPage() {
         consent: true,
       });
       setChart(result);
-      saveChart(result, user.id);
+      saveChart(result, user?.id ?? '');
       requestAnimationFrame(() => {
         const visibleAt = Date.now();
         chartVisibleAt.current = { chartId: result.chart_id, epochMs: visibleAt };
-        saveChart(result, user.id, visibleAt);
+        saveChart(result, user?.id ?? '', visibleAt);
         timingMarks.current.clear();
         console.info('[vedic-ux-timing]', { metric: 'T1', elapsedMs: Math.round(performance.now() - submittedAt) });
       });
@@ -370,7 +353,14 @@ export default function VedicAstrologyPage() {
   };
 
   const checkout = async (productId: string) => {
-    if (!chart || checkoutLoading) return;
+    if (!chart || checkoutLoading || authLoading) return;
+    if (!user) {
+      saveChart(chart, '');
+      const returnParams = new URLSearchParams(location.search);
+      returnParams.set('checkout_login', '1');
+      navigate(authUrlFor(location.pathname, 'login', `${location.pathname}?${returnParams}`));
+      return;
+    }
     setCheckoutLoading(productId);
     setError('');
     try {
@@ -420,9 +410,7 @@ export default function VedicAstrologyPage() {
           </div>
           <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
             <Field label={copy('birthDate', '出生年月日')}>
-              <AuthRequiredBirthDate>
                 <input type="date" required value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="vedic-input" />
-              </AuthRequiredBirthDate>
             </Field>
             <Field label={copy('birthTime', '出生時間')}>
               <div className="grid grid-cols-2 gap-3">
@@ -442,7 +430,7 @@ export default function VedicAstrologyPage() {
               <p className={`mt-2 text-xs ${error === '未填出生地點' ? 'text-rose-200' : 'text-violet-200/45'}`}>{copy('placeRequired', '必填，請輸入城市與國家／地區。')}</p>
             </Field>
             {error && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 sm:col-span-2">{error}</p>}
-            <button type="submit" disabled={isCalculating || authLoading} aria-disabled={isCalculating || authLoading || !form.birthPlace.trim()} className={`flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-6 py-4 font-semibold shadow-[0_0_32px_rgba(217,70,239,0.28)] transition disabled:opacity-60 sm:col-span-2 ${!form.birthPlace.trim() ? 'cursor-not-allowed opacity-55' : 'hover:brightness-110'}`}>
+            <button type="submit" disabled={isCalculating} aria-disabled={isCalculating || !form.birthPlace.trim()} className={`flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-6 py-4 font-semibold shadow-[0_0_32px_rgba(217,70,239,0.28)] transition disabled:opacity-60 sm:col-span-2 ${!form.birthPlace.trim() ? 'cursor-not-allowed opacity-55' : 'hover:brightness-110'}`}>
               {isCalculating ? <><Loader2 className="animate-spin" />{copy('calculating', '正在連結出生星盤…')}</> : <><Stars />{copy('calculate', '開啟我的靈魂業力地圖')}</>}
             </button>
           </form>

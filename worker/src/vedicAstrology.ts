@@ -1350,7 +1350,6 @@ function deriveFreeResults(chart: VedicChartData): VedicFreeResults {
 
 export async function createVedicChart(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
-  if (!user) return unauthorized(req, env, '請先登入');
   const requestId = crypto.randomUUID();
 
   const limit = await rateLimit(env, 'vedic-chart', clientIp(req), 12, 3600);
