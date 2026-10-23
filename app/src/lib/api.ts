@@ -5,7 +5,8 @@ import type { MayaCheckoutForm } from './mayaCheckout';
 import { MAYA_ANNUAL_PRODUCT, type AnnualSnapshot, type AnnualState } from './mayaAnnual';
 
 export const mayaAnnualApi = {
-  config: () => req<{enabled:boolean;payment:boolean}>('/api/maya/annual/config'),
+  adminReport: (birth_date:string,start_year:number,locale:MayaLocale) => req<{order_id:string}>('/api/maya/annual/admin-report',{method:'POST',query:{locale},body:{birth_date,start_year}}),
+  config: () => req<{enabled:boolean;payment:boolean;adminFree?:boolean}>('/api/maya/annual/config'),
   orders: (locale:MayaLocale,signal?:AbortSignal) => req<{orders:Array<{orderId:string;snapshot:AnnualSnapshot;status:string}>}>('/api/maya/annual/orders',{query:{locale},signal}),
   checkout: (birth_date:string,start_year:number,locale:MayaLocale,idempotency_key:string) => req<MayaCheckoutForm | {order_id:string;already_paid:true}>('/api/maya/checkout',{method:'POST',query:{locale},body:{product_code:MAYA_ANNUAL_PRODUCT.code,birth_date,start_year,locale,idempotency_key}}),
   report: (order:string,locale:MayaLocale,signal?:AbortSignal) => req<AnnualState>(`/api/maya/annual/reports/${encodeURIComponent(order)}`,{query:{locale},signal}),

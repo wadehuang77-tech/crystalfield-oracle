@@ -16,7 +16,7 @@ export default function MayaAnnualPage(){
   const en=location.pathname.startsWith('/en/');const locale:MayaLocale=en?'en':'zh-TW';
   const t=(zh:string,english:string)=>en?english:zh;
   const [birth,setBirth]=useState('');const [year,setYear]=useState<number|undefined>();
-  const [config,setConfig]=useState<{enabled:boolean;payment:boolean}|null>(null);
+  const [config,setConfig]=useState<{enabled:boolean;payment:boolean;adminFree?:boolean}|null>(null);
   const [orders,setOrders]=useState<Awaited<ReturnType<typeof mayaAnnualApi.orders>>['orders']>([]);
   const [state,setState]=useState<{identity:string;value:AnnualState}|null>(null);
   const [error,setError]=useState('');const [paymentStatus,setPaymentStatus]=useState('');
@@ -25,7 +25,7 @@ export default function MayaAnnualPage(){
   let preview:AnnualSnapshot|null=null;let inputError='';
   if(birth)try{preview=annualSnapshot(birth,year);}catch(e){inputError=annualError(e instanceof Error?e.message:'INVALID_DATE',en);}
   const report=state?.identity===identity?state.value:null;
-  useEffect(()=>{let alive=true;void mayaAnnualApi.config().then(v=>{if(alive)setConfig(v);}).catch(()=>{if(alive)setError(annualError('FEATURE_DISABLED',en));});return()=>{alive=false;};},[en]);
+  useEffect(()=>{let alive=true;void mayaAnnualApi.config().then(v=>{if(alive)setConfig(v);}).catch(()=>{if(alive)setError(annualError('FEATURE_DISABLED',en));});return()=>{alive=false;};},[en,user?.id]);
   useEffect(()=>{
     document.title=t('馬雅流年運勢｜晶域心語','Dreamspell Birthday Year | Crystalfield');
     const existing=document.querySelector('meta[name="robots"]');const previous=existing?.getAttribute('content');
@@ -44,11 +44,11 @@ export default function MayaAnnualPage(){
     const schedule=()=>{if(!controller.signal.aborted)timer=setTimeout(()=>void tick(),1800);};
     async function tick(){
       try{
-        const payment=await mayaApi.checkoutStatus(order!,locale,controller.signal);
+        const payment=order!.startsWith('annual-admin-') ? {status:'complimentary'} : await mayaApi.checkoutStatus(order!,locale,controller.signal);
         if(controller.signal.aborted)return;
         setPaymentStatus(payment.status);
         if(payment.status==='pending'){if(++polls<30)schedule();else setError(t('付款仍待後端確認，請稍後重新整理，勿重複付款。','Payment is still pending. Refresh later; do not pay again.'));return;}
-        if(payment.status!=='paid'){setError(annualError('PAYMENT_REQUIRED',en));return;}
+        if(payment.status!=='paid'&&payment.status!=='complimentary'){setError(annualError('PAYMENT_REQUIRED',en));return;}
         let v=await mayaAnnualApi.report(order!,locale,controller.signal);publish(v);
         if(v.status==='blocked'||v.status==='completed'||v.status==='failed'&&!retryAllowed)return;
         if(v.status==='pending'||v.status==='failed') {retryAllowed=false;v=await mayaAnnualApi.step(order!,locale,controller.signal);publish(v);}
@@ -61,6 +61,7 @@ export default function MayaAnnualPage(){
     if(!preview||!user||checkoutBusy.current)return;checkoutBusy.current=true;setBusy(true);setError('');
     const key=`maya-annual-checkout:${user.id}:${preview.birthDate}:${preview.start}`;
     try{
+      if(config?.adminFree){const result=await mayaAnnualApi.adminReport(preview.birthDate,preview.startYear,locale);setParams({maya_order:result.order_id});return;}
       let id=sessionStorage.getItem(key);if(!id){id=crypto.randomUUID();sessionStorage.setItem(key,id);}
       const result=await mayaAnnualApi.checkout(preview.birthDate,preview.startYear,locale,id);
       if('already_paid' in result)setParams({maya_order:result.order_id});else submitMayaCheckout(result,'production');
@@ -78,8 +79,8 @@ export default function MayaAnnualPage(){
       {inputError&&<p role="alert" className="mt-4 text-amber-200">{inputError}</p>}
       {preview&&<p className="mt-5 rounded-xl bg-slate-950 p-4 font-semibold">{preview.start} — {preview.end} · {t('付款後此生日與期間固定','Birth date and period are fixed upon purchase')}</p>}
       <p className="mt-4 text-slate-300">{t('2 月 29 日出生者的平年生日規則尚待確認，暫不開放購買。下一段流年需另購；已購報告可持續查看，中英文共用權限。','Purchasing for February 29 births is unavailable pending a non-leap-year birthday rule. Each new birthday year is a separate purchase. Saved reports remain available, with shared access in English and Chinese.')}</p>
-      {!user&&!loading?<Link className={`${button} mt-5`} to={authUrlFor(location.pathname,'login',location.pathname+location.search)}>{t('登入後探索我的流年運勢','Sign in to explore my birthday year')}</Link>:<button className={`${button} mt-5`} disabled={!preview||!config?.payment||busy||loading} onClick={()=>void buy()}>{busy?t('正在建立訂單…','Creating your order…'):t('探索我的流年運勢','Explore my birthday year')}</button>}
-      {config&&!config.payment&&<p className="mt-3 text-amber-200">{t('此方案尚未開放付款。','Purchasing is not enabled yet.')}</p>}
+      {!user&&!loading?<Link className={`${button} mt-5`} to={authUrlFor(location.pathname,'login',location.pathname+location.search)}>{t('登入後探索我的流年運勢','Sign in to explore my birthday year')}</Link>:<button className={`${button} mt-5`} disabled={!preview||(!config?.payment&&!config?.adminFree)||busy||loading} onClick={()=>void buy()}>{busy?t('正在建立訂單…','Creating your order…'):config?.adminFree?t('管理員免費產生流年報告','Generate complimentary admin report'):t('探索我的流年運勢','Explore my birthday year')}</button>}
+      {config&&!config.payment&&!config.adminFree&&<p className="mt-3 text-amber-200">{t('此方案尚未開放付款。','Purchasing is not enabled yet.')}</p>}
     </section>
     <section className={panel}><h2 className="text-2xl font-semibold">{t('報告包含哪些內容','What your report includes')}</h2><ol className="mt-4 grid list-decimal gap-3 pl-6 sm:grid-cols-2">{ANNUAL_CHAPTERS.map(c=><li key={c[0]}>{c[en?1:0]}</li>)}</ol><p className="mt-5 text-slate-300">{t('含生日流年印記、年度主題、52 年循環定位與年度 KIN 所在城堡的延伸解讀。Dreamspell 自我探索不代表必然命運。','Includes your birthday-year signature, annual themes, 52-year cycle position and reflections on the annual KIN castle. Dreamspell is a symbolic self-exploration system, not a prediction of destiny.')}</p></section>
     {error&&<p role="alert" className="rounded-xl border border-amber-300 p-4 text-amber-200">{error}</p>}
@@ -95,7 +96,7 @@ export default function MayaAnnualPage(){
       {report.status==='failed'&&<button className={`${button} mt-4`} onClick={()=>setRetry(n=>n+1)}>{t('重試，不需再次付款','Retry without paying again')}</button>}
       {report.sections?.map((s,i)=><article className="mt-8 border-t border-slate-600 pt-6" key={i}><h3 className="text-xl font-semibold text-cyan-200">{s.heading}</h3><p className="mt-4 max-w-prose whitespace-pre-line leading-8">{s.body}</p></article>)}
     </section>}
-    {user&&!!orders.length&&<section className={panel}><h2 className="text-2xl font-semibold">{t('我的流年訂單與報告','My birthday-year orders and reports')}</h2><ul className="mt-4 space-y-3">{orders.map(o=><li key={o.orderId}><Link className="break-words text-cyan-200 underline" to={`${location.pathname}?maya_order=${encodeURIComponent(o.orderId)}`}>{o.snapshot.birthDate} · {o.snapshot.start} — {o.snapshot.end} · {({paid:t('已付款','Paid'),pending:t('待付款','Pending'),failed:t('付款未完成','Payment failed'),refunded:t('已退款','Refunded'),revoked:t('已撤權','Revoked')} as Record<string,string>)[o.status]??o.status}</Link></li>)}</ul></section>}
+    {user&&!!orders.length&&<section className={panel}><h2 className="text-2xl font-semibold">{t('我的流年訂單與報告','My birthday-year orders and reports')}</h2><ul className="mt-4 space-y-3">{orders.map(o=><li key={o.orderId}><Link className="break-words text-cyan-200 underline" to={`${location.pathname}?maya_order=${encodeURIComponent(o.orderId)}`}>{o.snapshot.birthDate} · {o.snapshot.start} — {o.snapshot.end} · {({complimentary:t('管理員免費','Admin complimentary'),paid:t('已付款','Paid'),pending:t('待付款','Pending'),failed:t('付款未完成','Payment failed'),refunded:t('已退款','Refunded'),revoked:t('已撤權','Revoked')} as Record<string,string>)[o.status]??o.status}</Link></li>)}</ul></section>}
   </main>;
 }
 function AnnualFacts({snapshot:s,locale}:{snapshot:AnnualSnapshot;locale:MayaLocale}){

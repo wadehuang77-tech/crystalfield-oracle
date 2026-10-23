@@ -52,6 +52,7 @@ export interface AnnualState {
 }
 export function annualError(code: string, en: boolean): string {
   const errors: Record<string, [string, string]> = {
+    EXISTING_ORDER: ['此生日流年已有付款訂單，請先從下方訂單紀錄確認狀態；若尚未付款，請聯絡管理員處理，避免重複建立。', 'This birthday year already has a payment order. Check its status below; contact support for an unpaid order before creating another.'],
     LEAP_DAY_BLOCKED: ['2 月 29 日出生者的生日流年規則尚待確認，目前不能購買。', 'February 29 birthday-year rules are not defined yet. Purchasing is unavailable.'],
     INVALID_DATE: ['請輸入有效出生日期。', 'Enter a valid birth date.'],
     INVALID_YEAR: ['請選擇出生年份至明年之間的流年起始年份。', 'Choose a start year between your birth year and next year.'],

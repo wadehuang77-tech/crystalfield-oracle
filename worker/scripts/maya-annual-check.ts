@@ -42,6 +42,33 @@ before(async()=>{
   };
 });
 after(async()=>{globalThis.fetch=originalFetch;await mf?.dispose();});
+test('named administrator complimentary access is server-verified, cached and revocable',async()=>{
+  const adminEnv={...env,MAYA_ADMIN_LIVE_ENABLED:'true'};
+  await env.DB.prepare("INSERT INTO profiles(id,email) VALUES('wade','wadehuang77@gmail.com')").run();
+  tokens.set('wade',await signJwt({sub:'wade',email:'wadehuang77@gmail.com'},env.JWT_SECRET));
+  const body={birth_date:'1981-03-05',start_year:2026};
+  assert.equal((await call('annual/admin-report',body,'','en',adminEnv)).status,401);
+  for(const user of ['owner','admin'])assert.equal((await call('annual/admin-report',body,user,'en',adminEnv)).status,403);
+  assert.equal((await call('annual/admin-report',body,'wade','en',env)).status,403);
+  const config=await(await call('annual/config',undefined,'wade','en',adminEnv)).json() as {adminFree:boolean};assert.equal(config.adminFree,true);
+  const r=await call('annual/admin-report',body,'wade','en',adminEnv);assert.equal(r.status,200,await r.clone().text());
+  const {order_id}=await r.json() as {order_id:string};
+  const duplicate=await(await call('annual/admin-report',body,'wade','zh-TW',adminEnv)).json() as {order_id:string};assert.equal(duplicate.order_id,order_id);
+  const stored=await env.DB.prepare('SELECT amount,status,item_type FROM orders WHERE id=?').bind(order_id).first();assert.deepEqual(stored,{amount:0,status:'complimentary',item_type:'maya_admin'});
+  const path=`annual/reports/${order_id}`;
+  assert.equal((await call(path,{},'other','en',adminEnv)).status,403);
+  let state:AnnualState;
+  for(let i=0;i<10;i++){const step=await call(path,{},'wade','en',adminEnv);assert.equal(step.status,200,await step.clone().text());state=await step.json();}
+  assert.equal(state!.status,'completed');const completedCalls=calls;
+  await call(path,{},'wade','en',adminEnv);assert.equal(calls,completedCalls);
+  assert.equal((await call(path,undefined,'wade','zh-TW',adminEnv)).status,200);
+  assert.equal((await call(path,undefined,'wade','en',env)).status,403);
+  await env.DB.prepare("UPDATE profiles SET email='changed@example.test' WHERE id='wade'").run();
+  assert.equal((await call(path,undefined,'wade','en',adminEnv)).status,403);
+  await env.DB.prepare("UPDATE profiles SET email='wadehuang77@gmail.com' WHERE id='wade'").run();
+  await env.DB.prepare("UPDATE orders SET status='revoked' WHERE id=?").bind(order_id).run();
+  assert.equal((await call(path,{},'wade','en',adminEnv)).status,403);
+});
 function call(path:string,body?:unknown,user='owner',locale='en',target=env){
   const req=new Request(`https://api.crystalfield101.com/api/maya/${path}?locale=${locale}`,{method:body?'POST':'GET',headers:{Origin:'https://www.crystalfield101.com','Content-Type':'application/json',...(user?{Cookie:`bolt_session=${tokens.get(user)}`}:{})},...(body?{body:JSON.stringify(body)}:{})});
   return path.startsWith('annual/')?routeMayaAnnual(req,target):routeMayaPayment(req,target,true);
