@@ -427,7 +427,7 @@ export default function MayaCalendarPage() {
         </article>;
       })}</div>
     </section>
-    {memberPage && <section className={panel} data-maya-annual-plan>
+    {(!privatePage || memberPage) && <section className={panel} data-maya-annual-plan>
       <h2 className="text-2xl">{t('馬雅流年運勢', 'Dreamspell Birthday Year')}</h2>
       <p className="mt-3 text-xl font-semibold text-cyan-200">NT$599</p>
       <p className="mt-3">{t('從生日開始，探索你的年度流年印記、行動方向與人生週期。', 'Starting on your birthday, explore your annual signature, practical direction and life cycle.')}</p>
