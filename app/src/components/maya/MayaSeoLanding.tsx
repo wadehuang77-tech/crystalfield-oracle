@@ -6,6 +6,7 @@ import { mayaPremiumCopy } from '../../lib/mayaPremiumCopy';
 import MayaPremiumProductIntro from './MayaPremiumProductIntro';
 import MayaVisualization from './MayaVisualization';
 import MayaCalendarAbout from './MayaCalendarAbout';
+import { MAYA_ANNUAL_PRODUCT } from '../../lib/mayaAnnual';
 
 export default function MayaSeoLanding({ locale, features, configLoading, configError, availability, availabilityError, enter, adminPreview }: {
   locale: MayaLocale; features: MayaFeatures; configLoading: boolean; configError: string;
@@ -75,6 +76,13 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
       <p className="mb-4">{en ? 'Sign in, enter your birth date and choose the unlock button for your report. Your birth profile is saved automatically; no separate save step is needed. Reports start after verified payment, or immediately with existing access.'
         : '使用流程：登入、輸入出生年月日，按下對應方案的解鎖按鈕；系統會自動儲存出生資料，不必先按儲存。付款驗證成功後開始解讀；已有權限可直接解鎖。'}</p>
       <Link className={cta} to={member}>{en ? 'Sign In to View Report Options' : '登入查看解讀方案與本人報告'}</Link>
+    </section>
+    <section className={panel} id="annual-blueprint" data-maya-annual-plan>
+      <h2 className="text-2xl font-semibold">{en ? MAYA_ANNUAL_PRODUCT.en : MAYA_ANNUAL_PRODUCT.zh} · NT${MAYA_ANNUAL_PRODUCT.price}</h2>
+      <p className="mt-3">{en ? 'Starting on your birthday, explore your annual signature, practical direction and life cycle.' : '從生日開始，探索你的年度流年印記、行動方向與人生週期。'}</p>
+      <p className="mt-3">{en ? 'Includes your birthday-year signature, annual themes and guidance, your position in the 52-year cycle, and reflections on the annual KIN castle.' : '包含生日流年印記、年度主題與生活建議、52 年生命循環定位，以及年度 KIN 所在城堡的延伸解讀。'}</p>
+      <p className="mt-3 text-slate-300">{en ? 'NT$599 / one person / one birthday year. Chinese and English share the same purchase.' : 'NT$599／一位對象／一段生日流年；中英文共用購買權限。'}</p>
+      <Link className={`${cta} mt-4`} to={`${prefix}/maya-calendar/annual`}>{en ? 'Explore my birthday year' : '探索我的流年運勢'}</Link>
     </section>
     {(['pro', 'relationship'] as const).map(kind => <section className={panel} id={`${kind}-blueprint`} key={kind}>
       <MayaPremiumProductIntro kind={kind} locale={locale} available={availability?.[kind] ?? null} headingLevel={2}>
