@@ -1,0 +1,32 @@
+name: Maya annual migration
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [inspect, apply]
+        default: inspect
+        required: true
+        description: Inspect production or apply only migration 032
+concurrency:
+  group: maya-annual-migration
+  cancel-in-progress: false
+jobs:
+  migration:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+      - name: Inspect or apply isolated annual migration
+        run: node scripts/maya-annual-release.mjs
+        env:
+          RELEASE_MODE: ${{ inputs.mode }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
