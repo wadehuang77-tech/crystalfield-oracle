@@ -1,6 +1,7 @@
 import { json, isAllowedOrigin, readBody, readSession, PayloadTooLargeError, type Env } from './utils';
 import { mayaSandboxEnabled } from './mayaSandbox';
 import { routeMayaPro } from './mayaPro';
+import { routeMayaAnnual } from './mayaAnnual';
 import { routeMayaRelationship } from './mayaRelationship';
 import { mayaAdminLive, mayaFeatures, mayaSessionFeatures } from './mayaFeatures';
 import { generateMayaReport, liveReportTemplate, mayaAiMode, MayaAiError } from './mayaAi';
@@ -183,6 +184,7 @@ function storedReport(row: ReportRow): MayaReport | null {
 export async function routeMayaApi(req: Request, env: Env): Promise<Response> {
   const url = new URL(req.url);
   if (url.pathname.startsWith('/api/maya/pro/')) return routeMayaPro(req, env);
+  if (url.pathname.startsWith('/api/maya/annual/')) return routeMayaAnnual(req, env);
   if (url.pathname.startsWith('/api/maya/relationship/')) return routeMayaRelationship(req, env);
   let locale: MayaLocale = url.searchParams.get('locale') === 'en' ? 'en' : 'zh-TW';
   const respond = (data: unknown, status = 200) => json(req, env, data, {

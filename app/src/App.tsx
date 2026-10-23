@@ -34,6 +34,7 @@ import MembershipPage from './pages/MembershipPage';
 import PageHeader from './components/PageHeader';
 import HumanDesignPage from './pages/HumanDesignPage';
 import MayaCalendarPage from './pages/MayaCalendarPage';
+import MayaAnnualPage from './pages/MayaAnnualPage';
 import MayaProPage from './pages/MayaProPage';
 import MayaRelationshipPage from './pages/MayaRelationshipPage';
 import PrivacyPage from './pages/PrivacyPage';
@@ -53,6 +54,7 @@ const routeConfig = [
   { path: '/maya-calendar/pro', element: <MayaProPage /> },
   { path: '/maya-calendar/pro/reports/:id', element: <MayaProPage /> },
   { path: '/maya-calendar/member', element: <MayaCalendarPage /> },
+  { path: '/maya-calendar/annual', element: <MayaAnnualPage /> },
   { path: '/maya-calendar/results', element: <MayaCalendarPage /> },
   { path: '/maya-calendar/daily', element: <MayaCalendarPage /> },
   { path: '/maya-calendar/reports', element: <MayaCalendarPage /> },

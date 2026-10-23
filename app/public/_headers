@@ -18,6 +18,14 @@
   X-Robots-Tag: noindex, nofollow
 /maya-calendar/member
   X-Robots-Tag: noindex, follow
+/maya-calendar/annual
+  X-Robots-Tag: noindex, follow
+/maya-calendar/annual/
+  X-Robots-Tag: noindex, follow
+/en/maya-calendar/annual
+  X-Robots-Tag: noindex, follow
+/en/maya-calendar/annual/
+  X-Robots-Tag: noindex, follow
 /maya-calendar/member/
   X-Robots-Tag: noindex, follow
 /en/maya-calendar/member

@@ -7,7 +7,7 @@ export interface MayaCheckoutForm {
 }
 export function validateMayaCheckoutForm(value: MayaCheckoutForm, mode: 'sandbox' | 'production' = 'sandbox'): void {
   const code = value.fields.CustomField1;
-  const extra = [MAYA_PRO_PRODUCT, MAYA_RELATIONSHIP_PRODUCT].find(product => product.code === code);
+  const extra = [MAYA_PRO_PRODUCT, MAYA_RELATIONSHIP_PRODUCT, MAYA_ANNUAL_PRODUCT].find(product => product.code === code);
   const amounts = isMayaProduct(code) ? mayaOrderAmounts(code) : extra && mode === 'production' ? [extra.price] : [];
   if (value.endpoint !== (mode === 'sandbox' ? MAYA_SANDBOX_ENDPOINT : MAYA_PRODUCTION_ENDPOINT) || !/^[A-Za-z0-9_-]{1,80}$/.test(value.order_id)
     || (mode === 'sandbox' ? value.fields.MerchantID !== '3002607'
@@ -38,3 +38,4 @@ export function submitMayaCheckout(value: MayaCheckoutForm, mode: 'sandbox' | 'p
 import { isMayaProduct, mayaOrderAmounts } from './maya';
 import { MAYA_PRO_PRODUCT } from './mayaPro';
 import { MAYA_RELATIONSHIP_PRODUCT } from './mayaRelationship';
+import { MAYA_ANNUAL_PRODUCT } from './mayaAnnual';

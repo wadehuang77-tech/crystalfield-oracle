@@ -427,6 +427,13 @@ export default function MayaCalendarPage() {
         </article>;
       })}</div>
     </section>
+    {memberPage && <section className={panel} data-maya-annual-plan>
+      <h2 className="text-2xl">{t('馬雅流年運勢', 'Dreamspell Birthday Year')}</h2>
+      <p className="mt-3 text-xl font-semibold text-cyan-200">NT$599</p>
+      <p className="mt-3">{t('從生日開始，探索你的年度流年印記、行動方向與人生週期。', 'Starting on your birthday, explore your annual signature, practical direction and life cycle.')}</p>
+      <p className="mt-3">{t('生日流年印記、年度主題與生活建議、52 年生命循環定位，以及年度 KIN 所在城堡的延伸解讀。獨立購買，一位對象、一段生日流年。', 'Birthday-year signature, annual themes and guidance, 52-year cycle position, and reflections on the annual KIN castle. A separate purchase for one person and one birthday year.')}</p>
+      <Link className={`${button} mt-5 inline-block`} to={localized('/maya-calendar/annual')}>{t('探索我的流年運勢', 'Explore my birthday year')}</Link>
+    </section>}
     <section className={panel} data-relationship-product={MAYA_RELATIONSHIP_PRODUCT.code}>
       <MayaPremiumProductIntro kind="relationship" locale={locale} available={premiumAvailability?.relationship ?? null} headingLevel={2}>
         <Link className={`${button} text-center`} to={localized('/maya-calendar/relationship')}>{mayaPremiumCopy('relationship', locale).cta}</Link>

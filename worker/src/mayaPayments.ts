@@ -4,6 +4,7 @@ import { MAYA_PRO_PRODUCT } from '../../app/src/lib/mayaPro';
 import { MAYA_RELATIONSHIP_PRODUCT } from '../../app/src/lib/mayaRelationship';
 import { isAllowedOrigin, json, PayloadTooLargeError, readBody, readSession, requireAdmin, type Env } from './utils';
 import { mayaFeatures } from './mayaFeatures';
+import { MAYA_ANNUAL_PRODUCT, annualSnapshot } from '../../app/src/lib/mayaAnnual';
 
 export const MAYA_STAGE_ENDPOINT = 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
 class SandboxError extends Error {
@@ -41,15 +42,22 @@ export function mayaProPaymentEnabled(env: Env): boolean {
 export function mayaRelationshipPaymentEnabled(env: Env): boolean {
   return env.MAYA_RELATIONSHIP_V2_PAYMENT_ENABLED === 'true' && mayaPaymentEnabled(env);
 }
+export function mayaAnnualPaymentEnabled(env: Env): boolean {
+  return env.MAYA_ANNUAL_ENABLED === 'true' && mayaPaymentEnabled(env) && mayaFeatures(env).ai
+    && env.MAYA_AI_MODE === 'live' && !!env.OPENAI_API_KEY;
+}
 function paymentTable(product: string, env: Env, production: boolean) {
+  if (product === MAYA_ANNUAL_PRODUCT.code) return 'maya_annual_payment_orders';
   if (product === MAYA_RELATIONSHIP_PRODUCT.code) return 'maya_relationship_payment_orders';
   return product === MAYA_PRO_PRODUCT.code ? 'maya_pro_payment_orders' : settings(env, production).table;
 }
 function entitlementTable(product: string) {
+  if (product === MAYA_ANNUAL_PRODUCT.code) return 'maya_annual_entitlements';
   if (product === MAYA_RELATIONSHIP_PRODUCT.code) return 'maya_relationship_entitlements';
   return product === MAYA_PRO_PRODUCT.code ? 'maya_pro_entitlements' : 'maya_entitlements';
 }
 function adjustmentTable(product: string) {
+  if (product === MAYA_ANNUAL_PRODUCT.code) return 'maya_annual_payment_adjustments';
   if (product === MAYA_RELATIONSHIP_PRODUCT.code) return 'maya_relationship_payment_adjustments';
   return product === MAYA_PRO_PRODUCT.code ? 'maya_pro_payment_adjustments' : 'maya_payment_adjustments';
 }
@@ -76,6 +84,7 @@ interface SandboxOrder {
 function orderSelect(env: Env, production: boolean) {
   const table = settings(env, production).table;
   const tables = [table];
+  if (production && env.MAYA_ANNUAL_ENABLED === 'true') tables.push('maya_annual_payment_orders');
   if (production && env.MAYA_PRO_PAYMENT_ENABLED === 'true') tables.push('maya_pro_payment_orders');
   if (production && env.MAYA_RELATIONSHIP_V2_PAYMENT_ENABLED === 'true') tables.push('maya_relationship_payment_orders');
   const source = tables.length === 1 ? table : `(${tables.map(name =>
@@ -84,7 +93,8 @@ function orderSelect(env: Env, production: boolean) {
     FROM ${source} s JOIN orders o ON o.id = s.order_id`;
 }
 function validOrder(order: SandboxOrder, env: Env, production: boolean) {
-  const product = order.product_code === MAYA_RELATIONSHIP_PRODUCT.code && production && mayaRelationshipPaymentEnabled(env)
+  const product = order.product_code === MAYA_ANNUAL_PRODUCT.code && production && env.MAYA_ANNUAL_ENABLED === 'true'
+    ? MAYA_ANNUAL_PRODUCT : order.product_code === MAYA_RELATIONSHIP_PRODUCT.code && production && mayaRelationshipPaymentEnabled(env)
     ? MAYA_RELATIONSHIP_PRODUCT : order.product_code === MAYA_PRO_PRODUCT.code && production && mayaProPaymentEnabled(env)
     ? MAYA_PRO_PRODUCT : MAYA_PRODUCTS.find((entry) => entry.code === order.product_code);
   const amounts = isMayaProduct(order.product_code) ? mayaOrderAmounts(order.product_code) : product ? [product.price] : [];
@@ -94,7 +104,8 @@ function validOrder(order: SandboxOrder, env: Env, production: boolean) {
   return product;
 }
 function returnURL(order: SandboxOrder, env: Env, production: boolean): string {
-  const path = order.product_code === MAYA_RELATIONSHIP_PRODUCT.code ? '/maya-calendar/relationship'
+  const path = order.product_code === MAYA_ANNUAL_PRODUCT.code ? '/maya-calendar/annual'
+    : order.product_code === MAYA_RELATIONSHIP_PRODUCT.code ? '/maya-calendar/relationship'
     : order.product_code === MAYA_PRO_PRODUCT.code ? '/maya-calendar/pro' : '/maya-calendar/member';
   const url = new URL(`${order.locale === 'en' ? '/en' : ''}${path}`, settings(env, production).frontend);
   url.searchParams.set('maya_order', order.order_id);
@@ -246,19 +257,39 @@ export async function routeMayaPayment(req: Request, env: Env, production: boole
     if (url.pathname === '/api/maya/checkout' && req.method === 'POST' && user) {
       const body = await readBody<Record<string, unknown>>(req, 4096);
       if (!body || typeof body !== 'object' || Array.isArray(body)
-        || Object.keys(body).some((key) => !['locale', 'product_code', 'idempotency_key'].includes(key))
-        || !isMayaLocale(body.locale) || !(isMayaProduct(body.product_code) || (production && [MAYA_PRO_PRODUCT.code, MAYA_RELATIONSHIP_PRODUCT.code].some(code => code === body.product_code)))
+        || Object.keys(body).some((key) => !['locale', 'product_code', 'idempotency_key', ...(body.product_code === MAYA_ANNUAL_PRODUCT.code ? ['birth_date', 'start_year'] : [])].includes(key))
+        || !isMayaLocale(body.locale) || !(isMayaProduct(body.product_code) || (production && [MAYA_PRO_PRODUCT.code, MAYA_RELATIONSHIP_PRODUCT.code, MAYA_ANNUAL_PRODUCT.code].some(code => code === body.product_code)))
         || typeof body.idempotency_key !== 'string' || !/^[A-Za-z0-9_-]{1,80}$/.test(body.idempotency_key)) throw new SandboxError(400, 'INVALID_INPUT');
       if (body.product_code === MAYA_PRO_PRODUCT.code && !mayaProPaymentEnabled(env)) throw new SandboxError(503, 'PRO_PAYMENT_DISABLED');
       if (body.product_code === MAYA_RELATIONSHIP_PRODUCT.code && !mayaRelationshipPaymentEnabled(env)) throw new SandboxError(503, 'RELATIONSHIP_PAYMENT_DISABLED');
-      const product = body.product_code === MAYA_RELATIONSHIP_PRODUCT.code ? MAYA_RELATIONSHIP_PRODUCT
+      if (body.product_code === MAYA_ANNUAL_PRODUCT.code && !mayaAnnualPaymentEnabled(env)) throw new SandboxError(503, 'FEATURE_DISABLED');
+      let annual: ReturnType<typeof annualSnapshot> | null = null;
+      if (body.product_code === MAYA_ANNUAL_PRODUCT.code) {
+        try { annual = annualSnapshot(body.birth_date as string, body.start_year as number); }
+        catch (error) { throw new SandboxError(422, error instanceof Error ? error.message : 'INVALID_INPUT'); }
+      }
+      const product = body.product_code === MAYA_ANNUAL_PRODUCT.code ? MAYA_ANNUAL_PRODUCT
+        : body.product_code === MAYA_RELATIONSHIP_PRODUCT.code ? MAYA_RELATIONSHIP_PRODUCT
         : body.product_code === MAYA_PRO_PRODUCT.code ? MAYA_PRO_PRODUCT : MAYA_PRODUCTS.find((entry) => entry.code === body.product_code)!;
       const table = paymentTable(product.code, env, production);
       const locale = body.locale;
-      const previous = await env.DB.prepare(`${orderSelect(env, production)} WHERE s.user_id=? AND s.checkout_key=?`)
+      let previous = await env.DB.prepare(`${orderSelect(env, production)} WHERE s.user_id=? AND s.checkout_key=?`)
         .bind(user.id, body.idempotency_key).first<SandboxOrder>();
+      if (annual) {
+        if (previous) {
+          const saved = await env.DB.prepare('SELECT snapshot_json FROM maya_annual_payment_orders WHERE order_id=?').bind(previous.order_id).first<{snapshot_json:string}>();
+          if (!saved || saved.snapshot_json !== JSON.stringify(annual)) throw new SandboxError(409, 'CHECKOUT_CONFLICT');
+        }
+        const same = await env.DB.prepare("SELECT order_id,checkout_key FROM maya_annual_payment_orders WHERE user_id=? AND birth_date=? AND period_start=? AND payment_state IN ('pending','paid')")
+          .bind(user.id, annual.birthDate, annual.start).first<{order_id:string;checkout_key:string}>();
+        if (same) {
+          previous = await env.DB.prepare(`${orderSelect(env, production)} WHERE s.order_id=? AND s.user_id=?`).bind(same.order_id,user.id).first<SandboxOrder>();
+          if (previous?.status === 'paid') return respond({ order_id: same.order_id, already_paid: true });
+          body.idempotency_key = same.checkout_key;
+        }
+      }
       if (production && product.code === 'MAYA_RELATIONSHIP_699' && !previous) throw new SandboxError(409, 'LEGACY_PRODUCT_RETIRED');
-      if (previous && (previous.product_code !== product.code || previous.locale !== locale || previous.status !== 'pending')) {
+      if (previous && (previous.product_code !== product.code || (!annual && previous.locale !== locale) || previous.status !== 'pending')) {
         throw new SandboxError(409, 'CHECKOUT_CONFLICT');
       }
       const rate = await env.DB.prepare(`INSERT INTO maya_rate_limits(scope,user_id,bucket,used) VALUES (?, ?,?,1)
@@ -272,15 +303,15 @@ export async function routeMayaPayment(req: Request, env: Env, production: boole
           SELECT ?,?,?,?,'${config.type}',?,?,?,'pending'
           WHERE NOT EXISTS (${orderSelect(env, production)} WHERE s.user_id=? AND s.checkout_key=?)`)
           .bind(id, trade, user.id, user.email, product.code, locale === 'en' ? product.en : product.zh, product.price, user.id, body.idempotency_key),
-        env.DB.prepare(`INSERT OR IGNORE INTO ${table}(order_id,user_id,product_code,merchant_id,locale,checkout_key)
-          SELECT id,user_id,item_id,?,?,? FROM orders WHERE id=?`)
-          .bind(config.merchant, locale, body.idempotency_key, id),
+        env.DB.prepare(`INSERT ${annual ? '' : 'OR IGNORE'} INTO ${table}(order_id,user_id,product_code,merchant_id,locale,checkout_key${annual ? ',birth_date,period_start,period_end,snapshot_json' : ''})
+          SELECT id,user_id,item_id,?,?,?${annual ? ',?,?,?,?' : ''} FROM orders WHERE id=?`)
+          .bind(config.merchant, locale, body.idempotency_key, ...(annual ? [annual.birthDate,annual.start,annual.end,JSON.stringify(annual)] : []), id),
       ]);
       const order = await env.DB.prepare(`${orderSelect(env, production)} WHERE s.user_id=? AND s.checkout_key=?`)
         .bind(user.id, body.idempotency_key).first<SandboxOrder>();
       if (!order) throw new Error('Sandbox order persistence failed');
       validOrder(order, env, production);
-      if (order.product_code !== product.code || order.locale !== locale || order.status !== 'pending') throw new SandboxError(409, 'CHECKOUT_CONFLICT');
+      if (order.product_code !== product.code || (!annual && order.locale !== locale) || order.status !== 'pending') throw new SandboxError(409, 'CHECKOUT_CONFLICT');
       const form = await buildAioCheckOutForm({
         merchantId: config.merchant, hashKey: config.key, hashIV: config.iv,
         merchantTradeNo: order.merchant_trade_no, amount: order.amount, itemName: locale === 'en' ? product.en : product.zh,

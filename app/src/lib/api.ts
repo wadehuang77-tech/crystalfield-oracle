@@ -2,6 +2,15 @@ import { trackBeginCheckout, trackUnlockClick } from './ga4';
 import { getCheckoutLocaleFromPath } from './i18n';
 import type { MayaDaily, MayaLocale, MayaProductCode, MayaProfile, MayaReport, MayaReportEntry, MayaFeatures } from './maya';
 import type { MayaCheckoutForm } from './mayaCheckout';
+import { MAYA_ANNUAL_PRODUCT, type AnnualSnapshot, type AnnualState } from './mayaAnnual';
+
+export const mayaAnnualApi = {
+  config: () => req<{enabled:boolean;payment:boolean}>('/api/maya/annual/config'),
+  orders: (locale:MayaLocale,signal?:AbortSignal) => req<{orders:Array<{orderId:string;snapshot:AnnualSnapshot;status:string}>}>('/api/maya/annual/orders',{query:{locale},signal}),
+  checkout: (birth_date:string,start_year:number,locale:MayaLocale,idempotency_key:string) => req<MayaCheckoutForm | {order_id:string;already_paid:true}>('/api/maya/checkout',{method:'POST',query:{locale},body:{product_code:MAYA_ANNUAL_PRODUCT.code,birth_date,start_year,locale,idempotency_key}}),
+  report: (order:string,locale:MayaLocale,signal?:AbortSignal) => req<AnnualState>(`/api/maya/annual/reports/${encodeURIComponent(order)}`,{query:{locale},signal}),
+  step: (order:string,locale:MayaLocale,signal?:AbortSignal) => req<AnnualState>(`/api/maya/annual/reports/${encodeURIComponent(order)}`,{method:'POST',query:{locale},body:{},signal}),
+};
 import type { VersionedLifeBlueprintReport } from './mayaLifeBlueprintStorage';
 import { MAYA_PRO_PRODUCT, type MayaProReport } from './mayaPro';
 import { MAYA_RELATIONSHIP_PRODUCT, type RelationshipReport, type RelationshipType } from './mayaRelationship';

@@ -1,6 +1,7 @@
 import { verifyJwt } from './auth';
 
 export interface Env {
+  MAYA_ANNUAL_ENABLED?: string;
   MAYA_PRO_LOCAL_ENABLED?: string;
   MAYA_PRO_PAYMENT_ENABLED?: string;
   MAYA_RELATIONSHIP_V2_PAYMENT_ENABLED?: string;
