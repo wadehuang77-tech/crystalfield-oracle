@@ -41,13 +41,16 @@ const original = JSON.stringify(chart);
 const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 try {
   const { FreeResults, LifeQuestionCard, PaidOption } = await vite.ssrLoadModule('/src/pages/VedicAstrologyPage.tsx') as typeof Page;
-  const english = renderToStaticMarkup(React.createElement(FreeResults, { chart, language: 'en' }));
+  const locked = renderToStaticMarkup(React.createElement(FreeResults, { chart, language: 'en' }));
+  assert.match(locked, /NT\$199/);
+  assert.doesNotMatch(locked, /Pioneering Guide|中文人格解讀/);
+  const english = renderToStaticMarkup(React.createElement(FreeResults, { chart, language: 'en', basicResults: englishVedicFreeResults(chart.chart) }));
   assert.doesNotMatch(english, chinese, 'Saved Chinese API readings must not leak into English cards');
   assert.match(english, /Pioneering Guide/);
   assert.match(english, /Intuitive imagination/);
   assert.match(english, /Self-Definition and Expression/);
   assert.match(english, /Swati Nakshatra/);
-  const zh = renderToStaticMarkup(React.createElement(FreeResults, { chart, language: 'zh-Hant' }));
+  const zh = renderToStaticMarkup(React.createElement(FreeResults, { chart, language: 'zh-Hant', basicResults: chart.free_results }));
   assert.match(zh, /中文人格解讀/);
   assert.match(zh, /中文天賦解讀/);
   assert.match(zh, /中文週期解讀/);

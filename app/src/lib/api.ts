@@ -622,12 +622,16 @@ export interface VedicChartResponse {
   chart_id: string;
   chart_token: string;
   chart: VedicChartData;
-  free_results: VedicFreeResults;
+  free_results: VedicFreeResults | null;
   expires_at: string;
   calculation: { provider: 'prokerala'; ayanamsa: 'Lahiri' };
 }
 
 export const vedicAstrologyApi = {
+  getBasicReading: (body: { chart_id: string; order_id: string }) =>
+    req<{ chart_id: string; results: VedicFreeResults }>('/api/vedic-astrology/basic-reading', {
+      method: 'POST', body: { ...body, language: activeContentLanguage() },
+    }),
   getReportProgress: (id: string, language: 'zh-Hant' | 'en', signal?: AbortSignal) =>
     req<VedicReportProgress>(`/api/vedic-astrology/reports/${encodeURIComponent(id)}/status`, { query: { language }, signal }),
   findReportProgress: (orderId: string, language: 'zh-Hant' | 'en', signal?: AbortSignal) =>

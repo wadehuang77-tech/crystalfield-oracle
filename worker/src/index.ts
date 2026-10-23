@@ -75,6 +75,7 @@ import { adminListTarotSubscriptions } from './adminSubscriptions';
 import { getMyTarotEntitlement, getTarotEntitlement, startMyTarotTrial } from './tarotEntitlements';
 import { validateRegistrationIdentity } from './registration';
 import { createVedicChart, getVedicPaidReport } from './vedicAstrology';
+import { getVedicBasicReading } from './vedicBasicReading';
 import { verifyProkerala } from './prokeralaVerification';
 import { handleVedicReportProgress, findVedicReportProgress } from './vedicReportJobs';
 import {
@@ -278,6 +279,9 @@ export default {
       }
       if (path === '/api/vedic-astrology/reports' && req.method === 'POST') {
         return await getVedicPaidReport(req, env);
+      }
+      if (path === '/api/vedic-astrology/basic-reading' && req.method === 'POST') {
+        return await getVedicBasicReading(req, env);
       }
       if (path === '/api/vedic-astrology/reviews/current' && req.method === 'POST') return await getMyVedicReview(req, env);
       if (path === '/api/vedic-astrology/reviews' && req.method === 'POST') return await upsertVedicReview(req, env);

@@ -21,6 +21,7 @@ import {
   checkoutApi,
   vedicAstrologyApi,
   type VedicChartResponse,
+  type VedicFreeResults,
   type VedicReport,
   type VedicReportProgress,
   type VedicReview,
@@ -32,7 +33,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { authUrlFor } from '../lib/authLocale';
 import { pollVedicReport, terminalReport, persistedReportTimings } from '../lib/vedicReportPolling';
 import { VedicChartCore, VedicProgressiveReport } from '../components/VedicReportProgress';
-import { englishVedicFreeResults } from '../lib/vedicFreeReading';
 import { VEDIC_LIFE_QUESTIONS_EN, VEDIC_PAID_OPTION_EN } from '../lib/vedicEnglishCopy';
 
 const SESSION_KEY = 'cf_vedic_chart_session';
@@ -175,6 +175,7 @@ export default function VedicAstrologyPage() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState('');
   const [report, setReport] = useState<VedicReport | null>(null);
+  const [basicReading, setBasicReading] = useState<{ context: string; results: VedicFreeResults } | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
   const [reportProgress, setReportProgress] = useState<VedicReportProgress | null>(null);
@@ -245,6 +246,18 @@ export default function VedicAstrologyPage() {
     const begin = async () => {
       try {
         setReportLoading(true);
+        const { order } = await checkoutApi.getOrder(orderId, orderToken);
+        if (cancelled) return;
+        if (order.status !== 'paid') throw new Error('PAYMENT_REQUIRED');
+        if (currentChartId) {
+          const basic = await vedicAstrologyApi.getBasicReading({ chart_id: currentChartId, order_id: orderId });
+          if (cancelled) return;
+          setBasicReading({ context: visibleReportContext, results: basic.results });
+        }
+        if (order.item_id === 'vedic_basic') {
+          if (!currentChartId) throw new Error('CHART_REQUIRED');
+          return;
+        }
         let value = await vedicAstrologyApi.findReportProgress(orderId, language, controller.signal);
         if (cancelled) return;
         if (currentChartId && value.chartId && currentChartId !== value.chartId) {
@@ -447,7 +460,7 @@ export default function VedicAstrologyPage() {
                 : language === 'en' ? 'Your unlocked reading is available below' : '已解鎖解析顯示於下方'
               : language === 'en' ? 'In-depth interpretation awaits unlock' : '深度解析待解鎖'}
           </div>
-          <FreeResults chart={chart} language={language} />
+          <FreeResults chart={chart} language={language} basicResults={basicReading?.context === visibleReportContext ? basicReading.results : null} onUnlock={() => checkout('vedic_basic')} disabled={!!checkoutLoading || authLoading || reportLoading} />
           <VedicChartCore chart={chart.chart} language={language} />
         </>}
 
@@ -476,13 +489,13 @@ function Field({ label, wide, children }: { label: string; wide?: boolean; child
   return <label className={wide ? 'sm:col-span-2' : ''}><span className="mb-2 block text-sm font-medium text-amber-100/80">{label}</span>{children}</label>;
 }
 
-export function FreeResults({ chart, language }: { chart: VedicChartResponse; language: 'zh-Hant' | 'en' }) {
-  const result = language === 'en' ? englishVedicFreeResults(chart.chart) : chart.free_results;
+export function FreeResults({ chart, language, basicResults, onUnlock, disabled }: { chart: VedicChartResponse; language: 'zh-Hant' | 'en'; basicResults?: VedicFreeResults | null; onUnlock?: () => void; disabled?: boolean }) {
+  const result = basicResults;
   const isEnglish = language === 'en';
   const translatePlanet = (value: string | undefined) => value ? (isEnglish ? PLANET_EN[value] || value : PLANET_ZH[value] || value) : '';
   return (
     <section id="vedic-free-results" className="mt-20 scroll-mt-24">
-      <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">{isEnglish ? 'Free Soul Map' : '免費靈魂地圖'}</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{isEnglish ? 'Your Free Vedic Astrology Guidance' : '你的免費印度占星指引'}</h2><p className="mt-4 text-sm text-violet-100/55">{isEnglish ? 'Professional ephemeris calculation · Lahiri sidereal zodiac' : '專業星曆計算 · 拉希里恆星黃道'}</p></div>
+      <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">{isEnglish ? 'Birth Chart and Personal Guidance' : '出生盤與個人指引'}</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{isEnglish ? 'Your Vedic Astrology Chart' : '你的印度占星出生盤'}</h2><p className="mt-4 text-sm text-violet-100/55">{isEnglish ? 'Free basic chart · Personal guidance unlocked separately' : '基本出生盤免費 · 個人指引另行付費解鎖'}</p></div>
       <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <ChartBadge label={isEnglish ? 'Ascendant' : '上升'} value={isEnglish ? chart.chart.lagna : SIGN_ZH[chart.chart.lagna] || chart.chart.lagna} />
         <ChartBadge label={isEnglish ? 'Moon' : '月亮'} value={isEnglish ? chart.chart.moonSign : SIGN_ZH[chart.chart.moonSign] || chart.chart.moonSign} />
@@ -492,11 +505,17 @@ export function FreeResults({ chart, language }: { chart: VedicChartResponse; la
         <ChartBadge label={isEnglish ? 'Sub-period' : '次週期'} value={chart.chart.antarDasha ? translatePlanet(chart.chart.antarDasha) : isEnglish ? 'Calculating' : '計算中'} />
       </div>
       <BirthChart chart={chart.chart} language={language} />
-      <div className="mt-9 grid gap-5 lg:grid-cols-3">
+      {result ? <div className="mt-9 grid gap-5 lg:grid-cols-3">
         <ResultCard number="01" eyebrow={isEnglish ? 'Archetype' : '人格原型'} title={result.archetype.title} body={result.archetype.body} />
         <ResultCard number="02" eyebrow={isEnglish ? 'Gifts in This Life' : '今生天賦'} title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
         <ResultCard number="03" eyebrow={isEnglish ? 'Planetary Cycle' : '行星週期'} title={result.currentCycle.title} body={result.currentCycle.body} />
-      </div>
+      </div> : <div className="mt-9 rounded-[1.75rem] border border-amber-300/30 bg-slate-950/70 p-6 sm:p-8">
+        <div className="grid gap-5 lg:grid-cols-3">
+          {(isEnglish ? ['Archetype', 'Gifts in This Life', 'Planetary Cycle'] : ['人格原型', '今生天賦', '行星週期']).map((title, index) => <article key={title} className="rounded-2xl border border-violet-300/25 p-6"><span className="text-amber-200">0{index + 1} · {isEnglish ? 'Locked' : '待解鎖'}</span><h3 className="mt-3 font-serif text-2xl text-amber-50">{title}</h3><p className="mt-4 leading-7 text-violet-100">{isEnglish ? 'Included in the three-part personal guidance.' : '解鎖後閱讀你的個人化完整指引。'}</p></article>)}
+        </div>
+        <button type="button" onClick={onUnlock} disabled={disabled} className="mt-6 min-h-12 w-full rounded-xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 hover:bg-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200 disabled:opacity-50">{isEnglish ? 'Unlock all three · NT$199' : '一次解鎖三項指引 · NT$199'}</button>
+        <p className="mt-3 text-center text-sm leading-6 text-violet-100">{isEnglish ? 'Sign in before payment. Unlocks this birth chart after successful payment.' : '付款前須先登入；付款成功後解鎖本次出生盤的三項指引。'}</p>
+      </div>}
     </section>
   );
 }

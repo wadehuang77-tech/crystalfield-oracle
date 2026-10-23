@@ -34,6 +34,7 @@ const SPREAD_HOME: Record<string, string> = {
   vedic_soul_karma:     '/vedic-astrology',
   vedic_life_full:      '/vedic-astrology',
   vedic_complete:       '/vedic-astrology',
+  vedic_basic:          '/vedic-astrology',
 };
 
 function appendOrderId(url: string, orderId: string, orderToken?: string | null): string {

@@ -1411,7 +1411,7 @@ export async function createVedicChart(req: Request, env: Env): Promise<Response
       chart_token: chartToken,
       chart: publicChartData(chart),
         language: body.language === 'en' ? 'en' : 'zh-Hant',
-      free_results: freeResults,
+      free_results: null,
       expires_at: expiresAt,
       request_id: requestId,
       calculation: {
