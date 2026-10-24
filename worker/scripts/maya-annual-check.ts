@@ -76,6 +76,8 @@ test('named administrator complimentary access is server-verified, cached and re
   const grant=await call('annual/admin-report',{birth_date:'1982-04-06',start_year:2026},'wade','en',adminEnv);
   assert.equal(grant.status,200,await grant.clone().text());
   assert.equal((await grant.json() as {order_id:string}).order_id,pending.order_id);
+  const history=await(await call('annual/orders',undefined,'wade','en',adminEnv)).json() as {orders:Array<{orderId:string;status:string}>};
+  assert.equal(history.orders.find(o=>o.orderId===pending.order_id)?.status,'complimentary');
   assert.deepEqual(await env.DB.prepare('SELECT amount,status,item_type FROM orders WHERE id=?').bind(pending.order_id).first(),{amount:599,status:'pending',item_type:'maya'});
   assert.equal((await call(pendingPath,{},'wade','en',adminEnv)).status,200);
   assert.equal((await call(pendingPath,undefined,'wade','zh-TW',adminEnv)).status,200);

@@ -172,7 +172,18 @@ export async function routeMayaAnnual(req:Request,env:Env):Promise<Response> {
     }
     if(url.pathname==='/api/maya/annual/orders' && req.method==='GET') {
       const rows=await env.DB.prepare("SELECT p.order_id,p.snapshot_json,CASE WHEN o.item_type='maya_admin' THEN o.status ELSE p.payment_state END payment_state FROM maya_annual_payment_orders p JOIN orders o ON o.id=p.order_id WHERE p.user_id=? ORDER BY p.created_at DESC LIMIT 100").bind(user.id).all<{order_id:string;snapshot_json:string;payment_state:string}>();
-      return respond({orders:rows.results.map(r=>({orderId:r.order_id,snapshot:JSON.parse(r.snapshot_json),status:r.payment_state}))});
+      const admin=await mayaAdminLive(req,env,user);
+      const orders=await Promise.all(rows.results.map(async r=>{
+        const snapshot=JSON.parse(r.snapshot_json) as AnnualSnapshot;
+        let status=r.payment_state;
+        if(admin&&['pending','paid'].includes(status)) {
+          const grant=await env.DB.prepare("SELECT id FROM orders WHERE id=? AND user_id=? AND item_type='maya_admin' AND item_id=? AND amount=0 AND status='complimentary'")
+            .bind(await adminGrantId(user.id,snapshot),user.id,MAYA_ANNUAL_PRODUCT.code).first();
+          if(grant)status='complimentary';
+        }
+        return {orderId:r.order_id,snapshot,status};
+      }));
+      return respond({orders});
     }
     const match=url.pathname.match(/^\/api\/maya\/annual\/reports\/([A-Za-z0-9_-]{1,80})$/);
     if(!match||!['GET','POST'].includes(req.method))throw new AnnualError('NOT_FOUND',404);

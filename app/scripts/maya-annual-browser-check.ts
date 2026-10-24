@@ -8,19 +8,21 @@ import { tmpdir } from 'node:os';
 const server=await createServer({server:{host:'127.0.0.1',port:5199,strictPort:true}});await server.listen();
 const browser=await chromium.launch({channel:'chrome'});
 try{
-  const ctx=await browser.newContext();let signedIn=false,steps=0,checkouts=0;const saved=new Map<string,AnnualState>();
+  const ctx=await browser.newContext();let signedIn=false,steps=0,checkouts=0,admin=false,adminGranted=false;const saved=new Map<string,AnnualState>();
   const snapshot=annualSnapshot('1990-06-15');
   await ctx.route('**/*',async route=>{
     const url=new URL(route.request().url());
     if(url.pathname.startsWith('/api/')){
       let body:unknown={};const locale=url.searchParams.get('locale')==='en'?'en':'zh-TW';
       if(url.pathname==='/api/auth/me')body={authenticated:signedIn,user:signedIn?{id:'owner',email:'test@example.invalid'}:null};
-      else if(url.pathname==='/api/maya/annual/config')body={enabled:true,payment:true};
-      else if(url.pathname==='/api/maya/annual/orders')body={orders:[{orderId:'test-order',snapshot,status:'paid'}]};
+      else if(url.pathname==='/api/maya/annual/config')body={enabled:true,payment:true,adminFree:admin};
+      else if(url.pathname==='/api/maya/annual/orders')body={orders:[{orderId:'test-order',snapshot,status:admin?'pending':'paid'}]};
+      else if(url.pathname==='/api/maya/annual/admin-report') {assert.equal(admin,true);assert.equal(route.request().postDataJSON().birth_date,snapshot.birthDate);adminGranted=true;body={order_id:'test-order'};}
       else if(url.pathname==='/api/maya/checkout'&&route.request().method()==='POST'){
         checkouts++;const request=route.request().postDataJSON();assert.equal(request.product_code,'MAYA_ANNUAL_599');assert.equal(request.birth_date,'1990-06-15');assert.equal(request.start_year,snapshot.startYear);assert.equal(request.amount,undefined);body={order_id:'test-order',already_paid:true};
       }else if(url.pathname==='/api/maya/checkout/test-order')body={order_id:'test-order',locale:'en',product_code:'MAYA_ANNUAL_599',status:'paid',amount:599};
       else if(url.pathname==='/api/maya/annual/reports/test-order'){
+        if(admin&&!adminGranted)return route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({error:'Payment required'})});
         let state=saved.get(locale)??{orderId:'test-order',snapshot,locale,status:'pending',completed:0,percent:0,error:null,sections:null} as AnnualState;
         if(route.request().method()==='POST'){
           steps++;const completed=state.completed+1;state={...state,completed,percent:completed===10?100:completed*9,status:completed===10?'completed':'pending',sections:completed===10?ANNUAL_CHAPTERS.map(c=>({heading:c[locale==='en'?1:0],body:locale==='en'?'A specific annual reflection to practice in daily life.':'這是模擬測試用的年度解讀，提供具體生活觀察。'})):null};saved.set(locale,state);
@@ -49,5 +51,10 @@ try{
   assert.equal(checkouts,1);assert.equal(steps,20);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:join(tmpdir(),'maya-annual-report-desktop.png'),fullPage:true});
   signedIn=false;await page.reload();await page.getByRole('link',{name:'Sign in to explore my birthday year'}).waitFor();assert.equal(await page.locator('article').count(),0);
+  signedIn=true;admin=true;await page.reload();
+  await page.waitForFunction(()=>document.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow')==='100');
+  assert.equal(adminGranted,true,'Opening an existing pending order applies the admin free grant');
+  assert.equal(checkouts,1,'Admin must not enter payment checkout');
+  assert.equal(steps,20,'Saved report is reused without another AI request');
   assert.deepEqual(errors,[]);console.log('PASS: guest login gate, leap birthday warning, fixed checkout, reload resume/cache, bilingual access, mobile/desktop overflow and logout privacy. All APIs mocked. Screenshots in OS temp folder.');
 }finally{await browser.close();await server.close();}

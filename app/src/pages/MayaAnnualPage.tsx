@@ -47,7 +47,18 @@ export default function MayaAnnualPage(){
         // The report endpoint is authoritative for both verified purchases and admin grants.
         let authorized:AnnualState|undefined;
         try {authorized=await mayaAnnualApi.report(order!,locale,controller.signal);}
-        catch(e) {if((e as {status?:number}).status!==403)throw e;}
+        catch(e) {
+          if((e as {status?:number}).status!==403)throw e;
+          if(config?.adminFree) {
+            // Opening an old unpaid order must also apply the administrator's free grant.
+            const history=await mayaAnnualApi.orders(locale,controller.signal);
+            const existing=history.orders.find(entry=>entry.orderId===order);
+            if(!existing||!['pending','paid','complimentary'].includes(existing.status))throw e;
+            const granted=await mayaAnnualApi.adminReport(existing.snapshot.birthDate,existing.snapshot.startYear,locale);
+            if(granted.order_id!==order)throw e;
+            authorized=await mayaAnnualApi.report(order!,locale,controller.signal);
+          }
+        }
         const payment=authorized ? {status:'authorized'} : await mayaApi.checkoutStatus(order!,locale,controller.signal);
         if(controller.signal.aborted)return;
         setPaymentStatus(payment.status);
@@ -60,7 +71,7 @@ export default function MayaAnnualPage(){
       }catch(e){if(!controller.signal.aborted)setError(e instanceof Error?e.message:annualError('GENERATION_FAILED',en));}
     }
     void tick();return()=>{controller.abort();clearTimeout(timer);};
-  },[identity,config?.enabled,retry]);
+  },[identity,config?.enabled,config?.adminFree,retry]);
   async function buy(){
     if(!preview||!user||checkoutBusy.current)return;checkoutBusy.current=true;setBusy(true);setError('');
     const key=`maya-annual-checkout:${user.id}:${preview.birthDate}:${preview.start}`;
