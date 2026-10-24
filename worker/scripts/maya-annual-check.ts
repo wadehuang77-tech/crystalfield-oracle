@@ -68,6 +68,19 @@ test('named administrator complimentary access is server-verified, cached and re
   await env.DB.prepare("UPDATE profiles SET email='wadehuang77@gmail.com' WHERE id='wade'").run();
   await env.DB.prepare("UPDATE orders SET status='revoked' WHERE id=?").bind(order_id).run();
   assert.equal((await call(path,{},'wade','en',adminEnv)).status,403);
+  const checkout=await call('checkout',buyBody('1982-04-06'),'wade');
+  assert.equal(checkout.status,200);
+  const pending=await checkout.json() as {order_id:string};
+  const pendingPath=`annual/reports/${pending.order_id}`;
+  assert.equal((await call(pendingPath,undefined,'wade','en',adminEnv)).status,403);
+  const grant=await call('annual/admin-report',{birth_date:'1982-04-06',start_year:2026},'wade','en',adminEnv);
+  assert.equal(grant.status,200,await grant.clone().text());
+  assert.equal((await grant.json() as {order_id:string}).order_id,pending.order_id);
+  assert.deepEqual(await env.DB.prepare('SELECT amount,status,item_type FROM orders WHERE id=?').bind(pending.order_id).first(),{amount:599,status:'pending',item_type:'maya'});
+  assert.equal((await call(pendingPath,{},'wade','en',adminEnv)).status,200);
+  assert.equal((await call(pendingPath,undefined,'wade','zh-TW',adminEnv)).status,200);
+  assert.equal((await call(pendingPath,{},'other','en',adminEnv)).status,403);
+  assert.equal((await call(pendingPath,{},'wade','en',env)).status,403);
 });
 function call(path:string,body?:unknown,user='owner',locale='en',target=env){
   const req=new Request(`https://api.crystalfield101.com/api/maya/${path}?locale=${locale}`,{method:body?'POST':'GET',headers:{Origin:'https://www.crystalfield101.com','Content-Type':'application/json',...(user?{Cookie:`bolt_session=${tokens.get(user)}`}:{})},...(body?{body:JSON.stringify(body)}:{})});

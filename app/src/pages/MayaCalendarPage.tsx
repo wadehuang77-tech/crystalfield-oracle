@@ -225,7 +225,7 @@ export default function MayaCalendarPage() {
   }
 
   if (!privatePage) return <MayaSeoLanding locale={locale} features={features} configLoading={configLoading} configError={configError}
-    availability={premiumAvailability} availabilityError={premiumConfigError} enter={enter} adminPreview={!!user && features.admin_preview === true} />;
+    availability={premiumAvailability} availabilityError={premiumConfigError} enter={enter} adminPreview={!!user && features.admin_preview === true} viewerId={user?.id} />;
   if (configLoading) return <main className="p-8 text-white"><h1>{mayaMemberSeo(locale).h1}</h1><p role="status">{t('正在確認功能狀態…', 'Checking feature availability...')}</p><Link to={localized('/maya-calendar/')}>{memberPage ? t('馬雅曆免費解盤', 'Free Dreamspell KIN Calculator') : t('認識馬雅曆與免費 KIN 查詢', 'About Dreamspell and free KIN lookup')}</Link></main>;
   if (!features.public || (privatePage && !features.member)) {
     return <main className="p-8 text-white"><h1>{t('Dreamspell 尚未開放', 'Dreamspell is not available yet')}</h1>{(configError || error) && <p role="alert">{configError || error}</p>}</main>;

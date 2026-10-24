@@ -44,12 +44,16 @@ export default function MayaAnnualPage(){
     const schedule=()=>{if(!controller.signal.aborted)timer=setTimeout(()=>void tick(),1800);};
     async function tick(){
       try{
-        const payment=order!.startsWith('annual-admin-') ? {status:'complimentary'} : await mayaApi.checkoutStatus(order!,locale,controller.signal);
+        // The report endpoint is authoritative for both verified purchases and admin grants.
+        let authorized:AnnualState|undefined;
+        try {authorized=await mayaAnnualApi.report(order!,locale,controller.signal);}
+        catch(e) {if((e as {status?:number}).status!==403)throw e;}
+        const payment=authorized ? {status:'authorized'} : await mayaApi.checkoutStatus(order!,locale,controller.signal);
         if(controller.signal.aborted)return;
         setPaymentStatus(payment.status);
         if(payment.status==='pending'){if(++polls<30)schedule();else setError(t('付款仍待後端確認，請稍後重新整理，勿重複付款。','Payment is still pending. Refresh later; do not pay again.'));return;}
-        if(payment.status!=='paid'&&payment.status!=='complimentary'){setError(annualError('PAYMENT_REQUIRED',en));return;}
-        let v=await mayaAnnualApi.report(order!,locale,controller.signal);publish(v);
+        if(payment.status!=='paid'&&payment.status!=='authorized'){setError(annualError('PAYMENT_REQUIRED',en));return;}
+        let v=authorized??await mayaAnnualApi.report(order!,locale,controller.signal);publish(v);
         if(v.status==='blocked'||v.status==='completed'||v.status==='failed'&&!retryAllowed)return;
         if(v.status==='pending'||v.status==='failed') {retryAllowed=false;v=await mayaAnnualApi.step(order!,locale,controller.signal);publish(v);}
         if(v.status==='pending'||v.status==='processing')schedule();
@@ -61,7 +65,7 @@ export default function MayaAnnualPage(){
     if(!preview||!user||checkoutBusy.current)return;checkoutBusy.current=true;setBusy(true);setError('');
     const key=`maya-annual-checkout:${user.id}:${preview.birthDate}:${preview.start}`;
     try{
-      if(config?.adminFree){const result=await mayaAnnualApi.adminReport(preview.birthDate,preview.startYear,locale);setParams({maya_order:result.order_id});return;}
+      if(config?.adminFree){const result=await mayaAnnualApi.adminReport(preview.birthDate,preview.startYear,locale);setParams({maya_order:result.order_id});setRetry(n=>n+1);return;}
       let id=sessionStorage.getItem(key);if(!id){id=crypto.randomUUID();sessionStorage.setItem(key,id);}
       const result=await mayaAnnualApi.checkout(preview.birthDate,preview.startYear,locale,id);
       if('already_paid' in result)setParams({maya_order:result.order_id});else submitMayaCheckout(result,'production');

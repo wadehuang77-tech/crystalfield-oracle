@@ -12,6 +12,10 @@ const RESERVATION = (INPUT_LIMIT * 0.15 + OUTPUT_LIMIT * 0.6) / 1_000_000 * 35;
 class AnnualError extends Error { constructor(readonly code: string, readonly status = 409) { super(code); } }
 interface Row { id: string; status: AnnualState['status']; sections_json: string; report_json: string | null; error: string | null; lease_until: string | null }
 interface Access { snapshot_json: string }
+async function adminGrantId(user:string,snapshot:AnnualSnapshot) {
+  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([user,snapshot.birthDate,snapshot.start]))))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  return `annual-admin-${hash}`;
+}
 export async function annualAccess(env: Env, user: string, order: string): Promise<AnnualSnapshot> {
   const row = await env.DB.prepare(`SELECT p.snapshot_json FROM maya_annual_payment_orders p
     JOIN orders o ON o.id=p.order_id AND o.user_id=p.user_id
@@ -150,11 +154,16 @@ export async function routeMayaAnnual(req:Request,env:Env):Promise<Response> {
         || typeof body.start_year!=='number' || !Number.isInteger(body.start_year))throw new AnnualError('INVALID_INPUT',400);
       let snapshot:AnnualSnapshot;
       try {snapshot=annualSnapshot(body.birth_date,body.start_year);}catch(e){throw new AnnualError(e instanceof Error?e.message:'INVALID_DATE',422);}
-      const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([user.id,snapshot.birthDate,snapshot.start]))))).map(b=>b.toString(16).padStart(2,'0')).join('');
-      const id=`annual-admin-${hash}`;
+      const id=await adminGrantId(user.id,snapshot);
+      const hash=id.slice('annual-admin-'.length);
       // Zero-price administrative grant, never a fabricated paid transaction.
       const existing=await env.DB.prepare("SELECT order_id FROM maya_annual_payment_orders WHERE user_id=? AND birth_date=? AND period_start=? AND payment_state IN ('pending','paid') AND order_id<>?").bind(user.id,snapshot.birthDate,snapshot.start,id).first<{order_id:string}>();
-      if(existing)throw new AnnualError('EXISTING_ORDER',409);
+      if(existing) {
+        // Keep the real checkout and any later callback intact. Grant admin access separately.
+        await env.DB.prepare("INSERT OR IGNORE INTO orders(id,merchant_trade_no,user_id,email,item_type,item_id,item_name,amount,status) VALUES (?,?,?,?,'maya_admin',?,'Admin complimentary annual report',0,'complimentary')")
+          .bind(id,`A${hash.slice(0,19)}`,user.id,user.email,MAYA_ANNUAL_PRODUCT.code).run();
+        return respond({order_id:existing.order_id});
+      }
       await env.DB.batch([
         env.DB.prepare("INSERT OR IGNORE INTO orders(id,merchant_trade_no,user_id,email,item_type,item_id,item_name,amount,status) VALUES (?,?,?,?,'maya_admin',?,'Admin complimentary annual report',0,'complimentary')").bind(id,`A${hash.slice(0,19)}`,user.id,user.email,MAYA_ANNUAL_PRODUCT.code),
         env.DB.prepare("INSERT OR IGNORE INTO maya_annual_payment_orders(order_id,user_id,product_code,merchant_id,locale,checkout_key,birth_date,period_start,period_end,snapshot_json) VALUES (?,?,?,'admin-complimentary',?,?,?,?,?,?)").bind(id,user.id,MAYA_ANNUAL_PRODUCT.code,locale,id,snapshot.birthDate,snapshot.start,snapshot.end,JSON.stringify(snapshot)),
@@ -168,15 +177,15 @@ export async function routeMayaAnnual(req:Request,env:Env):Promise<Response> {
     const match=url.pathname.match(/^\/api\/maya\/annual\/reports\/([A-Za-z0-9_-]{1,80})$/);
     if(!match||!['GET','POST'].includes(req.method))throw new AnnualError('NOT_FOUND',404);
     const order=match[1]; const authorize=async()=>{
-      if(order.startsWith('annual-admin-')) {
+      if(await mayaAdminLive(req,env,user)) {
         const current=await readSession(req,env,true);
         if(!current || current.id!==user.id || !await mayaAdminLive(req,env,current))throw new AnnualError('PAYMENT_REQUIRED',403);
-        const row=await env.DB.prepare(`SELECT p.snapshot_json FROM maya_annual_payment_orders p JOIN orders o ON o.id=p.order_id AND o.user_id=p.user_id
-          WHERE p.order_id=? AND p.user_id=? AND p.product_code=? AND o.item_id=p.product_code
-          AND o.item_type='maya_admin' AND o.amount=0 AND o.status='complimentary'
-          AND p.merchant_id='admin-complimentary' AND p.payment_state='pending'`).bind(order,user.id,MAYA_ANNUAL_PRODUCT.code).first<Access>();
-        if(!row)throw new AnnualError('PAYMENT_REQUIRED',403);
-        return JSON.parse(row.snapshot_json) as AnnualSnapshot;
+        const row=await env.DB.prepare("SELECT snapshot_json FROM maya_annual_payment_orders WHERE order_id=? AND user_id=? AND product_code=? AND payment_state IN ('pending','paid')").bind(order,user.id,MAYA_ANNUAL_PRODUCT.code).first<Access>();
+        if(row) {
+          const snapshot=JSON.parse(row.snapshot_json) as AnnualSnapshot;
+          const grant=await env.DB.prepare("SELECT id FROM orders WHERE id=? AND user_id=? AND item_type='maya_admin' AND item_id=? AND amount=0 AND status='complimentary'").bind(await adminGrantId(user.id,snapshot),user.id,MAYA_ANNUAL_PRODUCT.code).first();
+          if(grant)return snapshot;
+        }
       }
       return annualAccess(env,user.id,order);
     };

@@ -8,10 +8,10 @@ import MayaVisualization from './MayaVisualization';
 import MayaCalendarAbout from './MayaCalendarAbout';
 import { MAYA_ANNUAL_PRODUCT } from '../../lib/mayaAnnual';
 
-export default function MayaSeoLanding({ locale, features, configLoading, configError, availability, availabilityError, enter, adminPreview }: {
+export default function MayaSeoLanding({ locale, features, configLoading, configError, availability, availabilityError, enter, adminPreview, viewerId }: {
   locale: MayaLocale; features: MayaFeatures; configLoading: boolean; configError: string;
   availability: { pro: boolean; relationship: boolean } | null; availabilityError: string;
-  enter: () => void; adminPreview: boolean;
+  enter: () => void; adminPreview: boolean; viewerId?: string;
 }) {
   const en = locale === 'en';
   const content = mayaSeoContent(locale);
@@ -49,7 +49,7 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
     </section>
     {configError && <p role="alert">{configError}</p>}
     <div id="free-kin" className="scroll-mt-6">
-      <MayaVisualization locale={locale} publicPage showMatrixGrid={false} enabled={!configLoading && features.public} />
+      <MayaVisualization locale={locale} publicPage showMatrixGrid={false} enabled={!configLoading && features.public} viewerId={viewerId} />
     </div>
     <MayaCalendarAbout locale={locale} />
     {content.sections.map(section => <section id={section.id} className={panel} key={section.id}>

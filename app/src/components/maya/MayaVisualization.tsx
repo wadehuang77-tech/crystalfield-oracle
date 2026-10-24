@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { authUrlFor } from '../../lib/authLocale';
 import { DREAMSPELL_SOLAR_TOTEMS, DREAMSPELL_TONES } from '../../lib/dreamspell';
 import { isMayaDate, mayaForDate, taipeiDate, type MayaLocale, type MayaProfile } from '../../lib/maya';
 import { galacticToneVisual } from '../../lib/mayaVisualization';
@@ -8,30 +10,33 @@ import SolarSealIcon from './SolarSealIcon';
 import TzolkinMatrix from './TzolkinMatrix';
 import './mayaVisualization.css';
 
-export default function MayaVisualization({ locale, profile, publicPage, showMatrixGrid = true, enabled = true }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean; showMatrixGrid?: boolean; enabled?: boolean }) {
+export default function MayaVisualization({ locale, profile, publicPage, showMatrixGrid = true, enabled = true, viewerId }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean; showMatrixGrid?: boolean; enabled?: boolean; viewerId?: string }) {
   const en = locale === 'en';
   const t = (zh: string, english: string) => en ? english : zh;
   const [birthDate, setBirthDate] = useState('');
-  const [calculated, setCalculated] = useState<{ kin: number; date: string } | null>(null);
+  const [calculated, setCalculated] = useState<{ kin: number; date: string; viewerId: string } | null>(null);
   const [error, setError] = useState('');
-  const identity = publicPage ? calculated : profile ? { kin: profile.kin_number, date: profile.birth_date } : null;
+  const identity = publicPage ? viewerId && calculated?.viewerId === viewerId ? calculated : null : profile ? { kin: profile.kin_number, date: profile.birth_date } : null;
+  const path = `${en ? '/en' : ''}/maya-calendar/`;
   return <div className="maya-visualization">
     {publicPage && <section className="maya-cosmic-panel">
       <p className="maya-eyebrow">KIN · 260</p>
       <h2>{t('探索你的星際身份', 'Explore your galactic identity')}</h2>
+      <p>{t('登入後可免費計算 KIN、太陽圖騰與銀河調性；深度報告依方案另行解鎖。', 'Sign in to calculate your KIN, solar seal and galactic tone for free. In-depth reports are unlocked separately.')}</p>
       <p>{t('使用已驗證的 Dreamspell 引擎在瀏覽器計算；生日不傳送、不儲存。這不是付費解讀。', 'Calculate with the verified Dreamspell engine in your browser. Your date is not sent or saved. This is not a paid interpretation.')}</p>
       <form className="maya-free-form" onSubmit={event => {
-        event.preventDefault(); if (!enabled) return; setError('');
+        event.preventDefault(); if (!enabled || !viewerId) return; setError('');
         if (!isMayaDate(birthDate)) {
           setCalculated(null); setError(t('請輸入 1900 年起至今天的有效日期。', 'Enter a valid date from 1900 through today.')); return;
         }
         if (birthDate.slice(5) === '02-29') {
           setCalculated(null); setError(t('2 月 29 日出生印記尚未支援；不會猜測結果。', 'February 29 birth signatures are unsupported. No result will be guessed.')); return;
         }
-        setCalculated({ kin: mayaForDate(birthDate, locale).kin_number, date: birthDate });
+        setCalculated({ kin: mayaForDate(birthDate, locale).kin_number, date: birthDate, viewerId });
       }}>
         <label>{t('出生日期（僅本地計算）', 'Birth date (local calculation only)')}<input type="date" min="1900-01-01" max={taipeiDate()} required value={birthDate} onChange={event => setBirthDate(event.target.value)} /></label>
-        <button type="submit" disabled={!enabled}>{t('免費查詢我的 KIN', 'Find My KIN for Free')}</button>
+        {viewerId ? <button type="submit" disabled={!enabled}>{t('免費查詢我的 KIN', 'Find My KIN for Free')}</button>
+          : <Link className="inline-flex min-h-12 items-center justify-center rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950" to={authUrlFor(path,'login',`${path}#free-kin`)}>{t('登入後免費計算', 'Sign in to calculate for free')}</Link>}
       </form>
       {error && <p role="alert">{error}</p>}
     </section>}
