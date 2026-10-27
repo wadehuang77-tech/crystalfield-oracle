@@ -88,28 +88,23 @@ const birthDateGuard = readFileSync(new URL('../src/components/AuthRequiredBirth
 const numerologyForm = readFileSync(new URL('../src/components/numerology/BirthDateForm.tsx', import.meta.url), 'utf8');
 const humanDesignLanding = readFileSync(new URL('../src/pages/human-design/LandingPage.tsx', import.meta.url), 'utf8');
 for (const pageSource of [numerologyPage, humanDesignPage, vedicPage]) {
-  assert.match(pageSource, /calculationLoginRedirect\(!!user, location\.pathname, location\.search, location\.hash\)/);
+  assert.match(pageSource, /authUrlFor\(location.pathname,'login',location.pathname\+location.search\+location.hash\)/);
   assert.match(pageSource, /authLoading/, 'calculation must stop while auth is loading');
-  assert.match(pageSource, /authError/, 'calculation must stop if sign-in status could not be verified');
+  assert.match(pageSource, /if\(authLoading\|\|!user\)/, 'calculation requires a resolved signed-in user');
 }
-assert.ok(numerologyPage.indexOf('const loginUrl = calculationLoginRedirect') < numerologyPage.indexOf('calculateNumerology(date)'));
-assert.ok(humanDesignPage.indexOf('const loginUrl = calculationLoginRedirect') < humanDesignPage.indexOf('calculateHDChart('));
-assert.ok(vedicPage.indexOf('const loginUrl = calculationLoginRedirect') < vedicPage.indexOf('vedicAstrologyApi.createChart('));
-assert.match(vedicPage, /if \(authLoading\) return;[\s\S]*?if \(authError\)/);
+assert.ok(numerologyPage.indexOf('if(authLoading||!user)') < numerologyPage.indexOf('calculateNumerology(date)'));
+assert.ok(humanDesignPage.indexOf('if(authLoading||!user)') < humanDesignPage.indexOf('calculateHDChart('));
+assert.ok(vedicPage.indexOf('if(authLoading||!user)') < vedicPage.indexOf('vedicAstrologyApi.createChart('));
+assert.match(birthDateGuard, /authError\?void refreshAuth\(\)/);
 assert.match(numerologyForm, /<AuthRequiredBirthDate>[\s\S]*?NumberInput/);
 assert.match(humanDesignLanding, /<AuthRequiredBirthDate>[\s\S]*?copy\('birthDate'/);
 assert.match(vedicPage, /<AuthRequiredBirthDate>[\s\S]*?<input type="date"/);
 assert.match(authProvider, /setAuthError\(error instanceof Error \? error : new Error/);
 assert.match(authProvider, /refreshAuth,?\s*\n\s*signUp/);
-assert.match(birthDateGuard, /Sign In to Continue/);
-assert.match(birthDateGuard, /登入後即可免費使用解盤功能，探索專屬於你的生命藍圖。/);
-assert.match(birthDateGuard, /Continue with Google/);
-assert.match(birthDateGuard, /使用 Google 登入/);
-assert.match(birthDateGuard, /Maybe Later/);
-assert.match(birthDateGuard, /稍後再說/);
-assert.match(birthDateGuard, /aria-modal="true"/);
-assert.match(birthDateGuard, /event\.key === 'Escape'/);
-assert.match(birthDateGuard, /authUrlFor\(location\.pathname, 'login', returnTo\)/);
+assert.match(birthDateGuard, /Sign in before entering birth details/);
+assert.match(birthDateGuard, /登入後填寫出生資料/);
+assert.match(birthDateGuard, /fieldset disabled/);
+assert.match(birthDateGuard, /authUrlFor\(location\.pathname,'login'/);
 const authPage = readFileSync(new URL('../src/pages/AuthPage.tsx', import.meta.url), 'utf8');
 assert.match(authPage, /navigate\(returnTo, \{ replace: true, state: returnState \}\)/);
 const humanDesignReport = readFileSync(new URL('../src/pages/human-design/ReportPage.tsx', import.meta.url), 'utf8');

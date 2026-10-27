@@ -20,7 +20,7 @@ import type { NumerologyShareAccess } from '../lib/api';
 import { getNumerologyShareCapabilities, getNumerologyShareProofs, mergeNumerologyShareCapabilities, saveNumerologyShareProof } from '../lib/numerologyShareAuth';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
-import { calculationLoginRedirect } from '../lib/authLocale';
+import { calculationLoginRedirect,authUrlFor } from '../lib/authLocale';
 
 type Tab = 'report' | 'daily' | 'ai';
 
@@ -268,6 +268,7 @@ export default function NumerologyPage() {
 
   // ── Actions ─────────────────────────────────────────────────────
   const handleSubmit = async (date: string, useOracle: boolean) => {
+    if(authLoading||!user){if(!authLoading)navigate(authUrlFor(location.pathname,'login',location.pathname+location.search+location.hash));return;}
     setLoading(true);
     await new Promise(r => setTimeout(r, 1200));
     const result = calculateNumerology(date);

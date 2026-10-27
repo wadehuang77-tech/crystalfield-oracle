@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-do
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, CheckCircle, Mail, Lock, Sparkles } from 'lucide-react';
 import { GoogleSignInButton } from '../components/GoogleSignInButton';
+import './AuthPage.css';
 import { getLanguageFromPath } from '../lib/i18n';
 import { authModeForPath, authPathFor, isSafeAuthRedirect, localizeAuthError } from '../lib/authLocale';
 
@@ -379,14 +380,14 @@ export default function AuthPage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white relative overflow-hidden flex items-center justify-center px-4 py-12"
+      className="member-auth-page min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white relative overflow-hidden flex items-center justify-center px-4 py-12"
     >
       <div
         className="absolute inset-0 opacity-40"
         style={{ backgroundImage: STARS_BG_URL }}
       />
 
-      <div className="relative w-full max-w-md">
+      <div className="relative w-full max-w-2xl">
         <Link
           to={isEnglish ? '/en' : '/'}
           className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-blue-900/40 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg hover:bg-blue-800/40 transition-colors"
@@ -395,14 +396,20 @@ export default function AuthPage() {
           {copy.backHome}
         </Link>
 
-        <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border-2 border-blue-500/30 rounded-3xl shadow-2xl p-8">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <Sparkles className="w-12 h-12 text-blue-300 opacity-80" />
+        <div className="member-auth-panel rounded-3xl border border-violet-200 bg-white p-5 shadow-2xl sm:p-9">
+          <header className="mb-7 border-b border-violet-200 pb-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h1 className="text-3xl font-serif font-semibold">{mode==='login'?(isEnglish?'Member Sign In':'登入會員'):heading}</h1>
+              {mode==='login'&&<p className="text-base">{isEnglish?'New here? ':'還不是會員？ '}<button type="button" className="member-auth-link min-h-11 underline underline-offset-4" onClick={()=>switchMode('signup')}>{isEnglish?'Join now':'點此加入'}</button></p>}
             </div>
-            <h1 className="text-3xl font-serif text-blue-100 mb-2">{heading}</h1>
-            <p className="text-blue-200/70 text-sm">{subheading}</p>
-          </div>
+            <p className="mt-3 text-base leading-7">{mode==='login'?(isEnglish?'Sign in to continue entering your birth details.':'登入後即可繼續填寫出生資料。'):subheading}</p>
+          </header>
+          {(mode==='login'||mode==='signup')&&<section className="mb-7" aria-labelledby="social-signin-heading">
+            <h2 id="social-signin-heading" className="mb-4 text-center text-xl font-semibold">{isEnglish?'Quick sign-in with a social account':'使用社群帳號快速登入'}</h2>
+            <div className="mx-auto w-full max-w-[360px] pt-1"><GoogleSignInButton compact onCredential={handleGoogleSignIn}/></div>
+            <p className="mt-4 text-center text-sm leading-6">{isEnglish?'Choose a sign-in method to return to your calculator.':'選擇登入方式，完成後返回原本的查詢工具。'}</p>
+            <div className="mt-7 flex items-center gap-3"><span className="h-px flex-1 bg-violet-200"/><h2 className="text-center text-lg font-semibold">{isEnglish?'Or use your CrystalField account':'或用晶域心語帳號登入'}</h2><span className="h-px flex-1 bg-violet-200"/></div>
+          </section>}
 
           {(mode === 'login' || mode === 'signup') && (
             <form onSubmit={handleLoginSignup} noValidate className="space-y-5">
@@ -490,10 +497,9 @@ export default function AuthPage() {
               {error && <ErrorBox message={error} />}
 
               <button type="submit" disabled={loading} className="auth-submit-btn">
-                {loading ? (mode === 'login' ? copy.processing : copy.creatingAccount) : mode === 'login' ? copy.signIn : copy.createAccountButton}
+                {loading ? (mode === 'login' ? copy.processing : copy.creatingAccount) : mode === 'login' ? (isEnglish ? 'Sign In' : '登入') : copy.createAccountButton}
               </button>
 
-              <GoogleSignInButton onCredential={handleGoogleSignIn} />
             </form>
           )}
 
@@ -696,22 +702,22 @@ function CodeInput({ value, onChange }: { value: string; onChange: (v: string) =
 
 function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-blue-200 text-sm font-medium mb-2">{label}</label>
+    <label className="block">
+      <span className="block text-blue-200 text-sm font-medium mb-2">{label}</span>
       <div className="relative">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">{icon}</div>
         {children}
       </div>
-    </div>
+    </label>
   );
 }
 
 function PlainField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-blue-200 text-sm font-medium mb-2">{label}</label>
+    <label className="block">
+      <span className="block text-blue-200 text-sm font-medium mb-2">{label}</span>
       {children}
-    </div>
+    </label>
   );
 }
 
@@ -739,7 +745,7 @@ function SelectField({
 
 function ErrorBox({ message }: { message: string }) {
   return (
-    <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3 text-red-200 text-sm">
+    <div role="alert" className="bg-red-900/30 border border-red-500/50 rounded-lg p-3 text-red-200 text-sm">
       {message}
     </div>
   );

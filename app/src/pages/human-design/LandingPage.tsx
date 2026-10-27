@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AuthRequiredBirthDate } from '../../components/AuthRequiredBirthDate';
 import { ArrowRight, Sparkles, MapPin, Calendar, Clock } from 'lucide-react';
 import HumanDesignSeoContent from './HumanDesignSeoContent';
 import HumanDesignTypesSection from './HumanDesignTypesSection';
@@ -111,7 +112,7 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
             <div className="absolute inset-0 bg-white/3 backdrop-blur-sm" />
             <div className="absolute inset-0 border border-white/8 rounded-3xl" />
 
-            <form onSubmit={handleSubmit} className="relative p-7 space-y-5">
+            <AuthRequiredBirthDate><form onSubmit={handleSubmit} className="relative p-7 space-y-5">
               {/* Birth Date */}
               <div>
                 <label className="flex items-center gap-2 text-xs text-white/40 font-medium mb-2">
@@ -199,7 +200,7 @@ export default function LandingPage({ onCalculate, disabled = false }: LandingPa
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
-            </form>
+            </form></AuthRequiredBirthDate>
           </div>
           <HumanDesignSeoContent />
           <HumanDesignTypesSection />

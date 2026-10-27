@@ -1,0 +1,20 @@
+.member-auth-page .member-auth-panel { color:#292536; background:#fffdfb; }
+.member-auth-page .member-auth-panel h1 { color:#4c2876; letter-spacing:.06em; }
+.member-auth-page .member-auth-panel h2 { color:#342641; }
+.member-auth-page .member-auth-panel p,
+.member-auth-page .member-auth-panel label { color:#52505d; }
+.member-auth-page .member-auth-panel label { font-size:1rem; }
+.member-auth-page .member-auth-panel label>span { color:#52505d; font-size:1rem; }
+.member-auth-page .member-auth-panel .auth-input { min-height:52px; background:#fff; border:1px solid #a59caf; color:#25212d; font-size:1rem; border-radius:10px; }
+.member-auth-page .member-auth-panel .auth-input::placeholder { color:#6e6478; }
+.member-auth-page .member-auth-panel .auth-input:focus { border-color:#6d28a8; box-shadow:0 0 0 3px #ede5f6; }
+.member-auth-page .member-auth-panel .auth-input option { background:white; color:#25212d; }
+.member-auth-page .member-auth-panel .auth-submit-btn { min-height:56px; background:#64328a; background-image:none; font-size:1.125rem; font-weight:600; border-radius:10px; }
+.member-auth-page .member-auth-panel .auth-submit-btn:hover:not(:disabled) { background:#50246e; background-image:none; box-shadow:none; }
+.member-auth-page .member-auth-panel button:focus-visible { outline:3px solid #8b5eb1; outline-offset:4px; }
+.member-auth-page .member-auth-panel button.member-auth-link,
+.member-auth-page .member-auth-panel button[class*="text-blue-"] { color:#613487; font-size:1rem; min-height:44px; }
+.member-auth-page .member-auth-panel [role="alert"] { color:#8c1733; background:#fff0f3; border-color:#e6a3b2; }
+.member-auth-page .member-auth-panel svg { color:#785b92; }
+.member-auth-page .member-auth-panel [role="status"] { color:#52505d; }
+@media(max-width:420px){.member-auth-page .member-auth-panel { padding:20px 16px; }.member-auth-page .member-auth-panel h1{font-size:1.65rem;}}

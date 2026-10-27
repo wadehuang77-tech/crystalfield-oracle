@@ -168,6 +168,7 @@ export default function HumanDesignPage() {
   };
 
   const handleCalculate = (birthDate: string, birthTime: string, birthCity: string) => {
+    if(authLoading||!user){if(!authLoading)navigate(authUrlFor(location.pathname,'login',location.pathname+location.search+location.hash));return;}
     let calculated: HDChart;
     try {
       calculated = calculateHDChart(birthDate, birthTime, birthCity);

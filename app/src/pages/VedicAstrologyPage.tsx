@@ -30,6 +30,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import VedicAstrologySeoContent from './VedicAstrologySeoContent';
 import { getLanguageFromPath, t } from '../lib/i18n';
 import { useAuth } from '../contexts/AuthContext';
+import { AuthRequiredBirthDate } from '../components/AuthRequiredBirthDate';
 import { authUrlFor } from '../lib/authLocale';
 import { pollVedicReport, terminalReport, persistedReportTimings } from '../lib/vedicReportPolling';
 import { VedicChartCore, VedicProgressiveReport } from '../components/VedicReportProgress';
@@ -328,6 +329,7 @@ export default function VedicAstrologyPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if(authLoading||!user){if(!authLoading)navigate(authUrlFor(location.pathname,'login',location.pathname+location.search+location.hash));return;}
     if (!form.birthPlace.trim()) {
       setError(language === 'en' ? 'Enter your birthplace.' : '未填出生地點');
       return;
@@ -421,7 +423,7 @@ export default function VedicAstrologyPage() {
             <span className="rounded-2xl border border-amber-300/30 bg-amber-300/10 p-3 text-amber-200"><Orbit /></span>
             <div><h2 className="font-serif text-2xl text-amber-50">{copy('formTitle', '輸入你的出生座標')}</h2><p className="mt-1 text-sm text-violet-200/55">{copy('accuracy', '出生時間越準確，上升與宮位判讀越可靠。')}</p></div>
           </div>
-          <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
+          <AuthRequiredBirthDate><form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
             <Field label={copy('birthDate', '出生年月日')}>
                 <input type="date" required value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="vedic-input" />
             </Field>
@@ -446,7 +448,7 @@ export default function VedicAstrologyPage() {
             <button type="submit" disabled={isCalculating} aria-disabled={isCalculating || !form.birthPlace.trim()} className={`flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-fuchsia-500 to-violet-600 px-6 py-4 font-semibold shadow-[0_0_32px_rgba(217,70,239,0.28)] transition disabled:opacity-60 sm:col-span-2 ${!form.birthPlace.trim() ? 'cursor-not-allowed opacity-55' : 'hover:brightness-110'}`}>
               {isCalculating ? <><Loader2 className="animate-spin" />{copy('calculating', '正在連結出生星盤…')}</> : <><Stars />{copy('calculate', '開啟我的靈魂業力地圖')}</>}
             </button>
-          </form>
+          </form></AuthRequiredBirthDate>
           <p className="mt-5 text-center text-xs leading-5 text-white/35">{copy('disclaimer', '本服務用於自我探索與娛樂參考，不代替醫療、法律、財務或心理專業意見。')}</p>
         </section>
 

@@ -51,8 +51,10 @@ function loadGoogleIdentityScript(locale: 'en' | 'zh_TW'): Promise<void> {
 
 export function GoogleSignInButton({
   onCredential,
+  compact=false,
 }: {
   onCredential: (credential: string, csrfToken: string) => Promise<void>;
+  compact?: boolean;
 }) {
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
@@ -128,11 +130,11 @@ export function GoogleSignInButton({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-3" aria-hidden="true">
+      {!compact&&<div className="flex items-center gap-3" aria-hidden="true">
         <span className="h-px flex-1 bg-blue-500/20" />
         <span className="text-xs text-blue-200/55">{isEnglish ? 'or' : '或'}</span>
         <span className="h-px flex-1 bg-blue-500/20" />
-      </div>
+      </div>}
       <div className="relative flex min-h-11 items-center justify-center">
         <div ref={buttonRef} className="w-full max-w-[360px]" />
         {busy && (
