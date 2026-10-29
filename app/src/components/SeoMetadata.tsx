@@ -391,7 +391,7 @@ function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Han
     ['前世因果解鎖陣是什麼？', '這是七張牌的探索牌陣，用來分層觀察前世今生連結與人生課題，作為自我覺察參考。'],
     ['不知道該選哪一組牌怎麼辦？', '可以先從首頁依照問題主題選擇，也可以瀏覽七組牌卡介紹後憑直覺決定。'],
     ['塔羅占卜結果可以代替專業意見嗎？', '不可以；醫療、心理、法律或投資問題請諮詢合格專業人士。'],
-    ['塔羅月費方案如何選擇？', '每個帳號跨所有牌組可免費完整占卜 3 次。NT$600/月包含單張與三張牌陣，NT$1,000/月另含前世因果陣，NT$1,500/月可使用全部牌組與牌陣；會員期間內，方案涵蓋的牌陣可無限次占卜。'],
+    ['塔羅月費方案如何選擇？', '每個帳號跨所有牌組可免費完整占卜 7 次。NT$600/月包含單張與三張牌陣，NT$1,000/月另含前世因果陣，NT$1,500/月可使用全部牌組與牌陣；會員期間內，方案涵蓋的牌陣可無限次占卜。'],
   ].map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
   return [
     { '@context': 'https://schema.org', '@type': 'WebPage', name: seo.title, description: seo.description, url: seo.canonical, inLanguage: 'zh-Hant' },

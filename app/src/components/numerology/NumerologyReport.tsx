@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Gem, Heart, DollarSign, Star, Zap, ChevronDown, ChevronUp, Lock, Check } from 'lucide-react';
+import { Gem, Heart, DollarSign, Star, Zap, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import type { NumerologyReport as Report, OracleCard } from '../../lib/numerology';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
 import CrystalBracelet from './CrystalBracelet';
@@ -10,12 +10,6 @@ import type { PlanTier } from '../../hooks/usePremium';
 import NumerologyShareButton from './NumerologyShare';
 import { localizeGridLine, localizeMissingNumberData, localizeNumerologyReport } from '../../lib/numerologyDisplay';
 
-const CRYSTAL_UNLOCK_FEATURES = [
-  '完整缺失數字分析',
-  '專屬水晶療癒方案',
-  '能量平衡建議',
-  '靈性成長方向',
-];
 
 interface Props {
   language: 'zh-Hant' | 'en';
@@ -24,8 +18,8 @@ interface Props {
   onReset: () => void;
   tier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
-  crystalUnlocked: boolean;
-  onCrystalUnlock: () => void;
+
+
   forecastUnlocked: boolean;
   onForecastUnlock: () => void;
   oracleUnlocked: boolean;
@@ -71,14 +65,11 @@ function CrystalChip({ name, nameZh, hex, isEnglish }: { name: string; nameZh: s
   );
 }
 
-export default function NumerologyReport({ language, report, oracleCard, onReset, tier, onUpgrade, crystalUnlocked, onCrystalUnlock, forecastUnlocked, onForecastUnlock, oracleUnlocked, onOracleUnlock }: Props) {
+export default function NumerologyReport({ language, report, oracleCard, onReset, tier, onUpgrade, forecastUnlocked, onForecastUnlock, oracleUnlocked, onOracleUnlock }: Props) {
   const [expandedMissing, setExpandedMissing] = useState<number | null>(null);
   const isEnglish = language === 'en';
   const copy = (en: string, zh: string) => isEnglish ? en : zh;
   const displayReport = isEnglish ? localizeNumerologyReport(report) : report;
-  const crystalUnlockFeatures = isEnglish
-    ? ['Full missing-number analysis', 'Crystal reflection prompts', 'Energy balance ideas', 'Personal growth prompts']
-    : CRYSTAL_UNLOCK_FEATURES;
 
   const lpCrystals = (lifePathCrystals[report.lifePathNumber] || []).map((crystal) => isEnglish
     ? { ...crystal, nameZh: crystal.name, energy: 'A personal symbol for reflection.', chakra: 'Reflection' }
@@ -189,8 +180,6 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
         <StatCard icon={<Zap className="w-4 h-4" />} label={isEnglish ? 'Associated Chakra' : '對應脈輪'} value={displayReport.chakra} color={displayReport.chakraColor} sectionKey="chakra" guidance={isEnglish ? 'Care for this area as a reflection practice, alongside practical well-being.' : '溫柔照顧這個能量中心，讓身心重新對齊。'} />
       </div>
 
-      {/* Grid Lines */}
-      <GridLines report={isEnglish ? { ...displayReport, activeGridLines: displayReport.activeGridLines.map(localizeGridLine) } : displayReport} language={language} tier={tier} onUpgrade={onUpgrade} onAdvancedUnlock={onOracleUnlock} />
 
       {/* Missing Numbers */}
       {report.missingNumbers.length > 0 && (
@@ -209,36 +198,8 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
           <div className="flex items-center gap-2 mb-1">
             <Gem className="w-4 h-4 flex-shrink-0" style={{ color: '#5eead4' }} />
             <h3 className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{copy('Missing Numbers and Crystal Suggestions', '缺失數字 × 水晶療癒方案')}</h3>
-            {!crystalUnlocked && (
-              <span style={{
-                marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
-                borderRadius: 999, background: 'rgba(94,234,212,0.12)',
-                border: '1px solid rgba(94,234,212,0.25)', color: '#5eead4',
-              }}>{copy('25% free preview', '25% 免費')}</span>
-            )}
-          </div>
 
-          {/* Progress bar (shown when locked) */}
-          {!crystalUnlocked && (
-            <div style={{ marginBottom: 4 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <p style={{ margin: 0, fontSize: 11, color: 'rgba(94,234,212,0.7)', fontWeight: 500 }}>
-                  {copy('You are viewing a 25% preview.', '您已查看 25% 專屬解析內容')}
-                </p>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#5eead4' }}>25%</span>
-              </div>
-              <div style={{ height: 5, borderRadius: 999, background: 'rgba(94,234,212,0.10)', overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: '25%', borderRadius: 999,
-                  background: 'linear-gradient(90deg, #2dd4bf, #5eead4)',
-                  boxShadow: '0 0 10px rgba(45,212,191,0.55)',
-                }} />
-              </div>
-              <p style={{ margin: '5px 0 0', fontSize: 10, color: 'rgba(94,234,212,0.4)' }}>
-                {copy('Unlock the full analysis, crystal suggestions, and personal growth prompts.', '解鎖完整分析，查看專屬水晶療癒方案與靈性成長方向')}
-              </p>
-            </div>
-          )}
+          </div>
 
           {/* Accordion items */}
           <div className="space-y-3">
@@ -247,7 +208,7 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
               const data = isEnglish && sourceData ? localizeMissingNumberData(sourceData) : sourceData;
               if (!data) return null;
               const isOpen = expandedMissing === n;
-              const showFull = crystalUnlocked;
+
               return (
                 <div
                   key={n}
@@ -272,9 +233,6 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
                       <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{isEnglish ? `Missing Number ${n} · ${data.challenge}` : `缺失數字 ${n}・${data.challenge}`}</p>
                       <p className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.45)' }}>{data.traits.slice(0, 2).join('・')}</p>
                     </div>
-                    {!showFull && !isOpen && (
-                      <Lock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(94,234,212,0.4)' }} />
-                    )}
                     {isOpen
                       ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />
                       : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(167,139,250,0.45)' }} />}
@@ -311,7 +269,7 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
                       <div className="divider-gold" />
 
                       {/* Crystal section — locked or unlocked */}
-                      {showFull ? (
+                      {(
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
@@ -374,112 +332,6 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
                           </div>
                           <NumerologyShareButton group="missing" sectionKey={`missing_${n}`} sectionName={isEnglish ? `Missing Number ${n} · Crystal Suggestions` : `缺失數字 ${n} × 水晶療癒`} number={n} summary={data.crystalFix} guidance={data.affirmation} highlights={data.crystals.map(c => isEnglish ? c.name : c.nameZh)} />
                         </div>
-                      ) : (
-                        /* Blurred lock gate */
-                        <div>
-                          {/* Blurred preview with gradient + lock overlay */}
-                          <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', minHeight: 130 }}>
-                            {/* Blurred content */}
-                            <div style={{ filter: 'blur(6px)', pointerEvents: 'none', userSelect: 'none', maxHeight: 160, overflow: 'hidden' }}>
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-2">
-                                  <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />
-                                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: '#5eead4' }}>{copy('Crystal Suggestions', '高頻水晶修復方案')}</p>
-                                </div>
-                                <p className="text-sm leading-[1.9] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: 'rgba(94,234,212,0.2)' }}>
-                                  {data.crystalFix}
-                                </p>
-                                <div className="space-y-2 pl-3">
-                                  {data.crystals.slice(0, 2).map(c => (
-                                    <div key={c.nameZh} className="flex items-center gap-3 rounded-xl p-3"
-                                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                      <div className="w-8 h-8 rounded-lg flex-shrink-0"
-                                        style={{ background: `radial-gradient(circle at 30% 30%, ${c.hex}cc, ${c.hex}44)` }} />
-                                      <div>
-                                        <p className="text-sm font-medium" style={{ color: '#e9d5ff' }}>{isEnglish ? c.name : c.nameZh}</p>
-                                        <p className="text-xs" style={{ color: 'rgba(233,213,255,0.6)' }}>{c.energy}</p>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                                <div className="rounded-xl p-4" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)' }}>
-                                  <p className="text-sm italic" style={{ color: '#e9d5ff' }}>「{data.affirmation}」</p>
-                                </div>
-                              </div>
-                            </div>
-                            {/* Gradient overlay */}
-                            <div style={{
-                              position: 'absolute', inset: 0,
-                              background: 'linear-gradient(to bottom, rgba(9,5,20,0.25) 0%, rgba(9,5,20,0.72) 45%, rgba(9,5,20,0.97) 100%)',
-                            }} />
-                            {/* Lock icon */}
-                            <div style={{
-                              position: 'absolute', top: '50%', left: '50%',
-                              transform: 'translate(-50%, -56%)',
-                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
-                            }}>
-                              <div style={{
-                                width: 40, height: 40, borderRadius: '50%',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                background: 'rgba(94,234,212,0.14)',
-                                border: '1px solid rgba(94,234,212,0.32)',
-                                boxShadow: '0 0 20px rgba(45,212,191,0.2)',
-                              }}>
-                                <Lock style={{ width: 18, height: 18, color: '#5eead4' }} />
-                              </div>
-                              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: 'rgba(94,234,212,0.75)' }}>
-                                {copy('Crystal suggestions are locked', '水晶療癒方案已鎖定')}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Conversion card below blurred block */}
-                          <div style={{
-                            marginTop: 12,
-                            borderRadius: 14, padding: '16px',
-                            background: 'linear-gradient(135deg, rgba(94,234,212,0.07), rgba(45,212,191,0.03))',
-                            border: '1px solid rgba(94,234,212,0.20)',
-                          }}>
-                            <div style={{ textAlign: 'center', marginBottom: 12 }}>
-                              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#5eead4' }}>
-                                {copy('Unlock Missing Number Crystal Suggestions', '解鎖完整缺失數字 × 水晶療癒方案')}
-                              </p>
-                              <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(94,234,212,0.55)' }}>
-                                {copy('Basic plan · Lifetime access · NT$199', '基礎版 NT$199 · 永久查看')}
-                              </p>
-                            </div>
-                            <div style={{
-                              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px 10px',
-                              marginBottom: 14,
-                            }}>
-                              {crystalUnlockFeatures.map(f => (
-                                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <Check style={{ width: 11, height: 11, color: '#5eead4', flexShrink: 0 }} />
-                                  <span style={{ fontSize: 11, color: 'rgba(196,181,253,0.68)' }}>{f}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <button
-                              onClick={onCrystalUnlock}
-                              style={{
-                                width: '100%', padding: '11px',
-                                borderRadius: 10, border: 'none',
-                                background: 'linear-gradient(135deg, rgba(94,234,212,0.7), rgba(45,212,191,0.5))',
-                                color: '#07040f', fontSize: 13, fontWeight: 800,
-                                fontFamily: 'Inter, sans-serif',
-                                cursor: 'pointer',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                                boxShadow: '0 4px 18px rgba(45,212,191,0.30)',
-                                touchAction: 'manipulation',
-                                WebkitTapHighlightColor: 'transparent',
-                                letterSpacing: '0.01em',
-                              } as React.CSSProperties}
-                            >
-                              <Lock style={{ width: 13, height: 13 }} />
-                              {copy('Unlock Basic Plan · NT$199', '解鎖基礎版 NT$199')}
-                            </button>
-                          </div>
-                        </div>
                       )}
                     </div>
                   )}
@@ -489,6 +341,9 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
           </div>
         </div>
       )}
+
+      {/* Grid Lines */}
+      <GridLines report={isEnglish ? { ...displayReport, activeGridLines: displayReport.activeGridLines.map(localizeGridLine) } : displayReport} language={language} tier={tier} onUpgrade={onUpgrade} onAdvancedUnlock={onOracleUnlock} />
 
       {/* Personal Year Forecast */}
       <PersonalYearForecast

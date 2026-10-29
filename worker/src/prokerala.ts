@@ -294,6 +294,22 @@ function parsePlanets(data: Record<string, unknown>): ProkeralaPlanet[] {
   return planets;
 }
 
+/** Annual samples use the same sidereal endpoint, IDs, OAuth and parser as natal charts.
+ * No internal retry: the annual collector reserves every request against its hard cap. */
+export async function fetchProkeralaAnnualPositions(
+  env:ProkeralaCredentials, at:string, latitude:number, longitude:number,
+):Promise<ProkeralaPlanet[]> {
+  if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(at)||!Number.isFinite(Date.parse(at)))throw new ProkeralaError('PROKERALA_INVALID_INPUT','input');
+  number(latitude,-90,90,'input');number(longitude,-180,180,'input');
+  const timings:ProkeralaTiming[]=[];
+  const token=await accessToken(env,timings);
+  const url=new URL('/v2/astrology/planet-position',BASE);
+  url.search=new URLSearchParams({ayanamsa:'1',coordinates:`${latitude},${longitude}`,datetime:at,planets:IDS.join(','),la:'en'}).toString();
+  const payload=record(await request('planet-position',url,{headers:{Authorization:`Bearer ${token}`,Accept:'application/json'}},timings),'planet-position');
+  if(payload.status!=='ok')invalid('planet-position');
+  return parsePlanets(record(payload.data,'planet-position'));
+}
+
 function parseDivision(data: Record<string, unknown>, endpoint: string): ProkeralaDivision {
   const planets: ProkeralaPlanet[] = [];
   const houses = array(data.divisional_positions, endpoint).map(raw => {

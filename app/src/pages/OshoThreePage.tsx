@@ -397,11 +397,11 @@ export default function OshoThreePage() {
             {gate.phase === 'login_gate' && (
               <div className="bg-slate-800/60 backdrop-blur-sm border-2 border-teal-500/30 rounded-xl p-8 text-center space-y-5">
                 <Lock className="w-10 h-10 text-teal-400 mx-auto" strokeWidth={1.2} />
-                <h3 className="font-serif text-2xl text-teal-100">{isEnglish ? 'Sign in for free single-card readings and 3 free multi-card readings' : '登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次'}</h3>
+                <h3 className="font-serif text-2xl text-teal-100">{isEnglish ? 'Sign in for free single-card readings and 7 free multi-card readings' : '登入後單張牌陣無限次免費，多張牌陣免費體驗 7 次'}</h3>
                 <p className="text-sm text-teal-300/80 leading-loose max-w-md mx-auto">
                   {isEnglish
-                    ? 'Use your three free readings across all decks. Each completed spread uses one reading.'
-                    : '登入後七種牌組的單張牌陣無限次免費，不扣額度；多張牌陣可跨牌組免費體驗 3 次。'}
+                    ? 'Use your seven free readings across all decks. Each completed spread uses one reading.'
+                    : '登入後七種牌組的單張牌陣無限次免費，不扣額度；多張牌陣可跨牌組免費體驗 7 次。'}
                 </p>
                 <InlineEmailUnlock
                   onUnlocked={(email) => { void handleEmailUnlock(email); }}

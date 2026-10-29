@@ -8,6 +8,7 @@ import {
   unlockSingleCard,
 } from './cards';
 import { computeEcpayCheckMac, SPREAD_CATALOG } from './ecpay';
+import { verifiedAnnualPayment } from './vedicAnnualPayment';
 import { checkoutResult, createOrder, getOrder } from './checkout';
 import {
   cancelMyMembership,
@@ -66,6 +67,7 @@ import {
 } from './humanDesignShareResults';
 import { googleAuthConfig, googleSignin } from './googleAuth';
 import { routeMayaPayment } from './mayaPayments';
+import { routeVedicAnnual } from './vedicAnnual';
 import {
   adminGetMember,
   adminListMembers,
@@ -142,6 +144,7 @@ export default {
     }
 
     try {
+      if (path.startsWith('/api/vedic-astrology/annual/')) return await routeVedicAnnual(req, env);
       if (path.startsWith('/api/maya/payments/')) return await routeMayaPayment(req, env, true);
       if (path === '/api/maya/checkout' || path.startsWith('/api/maya/checkout/')) {
         return await routeMayaPayment(req, env, env.MAYA_PAYMENT_ENABLED === 'true');
@@ -1309,6 +1312,7 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
   if (order?.item_type === 'maya_sandbox' || order?.item_type === 'maya' || order?.item_type === 'maya_admin') {
     return new Response('0|Use the matching Maya payment callback', { status: 400 });
   }
+  if(order?.item_id==='vedic_annual')return verifiedAnnualPayment(env,params,order.id);
 
   if (!order) {
     const tradeDate = parseEcpayDate(params.MerchantTradeDate);

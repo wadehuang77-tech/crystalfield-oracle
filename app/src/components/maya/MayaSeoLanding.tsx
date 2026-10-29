@@ -47,6 +47,9 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
           : ['認識你的 KIN、太陽圖騰與銀河音調。', '探索天賦與生命方向，將覺察化為日常行動。', '從不同視角理解彼此，練習溝通與共同成長。'])[i]}</p>
       </article>)}
     </section>
+        <section className={panel} id="maya-free-life-gifts"><h3 className="text-lg font-semibold">{en ? basic.en : basic.zh} · {en ? 'Free' : '免費'}</h3>
+          <p className="mt-2">{en ? 'Three topics: life gifts, potential strengths and growth questions.' : '三項解讀：生命天賦、潛在優勢、成長課題。'}</p>
+          <Link className={`${cta} mt-4`} to={`${member}#MAYA_BASIC_199`}>{en ? 'View Free Life Gifts' : '免費查看個人生命天賦報告'} · {en ? 'Free' : '免費'}</Link></section>
     {configError && <p role="alert">{configError}</p>}
     <div id="free-kin" className="scroll-mt-6">
       <MayaVisualization locale={locale} publicPage showMatrixGrid={false} enabled={!configLoading && features.public} viewerId={viewerId} />
@@ -65,9 +68,7 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
       <p className="mb-4">{en ? 'For a closer look at strengths, learning patterns and everyday interactions, choose a written reflection report after exploring the free signature.'
         : '想進一步整理天賦、學習方式與日常互動，可以先試用免費印記查詢，再依自我探索需求選擇文字解讀。'}</p>
       <div className="mb-5 grid gap-4 sm:grid-cols-2">
-        <article><h3 className="text-lg font-semibold">{en ? basic.en : basic.zh} · NT${basic.price}</h3>
-          <p className="mt-2">{en ? 'Three topics: life gifts, potential strengths and growth questions.' : '三項解讀：生命天賦、潛在優勢、成長課題。'}</p>
-          <Link className={`${cta} mt-4`} to={`${member}#MAYA_BASIC_199`}>{en ? 'Unlock Life Gifts' : '解鎖個人生命天賦報告'} · NT${basic.price}</Link></article>
+
         <article><h3 className="text-lg font-semibold">{en ? full.en : full.zh} · NT${full.price}</h3>
           <p className="mt-2">{en ? 'Seven topics: the three personal topics, plus wavespell and castle index explanations, career and creativity, daily practice and relationship reflection.'
             : '七項解讀：包含前三項，另有波符與城堡編號說明、事業與創造力、每日實踐、關係互動。'}</p>

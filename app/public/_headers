@@ -102,3 +102,11 @@
   X-Robots-Tag: noindex, nofollow
 /en/payment/*
   X-Robots-Tag: noindex, nofollow
+/vedic-astrology/annual
+  X-Robots-Tag: noindex, nofollow
+/vedic-astrology/annual/
+  X-Robots-Tag: noindex, nofollow
+/en/vedic-astrology/annual
+  X-Robots-Tag: noindex, nofollow
+/en/vedic-astrology/annual/
+  X-Robots-Tag: noindex, nofollow

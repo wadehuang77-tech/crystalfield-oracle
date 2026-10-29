@@ -17,14 +17,14 @@ async function main() {
   } } } as unknown as Env;
   const singles = Object.values(TAROT_SPREADS).filter(s => s.card_count === 1);
   assert.equal(singles.length, 7);
-  for (const used of [0, 1, 2, 3]) {
+  for (const used of [0, 3, 6, 7]) {
     quotaUsed = used;
     for (const spread of singles) {
       for (let attempt = 0; attempt < 5; attempt++) {
         const access = await authorizeTarotSpread(env, 'member', spread.id, crypto.randomUUID());
         assert.equal(access.allowed, true);
         assert.equal(access.source, 'free');
-        assert.equal(access.entitlement.free_readings_remaining, 3 - used);
+        assert.equal(access.entitlement.free_readings_remaining, 7 - used);
       }
       const guest = await freeUnlockSingle(new Request('https://test/api/cards/free-unlock-single', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },

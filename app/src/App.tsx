@@ -1,3 +1,4 @@
+import { TarotEntryGate } from './components/TarotEntryGate';
 import NumerologyArticlePage from './pages/NumerologyArticlePage';
 import { numerologyArticles, type NumerologySlug } from './lib/numerologySeo';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
@@ -39,6 +40,7 @@ import MayaProPage from './pages/MayaProPage';
 import MayaRelationshipPage from './pages/MayaRelationshipPage';
 import PrivacyPage from './pages/PrivacyPage';
 import VedicAstrologyPage from './pages/VedicAstrologyPage';
+import VedicAnnualPage from './pages/VedicAnnualPage';
 import VedicAstrologyArticlePage from './pages/VedicAstrologyArticlePage';
 import AdminVedicReviewsPage from './pages/AdminVedicReviewsPage';
 import AdminTarotSubscriptionsPage from './pages/AdminTarotSubscriptionsPage';
@@ -73,19 +75,19 @@ const routeConfig = [
   { path: '/admin/members', element: <ProtectedRoute><AdminMembersPage /></ProtectedRoute> },
   { path: '/admin/tarot-subscriptions', element: <ProtectedRoute><AdminTarotSubscriptionsPage /></ProtectedRoute> },
   { path: '/admin/vedic-reviews', element: <ProtectedRoute><AdminVedicReviewsPage /></ProtectedRoute> },
-  { path: '/tarot', element: <TarotPage /> },
-  { path: '/tarot-single', element: <TarotSinglePage /> },
-  { path: '/lightworker', element: <LightworkerPage /> },
-  { path: '/lightworker/celtic-cross', element: <LightworkerCelticCrossPage /> },
-  { path: '/unicorns', element: <UnicornsPage /> },
-  { path: '/dragons', element: <DragonsPage /> },
-  { path: '/egyptian-gods', element: <EgyptianGodsPage /> },
-  { path: '/work-your-light', element: <WorkYourLightPage /> },
-  { path: '/work-your-light-single', element: <WorkYourLightSinglePage /> },
-  { path: '/cosmic-cross', element: <CosmicCrossPage /> },
-  { path: '/osho', element: <OshoPage /> },
-  { path: '/osho/single', element: <OshoSinglePage /> },
-  { path: '/osho/three', element: <OshoThreePage /> },
+  { path: '/tarot', element: <TarotEntryGate><TarotPage /></TarotEntryGate> },
+  { path: '/tarot-single', element: <TarotEntryGate><TarotSinglePage /></TarotEntryGate> },
+  { path: '/lightworker', element: <TarotEntryGate><LightworkerPage /></TarotEntryGate> },
+  { path: '/lightworker/celtic-cross', element: <TarotEntryGate><LightworkerCelticCrossPage /></TarotEntryGate> },
+  { path: '/unicorns', element: <TarotEntryGate><UnicornsPage /></TarotEntryGate> },
+  { path: '/dragons', element: <TarotEntryGate><DragonsPage /></TarotEntryGate> },
+  { path: '/egyptian-gods', element: <TarotEntryGate><EgyptianGodsPage /></TarotEntryGate> },
+  { path: '/work-your-light', element: <TarotEntryGate><WorkYourLightPage /></TarotEntryGate> },
+  { path: '/work-your-light-single', element: <TarotEntryGate><WorkYourLightSinglePage /></TarotEntryGate> },
+  { path: '/cosmic-cross', element: <TarotEntryGate><CosmicCrossPage /></TarotEntryGate> },
+  { path: '/osho', element: <TarotEntryGate><OshoPage /></TarotEntryGate> },
+  { path: '/osho/single', element: <TarotEntryGate><OshoSinglePage /></TarotEntryGate> },
+  { path: '/osho/three', element: <TarotEntryGate><OshoThreePage /></TarotEntryGate> },
   { path: '/checkout/return', element: <CheckoutReturnPage /> },
   { path: '/membership', element: <ProtectedRoute><MembershipPage /></ProtectedRoute> },
   { path: '/numerology', element: <NumerologyPage /> },
@@ -104,6 +106,7 @@ const routeConfig = [
   { path: '/vedic-astrology/vedic-vs-western', element: <VedicAstrologyArticlePage slug="vedic-vs-western" /> },
   { path: '/vedic-astrology/rahu-ketu', element: <VedicAstrologyArticlePage slug="rahu-ketu" /> },
   { path: '/vedic-astrology/dasha', element: <VedicAstrologyArticlePage slug="dasha" /> },
+  { path: '/vedic-astrology/annual', element: <VedicAnnualPage /> },
   { path: '/vedic-astrology/nakshatra', element: <VedicAstrologyArticlePage slug="nakshatra" /> },
   { path: '/vedic-astrology/d9-navamsa', element: <VedicAstrologyArticlePage slug="d9-navamsa" /> },
   { path: '/vedic-astrology/d10-dasamsa', element: <VedicAstrologyArticlePage slug="d10-dasamsa" /> },

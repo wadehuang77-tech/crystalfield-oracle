@@ -1,6 +1,11 @@
 import { verifyJwt } from './auth';
 
 export interface Env {
+  VEDIC_ANNUAL_TRANSITS_ENABLED?: string;
+  VEDIC_ANNUAL_PRICE_TWD?: string;
+  VEDIC_ANNUAL_PAYMENT_ENABLED?: string;
+  VEDIC_ANNUAL_GENERATION_ENABLED?: string;
+  VEDIC_ANNUAL_REPORT_WORKFLOW?: Workflow<import('./vedicAnnualReport').AnnualJobInput>;
   MAYA_ANNUAL_ENABLED?: string;
   MAYA_PRO_LOCAL_ENABLED?: string;
   MAYA_PRO_PAYMENT_ENABLED?: string;

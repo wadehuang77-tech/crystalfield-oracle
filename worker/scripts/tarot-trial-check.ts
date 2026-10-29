@@ -22,9 +22,10 @@ const entitlementSource = readFileSync('src/tarotEntitlements.ts', 'utf8');
 const cardsSource = readFileSync('src/cards.ts', 'utf8');
 
 check(TAROT_DECK_CATALOG.length === 7 && Object.keys(TAROT_SPREADS).length === 16, 'quota applies across all 7 decks and 16 spreads');
-check(deriveTarotEntitlement(null, 0, now).free_readings_remaining === 3, 'new accounts receive three free readings');
-check(deriveTarotEntitlement(null, 2, now).free_readings_remaining === 1, 'free readings are shared account-wide');
-check(deriveTarotEntitlement(null, 3, now).status === 'expired', 'fourth reading requires a subscription');
+check(deriveTarotEntitlement(null, 0, now).free_readings_remaining === 7, 'new accounts receive seven free readings');
+check(deriveTarotEntitlement(null, 6, now).free_readings_remaining === 1, 'free readings are shared account-wide');
+check(deriveTarotEntitlement(null, 7, now).status === 'expired', 'eighth reading requires a subscription');
+check(deriveTarotEntitlement(null, 3, now).free_readings_remaining === 4, 'existing usage is preserved when raising the quota');
 const paidTierOne = deriveTarotEntitlement({
   plan_code: 'tarot_three_monthly_600',
   status: 'active',

@@ -58,6 +58,10 @@ database_id = "7e74927a-0213-4ad5-bd4a-87cf4ea5c1a7"
 # 環境變數(非敏感)
 [vars]
 ENV = "production"
+VEDIC_ANNUAL_PRICE_TWD = "599"
+VEDIC_ANNUAL_PAYMENT_ENABLED = "true"
+VEDIC_ANNUAL_GENERATION_ENABLED = "true"
+VEDIC_ANNUAL_TRANSITS_ENABLED = "true"
 ECPAY_ENV = "production"
 MAYA_PAYMENT_API_ORIGIN = "https://api.crystalfield101.com"
 MAYA_PAYMENT_FRONTEND_ORIGIN = "https://www.crystalfield101.com"
@@ -97,3 +101,13 @@ namespace_id = "101196809"
 name = "vedic-report-generation"
 binding = "VEDIC_REPORT_WORKFLOW"
 class_name = "VedicReportWorkflow"
+
+[[workflows]]
+name = "vedic-annual-collection"
+binding = "VEDIC_ANNUAL_COLLECTION_WORKFLOW"
+class_name = "VedicAnnualCollectionWorkflow"
+
+[[workflows]]
+name = "vedic-annual-report"
+binding = "VEDIC_ANNUAL_REPORT_WORKFLOW"
+class_name = "VedicAnnualReportWorkflow"

@@ -253,34 +253,6 @@ export default function HumanDesignPage() {
     return false;
   };
 
-  const startBasicCheckout = async () => {
-    if (!chart || checkoutLoading) return;
-    if (!requireCheckoutLogin()) return;
-    markCheckoutReturn('basic');
-    persistState({ chart, chartId, birthData, access, email });
-    setCheckoutLoading(true);
-    try {
-      const { ecpay, admin_unlocked, order_id, order_token } = await checkoutApi.createOrder(
-        'human_design_basic',
-        undefined,
-        email ? { guest_email: email } : undefined,
-      );
-      saveHumanDesignShareProof(order_id, order_token);
-      if (admin_unlocked) {
-        clearCheckoutReturn();
-        setAccess('basic');
-        persistState({ chart, chartId, birthData, access: 'basic', email });
-        setCheckoutLoading(false);
-        return;
-      }
-      if (ecpay) submitToEcpay(ecpay, () => setCheckoutLoading(false));
-      else setCheckoutLoading(false);
-    } catch (err) {
-      console.error('human design basic checkout failed:', err);
-      setCheckoutLoading(false);
-    }
-  };
-
   const startFullCheckout = async () => {
     if (!chart || checkoutLoading) return;
     if (!requireCheckoutLogin()) return;
@@ -468,7 +440,6 @@ export default function HumanDesignPage() {
               access={effectiveAccess}
               checkoutLoading={checkoutLoading}
               isFullUnlocked={isFullUnlocked}
-              onStartBasicCheckout={startBasicCheckout}
               onStartFullCheckout={startFullCheckout}
               onStartBundleCheckout={startBundleCheckout}
               onEnsureChartSaved={ensureChartSaved}

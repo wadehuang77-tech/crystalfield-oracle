@@ -142,7 +142,7 @@ export default function NumerologyPage() {
   }, [authLoading, user]);
 
   // ── Derive unlock flags from tier ───────────────────────────────
-  const crystalUnlocked = localTier >= 1;
+
   const oracleUnlocked = paidContentTier >= 2;
   const forecastUnlocked = forecastCheckoutUnlocked;
 
@@ -389,29 +389,7 @@ export default function NumerologyPage() {
     await startNumerologyCheckout(NUMEROLOGY_FORECAST_SKU, 'forecast');
   };
 
-  const basicFeatures = [
-    ...(language === 'en'
-      ? ['Full missing-number analysis', 'Crystal reflection prompts', 'Missing-number themes', 'Optional crystal associations']
-      : ['缺失數字完整分析', '高頻水晶療癒方案', '缺失能量盲點解析', '水晶配方與療癒建議']),
-  ];
-  const basicLockedFeatures = [
-    ...(language === 'en'
-      ? ['Oracle and numerology reflection', 'Optional crystal arrangement', 'Full personal-year report', 'Crystal associations']
-      : ['靈魂藍圖 × 當下能量交叉指引', '神聖水晶陣指引', '完整流年報告', '專屬水晶手串推薦']),
-  ];
   const unlockPlans: UnlockPlan[] = [
-    ...(!crystalUnlocked ? [{
-      key: 'basic',
-      title: language === 'en' ? 'Basic plan' : '基礎版',
-      desc: language === 'en' ? 'Missing-number reflection and crystals' : '缺失數字 × 水晶療癒方案',
-      color: '#5eead4',
-      icon: <Sparkles className="w-3 h-3" />,
-      priceLabel: 'NT$199',
-      features: basicFeatures,
-      lockedFeatures: basicLockedFeatures,
-      buttonLabel: language === 'en' ? 'Unlock Basic · NT$199' : '立即解鎖 基礎版 NT$199',
-      onClick: () => handleTierCheckout(1, 'crystal'),
-    }] : []),
     ...(!forecastUnlocked ? [{
       key: 'forecast',
       title: language === 'en' ? 'Personal Year' : '完整流年',
@@ -734,8 +712,6 @@ export default function NumerologyPage() {
                 onReset={handleReset}
                 tier={paidContentTier}
                 onUpgrade={handleUpgrade}
-                crystalUnlocked={crystalUnlocked}
-                onCrystalUnlock={() => handleTierCheckout(1, 'crystal')}
                 forecastUnlocked={forecastUnlocked}
                 onForecastUnlock={handleForecastUnlock}
                 oracleUnlocked={oracleUnlocked}

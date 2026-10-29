@@ -292,18 +292,20 @@ export async function routeMayaApi(req: Request, env: Env): Promise<Response> {
         SELECT r.id, r.locale, r.report_type AS product_code, r.report_status, r.created_at, o.status AS payment_status
         FROM maya_reports r JOIN orders o ON o.id = r.order_id WHERE r.user_id = ? ORDER BY r.created_at DESC LIMIT 100
       `).bind(user.id).all();
-      const adminRows = await mayaAdminLive(req, env, user) ? (await env.DB.prepare(`
+      const adminAccess = await mayaAdminLive(req, env, user);
+      const adminRows = (await env.DB.prepare(`
         SELECT id,locale,report_type AS product_code,report_status,created_at,'complimentary' AS payment_status
-        FROM maya_admin_reports WHERE user_id=? ORDER BY created_at DESC LIMIT 100
-      `).bind(user.id).all()).results : [];
+        FROM maya_admin_reports WHERE user_id=? AND (? = 1 OR report_type = 'MAYA_BASIC_199') ORDER BY created_at DESC LIMIT 100
+      `).bind(user.id, adminAccess ? 1 : 0).all()).results;
       return respond({ reports: [...rows.results, ...adminRows].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 100) });
     }
     const reportMatch = path.match(/^\/api\/maya\/reports\/([a-zA-Z0-9_-]{1,80})$/);
     if (reportMatch && req.method === 'GET') {
       let row = await env.DB.prepare('SELECT * FROM maya_reports WHERE id = ? AND user_id = ?').bind(reportMatch[1], user.id).first<ReportRow>();
       let table: 'maya_reports' | 'maya_admin_reports' = 'maya_reports';
-      if (!row && await mayaAdminLive(req, env, user)) {
+      if (!row) {
         row = await env.DB.prepare('SELECT * FROM maya_admin_reports WHERE id=? AND user_id=?').bind(reportMatch[1], user.id).first<ReportRow>();
+        if (row && row.report_type !== 'MAYA_BASIC_199' && !await mayaAdminLive(req, env, user)) throw new MayaError(403, 'PAYMENT_REQUIRED');
         table = 'maya_admin_reports';
       }
       if (!row) throw new MayaError(404, 'NOT_FOUND');
@@ -318,15 +320,18 @@ export async function routeMayaApi(req: Request, env: Env): Promise<Response> {
       return respond({ id: row.id, status: row.report_status, report: storedReport(row) });
     }
     if ((path === '/api/maya/reports' || path === '/api/maya/admin-reports') && req.method === 'POST') {
-      const admin = path === '/api/maya/admin-reports';
-      if (admin && !await mayaAdminLive(req, env, user)) throw new MayaError(403, 'PAYMENT_REQUIRED');
-      const table = admin ? 'maya_admin_reports' : 'maya_reports';
+      const requestedAdmin = path === '/api/maya/admin-reports';
+      if (requestedAdmin && !await mayaAdminLive(req, env, user)) throw new MayaError(403, 'PAYMENT_REQUIRED');
       const provider = mayaAiMode(env);
       const body = object(await readBody(req, 4096));
       onlyKeys(body, ['locale', 'product_code', 'profile_id', 'relationship_profile_id', 'idempotency_key', 'entitlement_id']);
       locale = localeOf(body.locale);
       if (!isMayaProduct(body.product_code)) throw new MayaError(400, 'INVALID_INPUT');
       const product = body.product_code;
+      // Reuse complimentary storage, restricted to this free product only.
+      const free = product === 'MAYA_BASIC_199';
+      const admin = requestedAdmin || free;
+      const table = admin ? 'maya_admin_reports' : 'maya_reports';
       const profile = await profileFor(env, user.id, idOf(body.profile_id));
       if (profile.role !== 'personal') throw new MayaError(400, 'INVALID_INPUT');
       const partner = product === 'MAYA_RELATIONSHIP_699'
@@ -335,7 +340,7 @@ export async function routeMayaApi(req: Request, env: Env): Promise<Response> {
       const key = idOf(body.idempotency_key);
       const expected = mockMayaReport(mayaForDate(profile.birth_date, locale), partner ? mayaForDate(partner.birth_date, locale) : null, locale, product);
       const template = provider === 'live' ? liveReportTemplate(expected) : expected;
-      if (admin && body.entitlement_id !== undefined) throw new MayaError(400, 'INVALID_INPUT');
+      if (requestedAdmin && body.entitlement_id !== undefined) throw new MayaError(400, 'INVALID_INPUT');
       const grant = admin ? `admin-${Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(
         JSON.stringify([user.id, profile.id, profile.birth_date, partner?.id ?? null, partner?.birth_date ?? null, template]),
       )))).map(byte => byte.toString(16).padStart(2, '0')).join('')}` : '';
@@ -343,7 +348,7 @@ export async function routeMayaApi(req: Request, env: Env): Promise<Response> {
       const authorize = async () => {
         if (!admin) return entitlement(env, user.id, product, access.id);
         const current = await readSession(req, env, true);
-        if (!current || current.id !== user.id || !await mayaAdminLive(req, env, current)) throw new MayaError(403, 'PAYMENT_REQUIRED');
+        if (!current || current.id !== user.id || (!free && !await mayaAdminLive(req, env, current))) throw new MayaError(403, 'PAYMENT_REQUIRED');
         const order = await env.DB.prepare("SELECT id FROM orders WHERE id=? AND user_id=? AND item_type='maya_admin' AND item_id=? AND amount=0 AND status='complimentary'")
           .bind(access.order_id, user.id, product).first();
         if (!order) throw new MayaError(403, 'PAYMENT_REQUIRED');

@@ -14,7 +14,7 @@ interface ReportPageProps {
   access?: 'locked' | 'email' | 'basic' | 'full' | 'bundle';
   checkoutLoading?: boolean;
   isFullUnlocked?: boolean;
-  onStartBasicCheckout?: () => void;
+
   onStartFullCheckout?: () => void;
   onStartBundleCheckout?: () => void;
   onEnsureChartSaved?: () => Promise<boolean>;
@@ -394,10 +394,10 @@ export default function ReportPage({
   language,
   chart,
   chartId = '',
-  access = 'email',
+
   checkoutLoading = false,
   isFullUnlocked = false,
-  onStartBasicCheckout,
+
   onStartFullCheckout,
   onStartBundleCheckout,
   onEnsureChartSaved,
@@ -410,7 +410,8 @@ export default function ReportPage({
   const [fullReportError, setFullReportError] = useState('');
   const [reportVersion, setReportVersion] = useState('');
   const fullReportRef = useRef<HTMLDivElement>(null);
-  const basicUnlocked = access === 'basic' || access === 'bundle';
+  // Core analysis is free; full AI reports retain their existing paid access.
+  const basicUnlocked = true;
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
@@ -584,7 +585,7 @@ export default function ReportPage({
                 index={i}
                 locked={!basicUnlocked && s.id !== 'type'}
                 checkoutLoading={checkoutLoading}
-                onUnlock={onStartBasicCheckout}
+
               />
             ))}
           </div>

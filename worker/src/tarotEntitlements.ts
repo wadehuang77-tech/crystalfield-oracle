@@ -2,7 +2,7 @@ import { getMembershipSummary } from './subscriptions';
 import { isTarotSubscriptionPlan, tarotSubscriptionPlan, tarotTierForSpread, TAROT_SPREADS } from './tarotCatalog';
 import { Env, forbidden, json, readSession, unauthorized } from './utils';
 
-export const TAROT_FREE_READING_LIMIT = 3;
+export const TAROT_FREE_READING_LIMIT = 7;
 
 export type TarotEntitlementStatus =
   | 'login_required'
@@ -172,7 +172,7 @@ export async function getMyTarotEntitlement(req: Request, env: Env): Promise<Res
 export async function startMyTarotTrial(req: Request, env: Env): Promise<Response> {
   void env;
   if (!await readSession(req, env)) return unauthorized(req, env, '請先登入');
-  return forbidden(req, env, '塔羅已改為 3 次免費占卜，無須啟用試用');
+  return forbidden(req, env, '塔羅已改為 7 次免費占卜，無須啟用試用');
 }
 
 export function tarotAccessDenied(req: Request, env: Env, entitlement: TarotEntitlement): Response {

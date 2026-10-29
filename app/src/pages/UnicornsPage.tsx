@@ -443,9 +443,9 @@ export default function UnicornsPage() {
                       {threeGate.phase === 'login_gate' && (
                         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md border-2 border-pink-500/30 rounded-2xl p-6 text-center space-y-5">
                           <Lock className="w-10 h-10 text-pink-400 mx-auto" strokeWidth={1.2} />
-                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">{language === 'en' ? 'Unlimited Free Single-Card Readings After Signing In' : '登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次'}</h3>
+                          <h3 className="font-serif text-2xl text-pink-100 tracking-[0.2em]">{language === 'en' ? 'Unlimited Free Single-Card Readings After Signing In' : '登入後單張牌陣無限次免費，多張牌陣免費體驗 7 次'}</h3>
                           <p className="text-sm text-pink-300/85 leading-loose max-w-md mx-auto">
-                            {language === 'en' ? 'Sign in for unlimited free single-card readings across all seven decks. Multi-card spreads include three free readings.' : '登入後七種牌組的單張牌陣無限次免費，不扣額度；多張牌陣可跨牌組免費體驗 3 次。'}
+                            {language === 'en' ? 'Sign in for unlimited free single-card readings across all seven decks. Multi-card spreads include seven free readings.' : '登入後七種牌組的單張牌陣無限次免費，不扣額度；多張牌陣可跨牌組免費體驗 7 次。'}
                           </p>
                           <InlineEmailUnlock
                             onUnlocked={(email) => { void handleThreeEmailSubmitted(email); }}
@@ -538,7 +538,7 @@ export default function UnicornsPage() {
                               </div>
                             )}
                             <p className="mt-4 text-xs text-pink-400/70 tracking-wide">
-                              前 30% 預覽 — 登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次
+                              前 30% 預覽 — 登入後單張牌陣無限次免費，多張牌陣免費體驗 7 次
                             </p>
                           </div>
                           {singleGate.phase === 'loading' && (
@@ -714,7 +714,7 @@ export default function UnicornsPage() {
                         </div>
                       )}
                       <p className="mt-3 text-xs text-pink-400/70 tracking-wide">
-                        前 30% 預覽 — 登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次
+                        前 30% 預覽 — 登入後單張牌陣無限次免費，多張牌陣免費體驗 7 次
                       </p>
                     </div>
                     <InlineEmailUnlock

@@ -253,7 +253,7 @@ function WorkYourLightSinglePage() {
                               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-950/95 pointer-events-none rounded-b-lg"></div>
                             </div>
                           )}
-                          <p className="text-violet-200/60 text-xs mt-3">{text('前 30% 預覽，登入後單張牌陣無限次免費，多張牌陣免費體驗 3 次', 'Previewing the first 30%. Sign in for free single-card readings and 3 free multi-card readings.')}</p>
+                          <p className="text-violet-200/60 text-xs mt-3">{text('前 30% 預覽，登入後單張牌陣無限次免費，多張牌陣免費體驗 7 次', 'Previewing the first 30%. Sign in for free single-card readings and 7 free multi-card readings.')}</p>
                         </div>
                         <InlineEmailUnlock
                           onUnlocked={handleUnlocked}

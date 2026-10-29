@@ -1,4 +1,19 @@
 import { trackBeginCheckout, trackUnlockClick } from './ga4';
+import type { AnnualTransitState,VedicAnnualConfig, VedicAnnualPreview } from './vedicAnnual';
+
+export const vedicAnnualApi = {
+  report: (id:string,language:string,signal?:AbortSignal) => req<import('./vedicAnnual').AnnualReportState>(`/api/vedic-astrology/annual/reports/${encodeURIComponent(id)}`,{query:{language},signal}),
+  generate: (id:string,language:string) => req<import('./vedicAnnual').AnnualReportState>(`/api/vedic-astrology/annual/reports/${encodeURIComponent(id)}/generate`,{method:'POST',query:{language},body:{}}),
+  checkout: (id:string,language:string) => req<{already_paid?:boolean;order_id?:string;amount?:number;ecpay?:{endpoint:string;fields:Record<string,string>}}>(`/api/vedic-astrology/annual/reports/${encodeURIComponent(id)}/checkout`,{method:'POST',query:{language},body:{}}),
+  transits: (id:string,language:string,signal?:AbortSignal) => req<AnnualTransitState>(`/api/vedic-astrology/annual/transits/${encodeURIComponent(id)}`,{query:{language},signal}),
+  collectTransits: (id:string,language:string) => req<AnnualTransitState>(`/api/vedic-astrology/annual/transits/${encodeURIComponent(id)}`,{method:'POST',query:{language},body:{}}),
+  config: () => req<VedicAnnualConfig>('/api/vedic-astrology/annual/config'),
+  charts: (signal?:AbortSignal) => req<{charts:Array<{id:string;birth:{date:string;time:string;location:string;timezone:string};provider:string;createdAt:string}>}>('/api/vedic-astrology/annual/charts',{signal}),
+  claim: (chart_id:string,chart_token:string) => req<{chartId:string}>('/api/vedic-astrology/annual/claim-chart',{method:'POST',body:{chart_id,chart_token}}),
+  prepare: (chart_id:string,year:number,language:string) => req<VedicAnnualPreview>('/api/vedic-astrology/annual/previews',{method:'POST',query:{language},body:{chart_id,year}}),
+  previews: (language:string,signal?:AbortSignal) => req<{previews:VedicAnnualPreview[]}>('/api/vedic-astrology/annual/previews',{query:{language},signal}),
+  preview: (id:string,language:string,signal?:AbortSignal) => req<VedicAnnualPreview>(`/api/vedic-astrology/annual/previews/${encodeURIComponent(id)}`,{query:{language},signal}),
+};
 import { getCheckoutLocaleFromPath } from './i18n';
 import type { MayaDaily, MayaLocale, MayaProductCode, MayaProfile, MayaReport, MayaReportEntry, MayaFeatures } from './maya';
 import type { MayaCheckoutForm } from './mayaCheckout';
@@ -638,7 +653,7 @@ export interface VedicChartResponse {
 }
 
 export const vedicAstrologyApi = {
-  getBasicReading: (body: { chart_id: string; order_id: string }) =>
+  getBasicReading: (body: { chart_id: string; order_id?: string }) =>
     req<{ chart_id: string; results: VedicFreeResults }>('/api/vedic-astrology/basic-reading', {
       method: 'POST', body: { ...body, language: activeContentLanguage() },
     }),
