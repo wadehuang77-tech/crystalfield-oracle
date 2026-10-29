@@ -1,5 +1,6 @@
+import VedicAnnualOffer from '../components/VedicAnnualOffer';
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
   CircleDollarSign,
@@ -426,10 +427,6 @@ export default function VedicAstrologyPage() {
         </section>
 
         {reportLoading && !reportProgress && <p role="status" className="mt-6 text-center text-violet-100">{language === 'en' ? 'Retrieving your authorized reading…' : '正在取得已解鎖解析…'}</p>}
-        <div className="mx-auto mt-6 max-w-4xl rounded-2xl border border-amber-300/25 bg-slate-950/70 p-5 text-center">
-          <Link className="inline-flex min-h-12 items-center text-lg font-semibold text-amber-200 underline" to={`${language==='en'?'/en':''}/vedic-astrology/annual${chart?`?chart_id=${encodeURIComponent(chart.chart_id)}`:''}`}>{language==='en'?'Vedic Annual Outlook':'印度占星流年運勢'}</Link>
-          <p className="mt-2 text-violet-100">{language==='en'?'Annual outlook NT$599: reuse your saved birth chart and choose a year to explore Dasha periods, annual transits and ten personalized chapters.':'流年運勢 NT$599：沿用已儲存出生盤，選擇年份，探索大運、全年行運與十章個人化解讀。'}</p>
-        </div>
         {reportError && <div role="alert" className="mx-auto mt-6 max-w-5xl rounded-xl border border-rose-300/30 p-5 text-rose-100"><p>{reportError}</p><button type="button" onClick={() => setProgressRefresh(value => value + 1)} className="mt-3 rounded-lg border border-white/20 px-4 py-2">{language === 'en' ? 'Retrieve saved progress' : '重新取得已保存進度'}</button></div>}
         {visibleProgress && <VedicProgressiveReport progress={visibleProgress} language={language} onRetry={(section, key) => void retrySection(section, key)} retrying={retryingSection} reconnecting={progressReconnecting} />}
 
@@ -479,8 +476,9 @@ export default function VedicAstrologyPage() {
           </div>
           <FreeResults chart={chart} language={language} basicResults={basicReading?.context === visibleReportContext ? basicReading.results : null} onUnlock={() => setBasicRetry(value => value + 1)} disabled={!!checkoutLoading || authLoading || reportLoading} />
           <VedicChartCore chart={chart.chart} language={language} />
-          <Link className="mt-5 inline-flex min-h-12 items-center rounded-xl border border-amber-300/40 px-5 py-3 text-amber-100" to={`${language==='en'?'/en':''}/vedic-astrology/annual?chart_id=${encodeURIComponent(chart.chart_id)}`}>{language==='en'?'Use this chart for Vedic Annual Outlook':'以這份出生盤查看印度占星流年運勢'}</Link>
         </>}
+
+        <VedicAnnualOffer language={language} chartId={chart?.chart_id} />
 
         {chart && (
           <section className="mt-20" aria-labelledby="vedic-deep-heading">

@@ -1,3 +1,4 @@
+import { TarotAccountLogin } from './TarotAccountLogin';
 import type { ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { TarotWelcome } from './TarotWelcome';
@@ -10,5 +11,6 @@ export function TarotEntryGate({ children }: { children: ReactNode }) {
     <h1 className="mb-6 text-3xl font-bold text-slate-100">塔羅與神諭卡 · Tarot & Oracle</h1>
     {loading && <p className="mb-4 text-slate-100" role="status">登入狀態確認中 / Checking sign-in…</p>}
     <TarotWelcome />
+    {!loading && <TarotAccountLogin />}
   </main>;
 }

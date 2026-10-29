@@ -102,7 +102,7 @@ export default function VedicAnnualPage(){
       <p className="mt-4">{t('每份方案對應固定出生資料與一個指定年份，中英文共用購買權限。請先選擇並保存年度資料，即可查看解鎖／生成入口。','Each purchase covers a fixed birth profile and one calendar year, with shared Chinese/English access. Select and save annual facts above to view unlock and generation options.')}</p>
       <p className="mt-3">{t('行運資料核實後，完整報告將依序顯示：讀取出生資料 → 計算大運與行運 → 整理年度主題 → 生成解讀 → 儲存報告。','Once transit data is verified, report stages will be: read birth data → calculate Dasha and transits → organize themes → generate interpretation → save report.')}</p>
     </section>
-    {!!user&&saved.length>0&&<section className={panel}><h2 className="text-2xl">{t('已保存的年度資料','Saved annual data')}</h2><ul className="mt-4 space-y-3">{saved.map(s=><li key={s.id}><Link className="break-words text-amber-200 underline" to={`${location.pathname}?case_id=${encodeURIComponent(s.id)}`}>{s.facts.birth.date} · {s.facts.year} · {t('查看資料與時間軸','View facts and timeline')}</Link></li>)}</ul></section>}
+    {!!user&&saved.length>0&&<section id="saved-annual-reports" className={`${panel} scroll-mt-20`}><h2 className="text-2xl">{t('已保存的年度資料','Saved annual data')}</h2><ul className="mt-4 space-y-3">{saved.map(s=><li key={s.id}><Link className="break-words text-amber-200 underline" to={`${location.pathname}?case_id=${encodeURIComponent(s.id)}`}>{s.facts.birth.date} · {s.facts.year} · {t('查看資料與時間軸','View facts and timeline')}</Link></li>)}</ul></section>}
   </main>;
 }
 function formatDate(value:string,timezone:string,en:boolean){return new Intl.DateTimeFormat(en?'en-GB':'zh-TW',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}

@@ -1,26 +1,19 @@
-import { useState } from 'react';
+import { TarotAccountLogin } from './TarotAccountLogin';
 import { useLocation } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { GoogleSignInButton } from './GoogleSignInButton';
+
 import { getLanguageFromPath } from '../lib/i18n';
-import { localizeAuthError } from '../lib/authLocale';
+
 
 export function TarotLoginGate({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
-  const { loading, signInWithGoogle } = useAuth();
+  const { loading } = useAuth();
   const { pathname } = useLocation();
   const language = getLanguageFromPath(pathname);
   const isEnglish = language === 'en';
-  const [error, setError] = useState('');
+
 
   if (loading) return null;
-
-  const googleSignIn = async (credential: string, csrfToken: string) => {
-    setError('');
-    const result = await signInWithGoogle(credential, csrfToken);
-    if (result.error) throw result.error;
-    window.dispatchEvent(new Event('tarot-entitlement-changed'));
-  };
 
   const dark = theme === 'dark';
   return (
@@ -49,17 +42,7 @@ export function TarotLoginGate({ theme = 'dark' }: { theme?: 'light' | 'dark' })
           </div>
         ))}
       </div>
-      <div className="mx-auto max-w-sm">
-        {error && <p className="mb-3 text-sm text-rose-400" role="alert">{error}</p>}
-        <p className="mb-3 text-center text-sm font-semibold text-blue-100">{isEnglish ? 'Sign in or create an account with Google' : '使用 Google 登入或註冊即可開始免費占卜'}</p>
-        <GoogleSignInButton onCredential={async (credential, csrfToken) => {
-          try { await googleSignIn(credential, csrfToken); }
-          catch (cause) {
-            setError(localizeAuthError(cause instanceof Error ? cause.message : '', language, isEnglish ? 'Google sign-in failed. Please try again.' : 'Google 登入失敗'));
-            throw cause;
-          }
-        }} />
-      </div>
+      <TarotAccountLogin />
     </section>
   );
 }
