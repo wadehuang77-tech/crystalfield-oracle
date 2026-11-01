@@ -1,8 +1,7 @@
 import { TarotEntryGate } from './components/TarotEntryGate';
-import NumerologyArticlePage from './pages/NumerologyArticlePage';
 import { numerologyArticles, type NumerologySlug } from './lib/numerologySeo';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Routes, Route, Navigate, matchRoutes, useLocation } from 'react-router-dom';
+import { Suspense, isValidElement, useEffect, type ReactNode } from 'react';
 import { AuthProvider } from './contexts/AuthProvider';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import SiteFooter from './components/SiteFooter';
@@ -23,17 +22,10 @@ import CosmicCrossPage from './pages/CosmicCrossPage';
 import OshoPage from './pages/OshoPage';
 import OshoSinglePage from './pages/OshoSinglePage';
 import OshoThreePage from './pages/OshoThreePage';
-import { AdminPage } from './pages/AdminPage';
-import { AdminSettingsPage } from './pages/AdminSettingsPage';
-import { AdminKpiPage } from './pages/AdminKpiPage';
-import { GoogleFormsAdminPage } from './pages/GoogleFormsAdminPage';
-import { AdminMembersPage } from './pages/AdminMembersPage';
 import CheckoutReturnPage from './pages/CheckoutReturnPage';
 import LandingPage from './pages/LandingPage';
-import NumerologyPage from './pages/NumerologyPage';
 import MembershipPage from './pages/MembershipPage';
 import PageHeader from './components/PageHeader';
-import HumanDesignPage from './pages/HumanDesignPage';
 import MayaCalendarPage from './pages/MayaCalendarPage';
 import MayaAnnualPage from './pages/MayaAnnualPage';
 import MayaProPage from './pages/MayaProPage';
@@ -42,13 +34,32 @@ import PrivacyPage from './pages/PrivacyPage';
 import VedicAstrologyPage from './pages/VedicAstrologyPage';
 import VedicAnnualPage from './pages/VedicAnnualPage';
 import VedicAstrologyArticlePage from './pages/VedicAstrologyArticlePage';
-import AdminVedicReviewsPage from './pages/AdminVedicReviewsPage';
-import AdminTarotSubscriptionsPage from './pages/AdminTarotSubscriptionsPage';
 import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
 import SeoMetadata from './components/SeoMetadata';
-import HumanDesignArticlePage from './pages/human-design/HumanDesignArticlePage';
 import { getLanguageFromPath, getLocalizedPath } from './lib/i18n';
 import { RenderYearProvider } from './contexts/RenderYearContext';
+import { RouteFallback, RouteLoadErrorBoundary, lazyRoute, ssrRoutesReady } from './lib/lazyRoute';
+import { startRoutePrefetch } from './lib/routePrefetch';
+// Keep this stylesheet in the entry CSS: loading it with the lazy chunk would restyle the prerendered page after first paint.
+import './pages/NumerologyPage.css';
+
+// Admin pages are not part of the public first load, so each is split into its own chunk.
+const AdminPage = lazyRoute(() => import('./pages/AdminPage'), 'AdminPage');
+const AdminSettingsPage = lazyRoute(() => import('./pages/AdminSettingsPage'), 'AdminSettingsPage');
+const AdminKpiPage = lazyRoute(() => import('./pages/AdminKpiPage'), 'AdminKpiPage');
+const GoogleFormsAdminPage = lazyRoute(() => import('./pages/GoogleFormsAdminPage'), 'GoogleFormsAdminPage');
+const AdminMembersPage = lazyRoute(() => import('./pages/AdminMembersPage'), 'AdminMembersPage');
+const AdminVedicReviewsPage = lazyRoute(() => import('./pages/AdminVedicReviewsPage'), 'default');
+const AdminTarotSubscriptionsPage = lazyRoute(() => import('./pages/AdminTarotSubscriptionsPage'), 'default');
+
+// Numerology and Human Design are only needed once a visitor opens those tools or their articles.
+const NumerologyPage = lazyRoute(() => import('./pages/NumerologyPage'), 'default');
+const NumerologyArticlePage = lazyRoute(() => import('./pages/NumerologyArticlePage'), 'default');
+const HumanDesignPage = lazyRoute(() => import('./pages/HumanDesignPage'), 'default');
+const HumanDesignArticlePage = lazyRoute(() => import('./pages/human-design/HumanDesignArticlePage'), 'default');
+
+// Prerender renders synchronously, so lazy routes must be resolved before App is used (server only).
+if (import.meta.env.SSR) await ssrRoutesReady();
 
 const routeConfig = [
   { path: '/maya-calendar', element: <MayaCalendarPage /> },
@@ -122,6 +133,42 @@ export const appRoutePaths = routeConfig.flatMap(({ path }) => (
     : [path, getLocalizedPath(path, 'en')]
 )).concat(numerologyArticlePaths, ['/human-design/how-to-read']);
 
+// Routes as rendered below, used only to find which lazy chunk the current URL needs.
+const preloadableRoutes = [
+  ...routeConfig.flatMap(({ path, element }) => (
+    path === '/home' ? [{ path, element }] : [{ path, element }, { path: getLocalizedPath(path, 'en'), element }]
+  )),
+  ...Object.keys(numerologyArticles).map(slug => ({ path: `/numerology/${slug}`, element: <NumerologyArticlePage slug={slug as NumerologySlug} /> })),
+  { path: '/human-design/how-to-read', element: <HumanDesignArticlePage slug="how-to-read" /> },
+];
+
+function collectPreloads(node: ReactNode, found: Array<() => Promise<unknown>> = []) {
+  if (Array.isArray(node)) node.forEach(child => collectPreloads(child, found));
+  else if (isValidElement(node)) {
+    const preload = (node.type as { preload?: () => Promise<unknown> }).preload;
+    if (typeof preload === 'function') found.push(preload);
+    collectPreloads((node.props as { children?: ReactNode }).children, found);
+  }
+  return found;
+}
+
+function routePreloadsForPath(pathname: string) {
+  const matches = matchRoutes(preloadableRoutes, pathname) ?? [];
+  return matches.flatMap(({ route }) => collectPreloads(route.element));
+}
+
+// Prerendered pages are hydrated only after their route chunk has loaded. Otherwise an update that arrives first
+// (for example the session check) hits the still-dehydrated Suspense boundary and React discards the server HTML.
+// eslint-disable-next-line react-refresh/only-export-components
+export function preloadRouteForPath(pathname: string) {
+  return Promise.all(routePreloadsForPath(pathname).map(preload => preload()));
+}
+
+// Only these routes are prefetched from links; other lazy routes still load on navigation.
+const prefetchablePreloads = new Set([NumerologyPage, NumerologyArticlePage, HumanDesignPage, HumanDesignArticlePage].map(page => page.preload));
+const prefetchablePreloadsForPath = (pathname: string) => routePreloadsForPath(pathname).filter(preload => prefetchablePreloads.has(preload));
+const isHomePath = (pathname: string) => pathname === '/' || pathname === '/en' || pathname === '/en/';
+
 function DocumentLanguage() {
   const location = useLocation();
 
@@ -142,6 +189,12 @@ function LegacyAuthRedirect() {
 
 function RouterBody() {
   usePageViewTracking();
+  const location = useLocation();
+
+  useEffect(() => startRoutePrefetch({
+    resolve: prefetchablePreloadsForPath,
+    prefetchVisibleLinks: isHomePath(location.pathname),
+  }), [location.pathname]);
 
   return (
     <div className="flex flex-col min-h-screen bg-ink-950">
@@ -151,28 +204,30 @@ function RouterBody() {
       <PageHeader />
       <TarotTrialStatusBanner />
       <div className="flex-1">
-        <Routes>
-          {routeConfig.flatMap(({ path, element }) => {
-            const routes = [
-              <Route key={`${path}-zh`} path={path} element={element} />,
-            ];
+        <RouteLoadErrorBoundary resetKey={location.pathname}>
+          <Routes>
+            {routeConfig.flatMap(({ path, element }) => {
+              const routes = [
+                <Route key={`${path}-zh`} path={path} element={element} />,
+              ];
 
-            if (path === '/home') {
-              routes.push(
-                <Route key="/en/home" path="/en/home" element={<Navigate to="/en/oracle" replace />} />,
-              );
-            } else {
-              routes.push(
-                <Route key={`${path}-en`} path={getLocalizedPath(path, 'en')} element={element} />,
-              );
-            }
+              if (path === '/home') {
+                routes.push(
+                  <Route key="/en/home" path="/en/home" element={<Navigate to="/en/oracle" replace />} />,
+                );
+              } else {
+                routes.push(
+                  <Route key={`${path}-en`} path={getLocalizedPath(path, 'en')} element={element} />,
+                );
+              }
 
-            return routes;
-          })}
-          {Object.keys(numerologyArticles).map(slug => <Route key={slug} path={`/numerology/${slug}`} element={<NumerologyArticlePage slug={slug as NumerologySlug} />} />)}
-          <Route path="/human-design/how-to-read" element={<HumanDesignArticlePage slug="how-to-read" />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+              return routes;
+            })}
+            {Object.keys(numerologyArticles).map(slug => <Route key={slug} path={`/numerology/${slug}`} element={<NumerologyArticlePage slug={slug as NumerologySlug} />} />)}
+            <Route path="/human-design/how-to-read" element={<HumanDesignArticlePage slug="how-to-read" />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </RouteLoadErrorBoundary>
       </div>
       <SiteFooter />
     </div>
@@ -196,9 +251,12 @@ function NotFoundPage() {
 function App({ renderYear }: { renderYear: number }) {
   return (
     <RenderYearProvider year={renderYear}>
-      <AuthProvider>
-        <RouterBody />
-      </AuthProvider>
+      {/* One boundary above the stateful providers: nothing can update it before it has hydrated. */}
+      <Suspense fallback={<RouteFallback />}>
+        <AuthProvider>
+          <RouterBody />
+        </AuthProvider>
+      </Suspense>
     </RenderYearProvider>
   );
 }

@@ -136,7 +136,7 @@ export default function LandingPage() {
             <p className="mx-auto max-w-3xl text-base leading-8 text-purple-100/80 sm:text-lg">
               {copy.landingIntro}
             </p>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-purple-200/60 sm:text-base">
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-purple-200/80 sm:text-base">
               {copy.landingSupport}
             </p>
           </div>
@@ -146,9 +146,9 @@ export default function LandingPage() {
         <section className="pt-12 pb-32">
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-14">
-              <p className="text-purple-400/60 text-sm uppercase tracking-[0.3em] font-medium mb-4">{language === 'en' ? 'Soul Exploration Tools' : '靈魂探索工具'}</p>
+              <p className="text-purple-300 text-sm uppercase tracking-[0.3em] font-medium mb-4">{language === 'en' ? 'Soul Exploration Tools' : '靈魂探索工具'}</p>
               <h2 className="text-4xl sm:text-5xl font-bold text-white mb-5 tracking-tight">{copy.exploreTitle}</h2>
-              <p className="text-purple-200/55 text-lg max-w-lg mx-auto leading-relaxed">
+              <p className="text-purple-200/80 text-lg max-w-lg mx-auto leading-relaxed">
                 {copy.exploreDescription}
               </p>
             </div>
@@ -257,7 +257,7 @@ function PortalCard({ card, index, onClick, language }: { card: Card; index: num
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>{cardCopy.tagline}</p>
 
-        <p className="text-sm text-white/55 leading-relaxed mb-6">{cardCopy.description}</p>
+        <p className="text-sm text-white/80 leading-relaxed mb-6">{cardCopy.description}</p>
 
         <div className="relative inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold text-white overflow-hidden"
           style={{

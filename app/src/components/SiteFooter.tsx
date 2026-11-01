@@ -35,7 +35,7 @@ export default function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-blue-500/10">
-        <p className="text-center text-xs text-blue-400/50 tracking-[0.2em] py-3">
+        <p className="text-center text-xs text-blue-300/80 tracking-[0.2em] py-3">
           © {renderYear} {copy.siteName}
         </p>
       </div>

@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import App from './App.tsx';
+import App, { preloadRouteForPath } from './App.tsx';
 import './index.css';
 
 const root = document.getElementById('root');
@@ -24,7 +24,10 @@ const application = (
 );
 
 if (root.dataset.prerendered === 'true') {
-  hydrateRoot(root, application);
+  // Fetch the current route's lazy chunk first; if that fails, hydrate anyway and let the route error boundary handle it.
+  preloadRouteForPath(window.location.pathname)
+    .catch(() => undefined)
+    .then(() => hydrateRoot(root, application));
 } else {
   createRoot(root).render(application);
 }
