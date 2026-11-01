@@ -19,15 +19,13 @@ async function main(){
  const call=(path:string,body?:unknown,role:keyof typeof tokens='owner')=>routeMayaApi(new Request('https://test.example/api/maya/'+path,{method:body?'POST':'GET',headers:{Origin:'https://test.example','Content-Type':'application/json',Authorization:'Bearer '+tokens[role]},...(body?{body:JSON.stringify(body)}:{})}),env);
  const profileResponse=await call('calculate',{birth_date:'1990-12-31',locale:'zh-TW'});assert.equal(profileResponse.status,200,await profileResponse.clone().text());
  const {profile}=await profileResponse.json() as any;
- const input={locale:'zh-TW',product_code:'MAYA_BASIC_199',profile_id:profile.id,idempotency_key:'free-basic-test'};
- const response=await call('reports',input);assert.equal(response.status,200,await response.clone().text());
- const report=await response.json() as any;assert.equal(report.status,'completed');
- assert.equal((await call('reports/'+report.id)).status,200);
- assert.equal((await call('reports/'+report.id,undefined,'other')).status,404);
- const again=await (await call('reports',input)).json() as any;assert.equal(again.id,report.id);
- assert.equal((await call('reports',{...input,product_code:'MAYA_FULL_499',entitlement_id:'not-purchased',idempotency_key:'paid-denied'})).status,403);
- const list=await (await call('reports')).json() as any;assert.ok(list.reports.some((r:any)=>r.id===report.id));
- console.log('PASS: free basic generation/read/list/cache; other owner denied; full plan remains paid (local mock AI only).');
+ const input={locale:'zh-TW',product_code:'MAYA_BASIC_199',profile_id:profile.id,idempotency_key:'paid-basic-test',entitlement_id:'not-purchased'};
+ const denied=await call('reports',input);assert.equal(denied.status,403,await denied.clone().text());
+ assert.equal((await call('reports',{...input,entitlement_id:undefined,idempotency_key:'no-entitlement'})).status,400,'an unpaid request without an entitlement is rejected');
+ assert.equal((await call('reports',{...input,product_code:'MAYA_FULL_499',idempotency_key:'paid-full-test'})).status,403);
+ const generated=await db.prepare('SELECT COUNT(*) AS n FROM maya_admin_reports').first<{n:number}>();assert.equal(generated?.n,0,'no report is generated before payment');
+ const list=await (await call('reports')).json() as any;assert.equal(list.reports.length,0);
+ console.log('PASS: Personal Life Gifts (MAYA_BASIC_199) requires NT$199 payment; nothing is generated or listed before payment; full plan remains paid (local mock AI only).');
  } finally {await mf.dispose();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
