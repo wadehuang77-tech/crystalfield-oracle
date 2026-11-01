@@ -176,6 +176,7 @@ export default function VedicAstrologyPage() {
   const [chart, setChart] = useState<VedicChartResponse | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState('');
+  const [checkoutError, setCheckoutError] = useState('');
   const [report, setReport] = useState<VedicReport | null>(null);
   const [basicReading, setBasicReading] = useState<{ context: string; results: VedicFreeResults } | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
@@ -378,7 +379,7 @@ export default function VedicAstrologyPage() {
       return;
     }
     setCheckoutLoading(productId);
-    setError('');
+    setCheckoutError('');
     try {
       const result = await checkoutApi.createOrder(productId, undefined, {
         context_id: chart.chart_id,
@@ -390,14 +391,21 @@ export default function VedicAstrologyPage() {
       }
       if (!result.ecpay) throw new Error(language === 'en' ? 'Checkout details are missing. Please try again.' : '結帳資料缺失，請重試');
       submitToEcpay(result.ecpay, () => {
-        setError(language === 'en' ? 'Could not open the payment page. Please try again later.' : '跳轉至付款頁失敗，請稍後再試');
+        setCheckoutError(language === 'en' ? 'Could not open the payment page. Please try again later.' : '跳轉至付款頁失敗，請稍後再試');
         setCheckoutLoading('');
       });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : language === 'en' ? 'Could not create the order.' : '無法建立訂單');
+      setCheckoutError(reason instanceof Error ? reason.message : language === 'en' ? 'Could not create the order.' : '無法建立訂單');
       setCheckoutLoading('');
     }
   };
+
+  useEffect(() => {
+    // Coming back from the payment page with Back restores this page as it was left; re-enable checkout.
+    const onPageShow = (event: PageTransitionEvent) => { if (event.persisted) setCheckoutLoading(''); };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
   const visibleProgress = progressContext.current === visibleReportContext ? reportProgress : null;
   const visibleReport = progressContext.current === visibleReportContext ? report : null;
@@ -474,6 +482,7 @@ export default function VedicAstrologyPage() {
               : language === 'en' ? 'In-depth interpretation awaits unlock' : '深度解析待解鎖'}
           </div>
           <FreeResults chart={chart} language={language} basicResults={basicReading?.context === visibleReportContext ? basicReading.results : null} onUnlock={() => void checkout('vedic_basic')} disabled={!!checkoutLoading || authLoading || reportLoading} />
+          {checkoutError && <p role="alert" className="mx-auto mt-4 max-w-5xl rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{checkoutError}</p>}
           <VedicChartCore chart={chart.chart} language={language} />
         </>}
 
@@ -487,6 +496,7 @@ export default function VedicAstrologyPage() {
             </div>
             <div className="mx-auto mt-10 max-w-3xl">
               {PAID_OPTIONS.map((option) => <PaidOption key={option.id} {...option} loading={checkoutLoading === option.id} disabled={!!checkoutLoading} onClick={() => void checkout(option.id)} language={language} />)}
+              {checkoutError && <p role="alert" className="mt-4 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{checkoutError}</p>}
             </div>
           </section>
         )}
@@ -592,7 +602,7 @@ export function PaidOption(input: {
 }) {
   const props = input.language === 'en' ? { ...input, ...VEDIC_PAID_OPTION_EN } : input;
   const Icon = props.icon;
-  return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">{props.language === 'en' ? 'Featured' : '主打方案'}</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><div className={`text-right ${props.featured ? 'mt-10 sm:mt-0' : ''}`}><span className="block text-xs text-amber-200/70">{props.language === 'en' ? 'Introductory price' : '體驗價'}</span><strong className="text-xl text-white">NT${props.price}</strong><span className="ml-2 text-sm text-white/35 line-through">{props.language === 'en' ? 'Regular' : '原價'} NT${props.originalPrice}</span></div></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? (props.language === 'en' ? 'Opening checkout…' : '前往付款中…') : (props.language === 'en' ? 'Unlock this guidance' : '解鎖這份指引')}</button></article>;
+  return <article className={`relative rounded-[1.75rem] border bg-slate-950/55 p-6 transition hover:-translate-y-1 ${props.featured ? 'border-amber-300/45 shadow-[0_0_40px_rgba(251,191,36,0.12)]' : 'border-violet-300/20 hover:border-fuchsia-300/35'}`}>{props.featured && <span className="absolute right-5 top-5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">{props.language === 'en' ? 'Featured' : '主打方案'}</span>}<div className="flex items-start justify-between gap-4"><span className="rounded-xl border border-fuchsia-300/20 bg-fuchsia-400/10 p-3 text-fuchsia-200"><Icon /></span><div className={`text-right ${props.featured ? 'mt-10 sm:mt-0' : ''}`}><span className="block text-xs text-amber-200/70">{props.language === 'en' ? 'Introductory price' : '體驗價'}</span><strong className="text-xl text-white">NT${props.price}</strong><span className="ml-2 text-sm text-white/35 line-through">{props.language === 'en' ? 'Regular' : '原價'} NT${props.originalPrice}</span></div></div><h3 className="mt-5 font-serif text-2xl text-amber-50">{props.title}</h3><p className="mt-1 text-sm text-fuchsia-200/70">{props.subtitle}</p><p className="mt-4 min-h-24 leading-7 text-violet-100/60">{props.description}</p><ul className="mt-4 space-y-2">{props.bullets.map((item) => <li key={item} className="flex gap-2 text-sm text-white/60"><Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />{item}</li>)}</ul><button type="button" disabled={props.disabled} onClick={props.onClick} className="mt-6 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/15 px-4 py-3 font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:opacity-50">{props.loading ? (props.language === 'en' ? 'Opening checkout…' : '前往付款中…') : (props.language === 'en' ? `Unlock the Complete Life Map · NT$${props.price}` : `解鎖完整人生地圖 · NT$${props.price}`)}</button></article>;
 }
 
 function PaidReport({ report, orderId, orderToken, language }: { report: VedicReport; orderId: string; orderToken: string; language: 'zh-Hant' | 'en' }) {

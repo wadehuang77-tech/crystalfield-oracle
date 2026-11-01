@@ -347,7 +347,6 @@ export default function MayaCalendarPage() {
         {signature(daily)}
         <p className="mt-5">{daily.free_summary}</p><p className="mt-3">{daily.awareness_prompt}</p>
         {daily.special_day && <p className="mt-3 text-cyan-200">{daily.special_day === 'new_year' ? t('7 月 26 日：新年', 'July 26: New Year') : t('7 月 25 日：時間之外日', 'July 25: Day Out of Time')}</p>}
-        <button className={`${button} mt-4`} disabled={busy} onClick={() => void action(async () => { await mayaApi.premium(locale); })}>{t('深度每日指引（未來商品）', 'Premium daily guidance (future product)')}</button>
       </section>}
     </>}
     <section id="maya-life-blueprint-plans" className={`${panel} scroll-mt-6`}>

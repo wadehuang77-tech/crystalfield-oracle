@@ -70,7 +70,7 @@ try {
   assert.match(paid, /Nine In-Depth Vedic Astrology Readings/);
   assert.match(paid, /NT\$699/);
   assert.match(paid, /NT\$999/);
-  assert.match(paid, /Unlock this guidance/);
+  assert.match(paid, /Unlock the Complete Life Map · NT\$699/);
   assert.match(renderToStaticMarkup(React.createElement(PaidOption, { ...option, language: 'zh-Hant' })), /完整人生地圖/);
   console.log('Vedic EN/ZH free readings, saved-chart switching, all nine cards, and paid offer PASS; no astrology requests.');
 } finally {

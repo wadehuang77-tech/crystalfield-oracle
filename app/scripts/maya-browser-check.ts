@@ -195,8 +195,6 @@ try {
       purchased = true;
       await page.reload();
       await page.getByRole('button', { name: label('產生／重試報告', 'Generate / retry report') }).waitFor();
-      await page.getByRole('button', { name: label('深度每日指引（未來商品）', 'Premium daily guidance (future product)') }).click();
-      await page.getByRole('alert').waitFor();
       await page.getByRole('button', { name: label('產生／重試報告', 'Generate / retry report') }).click();
       await page.getByRole('heading', { name: label('AI 生命藍圖報告', 'AI Life Blueprint Report') }).waitFor();
       await layout('mock-report-reading');
