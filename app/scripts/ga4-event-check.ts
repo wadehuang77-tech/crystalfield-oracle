@@ -48,7 +48,9 @@ for (const pathname of [
 ]) {
   const dataLayer: ArrayLike<unknown>[] = [];
   runInNewContext(initialization, {
-    window: { dataLayer, location: { pathname } },
+    URL,
+    history: { pushState() {}, replaceState() {} },
+    window: { dataLayer, location: { pathname, href: `https://www.crystalfield101.com${pathname}` }, addEventListener() {} },
     dataLayer,
   });
   const configs = dataLayer.filter((entry) => entry[0] === 'config');
@@ -61,6 +63,24 @@ for (const pathname of [
     `${pathname}: Google tag owns initial page views with existing admin exclusion`,
   );
   assert(!dataLayer.some((entry) => entry[0] === 'event'), 'Initialization must not also emit manual events');
+}
+for (const pathname of ['/maya-calendar', '/en/maya-calendar/member', '/en/maya-calendar/reports/private-test-id']) {
+  const browser: Record<string, unknown> = {
+    dataLayer: [], location: { pathname, href: `https://www.crystalfield101.com${pathname}` }, addEventListener() {},
+  };
+  const history = { pushState(...args: unknown[]) { return args; }, replaceState(...args: unknown[]) { return args; } };
+  runInNewContext(initialization, { window: browser, dataLayer: browser.dataLayer, URL, history });
+  assert(browser['ga-disable-G-FY6V8NJNHW'] === true, `${pathname}: no Maya private analytics`);
+}
+{
+  const browser: Record<string, unknown> = {
+    dataLayer: [], location: { pathname: '/', href: 'https://www.crystalfield101.com/' }, addEventListener() {},
+  };
+  const history = { pushState(...args: unknown[]) { return args; }, replaceState(...args: unknown[]) { return args; } };
+  runInNewContext(initialization, { window: browser, dataLayer: browser.dataLayer, URL, history });
+  assert(browser['ga-disable-G-FY6V8NJNHW'] === undefined, 'Non-Maya analytics remain unchanged');
+  history.pushState(null, '', '/en/maya-calendar/reports/private-test-id');
+  assert(browser['ga-disable-G-FY6V8NJNHW'] === true, 'SPA entry disables GA4 before private history update');
 }
 const pageTracking = await readFile(new URL('../src/hooks/usePageViewTracking.ts', import.meta.url), 'utf8');
 assert(!/\bgtag\b/.test(pageTracking), 'Router tracking must not duplicate Enhanced Measurement page views');

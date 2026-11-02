@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cardsApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { trackCardDrawComplete } from '../lib/ga4';
+import { announceTarotReading, isPartialReading, stableReadingId } from '../lib/tarotPartialReading';
 
 export type MultiGatePhase = 'idle' | 'loading' | 'unlocked' | 'login_gate' | 'paywall';
 interface Pick { card_key: string; position: number; reversed?: boolean; }
@@ -26,7 +27,7 @@ export function useMultiSpreadGate({
   enabled,
   language,
 }: UseMultiSpreadGateOptions): UseMultiSpreadGateResult {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [phase, setPhase] = useState<MultiGatePhase>('idle');
   const [unlockedCards, setUnlockedCards] = useState<UnlockedCard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +42,7 @@ export function useMultiSpreadGate({
     setError(null);
     setUnlockedCards(null);
     setUnlockSource(null);
+    announceTarotReading(false);
   }, [picks]);
 
   useEffect(() => {
@@ -50,27 +52,28 @@ export function useMultiSpreadGate({
   }, []);
 
   useEffect(() => {
-    if (!enabled || !picks?.length || phase === 'unlocked') return;
+    // Wait for the session check so a member's reading is not counted against the visitor quota.
+    if (!enabled || !picks?.length || phase === 'unlocked' || authLoading) return;
     const picksKey = picks.map((pick) => `${pick.position}:${pick.card_key}:${pick.reversed ? 1 : 0}`).join(',');
     const key = `${spreadId}:${picksKey}:${user?.id ?? 'guest'}:${accessVersion}:${language ?? 'path'}`;
     if (attemptRef.current === key) return;
     attemptRef.current = key;
     trackCardDrawComplete(spreadId, picks.length);
 
-    if (!user) { setPhase('login_gate'); return; }
     setPhase('loading'); setError(null); setUnlockSource(null);
-    const readingId = crypto.randomUUID();
+    const readingId = stableReadingId(`${spreadId}:${picksKey}`);
     void cardsApi.freeUnlockSpread(spreadId, picks, readingId, undefined, language).then((result) => {
       setUnlockedCards(result.cards);
       setUnlockSource(result.entitlement_status === 'free_available' ? 'free' : 'subscription');
       setPhase('unlocked');
+      announceTarotReading(isPartialReading(result), { spreadId, picks });
       window.dispatchEvent(new Event('tarot-entitlement-changed'));
     }).catch((cause: Error & { status?: number }) => {
       if (cause.status === 401) { setPhase('login_gate'); return; }
       setError(cause.message || '解鎖失敗');
       setPhase('paywall');
     });
-  }, [enabled, picks, spreadId, user, accessVersion, phase, language]);
+  }, [enabled, picks, spreadId, user, authLoading, accessVersion, phase, language]);
 
   const onEmailUnlocked = async () => {};
   return { phase, unlockedCards, error, onEmailUnlocked, unlockSource, bundleRemaining: null };

@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
-import { authorizeTarotSpread } from '../src/tarotEntitlements';
+import { authorizeTarotReading, authorizeTarotSpread } from '../src/tarotEntitlements';
 import { TAROT_SPREADS } from '../src/tarotCatalog';
-import { freeUnlockSingle } from '../src/cards';
 import type { Env } from '../src/utils';
 
 async function main() {
   let quotaUsed = 0;
   let writes = 0;
-  const env = { DB: { prepare(sql: string) {
+  const env = { JWT_SECRET: 'local-test-only', DB: { prepare(sql: string) {
     return { bind() { return this; }, async first() {
       if (sql.includes('FROM subscriptions')) return null;
       if (sql.includes('COUNT(*)')) return { count: quotaUsed };
@@ -26,11 +25,11 @@ async function main() {
         assert.equal(access.source, 'free');
         assert.equal(access.entitlement.free_readings_remaining, 7 - used);
       }
-      const guest = await freeUnlockSingle(new Request('https://test/api/cards/free-unlock-single', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spread_id: spread.id, card_key: 'test', reading_id: 'test' }),
-      }), env);
-      assert.equal(guest.status, 401);
+      const guest = await authorizeTarotReading(new Request('https://test/api/cards/free-unlock-single', {
+        method: 'POST', headers: { 'CF-Connecting-IP': '203.0.113.7' },
+      }), env, spread.id, crypto.randomUUID());
+      assert.equal(guest.guest, true);
+      assert.equal(guest.allowed, true, 'visitors draw single cards without signing in');
     }
   }
   assert.equal(writes, 0);
@@ -38,6 +37,6 @@ async function main() {
     assert.equal((await authorizeTarotSpread(env, 'member', spread.id, 'fourth')).allowed, false);
   }
   assert.equal((await authorizeTarotSpread(env, 'member', 'fake_single', 'fake')).allowed, false);
-  console.log('PASS: seven single-card decks unlimited after login; no quota writes; guests denied; exhausted multi-card spreads denied.');
+  console.log('PASS: seven single-card decks unlimited for members and visitors; no quota writes; exhausted multi-card spreads denied.');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

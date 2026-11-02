@@ -6,6 +6,22 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+      // Maya member paths may contain report identifiers. Disable GA4 for this page lifetime.
+      function protectMayaAnalytics(url) {
+        var path = new URL(url || window.location.href, window.location.href).pathname;
+        if (/^\/(?:en\/)?maya-calendar(?:\/|$)/.test(path)) {
+          window['ga-disable-G-FY6V8NJNHW'] = true;
+        }
+      }
+      protectMayaAnalytics();
+      ['pushState', 'replaceState'].forEach(function(method) {
+        var original = history[method];
+        history[method] = function(state, unused, url) {
+          protectMayaAnalytics(url);
+          return original.apply(this, arguments);
+        };
+      });
+      window.addEventListener('popstate', function() { protectMayaAnalytics(); });
       // Enhanced Measurement owns page views; keep initial admin visits excluded.
       gtag('config', 'G-FY6V8NJNHW', {
         send_page_view: !/^\/(?:en\/)?admin(?:\/|$)/.test(window.location.pathname)

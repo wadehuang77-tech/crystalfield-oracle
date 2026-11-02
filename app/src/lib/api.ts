@@ -354,6 +354,8 @@ export const authApi = {
 
   googleConfig: () =>
     req<{ client_id: string | null; csrf_token: string }>('/api/auth/google/config'),
+  facebookConfig: () => req<{enabled:boolean;app_id:string|null;version:string|null;csrf_token:string|null}>('/api/auth/facebook/config'),
+  signInWithFacebook: (access_token:string,csrf_token:string) => req<{authenticated:true;user:SessionUser}>('/api/auth/facebook',{method:'POST',body:{access_token,csrf_token}}),
 
   signInWithGoogle: (credential: string, csrf_token: string) =>
     req<{ authenticated: true; user: SessionUser }>('/api/auth/google', {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cardsApi, type UnlockedCard } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { trackCardDrawComplete } from '../lib/ga4';
+import { announceTarotReading, isPartialReading, stableReadingId } from '../lib/tarotPartialReading';
 
 export type SingleGatePhase = 'idle' | 'loading' | 'unlocked' | 'login_gate' | 'membership_gate';
 
@@ -28,7 +29,7 @@ export function useSingleCardGate({
   enabled,
   language,
 }: UseSingleCardGateOptions): UseSingleCardGateResult {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [phase, setPhase] = useState<SingleGatePhase>('idle');
   const [unlockedCard, setUnlockedCard] = useState<UnlockedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export function useSingleCardGate({
     setError(null);
     setUnlockedCard(null);
     setShowMembership(false);
+    announceTarotReading(false);
   }, [cardKey]);
 
   useEffect(() => {
@@ -52,19 +54,20 @@ export function useSingleCardGate({
   }, []);
 
   useEffect(() => {
-    if (!enabled || !cardKey || phase === 'unlocked') return;
+    // Wait for the session check so the reading is attributed to the right member or visitor.
+    if (!enabled || !cardKey || phase === 'unlocked' || authLoading) return;
     const key = `${spreadId}:${cardKey}:${reversed ? 1 : 0}:${user?.id ?? 'guest'}:${accessVersion}:${language ?? 'path'}`;
     if (attemptRef.current === key) return;
     attemptRef.current = key;
     trackCardDrawComplete(spreadId, 1);
 
-    if (!user) { setPhase('login_gate'); return; }
     setPhase('loading'); setError(null);
-    const readingId = crypto.randomUUID();
+    const readingId = stableReadingId(`${spreadId}:${cardKey}:${reversed ? 1 : 0}`);
     void cardsApi.freeUnlockSingle(spreadId, cardKey, reversed, readingId, language).then((result) => {
       setUnlockedCard(result.card);
       setPhase('unlocked');
       setShowMembership(false);
+      announceTarotReading(isPartialReading(result), { spreadId, single: { cardKey, reversed } });
       window.dispatchEvent(new Event('tarot-entitlement-changed'));
     }).catch((cause: Error & { status?: number }) => {
       if (cause.status === 401) { setPhase('login_gate'); return; }
@@ -72,7 +75,7 @@ export function useSingleCardGate({
       setPhase('membership_gate');
       setShowMembership(true);
     });
-  }, [enabled, cardKey, reversed, spreadId, user, accessVersion, phase, language]);
+  }, [enabled, cardKey, reversed, spreadId, user, authLoading, accessVersion, phase, language]);
 
   const onEmailUnlocked = (_email: string, card?: UnlockedCard) => { if (card) setUnlockedCard(card); };
   return { phase, unlockedCard, error, onEmailUnlocked, showMembership, setShowMembership };

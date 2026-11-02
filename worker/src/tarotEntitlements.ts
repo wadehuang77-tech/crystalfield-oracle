@@ -1,6 +1,6 @@
 import { getMembershipSummary } from './subscriptions';
 import { isTarotSubscriptionPlan, tarotSubscriptionPlan, tarotTierForSpread, TAROT_SPREADS } from './tarotCatalog';
-import { Env, forbidden, json, readSession, unauthorized } from './utils';
+import { clientIp, Env, forbidden, json, readSession, unauthorized } from './utils';
 
 export const TAROT_FREE_READING_LIMIT = 7;
 
@@ -163,10 +163,105 @@ export async function authorizeTarotSpread(
 
 export async function getMyTarotEntitlement(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
-  if (!user) return json(req, env, {
-    entitlement: { ...deriveTarotEntitlement(null, 0), status: 'login_required' as const, has_access: false },
-  });
+  if (!user) return json(req, env, { entitlement: await getGuestTarotEntitlement(req, env) });
+  await claimGuestTarotReadings(req, env, user.id);
   return json(req, env, { entitlement: await getTarotEntitlement(env, user.id) });
+}
+
+// Visitors without an account share TAROT_FREE_READING_LIMIT multi-card readings per IP address. Their readings
+// are kept in the anonymous unlock table (id `tarot-guest:<ip key>:<reading>`) and move to the member's own quota
+// the first time a member signs in from that address. The reading id is kept, so reopening that same reading after
+// sign-in (to see the full interpretation) does not use another free reading.
+const GUEST_ID_PREFIX = 'tarot-guest:';
+// All ids of one visitor share the prefix `tarot-guest:<key>:`; ':' + 1 is ';', so this range selects exactly them.
+const guestRange = (key: string) => [`${GUEST_ID_PREFIX}${key}:`, `${GUEST_ID_PREFIX}${key};`] as const;
+
+async function guestKey(req: Request, env: Env): Promise<string | null> {
+  const ip = clientIp(req).split(',')[0]?.trim();
+  if (!ip || ip === 'unknown') return null;
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(env.JWT_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`tarot-guest:${ip}`));
+  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function guestReadingsUsed(env: Env, key: string): Promise<number> {
+  const row = await env.DB.prepare('SELECT COUNT(*) AS count FROM multi_spread_free_unlocks WHERE id >= ? AND id < ?')
+    .bind(...guestRange(key)).first<{ count: number }>();
+  return Number(row?.count ?? 0);
+}
+
+function guestEntitlement(used: number): TarotEntitlement {
+  const entitlement = deriveTarotEntitlement(null, used);
+  return entitlement.free_readings_remaining > 0
+    ? entitlement
+    : { ...entitlement, status: 'login_required', has_access: false };
+}
+
+async function getGuestTarotEntitlement(req: Request, env: Env): Promise<TarotEntitlement> {
+  const key = await guestKey(req, env);
+  return guestEntitlement(key ? await guestReadingsUsed(env, key) : TAROT_FREE_READING_LIMIT);
+}
+
+async function authorizeTarotGuestSpread(
+  req: Request,
+  env: Env,
+  spreadId: string,
+  readingId: string,
+): Promise<{ allowed: boolean; source: 'free'; entitlement: TarotEntitlement }> {
+  const key = await guestKey(req, env);
+  if (!key || readingId.includes(':')) return { allowed: false, source: 'free', entitlement: guestEntitlement(TAROT_FREE_READING_LIMIT) };
+  // Single-card readings stay unlimited, as they are for members.
+  if (TAROT_SPREADS[spreadId]?.card_count === 1) {
+    return { allowed: true, source: 'free', entitlement: guestEntitlement(await guestReadingsUsed(env, key)) };
+  }
+  const id = `${GUEST_ID_PREFIX}${key}:${readingId}`;
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at)
+     SELECT ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM multi_spread_free_unlocks WHERE id >= ? AND id < ?) < ?`,
+  ).bind(id, id, spreadId, new Date().toISOString(), ...guestRange(key), TAROT_FREE_READING_LIMIT).run();
+  const row = await env.DB.prepare('SELECT spread_id FROM multi_spread_free_unlocks WHERE id = ?')
+    .bind(id).first<{ spread_id: string }>();
+  return { allowed: row?.spread_id === spreadId, source: 'free', entitlement: guestEntitlement(await guestReadingsUsed(env, key)) };
+}
+
+async function claimGuestTarotReadings(req: Request, env: Env, userId: string): Promise<void> {
+  const key = await guestKey(req, env);
+  if (!key) return;
+  // Unclaimed rows keep email_hash = id; claiming rewrites it, so each guest reading moves to one member only.
+  const claimed = await env.DB.prepare(
+    `UPDATE multi_spread_free_unlocks SET email_hash = 'claimed:' || ? || ':' || id
+      WHERE id >= ? AND id < ? AND email_hash = id
+      RETURNING id, spread_id, created_at`,
+  ).bind(userId, ...guestRange(key)).all<{ id: string; spread_id: string; created_at: string }>();
+  if (!claimed.results.length) return;
+  const now = new Date().toISOString();
+  await env.DB.batch([
+    ...claimed.results.map((row) => env.DB.prepare(
+      'INSERT OR IGNORE INTO tarot_free_readings (user_id, reading_id, spread_id, created_at) VALUES (?, ?, ?, ?)',
+    ).bind(userId, row.id.slice(guestRange(key)[0].length), row.spread_id, row.created_at)),
+    env.DB.prepare(
+      `INSERT INTO profile_member_metadata (user_id, tarot_usage_count, created_at, updated_at)
+       VALUES (?, (SELECT COUNT(*) FROM tarot_free_readings WHERE user_id = ?), ?, ?)
+       ON CONFLICT(user_id) DO UPDATE SET
+         tarot_usage_count = excluded.tarot_usage_count,
+         updated_at = excluded.updated_at`,
+    ).bind(userId, userId, now, now),
+  ]);
+}
+
+/** Authorizes a free tarot reading for a member, or for a visitor against the per-IP guest quota. */
+export async function authorizeTarotReading(req: Request, env: Env, spreadId: string, readingId: string) {
+  const session = await readSession(req, env);
+  if (!session) return { ...await authorizeTarotGuestSpread(req, env, spreadId, readingId), guest: true };
+  await claimGuestTarotReadings(req, env, session.id);
+  return { ...await authorizeTarotSpread(env, session.id, spreadId, readingId), guest: false };
+}
+
+export function tarotReadingDenied(req: Request, env: Env, access: { guest: boolean; entitlement: TarotEntitlement }): Response {
+  if (!access.guest) return tarotAccessDenied(req, env, access.entitlement);
+  return json(req, env, {
+    error: '免費占卜次數已用完，登入或選擇方案即可繼續', code: 'TAROT_LOGIN_REQUIRED', entitlement: access.entitlement,
+  }, { status: 401 });
 }
 
 export async function startMyTarotTrial(req: Request, env: Env): Promise<Response> {

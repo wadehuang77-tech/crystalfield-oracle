@@ -133,7 +133,7 @@ async function checkVedAstroPostContract(): Promise<void> {
   let requestCount = 0;
   globalThis.fetch = async (input, init) => {
     requestCount += 1;
-    assert.equal(String(input), 'https://vedastro.zaishi.net/api/Calculate/AllPlanetNavamshaSign');
+    assert.equal(String(input), 'https://api.vedastro.org/api/Calculate/AllPlanetNavamshaSign');
     assert.equal(init?.method, 'POST');
     assert.equal(new Headers(init?.headers).get('Content-Type'), 'application/json');
     assert.equal(new Headers(init?.headers).get('x-api-key'), 'test-only-secret');
@@ -152,7 +152,7 @@ async function checkVedAstroPostContract(): Promise<void> {
   try {
     const result = await callVedAstro({
       VEDASTRO_API_KEY: 'test-only-secret',
-      VEDASTRO_API_BASE: 'https://vedastro.zaishi.net/api',
+      VEDASTRO_API_BASE: 'https://api.vedastro.org/api',
     }, 'AllPlanetNavamshaSign', {
       Time: {
         StdTime: '20:00 06/09/1968 +08:00',
@@ -170,7 +170,7 @@ async function checkVedAstroPostContract(): Promise<void> {
         Payload: { AllPlanetNavamshaSign: { Sun: 'Aries' } },
       }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     };
-    await callVedAstro({ VEDASTRO_API_BASE: 'https://vedastro.zaishi.net/api' }, 'AllPlanetNavamshaSign', {
+    await callVedAstro({ VEDASTRO_API_BASE: 'https://api.vedastro.org/api' }, 'AllPlanetNavamshaSign', {
       Time: {
         StdTime: '20:00 06/09/1968 +08:00',
         Location: { Name: 'Taipei', Latitude: 25.033, Longitude: 121.5654 },
@@ -189,7 +189,7 @@ async function checkVedAstroPostContract(): Promise<void> {
     };
     const authFallbackResult = await callVedAstro({
       VEDASTRO_API_KEY: 'test-only-secret',
-      VEDASTRO_API_BASE: 'https://vedastro.zaishi.net/api',
+      VEDASTRO_API_BASE: 'https://api.vedastro.org/api',
     }, 'AllPlanetNavamshaSign', {
       Time: {
         StdTime: '20:00 06/09/1968 +08:00',
@@ -257,7 +257,7 @@ async function checkVedAstroGetContract(): Promise<void> {
   try {
     const result = await callVedAstroGet({
       VEDASTRO_API_KEY: 'test-only-secret',
-      VEDASTRO_API_BASE: 'https://vedastro.zaishi.net/api',
+      VEDASTRO_API_BASE: 'https://api.vedastro.org/api',
     }, [
       'Calculate', 'PlanetName', 'Planet', 'Sun',
       'Time', '20:00', '06', '09', '1968', '+08:00',
@@ -270,7 +270,7 @@ async function checkVedAstroGetContract(): Promise<void> {
       payload: 'Sun',
     });
     assert.equal(requestedUrl,
-      'https://vedastro.zaishi.net/api/Calculate/PlanetName/Planet/Sun/Time/20%3A00/06/09/1968/%2B08%3A00/Location/Taipei/Taiwan');
+      'https://api.vedastro.org/api/Calculate/PlanetName/Planet/Sun/Time/20%3A00/06/09/1968/%2B08%3A00/Location/Taipei/Taiwan');
 
     let getAuthAttempts = 0;
     globalThis.fetch = async (_input, init) => {
@@ -288,7 +288,7 @@ async function checkVedAstroGetContract(): Promise<void> {
     };
     const getAuthFallbackResult = await callVedAstroGet({
       VEDASTRO_API_KEY: 'test-only-secret',
-      VEDASTRO_API_BASE: 'https://vedastro.zaishi.net/api',
+      VEDASTRO_API_BASE: 'https://api.vedastro.org/api',
     }, [
       'Calculate', 'PlanetName', 'Planet', 'Sun',
       'Time', '00:00', '01', '01', '2000', '+00:00',
@@ -535,7 +535,7 @@ assert.match(source, /const maximumLength = kind === 'period' \? 600 : 1100/);
 assert.match(source, /transientFallback: true/);
 assert.match(source, /FREE_READING_MIN_CHARS = 250/);
 assert.match(source, /Ayanamsa:\s*'LAHIRI'/);
-assert.match(source, /VEDASTRO_DEFAULT_API_BASE = 'https:\/\/vedastro\.zaishi\.net\/api'/);
+assert.match(source, /VEDASTRO_DEFAULT_API_BASE = 'https:\/\/api\.vedastro\.org\/api'/);
 assert.match(source, /VEDASTRO_API_BASE/);
 assert.doesNotMatch(source, /callVedAstro(?:Get)?\(env,\s*['"]PlanetName['"]/);
 assert.match(source, /encodeURIComponent\(segment\)/);

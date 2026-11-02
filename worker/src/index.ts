@@ -66,6 +66,7 @@ import {
   revokeHumanDesignShare,
 } from './humanDesignShareResults';
 import { googleAuthConfig, googleSignin } from './googleAuth';
+import { facebookAuthConfig,facebookSignin } from './facebookAuth';
 import { routeMayaPayment } from './mayaPayments';
 import { routeVedicAnnual } from './vedicAnnual';
 import {
@@ -171,6 +172,12 @@ export default {
       if (path === '/api/auth/signout' && req.method === 'POST') return await signout(req, env);
       if (path === '/api/auth/me'      && req.method === 'GET')  return await me(req, env);
       if (path === '/api/auth/google/config' && req.method === 'GET') return await googleAuthConfig(req, env);
+      if(path==='/api/auth/facebook/config'&&req.method==='GET')return await facebookAuthConfig(req,env);
+      if(path==='/api/auth/facebook'&&req.method==='POST'){
+        const limit=await rateLimit(env,'facebook-signin-ip',clientIp(req),30,3600);
+        if(!limit.allowed)return await tooManyRequests(req,env);
+        return await facebookSignin(req,env);
+      }
       if (path === '/api/auth/google' && req.method === 'POST') {
         const rl = await rateLimit(env, 'google-signin-ip', clientIp(req), 30, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env, 'Google 登入嘗試過於頻繁，請稍後再試');

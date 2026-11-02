@@ -1,5 +1,4 @@
 import { useState, useId } from 'react';
-import { AuthRequiredBirthDate } from '../AuthRequiredBirthDate';
 import { useRouteLanguage } from '../../hooks/useRouteLanguage';
 import { Sparkles } from 'lucide-react';
 import { t } from '../../lib/i18n';
@@ -94,7 +93,7 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
         </p>
       </div>
 
-      <AuthRequiredBirthDate><form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Date inputs */}
         <div>
@@ -182,7 +181,7 @@ export default function BirthDateForm({ onSubmit, loading }: Props) {
           )}
         </button>
 
-      </form></AuthRequiredBirthDate>
+      </form>
     </div>
   );
 }

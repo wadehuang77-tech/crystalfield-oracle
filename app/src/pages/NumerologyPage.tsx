@@ -20,7 +20,7 @@ import type { NumerologyShareAccess } from '../lib/api';
 import { getNumerologyShareCapabilities, getNumerologyShareProofs, mergeNumerologyShareCapabilities, saveNumerologyShareProof } from '../lib/numerologyShareAuth';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { getLanguageFromPath, getLocalizedPath, t } from '../lib/i18n';
-import { calculationLoginRedirect,authUrlFor } from '../lib/authLocale';
+import { calculationLoginRedirect, authUrlFor } from '../lib/authLocale';
 
 type Tab = 'report' | 'daily' | 'ai';
 
@@ -155,8 +155,9 @@ export default function NumerologyPage() {
     if (!rawState) return;
 
     try {
-      const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null; userId?: string };
-      if (!state.report || state.userId !== user.id) return;
+      const state = JSON.parse(rawState) as { report?: Report; oracleCard?: OracleCard | null; userId?: string | null };
+      // A report calculated as a visitor in this browser reopens for the member who just signed in.
+      if (!state.report || (state.userId && state.userId !== user.id)) return;
       setReport(state.report);
       setOracleCard(state.oracleCard ?? null);
       setActiveTab('report');
@@ -268,7 +269,6 @@ export default function NumerologyPage() {
 
   // ── Actions ─────────────────────────────────────────────────────
   const handleSubmit = async (date: string, useOracle: boolean) => {
-    if(authLoading||!user){if(!authLoading)navigate(authUrlFor(location.pathname,'login',location.pathname+location.search+location.hash));return;}
     setLoading(true);
     await new Promise(r => setTimeout(r, 1200));
     const result = calculateNumerology(date);
@@ -295,6 +295,9 @@ export default function NumerologyPage() {
     setUpgradeDefaultTier(required);
     setShowUpgrade(true);
   };
+
+  // Sign in from a visitor's half reading; the saved report reopens in full on return.
+  const signInForFullReading = () => navigate(authUrlFor(location.pathname, 'login', `${location.pathname}?section=report`));
 
   const getScrollTargetForSection = (section: string) => {
     if (section === 'crystal') return 'numerology-crystal-healing';
@@ -712,6 +715,8 @@ export default function NumerologyPage() {
                 onReset={handleReset}
                 tier={paidContentTier}
                 onUpgrade={handleUpgrade}
+                fullFreeReading={!!user}
+                onSignInForFullReading={signInForFullReading}
                 forecastUnlocked={forecastUnlocked}
                 onForecastUnlock={handleForecastUnlock}
                 oracleUnlocked={oracleUnlocked}

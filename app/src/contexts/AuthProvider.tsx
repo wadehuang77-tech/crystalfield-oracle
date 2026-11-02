@@ -79,6 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithFacebook = async (accessToken:string,csrfToken:string) => {
+    try{const {user}=await authApi.signInWithFacebook(accessToken,csrfToken);acceptSession(user);return {error:null};}
+    catch(error){return {error:error instanceof Error?error:new Error('Facebook sign-in failed')};}
+  };
+
   const signOut = async () => {
     try {
       await authApi.signOut();
@@ -124,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signIn,
       signInWithGoogle,
+      signInWithFacebook,
       signOut,
       requestPasswordReset,
       verifyResetCode,

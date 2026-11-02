@@ -9,6 +9,7 @@ import PersonalYearForecast from './PersonalYearForecast';
 import type { PlanTier } from '../../hooks/usePremium';
 import NumerologyShareButton from './NumerologyShare';
 import { localizeGridLine, localizeMissingNumberData, localizeNumerologyReport } from '../../lib/numerologyDisplay';
+import { halfText } from '../../lib/halfText';
 
 
 interface Props {
@@ -18,12 +19,30 @@ interface Props {
   onReset: () => void;
   tier: PlanTier;
   onUpgrade: (required: PlanTier) => void;
+  /** Visitors see about half of the life path and missing-number readings until they sign in. */
+  fullFreeReading: boolean;
+  onSignInForFullReading: () => void;
 
 
   forecastUnlocked: boolean;
   onForecastUnlock: () => void;
   oracleUnlocked: boolean;
   onOracleUnlock: () => void;
+}
+
+function FullReadingPrompt({ isEnglish, onSignIn }: { isEnglish: boolean; onSignIn: () => void }) {
+  return (
+    <div className="mt-4 rounded-2xl p-4 text-center" style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.28)' }}>
+      <p className="text-sm leading-relaxed" style={{ color: '#fde68a' }}>
+        {isEnglish
+          ? 'You are viewing about 50%. Sign in, or continue with Google, to see the full reading right away.'
+          : '目前顯示約 50%，登入或使用 Google 帳號登入，立即看完整 100% 解讀。'}
+      </p>
+      <button type="button" onClick={onSignIn} className="mt-3 rounded-full px-5 py-2 text-sm font-semibold text-slate-950" style={{ background: '#fbbf24' }}>
+        {isEnglish ? 'Sign in for the full reading' : '登入看完整解讀'}
+      </button>
+    </div>
+  );
 }
 
 function StatCard({ icon, label, value, color, sectionKey, guidance }: { icon: React.ReactNode; label: string; value: string; color: string; sectionKey: string; guidance: string }) {
@@ -65,11 +84,12 @@ function CrystalChip({ name, nameZh, hex, isEnglish }: { name: string; nameZh: s
   );
 }
 
-export default function NumerologyReport({ language, report, oracleCard, onReset, tier, onUpgrade, forecastUnlocked, onForecastUnlock, oracleUnlocked, onOracleUnlock }: Props) {
+export default function NumerologyReport({ language, report, oracleCard, onReset, tier, onUpgrade, fullFreeReading, onSignInForFullReading, forecastUnlocked, onForecastUnlock, oracleUnlocked, onOracleUnlock }: Props) {
   const [expandedMissing, setExpandedMissing] = useState<number | null>(null);
   const isEnglish = language === 'en';
   const copy = (en: string, zh: string) => isEnglish ? en : zh;
   const displayReport = isEnglish ? localizeNumerologyReport(report) : report;
+  const lifePathDescription = fullFreeReading ? displayReport.lifePathDescription : halfText(displayReport.lifePathDescription);
 
   const lpCrystals = (lifePathCrystals[report.lifePathNumber] || []).map((crystal) => isEnglish
     ? { ...crystal, nameZh: crystal.name, energy: 'A personal symbol for reflection.', chakra: 'Reflection' }
@@ -117,11 +137,12 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
             </div>
           </div>
           <h2 className="font-serif text-2xl text-gradient-gold mb-3">{displayReport.personality}</h2>
-          <p className="text-sm leading-relaxed max-w-sm mx-auto" style={{ color: 'rgba(233,213,255,0.75)' }}>{displayReport.lifePathDescription}</p>
-          <NumerologyShareButton group="profile" sectionKey="life_path" sectionName={isEnglish ? 'Life Path' : '主命數'} summary={displayReport.lifePathDescription} guidance={displayReport.soulLesson} />
+          <p className="text-sm leading-relaxed max-w-sm mx-auto" style={{ color: 'rgba(233,213,255,0.75)' }}>{lifePathDescription}</p>
+          <NumerologyShareButton group="profile" sectionKey="life_path" sectionName={isEnglish ? 'Life Path' : '主命數'} summary={lifePathDescription} guidance={displayReport.soulLesson} />
           <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
             {lpCrystals.map(c => <CrystalChip key={c.nameZh} {...c} isEnglish={isEnglish} />)}
           </div>
+          {!fullFreeReading && <FullReadingPrompt isEnglish={isEnglish} onSignIn={onSignInForFullReading} />}
         </div>
       </div>
 
@@ -242,7 +263,7 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
                     <div className="px-4 pb-5 space-y-5 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                       {/* Trait tags — always free */}
                       <div className="flex flex-wrap gap-2">
-                        {data.traits.map(t => (
+                        {(fullFreeReading ? data.traits : data.traits.slice(0, Math.ceil(data.traits.length / 2))).map(t => (
                           <span
                             key={t}
                             className="text-xs rounded-full px-3 py-1"
@@ -262,14 +283,15 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
                           <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(196,181,253,0.45)' }}>{copy('Reflection Prompt', '能量盲點')}</p>
                         </div>
                         <p className="text-sm leading-[1.9] pl-3 border-l" style={{ color: '#e9d5ff', borderColor: 'rgba(251,191,36,0.2)' }}>
-                          {data.blindspot}
+                          {fullFreeReading ? data.blindspot : halfText(data.blindspot)}
                         </p>
                       </div>
 
-                      <div className="divider-gold" />
+                      {!fullFreeReading && <FullReadingPrompt isEnglish={isEnglish} onSignIn={onSignInForFullReading} />}
+                      {fullFreeReading && <div className="divider-gold" />}
 
-                      {/* Crystal section — locked or unlocked */}
-                      {(
+                      {/* Crystal suggestions, affirmation and sharing are part of the full reading */}
+                      {fullFreeReading && (
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Gem className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#5eead4' }} />

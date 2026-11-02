@@ -1,6 +1,9 @@
 import { verifyJwt } from './auth';
 
 export interface Env {
+  FACEBOOK_APP_ID?: string;
+  FACEBOOK_APP_SECRET?: string;
+  FACEBOOK_GRAPH_VERSION?: string;
   VEDIC_ANNUAL_TRANSITS_ENABLED?: string;
   VEDIC_ANNUAL_PRICE_TWD?: string;
   VEDIC_ANNUAL_PAYMENT_ENABLED?: string;

@@ -18,7 +18,7 @@ import { normalizeProkeralaVedic } from './prokeralaVedic';
 import { startVedicReport } from './vedicReportJobs';
 import type { ReportLanguage } from './vedicReportStore';
 
-export const VEDASTRO_DEFAULT_API_BASE = 'https://vedastro.zaishi.net/api';
+export const VEDASTRO_DEFAULT_API_BASE = 'https://api.vedastro.org/api';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
 export const VEDIC_REPORT_FORMAT_VERSION = 10;
@@ -1350,9 +1350,16 @@ function deriveFreeResults(chart: VedicChartData): VedicFreeResults {
 
 export async function createVedicChart(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env);
-  if(!user)return unauthorized(req,env,'請先登入再計算出生盤 / Sign in before calculating your birth chart.');
   const requestId = crypto.randomUUID();
 
+  // Each chart calls the paid Prokerala API, so visitors get a tighter per-IP allowance than members.
+  const guestLimitMessage = '訪客每小時最多 5 次、每天最多 10 次排盤，請稍後再試或登入會員 / Visitors can calculate 5 charts per hour and 10 per day. Please try later or sign in.';
+  if (!user) {
+    const daily = await rateLimit(env, 'vedic-chart-guest-day', clientIp(req), 10, 86400);
+    if (!daily.allowed) return tooManyRequests(req, env, guestLimitMessage);
+    const hourly = await rateLimit(env, 'vedic-chart-guest-hour', clientIp(req), 5, 3600);
+    if (!hourly.allowed) return tooManyRequests(req, env, guestLimitMessage);
+  }
   const limit = await rateLimit(env, 'vedic-chart', clientIp(req), 12, 3600);
   if (!limit.allowed) return tooManyRequests(req, env, '印度占星計算過於頻繁，請稍後再試');
 

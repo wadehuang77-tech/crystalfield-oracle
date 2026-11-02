@@ -43,7 +43,7 @@ check(SPREAD_CATALOG.tarot_pastlife_monthly_1000?.amount === 1000, 'tier 2 costs
 check(SPREAD_CATALOG.tarot_all_monthly_1500?.amount === 1500, 'tier 3 costs NT$1,500/month');
 check(entitlementSource.includes('WHERE (SELECT COUNT(*) FROM tarot_free_readings WHERE user_id = ?) < ?'), 'quota limit is enforced atomically by the Worker');
 check(entitlementSource.includes('ON CONFLICT(user_id, reading_id) DO NOTHING'), 'duplicate reading IDs cannot consume quota twice');
-check((cardsSource.match(/authorizeTarotSpread\(env, session\.id/g) ?? []).length >= 2, 'single and multi-card unlocks both enforce server authorization');
+check((cardsSource.match(/authorizeTarotReading\(req, env, body\.spread_id, body\.reading_id\)/g) ?? []).length >= 2, 'single and multi-card unlocks both enforce server authorization');
 check(!cardsSource.includes('localStorage') && !cardsSource.includes('sessionStorage'), 'browser storage cannot grant reading access');
 
 const migrationDb = new DatabaseSync(':memory:');

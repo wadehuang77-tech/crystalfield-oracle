@@ -1,5 +1,5 @@
 import { verifyOrderToken } from './checkout';
-import { authorizeTarotSpread, getTarotEntitlement, tarotAccessDenied } from './tarotEntitlements';
+import { authorizeTarotReading, getTarotEntitlement, tarotAccessDenied, tarotReadingDenied } from './tarotEntitlements';
 import { decideTarotQuota, mergeTarotUsageCounts, TAROT_FREE_READING_LIMIT } from './oracleQuota';
 import { TAROT_SPREADS, tarotTierForSpread, type TarotSpreadDef } from './tarotCatalog';
 import {
@@ -426,19 +426,38 @@ export async function freeUnlockSingle(req: Request, env: Env): Promise<Response
   if (!spread.free) return badRequest(req, env, 'not a single-card spread');
   if (!body.card_key) return badRequest(req, env, 'card_key required');
   if (!body.reading_id || body.reading_id.length > 100) return badRequest(req, env, 'reading_id required');
-  const session = await readSession(req, env);
-  if (!session) return unauthorized(req, env, '請先登入');
   const language = bodyContentLanguage(body);
   const card = await loadFullCard(env, spread.deck_id, body.card_key, language);
   if (!card) return json(req, env, { error: 'card not found' }, { status: 404 });
   if (language === 'en' && card.translation_available !== true) return cardTranslationUnavailable(req, env);
-  const access = await authorizeTarotSpread(env, session.id, body.spread_id, body.reading_id);
-  if (!access.allowed) return tarotAccessDenied(req, env, access.entitlement);
+  const access = await authorizeTarotReading(req, env, body.spread_id, body.reading_id);
+  if (!access.allowed) return tarotReadingDenied(req, env, access);
   return json(req, env, {
-    card: { ...card, reversed: !!body.reversed },
+    card: { ...card, ...(access.guest ? { gated: halfReading(card.gated) } : {}), reversed: !!body.reversed },
+    reading_access: access.guest ? 'partial' : 'full',
     free_readings_remaining: access.entitlement.free_readings_remaining,
     entitlement_status: access.source === 'free' ? 'free_available' : access.entitlement.status,
   });
+}
+
+const HALF_READING_MIN_LENGTH = 20;
+
+// Visitors receive about half of each interpretation; the rest is sent only after sign-in.
+// Long texts are cut at the sentence end nearest the midpoint, lists keep their first half, short labels stay whole.
+export function halfReading(value: unknown): unknown {
+  if (typeof value === 'string') {
+    if (value.length < HALF_READING_MIN_LENGTH) return value;
+    const middle = Math.ceil(value.length / 2);
+    const ends = [...value.matchAll(/[。！？!?.；;\n]/g)].map((match) => (match.index ?? 0) + 1);
+    const cut = ends.filter((end) => end >= middle * 0.6 && end <= middle * 1.4)
+      .sort((a, b) => Math.abs(a - middle) - Math.abs(b - middle))[0] ?? middle;
+    return `${value.slice(0, cut).trimEnd()}…`;
+  }
+  if (Array.isArray(value)) return value.slice(0, Math.ceil(value.length / 2)).map(halfReading);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, halfReading(item)]));
+  }
+  return value;
 }
 
 interface FreeSpreadPick { card_key: string; position: number; reversed?: boolean; }
@@ -705,8 +724,6 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     return badRequest(req, env, `此牌陣需要 ${spread.card_count} 張牌`);
   }
   if (!body.reading_id || body.reading_id.length > 100) return badRequest(req, env, 'reading_id required');
-  const session = await readSession(req, env);
-  if (!session) return unauthorized(req, env, '請先登入');
   const cards: Array<Record<string, unknown>> = [];
   for (const pick of body.picks) {
     const language = bodyContentLanguage(body);
@@ -716,11 +733,12 @@ export async function freeUnlockSpread(req: Request, env: Env): Promise<Response
     cards.push({ position: pick.position, reversed: !!pick.reversed, ...card });
   }
 
-  const access = await authorizeTarotSpread(env, session.id, body.spread_id, body.reading_id);
-  if (!access.allowed) return tarotAccessDenied(req, env, access.entitlement);
+  const access = await authorizeTarotReading(req, env, body.spread_id, body.reading_id);
+  if (!access.allowed) return tarotReadingDenied(req, env, access);
   return json(req, env, {
     spread_id: body.spread_id,
-    cards,
+    cards: access.guest ? cards.map((card) => ({ ...card, gated: halfReading(card.gated) })) : cards,
+    reading_access: access.guest ? 'partial' : 'full',
     access_source: access.source === 'free' ? 'free_quota' : access.entitlement.plan_id,
     entitlement_status: access.source === 'free' ? 'free_available' : access.entitlement.status,
     free_readings_remaining: access.entitlement.free_readings_remaining,

@@ -26,21 +26,21 @@ try {
   page.on('pageerror', error => console.log('PAGE ERROR', error.message));
   const base = 'http://127.0.0.1:5188';
   await other.goto(base+'/numerology');
-  await other.locator('[data-birth-login-gate]').waitFor();
+  await other.locator('h1').first().waitFor();
+  assert.equal(await other.getByRole('button',{name:/Sign Out|Sign out|登出/}).count(),0,'other tab starts signed out');
   await page.goto(base+'/login?redirect=%2Ftarot');
   await page.locator('input[type=email]').fill(user.email);
   await page.locator('input[type=password]').fill('example1234');
   await page.locator('button[type=submit]').click();
   await page.waitForURL('**/tarot');
-  await other.locator('[data-birth-login-gate]').waitFor({state:'detached'});
+  await other.getByRole('button',{name:/Sign Out|Sign out|登出/}).first().waitFor();
   for (const path of ['/oracle','/numerology','/human-design','/vedic-astrology','/maya-calendar','/en/numerology']) {
     console.log('Checking', path);
     await page.goto(base+path);
     await page.getByRole('button',{name:/Sign Out|Sign out|登出/}).first().waitFor();
-    assert.equal(await page.locator('[data-birth-login-gate]').count(),0,path);
   }
   assert.equal(signins,1);
   await page.getByRole('button',{name:/Sign Out|Sign out|登出/}).first().click();
-  await other.locator('[data-birth-login-gate]').waitFor();
+  await other.getByRole('button',{name:/Sign Out|Sign out|登出/}).first().waitFor({state:'detached'});
   console.log('PASS: one login across five tools, reload, English, and cross-tab sign-in/sign-out (mock session API).');
 } finally { await browser.close(); await server.close(); }

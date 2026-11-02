@@ -1,0 +1,22 @@
+diff --git a/Library/Logic/CacheManager.cs b/Library/Logic/CacheManager.cs
+--- a/Library/Logic/CacheManager.cs
++++ b/Library/Logic/CacheManager.cs
+@@ -339,9 +339,14 @@ namespace VedAstro.Library
+ 
+         // EXTENSION FUNCTIONS TO GET KEYS OUT OF MEMORY CACHE (USED IN ASTRONOMICAL FUNCTION CACHING)
+ 
+-        private static readonly Func<MemoryCache, object> GetEntriesCollection = Delegate.CreateDelegate(
+-            typeof(Func<MemoryCache, object>),
+-            typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod(true),
+-            throwOnBindFailure: true) as Func<MemoryCache, object>;
++        private static object GetEntriesCollection(MemoryCache cache)
++        {
++            var getter = typeof(MemoryCache)
++                .GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance)
++                ?.GetGetMethod(true);
++            return getter?.Invoke(cache, null)
++                ?? throw new PlatformNotSupportedException(
++                    "VedAstro cache persistence requires the MemoryCache EntriesCollection accessor.");
++        }
+ 
+ 

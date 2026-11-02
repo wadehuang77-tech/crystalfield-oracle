@@ -43,18 +43,39 @@ async function main() {
   );
   assert.equal(answersResponse.status, 401, 'Updating Human Design chart answers requires login');
 
-  const vedicResponse = await createVedicChart(
-    new Request('https://api.example.test/api/vedic-astrology/charts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: chartBody,
-    }),
-    env,
-  );
-  assert.equal(vedicResponse.status, 401, 'Creating a Vedic chart requires login');
-  assert.equal(databaseAccesses, 0, 'Unauthenticated chart requests must not access D1');
+  // Visitors may calculate a Vedic chart (it calls the paid Prokerala API), but only within a per-IP allowance.
+  let guestChartsToday = 10;
+  const rateLimitedEnv = {
+    JWT_SECRET: 'test-only-secret',
+    DB: {
+      prepare(sql: string) {
+        return {
+          bind(scope: string) {
+            return {
+              async first() { return { c: scope === 'vedic-chart-guest-day' ? guestChartsToday : 0 }; },
+              async run() { return {}; },
+            };
+          },
+          sql,
+        };
+      },
+    },
+  } as unknown as Env;
+  const vedicRequest = () => new Request('https://api.example.test/api/vedic-astrology/charts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': '203.0.113.9' },
+    body: chartBody,
+  });
+  const limited = await createVedicChart(vedicRequest(), rateLimitedEnv);
+  assert.equal(limited.status, 429, 'Visitors beyond 10 Vedic charts a day are rate limited');
+  assert.match(JSON.stringify(await limited.json()), /訪客每小時最多 5 次、每天最多 10 次/);
+  guestChartsToday = 0;
+  const allowed = await createVedicChart(vedicRequest(), rateLimitedEnv);
+  assert.notEqual(allowed.status, 401, 'Visitors are not asked to sign in to calculate a Vedic chart');
+  assert.notEqual(allowed.status, 429, 'Visitors within the allowance are not rate limited');
+  assert.equal(databaseAccesses, 0, 'Unauthenticated Human Design requests must not access D1');
 
-  console.log('Unauthenticated Human Design and Vedic chart APIs reject requests before D1 access: passed');
+  console.log('Human Design chart saving still requires login; visitors calculate Vedic charts within the per-IP allowance: passed');
 }
 
 void main();

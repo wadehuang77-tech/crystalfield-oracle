@@ -14,6 +14,9 @@ export function usePageViewTracking() {
     }
 
     lastPageKeyRef.current = pageKey;
+    if (/^\/(?:en\/)?maya-calendar(?:\/|$)/.test(location.pathname)) {
+      return;
+    }
 
     const isAdminPath =
       location.pathname === '/admin' ||
