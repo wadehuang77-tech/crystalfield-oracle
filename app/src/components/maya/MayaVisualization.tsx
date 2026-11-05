@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authUrlFor } from '../../lib/authLocale';
 import MayaKinBasicReading from './MayaKinBasicReading';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { DREAMSPELL_SOLAR_TOTEMS, DREAMSPELL_TONES } from '../../lib/dreamspell';
 import { isMayaDate, mayaForDate, taipeiDate, type MayaLocale, type MayaProfile } from '../../lib/maya';
 import { galacticToneVisual } from '../../lib/mayaVisualization';
@@ -11,7 +11,7 @@ import SolarSealIcon from './SolarSealIcon';
 import TzolkinMatrix from './TzolkinMatrix';
 import './mayaVisualization.css';
 
-export default function MayaVisualization({ locale, profile, publicPage, showMatrixGrid = true, enabled = true, viewerId }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean; showMatrixGrid?: boolean; enabled?: boolean; viewerId?: string }) {
+export default function MayaVisualization({ locale, profile, publicPage, showMatrixGrid = true, enabled = true, viewerId, afterBasicReading, onReadingVisibilityChange }: { locale: MayaLocale; profile?: MayaProfile; publicPage: boolean; showMatrixGrid?: boolean; enabled?: boolean; viewerId?: string; afterBasicReading?: ReactNode; onReadingVisibilityChange?: (visible: boolean) => void }) {
   const en = locale === 'en';
   const t = (zh: string, english: string) => en ? english : zh;
   const location = useLocation();
@@ -28,6 +28,8 @@ export default function MayaVisualization({ locale, profile, publicPage, showMat
   const [calculated, setCalculated] = useState<{ kin: number; date: string } | null>(() => restoredDate ? { kin: mayaForDate(restoredDate, locale).kin_number, date: restoredDate } : null);
   const [error, setError] = useState('');
   const identity = publicPage ? calculated : profile ? { kin: profile.kin_number, date: profile.birth_date } : null;
+  const readingVisible = !!(publicPage && identity && viewerId);
+  useEffect(() => { onReadingVisibilityChange?.(readingVisible); }, [readingVisible, onReadingVisibilityChange]);
   return <div className="maya-visualization">
     {publicPage && <section className="maya-cosmic-panel">
       <p className="maya-eyebrow">KIN · 260</p>
@@ -50,7 +52,7 @@ export default function MayaVisualization({ locale, profile, publicPage, showMat
       {error && <p role="alert">{error}</p>}
     </section>}
     {identity && <GalacticIdentityCard kin={identity.kin} birthDate={identity.date} locale={locale} />}
-    {publicPage && identity && (viewerId ? <MayaKinBasicReading kin={identity.kin} /> : <section className="maya-cosmic-panel">
+    {publicPage && identity && (viewerId ? <><MayaKinBasicReading kin={identity.kin} />{afterBasicReading}</> : <section className="maya-cosmic-panel">
       <p>{t('登入後免費查看核心圖騰、銀河音調、基本特質總結與字數統計。', 'Sign in to read your core seal, galactic tone, basic interpretation and character count for free.')}</p>
       <button type="button" className="min-h-12 rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950" onClick={() => {
         try { sessionStorage.setItem('maya_kin_login', JSON.stringify({ date: identity.date, at: Date.now() })); } catch { /* Login remains available without browser storage. */ }

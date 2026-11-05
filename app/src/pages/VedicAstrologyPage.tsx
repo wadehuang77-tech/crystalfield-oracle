@@ -177,6 +177,7 @@ export default function VedicAstrologyPage() {
   const [checkoutLoading, setCheckoutLoading] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
   const [report, setReport] = useState<VedicReport | null>(null);
+  const [paidBasicReading, setPaidBasicReading] = useState<{ context: string; results: VedicFreeResults } | null>(null);
   const [basicReading, setBasicReading] = useState<{ context: string; results: VedicFreeResults } | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
@@ -417,6 +418,15 @@ export default function VedicAstrologyPage() {
     return () => { cancelled = true; };
   }, [user, authLoading, currentChartId, currentChartToken, visibleReportContext, returnOrderId, language]);
 
+  useEffect(() => {
+    if (authLoading || !user || !currentChartId) return;
+    let cancelled = false;
+    void vedicAstrologyApi.getBasicReading({ chart_id: currentChartId, reading_kind: 'paid', ...(returnOrderId ? { order_id: returnOrderId } : {}) })
+      .then(({results}) => { if (!cancelled) setPaidBasicReading({context: visibleReportContext, results}); })
+      .catch(() => { if (!cancelled) setPaidBasicReading(null); });
+    return () => { cancelled = true; };
+  }, [authLoading, user, currentChartId, returnOrderId, visibleReportContext, progressRefresh]);
+
   const chartUnlocked = !!visibleReport || (!!visibleProgress && visibleProgress.chartId === currentChartId);
 
   return (
@@ -484,6 +494,13 @@ export default function VedicAstrologyPage() {
             navigate(authUrlFor(location.pathname, 'login', location.pathname+'?'+query));
           }} disabled={!!checkoutLoading || authLoading || reportLoading} />
           {checkoutError && <p role="alert" className="mx-auto mt-4 max-w-5xl rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{checkoutError}</p>}
+          <section className="mt-10 rounded-2xl border border-amber-300/25 bg-slate-950/60 p-5 sm:p-8" data-vedic-paid-basic>
+            <h2 className="text-2xl font-semibold text-amber-100">{language === 'en' ? 'Personal Guidance · NT$199' : '個人深度指引 · NT$199'}</h2>
+            <p className="mt-3 text-violet-100">{language === 'en' ? 'Archetype · Gifts in This Life · Planetary Cycle' : '人格原型・今生天賦・行星週期'}</p>
+            {user && paidBasicReading?.context === visibleReportContext ? <div className="mt-6 grid gap-5 lg:grid-cols-3">
+              {[paidBasicReading.results.archetype, paidBasicReading.results.talents, paidBasicReading.results.currentCycle].map((section, index) => <ResultCard key={index} number={String(index + 1).padStart(2, '0')} eyebrow={(language === 'en' ? ['Archetype', 'Gifts in This Life', 'Planetary Cycle'] : ['人格原型', '今生天賦', '行星週期'])[index]} title={section.title} body={section.body} />)}
+            </div> : <button type="button" onClick={() => void checkout('vedic_basic')} disabled={!!checkoutLoading || authLoading} className="mt-5 min-h-12 rounded-xl bg-amber-200 px-6 py-3 font-semibold text-slate-950 disabled:opacity-50">{language === 'en' ? 'Unlock all three · NT$199' : '一次解鎖三項解析 · NT$199'}</button>}
+          </section>
           <VedicChartCore chart={chart.chart} language={language} />
         </>}
 
@@ -534,12 +551,12 @@ export function FreeResults({ chart, language, basicResults, signedIn = false, o
       <BirthChart chart={chart.chart} language={language} />
       {!signedIn && <button type="button" onClick={onUnlock} disabled={disabled} className="mt-6 min-h-12 w-full rounded-xl bg-amber-200 px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{isEnglish ? 'Sign in with Crystal Field or Google for the remaining 50%' : '晶域心語／Google 登入，免費查看剩餘 50%'}</button>}
       {result ? <div className="mt-9 grid gap-5 lg:grid-cols-3">
-        <ResultCard number="01" eyebrow={isEnglish ? 'Archetype' : '人格原型'} title={result.archetype.title} body={result.archetype.body} />
-        <ResultCard number="02" eyebrow={isEnglish ? 'Gifts in This Life' : '今生天賦'} title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
-        <ResultCard number="03" eyebrow={isEnglish ? 'Planetary Cycle' : '行星週期'} title={result.currentCycle.title} body={result.currentCycle.body} />
+        <ResultCard number="01" eyebrow={isEnglish ? 'Ascendant' : '上升星座'} title={result.archetype.title} body={result.archetype.body} />
+        <ResultCard number="02" eyebrow={isEnglish ? 'Moon Sign' : '月亮星座'} title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
+        <ResultCard number="03" eyebrow={isEnglish ? 'Ascendant Ruler Placement' : '命主星落宮'} title={result.currentCycle.title} body={result.currentCycle.body} />
       </div> : <div className="mt-9 rounded-[1.75rem] border border-amber-300/30 bg-slate-950/70 p-6 sm:p-8">
         <div className="grid gap-5 lg:grid-cols-3">
-          {(isEnglish ? ['Archetype', 'Gifts in This Life', 'Planetary Cycle'] : ['人格原型', '今生天賦', '行星週期']).map((title, index) => <article key={title} className="rounded-2xl border border-violet-300/25 p-6"><span className="text-amber-200">0{index + 1} · {isEnglish ? 'Loading guidance' : '正在讀取指引'}</span><h3 className="mt-3 font-serif text-2xl text-amber-50">{title}</h3><p className="mt-4 leading-7 text-violet-100">{isEnglish ? 'If guidance does not load, refresh this page or calculate your chart again.' : '若指引未能載入，請重新整理頁面或重新計算星盤。'}</p></article>)}
+          {(isEnglish ? ['Ascendant', 'Moon Sign', 'Ascendant Ruler Placement'] : ['上升星座', '月亮星座', '命主星落宮']).map((title, index) => <article key={title} className="rounded-2xl border border-violet-300/25 p-6"><span className="text-amber-200">0{index + 1} · {isEnglish ? 'Loading guidance' : '正在讀取指引'}</span><h3 className="mt-3 font-serif text-2xl text-amber-50">{title}</h3><p className="mt-4 leading-7 text-violet-100">{isEnglish ? 'If guidance does not load, refresh this page or calculate your chart again.' : '若指引未能載入，請重新整理頁面或重新計算星盤。'}</p></article>)}
         </div>
 
       </div>}
