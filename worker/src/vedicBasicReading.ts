@@ -1,12 +1,25 @@
+import { verifyJwt } from './auth';
 import { json, readBody, readSession, unauthorized, badRequest, type Env } from './utils';
 import { englishVedicFreeResults } from '../../shared/vedicBasicReading';
 
-// A paid order must belong to the signed-in member and the requested chart.
+// Guests need their signed chart token; members can read their complete basic guidance.
+// Historical purchases remain available through the existing owner/order check.
 export async function getVedicBasicReading(req: Request, env: Env): Promise<Response> {
   const user = await readSession(req, env, true);
-  if (!user) return unauthorized(req, env, '請先登入');
-  const body = await readBody<{ order_id?: string; chart_id?: string; language?: string }>(req);
+
+  const body = await readBody<{ order_id?: string; chart_id?: string; language?: string; chart_token?: string }>(req);
   if (!body.chart_id) return badRequest(req, env, '缺少星盤資料');
+  const owned = await env.DB.prepare('SELECT user_id, chart_json, free_result_json FROM vedic_charts WHERE id = ?')
+    .bind(body.chart_id).first<{user_id:string|null;chart_json:string;free_result_json:string}>();
+  const token = body.chart_token ? await verifyJwt(body.chart_token, env.JWT_SECRET) : null;
+  const tokenAccess = token?.sub === body.chart_id && token.email === 'vedic-chart@crystalfield.local';
+  if (owned && ((user && owned.user_id === user.id) || (owned.user_id === null && tokenAccess))) {
+    const full = body.language === 'en' ? englishVedicFreeResults(JSON.parse(owned.chart_json)) : JSON.parse(owned.free_result_json);
+    const half = (section: typeof full.archetype) => ({...section, body: section.body.slice(0, Math.ceil(section.body.length / 2))});
+    const results = user ? full : {archetype:half(full.archetype),talents:{...half(full.talents),items:full.talents.items.slice(0,1)},currentCycle:half(full.currentCycle)};
+    return json(req, env, {chart_id:body.chart_id,results,preview:!user}, {headers:{'Cache-Control':'no-store'}});
+  }
+  if (!user) return unauthorized(req, env, '請先登入或重新計算星盤');
   type OrderRow = { user_id: string; status: string; item_id: string; picks_payload: string };
   const order = body.order_id
     ? await env.DB.prepare('SELECT user_id, status, item_id, picks_payload FROM orders WHERE id = ?')

@@ -408,14 +408,14 @@ export default function VedicAstrologyPage() {
   const visibleProgress = progressContext.current === visibleReportContext ? reportProgress : null;
   const visibleReport = progressContext.current === visibleReportContext ? report : null;
   useEffect(() => {
-    if (!user || !currentChartId) return;
+    if (authLoading || !currentChartId) return;
     const orderId = returnOrderId;
     let cancelled = false;
-    void vedicAstrologyApi.getBasicReading({ chart_id: currentChartId, ...(orderId ? { order_id: orderId } : {}) })
+    void vedicAstrologyApi.getBasicReading({ chart_id: currentChartId, chart_token: currentChartToken, ...(orderId ? { order_id: orderId } : {}) })
       .then(({ results }) => { if (!cancelled) setBasicReading({ context: visibleReportContext, results }); })
-      .catch(() => { /* Unpaid charts stay locked; paid members see their guidance. */ });
+      .catch(() => { /* Do not show cached guidance when chart access cannot be verified. */ });
     return () => { cancelled = true; };
-  }, [user, currentChartId, visibleReportContext, returnOrderId, language]);
+  }, [user, authLoading, currentChartId, currentChartToken, visibleReportContext, returnOrderId, language]);
 
   const chartUnlocked = !!visibleReport || (!!visibleProgress && visibleProgress.chartId === currentChartId);
 
@@ -479,7 +479,10 @@ export default function VedicAstrologyPage() {
                 : language === 'en' ? 'Your unlocked reading is available below' : '已解鎖解析顯示於下方'
               : language === 'en' ? 'In-depth interpretation awaits unlock' : '深度解析待解鎖'}
           </div>
-          <FreeResults chart={chart} language={language} basicResults={basicReading?.context === visibleReportContext ? basicReading.results : null} onUnlock={() => void checkout('vedic_basic')} disabled={!!checkoutLoading || authLoading || reportLoading} />
+          <FreeResults chart={chart} language={language} basicResults={basicReading?.context === visibleReportContext ? basicReading.results : null} signedIn={!!user} onUnlock={() => {
+            const query = new URLSearchParams(location.search); query.set('checkout_login', '1');
+            navigate(authUrlFor(location.pathname, 'login', location.pathname+'?'+query));
+          }} disabled={!!checkoutLoading || authLoading || reportLoading} />
           {checkoutError && <p role="alert" className="mx-auto mt-4 max-w-5xl rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{checkoutError}</p>}
           <VedicChartCore chart={chart.chart} language={language} />
         </>}
@@ -512,14 +515,14 @@ function Field({ label, wide, children }: { label: string; wide?: boolean; child
   return <label className={wide ? 'sm:col-span-2' : ''}><span className="mb-2 block text-sm font-medium text-amber-100/80">{label}</span>{children}</label>;
 }
 
-export function FreeResults({ chart, language, basicResults, onUnlock, disabled }: { chart: VedicChartResponse; language: 'zh-Hant' | 'en'; basicResults?: VedicFreeResults | null; onUnlock?: () => void; disabled?: boolean }) {
-  // The three personal readings are shown only after the paid basic-reading API returns them.
+export function FreeResults({ chart, language, basicResults, signedIn = false, onUnlock, disabled }: { signedIn?: boolean; chart: VedicChartResponse; language: 'zh-Hant' | 'en'; basicResults?: VedicFreeResults | null; onUnlock?: () => void; disabled?: boolean }) {
+  // The API supplies half-length guest previews or complete authenticated guidance.
   const result = basicResults;
   const isEnglish = language === 'en';
   const translatePlanet = (value: string | undefined) => value ? (isEnglish ? PLANET_EN[value] || value : PLANET_ZH[value] || value) : '';
   return (
     <section id="vedic-free-results" className="mt-20 scroll-mt-24">
-      <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">{isEnglish ? 'Birth Chart and Personal Guidance' : '出生盤與個人指引'}</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{isEnglish ? 'Your Vedic Astrology Chart' : '你的印度占星出生盤'}</h2><p className="mt-4 text-sm text-violet-100/55">{isEnglish ? 'Free basic chart · Personal guidance unlocked separately' : '基本出生盤免費 · 個人指引另行付費解鎖'}</p></div>
+      <div className="text-center"><p className="text-sm tracking-[0.3em] text-amber-300/60">{isEnglish ? 'Birth Chart and Personal Guidance' : '出生盤與個人指引'}</p><h2 className="mt-3 font-serif text-3xl text-amber-50 sm:text-5xl">{isEnglish ? 'Your Vedic Astrology Chart' : '你的印度占星出生盤'}</h2><p className="mt-4 text-sm text-violet-100/55">{isEnglish ? 'Free basic chart · Preview 50%; sign in for the remaining 50%' : '基本盤免登入計算 · 先看 50%，登入後免費看剩餘 50%'}</p></div>
       <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <ChartBadge label={isEnglish ? 'Ascendant' : '上升'} value={isEnglish ? chart.chart.lagna : SIGN_ZH[chart.chart.lagna] || chart.chart.lagna} />
         <ChartBadge label={isEnglish ? 'Moon' : '月亮'} value={isEnglish ? chart.chart.moonSign : SIGN_ZH[chart.chart.moonSign] || chart.chart.moonSign} />
@@ -529,16 +532,16 @@ export function FreeResults({ chart, language, basicResults, onUnlock, disabled 
         <ChartBadge label={isEnglish ? 'Sub-period' : '次週期'} value={chart.chart.antarDasha ? translatePlanet(chart.chart.antarDasha) : isEnglish ? 'Calculating' : '計算中'} />
       </div>
       <BirthChart chart={chart.chart} language={language} />
+      {!signedIn && <button type="button" onClick={onUnlock} disabled={disabled} className="mt-6 min-h-12 w-full rounded-xl bg-amber-200 px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{isEnglish ? 'Sign in with Crystal Field or Google for the remaining 50%' : '晶域心語／Google 登入，免費查看剩餘 50%'}</button>}
       {result ? <div className="mt-9 grid gap-5 lg:grid-cols-3">
         <ResultCard number="01" eyebrow={isEnglish ? 'Archetype' : '人格原型'} title={result.archetype.title} body={result.archetype.body} />
         <ResultCard number="02" eyebrow={isEnglish ? 'Gifts in This Life' : '今生天賦'} title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>
         <ResultCard number="03" eyebrow={isEnglish ? 'Planetary Cycle' : '行星週期'} title={result.currentCycle.title} body={result.currentCycle.body} />
       </div> : <div className="mt-9 rounded-[1.75rem] border border-amber-300/30 bg-slate-950/70 p-6 sm:p-8">
         <div className="grid gap-5 lg:grid-cols-3">
-          {(isEnglish ? ['Archetype', 'Gifts in This Life', 'Planetary Cycle'] : ['人格原型', '今生天賦', '行星週期']).map((title, index) => <article key={title} className="rounded-2xl border border-violet-300/25 p-6"><span className="text-amber-200">0{index + 1} · {isEnglish ? 'Locked' : '待解鎖'}</span><h3 className="mt-3 font-serif text-2xl text-amber-50">{title}</h3><p className="mt-4 leading-7 text-violet-100">{isEnglish ? 'Included in the three-part personal guidance.' : '解鎖後閱讀你的個人化完整指引。'}</p></article>)}
+          {(isEnglish ? ['Archetype', 'Gifts in This Life', 'Planetary Cycle'] : ['人格原型', '今生天賦', '行星週期']).map((title, index) => <article key={title} className="rounded-2xl border border-violet-300/25 p-6"><span className="text-amber-200">0{index + 1} · {isEnglish ? 'Loading guidance' : '正在讀取指引'}</span><h3 className="mt-3 font-serif text-2xl text-amber-50">{title}</h3><p className="mt-4 leading-7 text-violet-100">{isEnglish ? 'If guidance does not load, refresh this page or calculate your chart again.' : '若指引未能載入，請重新整理頁面或重新計算星盤。'}</p></article>)}
         </div>
-        <button type="button" onClick={onUnlock} disabled={disabled} className="mt-6 min-h-12 w-full rounded-xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 hover:bg-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200 disabled:opacity-50">{isEnglish ? 'Unlock all three · NT$199' : '一次解鎖三項指引 · NT$199'}</button>
-        <p className="mt-3 text-center text-sm leading-6 text-violet-100">{isEnglish ? 'Sign in before payment. Unlocks this birth chart after successful payment.' : '付款前須先登入；付款成功後解鎖本次出生盤的三項指引。'}</p>
+
       </div>}
     </section>
   );

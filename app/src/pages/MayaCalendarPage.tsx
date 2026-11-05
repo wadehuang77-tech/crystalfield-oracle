@@ -1,3 +1,4 @@
+import MayaKinBasicReading from '../components/maya/MayaKinBasicReading';
 import MayaGenerationProgress from '../components/maya/MayaGenerationProgress';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -225,7 +226,7 @@ export default function MayaCalendarPage() {
   }
 
   if (!privatePage) return <MayaSeoLanding locale={locale} features={features} configLoading={configLoading} configError={configError}
-    availability={premiumAvailability} availabilityError={premiumConfigError} enter={enter} adminPreview={!!user && features.admin_preview === true} viewerId={user?.id ?? 'guest'} />;
+    availability={premiumAvailability} availabilityError={premiumConfigError} enter={enter} adminPreview={!!user && features.admin_preview === true} viewerId={user?.id} />;
   if (configLoading) return <main className="p-8 text-white"><h1>{mayaMemberSeo(locale).h1}</h1><p role="status">{t('正在確認功能狀態…', 'Checking feature availability...')}</p><Link to={localized('/maya-calendar/')}>{memberPage ? t('馬雅曆免費解盤', 'Free Dreamspell KIN Calculator') : t('認識馬雅曆與免費 KIN 查詢', 'About Dreamspell and free KIN lookup')}</Link></main>;
   if (!features.public || (privatePage && !features.member)) {
     return <main className="p-8 text-white"><h1>{t('Dreamspell 尚未開放', 'Dreamspell is not available yet')}</h1>{(configError || error) && <p role="alert">{configError || error}</p>}</main>;
@@ -289,7 +290,7 @@ export default function MayaCalendarPage() {
         {orderStatus === 'pending' && <button className="mt-3 underline" onClick={() => window.location.reload()}>{t('重新整理付款狀態（不會重複扣款）', 'Refresh payment status (does not charge again)')}</button>}
       </div>}
     </div>
-    {!privatePage && <MayaVisualization key={`${identity}:public`} locale={locale} publicPage showMatrixGrid={!compactPage} />}
+    {!privatePage && <MayaVisualization key={`${locale}:public`} viewerId={user?.id} locale={locale} publicPage showMatrixGrid={!compactPage} />}
     {!privatePage && <LifeBlueprintNavigator report={null} locale={locale} />}
     {privatePage && user && <>
       <section className={panel}>
@@ -310,9 +311,9 @@ export default function MayaCalendarPage() {
         {personal && <div className="space-y-4 rounded-xl border border-cyan-400/20 bg-slate-950/40 p-4 sm:p-5" data-maya-member-signature>
           <h3 className="text-xl font-semibold text-cyan-100">{t('你的專屬馬雅星際印記', 'Your Personal Galactic Signature')}</h3>
           {signature(personal)}
-          <p className="leading-relaxed text-slate-200">{t(
+          {en ? <p className="leading-relaxed text-slate-200">{t(
             `你的星際印記結合了「${personal.solar_seal}」與「${personal.galactic_tone}」音調。把它當作一面溫柔的鏡子，留意生活中讓你感到自在的時刻，從一個小行動開始認識自己的可能。這是象徵性的自我探索，不是命運的定義。`,
-            `Your signature brings together ${personal.solar_seal} and the ${personal.galactic_tone} tone. Let these symbols be a gentle prompt to notice when you feel most like yourself, and try one small action that feels meaningful. This is an invitation to reflect, not a fixed description of who you are.`)}</p>
+            `Your signature brings together ${personal.solar_seal} and the ${personal.galactic_tone} tone. Let these symbols be a gentle prompt to notice when you feel most like yourself, and try one small action that feels meaningful. This is an invitation to reflect, not a fixed description of who you are.`)}</p> : <MayaKinBasicReading kin={personal.kin_number} />}
           <button className="mt-4 min-h-11 underline disabled:opacity-50" disabled={busy} onClick={() => void action(async () => {
             const url = `https://www.crystalfield101.com${localized('/maya-calendar')}`;
             const text = `KIN ${personal.kin_number}: ${personal.solar_seal}, ${personal.galactic_tone}`;

@@ -655,7 +655,7 @@ export interface VedicChartResponse {
 }
 
 export const vedicAstrologyApi = {
-  getBasicReading: (body: { chart_id: string; order_id?: string }) =>
+  getBasicReading: (body: { chart_id: string; order_id?: string; chart_token?: string }) =>
     req<{ chart_id: string; results: VedicFreeResults }>('/api/vedic-astrology/basic-reading', {
       method: 'POST', body: { ...body, language: activeContentLanguage() },
     }),

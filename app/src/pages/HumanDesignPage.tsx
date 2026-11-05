@@ -437,6 +437,8 @@ export default function HumanDesignPage() {
               chart={chart}
               chartId={chartId}
               access={effectiveAccess}
+              signedIn={!!user}
+              onSignIn={() => { requireCheckoutLogin(); }}
               checkoutLoading={checkoutLoading}
               isFullUnlocked={isFullUnlocked}
               onStartFullCheckout={startFullCheckout}

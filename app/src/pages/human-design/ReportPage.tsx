@@ -11,6 +11,8 @@ interface ReportPageProps {
   language: Language;
   chart: HDChart;
   chartId?: string;
+  signedIn?: boolean;
+  onSignIn?: () => void;
   access?: 'locked' | 'email' | 'basic' | 'full' | 'bundle';
   checkoutLoading?: boolean;
   isFullUnlocked?: boolean;
@@ -239,7 +241,7 @@ function FreeCard({
     content = isEnglish ? 'Content is loading. Please try again shortly.' : '內容載入中，請稍後再試。';
   }
 
-  const previewLength = Math.max(42, Math.ceil(content.replace(/\s/g, '').length * 0.2));
+  const previewLength = Math.ceil(content.length * 0.5);
   const previewContent = locked
     ? `${content.slice(0, previewLength).trim()}...`
     : content;
@@ -271,20 +273,18 @@ function FreeCard({
         </button>
         {(expanded || locked) && (
           <div className="px-6 pb-6 border-t border-white/5 pt-4">
-            <div className={`space-y-3.5 ${locked ? 'relative max-h-24 overflow-hidden' : ''}`}>
+            <div className={`space-y-3.5 ${locked ? 'relative' : ''}`}>
               {displayParagraphs.map((p, i) => (
                 <p key={i} className="text-white/65 text-sm leading-[1.85]">{p}</p>
               ))}
-              {locked && (
-                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-slate-950/95 to-transparent" />
-              )}
+
             </div>
             {locked && (
               <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-300/5 px-4 py-4 text-center">
                 <p className="mb-3 text-xs leading-relaxed text-cyan-100/70">
                   {isEnglish
-                    ? 'About 20% is shown. Unlock the Human Design core analysis to read this and the other core sections.'
-                    : '已顯示約 20% 內容。解鎖我的人類圖核心解析後，可查看這一區與其他核心段落。'}
+                    ? 'You are viewing 50% of this basic reading. Sign in with your Crystal Field or Google account to read the remaining 50% for free.'
+                    : '目前顯示 50% 基本解析，使用晶域心語或 Google 帳號登入後，即可免費查看剩餘 50%。'}
                 </p>
                 <button
                   type="button"
@@ -293,7 +293,7 @@ function FreeCard({
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Lock className="h-4 w-4" />
-                  {checkoutLoading ? (isEnglish ? 'Opening checkout...' : '前往付款中...') : isEnglish ? 'Unlock Human Design core analysis NT$199' : '解鎖我的人類圖核心解析 NT$199'}
+                  {checkoutLoading ? (isEnglish ? 'Opening checkout...' : '前往付款中...') : isEnglish ? 'Sign in to read the remaining 50%' : '登入／Google 登入，查看剩餘 50%'}
                 </button>
               </div>
             )}
@@ -391,6 +391,8 @@ function FullReportLoadingCard({ isEnglish }: { isEnglish: boolean }) {
 }
 
 export default function ReportPage({
+  signedIn = false,
+  onSignIn,
   language,
   chart,
   chartId = '',
@@ -583,7 +585,8 @@ export default function ReportPage({
                 chart={chart}
                 language={language}
                 index={i}
-                locked={!basicUnlocked && s.id !== 'type'}
+                locked={!signedIn}
+                onUnlock={onSignIn}
                 checkoutLoading={checkoutLoading}
 
               />
@@ -601,6 +604,8 @@ export default function ReportPage({
               <FreeCard
                 key={s.id}
                 section={{ ...s, free: true, emailUnlock: false }}
+                locked={!signedIn}
+                onUnlock={onSignIn}
                 chart={chart}
                 language={language}
                 index={i}
