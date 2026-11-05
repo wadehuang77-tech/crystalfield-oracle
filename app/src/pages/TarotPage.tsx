@@ -728,7 +728,7 @@ function TarotPage() {
                             </p>
                             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-b from-transparent to-slate-900 pointer-events-none rounded-b-lg"></div>
                           </div>
-                          <p className="text-orange-200/60 text-xs mt-3">{cardLabel('前 30% 預覽，登入後單張牌陣無限次免費，多張牌陣免費體驗 7 次')}</p>
+                          <p className="text-orange-200/60 text-xs mt-3">{cardLabel('先看 50% 解讀，登入後查看剩餘 50%；所有牌陣共免費 7 次')}</p>
                         </div>}
 
                         {!isUnlocked && singleGate.phase === 'loading' && (

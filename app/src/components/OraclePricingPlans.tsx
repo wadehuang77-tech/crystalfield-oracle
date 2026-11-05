@@ -60,7 +60,7 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
       <div className="text-center">
         <Crown className="mx-auto h-10 w-10 text-amber-300" />
         <h4 className="mt-3 font-serif text-xl text-amber-100">塔羅方案</h4>
-        <p className="mt-2 text-sm text-amber-100/75">登入後單張牌陣無限次免費；多張牌陣共可免費體驗 7 次；月費期間內，方案涵蓋的牌陣可無限次占卜。</p>
+        <p className="mt-2 text-sm text-amber-100/75">免登入，所有牌陣共可免費體驗 7 次；先看 50%，登入後查看完整解讀；月費期間內，方案涵蓋的牌陣可無限次占卜。</p>
         <strong className="mt-2 block text-sm text-white/80">多張牌陣剩餘免費次數：{entitlement.free_readings_remaining}</strong>
       </div>
       <TarotSubscriptionDetails selectedPlanId={selectedPlanId} onSelect={setSelectedPlanId} disabled={isLoading || entitlement.plan_tier > 0} language={isEnglish ? 'en' : 'zh-Hant'} />

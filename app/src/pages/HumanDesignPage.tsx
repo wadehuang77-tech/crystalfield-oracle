@@ -1,3 +1,4 @@
+import { saveReadingForLogin, restoreReadingAfterLogin, clearReadingLoginState } from '../lib/readingLoginState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { authUrlFor } from '../lib/authLocale';
@@ -155,6 +156,14 @@ export default function HumanDesignPage() {
     setShareCapabilities(getHumanDesignShareCapabilities());
   }, []);
 
+  useEffect(() => {
+    if (authLoading || !user) return;
+    const saved = restoreReadingAfterLogin<StoredState>('human-design', user.id);
+    if (!saved?.chart) return;
+    setChart(saved.chart); setBirthData(saved.birthData); setChartId(saved.chartId);
+    setEmail(saved.email ?? ''); setPage('report');
+  }, [authLoading, user?.id]);
+
   const goTo = (next: Page) => {
     setPage(next);
     setPageKey((k) => k + 1);
@@ -182,6 +191,8 @@ export default function HumanDesignPage() {
     setChartId('');
     setAccess('locked');
     setEmail('');
+    if (user) clearReadingLoginState('human-design');
+    if (!user) saveReadingForLogin('human-design', { chart: calculated, chartId: '', birthData: {date: birthDate, time: birthTime, city: birthCity}, email });
     goTo('hero');
     persistState({ chart: calculated, chartId: '', birthData: nextBirthData, access: 'locked', email: '' });
 
@@ -245,7 +256,10 @@ export default function HumanDesignPage() {
   const requireCheckoutLogin = () => {
     if (authLoading) return false;
     if (user) return true;
-    if (chart) persistState({ chart, chartId, birthData, access, email });
+    if (chart) {
+      persistState({ chart, chartId, birthData, access, email });
+      saveReadingForLogin('human-design', { chart, chartId, birthData, email });
+    }
     const returnParams = new URLSearchParams(location.search);
     returnParams.set('checkout_login', '1');
     navigate(authUrlFor(location.pathname, 'login', `${location.pathname}?${returnParams}`));

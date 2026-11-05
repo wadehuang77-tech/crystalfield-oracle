@@ -22,11 +22,11 @@ export function TarotLoginGate({ theme = 'dark' }: { theme?: 'light' | 'dark' })
         <span className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border ${dark ? 'border-blue-300/35 bg-blue-400/10 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-700'}`}>
           <Lock className="h-6 w-6" />
         </span>
-        <h3 className="text-xl font-bold">{isEnglish ? 'Sign in for Unlimited Free Single-Card Readings' : '登入帳號，七種牌組單張占卜無限次免費'}</h3>
+        <h3 className="text-xl font-bold">{isEnglish ? 'Sign in to View Your Full Reading' : '登入帳號，查看剩餘 50% 解讀'}</h3>
         <p className={`mt-2 text-sm leading-6 ${dark ? 'text-blue-100/70' : 'text-slate-600'}`}>
           {isEnglish
-            ? 'Single-card readings never use your free credits. Multi-card spreads include seven free readings across all decks; monthly plans are available after that.'
-            : '單張牌陣不扣免費額度；多張牌陣可跨牌組免費體驗 7 次，用完後可選擇月費方案。'}
+            ? 'All spreads share seven free readings without sign-in. Preview 50%, then sign in for the rest. Monthly plans are available after your free quota is used.'
+            : '免登入，所有牌陣跨七種牌組共可免費體驗 7 次；先看 50%，登入後查看剩餘 50%，不需重新抽牌。次數用完後可選擇月費方案。'}
         </p>
       </div>
       <div className={`mx-auto mb-6 grid max-w-2xl gap-2 text-left sm:grid-cols-3 ${dark ? 'text-blue-50' : 'text-slate-900'}`}>

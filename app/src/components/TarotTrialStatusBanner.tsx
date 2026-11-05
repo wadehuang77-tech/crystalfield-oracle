@@ -50,7 +50,7 @@ export function TarotTrialStatusBanner() {
       <aside className="border-y border-amber-400/25 bg-slate-950 px-4 py-3 text-center text-sm text-amber-100" aria-live="polite">
         {entitlement && entitlement.status !== 'login_required' && <>
           <p className="font-semibold"><Sparkles className="mr-2 inline h-4 w-4" />{entitlement.plan_tier > 0 ? `塔羅會員第 ${entitlement.plan_tier} 級` : '塔羅免費占卜'}</p>
-          <p className="mt-1 text-xs text-amber-100/75">{entitlement.plan_tier > 0 ? '月費期間內，方案涵蓋的牌陣可無限次完整占卜' : `單張牌陣無限次免費；多張牌陣剩餘免費 ${entitlement.free_readings_remaining} 次`}</p>
+          <p className="mt-1 text-xs text-amber-100/75">{entitlement.plan_tier > 0 ? '月費期間內，方案涵蓋的牌陣可無限次完整占卜' : `所有牌陣共用額度，剩餘免費 ${entitlement.free_readings_remaining} 次`}</p>
         </>}
         {showPartial && <div className="mt-2">
           <p className="font-semibold text-amber-50">{partialCopy}</p>
@@ -58,7 +58,7 @@ export function TarotTrialStatusBanner() {
         </div>}
         {entitlement && entitlement.free_readings_remaining === 0 && entitlement.plan_tier === 0 && entitlement.status !== 'login_required' && (
           <button type="button" onClick={() => setShowMembership(true)} className="mt-3 rounded-lg bg-amber-600 px-5 py-2 font-semibold text-white hover:bg-amber-500">
-            {isEnglish ? 'Choose a plan to continue' : '多張牌陣免費次數已用完，選擇月費方案'}
+            {isEnglish ? 'Choose a plan to continue' : '7 次免費占卜已用完，選擇月費方案'}
           </button>
         )}
         <MembershipGate isOpen={showMembership} onClose={() => setShowMembership(false)} />

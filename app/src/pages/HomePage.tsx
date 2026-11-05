@@ -196,11 +196,6 @@ function HomePage() {
     startingRef.current = true;
     setIsStarting(true);
     try {
-      if (!user) {
-        pendingRef.current = { option, question: trimmedQuestion };
-        setLoginRequired(true);
-        return;
-      }
       const access = (await tarotEntitlementApi.me()).entitlement;
       setEntitlement(access);
       setLoginRequired(false);
@@ -325,7 +320,7 @@ function HomePage() {
                         disabled={isStarting}
                         className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3.5 text-base font-bold tracking-widest text-white shadow-lg transition hover:scale-[1.01] active:scale-[0.99] ${styles.button}`}
                       >
-                        {isStarting ? copy('checking', '確認資格中…') : !user ? copy('loginTrial', '登入後開始免費占卜') : copy('enterSpread', '進入牌陣')}
+                        {isStarting ? copy('checking', '確認資格中…') : copy('enterSpread', '進入牌陣')}
                       </button>
                     </form>
                     {loginRequired && selectedId === option.id && <div className="mt-5"><TarotLoginGate theme="dark" /></div>}
@@ -337,8 +332,8 @@ function HomePage() {
         </section>
 
         <p className="mt-7 text-center text-sm leading-6 text-blue-100/70">
-          {!user && copy('guestInfo', '登入後單張牌陣無限次免費，多張牌陣免費體驗 7 次；可使用 Google 帳號註冊。')}
-          {user && entitlement?.status === 'free_available' && `單張牌陣無限次免費；多張牌陣剩餘免費 ${entitlement.free_readings_remaining} 次。`}
+          {!user && (language === 'en' ? 'Try all spreads with 7 shared free readings. Preview 50%; sign in with your account or Google for the rest.' : '免登入，所有牌陣共可免費體驗 7 次，先看 50%；登入晶域心語或 Google 帳號後查看剩餘 50%。')}
+          {user && entitlement?.status === 'free_available' && `所有牌陣共用額度，剩餘免費 ${entitlement.free_readings_remaining} 次。`}
           {user && entitlement && ['expired', 'payment_pending', 'payment_failed'].includes(entitlement.status) && copy('browseOnly', '單張牌陣仍可免費占卜；多張牌陣免費額度用完後，請選擇月費方案。')}
           {user && entitlement && ['active', 'canceled_active'].includes(entitlement.status) && `目前會員可使用第 ${entitlement.plan_tier} 級方案所包含的牌陣。`}
         </p>
@@ -421,7 +416,7 @@ function HomePage() {
                 ['前世因果解锁阵是什么？', '这是七张牌的探索牌阵，用来分层观察前世今生连结与人生课题。'],
                 ['不知道该选哪一组牌怎么办？', '可依首页主题建议选择，也可以浏览七组牌卡介绍后凭直觉决定。'],
                 ['塔羅占卜結果可以代替專業意見嗎？', '不可以；醫療、心理、法律或投資問題請諮詢合格專業人士。'],
-                ['塔羅月費方案如何選擇？', '登入後七種牌組的單張牌陣無限次免費；多張牌陣跨所有牌組可免費體驗 7 次。NT$600/月包含單張與三張牌陣，NT$1,000/月另含前世因果陣，NT$1,500/月可使用全部牌組與牌陣；會員期間內，方案涵蓋的牌陣可無限次占卜。'],
+                ['塔羅月費方案如何選擇？', '免登入，七種牌組的所有牌陣共可免費體驗 7 次；先顯示 50% 解讀，登入後查看剩餘 50%。NT$600/月包含單張與三張牌陣，NT$1,000/月另含前世因果陣，NT$1,500/月可使用全部牌組與牌陣；會員期間內，方案涵蓋的牌陣可無限次占卜。'],
               ]).map(([questionText, answer]) => (
                 <details key={questionText} className="rounded-xl border border-blue-300/15 bg-slate-950/30 px-4 py-3">
                   <summary className="cursor-pointer font-semibold text-blue-50">{questionText}</summary>

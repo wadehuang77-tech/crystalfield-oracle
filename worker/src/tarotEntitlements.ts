@@ -1,5 +1,5 @@
 import { getMembershipSummary } from './subscriptions';
-import { isTarotSubscriptionPlan, tarotSubscriptionPlan, tarotTierForSpread, TAROT_SPREADS } from './tarotCatalog';
+import { isTarotSubscriptionPlan, tarotSubscriptionPlan, tarotTierForSpread } from './tarotCatalog';
 import { clientIp, Env, forbidden, json, readSession, unauthorized } from './utils';
 
 export const TAROT_FREE_READING_LIMIT = 7;
@@ -113,10 +113,6 @@ export async function authorizeTarotSpread(
   readingId: string,
 ): Promise<{ allowed: boolean; source: 'free' | 'subscription'; entitlement: TarotEntitlement }> {
   const entitlement = await getTarotEntitlement(env, userId);
-  // Authenticated single-card readings are unlimited and never consume quota.
-  if (TAROT_SPREADS[spreadId]?.card_count === 1) {
-    return { allowed: true, source: 'free', entitlement };
-  }
   if (entitlement.plan_tier >= tarotTierForSpread(spreadId)) {
     return { allowed: true, source: 'subscription', entitlement };
   }
@@ -168,7 +164,7 @@ export async function getMyTarotEntitlement(req: Request, env: Env): Promise<Res
   return json(req, env, { entitlement: await getTarotEntitlement(env, user.id) });
 }
 
-// Visitors without an account share TAROT_FREE_READING_LIMIT multi-card readings per IP address. Their readings
+// Visitors without an account share TAROT_FREE_READING_LIMIT readings across all spreads per IP address. Their readings
 // are kept in the anonymous unlock table (id `tarot-guest:<ip key>:<reading>`) and move to the member's own quota
 // the first time a member signs in from that address. The reading id is kept, so reopening that same reading after
 // sign-in (to see the full interpretation) does not use another free reading.
@@ -210,10 +206,6 @@ async function authorizeTarotGuestSpread(
 ): Promise<{ allowed: boolean; source: 'free'; entitlement: TarotEntitlement }> {
   const key = await guestKey(req, env);
   if (!key || readingId.includes(':')) return { allowed: false, source: 'free', entitlement: guestEntitlement(TAROT_FREE_READING_LIMIT) };
-  // Single-card readings stay unlimited, as they are for members.
-  if (TAROT_SPREADS[spreadId]?.card_count === 1) {
-    return { allowed: true, source: 'free', entitlement: guestEntitlement(await guestReadingsUsed(env, key)) };
-  }
   const id = `${GUEST_ID_PREFIX}${key}:${readingId}`;
   await env.DB.prepare(
     `INSERT OR IGNORE INTO multi_spread_free_unlocks (id, email_hash, spread_id, created_at)

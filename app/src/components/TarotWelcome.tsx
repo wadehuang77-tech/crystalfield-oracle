@@ -15,8 +15,8 @@ export function TarotWelcome() {
       <div className="grid gap-6 md:grid-cols-[1fr_2fr] md:gap-10">
         <div>
           <p className="mb-3 text-sm font-semibold tracking-widest text-violet-200">{en ? 'YOUR TAROT JOURNEY' : '你的塔羅探索，從這裡開始'}</p>
-          <h2 id="tarot-welcome-title" className="text-2xl font-bold leading-relaxed sm:text-3xl">{en ? 'Sign in for 7 free readings across 7 decks' : '登入後可免費使用七套塔羅 7 次'}</h2>
-          <p className="mt-4 text-base leading-7 text-slate-200">{en ? 'Seven multi-card readings shared across all decks. Single-card readings remain unlimited and free after sign-in.' : '七套牌組共用 7 次多張牌陣體驗；登入後，單張牌陣仍可無限次免費使用。'}</p>
+          <h2 id="tarot-welcome-title" className="text-2xl font-bold leading-relaxed sm:text-3xl">{en ? '7 free readings across all decks and spreads' : '免登入，七套牌組所有牌陣共免費 7 次'}</h2>
+          <p className="mt-4 text-base leading-7 text-slate-200">{en ? 'Preview 50% without signing in. Sign in with your account or Google to see the remaining 50% of the same reading.' : '單張與多張牌陣共用 7 次額度；訪客先看 50%，登入晶域心語或 Google 帳號後，接續查看剩餘 50%。'}</p>
         </div>
         <div>
           <h3 className="mb-3 text-lg font-semibold">{en ? 'Explore these seven decks' : '包含以下七套塔羅與神諭卡'}</h3>
@@ -29,8 +29,8 @@ export function TarotWelcome() {
         </div>
       </div>
       <div className="mt-6 flex flex-col gap-4 border-t border-slate-600 pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-base leading-7 text-slate-200">{en ? 'Credits are shared per account, not per deck. Existing usage counts; monthly plans stay unchanged.' : '免費次數以帳號累計，並非每套各 7 次；既有使用次數接續計算，月費方案維持不變。'}</p>
-        {!user && <Link to={`${getLocalizedPath('/login', language)}?${new URLSearchParams({ redirect })}`} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl bg-violet-200 px-6 py-3 text-base font-bold text-violet-950 hover:bg-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-violet-300">{en ? 'Sign in to start' : '登入，開始免費占卜'}</Link>}
+        <p className="text-base leading-7 text-slate-200">{en ? 'Guest credits are shared per IP, not per deck. Usage carries over after sign-in; monthly plans are unchanged.' : '訪客次數依同一 IP 累計，並非每套各 7 次；登入後接續已用額度，月費方案維持不變。'}</p>
+        {!user && <Link to={`${getLocalizedPath('/login', language)}?${new URLSearchParams({ redirect })}`} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl bg-violet-200 px-6 py-3 text-base font-bold text-violet-950 hover:bg-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-violet-300">{en ? 'Sign in for the full reading' : '登入，查看完整解讀'}</Link>}
       </div>
     </section>
   );

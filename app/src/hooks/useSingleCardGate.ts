@@ -38,6 +38,12 @@ export function useSingleCardGate({
   const attemptRef = useRef('');
 
   useEffect(() => {
+    attemptRef.current = '';
+    setPhase('idle');
+    setUnlockedCard(null);
+  }, [user?.id]);
+
+  useEffect(() => {
     if (cardKey) return;
     attemptRef.current = '';
     setPhase('idle');

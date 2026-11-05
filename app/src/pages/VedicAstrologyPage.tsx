@@ -1,3 +1,4 @@
+import { saveReadingForLogin, restoreReadingAfterLogin, clearReadingLoginState } from '../lib/readingLoginState';
 import VedicAnnualOffer from '../components/VedicAnnualOffer';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -198,7 +199,8 @@ export default function VedicAstrologyPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    const guest = user && searchParams.has('checkout_login') ? loadChart('') : null;
+    const handoff = user ? restoreReadingAfterLogin<{chart: VedicChartResponse; visibleAt?: number}>('vedic', user.id) : null;
+    const guest = handoff ?? (user && searchParams.has('checkout_login') ? loadChart('') : null);
     const saved = guest ?? loadChart(user?.id ?? '');
     if (guest && user) {
       saveChart(guest.chart, user.id, guest.visibleAt);
@@ -210,6 +212,11 @@ export default function VedicAstrologyPage() {
     setChart(saved?.chart ?? null);
     chartVisibleAt.current = saved?.visibleAt ? { chartId: saved.chart.chart_id, epochMs: saved.visibleAt } : null;
   }, [authLoading, user]);
+  useEffect(() => {
+    if (!user || !chart || !restoreReadingAfterLogin('vedic', user.id)) return;
+    const timer = window.setTimeout(() => document.getElementById('vedic-free-results')?.scrollIntoView({block:'start'}), 100);
+    return () => window.clearTimeout(timer);
+  }, [user?.id, chart?.chart_id]);
   const [birthHour = '', birthMinute = ''] = form.birthTime.split(':');
 
   useEffect(() => {
@@ -353,6 +360,8 @@ export default function VedicAstrologyPage() {
       });
       setChart(result);
       saveChart(result, user?.id ?? '');
+      if (user) clearReadingLoginState('vedic');
+    if (!user) saveReadingForLogin('vedic', {chart: result});
       requestAnimationFrame(() => {
         const visibleAt = Date.now();
         chartVisibleAt.current = { chartId: result.chart_id, epochMs: visibleAt };
@@ -490,8 +499,10 @@ export default function VedicAstrologyPage() {
               : language === 'en' ? 'In-depth interpretation awaits unlock' : '深度解析待解鎖'}
           </div>
           <FreeResults chart={chart} language={language} basicResults={basicReading?.context === visibleReportContext ? basicReading.results : null} signedIn={!!user} onUnlock={() => {
+            saveChart(chart, '');
+            saveReadingForLogin('vedic', {chart});
             const query = new URLSearchParams(location.search); query.set('checkout_login', '1');
-            navigate(authUrlFor(location.pathname, 'login', location.pathname+'?'+query));
+            navigate(authUrlFor(location.pathname, 'login', location.pathname+'?'+query+'#vedic-free-results'));
           }} disabled={!!checkoutLoading || authLoading || reportLoading} />
           {checkoutError && <p role="alert" className="mx-auto mt-4 max-w-5xl rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{checkoutError}</p>}
           <section className="mt-10 rounded-2xl border border-amber-300/25 bg-slate-950/60 p-5 sm:p-8" data-vedic-paid-basic>

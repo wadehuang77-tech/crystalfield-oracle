@@ -30,7 +30,7 @@ async function main() {
     const ip = '198.51.100.20';
 
     for (let reading = 1; reading <= 7; reading += 1) {
-      const access = await authorizeTarotReading(request(ip), env, 'tarot_three', `guest-${reading}`);
+      const access = await authorizeTarotReading(request(ip), env, reading === 1 ? 'tarot_single' : 'tarot_three', `guest-${reading}`);
       assert.equal(access.allowed, true, `guest reading ${reading} allowed`);
       assert.equal(access.entitlement.free_readings_remaining, 7 - reading);
     }
@@ -39,7 +39,7 @@ async function main() {
     const eighth = await authorizeTarotReading(request(ip), env, 'tarot_three', 'guest-8');
     assert.equal(eighth.allowed, false, 'eighth guest reading is denied');
     assert.equal(eighth.guest, true);
-    assert.equal((await authorizeTarotReading(request(ip), env, 'tarot_single', 'guest-single')).allowed, true, 'single cards stay unlimited');
+    assert.equal((await authorizeTarotReading(request(ip), env, 'tarot_single', 'guest-single')).allowed, false, 'single cards share the seven-reading quota');
     assert.equal((await authorizeTarotReading(request('198.51.100.21'), env, 'tarot_three', 'other-ip')).allowed, true, 'another IP has its own quota');
 
     const token = await signJwt({ sub: 'member', email: 'member@example.test' }, env.JWT_SECRET);
@@ -63,7 +63,7 @@ async function main() {
     const second = await authorizeTarotReading(request(ip, 'second', secondToken), env, 'tarot_three', 'second-1');
     assert.equal(second.allowed, true, 'already-claimed guest readings are not merged again');
     assert.equal((await authorizeTarotReading(request(ip), env, 'tarot_three', 'guest-9')).allowed, false, 'claiming does not refill the IP guest quota');
-    console.log('PASS: 7 free multi-card readings per IP for visitors, half interpretations for visitors, unlimited single cards, merge into the first member who signs in, no double merge, quota not refilled. Local D1 only.');
+    console.log('PASS: 7 free readings across all spreads per IP for visitors, half interpretations for visitors, single cards share the quota, merge into the first member who signs in, no double merge, quota not refilled. Local D1 only.');
   } finally {
     await mf.dispose();
   }

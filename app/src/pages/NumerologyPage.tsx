@@ -1,3 +1,4 @@
+import { saveReadingForLogin, restoreReadingAfterLogin, clearReadingLoginState } from '../lib/readingLoginState';
 import './NumerologyPage.css';
 import NumerologyPublicGuide from '../components/NumerologyPublicGuide';
 import { numerologyHome } from '../lib/numerologySeo';
@@ -148,8 +149,14 @@ export default function NumerologyPage() {
 
   useEffect(() => {
     if (authLoading || !user) return;
-    const section = searchParams.get('section');
+    const handoff = restoreReadingAfterLogin<{report: Report; oracleCard: OracleCard | null}>('numerology', user.id);
+    const section = searchParams.get('section') || (handoff ? 'report' : null);
     if (!section || report) return;
+    if (handoff?.report) {
+      setReport(handoff.report); setOracleCard(handoff.oracleCard); setActiveTab('report');
+      setPendingScrollTarget('numerology-restored-report');
+      return;
+    }
 
     const rawState = localStorage.getItem(RETURN_STATE_KEY) ?? localStorage.getItem(LAST_REPORT_STATE_KEY);
     if (!rawState) return;
@@ -170,7 +177,7 @@ export default function NumerologyPage() {
   useEffect(() => {
     if (!pendingScrollTarget || !report || activeTab !== 'report') return;
     const timer = window.setTimeout(() => {
-      document.getElementById(pendingScrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      (document.getElementById(pendingScrollTarget) ?? document.querySelector('[data-numerology-report]'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setPendingScrollTarget(null);
     }, 80);
     return () => window.clearTimeout(timer);
@@ -275,6 +282,8 @@ export default function NumerologyPage() {
     const card = useOracle ? drawOracleCard() : null;
     clearLocalTierUnlock();
     clearForecastUnlock();
+    if (user) clearReadingLoginState('numerology');
+    if (!user) saveReadingForLogin('numerology', {report: result, oracleCard: card});
     setReport(result);
     setOracleCard(card);
     localStorage.setItem(LAST_REPORT_STATE_KEY, JSON.stringify({ report: result, oracleCard: card, userId: user?.id ?? null }));
@@ -282,6 +291,7 @@ export default function NumerologyPage() {
   };
 
   const handleReset = () => {
+    clearReadingLoginState('numerology');
     setReport(null);
     setOracleCard(null);
     setActiveTab('report');
@@ -297,7 +307,10 @@ export default function NumerologyPage() {
   };
 
   // Sign in from a visitor's half reading; the saved report reopens in full on return.
-  const signInForFullReading = () => navigate(authUrlFor(location.pathname, 'login', `${location.pathname}?section=report`));
+  const signInForFullReading = () => {
+    if (report) saveReadingForLogin('numerology', {report, oracleCard});
+    navigate(authUrlFor(location.pathname, 'login', location.pathname + '?section=report#numerology-restored-report'));
+  };
 
   const getScrollTargetForSection = (section: string) => {
     if (section === 'crystal') return 'numerology-crystal-healing';
@@ -700,6 +713,7 @@ export default function NumerologyPage() {
 
           {activeTab === 'report' && (
             <>
+              <div id="numerology-restored-report" className="scroll-mt-24" />
               {showUnlockPanel && renderUnlockShortcutPanel()}
               <NumerologyShareProvider value={{
                 language: language === 'en' ? 'en' : 'zh-Hant',

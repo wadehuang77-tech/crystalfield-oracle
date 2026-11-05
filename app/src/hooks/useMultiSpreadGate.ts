@@ -36,6 +36,12 @@ export function useMultiSpreadGate({
   const attemptRef = useRef('');
 
   useEffect(() => {
+    attemptRef.current = '';
+    setPhase('idle');
+    setUnlockedCards(null);
+  }, [user?.id]);
+
+  useEffect(() => {
     if (picks?.length) return;
     attemptRef.current = '';
     setPhase('idle');
