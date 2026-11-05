@@ -560,7 +560,10 @@ export function FreeResults({ chart, language, basicResults, signedIn = false, o
         <ChartBadge label={isEnglish ? 'Sub-period' : '次週期'} value={chart.chart.antarDasha ? translatePlanet(chart.chart.antarDasha) : isEnglish ? 'Calculating' : '計算中'} />
       </div>
       <BirthChart chart={chart.chart} language={language} />
-      {!signedIn && <button type="button" onClick={onUnlock} disabled={disabled} className="mt-6 min-h-12 w-full rounded-xl bg-amber-200 px-5 py-3 font-semibold text-slate-950 disabled:opacity-50">{isEnglish ? 'Sign in with Crystal Field or Google for the remaining 50%' : '晶域心語／Google 登入，免費查看剩餘 50%'}</button>}
+      {!signedIn && <section data-vedic-login-prompt className="mx-auto mt-6 max-w-5xl rounded-2xl border border-violet-300/20 bg-gradient-to-r from-slate-900 to-violet-950/50 p-5 sm:p-7">
+        <p className="text-base leading-8 text-slate-100 sm:text-lg">{isEnglish ? 'Sign in to view your Ascendant, Moon Sign and Ascendant Ruler Placement for free.' : '登入後免費查看上升星座、月亮星座、命主星落宮。'}</p>
+        <button type="button" onClick={onUnlock} disabled={disabled} className="mt-2 min-h-12 w-full rounded-2xl bg-cyan-300 px-5 py-3 text-base font-semibold leading-7 text-slate-950 transition-colors hover:bg-cyan-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-7 sm:text-lg">{isEnglish ? 'Crystal Field / Google sign-in · View your free basic reading' : '晶域心語／Google 帳號登入，查看免費基本解盤'}</button>
+      </section>}
       {result ? <div className="mt-9 grid gap-5 lg:grid-cols-3">
         <ResultCard number="01" eyebrow={isEnglish ? 'Ascendant' : '上升星座'} title={result.archetype.title} body={result.archetype.body} />
         <ResultCard number="02" eyebrow={isEnglish ? 'Moon Sign' : '月亮星座'} title={result.talents.title} body={result.talents.body}><div className="mb-4 flex flex-wrap gap-2">{result.talents.items.slice(0, 1).map((item) => <span key={item} className="rounded-full border border-amber-200/25 bg-amber-300/10 px-3 py-1 text-sm text-amber-100">{item}</span>)}</div></ResultCard>

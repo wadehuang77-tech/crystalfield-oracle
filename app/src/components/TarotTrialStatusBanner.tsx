@@ -13,7 +13,7 @@ export function TarotTrialStatusBanner() {
   const [showMembership, setShowMembership] = useState(false);
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [entitlement, setEntitlement] = useState<TarotEntitlement | null>(null);
   const [partialReading, setPartialReading] = useState(false);
   const isEnglish = pathname.startsWith('/en/');
@@ -38,11 +38,14 @@ export function TarotTrialStatusBanner() {
   }, [pathname]);
 
   const signIn = () => navigate(authUrlFor(pathname, 'login', `${pathname}${search}`));
-  const showPartial = tarotPath && partialReading && !user;
+  // Every spread page needs an accessible sign-in action, including local previews
+  // rendered before the API event or after another inactive spread resets its state.
+  const spreadPage = tarotPath && !['/oracle', '/oracle/', '/en/oracle', '/en/oracle/'].includes(pathname);
+  const showPartial = tarotPath && (partialReading || spreadPage) && !authLoading && !user;
   const partialCopy = isEnglish
-    ? 'You are viewing about 50% of this reading. Sign in to see the full interpretation right away.'
-    : '目前顯示約 50% 的基礎解讀，登入後立即看完整解讀。';
-  const signInLabel = isEnglish ? 'Sign in for the full reading' : '登入看完整解讀';
+    ? 'Card readings preview 50%. Sign in with your account or Google to see the remaining 50% without drawing again.'
+    : '牌卡解讀先顯示 50%；登入晶域心語或 Google 帳號後，查看剩餘 50%，不用重新抽牌。';
+  const signInLabel = isEnglish ? 'Sign in / Google · View the remaining 50%' : '登入／Google 登入，查看剩餘 50%';
 
   if (!tarotPath || ((!entitlement || entitlement.status === 'login_required') && !showPartial)) return null;
   return (
@@ -64,10 +67,10 @@ export function TarotTrialStatusBanner() {
         <MembershipGate isOpen={showMembership} onClose={() => setShowMembership(false)} />
       </aside>
       {/* Keeps the sign-in prompt in reach while the visitor scrolls through the half reading. */}
-      {showPartial && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-amber-400/40 bg-slate-950/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-center text-sm text-amber-50 shadow-[0_-8px_24px_rgba(0,0,0,0.4)]">
+      {showPartial && <><div className="h-36 sm:h-24" aria-hidden="true" /><div data-tarot-login-bar role="region" aria-label={isEnglish ? 'Unlock the remaining reading' : '登入查看剩餘解讀'} className="fixed inset-x-0 bottom-0 z-[60] border-t border-amber-400/40 bg-slate-950/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-center text-sm text-amber-50 shadow-[0_-8px_24px_rgba(0,0,0,0.4)]">
         <span className="mr-3">{partialCopy}</span>
-        <button type="button" onClick={signIn} className="mt-2 rounded-lg bg-amber-500 px-4 py-1.5 font-semibold text-slate-950 hover:bg-amber-400 sm:mt-0">{signInLabel}</button>
-      </div>}
+        <button type="button" onClick={signIn} className="mt-2 min-h-11 rounded-lg bg-amber-400 px-4 py-2 font-semibold text-slate-950 hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:mt-0">{signInLabel}</button>
+      </div></>}
     </>
   );
 }
