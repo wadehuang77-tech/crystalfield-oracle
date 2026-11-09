@@ -683,7 +683,7 @@ export const vedicAstrologyApi = {
   publicReviews: () => req<{ reviews: VedicReview[] }>('/api/vedic-astrology/reviews/public'),
 };
 
-export type ReviewSource = 'tarot' | 'numerology' | 'human-design' | 'maya';
+export type ReviewSource = 'tarot' | 'numerology' | 'human-design' | 'maya' | 'vedic';
 export interface PublicReview { id: string; source: ReviewSource; referenceId: string; rating: number; reviewContent: string; allowPublic: boolean; displayName: string; status: 'pending' | 'approved' | 'rejected'; createdAt: string; updatedAt: string; }
 export const publicReviewsApi = {
   list: (source: ReviewSource) => req<{ reviews: PublicReview[] }>(`/api/reviews/public/${source}`),
