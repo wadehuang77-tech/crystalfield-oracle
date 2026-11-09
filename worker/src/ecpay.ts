@@ -1,4 +1,4 @@
-import { TAROT_SUBSCRIPTION_PLANS, isTarotSubscriptionPlan } from './tarotCatalog';
+import { TAROT_SUBSCRIPTION, TAROT_SUBSCRIPTION_PLANS, isTarotSubscriptionPlan } from './tarotCatalog';
 
 export type SpreadBundleCategory = 'three_card' | 'ten_card' | 'pastlife';
 
@@ -19,6 +19,12 @@ export interface SpreadCatalogItem {
 
 export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   // ── 塔羅月費方案 ─────────────────────────────────────────────
+  // 保留舊版 600 元全館方案，讓既有待付款訂單可以繼續完成綠界付款。
+  [TAROT_SUBSCRIPTION.id]: {
+    id: TAROT_SUBSCRIPTION.id,
+    name: TAROT_SUBSCRIPTION.name,
+    amount: TAROT_SUBSCRIPTION.amount,
+  },
   ...Object.fromEntries(Object.values(TAROT_SUBSCRIPTION_PLANS).map((plan) => [
     plan.id,
     { id: plan.id, name: plan.name, amount: plan.amount },
