@@ -5,7 +5,7 @@ import { checkoutApi, tarotEntitlementApi, type TarotEntitlement } from '../lib/
 import { useAuth } from '../contexts/AuthContext';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { saveMembershipCheckoutRedirect, savePendingSingleDraw } from '../lib/pendingDraw';
-import { TAROT_SUBSCRIPTION_PLANS } from '../lib/tarot-subscription';
+import { TAROT_SUBSCRIPTION_PLANS, readPendingTarotPlan, clearPendingTarotPlan } from '../lib/tarot-subscription';
 import { TarotSubscriptionDetails } from './TarotSubscriptionDetails';
 import { TarotLoginGate } from './TarotLoginGate';
 import {
@@ -38,6 +38,8 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
 
   useEffect(() => {
     if (!isOpen || !user) { setEntitlement(null); return; }
+    const pendingPlan = readPendingTarotPlan();
+    if (pendingPlan) setSelectedPlanId(pendingPlan);
     void tarotEntitlementApi.me().then(({ entitlement: value }) => {
       setEntitlement(value);
       if (value.status === 'payment_pending' && value.plan_id) setSelectedPlanId(value.plan_id);
@@ -58,6 +60,7 @@ export function MembershipGate({ isOpen, onClose, resumePath, pendingSingleDraw 
     setError(''); setIsProcessing(true);
     try {
       const { ecpay, admin_unlocked } = await checkoutApi.createOrder(selectedPlanId);
+      clearPendingTarotPlan();
       if (admin_unlocked) { window.location.assign(redirectPath); return; }
       if (!ecpay) throw new Error('結帳資料缺失，請重試');
       trackTarotPaymentStarted(selectedPlanId, selectedPrice);

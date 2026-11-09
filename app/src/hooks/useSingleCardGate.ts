@@ -36,6 +36,24 @@ export function useSingleCardGate({
   const [showMembership, setShowMembership] = useState(false);
   const [accessVersion, setAccessVersion] = useState(0);
   const attemptRef = useRef('');
+  const guestReading = useRef<{spreadId: string; cardKey: string; reversed: boolean; readingId: string} | null>(null);
+  useEffect(() => {
+    const saved = guestReading.current;
+    if (!user || authLoading || !saved) return;
+    let cancelled = false;
+    setPhase('loading');
+    void cardsApi.freeUnlockSingle(saved.spreadId, saved.cardKey, saved.reversed, saved.readingId, language).then(result => {
+      if (cancelled) return;
+      setUnlockedCard(result.card);
+      setPhase('unlocked');
+      guestReading.current = null;
+      announceTarotReading(false);
+    }).catch((cause: Error) => {
+      if (!cancelled) { setError(cause.message); setPhase('membership_gate'); }
+    });
+    return () => { cancelled = true; };
+  }, [user?.id, authLoading, language]);
+
 
   useEffect(() => {
     attemptRef.current = '';
@@ -70,6 +88,7 @@ export function useSingleCardGate({
     setPhase('loading'); setError(null);
     const readingId = stableReadingId(`${spreadId}:${cardKey}:${reversed ? 1 : 0}`);
     void cardsApi.freeUnlockSingle(spreadId, cardKey, reversed, readingId, language).then((result) => {
+      if (isPartialReading(result)) guestReading.current = {spreadId, cardKey, reversed, readingId};
       setUnlockedCard(result.card);
       setPhase('unlocked');
       setShowMembership(false);

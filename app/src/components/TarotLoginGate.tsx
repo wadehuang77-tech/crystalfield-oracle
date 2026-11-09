@@ -2,8 +2,10 @@ import { TarotAccountLogin } from './TarotAccountLogin';
 import { useLocation } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useState } from 'react';
 
 import { getLanguageFromPath } from '../lib/i18n';
+import { savePendingTarotPlan, TAROT_SUBSCRIPTION_PLANS } from '../lib/tarot-subscription';
 
 
 export function TarotLoginGate({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
@@ -11,6 +13,7 @@ export function TarotLoginGate({ theme = 'dark' }: { theme?: 'light' | 'dark' })
   const { pathname } = useLocation();
   const language = getLanguageFromPath(pathname);
   const isEnglish = language === 'en';
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
 
   if (loading) return null;
@@ -30,17 +33,15 @@ export function TarotLoginGate({ theme = 'dark' }: { theme?: 'light' | 'dark' })
         </p>
       </div>
       <div className={`mx-auto mb-6 grid max-w-2xl gap-2 text-left sm:grid-cols-3 ${dark ? 'text-blue-50' : 'text-slate-900'}`}>
-        {[
-          { price: 'NT$600', scope: isEnglish ? 'All single- and three-card spreads' : '所有單張與三張牌陣' },
-          { price: 'NT$1,000', scope: isEnglish ? 'Plus all past-life spreads' : '再加所有前世因果陣' },
-          { price: 'NT$1,500', scope: isEnglish ? 'All decks and spreads' : '所有牌組與全部牌陣' },
-        ].map((plan) => (
-          <div key={plan.price} className={`rounded-lg border p-3 text-center ${dark ? 'border-blue-300/20 bg-blue-400/5' : 'border-blue-200 bg-blue-50'}`}>
-            <p className="font-semibold">{plan.price}{isEnglish ? '/month' : '／月'}</p>
-            <p className={`mt-1 text-xs leading-5 ${dark ? 'text-blue-100/70' : 'text-slate-600'}`}>{plan.scope}</p>
-            <p className={`mt-1 text-xs font-medium ${dark ? 'text-amber-200' : 'text-amber-700'}`}>{isEnglish ? 'Unlimited readings during membership' : '月費期間內涵蓋牌陣無限次占卜'}</p>
-          </div>
-        ))}
+        {TAROT_SUBSCRIPTION_PLANS.map((plan) => {
+          const scope = plan.tier === 1 ? (isEnglish ? 'All single- and three-card spreads' : '所有單張與三張牌陣') : plan.tier === 2 ? (isEnglish ? 'Plus all past-life spreads' : '再加所有前世因果陣') : (isEnglish ? 'All decks and spreads' : '所有牌組與全部牌陣');
+          const selected = selectedPlanId === plan.id;
+          return <button key={plan.id} type="button" aria-pressed={selected} onClick={() => { setSelectedPlanId(plan.id); savePendingTarotPlan(plan.id); }} className={`rounded-lg border p-3 text-center transition hover:border-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 ${selected ? 'border-amber-300 bg-amber-300/15' : dark ? 'border-blue-300/20 bg-blue-400/5' : 'border-blue-200 bg-blue-50'}`}>
+            <span className="block font-semibold">NT${plan.price.toLocaleString()}{isEnglish ? '/month' : '／月'}</span>
+            <span className={`mt-1 block text-xs leading-5 ${dark ? 'text-blue-100/70' : 'text-slate-600'}`}>{scope}</span>
+            <span className={`mt-1 block text-xs font-medium ${dark ? 'text-amber-200' : 'text-amber-700'}`}>{isEnglish ? 'Select, sign in, then continue to ECPay' : '選擇後登入，即可前往綠界付款'}</span>
+          </button>;
+        })}
       </div>
       <TarotAccountLogin />
     </section>

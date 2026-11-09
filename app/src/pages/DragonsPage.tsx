@@ -233,7 +233,7 @@ function DragonsPage() {
 
   useEffect(() => {
     if (singleGate.unlockedCard) {
-      setSingleUnlocked((current) => current ?? singleGate.unlockedCard);
+      setSingleUnlocked(singleGate.unlockedCard);
     }
   }, [singleGate.unlockedCard]);
 

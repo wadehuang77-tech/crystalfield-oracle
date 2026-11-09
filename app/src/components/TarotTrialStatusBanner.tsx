@@ -1,19 +1,21 @@
+import { TarotReadingLoginDialog } from './TarotReadingLoginDialog';
 import { useEffect, useMemo, useState } from 'react';
 import { Sparkles } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { MembershipGate } from './MembershipGate';
 import { tarotEntitlementApi, type TarotEntitlement } from '../lib/api';
-import { authUrlFor } from '../lib/authLocale';
 import { TAROT_READING_ACCESS_EVENT } from '../lib/tarotPartialReading';
 
 const TAROT_PATHS = ['/oracle', '/tarot', '/tarot-single', '/lightworker', '/unicorns', '/dragons', '/egyptian-gods', '/work-your-light', '/work-your-light-single', '/cosmic-cross', '/osho'];
 
 export function TarotTrialStatusBanner() {
   const [showMembership, setShowMembership] = useState(false);
-  const { pathname, search } = useLocation();
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [showReadingLogin, setShowReadingLogin] = useState(false);
+
   const { user, loading: authLoading } = useAuth();
+  useEffect(() => { setShowReadingLogin(false); }, [user?.id, pathname]);
   const [entitlement, setEntitlement] = useState<TarotEntitlement | null>(null);
   const [partialReading, setPartialReading] = useState(false);
   const isEnglish = pathname.startsWith('/en/');
@@ -37,7 +39,7 @@ export function TarotTrialStatusBanner() {
     return () => window.removeEventListener(TAROT_READING_ACCESS_EVENT, changed);
   }, [pathname]);
 
-  const signIn = () => navigate(authUrlFor(pathname, 'login', `${pathname}${search}`));
+  const signIn = () => setShowReadingLogin(true);
   // Every spread page needs an accessible sign-in action, including local previews
   // rendered before the API event or after another inactive spread resets its state.
   const spreadPage = tarotPath && !['/oracle', '/oracle/', '/en/oracle', '/en/oracle/'].includes(pathname);
@@ -50,6 +52,7 @@ export function TarotTrialStatusBanner() {
   if (!tarotPath || ((!entitlement || entitlement.status === 'login_required') && !showPartial)) return null;
   return (
     <>
+      <TarotReadingLoginDialog open={showReadingLogin && !user} onClose={() => setShowReadingLogin(false)} english={isEnglish} />
       <aside className="border-y border-amber-400/25 bg-slate-950 px-4 py-3 text-center text-sm text-amber-100" aria-live="polite">
         {entitlement && entitlement.status !== 'login_required' && <>
           <p className="font-semibold"><Sparkles className="mr-2 inline h-4 w-4" />{entitlement.plan_tier > 0 ? `塔羅會員第 ${entitlement.plan_tier} 級` : '塔羅免費占卜'}</p>

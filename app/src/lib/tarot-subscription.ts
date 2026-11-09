@@ -32,6 +32,13 @@ export const TAROT_SUBSCRIPTION_PLANS = [
   },
 ] as const;
 
+const PENDING_TAROT_PLAN_KEY = 'tarot_pending_subscription_plan';
+export function savePendingTarotPlan(planId: string): void { try { window.sessionStorage.setItem(PENDING_TAROT_PLAN_KEY, planId); } catch { /* unavailable */ } }
+export function readPendingTarotPlan(): string | null {
+  try { const value = window.sessionStorage.getItem(PENDING_TAROT_PLAN_KEY); return TAROT_SUBSCRIPTION_PLANS.some((plan) => plan.id === value) ? value : null; } catch { return null; }
+}
+export function clearPendingTarotPlan(): void { try { window.sessionStorage.removeItem(PENDING_TAROT_PLAN_KEY); } catch { /* unavailable */ } }
+
 export function isTarotSubscriptionPlan(id: string): boolean {
   return id === 'tarot_monthly_600' || TAROT_SUBSCRIPTION_PLANS.some((plan) => plan.id === id);
 }

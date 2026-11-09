@@ -34,6 +34,24 @@ export function useMultiSpreadGate({
   const [unlockSource, setUnlockSource] = useState<'free' | 'subscription' | null>(null);
   const [accessVersion, setAccessVersion] = useState(0);
   const attemptRef = useRef('');
+  const guestReading = useRef<{spreadId: string; picks: Pick[]; readingId: string} | null>(null);
+  useEffect(() => {
+    const saved = guestReading.current;
+    if (!user || authLoading || !saved) return;
+    let cancelled = false;
+    setPhase('loading');
+    void cardsApi.freeUnlockSpread(saved.spreadId, saved.picks, saved.readingId, undefined, language).then(result => {
+      if (cancelled) return;
+      setUnlockedCards(result.cards);
+      setPhase('unlocked');
+      guestReading.current = null;
+      announceTarotReading(false);
+    }).catch((cause: Error) => {
+      if (!cancelled) { setError(cause.message); setPhase('paywall'); }
+    });
+    return () => { cancelled = true; };
+  }, [user?.id, authLoading, language]);
+
 
   useEffect(() => {
     attemptRef.current = '';
@@ -69,6 +87,7 @@ export function useMultiSpreadGate({
     setPhase('loading'); setError(null); setUnlockSource(null);
     const readingId = stableReadingId(`${spreadId}:${picksKey}`);
     void cardsApi.freeUnlockSpread(spreadId, picks, readingId, undefined, language).then((result) => {
+      if (isPartialReading(result)) guestReading.current = {spreadId, picks: [...picks], readingId};
       setUnlockedCards(result.cards);
       setUnlockSource(result.entitlement_status === 'free_available' ? 'free' : 'subscription');
       setPhase('unlocked');

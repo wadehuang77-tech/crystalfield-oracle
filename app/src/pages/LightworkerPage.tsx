@@ -98,7 +98,7 @@ function LightworkerPage() {
 
   useEffect(() => {
     if (gate.unlockedCard) {
-      setUnlocked((current) => current ?? gate.unlockedCard);
+      setUnlocked(gate.unlockedCard);
     }
   }, [gate.unlockedCard]);
 

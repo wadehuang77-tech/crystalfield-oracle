@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { checkoutApi, tarotEntitlementApi, type TarotEntitlement } from '../lib/api';
 import { submitToEcpay } from '../lib/ecpayRedirect';
 import { saveMembershipCheckoutRedirect } from '../lib/pendingDraw';
-import { TAROT_SUBSCRIPTION_PLANS } from '../lib/tarot-subscription';
+import { TAROT_SUBSCRIPTION_PLANS, readPendingTarotPlan, clearPendingTarotPlan } from '../lib/tarot-subscription';
 import { TarotSubscriptionDetails } from './TarotSubscriptionDetails';
 import { TarotLoginGate } from './TarotLoginGate';
 import {
@@ -24,13 +24,15 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
   const location = useLocation();
   const isEnglish = location.pathname.startsWith('/en/');
   const [entitlement, setEntitlement] = useState<TarotEntitlement | null>(null);
-  const [selectedPlanId, setSelectedPlanId] = useState<string>(TAROT_SUBSCRIPTION_PLANS[0].id);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(() => readPendingTarotPlan() ?? TAROT_SUBSCRIPTION_PLANS[0].id);
   const [isLoading, setIsLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const currentPath = location.pathname + location.search;
 
   useEffect(() => {
     if (!user) return;
+    const pendingPlan = readPendingTarotPlan();
+    if (pendingPlan) setSelectedPlanId(pendingPlan);
     void tarotEntitlementApi.me().then(({ entitlement: value }) => {
       setEntitlement(value);
       if (value.status === 'payment_pending' && value.plan_id) setSelectedPlanId(value.plan_id);
@@ -46,6 +48,7 @@ export function OraclePricingPlans({ error }: OraclePricingPlansProps) {
     setCheckoutError(''); setIsLoading(true);
     try {
       const { ecpay, admin_unlocked } = await checkoutApi.createOrder(planId);
+      clearPendingTarotPlan();
       if (admin_unlocked) { window.location.assign(currentPath); return; }
       if (!ecpay) throw new Error(isEnglish ? 'Checkout information is unavailable. Please try again.' : '結帳資料缺失，請重試');
       trackTarotPaymentStarted(planId, selectedPrice);
