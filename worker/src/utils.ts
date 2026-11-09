@@ -81,7 +81,7 @@ export function corsHeaders(req: Request, env: Env): Record<string, string> {
     return {
       'Access-Control-Allow-Origin': origin || '*',
       'Access-Control-Allow-Credentials': origin ? 'true' : 'false',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Vary': 'Origin',
     };
@@ -89,7 +89,7 @@ export function corsHeaders(req: Request, env: Env): Record<string, string> {
 
   const allow = allowed.includes(origin) ? origin : '';
   const headers: Record<string, string> = {
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Vary': 'Origin',
   };
