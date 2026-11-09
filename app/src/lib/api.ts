@@ -689,6 +689,10 @@ export const publicReviewsApi = {
   list: (source: ReviewSource) => req<{ reviews: PublicReview[] }>(`/api/reviews/public/${source}`),
   submit: (body: { source: ReviewSource; reference_id: string; rating: number; review_content: string; allow_public: boolean }) => req<{ review: PublicReview | null }>('/api/reviews', { method: 'POST', body }),
 };
+export const adminReviewsApi = {
+  list: () => req<{ reviews: PublicReview[] }>('/api/admin/reviews'),
+  update: (id: string, status: 'approved' | 'rejected' | 'pending') => req<{ ok: true }>(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status } }),
+};
 
 export const publicApi = {
   saveEmail: (email: string, source: string) =>
