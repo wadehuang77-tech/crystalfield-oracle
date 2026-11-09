@@ -43,7 +43,7 @@ export async function submitReview(req: Request, env: Env): Promise<Response> {
   const body = await readBody<Record<string, unknown>>(req, 8 * 1024); const selected = source(body.source); const referenceId = clean(body.reference_id, 160); const content = clean(body.review_content, 1000); const rating = Number(body.rating);
   if (!selected || !referenceId) return badRequest(req, env, '缺少評價來源或報告識別');
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return badRequest(req, env, '請選擇 1～5 顆星');
-  if (content.length < 10) return badRequest(req, env, '心得至少需要 10 字');
+  if (selected !== 'tarot' && content.length < 10) return badRequest(req, env, '心得至少需要 10 字');
   const profile = await env.DB.prepare('SELECT name FROM profiles WHERE id=?').bind(user.id).first<{ name: string | null }>();
   const displayName = clean(profile?.name, 100); const now = new Date().toISOString(); const id = crypto.randomUUID();
   await env.DB.prepare(`INSERT INTO public_reviews (id,source,reference_id,user_id,rating,review_content,allow_public,display_name,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source,reference_id,user_id) DO UPDATE SET rating=excluded.rating,review_content=excluded.review_content,allow_public=excluded.allow_public,display_name=excluded.display_name,status='pending',updated_at=excluded.updated_at`).bind(id, selected, referenceId, user.id, rating, content, body.allow_public === true ? 1 : 0, displayName || '匿名使用者', 'pending', now, now).run();
