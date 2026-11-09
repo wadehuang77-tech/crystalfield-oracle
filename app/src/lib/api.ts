@@ -683,6 +683,13 @@ export const vedicAstrologyApi = {
   publicReviews: () => req<{ reviews: VedicReview[] }>('/api/vedic-astrology/reviews/public'),
 };
 
+export type ReviewSource = 'tarot' | 'numerology' | 'human-design' | 'maya';
+export interface PublicReview { id: string; source: ReviewSource; referenceId: string; rating: number; reviewContent: string; allowPublic: boolean; displayName: string; status: 'pending' | 'approved' | 'rejected'; createdAt: string; updatedAt: string; }
+export const publicReviewsApi = {
+  list: (source: ReviewSource) => req<{ reviews: PublicReview[] }>(`/api/reviews/public/${source}`),
+  submit: (body: { source: ReviewSource; reference_id: string; rating: number; review_content: string; allow_public: boolean }) => req<{ review: PublicReview | null }>('/api/reviews', { method: 'POST', body }),
+};
+
 export const publicApi = {
   saveEmail: (email: string, source: string) =>
     req<{ success: boolean; message?: string }>('/api/save-email', {

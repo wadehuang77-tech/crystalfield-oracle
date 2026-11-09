@@ -37,6 +37,8 @@ import { TarotTrialStatusBanner } from './components/TarotTrialStatusBanner';
 import SeoMetadata from './components/SeoMetadata';
 import { getLanguageFromPath, getLocalizedPath } from './lib/i18n';
 import { RenderYearProvider } from './contexts/RenderYearContext';
+import AdminReviewsPage from './pages/AdminReviewsPage';
+import { ReviewHomeSection } from './components/ReviewHomeSection';
 import { RouteFallback, RouteLoadErrorBoundary, lazyRoute, ssrRoutesReady } from './lib/lazyRoute';
 import { startRoutePrefetch } from './lib/routePrefetch';
 // Keep this stylesheet in the entry CSS: loading it with the lazy chunk would restyle the prerendered page after first paint.
@@ -61,7 +63,7 @@ const HumanDesignArticlePage = lazyRoute(() => import('./pages/human-design/Huma
 if (import.meta.env.SSR) await ssrRoutesReady();
 
 const routeConfig = [
-  { path: '/maya-calendar', element: <MayaCalendarPage /> },
+  { path: '/maya-calendar', element: <><MayaCalendarPage /><ReviewHomeSection source="maya" /></> },
   { path: '/maya-calendar/relationship', element: <MayaRelationshipPage /> },
   { path: '/maya-calendar/pro', element: <MayaProPage /> },
   { path: '/maya-calendar/pro/reports/:id', element: <MayaProPage /> },
@@ -85,7 +87,8 @@ const routeConfig = [
   { path: '/admin/members', element: <ProtectedRoute><AdminMembersPage /></ProtectedRoute> },
   { path: '/admin/tarot-subscriptions', element: <ProtectedRoute><AdminTarotSubscriptionsPage /></ProtectedRoute> },
   { path: '/admin/vedic-reviews', element: <ProtectedRoute><AdminVedicReviewsPage /></ProtectedRoute> },
-  { path: '/tarot', element: <TarotPage /> },
+  { path: '/admin/reviews', element: <ProtectedRoute><AdminReviewsPage /></ProtectedRoute> },
+  { path: '/tarot', element: <><TarotPage /><ReviewHomeSection source="tarot" /></> },
   { path: '/tarot-single', element: <TarotSinglePage /> },
   { path: '/lightworker', element: <LightworkerPage /> },
   { path: '/lightworker/celtic-cross', element: <LightworkerCelticCrossPage /> },
@@ -100,8 +103,8 @@ const routeConfig = [
   { path: '/osho/three', element: <OshoThreePage /> },
   { path: '/checkout/return', element: <CheckoutReturnPage /> },
   { path: '/membership', element: <ProtectedRoute><MembershipPage /></ProtectedRoute> },
-  { path: '/numerology', element: <NumerologyPage /> },
-  { path: '/human-design', element: <HumanDesignPage /> },
+  { path: '/numerology', element: <><NumerologyPage /><ReviewHomeSection source="numerology" /></> },
+  { path: '/human-design', element: <><HumanDesignPage /><ReviewHomeSection source="human-design" /></> },
   { path: '/human-design/types', element: <HumanDesignArticlePage slug="types" /> },
   { path: '/human-design/generator', element: <HumanDesignArticlePage slug="generator" /> },
   { path: '/human-design/manifesting-generator', element: <HumanDesignArticlePage slug="manifesting-generator" /> },

@@ -490,6 +490,9 @@ export default function VedicAstrologyPage() {
 
         <VedicAstrologySeoContent />
 
+        {/* Only reviews marked allow_public=1 and approved by an admin are returned. */}
+        <PublicVedicReviews language={language} />
+
         {chart && <>
           <div role="status" className="mx-auto mt-10 max-w-5xl rounded-xl border border-amber-300/20 p-4 text-amber-100">
             {language === 'en' ? 'Birth chart calculation complete ✓' : '出生盤計算完成 ✓'} · {chartUnlocked
@@ -533,7 +536,6 @@ export default function VedicAstrologyPage() {
         {visibleProgress?.reportStatus === 'completed' && returnOrderId && returnOrderToken &&
           <VedicReviewForm orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
         {visibleReport && returnOrderId && returnOrderToken && <PaidReport report={visibleReport} orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
-        <PublicVedicReviews language={language} />
       </main>
     </div>
   );

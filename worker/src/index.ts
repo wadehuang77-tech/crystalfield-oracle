@@ -85,6 +85,7 @@ import {
   adminDeleteVedicReview, adminListVedicReviews, adminUpdateVedicReview, adminVedicReviewStats,
   getMyVedicReview, listPublicVedicReviews, upsertVedicReview,
 } from './vedicReviews';
+import { adminListReviews, adminUpdateReview, listPublicReviews, submitReview } from './reviews';
 import {
   badRequest,
   buildClearCookie,
@@ -296,6 +297,8 @@ export default {
       if (path === '/api/vedic-astrology/reviews/current' && req.method === 'POST') return await getMyVedicReview(req, env);
       if (path === '/api/vedic-astrology/reviews' && req.method === 'POST') return await upsertVedicReview(req, env);
       if (path === '/api/vedic-astrology/reviews/public' && req.method === 'GET') return await listPublicVedicReviews(req, env);
+      if (path.startsWith('/api/reviews/public/') && req.method === 'GET') return await listPublicReviews(req, env, decodeURIComponent(path.slice('/api/reviews/public/'.length)));
+      if (path === '/api/reviews' && req.method === 'POST') return await submitReview(req, env);
       if (path.startsWith('/api/human-design/charts/') && path.endsWith('/answers') && req.method === 'POST') {
         const id = decodeURIComponent(path.slice('/api/human-design/charts/'.length, -'/answers'.length));
         return await updateHumanDesignAnswers(req, env, id);
@@ -338,6 +341,8 @@ export default {
       if (path === '/api/admin/vedic-reviews' && req.method === 'GET') return await adminListVedicReviews(req, env, url);
       if (path.startsWith('/api/admin/vedic-reviews/') && req.method === 'PATCH') return await adminUpdateVedicReview(req, env, decodeURIComponent(path.split('/').pop() || ''));
       if (path.startsWith('/api/admin/vedic-reviews/') && req.method === 'DELETE') return await adminDeleteVedicReview(req, env, decodeURIComponent(path.split('/').pop() || ''));
+      if (path === '/api/admin/reviews' && req.method === 'GET') return await adminListReviews(req, env);
+      if (path.startsWith('/api/admin/reviews/') && req.method === 'PATCH') return await adminUpdateReview(req, env, decodeURIComponent(path.split('/').pop() || ''));
       if (path.startsWith('/api/admin/members/') && req.method === 'GET') {
         return await adminGetMember(req, env, decodeURIComponent(path.slice('/api/admin/members/'.length)));
       }
