@@ -160,11 +160,17 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
 
   if (recentPending) {
     orderId = recentPending.id;
-    merchantTradeNo = recentPending.merchant_trade_no;
-    if (picksPayload) {
+    // ECPay rejects a retry that reuses a previously submitted MerchantTradeNo
+    // (10300028). Keep the same order/subscription entitlement, but issue a
+    // fresh trade number for every new checkout attempt.
+    merchantTradeNo = makeMerchantTradeNo();
+    await env.DB.prepare(
+      `UPDATE orders SET merchant_trade_no = ?, picks_payload = COALESCE(?, picks_payload), updated_at = datetime('now') WHERE id = ? AND status = 'pending'`
+    ).bind(merchantTradeNo, picksPayload, orderId).run();
+    if (user && isTarotSubscriptionPlan(item.id)) {
       await env.DB.prepare(
-        `UPDATE orders SET picks_payload = ?, updated_at = datetime('now') WHERE id = ?`
-      ).bind(picksPayload, orderId).run();
+        `UPDATE subscriptions SET merchant_trade_no = ?, updated_at = datetime('now') WHERE order_id = ? AND status = 'pending'`
+      ).bind(merchantTradeNo, orderId).run();
     }
   } else {
     orderId = crypto.randomUUID();
