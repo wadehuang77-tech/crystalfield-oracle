@@ -24,6 +24,7 @@ import ShareReadingSection from '../components/ShareReadingSection';
 import { trackReadingStart, type OracleSpreadId } from '../lib/ga4';
 import { BundleCreditStatus, OraclePricingPlans } from '../components/OraclePricingPlans';
 import { getLanguageFromPath, localizeCardLabel, t, translations } from '../lib/i18n';
+import { ReviewHomeSection } from '../components/ReviewHomeSection';
 
 interface TarotCard {
   id: string;
@@ -1380,6 +1381,8 @@ function TarotPage() {
         </div>
 
       </div>
+
+      <ReviewHomeSection source="tarot" />
 
       <CrystalGridPromoModal show={showModal} onClose={handleClose} />
       <CrystalReminderBar isVisible={showReminder} onClose={handleReminderClose} />

@@ -88,7 +88,7 @@ const routeConfig = [
   { path: '/admin/tarot-subscriptions', element: <ProtectedRoute><AdminTarotSubscriptionsPage /></ProtectedRoute> },
   { path: '/admin/vedic-reviews', element: <ProtectedRoute><AdminVedicReviewsPage /></ProtectedRoute> },
   { path: '/admin/reviews', element: <ProtectedRoute><AdminReviewsPage /></ProtectedRoute> },
-  { path: '/tarot', element: <><TarotPage /><ReviewHomeSection source="tarot" /></> },
+  { path: '/tarot', element: <TarotPage /> },
   { path: '/tarot-single', element: <TarotSinglePage /> },
   { path: '/lightworker', element: <LightworkerPage /> },
   { path: '/lightworker/celtic-cross', element: <LightworkerCelticCrossPage /> },
