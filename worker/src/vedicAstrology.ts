@@ -21,6 +21,7 @@ import type { ReportLanguage } from './vedicReportStore';
 export const VEDASTRO_DEFAULT_API_BASE = 'https://api.vedastro.org/api';
 const CHART_TOKEN_SECONDS = 60 * 60 * 24 * 7;
 const FREE_READING_MIN_CHARS = 250;
+const FREE_READING_MAX_CHARS = 300;
 export const VEDIC_REPORT_FORMAT_VERSION = 10;
 const VEDIC_FORECAST_YEARS = 5;
 const REPORT_SCOPES = [
@@ -401,7 +402,10 @@ function expandReading(text: string, additions: string[], minChars = FREE_READIN
     if (expanded.length >= minChars) break;
     expanded += `\n\n${addition}`;
   }
-  return expanded;
+  // 免費三欄解盤固定由程式組合，不呼叫 AI；限制在 250–300 字內。
+  return expanded.length > FREE_READING_MAX_CHARS
+    ? `${expanded.slice(0, FREE_READING_MAX_CHARS - 1)}。`
+    : expanded;
 }
 
 function cleanText(value: unknown, max: number): string {
