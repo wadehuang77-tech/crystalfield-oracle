@@ -256,7 +256,8 @@ export async function rateLimit(
   key: string,
   max: number,
   windowSec: number,
-): Promise<{ allowed: boolean; remaining: number }> {
+  failClosed = false,
+): Promise<{ allowed: boolean; remaining: number; unavailable?: boolean }> {
   const cutoff = new Date(Date.now() - windowSec * 1000).toISOString();
   try {
     const r = await env.DB.prepare(
@@ -277,7 +278,7 @@ export async function rateLimit(
 
     return { allowed: true, remaining: max - used - 1 };
   } catch {
-    return { allowed: true, remaining: max };
+    return { allowed: !failClosed, remaining: failClosed ? 0 : max, ...(failClosed ? { unavailable: true } : {}) };
   }
 }
 

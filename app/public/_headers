@@ -1,3 +1,11 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000
+  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://www.facebook.com https://www.gstatic.com; connect-src 'self' https://api.crystalfield101.com https://www.google-analytics.com https://analytics.google.com https://accounts.google.com https://connect.facebook.net https://www.facebook.com; frame-src https://accounts.google.com; form-action 'self' https://payment.ecpay.com.tw https://payment-stage.ecpay.com.tw; frame-ancestors 'none'
+
 /app-shell
   X-Robots-Tag: noindex, nofollow
 /maya-calendar/relationship

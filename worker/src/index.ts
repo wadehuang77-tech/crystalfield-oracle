@@ -134,7 +134,7 @@ export default {
       return new Response(null, { headers: corsHeaders(req, env) });
     }
 
-    const isMutating = req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE';
+    const isMutating = req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH' || req.method === 'DELETE';
     const isEcpayBack = path === '/api/ecpay-webhook'
       || path === '/api/payments/ecpay/tarot-period-return'
       || path === '/api/checkout/result'
@@ -164,7 +164,16 @@ export default {
         || path === '/api/admin/prokerala/report-smoke') {
         return await verifyProkerala(req, env);
       }
-      if (path === '/api/auth/signup'  && req.method === 'POST') return await signup(req, env);
+      if (path === '/api/auth/signup'  && req.method === 'POST') {
+        const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
+        const rl = await rateLimit(env, 'signup-ip', ip, 5, 3600, true);
+        if (!rl.allowed) {
+          return rl.unavailable
+            ? json(req, env, { error: '註冊服務暫時無法使用，請稍後再試' }, { status: 503 })
+            : await tooManyRequests(req, env, ip === 'unknown' ? '註冊服務暫時無法使用，請稍後再試' : '註冊請求過於頻繁，請稍後再試');
+        }
+        return await signup(req, env);
+      }
       if (path === '/api/auth/signin'  && req.method === 'POST') {
         const rl = await rateLimit(env, 'signin-ip', clientIp(req), 30, 3600);
         if (!rl.allowed) return await tooManyRequests(req, env, '登入嘗試過於頻繁,請稍後再試');
@@ -1287,7 +1296,10 @@ async function ecpayWebhook(req: Request, env: Env): Promise<Response> {
   if (expected !== params.CheckMacValue) {
     return new Response('0|Invalid signature', { status: 400, headers: { 'Content-Type': 'text/plain' } });
   }
-  if (env.ECPAY_MERCHANT_ID && params.MerchantID !== env.ECPAY_MERCHANT_ID) {
+  if (!env.ECPAY_MERCHANT_ID) {
+    return new Response('0|Merchant not configured', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+  }
+  if (params.MerchantID !== env.ECPAY_MERCHANT_ID) {
     return new Response('0|Merchant mismatch', { status: 400, headers: { 'Content-Type': 'text/plain' } });
   }
   if (params.SimulatePaid === '1') {
