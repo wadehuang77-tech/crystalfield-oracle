@@ -17,6 +17,10 @@ const planets: Record<string, string> = {Sun:'太陽',Moon:'月亮',Mars:'火星
 const houses = ['自我發展與身心照顧','收支資源與表達習慣','學習交流與日常行動','家庭歸屬與居住安排','創作樂趣與學習表達','工作習慣與日常責任','伴侶互動與合作協商','共享資源與變動調適','進修探索與價值信念','事業方向與社會責任','社群合作與長期目標','獨處休息與內在整理'];
 const houseEn = ['self-development and self-care','resources and communication','learning and daily action','home and belonging','creativity and learning','routines and responsibilities','partnership and cooperation','shared resources and change','study and beliefs','career and public responsibility','community and long-term goals','rest and reflection'];
 interface CoreChart { lagna?: string; moonSign?: string; houseLords?: Record<string,string>; housePlacements?: Record<string,number> }
+function zhFreeReading(base: string, additions: string[]): string {
+  const text = [base, ...additions].join(' ');
+  return text.length > 300 ? `${text.slice(0, 299)}。` : text;
+}
 export function vedicCoreReading(chart: CoreChart, language = 'zh-Hant') {
   const en = language === 'en';
   const asc = signs[chart.lagna ?? ''];
@@ -27,16 +31,16 @@ export function vedicCoreReading(chart: CoreChart, language = 'zh-Hant') {
   return {
     archetype: {
       title: en ? `Ascendant: ${asc ? chart.lagna : 'Unavailable'}` : asc ? `上升${asc[0]}｜外在氣場` : '上升星座｜資料不足',
-      body: asc ? en ? `Your ${chart.lagna} ascendant offers a symbolic lens on first impressions and how you approach new situations. Observe your actual responses rather than treating a sign as a fixed personality.` : `上升${asc[0]}象徵你${asc[1]}。面對新環境，留意自己的第一反應，也練習聆聽不同步調。` : en ? 'The stored chart has no valid ascendant. A reading cannot be inferred without it.' : '目前星盤缺少有效上升星座，無法判讀外在氣場；請確認出生時間與地點，不以其他星座代替。',
+      body: asc ? en ? `Your ${chart.lagna} ascendant offers a symbolic lens on first impressions and how you approach new situations. Observe your actual responses rather than treating a sign as a fixed personality.` : zhFreeReading(`上升${asc[0]}象徵你${asc[1]}。面對新環境，留意自己的第一反應，也練習聆聽不同步調。`, [`在工作或合作中，你可以先觀察自己如何開始一項任務、如何回應陌生人的邀請，再分辨哪些行動是真正自然，哪些只是為了符合期待。當你願意保留一點調整空間，外在表現會更穩定，也較不必用急促或過度防衛來證明自己。`, `這個位置適合拿來做生活觀察，而不是替你下定論。每天記下一個讓你感到自在的互動，以及一個需要重新設定界線的時刻，回頭比較自己的反應與結果。如此能把上升星座的象徵，轉化成可驗證的自我理解與實際選擇。`]) : en ? 'The stored chart has no valid ascendant. A reading cannot be inferred without it.' : '目前星盤缺少有效上升星座，無法判讀外在氣場；請確認出生時間與地點，不以其他星座代替。',
     },
     talents: {
       title: en ? `Moon: ${moon ? chart.moonSign : 'Unavailable'}` : moon ? `月亮${moon[0]}｜內心情感` : '月亮星座｜資料不足',
       items: [],
-      body: moon ? en ? `Your Moon in ${chart.moonSign} invites reflection on emotional needs and habitual responses. Notice what helps you feel secure, and communicate needs instead of expecting others to guess them.` : `月亮${moon[0]}提醒你關注${moon[2]}。情緒起伏時，先辨認真正需要，再清楚表達，不必期待別人自行猜懂。` : en ? 'The stored chart has no valid Moon sign. Emotional themes cannot be assigned to an assumed sign.' : '目前星盤缺少有效月亮星座，暫不指定情感特質；請待資料完整後閱讀，不用猜測取代計算結果。',
+      body: moon ? en ? `Your Moon in ${chart.moonSign} invites reflection on emotional needs and habitual responses. Notice what helps you feel secure, and communicate needs instead of expecting others to guess them.` : zhFreeReading(`月亮${moon[0]}提醒你關注${moon[2]}。情緒起伏時，先辨認真正需要，再清楚表達，不必期待別人自行猜懂。`, [`在關係裡，你可以留意自己是先尋求安定、先分析問題，還是先需要被理解；辨識這個順序，有助於避免把沉默誤認為冷漠，也避免在尚未整理情緒時急著答應或拒絕。把需要說成具體句子，通常比等待對方讀懂暗示更有效。`, `月亮星座不是情緒好壞的判決，而是一個觀察內在節奏的入口。當你感到疲憊或不安時，試著記下當下的身體感受、真正想保護的事，以及可以提出的一個小請求，逐步建立更可靠的自我照顧方式。`]) : en ? 'The stored chart has no valid Moon sign. Emotional themes cannot be assigned to an assumed sign.' : '目前星盤缺少有效月亮星座，暫不指定情感特質；請待資料完整後閱讀，不用猜測取代計算結果。',
     },
     currentCycle: {
       title: en ? 'Ascendant Ruler Placement | Life Focus' : '命主星落宮｜人生重心',
-      body: validHouse ? en ? `Your ascendant ruler ${lord} is recorded in house ${house}, highlighting ${houseEn[house! - 1]}. Explore one practical action in this area; this placement does not guarantee an outcome.` : `命主星${planets[lord!]}落第${house}宮，可從${houses[house! - 1]}探索投入方向。選一項小行動實踐，這是自我觀察提示，並非必然命運。` : en ? 'The stored ascendant ruler or its house is missing. No house or life focus will be invented.' : '目前缺少命主星或有效落宮資料，無法指定人生重心；待星盤資料補齊再判讀，不以事業宮或其他宮位代替。',
+      body: validHouse ? en ? `Your ascendant ruler ${lord} is recorded in house ${house}, highlighting ${houseEn[house! - 1]}. Explore one practical action in this area; this placement does not guarantee an outcome.` : zhFreeReading(`命主星${planets[lord!]}落第${house}宮，可從${houses[house! - 1]}探索投入方向。選一項小行動實踐，這是自我觀察提示，並非必然命運。`, [`你可以把這個人生重心放回日常選擇：目前哪些時間、注意力與資源最常投入這個領域？哪些承諾其實已經超出可負擔的範圍？先整理現況，再挑選一個能在一週內完成的步驟，比急著追求宏大結果更能看見自己的節奏。`, `落宮提供的是象徵性的觀察方向，不代表事件必然發生，也不能單獨取代完整星盤、行星尊貴與大運判讀。請把它和實際經驗對照，記錄行動後的感受與回饋，再決定是否要調整長期投入方式。`]) : en ? 'The stored ascendant ruler or its house is missing. No house or life focus will be invented.' : '目前缺少命主星或有效落宮資料，無法指定人生重心；待星盤資料補齊再判讀，不以事業宮或其他宮位代替。',
     },
     challenge: { title: '', body: '' },
     nextYear: { title: '', body: '', lockedPrompts: [] },
