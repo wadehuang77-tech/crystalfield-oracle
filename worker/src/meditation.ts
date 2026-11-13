@@ -43,6 +43,13 @@ export async function adminMeditationTracks(req: Request, env: Env) {
     const file:any=(await req.formData()).get('file'); if (!(file instanceof File) || file.type !== 'audio/mpeg') return new Response('MP3 required',{status:400});
     const key=`meditation/${id}.mp3`; await bucket.put(key,file.stream(),{httpMetadata:{contentType:'audio/mpeg'}}); await env.DB.prepare("UPDATE meditation_audio_tracks SET r2_key=?,updated_at=datetime('now') WHERE id=?").bind(key,id).run(); return json(req,env,{ok:true});
   }
+  if (id && req.method === 'DELETE') {
+    const row = await env.DB.prepare('SELECT r2_key FROM meditation_audio_tracks WHERE id=?').bind(id).first<{r2_key?: string}>();
+    if (!row) return new Response('Not found', { status: 404 });
+    if (env.MEDITATION_AUDIO_BUCKET && row.r2_key) await env.MEDITATION_AUDIO_BUCKET.delete(row.r2_key);
+    await env.DB.prepare('DELETE FROM meditation_audio_tracks WHERE id=?').bind(id).run();
+    return json(req, env, { ok: true });
+  }
   const rows = await env.DB.prepare('SELECT * FROM meditation_audio_tracks ORDER BY sort_order').all();
   return json(req, env, { tracks: rows.results ?? [] });
 }
