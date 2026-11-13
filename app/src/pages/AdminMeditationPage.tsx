@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 type Track = { id:string; title_zh:string; description_zh:string; is_free:number; is_published:number; sort_order:number; r2_key?:string };
 export default function AdminMeditationPage(){
  const [tracks,setTracks]=useState<Track[]>([]); const [message,setMessage]=useState('');
- const load=async()=>{try{const r=await fetch('/api/admin/meditation/tracks');if(!r.ok)throw new Error();const v=await r.json() as {tracks:Track[]};setTracks(v.tracks||[])}catch{setMessage('無法載入，請確認管理員登入')}};
+ const load=async()=>{try{const r=await fetch('/api/admin/meditation/tracks');if(!r.ok)throw new Error();const v=await r.json() as {tracks:Track[]};setTracks(v.tracks||[])}catch{setMessage('無法載入，請先使用管理員 Google 帳號 wadehuang77@gmail.com 登入')}};
  useEffect(()=>{void load()},[]);
  const save=async(t:Track)=>{const r=await fetch(`/api/admin/meditation/tracks?id=${t.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({title_zh:t.title_zh,description_zh:t.description_zh,is_free:t.is_free?1:0,is_published:t.is_published?1:0,sort_order:t.sort_order})});setMessage(r.ok?'已儲存':'儲存失敗')};
  const upload=async(id:string,file:File)=>{const f=new FormData();f.append('file',file);const r=await fetch(`/api/admin/meditation/tracks?id=${id}`,{method:'POST',body:f});setMessage(r.ok?'音檔已上傳':'上傳失敗');if(r.ok)void load()};
