@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-type Track = Record<string, any> & { id:string; title_zh:string; description_zh:string; is_free:number; is_published:number; r2_key?:string };
+type Track = { id:string; title_zh:string; description_zh:string; is_free:number; is_published:number; sort_order:number; r2_key?:string };
 export default function AdminMeditationPage(){
  const [tracks,setTracks]=useState<Track[]>([]); const [message,setMessage]=useState('');
  const load=async()=>{try{const r=await fetch('/api/admin/meditation/tracks');if(!r.ok)throw new Error();const v=await r.json() as {tracks:Track[]};setTracks(v.tracks||[])}catch{setMessage('無法載入，請確認管理員登入')}};
