@@ -116,7 +116,7 @@ export default function AuthPage() {
   const rawRedirect = searchParams.get('redirect');
   const redirectTo = isSafeAuthRedirect(rawRedirect) ? rawRedirect : null;
   const returnTo = redirectTo ?? (isEnglish ? '/en' : '/');
-  const meditationResume = redirectTo === '/meditation';
+  const meditationResume = redirectTo?.replace(/\/$/, '') === '/meditation';
   const returnState = (location.state as { returnState?: unknown } | null)?.returnState;
 
   const [mode, setMode] = useState<Mode>(
