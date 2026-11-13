@@ -174,11 +174,7 @@ export default function MayaPremiumReportManager({ kind, locale, userId, accessI
       missingInput.current = !a ? personalDateInput.current : partnerDateInput.current;
       throw new Error(t('請先儲存報告所需的出生資料。', 'Save the required birth data first.'));
     }
-    if (!grant) {
-      if (!payment) throw new Error(t('付款尚未啟用。', 'Checkout is not enabled.'));
-      if (!window.confirm(t(`確認支付 NT$${product.price} 解鎖報告？不自動續扣。`,
-        `Pay NT$${product.price} to unlock your report? No recurring billing.`))) return;
-    }
+    if (!grant && !payment) throw new Error(t('付款尚未啟用。', 'Checkout is not enabled.'));
     if (!result) {
       // Carry the returned IDs through this request; React state updates are asynchronous.
       if (personal?.birth_date !== dateA) {
