@@ -26,7 +26,12 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
   if (user) await env.DB.prepare('INSERT INTO meditation_playback_history (id,user_id,track_id) VALUES (?,?,?)').bind(crypto.randomUUID(), user.id, trackId).run();
   const headers = new Headers(corsHeaders(req, env)); headers.set('Content-Type','audio/mpeg'); headers.set('Cache-Control','private, max-age=300'); headers.set('Access-Control-Expose-Headers','Accept-Ranges,Content-Length,Content-Range');
   if (object.httpMetadata?.contentType) headers.set('Content-Type', object.httpMetadata.contentType);
-  if (object.range) headers.set('Accept-Ranges','bytes');
+  if (object.range && 'offset' in object.range && 'length' in object.range) {
+    const returnedRange = object.range as { offset: number; length: number };
+    headers.set('Accept-Ranges','bytes');
+    headers.set('Content-Length', String(returnedRange.length));
+    headers.set('Content-Range', `bytes ${returnedRange.offset}-${returnedRange.offset + returnedRange.length - 1}/${object.size}`);
+  } else if (object.size !== undefined) headers.set('Content-Length', String(object.size));
   return new Response(object.body, { status: object.range ? 206 : 200, headers });
 }
 
