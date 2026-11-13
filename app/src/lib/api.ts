@@ -66,6 +66,7 @@ export const mayaPremiumApi = {
 
 const BASE = import.meta.env.VITE_API_BASE
   || (import.meta.env.PROD ? 'https://api.crystalfield101.com' : '');
+export const API_BASE = BASE;
 
 export const mayaApi = {
   adminReport: (body: { locale: MayaLocale; product_code: MayaProductCode; profile_id: string; relationship_profile_id?: string; idempotency_key: string }) =>
