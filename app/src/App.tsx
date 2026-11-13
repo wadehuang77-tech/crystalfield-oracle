@@ -39,6 +39,7 @@ import { getLanguageFromPath, getLocalizedPath } from './lib/i18n';
 import { RenderYearProvider } from './contexts/RenderYearContext';
 import AdminReviewsPage from './pages/AdminReviewsPage';
 import { ReviewHomeSection } from './components/ReviewHomeSection';
+import MeditationPage from './pages/MeditationPage';
 import { RouteFallback, RouteLoadErrorBoundary, lazyRoute, ssrRoutesReady } from './lib/lazyRoute';
 import { startRoutePrefetch } from './lib/routePrefetch';
 // Keep this stylesheet in the entry CSS: loading it with the lazy chunk would restyle the prerendered page after first paint.
@@ -52,6 +53,7 @@ const GoogleFormsAdminPage = lazyRoute(() => import('./pages/GoogleFormsAdminPag
 const AdminMembersPage = lazyRoute(() => import('./pages/AdminMembersPage'), 'AdminMembersPage');
 const AdminVedicReviewsPage = lazyRoute(() => import('./pages/AdminVedicReviewsPage'), 'default');
 const AdminTarotSubscriptionsPage = lazyRoute(() => import('./pages/AdminTarotSubscriptionsPage'), 'default');
+const AdminMeditationPage = lazyRoute(() => import('./pages/AdminMeditationPage'), 'default');
 
 // Numerology and Human Design are only needed once a visitor opens those tools or their articles.
 const NumerologyPage = lazyRoute(() => import('./pages/NumerologyPage'), 'default');
@@ -87,6 +89,7 @@ const routeConfig = [
   { path: '/admin/members', element: <ProtectedRoute><AdminMembersPage /></ProtectedRoute> },
   { path: '/admin/tarot-subscriptions', element: <ProtectedRoute><AdminTarotSubscriptionsPage /></ProtectedRoute> },
   { path: '/admin/vedic-reviews', element: <ProtectedRoute><AdminVedicReviewsPage /></ProtectedRoute> },
+  { path: '/admin/meditation', element: <ProtectedRoute><AdminMeditationPage /></ProtectedRoute> },
   { path: '/admin/reviews', element: <ProtectedRoute><AdminReviewsPage /></ProtectedRoute> },
   { path: '/tarot', element: <TarotPage /> },
   { path: '/tarot-single', element: <TarotSinglePage /> },
@@ -115,6 +118,7 @@ const routeConfig = [
   { path: '/human-design/profile', element: <HumanDesignArticlePage slug="profile" /> },
   { path: '/human-design/birth-time', element: <HumanDesignArticlePage slug="birth-time" /> },
   { path: '/vedic-astrology', element: <VedicAstrologyPage /> },
+  { path: '/meditation', element: <MeditationPage /> },
   { path: '/vedic-astrology/what-is-vedic-astrology', element: <VedicAstrologyArticlePage slug="what-is-vedic-astrology" /> },
   { path: '/vedic-astrology/vedic-vs-western', element: <VedicAstrologyArticlePage slug="vedic-vs-western" /> },
   { path: '/vedic-astrology/rahu-ketu', element: <VedicAstrologyArticlePage slug="rahu-ketu" /> },

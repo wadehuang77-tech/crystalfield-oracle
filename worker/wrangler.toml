@@ -46,6 +46,10 @@ binding = "DB_CARDS"
 database_name = "bolt-tarot-cards"
 database_id = "7e74927a-0213-4ad5-bd4a-87cf4ea5c1a7"
 
+[[r2_buckets]]
+binding = "MEDITATION_AUDIO_BUCKET"
+bucket_name = "meditation-audio"
+
 # 寄信改走 Resend(https://resend.com)
 # Cloudflare Send Email binding 有「收件人必須驗證」的限制,生產環境不能用,改 Resend
 # RESEND_API_KEY 用 wrangler secret put 設定,不寫進 toml

@@ -106,6 +106,13 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     h1: vedicLandingContent.zhHant.h1,
     intro: vedicLandingContent.zhHant.intro,
   },
+  '/meditation': {
+    title: '冥想音頻課程｜讓心靈慢下來，找回內在平靜｜晶域心語',
+    description: '透過冥想音頻釋放壓力、安定情緒，體驗免費呼吸、身體掃描與睡前放鬆練習；會員可解鎖完整課程。',
+    canonical: 'https://www.crystalfield101.com/meditation/',
+    h1: '讓心靈慢下來，找回內在平靜',
+    intro: '透過聲音與冥想，釋放壓力、安定情緒，重新連結內在力量。',
+  },
 };
 
 const HUMAN_DESIGN_ARTICLE_SEO: Record<string, SeoConfig> = Object.fromEntries(

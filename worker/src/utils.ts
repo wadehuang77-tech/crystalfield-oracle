@@ -17,6 +17,7 @@ export interface Env {
   MAYA_PREMIUM_LIVE_ENABLED?: string;
   DB: D1Database;
   DB_CARDS: D1Database;
+  MEDITATION_AUDIO_BUCKET?: R2Bucket;
   JWT_SECRET: string;
   ENV?: string;
   ALLOWED_ORIGINS?: string;
