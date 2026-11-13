@@ -156,7 +156,11 @@ async function req<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T>
     const message = (typeof data === 'object' && data && 'error' in data)
       ? String((data as { error: unknown }).error)
       : `HTTP ${res.status}`;
-    const err = new Error(message) as Error & { status: number; body: unknown };
+    const retryAfter = res.headers.get('Retry-After');
+    const displayMessage = res.status === 429 && retryAfter
+      ? `${message}（請約 ${Math.ceil(Number(retryAfter) / 60)} 分鐘後再試）`
+      : message;
+    const err = new Error(displayMessage) as Error & { status: number; body: unknown };
     err.status = res.status;
     err.body = data;
     throw err;

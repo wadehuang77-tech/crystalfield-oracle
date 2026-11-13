@@ -170,7 +170,7 @@ export async function routeMayaPayment(req: Request, env: Env, production: boole
   const resultPath = `${config.prefix}/result`;
   const external = url.pathname === callbackPath || url.pathname === resultPath;
   const english = url.searchParams.get('locale') === 'en';
-  const respond = (data: unknown, status = 200) => json(req, env, data, { status, headers: { 'Cache-Control': 'private, no-store' } });
+  const respond = (data: unknown, status = 200, extraHeaders: Record<string, string> = {}) => json(req, env, data, { status, headers: { 'Cache-Control': 'private, no-store', ...extraHeaders } });
   try {
     if (url.pathname === '/api/maya/checkout/config' && req.method === 'GET' && env.MAYA_MEMBER_TEST_USER_IDS && !mayaFeatures(env).member) {
       const user = await readSession(req, env, true);
@@ -292,10 +292,6 @@ export async function routeMayaPayment(req: Request, env: Env, production: boole
       if (previous && (previous.product_code !== product.code || (!annual && previous.locale !== locale) || previous.status !== 'pending')) {
         throw new SandboxError(409, 'CHECKOUT_CONFLICT');
       }
-      const rate = await env.DB.prepare(`INSERT INTO maya_rate_limits(scope,user_id,bucket,used) VALUES (?, ?,?,1)
-        ON CONFLICT(scope,user_id,bucket) DO UPDATE SET used=used+1 WHERE used<10 RETURNING used`)
-        .bind(config.scope, user.id, Math.floor(Date.now() / 3600_000)).first();
-      if (!rate) throw new SandboxError(429, 'RATE_LIMITED');
       const id = crypto.randomUUID();
       const trade = makeMerchantTradeNo();
       if (!previous) await env.DB.batch([
@@ -335,6 +331,6 @@ export async function routeMayaPayment(req: Request, env: Env, production: boole
     const code = error instanceof SandboxError ? error.code : error instanceof PayloadTooLargeError ? 'TOO_LARGE' : error instanceof SyntaxError ? 'INVALID_INPUT' : 'INTERNAL_ERROR';
     console.warn(JSON.stringify({ event: production ? 'maya_payment_rejected' : 'maya_sandbox_rejected', code }));
     if (external) return new Response(`0|${code}`, { status, headers: { 'Cache-Control': 'no-store' } });
-    return respond({ code, error: english ? `Payment request unavailable (${code}).` : `付款請求無法完成（${code}）。` }, error instanceof SyntaxError ? 400 : status);
+    return respond({ code, error: english ? `Payment request unavailable (${code}).` : `付款請求無法完成（${code}）。`, ...(code === 'RATE_LIMITED' ? { retry_after_seconds: 3600 } : {}) }, error instanceof SyntaxError ? 400 : status, code === 'RATE_LIMITED' ? { 'Retry-After': '3600' } : {});
   }
 }
