@@ -40,6 +40,18 @@ const CARDS = [
     glowSolid: '#14b8a6',
     borderGlow: 'rgba(20,184,166,0.4)',
   },
+  {
+    id: 'meditation',
+    icon: '🪷',
+    title: '埃及冥想音頻',
+    tagline: '讓心靈慢下來，找回內在平靜',
+    description: '透過聲音與冥想釋放壓力，體驗免費音頻課程。',
+    button: '開始冥想',
+    href: '/meditation',
+    glow: 'rgba(134,239,172,0.45)',
+    glowSolid: '#65a30d',
+    borderGlow: 'rgba(134,239,172,0.35)',
+  },
 ] as const;
 
 type Card = (typeof CARDS)[number];
