@@ -116,6 +116,7 @@ export default function AuthPage() {
   const rawRedirect = searchParams.get('redirect');
   const redirectTo = isSafeAuthRedirect(rawRedirect) ? rawRedirect : null;
   const returnTo = redirectTo ?? (isEnglish ? '/en' : '/');
+  const meditationResume = redirectTo === '/meditation';
   const returnState = (location.state as { returnState?: unknown } | null)?.returnState;
 
   const [mode, setMode] = useState<Mode>(
@@ -403,6 +404,7 @@ export default function AuthPage() {
               {mode==='login'&&<p className="text-base">{isEnglish?'New here? ':'還不是會員？ '}<button type="button" className="member-auth-link min-h-11 underline underline-offset-4" onClick={()=>switchMode('signup')}>{isEnglish?'Join now':'點此加入'}</button></p>}
             </div>
             <p className="mt-3 text-base leading-7">{mode==='login'?(isEnglish?'Sign in to continue entering your birth details.':'登入後即可繼續填寫出生資料。'):subheading}</p>
+            {mode==='login'&&meditationResume&&<p className="mt-4 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-center text-lg font-semibold text-amber-900">{isEnglish?'Sign in to continue listening to the full free meditation':'登入後繼續免費聆聽完整冥想'}</p>}
           </header>
           {(mode==='login'||mode==='signup')&&<section className="mb-7" aria-labelledby="social-signin-heading">
             <h2 id="social-signin-heading" className="mb-4 text-center text-xl font-semibold">{isEnglish?'Quick sign-in with a social account':'使用社群帳號快速登入'}</h2>
