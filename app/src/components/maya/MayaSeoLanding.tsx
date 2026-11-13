@@ -37,9 +37,6 @@ export default function MayaSeoLanding({ locale, features, configLoading, config
             : '七項解讀：包含前三項，另有波符與城堡編號說明、事業與創造力、每日實踐、關係互動。'}</p>
           <a className={`${cta} mt-4`} href={`${member}#MAYA_FULL_499`}>{en ? 'Unlock Full Life Blueprint' : '解鎖完整生命藍圖'} · NT${full.price}</a></article>
       </div>
-      <p className="mb-4">{en ? 'Sign in, enter your birth date and choose the unlock button for your report. Your birth profile is saved automatically; no separate save step is needed. Reports start after verified payment, or immediately with existing access.'
-        : '使用流程：登入、輸入出生年月日，按下對應方案的解鎖按鈕；系統會自動儲存出生資料，不必先按儲存。付款驗證成功後開始解讀；已有權限可直接解鎖。'}</p>
-      <Link className={cta} to={member}>{en ? 'Sign In to View Report Options' : '登入查看解讀方案與本人報告'}</Link>
     </section>
     <section className={panel} id="annual-blueprint" data-maya-annual-plan>
       <h2 className="text-2xl font-semibold">{en ? MAYA_ANNUAL_PRODUCT.en : MAYA_ANNUAL_PRODUCT.zh} · NT${MAYA_ANNUAL_PRODUCT.price}</h2>

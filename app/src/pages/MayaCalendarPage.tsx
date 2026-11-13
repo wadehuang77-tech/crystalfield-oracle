@@ -152,6 +152,12 @@ export default function MayaCalendarPage() {
     }
   }, [features.member, authLoading, user, privatePage, location.pathname, location.search, location.hash, navigate]);
 
+  useEffect(() => {
+    if (!memberPage || !user || !location.hash || !personal) return;
+    const target = document.querySelector(`${location.hash} button:not([disabled])`) as HTMLButtonElement | null;
+    if (target) window.setTimeout(() => target.click(), 0);
+  }, [memberPage, user, personal, location.hash]);
+
   function enter() {
     if (!features.member) return;
     const path = localized('/maya-calendar/member');
@@ -399,9 +405,6 @@ export default function MayaCalendarPage() {
                 access?.id ?? null, features.admin_live === true, key, isCurrent);
               return;
             }
-            if (paymentEnabled && !window.confirm(features.ai
-              ? t(`確認付費解鎖 NT$${product.price}？後端確認付款後自動生成，不自動續扣。`, `Pay NT$${product.price} to unlock? Generation starts after verified payment. No recurring billing.`)
-              : t('AI 報告尚未開放，付款僅購買權限。確認付款？', 'AI reports are unavailable; payment buys access only. Continue?'))) return;
             const form = await mayaApi.checkout(product.code, locale, key);
             if (!isCurrent()) return;
             validateMayaCheckoutForm(form, paymentEnabled ? 'production' : 'sandbox');
