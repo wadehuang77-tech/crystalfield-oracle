@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, CheckCircle, Mail, Lock, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Mail, Lock, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { GoogleSignInButton } from '../components/GoogleSignInButton';
 import './AuthPage.css';
 import { getLanguageFromPath } from '../lib/i18n';
@@ -126,6 +126,7 @@ export default function AuthPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [code, setCode] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [age, setAge] = useState('');
@@ -459,16 +460,19 @@ export default function AuthPage() {
               )}
 
               <Field label={copy.password} icon={<Lock className="w-5 h-5 text-blue-400" />}>
+                <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={mode === 'signup' ? 8 : 6}
                   autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                  className="auth-input pl-11"
+                  className="auth-input pl-11 pr-12"
                   placeholder={mode === 'signup' ? copy.passwordSignupPlaceholder : copy.passwordLoginPlaceholder}
                 />
+                <button type="button" aria-label={showPassword ? '隱藏密碼' : '顯示密碼'} onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-violet-500"><span className="sr-only">{showPassword ? '隱藏密碼' : '顯示密碼'}</span>{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
+                </div>
               </Field>
 
               {mode === 'signup' && (
@@ -578,16 +582,19 @@ export default function AuthPage() {
           {mode === 'forgot-password' && (
             <form onSubmit={handleResetPassword} noValidate className="space-y-5">
               <Field label={copy.newPassword} icon={<Lock className="w-5 h-5 text-blue-400" />}>
+                <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
                   autoComplete="new-password"
-                  className="auth-input pl-11"
+                  className="auth-input pl-11 pr-12"
                   placeholder={copy.passwordSignupPlaceholder}
                 />
+                <button type="button" aria-label={showPassword ? '隱藏密碼' : '顯示密碼'} onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-violet-500"><span className="sr-only">{showPassword ? '隱藏密碼' : '顯示密碼'}</span>{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
+                </div>
               </Field>
 
               {error && <ErrorBox message={error} />}
