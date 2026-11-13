@@ -1,4 +1,4 @@
-import { json, readSession, requireAdmin, type Env } from './utils';
+import { corsHeaders, json, readSession, requireAdmin, type Env } from './utils';
 
 export async function meditationTracks(req: Request, env: Env) {
   const lang = new URL(req.url).searchParams.get('lang') === 'en' ? 'en' : 'zh';
@@ -24,7 +24,7 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
   const object = await bucket.get(row.r2_key, range ? { range } : undefined);
   if (!object) return new Response('Not found', { status: 404 });
   if (user) await env.DB.prepare('INSERT INTO meditation_playback_history (id,user_id,track_id) VALUES (?,?,?)').bind(crypto.randomUUID(), user.id, trackId).run();
-  const headers = new Headers(); headers.set('Content-Type','audio/mpeg'); headers.set('Cache-Control','private, max-age=300');
+  const headers = new Headers(corsHeaders(req, env)); headers.set('Content-Type','audio/mpeg'); headers.set('Cache-Control','private, max-age=300'); headers.set('Access-Control-Expose-Headers','Accept-Ranges,Content-Length,Content-Range');
   if (object.httpMetadata?.contentType) headers.set('Content-Type', object.httpMetadata.contentType);
   if (object.range) headers.set('Accept-Ranges','bytes');
   return new Response(object.body, { status: object.range ? 206 : 200, headers });
