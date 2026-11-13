@@ -77,8 +77,6 @@ export default function MayaRelationshipPage() {
             return;
           }
           if (!visible || visible.access || !accepted || busy || !payment) return;
-          if (!window.confirm(reportAvailable ? en ? `Pay NT$${MAYA_RELATIONSHIP_PRODUCT.price} to unlock your relationship report?` : `確認支付 NT$${MAYA_RELATIONSHIP_PRODUCT.price} 解鎖雙人報告？`
-            : en ? `Pay NT$${MAYA_RELATIONSHIP_PRODUCT.price} for access only? The full relationship report is not available yet.` : `確認支付 NT$${MAYA_RELATIONSHIP_PRODUCT.price}，僅購買商品權限？完整雙人報告尚未開放。`)) return;
           const requested = identity;
           key.current ??= crypto.randomUUID();
           setBusy(true); setError('');

@@ -83,8 +83,6 @@ export default function MayaProPage() {
         disabled={!configReady || !payment || busy || !user || !visible || !!visible.access}
         onClick={async () => {
           if (!payment || !visible || visible.access || busy) return;
-          if (!window.confirm(liveAi ? t(`確認支付 NT$${MAYA_PRO_PRODUCT.price} 解鎖個人 Pro 報告？不自動續扣。`, `Pay NT$${MAYA_PRO_PRODUCT.price} to unlock your Pro report? No recurring billing.`)
-            : t(`確認支付 NT$${MAYA_PRO_PRODUCT.price}？完整報告尚未開放，目前僅購買商品權限，無法立即取得解讀。`, `Pay NT$${MAYA_PRO_PRODUCT.price}? The full report is not available yet. This purchase grants access only, with no report available now.`))) return;
           const requestedIdentity = identity;
           checkoutKey.current ??= crypto.randomUUID();
           setBusy(true); setError('');
