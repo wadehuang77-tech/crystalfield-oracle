@@ -42,11 +42,11 @@ const CARDS = [
   },
   {
     id: 'meditation',
-    icon: '🪷',
-    title: '埃及冥想音頻',
-    tagline: '讓心靈慢下來，找回內在平靜',
-    description: '透過聲音與冥想釋放壓力，體驗免費音頻課程。',
-    button: '開始冥想',
+    icon: '𓂀',
+    title: '《埃及十神冥想｜喚醒靈魂深處的古老智慧》',
+    tagline: '走入內在神殿，聆聽古老智慧的指引',
+    description: '以古埃及神殿意象、呼吸與聲音冥想，讓心靈慢下來。',
+    button: '進入靈魂神殿',
     href: '/meditation',
     glow: 'rgba(134,239,172,0.45)',
     glowSolid: '#65a30d',
@@ -210,10 +210,11 @@ export default function LandingPage() {
 function PortalCard({ card, index, onClick, language }: { card: Card; index: number; onClick?: () => void; language: 'zh-Hant' | 'en' }) {
   const sharedClass = "group relative block min-h-[420px] overflow-hidden rounded-3xl cursor-pointer no-underline sm:min-h-[520px]";
   const copy = translations[language];
-  const cardCopy =
-    card.id === 'tarot' ? copy.cards.tarot :
-    card.id === 'numerology' ? copy.cards.numerology :
-    copy.cards.humanDesign;
+  const cardCopy = card.id === 'meditation'
+    ? (language === 'en'
+      ? { title: 'Egyptian Tenfold Meditation', tagline: 'Awaken ancient wisdom within your soul', description: 'Enter the inner temple through breath, sound, and stillness.', button: 'Enter the Inner Temple' }
+      : { title: '《埃及十神冥想｜喚醒靈魂深處的古老智慧》', tagline: '走入內在神殿，聆聽古老智慧的指引', description: '以古埃及神殿意象、呼吸與聲音冥想，讓心靈慢下來。', button: '進入靈魂神殿' })
+    : card.id === 'tarot' ? copy.cards.tarot : card.id === 'numerology' ? copy.cards.numerology : copy.cards.humanDesign;
   const localizedHref = getLocalizedPath(card.href, language);
   const sharedStyle: React.CSSProperties = {
     border: `1px solid ${card.borderGlow}`,
@@ -236,6 +237,7 @@ function PortalCard({ card, index, onClick, language }: { card: Card; index: num
       {index === 0 && <TarotArtwork />}
       {index === 1 && <NumerologyArtwork />}
       {index === 2 && <HumanDesignArtwork />}
+      {card.id === 'meditation' && <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(201,167,91,.28),transparent_24%),linear-gradient(145deg,#160b2b,#080b1a_65%,#071323)]" aria-hidden><div className="absolute right-10 top-12 text-8xl text-[#d8bb78]/20">𓂀</div><div className="absolute right-20 top-28 h-40 w-40 rounded-full border border-[#d8bb78]/20" /></div>}
 
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'linear-gradient(to top, rgba(4,0,18,0.97) 0%, rgba(4,0,18,0.75) 35%, rgba(4,0,18,0.15) 65%, transparent 100%)',
