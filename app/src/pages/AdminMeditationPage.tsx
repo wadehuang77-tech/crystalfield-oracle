@@ -3,7 +3,7 @@ import { API_BASE } from '../lib/api';
 type Track = { id:string; title_zh:string; description_zh:string; is_free:number; is_published:number; sort_order:number; r2_key?:string };
 export default function AdminMeditationPage(){
  const [tracks,setTracks]=useState<Track[]>([]); const [message,setMessage]=useState('');
- const load=async()=>{try{const r=await fetch(`${API_BASE}/api/admin/meditation/tracks`,{credentials:'include'});if(!r.ok)throw new Error();const v=await r.json() as {tracks:Track[]};setTracks(v.tracks||[])}catch{setMessage('無法載入，請先使用管理員 Google 帳號 wadehuang77@gmail.com 登入')}};
+ const load=async()=>{try{const r=await fetch(`${API_BASE}/api/admin/meditation/tracks`,{credentials:'include',cache:'no-store'});if(r.status===401)throw new Error('請先登入管理員 Google 帳號 wadehuang77@gmail.com');if(r.status===403)throw new Error('目前登入帳號沒有管理員權限，請切換至 wadehuang77@gmail.com');if(!r.ok)throw new Error('管理 API 暫時無法使用');const v=await r.json() as {tracks:Track[]};setTracks(v.tracks||[])}catch(error){setMessage(error instanceof Error?error.message:'管理 API 暫時無法使用')}};
  useEffect(()=>{void load()},[]);
  const save=async(t:Track)=>{const r=await fetch(`${API_BASE}/api/admin/meditation/tracks?id=${t.id}`,{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({title_zh:t.title_zh,description_zh:t.description_zh,is_free:t.is_free?1:0,is_published:t.is_published?1:0,sort_order:t.sort_order})});setMessage(r.ok?'已儲存':'儲存失敗')};
  const upload=async(id:string,file:File)=>{const f=new FormData();f.append('file',file);const r=await fetch(`${API_BASE}/api/admin/meditation/tracks?id=${id}`,{method:'POST',credentials:'include',body:f});setMessage(r.ok?'音檔已上傳':'上傳失敗');if(r.ok)void load()};
