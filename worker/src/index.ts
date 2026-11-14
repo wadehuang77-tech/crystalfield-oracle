@@ -111,7 +111,7 @@ import {
 
 import { routeMayaApi } from './maya';
 import { routeMayaSandbox } from './mayaSandbox';
-import { meditationTracks, meditationAudio, adminMeditationTracks } from './meditation';
+import { meditationTracks, meditationAudio, meditationPlayback, adminMeditationTracks } from './meditation';
 const SESSION_SEC = 60 * 60 * 24 * 7;
 
 export default {
@@ -148,6 +148,7 @@ export default {
 
     try {
       if (path === '/api/meditation/tracks' && req.method === 'GET') return await meditationTracks(req, env);
+      if (path === '/api/meditation/playback' && req.method === 'POST') return await meditationPlayback(req, env);
       if (path.startsWith('/api/meditation/audio/') && req.method === 'GET') return await meditationAudio(req, env, decodeURIComponent(path.slice('/api/meditation/audio/'.length)));
       if (path === '/api/admin/meditation/tracks' && ['GET','PATCH','POST','DELETE'].includes(req.method)) return await adminMeditationTracks(req, env);
       if (path.startsWith('/api/vedic-astrology/annual/')) return await routeVedicAnnual(req, env);

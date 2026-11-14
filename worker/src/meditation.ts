@@ -23,7 +23,6 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
   const range = match ? { offset: Number(match[1]), length: match[2] ? Number(match[2]) - Number(match[1]) + 1 : undefined } : undefined;
   const object = await bucket.get(row.r2_key, range ? { range } : undefined);
   if (!object) return new Response('Not found', { status: 404 });
-  if (user) await env.DB.prepare('INSERT INTO meditation_playback_history (id,user_id,track_id) VALUES (?,?,?)').bind(crypto.randomUUID(), user.id, trackId).run();
   const headers = new Headers(corsHeaders(req, env)); headers.set('Content-Type','audio/mpeg'); headers.set('Cache-Control','private, max-age=300'); headers.set('Access-Control-Expose-Headers','Accept-Ranges,Content-Length,Content-Range');
   if (object.httpMetadata?.contentType) headers.set('Content-Type', object.httpMetadata.contentType);
   if (object.range && 'offset' in object.range && 'length' in object.range) {
@@ -33,6 +32,17 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
     headers.set('Content-Range', `bytes ${returnedRange.offset}-${returnedRange.offset + returnedRange.length - 1}/${object.size}`);
   } else if (object.size !== undefined) headers.set('Content-Length', String(object.size));
   return new Response(object.body, { status: object.range ? 206 : 200, headers });
+}
+
+export async function meditationPlayback(req: Request, env: Env) {
+  const body = await req.json<{trackId?: string; sessionId?: string; seconds?: number}>();
+  const seconds = body.seconds ?? 0;
+  if (!body.trackId || !body.sessionId || !Number.isFinite(seconds) || seconds < 10) return new Response('Invalid playback', { status: 400 });
+  const track = await env.DB.prepare('SELECT id,is_published FROM meditation_audio_tracks WHERE id=?').bind(body.trackId).first<any>();
+  if (!track?.is_published) return new Response('Not found', { status: 404 });
+  const user = await readSession(req, env);
+  await env.DB.prepare('INSERT OR IGNORE INTO meditation_playback_history (id,user_id,track_id,session_id) VALUES (?,?,?,?)').bind(crypto.randomUUID(), user?.id ?? null, body.trackId, body.sessionId).run();
+  return json(req, env, { ok: true });
 }
 
 export async function adminMeditationTracks(req: Request, env: Env) {
@@ -55,6 +65,6 @@ export async function adminMeditationTracks(req: Request, env: Env) {
     await env.DB.prepare('DELETE FROM meditation_audio_tracks WHERE id=?').bind(id).run();
     return json(req, env, { ok: true });
   }
-  const rows = await env.DB.prepare('SELECT * FROM meditation_audio_tracks ORDER BY sort_order').all();
+  const rows = await env.DB.prepare('SELECT t.*, COUNT(h.id) AS play_count FROM meditation_audio_tracks t LEFT JOIN meditation_playback_history h ON h.track_id=t.id GROUP BY t.id ORDER BY t.sort_order').all();
   return json(req, env, { tracks: rows.results ?? [] });
 }
