@@ -6,6 +6,13 @@ export async function meditationTracks(req: Request, env: Env) {
   return json(req, env, { tracks: (rows.results ?? []).map((r: any) => ({ id:r.id, title:lang==='en'?r.title_en:r.title_zh, description:lang==='en'?r.description_en:r.description_zh, durationSeconds:r.duration_seconds, isFree:Boolean(r.is_free) })) });
 }
 
+export async function meditationEntitlement(req: Request, env: Env) {
+  const user = await readSession(req, env);
+  if (!user) return new Response('Login required', { status: 401 });
+  const row = await env.DB.prepare("SELECT 1 AS active FROM meditation_entitlements WHERE user_id=? AND product_code='meditation_bundle' AND status='active' LIMIT 1").bind(user.id).first();
+  return json(req, env, { active: Boolean(row) });
+}
+
 export async function meditationAudio(req: Request, env: Env, trackId: string) {
   const row = await env.DB.prepare('SELECT id,is_free,is_published,r2_key FROM meditation_audio_tracks WHERE id=?').bind(trackId).first<any>();
   if (!row || !row.is_published) return new Response('Not found', { status: 404 });

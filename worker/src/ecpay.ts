@@ -48,6 +48,7 @@ export const SPREAD_CATALOG: Record<string, SpreadCatalogItem> = {
   vedic_soul_karma: { id: 'vedic_soul_karma', name: '印度占星｜靈魂業力', amount: 499 },
   vedic_life_full: { id: 'vedic_life_full', name: '印度占星｜人生全解', amount: 499 },
   vedic_complete: { id: 'vedic_complete', name: '印度占星｜完整人生地圖', amount: 699 },
+  meditation_bundle: { id: 'meditation_bundle', name: '埃及十神冥想｜10 個音頻套裝', amount: 980 },
 };
 
 export type CheckoutLocale = 'en' | 'zh-TW';

@@ -85,6 +85,8 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const isHumanDesignCheckout = item.id.startsWith('human_design_');
   if (!user && isHumanDesignCheckout) return unauthorized(req, env, '請先登入再購買人類圖報告');
   const isVedicCheckout = item.id.startsWith('vedic_');
+  const isMeditationCheckout = item.id === 'meditation_bundle';
+  if (!user && isMeditationCheckout) return unauthorized(req, env, '請先登入再購買冥想套裝');
   if (!user && isVedicCheckout) return unauthorized(req, env, '請先登入再購買印度占星報告');
   const shouldAdminInstantUnlock = isAdmin;
 
@@ -94,7 +96,7 @@ export async function createOrder(req: Request, env: Env): Promise<Response> {
   const isGuestNumerologyCheckout = !user && isNumerologyCheckout;
   const isGuestHumanDesignCheckout = !user && isHumanDesignCheckout;
   const isGuestVedicCheckout = !user && isVedicCheckout;
-  if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout && !isGuestHumanDesignCheckout && !isGuestVedicCheckout) {
+  if (!user && !isGuestSpreadCheckout && !isGuestNumerologyCheckout && !isGuestHumanDesignCheckout && !isGuestVedicCheckout && !isMeditationCheckout) {
     return unauthorized(req, env, '請先登入');
   }
   if (user && isTarotSubscriptionPlan(item.id)) {
