@@ -17,10 +17,13 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
   const row = await env.DB.prepare('SELECT id,is_free,is_published,r2_key FROM meditation_audio_tracks WHERE id=?').bind(trackId).first<any>();
   if (!row || !row.is_published) return new Response('Not found', { status: 404 });
   const user = await readSession(req, env);
+  const isAdmin = user ? await requireAdmin(req, env, user) : false;
   if (!row.is_free) {
     if (!user) return new Response('Login required', { status: 401 });
-    const entitlement = await env.DB.prepare("SELECT 1 FROM meditation_entitlements WHERE user_id=? AND status='active' LIMIT 1").bind(user.id).first();
-    if (!entitlement) return new Response('Entitlement required', { status: 403 });
+    if (!isAdmin) {
+      const entitlement = await env.DB.prepare("SELECT 1 FROM meditation_entitlements WHERE user_id=? AND status='active' LIMIT 1").bind(user.id).first();
+      if (!entitlement) return new Response('Entitlement required', { status: 403 });
+    }
   }
   const bucket = env.MEDITATION_AUDIO_BUCKET;
   if (!bucket || !row.r2_key) return new Response('Audio not configured', { status: 503 });
