@@ -56,7 +56,8 @@ export async function adminMeditationTracks(req: Request, env: Env) {
   if (id && req.method === 'POST') {
     const bucket=env.MEDITATION_AUDIO_BUCKET; if (!bucket) return new Response('R2 not configured',{status:503});
     const file:any=(await req.formData()).get('file'); if (!(file instanceof File) || file.type !== 'audio/mpeg') return new Response('MP3 required',{status:400});
-    const key=`meditation/${id}.mp3`; await bucket.put(key,file.stream(),{httpMetadata:{contentType:'audio/mpeg'}}); await env.DB.prepare("UPDATE meditation_audio_tracks SET r2_key=?,updated_at=datetime('now') WHERE id=?").bind(key,id).run(); return json(req,env,{ok:true});
+    const track = await env.DB.prepare('SELECT is_free FROM meditation_audio_tracks WHERE id=?').bind(id).first<{is_free?: number}>();
+    const key=track?.is_free ? `meditation/冥想課程音檔/試聽版/${id}.mp3` : `meditation/冥想課程音檔/${id}.mp3`; await bucket.put(key,file.stream(),{httpMetadata:{contentType:'audio/mpeg'}}); await env.DB.prepare("UPDATE meditation_audio_tracks SET r2_key=?,updated_at=datetime('now') WHERE id=?").bind(key,id).run(); return json(req,env,{ok:true});
   }
   if (id && req.method === 'DELETE') {
     const row = await env.DB.prepare('SELECT r2_key FROM meditation_audio_tracks WHERE id=?').bind(id).first<{r2_key?: string}>();
