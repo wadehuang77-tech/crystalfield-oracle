@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const gods = [
@@ -23,6 +24,23 @@ const faqs = [
 
 export default function MeditationSeoContent() {
   const english = useLocation().pathname.startsWith('/en/');
+  useEffect(() => {
+    if (english) return;
+    const syncCards = () => {
+      document.querySelectorAll<HTMLElement>('[data-meditation-page] section.mt-14 > div.mt-6.grid > div').forEach((card) => {
+        const heading = card.querySelector('h3')?.textContent?.trim() ?? '';
+        const match = gods.find(([, title]) => heading && title.includes(heading.slice(0, 2)));
+        if (!match) return;
+        card.tabIndex = 0;
+        const description = card.querySelector('p');
+        if (description && description.textContent !== match[2]) description.textContent = match[2];
+      });
+    };
+    syncCards();
+    const observer = new MutationObserver(syncCards);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [english]);
   if (english) return <><style>{`[data-meditation-page] section.mt-14 > div.mt-6.grid > div { max-height: 5.5rem; overflow: hidden; transition: max-height .3s ease, border-color .3s ease, box-shadow .3s ease; } [data-meditation-page] section.mt-14 > div.mt-6.grid > div:hover, [data-meditation-page] section.mt-14 > div.mt-6.grid > div:focus-within { max-height: 40rem; border-color: rgba(201,167,91,.6); box-shadow: 0 8px 24px rgba(201,167,91,.14); outline: 2px solid rgba(240,216,140,.8); outline-offset: 3px; }`}</style><section className="mx-auto max-w-4xl space-y-6 bg-[#071323] px-5 pb-16 text-[#e9dfc9]" aria-label="Egyptian Gods meditation guide">
     <h2 className="font-serif text-2xl text-[#fff8e8]">What is Egyptian Gods Guided Meditation?</h2>
     <p>Explore guided audio inspired by ancient Egyptian symbols as a gentle practice for stillness and self-reflection.</p>
