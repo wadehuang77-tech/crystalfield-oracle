@@ -90,16 +90,15 @@ export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 
             <Sparkles className="w-8 h-8 text-blue-300 animate-pulse" />
           </div>
           <h3 className="text-2xl sm:text-3xl font-bold text-blue-100 mb-3">
-            {isEnglish ? 'If this reading resonates with you' : '如果這次占卜讓你有共鳴'}
+            {isEnglish ? 'If this reading resonates with you' : '牌卡給了你方向，若想更深入看清全貌，讓韋德老師陪你一起梳理'}
           </h3>
-          <p className="text-blue-100/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-            {isEnglish ? 'You may be ready to explore your next chapter.' : '代表你已經準備好進入下一個階段'}
-          </p>
-          <p className="text-blue-100/50 text-sm sm:text-base mt-3 max-w-xl mx-auto leading-relaxed">
-            {isEnglish
-              ? <>Tarot can offer a helpful perspective.<br />Deeper guidance may help you reflect on meaningful change.</>
-              : <>有些問題，塔羅只能提醒<br />真正的轉變，需要更深層的引導</>}
-          </p>
+          <div className="text-blue-100/70 text-base sm:text-lg leading-relaxed max-w-3xl mx-auto space-y-3 text-left">
+            {isEnglish ? <p>Each card offers a gentle reflection from your inner wisdom. Wade Huang combines tarot, crystal healing and energy practices to make every reading a steady source of support.</p> : <>
+              <p>每一張抽出的神諭卡，都是你內在潛意識與高維智慧的溫柔共振。</p>
+              <p>這套線上神諭卡指引系統，由<strong>晶域心語創辦人——韋德老師 (Wade Huang)</strong>親自策劃與設計。韋德老師深耕塔羅、八字、紫微等命理領域超過 10 年，同時具備<strong>高階水晶治療師</strong>資格與 <strong>20 多年內修實踐底蘊</strong>。他致力於將傳統命理智慧與現代能量頻率結合，讓每一次的抽牌，都不只是冰冷的文字，而是一份真正能安定人心的力量。</p>
+              <p>單張牌卡能為你點出當下的核心提示；但如果你正站在人生的十字路口，面臨感情、事業或內在能量的卡關，需要針對你的個人狀況進行<strong>多張牌陣深度解析</strong>與<strong>能量場調理</strong>，歡迎讓韋德老師為你進行專屬的一對一諮詢。</p>
+            </>}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
@@ -112,7 +111,7 @@ export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 
               <Calendar className="w-8 h-8 text-blue-100 flex-shrink-0" />
               <div>
                 <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                  {isEnglish ? 'Looking to create a tarot system for your brand?' : '想為你的品牌建置專屬塔羅系統？'}
+                  {isEnglish ? 'Book a one-on-one deep reading' : '預約韋德老師一對一深度解讀'}
                 </h4>
                 <p className="text-blue-100 text-xs sm:text-sm">
                   {isEnglish ? 'Book a consultation' : '按此預約諮詢'}
@@ -121,9 +120,9 @@ export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 
             </div>
           </button>
 
-          {aiTarotLink?.available && aiTarotLink.form?.url ? (
+          {aiTarotLink || true ? (
             <a
-              href={aiTarotLink.form.url}
+              href="https://lin.ee/Z1mvseQ"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 rounded-xl p-6 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl"
@@ -133,7 +132,7 @@ export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 
                 <Sparkles className="w-8 h-8 text-blue-100 flex-shrink-0" />
                 <div className="text-left">
                   <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                    {isEnglish ? 'Discover AI Tarot Design: From Prompting to Online Spreads' : '解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開'}
+                    {isEnglish ? 'Connect with Wade Huang on LINE' : '加入官方 LINE，領取專屬能量指引與諮詢優惠'}
                   </h4>
                   <p className="text-blue-100 text-xs sm:text-sm">
                     {isEnglish ? 'Free online session: Learn how to design tarot cards with AI, even as a beginner.' : '免費線上說明會｜教你如何用 AI 設計塔羅牌，零基礎打造高質感的個人牌卡'}
@@ -150,7 +149,7 @@ export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 
                 <Sparkles className="w-8 h-8 text-blue-100 flex-shrink-0" />
                 <div className="text-left">
                   <h4 className="text-lg sm:text-xl font-bold text-blue-100 mb-1">
-                    {isEnglish ? 'Discover AI Tarot Design: From Prompting to Online Spreads' : '解密 AI 塔羅設計學：從 Prompt 繪畫到線上牌陣系統全公開'}
+                    {isEnglish ? 'Connect with Wade Huang on LINE' : '加入官方 LINE，領取專屬能量指引與諮詢優惠'}
                   </h4>
                   <p className="text-blue-100 text-xs sm:text-sm">
                     {isEnglish ? 'Registration is not open yet' : '報名尚未開放'}
