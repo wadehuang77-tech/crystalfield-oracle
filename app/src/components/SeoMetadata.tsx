@@ -107,10 +107,10 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     intro: vedicLandingContent.zhHant.intro,
   },
   '/meditation': {
-    title: '埃及十神冥想｜免費試聽・引導式冥想課程｜晶域心語',
-    description: '探索埃及十神冥想，透過引導式冥想認識古埃及神祇的象徵力量，放鬆身心、探索自我。提供免費試聽，適合冥想初學者。',
+    title: '埃及十神冥想｜10分鐘引導式冥想・免費試聽｜晶域心語',
+    description: '探索埃及十神冥想，認識賽特、歐西里斯、艾西斯、荷魯斯、阿努比斯等古埃及神祇。透過10分鐘引導式冥想，探索內在力量、生命轉化與自我療癒。立即免費試聽。',
     canonical: 'https://www.crystalfield101.com/meditation/',
-    h1: '埃及十神冥想｜探索古埃及神祇的內在智慧',
+    h1: '埃及十神冥想｜10分鐘引導式冥想與內在探索',
     intro: '透過引導式冥想認識古埃及神祇的象徵力量，從聲音與呼吸開始一段沉靜的自我探索。',
   },
 };

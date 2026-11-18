@@ -119,7 +119,7 @@ const routeConfig = [
   { path: '/human-design/profile', element: <HumanDesignArticlePage slug="profile" /> },
   { path: '/human-design/birth-time', element: <HumanDesignArticlePage slug="birth-time" /> },
   { path: '/vedic-astrology', element: <VedicAstrologyPage /> },
-  { path: '/meditation', element: <><MeditationPage /><MeditationSeoContent /></> },
+  { path: '/meditation', element: <div data-meditation-page><MeditationPage /><MeditationSeoContent /></div> },
   { path: '/vedic-astrology/what-is-vedic-astrology', element: <VedicAstrologyArticlePage slug="what-is-vedic-astrology" /> },
   { path: '/vedic-astrology/vedic-vs-western', element: <VedicAstrologyArticlePage slug="vedic-vs-western" /> },
   { path: '/vedic-astrology/rahu-ketu', element: <VedicAstrologyArticlePage slug="rahu-ketu" /> },
