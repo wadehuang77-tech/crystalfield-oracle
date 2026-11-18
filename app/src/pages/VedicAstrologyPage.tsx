@@ -512,6 +512,18 @@ export default function VedicAstrologyPage() {
               {[paidBasicReading.results.archetype, paidBasicReading.results.talents, paidBasicReading.results.currentCycle].map((section, index) => <ResultCard key={index} number={String(index + 1).padStart(2, '0')} eyebrow={(language === 'en' ? ['Archetype', 'Gifts in This Life', 'Planetary Cycle'] : ['人格原型', '今生天賦', '行星週期'])[index]} title={section.title} body={section.body} />)}
             </div> : <button type="button" onClick={() => void checkout('vedic_basic')} disabled={!!checkoutLoading || authLoading} className="mt-5 min-h-12 rounded-xl bg-amber-200 px-6 py-3 font-semibold text-slate-950 disabled:opacity-50">{language === 'en' ? 'Unlock all three · NT$199' : '一次解鎖三項解析 · NT$199'}</button>}
           </section>
+          <section className="mx-auto mt-10 max-w-5xl rounded-[2rem] border border-amber-300/25 bg-gradient-to-br from-slate-950/85 via-violet-950/60 to-amber-950/25 p-6 shadow-[0_0_55px_rgba(251,191,36,0.08)] sm:p-10">
+            <h2 className="font-serif text-2xl text-amber-50 sm:text-3xl">關於印度占星引導者｜韋德老師</h2>
+            <div className="mt-5 space-y-4 leading-8 text-violet-50/80">
+              <p>占星被譽為「光之科學」，它精準揭示了靈魂此生的業力藍圖、天賦軌道，以及不同人生階段的大運（Dasha）週期。然而，<strong>看懂星盤不是為了向宿命低頭，而是為了在風雨來臨前看清方向，並為自己做出更有意識的選擇。</strong></p>
+              <p>韋德老師擁有超過 10 年東西方命理實戰經驗（涵蓋印度占星、紫微斗數、八字與塔羅），同時具備<strong>高階水晶治療師</strong>專業與 <strong>20 多年密宗內修底蘊</strong>。老師擅長將精微的星象週期剖析，與深層的氣脈能量調頻結合——不只幫你讀懂星盤背後的因果脈絡與人生考驗，更透過能量校準與具體策略，陪你化解內在阻力，在屬於你的大運軌道上穩健前行。</p>
+              <p className="font-semibold text-amber-100">✨ 想針對個人本命盤（D1/D9）、大運轉折或特定人生課題進行深度剖析？</p>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="inline-flex rounded-xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-200">預約韋德老師 1對1 印度占星深度解盤與能量調頻 →</a>
+              <a href="/vedic-astrology/annual" className="inline-flex rounded-xl border border-amber-200/35 px-5 py-3 font-semibold text-amber-100 transition hover:bg-amber-200/10">查看印度占星年度流年報告</a>
+            </div>
+          </section>
           <VedicChartCore chart={chart.chart} language={language} />
         </>}
 
@@ -533,19 +545,6 @@ export default function VedicAstrologyPage() {
         {visibleProgress?.reportStatus === 'completed' && returnOrderId && returnOrderToken &&
           <VedicReviewForm orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
         {visibleReport && returnOrderId && returnOrderToken && <PaidReport report={visibleReport} orderId={returnOrderId} orderToken={returnOrderToken} language={language} />}
-
-        <section className="mx-auto mt-16 max-w-5xl rounded-[2rem] border border-amber-300/25 bg-gradient-to-br from-slate-950/85 via-violet-950/60 to-amber-950/25 p-6 shadow-[0_0_55px_rgba(251,191,36,0.08)] sm:p-10">
-          <h2 className="font-serif text-2xl text-amber-50 sm:text-3xl">關於印度占星引導者｜韋德老師</h2>
-          <div className="mt-5 space-y-4 leading-8 text-violet-50/80">
-            <p>占星被譽為「光之科學」，它精準揭示了靈魂此生的業力藍圖、天賦軌道，以及不同人生階段的大運（Dasha）週期。然而，<strong>看懂星盤不是為了向宿命低頭，而是為了在風雨來臨前看清方向，並為自己做出更有意識的選擇。</strong></p>
-            <p>韋德老師擁有超過 10 年東西方命理實戰經驗（涵蓋印度占星、紫微斗數、八字與塔羅），同時具備<strong>高階水晶治療師</strong>專業與 <strong>20 多年密宗內修底蘊</strong>。老師擅長將精微的星象週期剖析，與深層的氣脈能量調頻結合——不只幫你讀懂星盤背後的因果脈絡與人生考驗，更透過能量校準與具體策略，陪你化解內在阻力，在屬於你的大運軌道上穩健前行。</p>
-            <p className="font-semibold text-amber-100">✨ 想針對個人本命盤（D1/D9）、大運轉折或特定人生課題進行深度剖析？</p>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="inline-flex rounded-xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-200">預約韋德老師 1對1 印度占星深度解盤與能量調頻 →</a>
-            <a href="/vedic-astrology/annual" className="inline-flex rounded-xl border border-amber-200/35 px-5 py-3 font-semibold text-amber-100 transition hover:bg-amber-200/10">查看印度占星年度流年報告</a>
-          </div>
-        </section>
 
         {/* Only reviews marked allow_public=1 and approved by an admin are returned. */}
         <PublicVedicReviews language={language} />
