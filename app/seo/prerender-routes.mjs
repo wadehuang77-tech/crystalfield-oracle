@@ -18,6 +18,7 @@ const publicLandingSlugs = [
   'numerology',
   'human-design',
   'vedic-astrology',
+  'meditation',
 ];
 
 const numerologyArticleSlugs = readArticleSlugs('numerology/articles.json');

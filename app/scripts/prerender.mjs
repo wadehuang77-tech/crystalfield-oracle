@@ -76,6 +76,7 @@ const pages = [
   ['numerology', numerologyHome.title, numerologyHome.description, numerologyHome.h1, numerologyHome.description],
   ['human-design', humanDesignHome.title, humanDesignHome.description, humanDesignHome.h1, humanDesignHome.description],
   ['vedic-astrology', vedicLandingContent.zhHant.title, vedicLandingContent.zhHant.description, vedicLandingContent.zhHant.h1, vedicLandingContent.zhHant.intro],
+  ['meditation', '埃及十神冥想｜免費試聽・引導式冥想課程｜晶域心語', '探索埃及十神冥想，透過引導式冥想認識古埃及神祇的象徵力量，放鬆身心、探索自我。提供免費試聽，適合冥想初學者。', '埃及十神冥想｜探索古埃及神祇的內在智慧', '透過引導式冥想認識古埃及神祇的象徵力量，從聲音與呼吸開始一段沉靜的自我探索。'],
 ];
 for (const [slug, article] of Object.entries(numerologyArticles)) {
   pages.push([`numerology/${slug}`, article.title, article.description, article.h1, article.intro]);
@@ -186,6 +187,12 @@ for (const route of chineseRoutes) {
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq },
     );
   }
+  if (path === 'meditation') {
+    jsonLd.splice(0, jsonLd.length,
+      { '@context': 'https://schema.org', '@type': 'Course', name: h1, description, provider: { '@type': 'Organization', name: '晶域心語', url: siteUrl }, url: canonical, inLanguage: 'zh-Hant', image: `${siteUrl}/20260315_164545.jpg` },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: '首頁', item: pageUrl('') }, { '@type': 'ListItem', position: 2, name: h1, item: canonical }] },
+    );
+  }
   if (vedicArticle) {
     const faq = vedicArticle.faq.map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }));
     jsonLd.push(
@@ -260,7 +267,10 @@ for (const route of chineseRoutes) {
     .replace(/<p>(?:作者：|更新日期：|發布日期：)[\s\S]*?<\/p>/g, '')
     .replace(/<section><h2>關於作者<\/h2>[\s\S]*?<\/section>/g, '');
   const vedicContent = `<section><h2>什麼是印度占星？</h2><p>印度占星也常稱為吠陀占星或 Vedic Astrology，透過出生日期、時間與地點建立星盤，作為生命週期整理與自我探索工具，不是科學證實的預測。</p><h2>印度占星和西洋占星有什麼不同？</h2><p>兩者在黃道系統、星座位置與判讀方式上可能不同；印度占星常重視月宿 Nakshatra、羅喉與計都、大運週期，以及 D9、D10 分盤。</p><h2>計算印度占星需要哪些出生資料？</h2><p>需要出生年月日、儘量準確的出生時間，以及出生城市或地點。出生時間可能影響上升、宮位與分盤；不應自行捏造時間。</p><h2>印度占星命盤可以看什麼？</h2><p>可從上升、太陽、月亮、行星、月宿 Nakshatra、羅喉與計都、大運，以及 D1 本命盤、D9 九分盤、D10 十分盤等方向觀察。</p><h2>9 大印度占星深度解析</h2><h3>前世業力與今生課題</h3><p>以前世業力作為象徵語言，整理反覆模式與今生課題，不將前世視為已證實的歷史事實。</p><h3>羅喉／計都靈魂軸線</h3><p>觀察熟悉慣性與成長方向，仍需放回完整星盤理解。</p><h3>愛情、財富與事業方向</h3><p>整理關係、金錢與職涯主題，不保證特定結果。</p><h3>D9、D10 與未來 3～5 年大運時間軸</h3><p>分盤與週期需要可靠出生時間，並結合 D1 本命盤與當下行運觀察。</p><h2>什麼是羅喉與計都？</h2><p>計都可作為熟悉模式與過去慣性的象徵，羅喉可作為今生成長方向的象徵；兩者不能脫離完整星盤判讀。</p><h2>什麼是印度占星大運？</h2><p>大運與次週期用來整理人生階段主題，不代表事件必然發生。</p><h2>什麼是 D9 九分盤與 D10 十分盤？</h2><p>D9 可觀察婚姻與成熟度，D10 可觀察職涯與專業發展，兩者都應與 D1 一起判讀。</p><h2>為什麼選擇晶域心語印度占星？</h2><p>由韋德老師建立，整合印度占星、生命靈數、人類圖、塔羅與水晶能量，以生活化語言整理星盤資訊。</p><h2>印度占星常見問題</h2>${[['印度占星是什麼？','印度占星是以出生資料建立星盤、整理生命週期的文化性占星系統。'],['印度占星和西洋占星有什麼不同？','兩者在黃道系統、星座位置與判讀方式上可能不同。'],['印度占星需要哪些出生資料？','需要出生年月日、儘量準確的出生時間，以及出生城市或地點。'],['不知道準確出生時間可以計算嗎？','可以先整理可確認資料，但結果應保留不確定性，不要自行捏造出生時間。'],['什麼是羅喉與計都？','兩者是星盤中的象徵，需要放在完整星盤中觀察。'],['什麼是印度占星大運？','大運整理不同人生階段的主題，次週期提供更細時間層次。'],['什麼是月宿 Nakshatra？','月宿是觀察月亮位置與生命節奏的參考系統。'],['D9 九分盤可以看什麼？','D9 可觀察婚姻、承諾、價值與生命成熟度。'],['D10 十分盤可以看什麼？','D10 可觀察職涯、社會角色、責任與專業發展。'],['印度占星可以看前世嗎？','前世業力是占星象徵與自我探索語言，不是已證實的歷史事實。'],['印度占星可以預測未來嗎？','可整理週期與可能主題，但不能保證特定事件發生。'],['晶域心語有哪些印度占星內容可以免費查看？','入口會建立星盤並提供免費指引，完整內容依現有解鎖設定顯示。'],['我的出生資料會被公開嗎？','出生資料不會放入公開 SEO 內容或 Sitemap，保存與分享依登入、授權及隱私政策處理。'],['印度占星可以代替醫療、心理、法律或財務建議嗎？','不可以，相關專業問題請尋求合格專業人士協助。']].map(([q,a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}<p><a href="${siteUrl}/numerology">查看生命靈數分析</a> · <a href="${siteUrl}/human-design">免費計算人類圖</a> · <a href="${siteUrl}/oracle">體驗塔羅與神諭卡</a></p></section>`;
-  const content = path === 'numerology' ? numerologyContent : path === 'human-design' ? `<section><h2>什麼是人類圖？</h2><p>人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。它適合作為自我探索與生活實驗工具，不取代專業諮詢。</p><h2>人類圖的5種能量類型</h2><h3>生產者 Generator</h3><p>觀察生命力與回應，等待身體對人事物的真實回應。</p><h3>顯示生產者 Manifesting Generator</h3><p>觀察多元興趣與快速節奏，先回應再行動並允許修正。</p><h3>投射者 Projector</h3><p>探索洞察與引導，重要方向可等待正確邀請。</p><h3>顯示者 Manifestor</h3><p>觀察啟動力，行動前告知相關的人以減少阻力。</p><h3>反映者 Reflector</h3><p>觀察環境與週期，給重要決定足夠時間。</p></section>` : path === 'vedic-astrology' ? vedicContent : truthfulArticleContent;
+  const meditationContent = path === 'meditation'
+    ? `<section><h2>什麼是埃及十神冥想？</h2><p>這是一套以資料庫中現有埃及神祇主題為靈感的引導式冥想，透過聲音、呼吸與象徵意象，陪你安靜觀察內在感受。</p><h2>埃及神祇冥想可以帶來哪些內在探索？</h2><p>每個主題提供不同的象徵入口，適合整理情緒、覺察生活節奏與思考下一步；內容用於自我探索，不宣稱治療效果。</p><h2>免費試聽｜開始你的冥想旅程</h2><p>頁面提供目前已發布的三個免費試聽音頻。無須登入即可開始播放，完整課程依網站現有會員與授權規則提供。</p><h2>認識埃及十神與各自的象徵力量</h2><p>付費套裝區會列出目前資料庫中的十個主題名稱與介紹，讓你先了解課程範圍，再決定是否購買。</p><h2>如何開始引導式冥想？</h2><p>請選擇安靜環境，依自己的節奏聆聽；使用耳機、保持舒適坐姿，並在需要時暫停休息。</p><h2>常見問題 FAQ</h2><details><summary>埃及十神冥想是什麼？</summary><p>它是以埃及神祇象徵為靈感的聲音引導式自我探索課程。</p></details><details><summary>沒有冥想經驗也可以參加嗎？</summary><p>可以，免費試聽適合初學者依自己的步調開始。</p></details><details><summary>埃及十神冥想有免費試聽嗎？</summary><p>目前頁面提供三個已發布的免費試聽音頻。</p></details><details><summary>每次冥想需要準備什麼？</summary><p>準備安靜環境與舒適耳機，依身體狀態安排聆聽時間。</p></details><details><summary>購買後如何收聽完整課程？</summary><p>登入並完成既有付款流程後，依授權狀態在冥想頁面收聽完整十個音頻。</p></details></section>`
+    : '';
+  const content = path === 'numerology' ? numerologyContent : path === 'human-design' ? `<section><h2>什麼是人類圖？</h2><p>人類圖是一套用於自我觀察的系統，可以從出生資料產生個人能量圖，探索能量類型、策略、內在權威、人生角色、定義與能量中心。它適合作為自我探索與生活實驗工具，不取代專業諮詢。</p><h2>人類圖的5種能量類型</h2><h3>生產者 Generator</h3><p>觀察生命力與回應，等待身體對人事物的真實回應。</p><h3>顯示生產者 Manifesting Generator</h3><p>觀察多元興趣與快速節奏，先回應再行動並允許修正。</p><h3>投射者 Projector</h3><p>探索洞察與引導，重要方向可等待正確邀請。</p><h3>顯示者 Manifestor</h3><p>觀察啟動力，行動前告知相關的人以減少阻力。</p><h3>反映者 Reflector</h3><p>觀察環境與週期，給重要決定足夠時間。</p></section>` : path === 'vedic-astrology' ? vedicContent : path === 'meditation' ? meditationContent : truthfulArticleContent;
   const homeContent = path === ''
     ? '<p>首頁與服務介紹皆可免登入瀏覽；使用會員專屬或需要保存個人結果的功能時，才會請你登入帳戶。</p>'
     : '';
@@ -293,6 +303,7 @@ const englishPages = [
   ['numerology', 'Free Numerology Reading | Crystal Field', 'Enter your birth date to explore your life path number, strengths, missing numbers, personal-year themes, and crystal associations.', 'Free Numerology Reading', 'Explore your numbers as prompts for reflecting on strengths, life themes, and direction.'],
   ['human-design', 'Free Human Design Chart | Crystal Field', humanDesignEnglishDescription, 'Free Human Design Chart', 'Use your Human Design chart as a framework for self-reflection, not a fixed prediction.'],
   ['vedic-astrology', vedicLandingContent.en.title, vedicLandingContent.en.description, vedicLandingContent.en.h1, vedicLandingContent.en.intro],
+  ['meditation', 'Egyptian Gods Guided Meditation | Free Preview | Crystalfield101', 'Explore guided meditations inspired by ancient Egyptian deities. Discover symbolic themes of balance, renewal and self-reflection. Listen to free previews.', 'Egyptian Gods Guided Meditation | Explore Ancient Inner Wisdom', 'Explore guided meditations inspired by ancient Egyptian deities through sound, breath and self-reflection.'],
 ];
 
 const englishPagesBySlug = new Map(englishPages.map((page) => [page[0], page]));
@@ -333,6 +344,12 @@ for (const route of englishRoutes) {
     }));
     jsonLd.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq });
   }
+  if (path === 'en/meditation') {
+    jsonLd.splice(0, jsonLd.length,
+      { '@context': 'https://schema.org', '@type': 'Course', name: h1, description, provider: { '@type': 'Organization', name: 'Crystal Field', url: siteUrl }, url: canonical, inLanguage: 'en', image: `${siteUrl}/20260315_164545.jpg` },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: pageUrl('en') }, { '@type': 'ListItem', position: 2, name: h1, item: canonical }] },
+    );
+  }
   const mayaSocial = path === 'maya-calendar' ? mayaSeoContent('zh-TW') : path === 'en/maya-calendar' ? mayaSeoContent('en') : null;
   const head = `
     <title>${escapeHtml(title)}</title>
@@ -356,7 +373,10 @@ for (const route of englishRoutes) {
   const homeContent = slug === ''
     ? '<p>The homepage and service introductions are open to browse without login. Sign-in is only needed for member features and saving personal results.</p>'
     : '';
-  const body = `<main id="seo-prerendered" lang="en"><h1>${escapeHtml(h1)}</h1><p>${escapeHtml(intro)}</p>${homeContent}${mainNavigation('en')}</main>`;
+  const meditationEnglishContent = slug === 'meditation'
+    ? '<section><h2>What is Egyptian Gods Guided Meditation?</h2><p>Explore guided audio inspired by ancient Egyptian symbols as a gentle self-reflection practice.</p><h2>Free preview</h2><p>Three currently published tracks are available as free previews. Full access follows the existing member and purchase rules.</p><h2>How to begin</h2><p>Choose a quiet place, use comfortable headphones, and listen at your own pace.</p><h2>FAQ</h2><details><summary>Can beginners join?</summary><p>Yes. The free previews are suitable for people starting a meditation practice.</p></details></section>'
+    : '';
+  const body = `<main id="seo-prerendered" lang="en"><h1>${escapeHtml(h1)}</h1><p>${escapeHtml(intro)}</p>${homeContent}${meditationEnglishContent}${mainNavigation('en')}</main>`;
   const cleanTemplate = template
     .replace(/<title>[\s\S]*?<\/title>/, '')
     .replace(/<meta name="description"[^>]*\/>/g, '')

@@ -107,11 +107,11 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     intro: vedicLandingContent.zhHant.intro,
   },
   '/meditation': {
-    title: '冥想音頻課程｜讓心靈慢下來，找回內在平靜｜晶域心語',
-    description: '透過冥想音頻釋放壓力、安定情緒，體驗免費呼吸、身體掃描與睡前放鬆練習；會員可解鎖完整課程。',
+    title: '埃及十神冥想｜免費試聽・引導式冥想課程｜晶域心語',
+    description: '探索埃及十神冥想，透過引導式冥想認識古埃及神祇的象徵力量，放鬆身心、探索自我。提供免費試聽，適合冥想初學者。',
     canonical: 'https://www.crystalfield101.com/meditation/',
-    h1: '讓心靈慢下來，找回內在平靜',
-    intro: '透過聲音與冥想，釋放壓力、安定情緒，重新連結內在力量。',
+    h1: '埃及十神冥想｜探索古埃及神祇的內在智慧',
+    intro: '透過引導式冥想認識古埃及神祇的象徵力量，從聲音與呼吸開始一段沉靜的自我探索。',
   },
 };
 
@@ -276,6 +276,13 @@ function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Han
     if (hdContent[slug]) return humanDesignStructuredData(slug);
   }
   if (pathname === '/maya-calendar') return mayaSeoStructuredData(language === 'en' ? 'en' : 'zh-TW');
+  if (pathname === '/meditation') return [
+    { '@context': 'https://schema.org', '@type': 'Course', name: seo.h1, description: seo.description, provider: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL }, url: seo.canonical, inLanguage: language, image: `${SITE_URL}/20260315_164545.jpg` },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: language === 'en' ? 'Home' : '首頁', item: `${SITE_URL}${language === 'en' ? '/en/' : '/'}` },
+      { '@type': 'ListItem', position: 2, name: seo.h1, item: seo.canonical },
+    ] },
+  ];
   const isVedicLanding = pathname === '/vedic-astrology';
   const breadcrumb = [
     {
