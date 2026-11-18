@@ -18,13 +18,22 @@ export default function SiteFooter() {
           <p className="text-xs text-blue-300/70 tracking-wider">{copy.footerTagline}</p>
         </div>
         <div className="flex flex-col items-center gap-3 sm:items-end">
-          <Link
-            to={getLocalizedPath('/privacy', language)}
-            className="inline-flex items-center gap-2 text-sm text-blue-200/80 hover:text-blue-100 transition-colors"
-          >
-            <ShieldCheck className="w-4 h-4" strokeWidth={1.4} />
-            {copyT('footerPrivacy')}
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+            <Link
+              to={getLocalizedPath('/privacy', language)}
+              className="inline-flex items-center gap-2 text-blue-200/80 hover:text-blue-100 transition-colors"
+            >
+              <ShieldCheck className="w-4 h-4" strokeWidth={1.4} />
+              {copyT('footerPrivacy')}
+            </Link>
+            {location.pathname.replace(/^\/en/, '') === '/oracle' && (
+              <>
+                <a href="https://reurl.cc/eQ1O4j" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">YT 頻道</a>
+                <a href="https://www.facebook.com/hunagwade777/" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">FB 粉絲團</a>
+                <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">加入 LINE 群組</a>
+              </>
+            )}
+          </div>
           <a
             href="mailto:wadehuang77@gmail.com"
             className="inline-flex items-center gap-2 text-sm text-blue-300/75 hover:text-blue-300 transition-colors"
