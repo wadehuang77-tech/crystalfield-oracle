@@ -26,13 +26,9 @@ export default function SiteFooter() {
               <ShieldCheck className="w-4 h-4" strokeWidth={1.4} />
               {copyT('footerPrivacy')}
             </Link>
-            {location.pathname.replace(/^\/en/, '') === '/oracle' && (
-              <>
-                <a href="https://reurl.cc/eQ1O4j" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">YT 頻道</a>
-                <a href="https://www.facebook.com/hunagwade777/" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">FB 粉絲團</a>
-                <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">加入 LINE 群組</a>
-              </>
-            )}
+            <a href="https://reurl.cc/eQ1O4j" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">YT 頻道</a>
+            <a href="https://www.facebook.com/hunagwade777/" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">FB 粉絲團</a>
+            <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="text-blue-200/80 hover:text-blue-100 transition-colors">加入 LINE 群組</a>
           </div>
           <a
             href="mailto:wadehuang77@gmail.com"
