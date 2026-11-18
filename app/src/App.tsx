@@ -40,6 +40,7 @@ import { RenderYearProvider } from './contexts/RenderYearContext';
 import AdminReviewsPage from './pages/AdminReviewsPage';
 import { ReviewHomeSection } from './components/ReviewHomeSection';
 import MeditationPage from './pages/MeditationPage';
+import MeditationSeoContent from './components/MeditationSeoContent';
 import { RouteFallback, RouteLoadErrorBoundary, lazyRoute, ssrRoutesReady } from './lib/lazyRoute';
 import { startRoutePrefetch } from './lib/routePrefetch';
 // Keep this stylesheet in the entry CSS: loading it with the lazy chunk would restyle the prerendered page after first paint.
@@ -118,7 +119,7 @@ const routeConfig = [
   { path: '/human-design/profile', element: <HumanDesignArticlePage slug="profile" /> },
   { path: '/human-design/birth-time', element: <HumanDesignArticlePage slug="birth-time" /> },
   { path: '/vedic-astrology', element: <VedicAstrologyPage /> },
-  { path: '/meditation', element: <div data-meditation-page><MeditationPage /></div> },
+  { path: '/meditation', element: <div data-meditation-page><MeditationPage /><MeditationSeoContent /></div> },
   { path: '/vedic-astrology/what-is-vedic-astrology', element: <VedicAstrologyArticlePage slug="what-is-vedic-astrology" /> },
   { path: '/vedic-astrology/vedic-vs-western', element: <VedicAstrologyArticlePage slug="vedic-vs-western" /> },
   { path: '/vedic-astrology/rahu-ketu', element: <VedicAstrologyArticlePage slug="rahu-ketu" /> },

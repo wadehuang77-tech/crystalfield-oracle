@@ -29,8 +29,7 @@ export default function MeditationSeoContent() {
     const syncCards = () => {
       document.querySelectorAll<HTMLElement>('[data-meditation-page] section.mt-14 > div.mt-6.grid > div').forEach((card) => {
         const heading = card.querySelector('h3')?.textContent?.trim() ?? '';
-        const deityName = heading.split(/\s|（/)[0];
-        const match = gods.find(([, title]) => deityName && title.includes(deityName));
+        const match = gods.find(([, title]) => heading && title.includes(heading.slice(0, 2)));
         if (!match) return;
         card.tabIndex = 0;
         const description = card.querySelector('p');
