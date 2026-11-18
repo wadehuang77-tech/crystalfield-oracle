@@ -367,6 +367,17 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
       {/* Grid Lines */}
       <GridLines report={isEnglish ? { ...displayReport, activeGridLines: displayReport.activeGridLines.map(localizeGridLine) } : displayReport} language={language} tier={tier} onUpgrade={onUpgrade} onAdvancedUnlock={onOracleUnlock} />
 
+      <section className="rounded-3xl p-6 mt-6" style={{ background: 'linear-gradient(135deg, rgba(167,139,250,0.1), rgba(45,212,191,0.06))', border: '1px solid rgba(167,139,250,0.24)' }}>
+        <h3 className="mb-3 text-xl font-semibold text-purple-100">{isEnglish ? 'How can you develop your gifts and balance missing numbers?' : '🔮 看清了天賦連線與空缺數字，如何補足能量、發揮最大潛能？'}</h3>
+        <div className="space-y-3 leading-7 text-purple-100/85">
+          {isEnglish ? <p>Grid patterns and missing numbers can be prompts for noticing strengths and practice areas. Wade Huang combines numerology reflection with crystal and inner-guidance practices.</p> : <>
+            <p>九宮格裡的每一條連線都是你與生俱來的超能力，而空白的數字則代表此生需要練習的課題。單靠意志力去硬補短板往往很累，從「能量場」著手調頻，才能讓改變自然發生。</p>
+            <p>兼具<strong>高階水晶治療師</strong>專業與 <strong>20 多年密宗內修底蘊</strong>的<strong>韋德老師</strong>，能透過你的靈數結構看見背後的能量卡點，並結合水晶調頻與內在引導，協助你修復失衡的頻率、放大天賦優勢，讓潛能真正落地開花。</p>
+          </>}
+        </div>
+        <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="mt-5 inline-flex rounded-xl bg-purple-300 px-5 py-3 font-semibold text-slate-950 hover:bg-purple-200">{isEnglish ? 'Book a one-on-one numerology reading →' : '預約韋德老師 1對1 靈數天賦解讀與能量調頻 →'}</a>
+      </section>
+
       {/* Personal Year Forecast */}
       <PersonalYearForecast
         language={language}
@@ -374,6 +385,17 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
         forecastUnlocked={forecastUnlocked}
         onForecastUnlock={onForecastUnlock}
       />
+
+      <section className="rounded-3xl p-6 mt-6" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.08), rgba(167,139,250,0.08))', border: '1px solid rgba(251,191,36,0.22)' }}>
+        <h3 className="mb-3 text-xl font-semibold text-amber-100">{isEnglish ? 'Ready to make the most of your personal-year themes?' : '⏳ 掌握了今年的流年運勢，下一步該如何順勢而為？'}</h3>
+        <div className="space-y-3 leading-7 text-purple-100/85">
+          {isEnglish ? <p>Personal-year numbers describe a season for action, reflection, or release. Wade Huang helps translate numerology trends into practical choices for work, relationships, and life direction.</p> : <>
+            <p>流年數字揭示了你當下所處的生命季節——該衝刺、該沉澱，還是該斷捨離。但面對事業轉換、感情抉擇或財務規劃等現實難題，往往需要更細膩的局勢拆解。</p>
+            <p><strong>韋德老師</strong>擁有超過 10 年命理實戰經驗（精研生命靈數、紫微、八字與塔羅），擅長將理性的命理趨勢轉化為具體可行的行動策略。若你正站在人生的十字路口，想為接下來的流年做出最穩妥的規劃，歡迎讓老師陪你一起看清局勢、精準布局。</p>
+          </>}
+        </div>
+        <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="mt-5 inline-flex rounded-xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 hover:bg-amber-200">{isEnglish ? 'Book a one-on-one consultation →' : '預約韋德老師 1對1 流年趨勢與人生方向深度諮詢 →'}</a>
+      </section>
 
       {/* Oracle Cross Analysis */}
       {oracleCard && (
