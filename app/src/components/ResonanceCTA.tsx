@@ -60,6 +60,7 @@ export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 
   const isEnglish = language === 'en';
   const [showQR, setShowQR] = useState(false);
   const [aiTarotLink, setAiTarotLink] = useState<PublicButtonLink | null>(null);
+  const contactUrl = aiTarotLink?.available && aiTarotLink.form?.url ? aiTarotLink.form.url : 'https://lin.ee/Z1mvseQ';
 
   useEffect(() => {
     let active = true;
@@ -120,9 +121,9 @@ export function ResonanceCTA({ language = 'zh-Hant' }: { language?: 'zh-Hant' | 
             </div>
           </button>
 
-          {aiTarotLink || true ? (
+          {contactUrl ? (
             <a
-              href="https://lin.ee/Z1mvseQ"
+              href={contactUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 rounded-xl p-6 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl"
