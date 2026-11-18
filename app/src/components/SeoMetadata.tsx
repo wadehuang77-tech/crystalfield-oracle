@@ -108,9 +108,9 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
   },
   '/meditation': {
     title: '埃及十神冥想｜10分鐘引導式冥想・免費試聽｜晶域心語',
-    description: '探索埃及十神冥想，認識賽特、歐西里斯、艾西斯、荷魯斯、阿努比斯等古埃及神祇。透過10分鐘引導式冥想，探索內在力量、生命轉化與自我療癒。立即免費試聽。',
+    description: '探索埃及十神冥想，透過賽特、艾西斯、荷魯斯、阿努比斯等十位古埃及神祇的象徵智慧，展開10分鐘引導式冥想。探索自我療癒、內在平衡與靈魂成長，立即免費試聽。',
     canonical: 'https://www.crystalfield101.com/meditation/',
-    h1: '埃及十神冥想｜10分鐘引導式冥想與內在探索',
+    h1: '埃及十神冥想｜10分鐘引導式冥想',
     intro: '透過引導式冥想認識古埃及神祇的象徵力量，從聲音與呼吸開始一段沉靜的自我探索。',
   },
 };
@@ -277,7 +277,7 @@ function buildStructuredData(pathname: string, seo: SeoConfig, language: 'zh-Han
   }
   if (pathname === '/maya-calendar') return mayaSeoStructuredData(language === 'en' ? 'en' : 'zh-TW');
   if (pathname === '/meditation') return [
-    { '@context': 'https://schema.org', '@type': 'Course', name: seo.h1, description: seo.description, provider: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL }, url: seo.canonical, inLanguage: language, image: `${SITE_URL}/20260315_164545.jpg` },
+    { '@context': 'https://schema.org', '@type': 'Course', name: '埃及十神冥想｜10分鐘引導式冥想課程', description: seo.description, provider: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL }, instructor: { '@type': 'Person', name: '韋德老師 黃晨維' }, url: seo.canonical, inLanguage: language, image: `${SITE_URL}/20260315_164545.jpg`, offers: { '@type': 'Offer', price: '980', priceCurrency: 'TWD', url: seo.canonical } },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: language === 'en' ? 'Home' : '首頁', item: `${SITE_URL}${language === 'en' ? '/en/' : '/'}` },
       { '@type': 'ListItem', position: 2, name: seo.h1, item: seo.canonical },

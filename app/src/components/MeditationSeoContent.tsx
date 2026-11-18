@@ -49,10 +49,13 @@ export default function MeditationSeoContent() {
     <h2 className="font-serif text-2xl text-[#fff8e8]">FAQ</h2><details><summary>Can beginners join?</summary><p className="mt-2">Yes. The free previews are suitable for people starting a meditation practice.</p></details>
   </section></>;
   return <><style>{`[data-meditation-page] section.mt-14 > div.mt-6.grid > div { max-height: 5.5rem; overflow: hidden; transition: max-height .3s ease, border-color .3s ease, box-shadow .3s ease; } [data-meditation-page] section.mt-14 > div.mt-6.grid > div:hover, [data-meditation-page] section.mt-14 > div.mt-6.grid > div:focus-within { max-height: 40rem; border-color: rgba(201,167,91,.6); box-shadow: 0 8px 24px rgba(201,167,91,.14); outline: 2px solid rgba(240,216,140,.8); outline-offset: 3px; }`}</style><section className="mx-auto max-w-4xl space-y-6 bg-[#071323] px-5 pb-16 text-[#e9dfc9]" aria-label="埃及十神冥想 SEO 介紹">
+    <h2 className="font-serif text-2xl text-[#fff8e8]">免費試聽｜探索埃及神祇的內在智慧</h2><p>頁面提供三個免費試聽音頻，讓你從聲音與象徵意象開始探索。</p>
+    <h2 className="font-serif text-2xl text-[#fff8e8]">埃及十神冥想完整課程介紹</h2><p>完整課程包含十位埃及神祇主題與約十分鐘的引導式冥想，依現有會員與購買規則收聽。</p>
+    <h2 className="font-serif text-2xl text-[#fff8e8]">關於冥想帶領者｜韋德老師</h2><p>韋德老師 黃晨維（Wade Huang）帶領這套以埃及神祇象徵為靈感的冥想課程，陪伴學習者以自己的節奏進行內在探索。</p>
     <h2 className="font-serif text-2xl text-[#fff8e8]">認識埃及十神：神祇象徵與冥想引導</h2><p>每個主題以古埃及神祇象徵為入口，保留原有冥想意象與 10 分鐘引導說明，內容用於靈性觀想與自我探索。</p>
     <nav aria-label="埃及十神導覽" className="flex flex-wrap gap-3 text-sm">{gods.map(([id, title]) => <a key={id} href={`#${id}`} className="text-[#f2c96d] underline">{title.split('｜')[0]}</a>)}</nav>
     <div className="space-y-5">{gods.map(([id, title, text]) => <article id={id} key={id} className="scroll-mt-20 border-b border-[#c9a75b]/30 pb-5"><h3 className="font-serif text-xl text-[#fff8e8]">{title}</h3><p>{text}</p></article>)}</div>
-    <h2 className="font-serif text-2xl text-[#fff8e8]">常見問題 FAQ</h2>
+    <h2 className="font-serif text-2xl text-[#fff8e8]">埃及十神冥想常見問題</h2>
     {faqs.map(([question, answer]) => <details key={question}><summary>{question}</summary><p className="mt-2">{answer}</p></details>)}
   </section></>;
 }
