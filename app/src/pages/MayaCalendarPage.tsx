@@ -469,6 +469,18 @@ export default function MayaCalendarPage() {
         <p className="mt-5">{visibleReport.model_name} · {visibleReport.prompt_version} · {t('費用', 'Cost')}: NT${visibleReport.usage.cost_twd}</p>
       </section>}
       {!visibleReport && <LifeBlueprintNavigator report={null} locale={locale} />}
+      {visibleReport && <section className={`${panel} mt-8`}>
+        <h2 className="mb-4 text-2xl text-cyan-100">關於系統設計與引導者｜韋德老師 (Wade Huang)</h2>
+        <div className="space-y-4 leading-8 text-slate-200/85">
+          <p>馬雅 13 月亮曆不只是一套曆法，更是宇宙給你的頻率共振指南。它透過你的出生印記與當下的波符／城堡週期，指引你卸下日常的忙亂，回到自然流動的節奏中。然而，要在現實生活中活出印記的天賦、突破重複循環的卡關波符，往往需要溫柔而深度的能量校準。</p>
+          <p>韋德老師擁有超過 10 年身心靈與命理實戰經驗，並具備<strong>高階水晶治療師</strong>與 <strong>20 多年密宗內修底蘊</strong>。老師擅長將馬雅曆的頻率智慧，與氣脈能量調頻、水晶應用結合。不只幫你深度解析本命印記與年度流年城堡，更陪你找回內在的平靜頻率，讓天賦在對的節奏中自然綻放。</p>
+          <p className="font-semibold text-amber-100">✨ 想深入解讀你的馬雅印記、流年波符，或體驗水晶能量調頻？</p>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className={`${button} inline-block`}>預約韋德老師 1對1 馬雅曆深度解析與頻率調頻 →</a>
+          <Link className="inline-flex items-center rounded-xl border border-cyan-300/30 px-5 py-3 text-cyan-200 underline-offset-4 hover:bg-cyan-200/10" to={localized('/maya-calendar/annual')}>查看馬雅曆深度年度報告</Link>
+        </div>
+      </section>}
       {!compactPage && <section className={panel}>
         <h2 className="mb-4 text-xl">{t('資料管理', 'Data management')}</h2>
         <p>{t('生日僅提供你本人存取。可刪除本系統的出生資料與報告，不影響其他命理系統或訂單紀錄。', 'Only your account can access your birth data. You may delete your Dreamspell profiles and reports without changing other systems or order records.')}</p>

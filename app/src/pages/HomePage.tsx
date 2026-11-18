@@ -389,6 +389,12 @@ function HomePage() {
             </ul>
           </div>
 
+          <section className="rounded-2xl border border-blue-300/15 bg-slate-950/35 p-5 sm:p-6">
+            <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">關於神諭卡指引系統設計者｜韋德老師</h2>
+            <p className="leading-7">每一張抽出的牌卡，都是潛意識與宇宙給你的溫柔提示。擁有超過 10 年塔羅與命理實戰經驗、並具備高階水晶治療師與 20 多年內修底蘊的韋德老師，將傳統占卜智慧與能量頻率融入線上抽牌系統中，希望在你需要方向時，隨時為你點亮一盞燈。</p>
+            <p className="mt-3 leading-7">（若牌卡訊息觸動了你，想針對個人現況進行更深入的牌陣解讀或能量調理，歡迎預約韋德老師一對一諮詢。）</p>
+          </section>
+
           <div>
             <h2 className="mb-3 font-serif text-2xl text-blue-50 sm:text-3xl">{copy('spreadsTitle', '晶域心語有哪些塔羅牌陣？')}</h2>
             <p className="leading-7">{copy('spreadsBody', '不同牌卡提供不同牌陣：單張牌陣適合聚焦一個提醒；三張牌陣適合觀察時間或多個面向；實際可用牌陣以各牌卡頁面顯示為準。')}</p>
