@@ -180,18 +180,23 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Mobile cards are stacked vertically so every tool is visible without horizontal scrolling. */}
-          <div className="space-y-6 px-6 md:hidden">
-            {CARDS.map((card, i) => (
-              <div key={card.id} className="w-full">
-                <PortalCard
-                  card={card}
-                  index={i}
-                  language={language}
-                />
-              </div>
-            ))}
-          </div>
+          <section className="mx-4 mb-5 rounded-3xl border border-white/15 bg-slate-950/60 p-3 md:hidden" aria-label="晶域心語服務入口">
+            <h2 className="mb-2 text-center font-serif text-xl text-white">晶域心語</h2>
+            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10">
+              {[
+                ['🔮', '塔羅牌', '/oracle'],
+                ['✨', '生命靈數', '/numerology'],
+                ['🧬', '人類圖', '/human-design'],
+                ['☉', '印度占星', '/vedic-astrology'],
+                ['☀', '馬雅曆', '/maya-calendar'],
+                ['𓂀', '埃及十神冥想', '/meditation'],
+              ].map(([icon, label, href]) => (
+                <Link key={href} to={getLocalizedPath(href, language)} className="flex min-h-11 items-center justify-center gap-2 bg-slate-900/80 px-2 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-300/70">
+                  <span aria-hidden="true">{icon}</span><span className="leading-5">{label}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
 
           <div className="mx-auto mt-10 max-w-6xl px-6 sm:mt-14">
             <VedicEntryCard language={language} />
