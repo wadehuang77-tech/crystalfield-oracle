@@ -137,7 +137,7 @@ export default function LandingPage() {
 
       <main className="relative z-10">
         {/* Public brand introduction required for Google OAuth brand verification. */}
-        <section className="px-6 pt-16 pb-4 text-center" aria-labelledby="brand-heading">
+        <section className="hidden px-6 pt-16 pb-4 text-center md:block" aria-labelledby="brand-heading">
           <div className="mx-auto max-w-4xl rounded-[2rem] border border-purple-400/20 bg-purple-950/20 px-6 py-10 shadow-[0_20px_80px_rgba(88,28,135,0.18)] backdrop-blur-sm sm:px-10 sm:py-14">
             <p className="mb-4 text-sm font-medium uppercase tracking-[0.35em] text-amber-200/75">
               {copy.landingBrand}
@@ -155,9 +155,9 @@ export default function LandingPage() {
         </section>
 
         {/* ── Cards Section ────────────────────────────────────── */}
-        <section className="pt-12 pb-32">
+        <section className="pt-3 pb-4 md:pt-12 md:pb-32">
           <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-14">
+            <div className="hidden text-center mb-14 md:block">
               <p className="text-purple-300 text-sm uppercase tracking-[0.3em] font-medium mb-4">{language === 'en' ? 'Soul Exploration Tools' : '靈魂探索工具'}</p>
               <h2 className="text-4xl sm:text-5xl font-bold text-white mb-5 tracking-tight">{copy.exploreTitle}</h2>
               <p className="text-purple-200/80 text-lg max-w-lg mx-auto leading-relaxed">
@@ -180,7 +180,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <section className="mx-4 mb-5 rounded-3xl border border-white/15 bg-slate-950/60 p-3 md:hidden" aria-label="晶域心語服務入口">
+          {language === 'zh-Hant' && <div className="mx-4 mb-3 rounded-3xl border border-purple-300/20 bg-[radial-gradient(circle_at_8%_8%,rgba(167,139,250,.3),transparent_30%),radial-gradient(circle_at_92%_92%,rgba(109,40,217,.2),transparent_28%),linear-gradient(145deg,#160b2b,#080b1a)] px-5 py-6 text-center md:hidden">
+            <p className="mb-2 text-sm font-medium tracking-[0.3em] text-purple-200/85">靈魂探索工具</p>
+            <h1 className="mb-3 font-serif text-[clamp(2.125rem,9vw,2.625rem)] font-bold leading-tight tracking-tight text-white">探索你的<br />靈魂藍圖</h1>
+            <p className="text-[17px] leading-[1.6] text-purple-100/90">從塔羅牌、生命靈數到人類圖、印度占星、馬雅曆與埃及十神冥想，選一項你有感的工具，探索自己的天賦、課題與人生方向。</p>
+          </div>}
+          {language === 'zh-Hant' && <section className="mx-4 mb-3 rounded-3xl border border-blue-200/20 bg-[radial-gradient(circle_at_95%_8%,rgba(56,189,248,.16),transparent_30%),linear-gradient(145deg,#0b1930,#071323)] p-3 md:hidden" aria-label="晶域心語服務入口">
             <h2 className="mb-2 text-center font-serif text-xl text-white">晶域心語</h2>
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10">
               {[
@@ -191,17 +196,22 @@ export default function LandingPage() {
                 ['☀', '馬雅曆', '/maya-calendar'],
                 ['𓂀', '埃及十神冥想', '/meditation'],
               ].map(([icon, label, href]) => (
-                <Link key={href} to={getLocalizedPath(href, language)} className="flex min-h-11 items-center justify-center gap-2 bg-slate-900/80 px-2 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-300/70">
+                <Link key={href} to={getLocalizedPath(href, language)} className="flex min-h-12 items-center justify-center gap-2 bg-slate-900/80 px-2 py-3 text-center text-[17px] font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-300/70">
                   <span aria-hidden="true">{icon}</span><span className="leading-5">{label}</span>
                 </Link>
               ))}
             </div>
-          </section>
+          </section>}
 
-          <div className="mx-auto mt-10 max-w-6xl px-6 sm:mt-14">
+          {/* English mobile layout remains unchanged. */}
+          {language === 'en' && <div className="space-y-6 px-6 md:hidden">
+            {CARDS.map((card, i) => <div key={card.id} className="w-full"><PortalCard card={card} index={i} language={language} /></div>)}
+          </div>}
+
+          <div className={language === 'zh-Hant' ? 'mx-auto mt-10 hidden max-w-6xl px-6 sm:mt-14 md:block' : 'mx-auto mt-10 max-w-6xl px-6 sm:mt-14'}>
             <VedicEntryCard language={language} />
           </div>
-          <div className="mx-auto mt-7 max-w-6xl px-6">
+          <div className={language === 'zh-Hant' ? 'mx-auto mt-7 hidden max-w-6xl px-6 md:block' : 'mx-auto mt-7 max-w-6xl px-6'}>
             <MayaEntryCard language={language} />
           </div>
         </section>

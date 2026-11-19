@@ -106,7 +106,7 @@ export default function PageHeader() {
   const authReturnState = { returnState: location.state };
 
   return (
-    <header style={{
+    <header className={isHome && language === 'zh-Hant' ? 'hidden md:block' : undefined} style={{
       position: 'sticky',
       top: 0,
       zIndex: 50,

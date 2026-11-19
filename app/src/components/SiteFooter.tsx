@@ -11,7 +11,7 @@ export default function SiteFooter() {
   const copyT = (key: string) => t(key, language);
 
   return (
-    <footer className="w-full bg-slate-950 border-t border-blue-500/15">
+    <footer className={location.pathname === '/' && language === 'zh-Hant' ? 'hidden w-full bg-slate-950 border-t border-blue-500/15 md:block' : 'w-full bg-slate-950 border-t border-blue-500/15'}>
       <div className="max-w-[920px] mx-auto px-6 sm:px-10 py-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col items-center sm:items-start gap-2">
           <span className="font-serif text-base text-blue-100 tracking-[0.3em]">{copy.siteName}</span>
