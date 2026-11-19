@@ -182,7 +182,7 @@ export default function LandingPage() {
 
           {language === 'zh-Hant' && <div className="mx-4 mb-3 rounded-3xl border border-purple-300/20 bg-[radial-gradient(circle_at_8%_8%,rgba(167,139,250,.3),transparent_30%),radial-gradient(circle_at_92%_92%,rgba(109,40,217,.2),transparent_28%),linear-gradient(145deg,#160b2b,#080b1a)] px-5 py-6 text-center md:hidden">
             <p className="mb-2 text-sm font-medium tracking-[0.3em] text-purple-200/85">靈魂探索工具</p>
-            <h1 className="mb-3 font-serif text-[clamp(2.125rem,9vw,2.625rem)] font-bold leading-tight tracking-tight text-white">探索你的<br />靈魂藍圖</h1>
+            <h2 className="mb-3 font-serif text-[clamp(2.125rem,9vw,2.625rem)] font-bold leading-tight tracking-tight text-white">探索你的<br />靈魂藍圖</h2>
             <p className="text-[17px] leading-[1.6] text-purple-100/90">從塔羅牌、生命靈數到人類圖、印度占星、馬雅曆與埃及十神冥想，選一項你有感的工具，探索自己的天賦、課題與人生方向。</p>
           </div>}
           {language === 'zh-Hant' && <section className="mx-4 mb-3 rounded-3xl border border-blue-200/20 bg-[radial-gradient(circle_at_95%_8%,rgba(56,189,248,.16),transparent_30%),linear-gradient(145deg,#0b1930,#071323)] p-3 md:hidden" aria-label="晶域心語服務入口">
