@@ -158,14 +158,14 @@ const ADVANCED_DECKS: Array<{ id: OracleDeckId; name: string; path: string }> = 
   { id: 'osho', name: '奧修禪卡', path: '/osho' },
 ];
 
-const MOBILE_TOOL_LINKS = [
-  ['塔羅牌', '/oracle'],
-  ['生命靈數', '/numerology'],
-  ['人類圖', '/human-design'],
-  ['埃及十神冥想', '/meditation'],
-  ['印度占星', '/vedic-astrology'],
-  ['馬雅曆', '/maya-calendar'],
-] as const;
+const MOBILE_TOOL_LINKS: Array<[string, string, LucideIcon, string]> = [
+  ['塔羅牌', '/oracle', Sparkles, 'text-violet-200'],
+  ['生命靈數', '/numerology', History, 'text-amber-200'],
+  ['人類圖', '/human-design', HeartHandshake, 'text-cyan-200'],
+  ['印度占星', '/vedic-astrology', MoonStar, 'text-rose-200'],
+  ['馬雅曆', '/maya-calendar', ShieldCheck, 'text-emerald-200'],
+  ['埃及十神冥想', '/meditation', Sparkles, 'text-yellow-200'],
+];
 
 function HomePage() {
   const navigate = useNavigate();
@@ -260,12 +260,12 @@ function HomePage() {
             {copy('intro', '選擇需求、寫下問題，系統會自動為你連結合適的牌卡與牌陣')}
           </p>
         </header>
-        <section className="mb-7 w-full rounded-3xl border border-blue-200/20 bg-slate-950/55 p-4 shadow-[0_12px_35px_rgba(15,23,42,.35)] md:hidden" aria-label="探索六大工具">
-          <h2 className="mb-3 text-center font-serif text-xl text-blue-50">探索晶域心語六大工具</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {MOBILE_TOOL_LINKS.map(([label, path]) => (
+        <section className="mb-5 w-full rounded-3xl border border-blue-200/20 bg-slate-950/55 p-3 shadow-[0_12px_35px_rgba(15,23,42,.35)] md:hidden" aria-label="晶域心語服務入口">
+          <h2 className="mb-2 text-center font-serif text-xl text-blue-50">晶域心語</h2>
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-blue-200/15 bg-blue-200/15">
+            {MOBILE_TOOL_LINKS.map(([label, path, Icon, color]) => (
               <Link key={path} to={getLocalizedPath(path, language)} className="rounded-2xl border border-blue-200/20 bg-blue-950/45 px-3 py-3 text-center text-sm font-semibold text-blue-50 transition hover:border-blue-200/50 hover:bg-blue-900/55 focus:outline-none focus:ring-2 focus:ring-blue-300/70">
-                {label}
+                <span className="flex min-h-11 items-center justify-center gap-2 leading-5"><Icon className={`h-4 w-4 shrink-0 ${color}`} aria-hidden="true" />{label}</span>
               </Link>
             ))}
           </div>
