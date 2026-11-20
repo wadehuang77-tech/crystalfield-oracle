@@ -21,6 +21,9 @@ const faqs = [
   ['如何免費試聽埃及十神冥想？', '頁面上方提供目前已發布的三個免費試聽音頻。'],
   ['如何選擇適合自己的埃及神祇冥想？', '先閱讀象徵與內在課題，選擇當下最有共鳴的主題。'],
 ] as const;
+const emotionRecommendations = [
+  ['托特', '思緒混亂、過度焦慮、決策癱瘓、大腦停不下來'], ['艾希斯', '缺愛、情感匱乏、關係受傷、缺乏安全感'], ['拉', '能量低落、提不起勁、自我價值感低'], ['阿努比斯', '對未知恐懼、害怕失去、執著放不下'], ['哈索爾', '長期壓抑、緊繃不快樂、失去熱情'], ['荷魯斯', '迷惘看不清局勢、容易受他人影響'], ['塞赫邁特', '壓抑憤怒、委屈不甘、遲遲不敢斷捨離'], ['瑪特', '內心失衡、愧疚自責、外在混亂焦躁'], ['歐西里斯', '重大挫敗、絕望感、卡在低谷'], ['賽特', '突發變故恐慌、害怕失控、舊框架窒息'],
+] as const;
 
 export default function MeditationSeoContent() {
   const english = useLocation().pathname.startsWith('/en/');
@@ -56,6 +59,10 @@ export default function MeditationSeoContent() {
     <nav aria-label="埃及十神導覽" className="flex flex-wrap gap-3 text-sm">{gods.map(([id, title]) => <a key={id} href={`#${id}`} className="text-[#f2c96d] underline">{title.split('｜')[0]}</a>)}</nav>
     <div className="space-y-5">{gods.map(([id, title, text]) => <article id={id} key={id} className="scroll-mt-20 border-b border-[#c9a75b]/30 pb-5"><h3 className="font-serif text-xl text-[#fff8e8]">{title}</h3><p>{text}</p></article>)}</div>
     <h2 className="font-serif text-2xl text-[#fff8e8]">埃及十神冥想常見問題</h2>
+    <h3 className="font-serif text-xl text-[#f0d88c]">埃及十神冥想｜情緒與狀態推薦對照表</h3>
+    <div className="overflow-x-auto rounded-xl border border-[#c9a75b]/25"><table className="min-w-[34rem] w-full text-left text-sm"><thead><tr className="border-b border-[#c9a75b]/25 text-[#f0d88c]"><th className="p-3">神祇</th><th className="p-3">適合探索的情緒與狀態</th></tr></thead><tbody>{emotionRecommendations.map(([god, states]) => <tr key={god} className="border-b border-white/10 last:border-0"><td className="p-3 font-semibold text-[#fff8e8]">{god}冥想</td><td className="p-3 text-[#e9dfc9]">{states}</td></tr>)}</tbody></table></div>
+    <details><summary>10 位神祇的冥想一定要照順序聽完嗎？</summary><p className="mt-2">不需要。10 位古埃及神祇各自為獨立的 10 分鐘引導冥想，可依當下最想處理的情緒或狀態，自由挑選其中一位聆聽 10 分鐘即可。</p></details>
+    <details><summary>不知道該選哪一位神祇怎麼辦？</summary><p className="mt-2">可參考上方情緒與狀態推薦對照表，找出最貼近目前情緒的關鍵字，直接對應選擇該位神祇的 10 分鐘冥想。</p></details>
     {faqs.map(([question, answer]) => <details key={question}><summary>{question}</summary><p className="mt-2">{answer}</p></details>)}
   </section></>;
 }
