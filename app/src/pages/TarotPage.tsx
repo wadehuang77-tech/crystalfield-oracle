@@ -1416,6 +1416,7 @@ function EgyptianMeditationRecommendation({ language }: { language: 'zh-Hant' | 
       <p className="text-xs tracking-[0.16em] text-amber-200/85">ENERGY ALIGNMENT｜{isEnglish ? '10-minute energy reset after your reading' : '抽完牌後的 10 分鐘能量校準'}</p>
       <h2 className="mt-2 text-xl font-serif text-white sm:text-2xl">{isEnglish ? 'Before you decide, give yourself ten quiet minutes' : '先別急著做決定，給自己 10 分鐘靜下來'}</h2>
       <p className="mt-2 text-sm leading-relaxed text-purple-100/80">{isEnglish ? 'Each of the ten Egyptian deities has an independent 10-minute guided meditation—not one continuous story. Choose the one that feels most relevant today:' : '10 位古埃及神祇各自為獨立的 10 分鐘引導冥想，並非單一連續劇情；依你此刻的狀態挑選一段免費試聽：'}</p>
+      <p className="mt-2 text-sm text-amber-200">{isEnglish ? 'Automatic recommendation: Isis or Hathor · 10-minute independent meditation' : '自動推薦：艾希斯或哈索爾 10 分鐘獨立冥想'}</p>
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
         {cards.map((card) => (
           <article key={card.mood} className="flex h-full flex-col justify-between rounded-xl border border-white/10 bg-slate-950/45 p-4">

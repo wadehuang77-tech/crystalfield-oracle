@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Gem, Heart, DollarSign, Star, Zap, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import type { NumerologyReport as Report, OracleCard } from '../../lib/numerology';
+import EgyptianMeditationRecommendation from '../EgyptianMeditationRecommendation';
 import { missingNumberData, lifePathCrystals } from '../../lib/numerology';
 import CrystalBracelet from './CrystalBracelet';
 import GridLines from './GridLines';
@@ -478,6 +479,8 @@ export default function NumerologyReport({ language, report, oracleCard, onReset
         highlights={[report.emotionalPattern, report.wealthEnergy, report.chakra]}
         scope="report_summary" reportButton
       />
+
+      <EgyptianMeditationRecommendation language={language} />
 
       {/* Reset */}
       <button

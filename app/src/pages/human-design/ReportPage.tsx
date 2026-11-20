@@ -3,6 +3,7 @@ import { Lock, Sparkles, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import type { HDChart } from '../../lib/human-design/humanDesignCalc';
 import { humanDesignApi, type HumanDesignFullReportSection } from '../../lib/api';
 import { generateFreeReport } from '../../data/human-design/humanDesignData';
+import EgyptianMeditationRecommendation from '../../components/EgyptianMeditationRecommendation';
 import HumanDesignShareButton from '../../components/human-design/HumanDesignShare';
 import { getHumanDesignShareCapabilities, getHumanDesignShareProofs } from '../../lib/humanDesignShareAuth';
 import type { Language } from '../../lib/i18n';
@@ -575,6 +576,16 @@ export default function ReportPage({
             ))}
           </div>
         </div>
+        <section className="mb-8 rounded-3xl border border-amber-300/20 bg-gradient-to-br from-slate-900/90 via-indigo-950/70 to-amber-950/30 p-6 shadow-2xl sm:p-8">
+          <h2 className="mb-4 text-xl font-semibold text-amber-100 sm:text-2xl">知道了自己的人類圖設計，如何真正「活出自己、不再內耗」？</h2>
+          <h3 className="mb-4 text-lg font-semibold text-cyan-100">關於引導者｜韋德老師 (Wade Huang)</h3>
+          <div className="space-y-4 text-sm leading-7 text-slate-200/90 sm:text-base">
+            <p>人類圖是一張精密的「使用說明書」，它告訴你是哪種能量類型、該聽從什麼內在權威做決定。然而，在社會化與高壓環境的長期制約下，要卸下非我（Not-Self）的制約、找回原本的流暢頻率，往往需要溫柔而堅定的陪伴與調整。</p>
+            <p>韋德老師擁有超過 10 年身心靈與命理實戰經驗，並具備<strong>高階水晶治療師</strong>與 <strong>20 多年密宗內修底蘊</strong>。老師擅長將人類圖的邏輯解析，與深層的氣脈能量調頻結合。不只幫你「看懂圖」，更協助你在日常生活中實踐策略與權威，破除內在卡關的能量結。</p>
+            <p className="font-semibold text-amber-100">🧭 想深入解讀你的人類圖通道、人生角色與能量中心盲點？</p>
+          </div>
+          <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="mt-6 inline-flex rounded-xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-200">預約韋德老師 1對1 人類圖深度解析與能量調頻 →</a>
+        </section>
         {/* ── Free sections (fully local, no API) ── */}
         {visibleSections.length > 0 ? (
           <div className="space-y-3 mb-8">
@@ -737,6 +748,8 @@ export default function ReportPage({
           />
         </div>
 
+        <EgyptianMeditationRecommendation language={language === 'en' ? 'en' : 'zh-Hant'} />
+
         {/* ── Footer actions ── */}
         <div className="flex justify-center gap-3 flex-wrap">
           <button
@@ -753,17 +766,6 @@ export default function ReportPage({
             重新計算
           </button>
         </div>
-
-        <section className="mt-10 rounded-3xl border border-amber-300/20 bg-gradient-to-br from-slate-900/90 via-indigo-950/70 to-amber-950/30 p-6 shadow-2xl sm:p-8">
-          <h2 className="mb-4 text-xl font-semibold text-amber-100 sm:text-2xl">知道了自己的人類圖設計，如何真正「活出自己、不再內耗」？</h2>
-          <h3 className="mb-4 text-lg font-semibold text-cyan-100">關於引導者｜韋德老師 (Wade Huang)</h3>
-          <div className="space-y-4 text-sm leading-7 text-slate-200/90 sm:text-base">
-            <p>人類圖是一張精密的「使用說明書」，它告訴你是哪種能量類型、該聽從什麼內在權威做決定。然而，在社會化與高壓環境的長期制約下，要卸下非我（Not-Self）的制約、找回原本的流暢頻率，往往需要溫柔而堅定的陪伴與調整。</p>
-            <p>韋德老師擁有超過 10 年身心靈與命理實戰經驗，並具備<strong>高階水晶治療師</strong>與 <strong>20 多年密宗內修底蘊</strong>。老師擅長將人類圖的邏輯解析，與深層的氣脈能量調頻結合。不只幫你「看懂圖」，更協助你在日常生活中實踐策略與權威，破除內在卡關的能量結。</p>
-            <p className="font-semibold text-amber-100">🧭 想深入解讀你的人類圖通道、人生角色與能量中心盲點？</p>
-          </div>
-          <a href="https://lin.ee/Z1mvseQ" target="_blank" rel="noreferrer" className="mt-6 inline-flex rounded-xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-200">預約韋德老師 1對1 人類圖深度解析與能量調頻 →</a>
-        </section>
 
       </div>
     </div>

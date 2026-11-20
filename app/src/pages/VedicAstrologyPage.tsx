@@ -32,6 +32,7 @@ import { submitToEcpay } from '../lib/ecpayRedirect';
 import VedicAstrologySeoContent from './VedicAstrologySeoContent';
 import { getLanguageFromPath, t } from '../lib/i18n';
 import { useAuth } from '../contexts/AuthContext';
+import EgyptianMeditationRecommendation from '../components/EgyptianMeditationRecommendation';
 import { authUrlFor } from '../lib/authLocale';
 import { pollVedicReport, terminalReport, persistedReportTimings } from '../lib/vedicReportPolling';
 import { VedicChartCore, VedicProgressiveReport } from '../components/VedicReportProgress';
@@ -588,6 +589,7 @@ export function FreeResults({ chart, language, basicResults, signedIn = false, o
         </div>
 
       </div>}
+      {result && <EgyptianMeditationRecommendation language={language} />}
     </section>
   );
 }

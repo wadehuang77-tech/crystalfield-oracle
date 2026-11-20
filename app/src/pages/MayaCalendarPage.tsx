@@ -1,4 +1,5 @@
 import MayaKinBasicReading from '../components/maya/MayaKinBasicReading';
+import EgyptianMeditationRecommendation from '../components/EgyptianMeditationRecommendation';
 import MayaGenerationProgress from '../components/maya/MayaGenerationProgress';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -320,6 +321,7 @@ export default function MayaCalendarPage() {
           {en ? <p className="leading-relaxed text-slate-200">{t(
             `你的星際印記結合了「${personal.solar_seal}」與「${personal.galactic_tone}」音調。把它當作一面溫柔的鏡子，留意生活中讓你感到自在的時刻，從一個小行動開始認識自己的可能。這是象徵性的自我探索，不是命運的定義。`,
             `Your signature brings together ${personal.solar_seal} and the ${personal.galactic_tone} tone. Let these symbols be a gentle prompt to notice when you feel most like yourself, and try one small action that feels meaningful. This is an invitation to reflect, not a fixed description of who you are.`)}</p> : <MayaKinBasicReading kin={personal.kin_number} />}
+          <EgyptianMeditationRecommendation language={en ? 'en' : 'zh-Hant'} />
           <button className="mt-4 min-h-11 underline disabled:opacity-50" disabled={busy} onClick={() => void action(async () => {
             const url = `https://www.crystalfield101.com${localized('/maya-calendar')}`;
             const text = `KIN ${personal.kin_number}: ${personal.solar_seal}, ${personal.galactic_tone}`;
