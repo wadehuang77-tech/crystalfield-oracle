@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
 import CardShuffleAnimation from '../components/CardShuffleAnimation';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, RotateCcw, Sparkles, Layers, Columns3, Compass, Hourglass } from 'lucide-react';
 import { getPastLifePositionGuide } from '../utils/pastLifeInterpretation';
 import { CrystalGridPromoModal } from '../components/CrystalGridPromoModal';
@@ -1333,6 +1333,8 @@ function TarotPage() {
                 </div>
               )}
 
+              <EgyptianMeditationRecommendation language={language} />
+
               <ShareReadingSection
                 language={language}
                 deckId="tarot"
@@ -1366,8 +1368,6 @@ function TarotPage() {
               )}
 
               <TarotCourseCTA language={language} />
-
-              <EgyptianMeditationRecommendation language={language} />
 
               <div className="flex justify-center gap-4 animate-fade-in">
                 <button
