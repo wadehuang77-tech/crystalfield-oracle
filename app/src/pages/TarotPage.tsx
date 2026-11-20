@@ -1335,6 +1335,12 @@ function TarotPage() {
 
               <EgyptianMeditationRecommendation language={language} />
 
+              {!isMultiCardSpread && isUnlocked && <ResonanceCTA language={language} />}
+
+              {isMultiCardSpread && allCardsRevealed && (
+                <TarotResonanceCTA language={language} />
+              )}
+
               <ShareReadingSection
                 language={language}
                 deckId="tarot"
@@ -1360,12 +1366,6 @@ function TarotPage() {
                   resultComplete: allCardsRevealed && (spreadType === 'single' ? isUnlocked : isLocallyUnlocked),
                 }}
               />
-
-              {!isMultiCardSpread && isUnlocked && <ResonanceCTA language={language} />}
-
-              {isMultiCardSpread && allCardsRevealed && (
-                <TarotResonanceCTA language={language} />
-              )}
 
               <TarotCourseCTA language={language} />
 
