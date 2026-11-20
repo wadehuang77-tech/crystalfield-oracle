@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import type { MouseEvent } from 'react';
+import { ChevronRight, Headphones, HeartHandshake, History, MoonStar, ShieldCheck, Sparkles } from 'lucide-react';
 import { getLanguageFromPath, getLocalizedPath, translations } from '../lib/i18n';
 
 // ─── Card definitions ────────────────────────────────────────────────────────
@@ -180,24 +181,28 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {language === 'zh-Hant' && <div className="mx-4 mb-3 rounded-3xl border border-purple-300/20 bg-[radial-gradient(circle_at_8%_8%,rgba(167,139,250,.3),transparent_30%),radial-gradient(circle_at_92%_92%,rgba(109,40,217,.2),transparent_28%),linear-gradient(145deg,#160b2b,#080b1a)] px-5 py-6 text-center md:hidden">
-            <p className="mb-2 text-sm font-medium tracking-[0.3em] text-purple-200/85">靈魂探索工具</p>
-            <h2 className="mb-3 font-serif text-[clamp(2.125rem,9vw,2.625rem)] font-bold leading-tight tracking-tight text-white">探索你的<br />靈魂藍圖</h2>
-            <p className="text-[17px] leading-[1.6] text-purple-100/90">從塔羅牌、生命靈數到人類圖、印度占星、馬雅曆與埃及十神冥想，選一項你有感的工具，探索自己的天賦、課題與人生方向。</p>
+          {language === 'zh-Hant' && <div className="mx-4 mb-4 rounded-3xl border border-purple-300/20 bg-[radial-gradient(circle_at_8%_8%,rgba(167,139,250,.3),transparent_30%),radial-gradient(circle_at_92%_92%,rgba(109,40,217,.2),transparent_28%),linear-gradient(145deg,#160b2b,#080b1a)] px-5 py-6 text-left shadow-[0_18px_50px_rgba(88,28,135,.2)] backdrop-blur-md md:hidden">
+            <p className="mb-3 text-xs font-medium tracking-[0.18em] text-amber-200/85">晶域心語 Crystal Field｜AI 靈魂探索平台</p>
+            <h2 className="mb-2 font-serif text-[clamp(2rem,9vw,2.625rem)] font-bold leading-tight tracking-tight text-white">看懂你的天賦與人生方向</h2>
+            <p className="mb-5 text-sm leading-relaxed text-purple-100/85">輸入生日或直覺抽牌，30 秒免費解鎖專屬命盤與能量指引。</p>
+            <Link to={getLocalizedPath('/oracle', language)} className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500 to-amber-400 px-4 text-sm font-bold text-white shadow-[0_8px_24px_rgba(168,85,247,.28)] transition active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-200/80">✨ 不知道選哪個？點此測今日指引</Link>
           </div>}
           {language === 'zh-Hant' && <section className="mx-4 mb-3 rounded-3xl border border-blue-200/20 bg-[radial-gradient(circle_at_95%_8%,rgba(56,189,248,.16),transparent_30%),linear-gradient(145deg,#0b1930,#071323)] p-3 md:hidden" aria-label="晶域心語服務入口">
-            <h2 className="mb-2 text-center font-serif text-xl text-white">晶域心語</h2>
-            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10">
+            <p className="mb-3 px-1 text-xs tracking-[0.16em] text-purple-200/80">選擇你有感的探索工具</p>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {[
-                ['🔮', '塔羅牌', '/oracle'],
-                ['✨', '生命靈數', '/numerology'],
-                ['🧬', '人類圖', '/human-design'],
-                ['☉', '印度占星', '/vedic-astrology'],
-                ['☀', '馬雅曆', '/maya-calendar'],
-                ['𓂀', '埃及十神冥想', '/meditation'],
-              ].map(([icon, label, href]) => (
-                <Link key={href} to={getLocalizedPath(href, language)} className="flex min-h-12 items-center justify-center gap-2 bg-slate-900/80 px-2 py-3 text-center text-[17px] font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-300/70">
-                  <span aria-hidden="true">{icon}</span><span className="leading-5">{label}</span>
+                { label: '塔羅牌', sub: '感情與事業現況抽牌解惑', href: '/oracle', Icon: Sparkles, badge: '免費體驗' },
+                { label: '生命靈數', sub: '輸入生日秒算天賦與流年', href: '/numerology', Icon: History, badge: '最熱門' },
+                { label: '人類圖', sub: '看懂能量類型與決策模式', href: '/human-design', Icon: HeartHandshake },
+                { label: '印度占星', sub: '精準星盤解析靈魂課題', href: '/vedic-astrology', Icon: MoonStar },
+                { label: '馬雅曆', sub: '查詢星系印記與 52 年週期', href: '/maya-calendar', Icon: ShieldCheck },
+                { label: '埃及十神冥想', sub: '10 分鐘古神祇引導音頻', href: '/meditation', Icon: Headphones, badge: '音頻療癒' },
+              ].map(({ label, sub, href, Icon, badge }) => (
+                <Link key={href} to={getLocalizedPath(href, language)} className="group relative flex min-h-[112px] h-full flex-col justify-between rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-purple-400/50 hover:bg-purple-950/30 active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-purple-300/70">
+                  {badge && <span className="absolute right-2 top-2 rounded-full bg-purple-400/15 px-2 py-0.5 text-[10px] text-amber-200">{badge}</span>}
+                  <Icon className="h-5 w-5 text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,.35)]" aria-hidden="true" />
+                  <span><span className="block pr-1 text-base font-semibold text-white">{label}</span><span className="mt-1 block text-xs leading-snug text-slate-300/80">{sub}</span></span>
+                  <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 text-purple-200/70 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                 </Link>
               ))}
             </div>
