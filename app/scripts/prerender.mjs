@@ -76,7 +76,7 @@ const pages = [
   ['numerology', numerologyHome.title, numerologyHome.description, numerologyHome.h1, numerologyHome.description],
   ['human-design', humanDesignHome.title, humanDesignHome.description, humanDesignHome.h1, humanDesignHome.description],
   ['vedic-astrology', vedicLandingContent.zhHant.title, vedicLandingContent.zhHant.description, vedicLandingContent.zhHant.h1, vedicLandingContent.zhHant.intro],
-  ['meditation', '埃及十神冥想｜10分鐘引導式冥想・免費試聽｜晶域心語', '探索埃及十神冥想，透過賽特、艾西斯、荷魯斯、阿努比斯等十位古埃及神祇的象徵智慧，展開10分鐘引導式冥想。探索自我療癒、內在平衡與靈魂成長，立即免費試聽。', '埃及十神冥想｜10分鐘引導式冥想', '透過引導式冥想認識古埃及神祇的象徵力量，從聲音與呼吸開始一段沉靜的自我探索。'],
+  ['meditation', '埃及十神冥想｜哈索爾女神冥想免費試聽｜晶域心語', '跟著哈索爾女神走進古埃及神殿，在引導冥想中感受愛與喜悅，把溫柔留給自己。免費完整試聽哈索爾女神篇，並探索晶域心語的埃及十神冥想系列。', '埃及十神冥想', '以古埃及神話為靈感，透過呼吸、聲音與神殿意象，留一段時間回到自己。先從哈索爾女神冥想開始，練習把給別人的溫柔，也留給自己。'],
 ];
 for (const [slug, article] of Object.entries(numerologyArticles)) {
   pages.push([`numerology/${slug}`, article.title, article.description, article.h1, article.intro]);
