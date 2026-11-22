@@ -1,5 +1,24 @@
 import { corsHeaders, json, readSession, requireAdmin, type Env } from './utils';
 
+const PAID_AUDIO_KEYS: Record<string, string> = {
+  '01': '賽特冥想.mp3',
+  '04': '歐西里斯冥想.mp3',
+  '06': '艾希斯冥想2.mp3',
+  '07': '哈索爾冥想.mp3',
+  '08': '荷魯斯冥想.mp3',
+  '09': '塞赫邁特冥想.mp3',
+  '10': '拉冥想.mp3',
+  '11': '瑪特冥想.mp3',
+  '12': '托特冥想.mp3',
+  '13': '阿努比斯冥想.mp3',
+};
+
+function canonicalAudioKey(trackId: string, isFree: number) {
+  if (isFree) return `meditation/冥想課程音檔/試聽版/${trackId}.mp3`;
+  const filename = PAID_AUDIO_KEYS[trackId];
+  return filename ? `meditation/冥想課程音檔/${filename}` : `meditation/冥想課程音檔/${trackId}.mp3`;
+}
+
 export async function meditationTracks(req: Request, env: Env) {
   const lang = new URL(req.url).searchParams.get('lang') === 'en' ? 'en' : 'zh';
   const rows = await env.DB.prepare('SELECT id,title_zh,description_zh,title_en,description_en,duration_seconds,is_free,is_published FROM meditation_audio_tracks WHERE is_published=1 ORDER BY sort_order').all();
@@ -31,7 +50,9 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
   if (rangeHeader && !/^bytes=\d+-\d*$/.test(rangeHeader)) return new Response('Range Not Satisfiable', { status: 416, headers: { 'Content-Range': 'bytes */*' } });
   const match = rangeHeader?.match(/^bytes=(\d+)-(\d*)$/);
   const range = match ? { offset: Number(match[1]), length: match[2] ? Number(match[2]) - Number(match[1]) + 1 : undefined } : undefined;
-  const object = await bucket.get(row.r2_key, range ? { range } : undefined);
+  const canonicalKey = canonicalAudioKey(row.id, row.is_free);
+  let object = await bucket.get(canonicalKey, range ? { range } : undefined);
+  if (!object && canonicalKey !== row.r2_key) object = await bucket.get(row.r2_key, range ? { range } : undefined);
   if (!object) return new Response('Not found', { status: 404 });
   const headers = new Headers(corsHeaders(req, env)); headers.set('Content-Type','audio/mpeg'); headers.set('Cache-Control','private, max-age=300'); headers.set('Access-Control-Expose-Headers','Accept-Ranges,Content-Length,Content-Range');
   if (object.httpMetadata?.contentType) headers.set('Content-Type', object.httpMetadata.contentType);
@@ -67,7 +88,7 @@ export async function adminMeditationTracks(req: Request, env: Env) {
     const bucket=env.MEDITATION_AUDIO_BUCKET; if (!bucket) return new Response('R2 not configured',{status:503});
     const file:any=(await req.formData()).get('file'); if (!(file instanceof File) || file.type !== 'audio/mpeg') return new Response('MP3 required',{status:400});
     const track = await env.DB.prepare('SELECT is_free FROM meditation_audio_tracks WHERE id=?').bind(id).first<{is_free?: number}>();
-    const key=track?.is_free ? `meditation/冥想課程音檔/試聽版/${id}.mp3` : `meditation/冥想課程音檔/${id}.mp3`; await bucket.put(key,file.stream(),{httpMetadata:{contentType:'audio/mpeg'}}); await env.DB.prepare("UPDATE meditation_audio_tracks SET r2_key=?,updated_at=datetime('now') WHERE id=?").bind(key,id).run(); return json(req,env,{ok:true});
+    const key=canonicalAudioKey(id, track?.is_free ?? 0); await bucket.put(key,file.stream(),{httpMetadata:{contentType:'audio/mpeg'}}); await env.DB.prepare("UPDATE meditation_audio_tracks SET r2_key=?,updated_at=datetime('now') WHERE id=?").bind(key,id).run(); return json(req,env,{ok:true});
   }
   if (id && req.method === 'DELETE') {
     const row = await env.DB.prepare('SELECT r2_key FROM meditation_audio_tracks WHERE id=?').bind(id).first<{r2_key?: string}>();
