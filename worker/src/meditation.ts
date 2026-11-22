@@ -68,7 +68,7 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
 export async function meditationPlayback(req: Request, env: Env) {
   const body = await req.json<{trackId?: string; sessionId?: string; seconds?: number}>();
   const seconds = body.seconds ?? 0;
-  if (!body.trackId || !body.sessionId || !Number.isFinite(seconds) || seconds < 10) return new Response('Invalid playback', { status: 400 });
+  if (!body.trackId || !body.sessionId || !Number.isFinite(seconds) || seconds <= 0) return new Response('Invalid playback', { status: 400 });
   const track = await env.DB.prepare('SELECT id,is_published FROM meditation_audio_tracks WHERE id=?').bind(body.trackId).first<any>();
   if (!track?.is_published) return new Response('Not found', { status: 404 });
   const user = await readSession(req, env);
