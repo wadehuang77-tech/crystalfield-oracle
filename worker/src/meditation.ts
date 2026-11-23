@@ -38,10 +38,13 @@ export async function meditationAudio(req: Request, env: Env, trackId: string) {
   const user = await readSession(req, env);
   const isAdmin = user ? await requireAdmin(req, env, user) : false;
   if (!row.is_free) {
-    if (!user) return new Response('Login required', { status: 401 });
-    if (!isAdmin) {
-      const entitlement = await env.DB.prepare("SELECT 1 FROM meditation_entitlements WHERE user_id=? AND status='active' LIMIT 1").bind(user.id).first();
-      if (!entitlement) return new Response('Entitlement required', { status: 403 });
+    const isPreview = new URL(req.url).searchParams.get('preview') === '1';
+    if (!isPreview) {
+      if (!user) return new Response('Login required', { status: 401 });
+      if (!isAdmin) {
+        const entitlement = await env.DB.prepare("SELECT 1 FROM meditation_entitlements WHERE user_id=? AND status='active' LIMIT 1").bind(user.id).first();
+        if (!entitlement) return new Response('Entitlement required', { status: 403 });
+      }
     }
   }
   const bucket = env.MEDITATION_AUDIO_BUCKET;
