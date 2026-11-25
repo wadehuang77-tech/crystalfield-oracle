@@ -109,11 +109,12 @@ export default function MeditationPage() {
   >({});
   const [message, setMessage] = useState("");
   useEffect(() => {
+    setTracks([]);
     fetch(`${API_BASE}/api/meditation/tracks`)
       .then((r) => (r.ok ? r.json() : null))
       .then((v) => v?.tracks && setTracks(isHighPriest ? v.tracks.filter((t: Track) => t.id.startsWith('hp')) : v.tracks))
       .catch(() => {});
-  }, []);
+  }, [isHighPriest]);
   useEffect(() => {
     if (user)
       fetch(`${API_BASE}/api/meditation/entitlement`, {
