@@ -197,7 +197,7 @@ export default function MeditationPage() {
   };
   const buy = async () => {
     if (!user) {
-      navigate(`/login?redirect=${encodeURIComponent("/meditation")}`);
+      navigate(`/login?redirect=${encodeURIComponent(isHighPriest ? "/meditation/high-priest" : "/meditation")}`);
       return;
     }
     setBuying(true);
@@ -295,7 +295,7 @@ export default function MeditationPage() {
             </button>
           </div>
         )}
-        {locked && (previewFinished[t.id] || isHighPriest) && (
+        {locked && previewFinished[t.id] && (
           <div className="mt-4 rounded-xl border border-[#d8bb78]/35 bg-[#1b2234] p-3 text-sm text-[#f0d88c]">
             <p>{previewFinished[t.id] ? "已試聽 1 分鐘｜解鎖完整 10 分鐘引導冥想" : "片段試聽｜解鎖完整冥想"}</p>
             <button
