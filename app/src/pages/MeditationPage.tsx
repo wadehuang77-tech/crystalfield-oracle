@@ -111,7 +111,7 @@ export default function MeditationPage() {
   useEffect(() => {
     fetch(`${API_BASE}/api/meditation/tracks`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((v) => v?.tracks && setTracks(v.tracks))
+      .then((v) => v?.tracks && setTracks(isHighPriest ? v.tracks.filter((t: Track) => t.id.startsWith('hp')) : v.tracks))
       .catch(() => {});
   }, []);
   useEffect(() => {
