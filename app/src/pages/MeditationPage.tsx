@@ -295,9 +295,9 @@ export default function MeditationPage() {
             </button>
           </div>
         )}
-        {locked && previewFinished[t.id] && (
+        {locked && (previewFinished[t.id] || isHighPriest) && (
           <div className="mt-4 rounded-xl border border-[#d8bb78]/35 bg-[#1b2234] p-3 text-sm text-[#f0d88c]">
-            <p>已試聽 1 分鐘｜解鎖完整 10 分鐘引導冥想</p>
+            <p>{previewFinished[t.id] ? "已試聽 1 分鐘｜解鎖完整 10 分鐘引導冥想" : "片段試聽｜解鎖完整冥想"}</p>
             <button
               type="button"
               className="mt-3 min-h-11 rounded-lg bg-[#d8bb78] px-4 font-semibold text-[#071323]"
@@ -419,7 +419,7 @@ export default function MeditationPage() {
             FREE LISTENING
           </p>
           <h2 className="mt-2 mb-5 font-serif text-2xl text-[#fff8e8] sm:text-3xl">
-            免費試聽音頻
+            {isHighPriest ? "免費試聽" : "免費試聽音頻"}
           </h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {freeTracks.map((t, i) => card(t, i))}
@@ -430,7 +430,9 @@ export default function MeditationPage() {
             TEN SACRED GATES
           </p>
           <h2 className="mt-2 font-serif text-3xl text-[#fff8e8]">
-            {isHighPriest ? "金字塔及大祭司冥想系列" : "埃及十神冥想系列"}
+            {isHighPriest
+              ? "付費系列｜片段試聽"
+              : "埃及十神冥想系列"}
           </h2>
           <p className="mt-4 max-w-3xl leading-7 text-[#d8d1c4]">
             {isHighPriest
