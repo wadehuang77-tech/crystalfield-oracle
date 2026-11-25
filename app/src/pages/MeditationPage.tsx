@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { API_BASE, checkoutApi } from "../lib/api";
 import { submitToEcpay } from "../lib/ecpayRedirect";
 import { useAuth } from "../contexts/AuthContext";
@@ -98,6 +98,8 @@ export default function MeditationPage() {
   const fadeTimers = useRef<Record<string, number>>({});
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHighPriest = location.pathname === "/meditation/high-priest";
   const refs = useRef<Record<string, HTMLAudioElement | null>>({});
   const sessions = useRef<
     Record<
@@ -310,6 +312,8 @@ export default function MeditationPage() {
   };
   const free = tracks.filter((t) => t.isFree),
     paid = tracks.filter((t) => !t.isFree);
+  const freeTracks = isHighPriest ? free.slice(0, 2) : free;
+  const paidTracks = isHighPriest ? paid.slice(0, 6) : paid;
   return (
     <main className="min-h-screen bg-[#071323] px-4 pb-16 pt-8 text-[#f7f0dd] sm:px-8 sm:pt-12">
       <div className="mx-auto max-w-6xl">
@@ -318,12 +322,20 @@ export default function MeditationPage() {
             THE INNER TEMPLE · TENFOLD STILLNESS
           </p>
           <h1 className="mt-3 font-serif text-4xl font-semibold text-[#fff8e8] sm:text-6xl">
-            埃及十神冥想
+            {isHighPriest ? "埃及金字塔及大祭司冥想" : "埃及十神冥想"}
           </h1>
           <p className="mt-4 text-base leading-7 text-[#e9dfc9] sm:text-xl">
-            以古埃及神話為靈感，透過呼吸、聲音與神殿意象，留一段時間回到自己。先從哈索爾女神冥想開始，練習把給別人的溫柔，也留給自己。
+            {isHighPriest
+              ? "走進古埃金字塔與大祭司的神殿意象，透過呼吸、聲音與安靜的覺察，留一段時間回到自己。"
+              : "以古埃及神話為靈感，透過呼吸、聲音與神殿意象，留一段時間回到自己。先從哈索爾女神冥想開始，練習把給別人的溫柔，也留給自己."}
           </p>
         </header>
+      <Link to="/meditation/high-priest" className="mb-8 block overflow-hidden rounded-3xl border border-[#c9a75b]/35 bg-[radial-gradient(circle_at_82%_18%,rgba(201,167,91,.2),transparent_30%),linear-gradient(145deg,#101f32,#17112b)] p-6 shadow-[0_16px_50px_rgba(0,0,0,.25)] transition hover:border-[#e6c978]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f0d88c] sm:p-10" aria-labelledby="pyramid-priest-meditation-title">
+        <p className="text-xs tracking-[.3em] text-[#d8bb78]">ANCIENT TEMPLE · INNER JOURNEY</p>
+        <h2 id="pyramid-priest-meditation-title" className="mt-3 font-serif text-2xl text-[#fff8e8] sm:text-3xl">埃及金字塔及大祭司冥想</h2>
+        <p className="mt-3 max-w-3xl leading-7 text-[#d8d1c4]">走進古埃金字塔的寧靜殿堂，在大祭司的引導下，讓呼吸慢下來，聆聽內在智慧與古老象徵帶來的沉澱時刻。</p>
+        <p className="mt-3 text-sm leading-6 text-[#c4c9cd]">這是一段獨立的想像式冥想主題；請選擇安靜的空間，依自己的節奏停留與覺察。</p>
+      </Link>
         <section
           className="mb-8 rounded-2xl border border-[#c9a75b]/25 bg-[#111323]/80 p-4 backdrop-blur-md"
           aria-label="情緒快選"
@@ -410,7 +422,7 @@ export default function MeditationPage() {
             免費試聽音頻
           </h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {free.map((t, i) => card(t, i))}
+            {freeTracks.map((t, i) => card(t, i))}
           </div>
         </section>
         <section className="mt-14 rounded-3xl border border-[#c9a75b]/35 bg-[#111323] p-6 sm:p-10">
@@ -418,13 +430,15 @@ export default function MeditationPage() {
             TEN SACRED GATES
           </p>
           <h2 className="mt-2 font-serif text-3xl text-[#fff8e8]">
-            埃及十神冥想系列
+            {isHighPriest ? "金字塔及大祭司冥想系列" : "埃及十神冥想系列"}
           </h2>
           <p className="mt-4 max-w-3xl leading-7 text-[#d8d1c4]">
-            這是一套以埃及神祇象徵為靈感的引導式冥想，陪你在安靜時刻整理呼吸、覺察內在，依自己的節奏展開探索。
+            {isHighPriest
+              ? "這是一套以古埃及金字塔與大祭司意象為靈感的引導式冥想，陪你在安靜時刻整理呼吸、覺察內在。"
+              : "這是一套以埃及神祇象徵為靈感的引導式冥想，陪你在安靜時刻整理呼吸、覺察內在，依自己的節奏展開探索。"}
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {paid.map((t) => (
+            {paidTracks.map((t) => (
               <div
                 key={t.id}
                 className="rounded-xl border border-[#c9a75b]/20 bg-[#0d1b2d] p-4"
@@ -510,7 +524,7 @@ export default function MeditationPage() {
             id="paid-audio"
             className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
           >
-            {paid.map((t, i) => card(t, i + free.length))}
+            {paidTracks.map((t, i) => card(t, i + freeTracks.length))}
           </div>
         </section>
         <section
