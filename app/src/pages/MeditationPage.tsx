@@ -327,7 +327,7 @@ export default function MeditationPage() {
             THE INNER TEMPLE · TENFOLD STILLNESS
           </p>
           <h1 className="mt-3 font-serif text-4xl font-semibold text-[#fff8e8] sm:text-6xl">
-            埃及金字塔及古埃及神廟冥想
+            埃及十神冥想
           </h1>
           <p className="mt-4 text-base leading-7 text-[#e9dfc9] sm:text-xl">
             {isHighPriest
