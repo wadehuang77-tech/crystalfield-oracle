@@ -99,7 +99,7 @@ export default function MeditationPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const isHighPriest = location.pathname === "/meditation/high-priest";
+  const isHighPriest = location.pathname.replace(/\/+$/, "") === "/meditation/high-priest";
   const refs = useRef<Record<string, HTMLAudioElement | null>>({});
   const sessions = useRef<
     Record<
@@ -610,6 +610,20 @@ export default function MeditationPage() {
             </div>
           </section>
         ) : <MeditationStoriesFaq />}
+        {isHighPriest && <section className="mt-10 rounded-3xl border border-[#c9a75b]/30 bg-[#111323] p-5 sm:p-8" aria-labelledby="high-priest-seo-title">
+          <h2 id="high-priest-seo-title" className="font-serif text-2xl text-[#fff8e8]">認識埃及金字塔與古埃及神廟冥想</h2>
+          <p className="mt-3 leading-7 text-[#d8d1c4]">這系列引導式冥想以古埃及金字塔、神廟殿堂與法老密室為想像場景。跟著韋德老師的聲音放慢呼吸，留意不同場景帶給你的感受。第一次接觸，可以先挑一段免費音頻，感受自己是否喜歡這樣的引導節奏。</p>
+          <h2 className="mt-8 font-serif text-2xl text-[#fff8e8]">常見問題</h2>
+          <div className="mt-4 space-y-2">
+            {[
+              ['埃及金字塔冥想是什麼？', '這是一種以古埃及金字塔與神廟為意象的引導式冥想。你可以跟著語音想像場景，留意自己的呼吸與當下感受。'],
+              ['冥想初學者可以聽嗎？', '可以。找一個安靜的地方坐下，把音量調到舒服的程度，跟著語音慢慢練習。需要休息時，可以隨時暫停。'],
+              ['可以先免費試聽嗎？', '可以先聽本頁的兩段免費音頻。六段付費冥想的內容與解鎖方式請見本頁說明。'],
+              ['這系列和埃及十神冥想有什麼差別？', <>這系列以金字塔與神廟等空間為引導場景。<a className="text-[#f0d88c] underline" href="/meditation">埃及十神冥想</a>則從不同神祇的故事與象徵切入。</>],
+            ].map(([question, answer]) => <details key={String(question)} className="rounded-xl border border-[#c9a75b]/20 bg-[#0d1b2d]"><summary className="cursor-pointer px-4 py-3 font-semibold text-[#fff8e8]">{question}</summary><p className="border-t border-[#c9a75b]/15 px-4 py-3 leading-7 text-[#d8d1c4]">{answer}</p></details>)}
+          </div>
+          <nav className="mt-5 flex flex-wrap gap-4 text-sm" aria-label="相關探索"><a className="text-[#f0d88c] underline" href="/numerology">生命靈數</a><a className="text-[#f0d88c] underline" href="/human-design">人類圖</a><a className="text-[#f0d88c] underline" href="/vedic-astrology">印度占星</a><a className="text-[#f0d88c] underline" href="/maya-calendar">馬雅曆</a></nav>
+        </section>}
       </div>
     </main>
   );

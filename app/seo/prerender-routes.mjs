@@ -42,6 +42,7 @@ export const prerenderRoutes = [
     language: 'zh-Hant',
     lastmod: humanDesignArticleContent[slug].updated,
   })),
+  { path: 'meditation/high-priest', language: 'zh-Hant' },
   ...vedicArticleSlugs.map((slug) => ({
     path: `vedic-astrology/${slug}`,
     language: 'zh-Hant',

@@ -113,6 +113,13 @@ const BASE_PUBLIC_SEO: Record<string, SeoConfig> = {
     h1: '埃及十神冥想',
     intro: '以古埃及神話為靈感，透過呼吸、聲音與神殿意象，留一段時間回到自己。先從哈索爾女神冥想開始，練習把給別人的溫柔，也留給自己。',
   },
+  '/meditation/high-priest': {
+    title: '埃及金字塔冥想｜古埃及神廟引導冥想・免費試聽｜晶域心語',
+    description: '跟著韋德老師的引導，走進古埃及金字塔與神廟的意象，透過呼吸、聲音與想像，留一段時間靜心與自我覺察。提供 2 段免費試聽與 6 段付費冥想。',
+    canonical: 'https://www.crystalfield101.com/meditation/high-priest/',
+    h1: '埃及金字塔及古埃及神廟冥想',
+    intro: '走進古埃及神聖空間，進行一場跨越時空的靈魂深層淨化。',
+  },
 };
 
 const HUMAN_DESIGN_ARTICLE_SEO: Record<string, SeoConfig> = Object.fromEntries(
