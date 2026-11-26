@@ -270,19 +270,23 @@ export default function MeditationPage() {
           </p>
         )}
         <div className="mt-3 rounded-lg border border-[#c9a75b]/15 bg-[#0d1b2d]/60 p-3 text-xs leading-5 text-[#c4c9cd]">
-          聽完這支冥想後，為自己留一個小儀式：前往{" "}
-          <a className="text-[#f0d88c] underline" href="/oracle">
-            埃及神諭卡
-          </a>
-          、
-          <a className="text-[#f0d88c] underline" href="/lightworker">
-            光行者神癒卡
-          </a>{" "}
-          或{" "}
-          <a className="text-[#f0d88c] underline" href="/work-your-light">
-            光之訊息卡
-          </a>
-          ，抽一張今日指引。
+          {isHighPriest && !t.isFree ? (
+            <>
+              想更深入了解自己？透過{" "}
+              <a className="text-[#f0d88c] underline" href="/numerology">生命靈數</a>、
+              <a className="text-[#f0d88c] underline" href="/human-design">人類圖</a>、
+              <a className="text-[#f0d88c] underline" href="/vedic-astrology">印度占星</a>與
+              <a className="text-[#f0d88c] underline" href="/maya-calendar">馬雅曆</a>，探索你的天賦與人生節奏，也看看今年有哪些流年提醒與注意事項。
+            </>
+          ) : (
+            <>
+              聽完這支冥想後，為自己留一個小儀式：前往{" "}
+              <a className="text-[#f0d88c] underline" href="/oracle">埃及神諭卡</a>、
+              <a className="text-[#f0d88c] underline" href="/lightworker">光行者神癒卡</a>{" "}
+              或{" "}
+              <a className="text-[#f0d88c] underline" href="/work-your-light">光之訊息卡</a>，抽一張今日指引。
+            </>
+          )}
         </div>
         {t.isFree && !user && previewFinished[t.id] && (
           <div className="mt-4 rounded-xl border border-[#d8bb78]/35 bg-[#1b2234] p-3 text-sm text-[#f0d88c]">
@@ -323,20 +327,26 @@ export default function MeditationPage() {
             THE INNER TEMPLE · TENFOLD STILLNESS
           </p>
           <h1 className="mt-3 font-serif text-4xl font-semibold text-[#fff8e8] sm:text-6xl">
-            {isHighPriest ? "埃及金字塔及大祭司冥想" : "埃及十神冥想"}
+            {isHighPriest ? "埃及金字塔及古埃及神廟冥想" : "埃及十神冥想"}
           </h1>
           <p className="mt-4 text-base leading-7 text-[#e9dfc9] sm:text-xl">
             {isHighPriest
-              ? "走進古埃金字塔與大祭司的神殿意象，透過呼吸、聲音與安靜的覺察，留一段時間回到自己。"
+              ? "走進古埃及神聖空間，進行一場跨越時空的靈魂深層淨化"
               : "以古埃及神話為靈感，透過呼吸、聲音與神殿意象，留一段時間回到自己。先從哈索爾女神冥想開始，練習把給別人的溫柔，也留給自己."}
           </p>
+          {isHighPriest && (
+            <ul className="mt-5 space-y-2 text-base leading-7 text-[#d8d1c4] sm:text-lg">
+              <li>・穿越千年神聖殿堂，喚醒沉睡的靈魂印記與高維光能</li>
+              <li>・步入古老法老密室與神廟聖火，重啟內在神性主權</li>
+            </ul>
+          )}
         </header>
-      <Link to="/meditation/high-priest" className="mb-8 block overflow-hidden rounded-3xl border border-[#c9a75b]/35 bg-[radial-gradient(circle_at_82%_18%,rgba(201,167,91,.2),transparent_30%),linear-gradient(145deg,#101f32,#17112b)] p-6 shadow-[0_16px_50px_rgba(0,0,0,.25)] transition hover:border-[#e6c978]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f0d88c] sm:p-10" aria-labelledby="pyramid-priest-meditation-title">
+      {!isHighPriest && <Link to="/meditation/high-priest" className="mb-8 block overflow-hidden rounded-3xl border border-[#c9a75b]/35 bg-[radial-gradient(circle_at_82%_18%,rgba(201,167,91,.2),transparent_30%),linear-gradient(145deg,#101f32,#17112b)] p-6 shadow-[0_16px_50px_rgba(0,0,0,.25)] transition hover:border-[#e6c978]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f0d88c] sm:p-10" aria-labelledby="pyramid-priest-meditation-title">
         <p className="text-xs tracking-[.3em] text-[#d8bb78]">ANCIENT TEMPLE · INNER JOURNEY</p>
         <h2 id="pyramid-priest-meditation-title" className="mt-3 font-serif text-2xl text-[#fff8e8] sm:text-3xl">埃及金字塔及大祭司冥想</h2>
         <p className="mt-3 max-w-3xl leading-7 text-[#d8d1c4]">走進古埃金字塔的寧靜殿堂，在大祭司的引導下，讓呼吸慢下來，聆聽內在智慧與古老象徵帶來的沉澱時刻。</p>
         <p className="mt-3 text-sm leading-6 text-[#c4c9cd]">這是一段獨立的想像式冥想主題；請選擇安靜的空間，依自己的節奏停留與覺察。</p>
-      </Link>
+      </Link>}
         {!isHighPriest && <section
           className="mb-8 rounded-2xl border border-[#c9a75b]/25 bg-[#111323]/80 p-4 backdrop-blur-md"
           aria-label="情緒快選"
