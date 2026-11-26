@@ -337,7 +337,7 @@ export default function MeditationPage() {
         <p className="mt-3 max-w-3xl leading-7 text-[#d8d1c4]">走進古埃金字塔的寧靜殿堂，在大祭司的引導下，讓呼吸慢下來，聆聽內在智慧與古老象徵帶來的沉澱時刻。</p>
         <p className="mt-3 text-sm leading-6 text-[#c4c9cd]">這是一段獨立的想像式冥想主題；請選擇安靜的空間，依自己的節奏停留與覺察。</p>
       </Link>
-        <section
+        {!isHighPriest && <section
           className="mb-8 rounded-2xl border border-[#c9a75b]/25 bg-[#111323]/80 p-4 backdrop-blur-md"
           aria-label="情緒快選"
         >
@@ -409,7 +409,7 @@ export default function MeditationPage() {
                 </div>
               );
             })()}
-        </section>
+        </section>}
         {message && (
           <p className="mb-4 rounded-xl border border-[#d8bb78]/40 bg-[#1b2234] p-4 text-[#f0d88c]">
             {message}
@@ -528,7 +528,7 @@ export default function MeditationPage() {
             {paidTracks.map((t, i) => card(t, i + freeTracks.length))}
           </div>
         </section>
-        <section
+        {!isHighPriest && <section
           className="mt-10 rounded-3xl border border-[#c9a75b]/30 bg-[#111323] p-5 sm:p-8"
           aria-label="埃及十神冥想情緒與狀態推薦對照表"
         >
@@ -580,8 +580,26 @@ export default function MeditationPage() {
               </div>
             ))}
           </div>
-        </section>
-        <MeditationStoriesFaq />
+        </section>}
+        {isHighPriest ? (
+          <section className="mt-10 rounded-3xl border border-[#c9a75b]/30 bg-[#111323] p-5 sm:p-8" aria-labelledby="pyramid-energy-title">
+            <h2 id="pyramid-energy-title" className="font-serif text-2xl text-[#fff8e8]">金字塔能量特色介紹</h2>
+            <div className="mt-5 grid gap-5 md:grid-cols-3">
+              <article className="rounded-2xl border border-[#c9a75b]/25 bg-[#0d1b2d] p-5">
+                <h3 className="font-serif text-xl text-[#f0d88c]">大金字塔</h3>
+                <p className="mt-3 leading-7 text-[#d8d1c4]">大金字塔象徵穩定、聚焦與向內收斂的力量。寬厚的基座提醒人先安頓身體與呼吸，再把注意力帶回此刻；逐層向上的結構，則像一段整理思緒、沉澱雜訊的練習。適合在需要重新集中精神、梳理目標或尋找內在安定時聆聽，讓聲音引導你在自己的節奏裡建立清楚而穩固的中心。</p>
+              </article>
+              <article className="rounded-2xl border border-[#c9a75b]/25 bg-[#0d1b2d] p-5">
+                <h3 className="font-serif text-xl text-[#f0d88c]">紅色金字塔</h3>
+                <p className="mt-3 leading-7 text-[#d8d1c4]">紅色金字塔帶著溫暖、扎根與生命力的象徵。紅色石材讓人聯想到土地、血脈與持續前進的耐力，也提醒我們在變動中保留自己的節奏。這段主題適合想重新連結身體感、恢復行動意志或為生活建立規律的人。透過呼吸與想像，讓緊繃慢慢鬆開，把分散的力量收回，回到踏實而有支撐的狀態。</p>
+              </article>
+              <article className="rounded-2xl border border-[#c9a75b]/25 bg-[#0d1b2d] p-5">
+                <h3 className="font-serif text-xl text-[#f0d88c]">彎曲金字塔</h3>
+                <p className="mt-3 leading-7 text-[#d8d1c4]">彎曲金字塔的轉折輪廓，象徵調整、彈性與重新選擇路徑。它不要求一切筆直完成，而是容許人在經驗中修正角度、放慢速度，找到更適合自己的平衡。當你正面對計畫變動、角色轉換或需要放下僵化期待時，可以從這個意象開始。讓每一次呼吸成為轉彎的空間，在不否定過去的前提下，溫柔地走向下一步。</p>
+              </article>
+            </div>
+          </section>
+        ) : <MeditationStoriesFaq />}
       </div>
     </main>
   );
