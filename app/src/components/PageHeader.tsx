@@ -137,6 +137,14 @@ export default function PageHeader() {
               {backLabel}
             </button>
           )}
+          {normalizedPath === '/meditation/high-priest' && (
+            <Link
+              to="/meditation"
+              style={{ color: text, fontSize: 13, fontWeight: 500, padding: '4px 0' }}
+            >
+              回埃及十神冥想
+            </Link>
+          )}
           {normalizedPath.startsWith('/maya-calendar/') && (
             <Link to={getLocalizedPath('/maya-calendar/', language)}
               style={{ color: text, fontSize: 13, fontWeight: 500, padding: '4px 0' }}>
